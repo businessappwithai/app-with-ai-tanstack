@@ -1,7 +1,7 @@
 /**
  * NestJS Application Entry Point with Fastify Adapter
  *
- * Generated: 2026-05-07T04:48:55.238Z
+ * Generated: 2026-05-07T08:59:26.407Z
  * Project: crm-app
  */
 
@@ -28,24 +28,22 @@ async function bootstrap() {
   // Mount better-auth HTTP handler at /api/auth/*
   // This handles all auth routes (sign-in, sign-up, sign-out, session, etc.)
   // and manages cookies/sessions correctly through better-auth's built-in handler.
-  const port = process.env.PORT || 3001;
+  const port = process.env.PORT || 3000;
   const fastifyInstance = app.getHttpAdapter().getInstance();
 
   fastifyInstance.all('/api/auth/*', async (request, reply) => {
     try {
       const url = new URL(request.url, `http://localhost:${port}`);
       const headers = new Headers();
-      for (const [key, value] of Object.entries(request.headers as Record<string, string | string[]>)) {
+      for (const [key, value] of Object.entries(request.headers)) {
         if (value) {
           headers.set(key, Array.isArray(value) ? value.join(', ') : value);
         }
       }
 
-      const init: RequestInit = { method: request.method as string, headers };
-      if (request.body && !['GET', 'HEAD'].includes(request.method as string)) {
-        init.body = typeof request.body === 'string'
-          ? request.body
-          : JSON.stringify(request.body);
+      const init: RequestInit = { method: request.method, headers };
+      if (request.body && !['GET', 'HEAD'].includes(request.method)) {
+        init.body = typeof request.body === 'string' ? request.body : JSON.stringify(request.body);
       }
 
       const webResponse = await auth.handler(new Request(url.toString(), init));
@@ -66,12 +64,14 @@ async function bootstrap() {
 
   // Enable CORS - allow frontend origin (localhost:3000 for dev, configurable via env)
   const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
-  const allowedOrigins = corsOrigin.split(',').concat([
-    'http://localhost:3000',
-    'http://localhost:3001',
-  ]);
+  const allowedOrigins = corsOrigin
+    .split(',')
+    .concat(['http://localhost:3000', 'http://localhost:3001']);
   app.enableCors({
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) {
         callback(null, true);

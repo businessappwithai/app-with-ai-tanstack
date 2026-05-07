@@ -304,7 +304,9 @@ export class NextJsFrontendGenerator extends BaseGenerator {
       'avatar',
       'scroll-area',
       'alert-dialog',
-      'icon'
+      'dialog',
+      'icon',
+      'slider'
     ];
 
     for (const component of uiComponents) {

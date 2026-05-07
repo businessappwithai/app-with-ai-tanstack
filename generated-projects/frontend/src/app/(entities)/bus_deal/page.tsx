@@ -11,7 +11,7 @@
  * - Server-side pagination
  * - Row actions (View, Edit, Delete)
  *
- * Generated: 2026-05-07T04:48:55.462Z
+ * Generated: 2026-05-07T08:59:26.689Z
  * Project: crm-app
  */
 
@@ -479,7 +479,7 @@ export default function DealListPage() {
         totalCount={
           quickSearch
             ? filteredData.length
-            : response?.meta||total || 0
+            : response?.meta?.total || 0
         }
         onView={(id) => router.push(`/bus_deal/${id}`)}
         onEdit={(id) => router.push(`/bus_deal/${id}`)}

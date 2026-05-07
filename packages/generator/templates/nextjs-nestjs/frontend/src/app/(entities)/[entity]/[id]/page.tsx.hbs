@@ -50,6 +50,8 @@ interface {{entity.name}} {
   {{/unless}}
   {{/each}}
   version?: number;
+  created_at?: string;
+  updated_at?: string;
   [key: string]: unknown;
 }
 
@@ -350,7 +352,7 @@ export default function {{entity.name}}DetailPage() {
                 <DynamicForm
                   tableName="{{addBusPrefix entity.tableName}}"
                   initialData={data}
-                  onSubmit={(formData) => saveMutation.mutateAsync(formData)}
+                  onSubmit={async (formData) => { await saveMutation.mutateAsync(formData); }}
                   isSaving={saveMutation.isPending}
                   mode={isNew ? 'create' : mode === 'edit' ? 'edit' : 'view'}
                   readOnly={mode === 'view' && !isNew}

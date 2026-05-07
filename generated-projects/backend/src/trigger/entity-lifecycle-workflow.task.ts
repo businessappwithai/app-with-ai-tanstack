@@ -12,20 +12,34 @@
  *
  * This workflow runs asynchronously after CRUD operations.
  *
- * Generated: 2026-05-07T04:48:55.263Z
+ * Generated: 2026-05-07T08:59:26.445Z
  * Project: crm-app
  */
 
 import { task } from '@trigger.dev/sdk/v3';
-import type { Knex } from 'knex';
+import Knex, { type Knex as KnexType } from 'knex';
 import { ZenEngine } from '@gorules/zen-engine';
 
 // Initialize database connection
 const dbClient = process.env.DATABASE_CLIENT || 'better-sqlite3';
-const knexConfig = dbClient === 'better-sqlite3'
-  ? { client: 'better-sqlite3', connection: { filename: process.env.DATABASE_FILENAME || './data/crm-app.db' }, useNullAsDefault: true }
-  : { client: 'pg', connection: { host: process.env.DB_HOST || 'localhost', port: parseInt(process.env.DB_PORT || '5432', 10), database: process.env.DB_NAME || 'crm-app', user: process.env.DB_USER || 'postgres', password: process.env.DB_PASSWORD || '' } };
-const knex = require('knex')(knexConfig);
+const knexConfig =
+  dbClient === 'better-sqlite3'
+    ? {
+        client: 'better-sqlite3',
+        connection: { filename: process.env.DATABASE_FILENAME || './data/.db' },
+        useNullAsDefault: true,
+      }
+    : {
+        client: 'pg',
+        connection: {
+          host: process.env.DB_HOST || 'localhost',
+          port: parseInt(process.env.DB_PORT || '5432', 10),
+          database: process.env.DB_NAME || '',
+          user: process.env.DB_USER || 'postgres',
+          password: process.env.DB_PASSWORD || '',
+        },
+      };
+const knex = Knex(knexConfig);
 
 // Create ZenEngine instance
 const zenEngine = new ZenEngine();
@@ -47,8 +61,8 @@ export const entityLifecycleWorkflow = task({
     minTimeoutInMs: 1000,
     maxTimeoutInMs: 10000,
   },
-  run: async (payload: EntityLifecycleWorkflowPayload, { ctx }) => {
-    const { workflowRunId, entityName, entityId, operation, userId } = payload;
+  run: async (payload: EntityLifecycleWorkflowPayload, { ctx: _ctx }) => {
+    const { workflowRunId, entityName, entityId, operation, userId: _userId } = payload;
 
     console.log(`[Workflow] Starting workflow ${workflowRunId} for ${entityName}:${entityId}`);
 
@@ -72,9 +86,7 @@ export const entityLifecycleWorkflow = task({
 
         // No rule defined, just mark as success
         await knex.transaction(async (trx) => {
-          await trx(entityName)
-            .where('id', entityId)
-            .update({ workflow_status: 'success' });
+          await trx(entityName).where('id', entityId).update({ workflow_status: 'success' });
 
           await trx('sys_workflow_runs')
             .where('id', workflowRunId)
@@ -116,17 +128,18 @@ export const entityLifecycleWorkflow = task({
 
       await knex.transaction(async (trx) => {
         // If any violations with action="prevent", fail the workflow
-        const preventViolations = violations.filter((v) => v.actions.some((a) => a.type === 'prevent'));
+        const preventViolations = violations.filter((v) =>
+          v.actions.some((a) => a.type === 'prevent'),
+        );
 
         if (preventViolations.length > 0) {
           const errors = preventViolations.map((v) => ({
             ruleId: v.ruleId,
-            message: v.actions.find((a) => a.type === 'prevent')?.config?.message || 'Validation failed',
+            message:
+              v.actions.find((a) => a.type === 'prevent')?.config?.message || 'Validation failed',
           }));
 
-          await trx(entityName)
-            .where('id', entityId)
-            .update({ workflow_status: 'error' });
+          await trx(entityName).where('id', entityId).update({ workflow_status: 'error' });
 
           await trx('sys_workflow_runs')
             .where('id', workflowRunId)
@@ -152,15 +165,11 @@ export const entityLifecycleWorkflow = task({
         // Apply entity mutations
         if (Object.keys(mutations.entity).length > 0) {
           console.log(`[Workflow] Applying mutations:`, mutations.entity);
-          await trx(entityName)
-            .where('id', entityId)
-            .update(mutations.entity);
+          await trx(entityName).where('id', entityId).update(mutations.entity);
         }
 
         // Update workflow status to success
-        await trx(entityName)
-          .where('id', entityId)
-          .update({ workflow_status: 'success' });
+        await trx(entityName).where('id', entityId).update({ workflow_status: 'success' });
 
         // Update workflow run record
         await trx('sys_workflow_runs')
@@ -182,15 +191,12 @@ export const entityLifecycleWorkflow = task({
         violations,
         mutationsApplied: Object.keys(mutations.entity).length,
       };
-
     } catch (error) {
       console.error(`[Workflow] Failed for ${entityName}:${entityId}:`, error);
 
       // Update workflow with error
       await knex.transaction(async (trx) => {
-        await trx(entityName)
-          .where('id', entityId)
-          .update({ workflow_status: 'error' });
+        await trx(entityName).where('id', entityId).update({ workflow_status: 'error' });
 
         await trx('sys_workflow_runs')
           .where('id', workflowRunId)
@@ -211,13 +217,11 @@ export const entityLifecycleWorkflow = task({
  * Load entity with related data
  */
 async function loadEntityWithContext(
-  knex: Knex,
+  knex: KnexType,
   entityName: string,
-  entityId: string
+  entityId: string,
 ): Promise<{ entity: Record<string, unknown>; relations: Record<string, unknown> }> {
-  const entity = await knex(entityName)
-    .where('id', entityId)
-    .first();
+  const entity = await knex(entityName).where('id', entityId).first();
 
   if (!entity) {
     throw new Error(`Entity ${entityName}:${entityId} not found`);
@@ -235,8 +239,14 @@ async function loadEntityWithContext(
 async function evaluateRules(
   engine: ZenEngine,
   jdmContent: string,
-  context: Record<string, unknown>
-): Promise<Array<{ ruleId: string; matched: boolean; actions: Array<{ type: string; config: Record<string, unknown> }> }>> {
+  context: Record<string, unknown>,
+): Promise<
+  Array<{
+    ruleId: string;
+    matched: boolean;
+    actions: Array<{ type: string; config: Record<string, unknown> }>;
+  }>
+> {
   try {
     const decision = engine.createDecision(Buffer.from(JSON.stringify(jdmContent)));
     const result = await decision.evaluate(context);

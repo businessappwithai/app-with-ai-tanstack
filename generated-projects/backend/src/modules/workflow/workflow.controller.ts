@@ -7,7 +7,7 @@
  * - Retrying failed workflows
  * - Monitoring workflow execution
  *
- * Generated: 2026-05-07T04:48:55.280Z
+ * Generated: 2026-05-07T08:59:26.471Z
  * Project: crm-app
  */
 
@@ -46,7 +46,7 @@ export class WorkflowController {
     return await this.workflowService.getEntityWorkflows(
       entityName,
       entityId,
-      limit ? parseInt(limit, 10) : 10
+      limit ? parseInt(limit, 10) : 10,
     );
   }
 

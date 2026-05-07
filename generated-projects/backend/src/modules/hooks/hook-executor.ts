@@ -2,7 +2,7 @@
  * Hook Executor
  *
  * Executes registered hooks for entity lifecycle events.
- * Generated: 2026-05-07T04:48:55.254Z
+ * Generated: 2026-05-07T08:59:26.435Z
  */
 
 import { HookContext, HookLifecycle } from './hook.types';
@@ -13,7 +13,7 @@ export class HookExecutor {
     entityName: string,
     lifecycle: HookLifecycle,
     data: T,
-    metadata?: Record<string, any>
+    metadata?: Record<string, any>,
   ): Promise<T> {
     const hooks = globalHookRegistry.getHooks(entityName, lifecycle);
 
@@ -22,7 +22,7 @@ export class HookExecutor {
       entity: entityName,
       lifecycle,
       data: result,
-      metadata
+      metadata,
     };
 
     for (const hook of hooks) {

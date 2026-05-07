@@ -155,7 +155,7 @@ export function FieldGroupManager({ entityName }: FieldGroupManagerProps) {
               onCancel={resetForm}
               onSave={() => {
                 updateMutation.mutate(
-                  { groupId: group.sys_field_group_id, updates: formData as any },
+                  { id: group.sys_field_group_id, data: formData as Partial<FieldGroup> },
                   {
                     onSuccess: () => {
                       resetForm();

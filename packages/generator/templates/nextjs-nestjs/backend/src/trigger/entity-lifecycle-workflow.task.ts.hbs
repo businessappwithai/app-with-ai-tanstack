@@ -17,7 +17,7 @@
  */
 
 import { task } from '@trigger.dev/sdk/v3';
-import type { Knex } from 'knex';
+import Knex, { type Knex as KnexType } from 'knex';
 import { ZenEngine } from '@gorules/zen-engine';
 
 // Initialize database connection
@@ -25,7 +25,7 @@ const dbClient = process.env.DATABASE_CLIENT || 'better-sqlite3';
 const knexConfig = dbClient === 'better-sqlite3'
   ? { client: 'better-sqlite3', connection: { filename: process.env.DATABASE_FILENAME || './data/{{projectKebab}}.db' }, useNullAsDefault: true }
   : { client: 'pg', connection: { host: process.env.DB_HOST || 'localhost', port: parseInt(process.env.DB_PORT || '5432', 10), database: process.env.DB_NAME || '{{projectKebab}}', user: process.env.DB_USER || 'postgres', password: process.env.DB_PASSWORD || '' } };
-const knex = require('knex')(knexConfig);
+const knex = Knex(knexConfig);
 
 // Create ZenEngine instance
 const zenEngine = new ZenEngine();
@@ -47,8 +47,8 @@ export const entityLifecycleWorkflow = task({
     minTimeoutInMs: 1000,
     maxTimeoutInMs: 10000,
   },
-  run: async (payload: EntityLifecycleWorkflowPayload, { ctx }) => {
-    const { workflowRunId, entityName, entityId, operation, userId } = payload;
+  run: async (payload: EntityLifecycleWorkflowPayload, { ctx: _ctx }) => {
+    const { workflowRunId, entityName, entityId, operation, userId: _userId } = payload;
 
     console.log(`[Workflow] Starting workflow ${workflowRunId} for ${entityName}:${entityId}`);
 
@@ -211,7 +211,7 @@ export const entityLifecycleWorkflow = task({
  * Load entity with related data
  */
 async function loadEntityWithContext(
-  knex: Knex,
+  knex: KnexType,
   entityName: string,
   entityId: string
 ): Promise<{ entity: Record<string, unknown>; relations: Record<string, unknown> }> {

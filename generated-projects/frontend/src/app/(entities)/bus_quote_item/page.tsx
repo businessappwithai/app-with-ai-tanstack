@@ -11,7 +11,7 @@
  * - Server-side pagination
  * - Row actions (View, Edit, Delete)
  *
- * Generated: 2026-05-07T04:48:55.481Z
+ * Generated: 2026-05-07T08:59:26.705Z
  * Project: crm-app
  */
 
@@ -474,7 +474,7 @@ export default function QuoteItemListPage() {
         totalCount={
           quickSearch
             ? filteredData.length
-            : response?.meta||total || 0
+            : response?.meta?.total || 0
         }
         onView={(id) => router.push(`/bus_quote_item/${id}`)}
         onEdit={(id) => router.push(`/bus_quote_item/${id}`)}

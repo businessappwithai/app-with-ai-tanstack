@@ -15,7 +15,7 @@
  *
  * Supports optimistic concurrency via ETag/version.
  *
- * Generated: 2026-05-07T04:48:55.470Z
+ * Generated: 2026-05-07T08:59:26.697Z
  * Project: crm-app
  */
 
@@ -51,6 +51,8 @@ interface Note {
   is_pinned: boolean;
   author_id: string;
   version?: number;
+  created_at?: string;
+  updated_at?: string;
   [key: string]: unknown;
 }
 
@@ -351,7 +353,7 @@ export default function NoteDetailPage() {
                 <DynamicForm
                   tableName="bus_note"
                   initialData={data}
-                  onSubmit={(formData) => saveMutation.mutateAsync(formData)}
+                  onSubmit={async (formData) => { await saveMutation.mutateAsync(formData); }}
                   isSaving={saveMutation.isPending}
                   mode={isNew ? 'create' : mode === 'edit' ? 'edit' : 'view'}
                   readOnly={mode === 'view' && !isNew}

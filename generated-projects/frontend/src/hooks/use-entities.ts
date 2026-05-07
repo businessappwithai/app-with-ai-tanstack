@@ -1,7 +1,7 @@
 /**
  * TanStack Query Hooks for Entity CRUD Operations
  *
- * Generated: 2026-05-07T04:48:55.438Z
+ * Generated: 2026-05-07T08:59:26.671Z
  */
 
 import {
@@ -40,6 +40,7 @@ export interface FieldMetadata {
   column_name: string;
   sys_reference_id: number;
   is_mandatory: boolean;
+  is_updateable?: boolean;
   field_length?: number;
   default_value?: string;
   seq_no: number;

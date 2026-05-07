@@ -15,7 +15,7 @@
  *
  * Supports optimistic concurrency via ETag/version.
  *
- * Generated: 2026-05-07T04:48:55.478Z
+ * Generated: 2026-05-07T08:59:26.703Z
  * Project: crm-app
  */
 
@@ -51,6 +51,8 @@ interface Product {
   currency: string;
   is_active: boolean;
   version?: number;
+  created_at?: string;
+  updated_at?: string;
   [key: string]: unknown;
 }
 
@@ -351,7 +353,7 @@ export default function ProductDetailPage() {
                 <DynamicForm
                   tableName="bus_product"
                   initialData={data}
-                  onSubmit={(formData) => saveMutation.mutateAsync(formData)}
+                  onSubmit={async (formData) => { await saveMutation.mutateAsync(formData); }}
                   isSaving={saveMutation.isPending}
                   mode={isNew ? 'create' : mode === 'edit' ? 'edit' : 'view'}
                   readOnly={mode === 'view' && !isNew}

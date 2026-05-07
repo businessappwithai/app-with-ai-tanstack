@@ -15,7 +15,7 @@
  *
  * Supports optimistic concurrency via ETag/version.
  *
- * Generated: 2026-05-07T04:48:55.480Z
+ * Generated: 2026-05-07T08:59:26.704Z
  * Project: crm-app
  */
 
@@ -55,6 +55,8 @@ interface Quote {
   terms: string;
   notes: string;
   version?: number;
+  created_at?: string;
+  updated_at?: string;
   [key: string]: unknown;
 }
 
@@ -355,7 +357,7 @@ export default function QuoteDetailPage() {
                 <DynamicForm
                   tableName="bus_quote"
                   initialData={data}
-                  onSubmit={(formData) => saveMutation.mutateAsync(formData)}
+                  onSubmit={async (formData) => { await saveMutation.mutateAsync(formData); }}
                   isSaving={saveMutation.isPending}
                   mode={isNew ? 'create' : mode === 'edit' ? 'edit' : 'view'}
                   readOnly={mode === 'view' && !isNew}

@@ -8,7 +8,7 @@
  * - SessionAuthGuard: validates session cookies against better-auth
  * - RolesGuard: checks user roles for authorization
  *
- * Generated: 2026-05-07T04:48:55.249Z
+ * Generated: 2026-05-07T08:59:26.425Z
  */
 
 import { Module } from '@nestjs/common';
@@ -17,11 +17,7 @@ import { SessionAuthGuard } from './guards/session-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 
 @Module({
-  providers: [
-    Reflector,
-    SessionAuthGuard,
-    RolesGuard,
-  ],
+  providers: [Reflector, SessionAuthGuard, RolesGuard],
   exports: [SessionAuthGuard, RolesGuard],
 })
 export class AuthModule {}

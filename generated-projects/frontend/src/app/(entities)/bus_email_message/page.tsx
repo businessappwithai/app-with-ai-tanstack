@@ -11,7 +11,7 @@
  * - Server-side pagination
  * - Row actions (View, Edit, Delete)
  *
- * Generated: 2026-05-07T04:48:55.473Z
+ * Generated: 2026-05-07T08:59:26.699Z
  * Project: crm-app
  */
 
@@ -478,7 +478,7 @@ export default function EmailMessageListPage() {
         totalCount={
           quickSearch
             ? filteredData.length
-            : response?.meta||total || 0
+            : response?.meta?.total || 0
         }
         onView={(id) => router.push(`/bus_email_message/${id}`)}
         onEdit={(id) => router.push(`/bus_email_message/${id}`)}

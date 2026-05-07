@@ -1,7 +1,7 @@
 /**
  * Database Module with Knex.js
  *
- * Generated: 2026-05-07T04:48:55.384Z
+ * Generated: 2026-05-07T08:59:26.618Z
  */
 
 import { Module, Global, OnModuleDestroy, Inject } from '@nestjs/common';
@@ -19,7 +19,7 @@ import { DatabaseService } from './database.service';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const dbClient = configService.get('DATABASE_CLIENT', 'pg');
-        
+
         const knexConfig: KnexType.Config = {
           client: dbClient,
           pool: {

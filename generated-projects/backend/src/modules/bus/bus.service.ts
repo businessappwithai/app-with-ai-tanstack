@@ -4,15 +4,37 @@
  * Dynamic service for all bus_ prefixed tables.
  * Validates data against Application Dictionary metadata.
  *
- * Generated: 2026-05-07T04:48:55.298Z
+ * Generated: 2026-05-07T08:59:26.494Z
  */
 
-import { Injectable, NotFoundException, BadRequestException, Inject, Logger, Optional } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Inject,
+  Logger,
+  Optional,
+} from '@nestjs/common';
 import type { Knex } from 'knex';
 import { randomUUID } from 'crypto';
 import { KNEX_CONNECTION } from '../../database/database.constants';
-import { DatabaseService, PaginationOptions, PaginatedResult } from '../../database/database.service';
-import { executeBeforeCreateHooks, executeAfterCreateHooks, executeBeforeUpdateHooks, executeAfterUpdateHooks, executeBeforeDeleteHooks, executeAfterDeleteHooks, executeBeforeReadHooks, executeAfterReadHooks, executeBeforeListHooks, executeAfterListHooks } from '../hooks/hooks';
+import {
+  DatabaseService,
+  PaginationOptions,
+  PaginatedResult,
+} from '../../database/database.service';
+import {
+  executeBeforeCreateHooks,
+  executeAfterCreateHooks,
+  executeBeforeUpdateHooks,
+  executeAfterUpdateHooks,
+  executeBeforeDeleteHooks,
+  executeAfterDeleteHooks,
+  executeBeforeReadHooks,
+  executeAfterReadHooks,
+  executeBeforeListHooks,
+  executeAfterListHooks,
+} from '../hooks/hooks';
 
 export interface FieldMetadata {
   sys_field_id: string;
@@ -63,8 +85,14 @@ export class BusService {
    */
   private singularize(word: string): string {
     if (word.endsWith('ies')) return word.slice(0, -3) + 'y';
-    if (word.endsWith('ses') || word.endsWith('xes') || word.endsWith('zes') ||
-        word.endsWith('ches') || word.endsWith('shes')) return word.slice(0, -2);
+    if (
+      word.endsWith('ses') ||
+      word.endsWith('xes') ||
+      word.endsWith('zes') ||
+      word.endsWith('ches') ||
+      word.endsWith('shes')
+    )
+      return word.slice(0, -2);
     if (word.endsWith('s') && !word.endsWith('ss')) return word.slice(0, -1);
     return word;
   }
@@ -89,7 +117,9 @@ export class BusService {
     filters: Record<string, any> = {},
   ): Promise<PaginatedResult<any>> {
     const methodName = 'findAll';
-    this.logger.debug(`[${methodName}] Started - entity: ${entity}, options: ${JSON.stringify(options)}, filters: ${JSON.stringify(filters)}`);
+    this.logger.debug(
+      `[${methodName}] Started - entity: ${entity}, options: ${JSON.stringify(options)}, filters: ${JSON.stringify(filters)}`,
+    );
 
     const tableName = this.getTableName(entity);
     this.logger.debug(`[${methodName}] Resolved table name: ${tableName}`);
@@ -166,7 +196,9 @@ export class BusService {
     // Execute afterList hooks
     await executeAfterListHooks(entity, result.data);
 
-    this.logger.log(`[${methodName}] Completed - entity: ${entity}, returned ${result.data.length} records (total: ${result.meta.total})`);
+    this.logger.log(
+      `[${methodName}] Completed - entity: ${entity}, returned ${result.data.length} records (total: ${result.meta.total})`,
+    );
     return result;
   }
 
@@ -189,10 +221,14 @@ export class BusService {
     // Use DatabaseService if available, otherwise use knex directly
     const result = this.db
       ? await this.db.findByIdOrFail(tableName, processedId.id || id)
-      : await this.knex(tableName).where('id', processedId.id || id).first();
+      : await this.knex(tableName)
+          .where('id', processedId.id || id)
+          .first();
 
     if (!result) {
-      throw new NotFoundException(`Record not found in ${tableName} with id: ${processedId.id || id}`);
+      throw new NotFoundException(
+        `Record not found in ${tableName} with id: ${processedId.id || id}`,
+      );
     }
 
     // Execute afterRead hooks
@@ -220,7 +256,9 @@ export class BusService {
       if (column.default_value && dataWithDefaults[column.column_name] === undefined) {
         const parsedValue = this.parseDefaultValue(column.default_value, column.sys_reference_id);
         dataWithDefaults[column.column_name] = parsedValue;
-        this.logger.debug(`[${methodName}] Applied default value for ${column.column_name}: ${JSON.stringify(parsedValue)}`);
+        this.logger.debug(
+          `[${methodName}] Applied default value for ${column.column_name}: ${JSON.stringify(parsedValue)}`,
+        );
       }
     }
 
@@ -238,13 +276,18 @@ export class BusService {
 
     // Use DatabaseService if available, otherwise use knex directly
     const result = this.db
-      ? await this.db.create(tableName, processedData) as any
-      : await this.knex(tableName).insert(processedData).returning('*').then((rows: any[]) => rows[0]);
+      ? ((await this.db.create(tableName, processedData)) as any)
+      : await this.knex(tableName)
+          .insert(processedData)
+          .returning('*')
+          .then((rows: any[]) => rows[0]);
 
     // Execute afterCreate hooks
     await executeAfterCreateHooks(entity, result);
 
-    this.logger.log(`[${methodName}] Completed - entity: ${entity}, created record with id: ${result?.id || result?.ID || 'unknown'}`);
+    this.logger.log(
+      `[${methodName}] Completed - entity: ${entity}, created record with id: ${result?.id || result?.ID || 'unknown'}`,
+    );
     return result;
   }
 
@@ -258,7 +301,9 @@ export class BusService {
     expectedVersion?: number,
   ): Promise<any> {
     const methodName = 'update';
-    this.logger.log(`[${methodName}] Started - entity: ${entity}, id: ${id}, expectedVersion: ${expectedVersion}, data: ${JSON.stringify(data)}`);
+    this.logger.log(
+      `[${methodName}] Started - entity: ${entity}, id: ${id}, expectedVersion: ${expectedVersion}, data: ${JSON.stringify(data)}`,
+    );
 
     const tableName = this.getTableName(entity);
     await this.verifyEntity(entity);
@@ -271,7 +316,7 @@ export class BusService {
 
     // Use DatabaseService if available, otherwise use knex directly
     const result = this.db
-      ? await this.db.update(tableName, id, processedData, expectedVersion) as any
+      ? ((await this.db.update(tableName, id, processedData, expectedVersion)) as any)
       : await this.knex(tableName)
           .where('id', id)
           .update(processedData)
@@ -285,7 +330,9 @@ export class BusService {
     // Execute afterUpdate hooks
     await executeAfterUpdateHooks(entity, result);
 
-    this.logger.log(`[${methodName}] Completed - entity: ${entity}, id: ${id}, version: ${result?.version || result?.VERSION || 'unknown'}`);
+    this.logger.log(
+      `[${methodName}] Completed - entity: ${entity}, id: ${id}, version: ${result?.version || result?.VERSION || 'unknown'}`,
+    );
     return result;
   }
 
@@ -302,7 +349,9 @@ export class BusService {
     // Execute beforeDelete hooks (can prevent deletion)
     const canDelete = await executeBeforeDeleteHooks(entity, id);
     if (!canDelete) {
-      this.logger.warn(`[${methodName}] Deletion prevented by hooks - entity: ${entity}, id: ${id}`);
+      this.logger.warn(
+        `[${methodName}] Deletion prevented by hooks - entity: ${entity}, id: ${id}`,
+      );
       throw new BadRequestException(`Cannot delete ${entity}: still referenced`);
     }
 
@@ -328,7 +377,9 @@ export class BusService {
     const methodName = 'verifyEntity';
     const tableName = this.getTableName(entity);
 
-    this.logger.debug(`[${methodName}] Checking if entity exists - entity: ${entity}, tableName: ${tableName}`);
+    this.logger.debug(
+      `[${methodName}] Checking if entity exists - entity: ${entity}, tableName: ${tableName}`,
+    );
 
     const tableRecord = await this.knex('sys_table')
       .where('table_name', tableName)
@@ -336,11 +387,15 @@ export class BusService {
       .first();
 
     if (!tableRecord) {
-      this.logger.error(`[${methodName}] Entity not found in Application Dictionary - entity: ${entity}, tableName: ${tableName}`);
+      this.logger.error(
+        `[${methodName}] Entity not found in Application Dictionary - entity: ${entity}, tableName: ${tableName}`,
+      );
       throw new NotFoundException(`Entity '${entity}' not found in Application Dictionary`);
     }
 
-    this.logger.debug(`[${methodName}] Entity verified - entity: ${entity}, tableId: ${tableRecord.sys_table_id}`);
+    this.logger.debug(
+      `[${methodName}] Entity verified - entity: ${entity}, tableId: ${tableRecord.sys_table_id}`,
+    );
   }
 
   /**
@@ -358,7 +413,9 @@ export class BusService {
       return this.metadataCache.get(tableName)!;
     }
 
-    this.logger.debug(`[${methodName}] Cache miss for tableName: ${tableName}, fetching from database`);
+    this.logger.debug(
+      `[${methodName}] Cache miss for tableName: ${tableName}, fetching from database`,
+    );
 
     // Get table info
     const table = await this.knex('sys_table')
@@ -367,11 +424,15 @@ export class BusService {
       .first();
 
     if (!table) {
-      this.logger.error(`[${methodName}] Table not found in sys_table - entity: ${entity}, tableName: ${tableName}`);
+      this.logger.error(
+        `[${methodName}] Table not found in sys_table - entity: ${entity}, tableName: ${tableName}`,
+      );
       throw new NotFoundException(`Entity '${entity}' not found`);
     }
 
-    this.logger.debug(`[${methodName}] Found table - tableId: ${table.sys_table_id}, name: ${table.name}, hasWindow: ${!!table.sys_window_id}`);
+    this.logger.debug(
+      `[${methodName}] Found table - tableId: ${table.sys_table_id}, name: ${table.name}, hasWindow: ${!!table.sys_window_id}`,
+    );
 
     // Get window info
     const window = table.sys_window_id
@@ -379,7 +440,9 @@ export class BusService {
       : undefined;
 
     if (window) {
-      this.logger.debug(`[${methodName}] Found window - windowId: ${window.sys_window_id}, name: ${window.name}`);
+      this.logger.debug(
+        `[${methodName}] Found window - windowId: ${window.sys_window_id}, name: ${window.name}`,
+      );
     }
 
     // Get columns with field metadata
@@ -397,8 +460,11 @@ export class BusService {
       )
       .leftJoin('sys_tab', 'sys_column.sys_table_id', 'sys_tab.sys_table_id')
       .leftJoin('sys_field', function () {
-        this.on('sys_field.sys_column_id', '=', 'sys_column.sys_column_id')
-          .andOn('sys_field.sys_tab_id', '=', 'sys_tab.sys_tab_id');
+        this.on('sys_field.sys_column_id', '=', 'sys_column.sys_column_id').andOn(
+          'sys_field.sys_tab_id',
+          '=',
+          'sys_tab.sys_tab_id',
+        );
       })
       .where('sys_column.sys_table_id', table.sys_table_id)
       .where('sys_column.is_active', true)
@@ -441,7 +507,9 @@ export class BusService {
     this.metadataCache.set(tableName, metadata);
     this.logger.debug(`[${methodName}] Cached metadata for tableName: ${tableName}`);
 
-    this.logger.log(`[${methodName}] Completed - entity: ${entity}, loaded ${metadata.columns.length} columns`);
+    this.logger.log(
+      `[${methodName}] Completed - entity: ${entity}, loaded ${metadata.columns.length} columns`,
+    );
     return metadata;
   }
 
@@ -457,7 +525,9 @@ export class BusService {
       .filter((col) => col.is_displayed)
       .sort((a, b) => a.seq_no - b.seq_no);
 
-    this.logger.debug(`[${methodName}] Completed - entity: ${entity}, returned ${formFields.length} form fields`);
+    this.logger.debug(
+      `[${methodName}] Completed - entity: ${entity}, returned ${formFields.length} form fields`,
+    );
     return formFields;
   }
 
@@ -473,7 +543,9 @@ export class BusService {
       .filter((col) => col.is_displayed_grid)
       .sort((a, b) => a.seq_no_grid - b.seq_no_grid);
 
-    this.logger.debug(`[${methodName}] Completed - entity: ${entity}, returned ${gridFields.length} grid fields`);
+    this.logger.debug(
+      `[${methodName}] Completed - entity: ${entity}, returned ${gridFields.length} grid fields`,
+    );
     return gridFields;
   }
 
@@ -492,7 +564,9 @@ export class BusService {
     const metadata = await this.getEntityMetadata(entity);
     const errors: string[] = [];
 
-    this.logger.debug(`[${methodName}] Validating ${metadata.columns.length} columns for entity: ${entity}`);
+    this.logger.debug(
+      `[${methodName}] Validating ${metadata.columns.length} columns for entity: ${entity}`,
+    );
 
     for (const column of metadata.columns) {
       const value = data[column.column_name];
@@ -535,7 +609,9 @@ export class BusService {
     }
 
     if (errors.length > 0) {
-      this.logger.warn(`[${methodName}] Validation failed for entity: ${entity} - ${errors.length} errors`);
+      this.logger.warn(
+        `[${methodName}] Validation failed for entity: ${entity} - ${errors.length} errors`,
+      );
       this.logger.debug(`[${methodName}] Validation errors: ${JSON.stringify(errors)}`);
       throw new BadRequestException({
         message: 'Validation failed',

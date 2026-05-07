@@ -9,7 +9,7 @@
  * Tasks are defined in src/trigger/ and executed on Trigger.dev's
  * durable infrastructure. No Redis required.
  *
- * Generated: 2026-05-07T04:48:55.263Z
+ * Generated: 2026-05-07T08:59:26.447Z
  * Project: crm-app
  */
 

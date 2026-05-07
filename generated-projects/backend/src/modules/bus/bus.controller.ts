@@ -4,7 +4,7 @@
  * Dynamic controller for all bus_ prefixed tables.
  * CRUD operations are driven by the Application Dictionary metadata.
  *
- * Generated: 2026-05-07T04:48:55.297Z
+ * Generated: 2026-05-07T08:59:26.492Z
  */
 
 import {
@@ -35,9 +35,7 @@ import { BusService } from './bus.service';
 export class BusController {
   private readonly logger = new Logger(BusController.name);
 
-  constructor(
-    @Inject(BusService) @Optional() private readonly busService?: BusService,
-  ) {
+  constructor(@Inject(BusService) @Optional() private readonly busService?: BusService) {
     this.logger.log('BusController initialized');
   }
 
@@ -65,7 +63,9 @@ export class BusController {
     @Query() query?: Record<string, any>,
   ) {
     const methodName = 'findAll';
-    this.logger.debug(`[${methodName}] Request - entity: ${entity}, page: ${page}, limit: ${limit}, orderBy: ${orderBy}, orderDir: ${orderDir}`);
+    this.logger.debug(
+      `[${methodName}] Request - entity: ${entity}, page: ${page}, limit: ${limit}, orderBy: ${orderBy}, orderDir: ${orderDir}`,
+    );
 
     // Extract filters from query params (exclude pagination params)
     const { page: _p, limit: _l, orderBy: _ob, orderDir: _od, ...rawFilters } = query || {};
@@ -77,9 +77,15 @@ export class BusController {
       this.logger.debug(`[${methodName}] Filters: ${JSON.stringify(parsedFilters)}`);
     }
 
-    const result = await this.getBusService().findAll(entity, { page, limit, orderBy, orderDir }, parsedFilters);
+    const result = await this.getBusService().findAll(
+      entity,
+      { page, limit, orderBy, orderDir },
+      parsedFilters,
+    );
 
-    this.logger.log(`[${methodName}] Success - entity: ${entity}, returned ${result.data.length} records (total: ${result.meta.total})`);
+    this.logger.log(
+      `[${methodName}] Success - entity: ${entity}, returned ${result.data.length} records (total: ${result.meta.total})`,
+    );
     return result;
   }
 
@@ -136,7 +142,12 @@ export class BusController {
           // No operator specified, use as-is
           parsed[fieldName] = value;
         }
-      } else if (!key.startsWith('page') && !key.startsWith('limit') && !key.startsWith('orderBy') && !key.startsWith('orderDir')) {
+      } else if (
+        !key.startsWith('page') &&
+        !key.startsWith('limit') &&
+        !key.startsWith('orderBy') &&
+        !key.startsWith('orderDir')
+      ) {
         // Non-filter query params, pass through as-is
         parsed[key] = value;
       }
@@ -155,10 +166,7 @@ export class BusController {
   @ApiParam({ name: 'id', description: 'Record UUID' })
   @ApiResponse({ status: 200, description: 'Returns the record' })
   @ApiResponse({ status: 404, description: 'Record not found' })
-  async findOne(
-    @Param('entity') entity: string,
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  async findOne(@Param('entity') entity: string, @Param('id', ParseUUIDPipe) id: string) {
     const methodName = 'findOne';
     this.logger.debug(`[${methodName}] Request - entity: ${entity}, id: ${id}`);
 
@@ -177,10 +185,7 @@ export class BusController {
   @ApiParam({ name: 'entity', description: 'Entity name' })
   @ApiResponse({ status: 201, description: 'Record created successfully' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  async create(
-    @Param('entity') entity: string,
-    @Body() data: Record<string, any>,
-  ) {
+  async create(@Param('entity') entity: string, @Body() data: Record<string, any>) {
     const methodName = 'create';
     this.logger.log(`[${methodName}] Request - entity: ${entity}`);
     this.logger.debug(`[${methodName}] Request body: ${JSON.stringify(data)}`);
@@ -212,18 +217,20 @@ export class BusController {
   ) {
     const methodName = 'update';
     // Extract version from If-Match header
-    const version = ifMatch
-      ? parseInt(ifMatch.replace(/"/g, '').replace('v', ''), 10)
-      : undefined;
+    const version = ifMatch ? parseInt(ifMatch.replace(/"/g, '').replace('v', ''), 10) : undefined;
 
-    this.logger.log(`[${methodName}] Request - entity: ${entity}, id: ${id}, expectedVersion: ${version}`);
+    this.logger.log(
+      `[${methodName}] Request - entity: ${entity}, id: ${id}, expectedVersion: ${version}`,
+    );
     this.logger.debug(`[${methodName}] Request body: ${JSON.stringify(data)}`);
 
     // Validate data against dictionary metadata
     await this.getBusService().validateData(entity, data, 'update');
     const result = await this.getBusService().update(entity, id, data, version);
 
-    this.logger.log(`[${methodName}] Success - entity: ${entity}, id: ${id}, new version: ${result.version}`);
+    this.logger.log(
+      `[${methodName}] Success - entity: ${entity}, id: ${id}, new version: ${result.version}`,
+    );
     return result;
   }
 
@@ -245,18 +252,20 @@ export class BusController {
     @Headers('if-match') ifMatch?: string,
   ) {
     const methodName = 'patch';
-    const version = ifMatch
-      ? parseInt(ifMatch.replace(/"/g, '').replace('v', ''), 10)
-      : undefined;
+    const version = ifMatch ? parseInt(ifMatch.replace(/"/g, '').replace('v', ''), 10) : undefined;
 
-    this.logger.log(`[${methodName}] Request - entity: ${entity}, id: ${id}, expectedVersion: ${version}`);
+    this.logger.log(
+      `[${methodName}] Request - entity: ${entity}, id: ${id}, expectedVersion: ${version}`,
+    );
     this.logger.debug(`[${methodName}] Request body: ${JSON.stringify(data)}`);
 
     // Validate partial data against dictionary metadata
     await this.getBusService().validateData(entity, data, 'patch');
     const result = await this.getBusService().update(entity, id, data, version);
 
-    this.logger.log(`[${methodName}] Success - entity: ${entity}, id: ${id}, new version: ${result.version}`);
+    this.logger.log(
+      `[${methodName}] Success - entity: ${entity}, id: ${id}, new version: ${result.version}`,
+    );
     return result;
   }
 
@@ -271,10 +280,7 @@ export class BusController {
   @ApiParam({ name: 'id', description: 'Record UUID' })
   @ApiResponse({ status: 204, description: 'Record deleted successfully' })
   @ApiResponse({ status: 404, description: 'Record not found' })
-  async delete(
-    @Param('entity') entity: string,
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  async delete(@Param('entity') entity: string, @Param('id', ParseUUIDPipe) id: string) {
     const methodName = 'delete';
     this.logger.log(`[${methodName}] Request - entity: ${entity}, id: ${id}`);
 
@@ -298,7 +304,9 @@ export class BusController {
 
     const result = await this.getBusService().getEntityMetadata(entity);
 
-    this.logger.debug(`[${methodName}] Success - entity: ${entity}, returned ${result.columns.length} columns`);
+    this.logger.debug(
+      `[${methodName}] Success - entity: ${entity}, returned ${result.columns.length} columns`,
+    );
     return result;
   }
 
@@ -315,7 +323,9 @@ export class BusController {
 
     const result = await this.getBusService().getFormFields(entity);
 
-    this.logger.debug(`[${methodName}] Success - entity: ${entity}, returned ${result.length} form fields`);
+    this.logger.debug(
+      `[${methodName}] Success - entity: ${entity}, returned ${result.length} form fields`,
+    );
     return result;
   }
 
@@ -332,7 +342,9 @@ export class BusController {
 
     const result = await this.getBusService().getGridFields(entity);
 
-    this.logger.debug(`[${methodName}] Success - entity: ${entity}, returned ${result.length} grid fields`);
+    this.logger.debug(
+      `[${methodName}] Success - entity: ${entity}, returned ${result.length} grid fields`,
+    );
     return result;
   }
 }

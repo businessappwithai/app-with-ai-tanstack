@@ -4,7 +4,7 @@
  * Handles CRUD operations for all sys_ tables.
  * The sys_field endpoints are critical for runtime UI modification.
  *
- * Generated: 2026-05-07T04:48:55.294Z
+ * Generated: 2026-05-07T08:59:26.489Z
  */
 
 import {
@@ -73,10 +73,7 @@ export class SysController {
 
   @Patch('tables/:id')
   @ApiOperation({ summary: 'Update table' })
-  async updateTable(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() data: Record<string, unknown>,
-  ) {
+  async updateTable(@Param('id', ParseUUIDPipe) id: string, @Body() data: Record<string, unknown>) {
     return this.sysService.updateTable(id, data);
   }
 
@@ -150,9 +147,7 @@ export class SysController {
 
   @Put('fields/batch-reorder')
   @ApiOperation({ summary: 'Batch update field order (seq_no)' })
-  async batchReorderFields(
-    @Body() data: { fields: Array<{ id: string; seq_no: number }> },
-  ) {
+  async batchReorderFields(@Body() data: { fields: Array<{ id: string; seq_no: number }> }) {
     return this.sysService.batchReorderFields(data.fields);
   }
 

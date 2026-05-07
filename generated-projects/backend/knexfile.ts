@@ -1,6 +1,6 @@
 /**
  * Knex Configuration
- * Generated: 2026-05-07T04:48:55.379Z
+ * Generated: 2026-05-07T08:59:26.612Z
  */
 
 const dotenv = require('dotenv');
@@ -8,11 +8,14 @@ dotenv.config();
 
 const config = {
   development: {
-    client: 'better-sqlite3',
+    client: 'pg',
     connection: {
-      filename: process.env.DB_FILE || './data/crm-app.db',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432', 10),
+      database: process.env.DB_NAME || 'crm-app',
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || '',
     },
-    useNullAsDefault: true,
     migrations: {
       directory: './migrations',
       tableName: 'knex_migrations',
@@ -24,11 +27,19 @@ const config = {
   },
 
   production: {
-    client: 'better-sqlite3',
-    connection: {
-      filename: process.env.DB_FILE || './data/crm-app.db',
+    client: 'pg',
+    connection: process.env.DATABASE_URL || {
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT || '5432', 10),
+      database: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      ssl: { rejectUnauthorized: false },
     },
-    useNullAsDefault: true,
+    pool: {
+      min: 2,
+      max: 10,
+    },
     migrations: {
       directory: './dist/migrations',
       tableName: 'knex_migrations',

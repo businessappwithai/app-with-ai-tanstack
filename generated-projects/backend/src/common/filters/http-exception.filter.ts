@@ -1,7 +1,7 @@
 /**
  * HTTP Exception Filter
  *
- * Generated: 2026-05-07T04:48:55.243Z
+ * Generated: 2026-05-07T08:59:26.412Z
  */
 
 import {
@@ -41,9 +41,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
     this.logger.error(`[${methodName}] Request ID: ${request.id}`);
     this.logger.error(`[${methodName}] Query Params: ${JSON.stringify(request.query)}`);
     this.logger.error(`[${methodName}] Route Params: ${JSON.stringify(request.params)}`);
-    this.logger.error(`[${methodName}] Headers: ${JSON.stringify(this.sanitizeHeaders(request.headers))}`);
-    this.logger.error(`[${methodName}] User Agent: ${(request.headers as any)['user-agent'] || 'Unknown'}`);
-    this.logger.error(`[${methodName}] Client IP: ${(request.headers as any)['x-forwarded-for'] || (request.headers as any)['x-real-ip'] || request.ip || 'Unknown'}`);
+    this.logger.error(
+      `[${methodName}] Headers: ${JSON.stringify(this.sanitizeHeaders(request.headers))}`,
+    );
+    this.logger.error(
+      `[${methodName}] User Agent: ${(request.headers as any)['user-agent'] || 'Unknown'}`,
+    );
+    this.logger.error(
+      `[${methodName}] Client IP: ${(request.headers as any)['x-forwarded-for'] || (request.headers as any)['x-real-ip'] || request.ip || 'Unknown'}`,
+    );
 
     // Log request body if present (excluding file uploads)
     if ((request as any).body && !request.url.includes('/upload') && request.method !== 'GET') {
@@ -52,7 +58,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         if (bodyStr.length < 2000) {
           this.logger.error(`[${methodName}] Request Body: ${bodyStr}`);
         } else {
-          this.logger.error(`[${methodName}] Request Body: ${bodyStr.substring(0, 2000)}... (truncated)`);
+          this.logger.error(
+            `[${methodName}] Request Body: ${bodyStr.substring(0, 2000)}... (truncated)`,
+          );
         }
       } catch (e) {
         this.logger.error(`[${methodName}] Request Body: [Unable to stringify]`);
@@ -81,7 +89,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         details = responseObj.details;
 
         // Log all keys from response object for debugging
-        this.logger.error(`[${methodName}] Response Object Keys: ${Object.keys(responseObj).join(', ')}`);
+        this.logger.error(
+          `[${methodName}] Response Object Keys: ${Object.keys(responseObj).join(', ')}`,
+        );
 
         // If message is an array (validation errors), log each error
         if (Array.isArray(message)) {
@@ -147,7 +157,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     // Remove sensitive headers from logs
     const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key'];
-    sensitiveHeaders.forEach(header => {
+    sensitiveHeaders.forEach((header) => {
       if (sanitized[header]) {
         sanitized[header] = '[REDACTED]';
       }

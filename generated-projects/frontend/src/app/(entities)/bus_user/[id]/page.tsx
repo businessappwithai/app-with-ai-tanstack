@@ -15,7 +15,7 @@
  *
  * Supports optimistic concurrency via ETag/version.
  *
- * Generated: 2026-05-07T04:48:55.485Z
+ * Generated: 2026-05-07T08:59:26.707Z
  * Project: crm-app
  */
 
@@ -52,6 +52,8 @@ interface User {
   is_active: boolean;
   last_login: Date;
   version?: number;
+  created_at?: string;
+  updated_at?: string;
   [key: string]: unknown;
 }
 
@@ -352,7 +354,7 @@ export default function UserDetailPage() {
                 <DynamicForm
                   tableName="bus_user"
                   initialData={data}
-                  onSubmit={(formData) => saveMutation.mutateAsync(formData)}
+                  onSubmit={async (formData) => { await saveMutation.mutateAsync(formData); }}
                   isSaving={saveMutation.isPending}
                   mode={isNew ? 'create' : mode === 'edit' ? 'edit' : 'view'}
                   readOnly={mode === 'view' && !isNew}

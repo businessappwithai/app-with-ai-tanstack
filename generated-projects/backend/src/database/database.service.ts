@@ -1,7 +1,7 @@
 /**
  * Database Service with Knex.js
  *
- * Generated: 2026-05-07T04:48:55.385Z
+ * Generated: 2026-05-07T08:59:26.620Z
  */
 
 import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
@@ -30,9 +30,7 @@ export interface PaginatedResult<T> {
 export class DatabaseService {
   public readonly knex: Knex;
 
-  constructor(
-    @Inject(KNEX_CONNECTION) knex: Knex,
-  ) {
+  constructor(@Inject(KNEX_CONNECTION) knex: Knex) {
     this.knex = knex;
   }
 
@@ -59,23 +57,22 @@ export class DatabaseService {
     options: PaginationOptions = {},
     filters: Record<string, any> = {},
   ): Promise<PaginatedResult<T>> {
-    const {
-      page = 1,
-      limit = 20,
-      orderBy = 'created_at',
-      orderDir = 'desc',
-    } = options;
+    const { page = 1, limit = 20, orderBy = 'created_at', orderDir = 'desc' } = options;
 
     const offset = (page - 1) * limit;
 
     // Build query
-    let query = this.knex(tableName)
-      .whereNull('deleted_at');
+    let query = this.knex(tableName).whereNull('deleted_at');
 
     // Apply filters
     for (const [key, value] of Object.entries(filters)) {
       if (value !== undefined && value !== null && value !== '') {
-        if (typeof value === 'object' && value !== null && 'operator' in value && 'value' in value) {
+        if (
+          typeof value === 'object' &&
+          value !== null &&
+          'operator' in value &&
+          'value' in value
+        ) {
           // Handle operator objects for comparison queries: { operator: '>', value: '...' }
           const { operator, value: filterValue } = value;
           query = query.where(key, operator, filterValue);
@@ -92,10 +89,7 @@ export class DatabaseService {
     const total = parseInt(count as string, 10);
 
     // Get data with pagination
-    const data = await query
-      .orderBy(orderBy, orderDir)
-      .limit(limit)
-      .offset(offset);
+    const data = await query.orderBy(orderBy, orderDir).limit(limit).offset(offset);
 
     return {
       data: data as T[],
@@ -113,10 +107,7 @@ export class DatabaseService {
    */
   async findById<T>(tableName: string, id: string): Promise<T | null> {
     // The primary key column is always 'id' in the database schema
-    const record = await this.knex(tableName)
-      .where('id', id)
-      .whereNull('deleted_at')
-      .first();
+    const record = await this.knex(tableName).where('id', id).whereNull('deleted_at').first();
 
     return record as T | null;
   }
@@ -137,14 +128,8 @@ export class DatabaseService {
   /**
    * Find records by a specific field
    */
-  async findBy<T>(
-    tableName: string,
-    field: string,
-    value: any,
-  ): Promise<T[]> {
-    return this.knex(tableName)
-      .where(field, value)
-      .whereNull('deleted_at') as Promise<T[]>;
+  async findBy<T>(tableName: string, field: string, value: any): Promise<T[]> {
+    return this.knex(tableName).where(field, value).whereNull('deleted_at') as Promise<T[]>;
   }
 
   /**
@@ -206,12 +191,10 @@ export class DatabaseService {
     await this.findByIdOrFail(tableName, id);
 
     // Soft delete - use 'id' as the primary key column
-    const result = await this.knex(tableName)
-      .where('id', id)
-      .update({
-        deleted_at: new Date(),
-        updated_at: new Date(),
-      });
+    const result = await this.knex(tableName).where('id', id).update({
+      deleted_at: new Date(),
+      updated_at: new Date(),
+    });
 
     return result > 0;
   }
@@ -221,9 +204,7 @@ export class DatabaseService {
    */
   async hardDelete(tableName: string, id: string): Promise<boolean> {
     // Hard delete - use 'id' as the primary key column
-    const result = await this.knex(tableName)
-      .where('id', id)
-      .delete();
+    const result = await this.knex(tableName).where('id', id).delete();
 
     return result > 0;
   }
@@ -233,13 +214,10 @@ export class DatabaseService {
    */
   async restore(tableName: string, id: string): Promise<boolean> {
     // Restore - use 'id' as the primary key column
-    const result = await this.knex(tableName)
-      .where('id', id)
-      .whereNotNull('deleted_at')
-      .update({
-        deleted_at: null,
-        updated_at: new Date(),
-      });
+    const result = await this.knex(tableName).where('id', id).whereNotNull('deleted_at').update({
+      deleted_at: null,
+      updated_at: new Date(),
+    });
 
     return result > 0;
   }
@@ -265,10 +243,7 @@ export class DatabaseService {
    */
   async exists(tableName: string, id: string): Promise<boolean> {
     // Use 'id' as the primary key column
-    const result = await this.knex(tableName)
-      .where('id', id)
-      .whereNull('deleted_at')
-      .first();
+    const result = await this.knex(tableName).where('id', id).whereNull('deleted_at').first();
 
     return !!result;
   }

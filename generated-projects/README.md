@@ -5,7 +5,7 @@ Generated application
 ## Tech Stack
 
 - **Backend**: NestJS + Fastify + Knex.js
-- **Frontend**: Next.js + Shadcn UI + TanStack
+- **Frontend**: TanStack Start + Shadcn UI + TanStack Query/Table/Form
 
 ## Features
 
@@ -69,7 +69,7 @@ crm-app/
 │   │   └── ...
 │   ├── migrations/    # Database migrations
 │   └── seeds/         # Seed data
-├── frontend/          # Next.js App
+├── frontend/          # TanStack Start App
 │   ├── src/app/
 │   └── ...
 └── package.json       # Root workspace config
@@ -79,7 +79,7 @@ crm-app/
 
 The UI layout can be modified at runtime through the admin interface:
 
-1. Navigate to /admin (nextjs-nestjs) or #/admin (openui5-odatav4)
+1. Navigate to /admin (tanstackjs-nestjs) or #/admin (openui5-odatav4)
 2. Select an entity to configure
 3. Drag and drop fields to reorder
 4. Changes take effect immediately

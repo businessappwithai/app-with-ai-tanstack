@@ -15,7 +15,7 @@
  *
  * Supports optimistic concurrency via ETag/version.
  *
- * Generated: 2026-05-07T04:48:55.467Z
+ * Generated: 2026-05-07T08:59:26.695Z
  * Project: crm-app
  */
 
@@ -56,6 +56,8 @@ interface Activity {
   status: string;
   owner_id: string;
   version?: number;
+  created_at?: string;
+  updated_at?: string;
   [key: string]: unknown;
 }
 
@@ -356,7 +358,7 @@ export default function ActivityDetailPage() {
                 <DynamicForm
                   tableName="bus_activity"
                   initialData={data}
-                  onSubmit={(formData) => saveMutation.mutateAsync(formData)}
+                  onSubmit={async (formData) => { await saveMutation.mutateAsync(formData); }}
                   isSaving={saveMutation.isPending}
                   mode={isNew ? 'create' : mode === 'edit' ? 'edit' : 'view'}
                   readOnly={mode === 'view' && !isNew}

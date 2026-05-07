@@ -392,25 +392,25 @@ export class NestJsBackendGenerator extends BaseGenerator {
 // export { sendWelcomeEmailUser } from './User/afterCreate.sendWelcomeEmail';
 
 export interface HookRegistry {
-  beforeCreate?: Record<string, Function>;
-  afterCreate?: Record<string, Function>;
-  beforeUpdate?: Record<string, Function>;
-  afterUpdate?: Record<string, Function>;
-  beforeDelete?: Record<string, Function>;
-  afterDelete?: Record<string, Function>;
-  beforeQuery?: Record<string, Function>;
-  afterQuery?: Record<string, Function>;
-  customValidate?: Record<string, Function>;
-  beforeRead?: Record<string, Function>;
-  afterRead?: Record<string, Function>;
-  beforeList?: Record<string, Function>;
-  afterList?: Record<string, Function>;
+  beforeCreate?: Record<string, (...args: unknown[]) => unknown>;
+  afterCreate?: Record<string, (...args: unknown[]) => unknown>;
+  beforeUpdate?: Record<string, (...args: unknown[]) => unknown>;
+  afterUpdate?: Record<string, (...args: unknown[]) => unknown>;
+  beforeDelete?: Record<string, (...args: unknown[]) => unknown>;
+  afterDelete?: Record<string, (...args: unknown[]) => unknown>;
+  beforeQuery?: Record<string, (...args: unknown[]) => unknown>;
+  afterQuery?: Record<string, (...args: unknown[]) => unknown>;
+  customValidate?: Record<string, (...args: unknown[]) => unknown>;
+  beforeRead?: Record<string, (...args: unknown[]) => unknown>;
+  afterRead?: Record<string, (...args: unknown[]) => unknown>;
+  beforeList?: Record<string, (...args: unknown[]) => unknown>;
+  afterList?: Record<string, (...args: unknown[]) => unknown>;
 }
 
 /**
  * Get all registered hooks for an entity
  */
-export function getHooks(entity: string): HookRegistry {
+export function getHooks(_entity: string): HookRegistry {
   // Hook functions will be dynamically imported here
   return {};
 }

@@ -2,7 +2,7 @@
  * Hook Registry
  *
  * Manages registration and retrieval of hooks for entity lifecycle events.
- * Generated: 2026-05-07T04:48:55.253Z
+ * Generated: 2026-05-07T08:59:26.433Z
  */
 
 import { Hook, HookLifecycle } from './hook.types';
@@ -27,10 +27,10 @@ export class HookRegistry {
 
   clear(entityName?: string): void {
     if (entityName) {
-      const keysToDelete = Array.from(this.hooks.keys()).filter(key =>
-        key.startsWith(`${entityName}:`)
+      const keysToDelete = Array.from(this.hooks.keys()).filter((key) =>
+        key.startsWith(`${entityName}:`),
       );
-      keysToDelete.forEach(key => this.hooks.delete(key));
+      keysToDelete.forEach((key) => this.hooks.delete(key));
     } else {
       this.hooks.clear();
     }

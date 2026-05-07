@@ -15,12 +15,13 @@
  * - Field grouping with multi-column layouts
  * - Field color and styling customization
  *
- * Generated: 2026-05-07T04:48:55.496Z
+ * Generated: 2026-05-07T08:59:26.715Z
  * Project: crm-app
  */
 
 'use client';
 
+import { Suspense } from 'react';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -205,7 +206,7 @@ function DraggableFieldItem({
   );
 }
 
-export default function FieldLayoutPage() {
+function FieldLayoutPageContent() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const initialEntity = searchParams.get('entity') || '';
@@ -728,5 +729,13 @@ export default function FieldLayoutPage() {
         </Tabs>
       )}
     </div>
+  );
+}
+
+export default function FieldLayoutPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center p-8">Loading...</div>}>
+      <FieldLayoutPageContent />
+    </Suspense>
   );
 }

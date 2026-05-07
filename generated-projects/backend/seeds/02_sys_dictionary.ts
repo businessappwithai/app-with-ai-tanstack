@@ -2,7 +2,7 @@
  * System Dictionary Seed
  * Populates sys_ tables with metadata for business entities
  *
- * Generated: 2026-05-07T04:48:55.332Z
+ * Generated: 2026-05-07T08:59:26.548Z
  *
  * This seed creates:
  * - sys_table entries for each business entity

@@ -11,11 +11,22 @@
  * - Getting rule history
  * - Migrating rules from files to database
  *
- * Generated: 2026-05-07T04:48:55.273Z
+ * Generated: 2026-05-07T08:59:26.460Z
  * Project: crm-app
  */
 
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  Query,
+  UseGuards,
+  Logger,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -63,7 +74,8 @@ export class RulesController {
   @ApiResponse({ status: 400, description: 'Invalid input' })
   @ApiResponse({ status: 409, description: 'Rule already exists' })
   async create(
-    @Body() dto: {
+    @Body()
+    dto: {
       entityName: string;
       ruleName: string;
       operation: string;
@@ -89,7 +101,8 @@ export class RulesController {
   @ApiResponse({ status: 404, description: 'Rule not found' })
   async update(
     @Param('id') id: string,
-    @Body() dto: {
+    @Body()
+    dto: {
       jdmContent?: string;
       isActive?: boolean;
     },
@@ -156,11 +169,7 @@ export class RulesController {
       action: 'create' | 'update' | 'delete';
     },
   ) {
-    const results = await this.rulesService.evaluate(
-      body.entityType,
-      body.data,
-      body.action,
-    );
+    const results = await this.rulesService.evaluate(body.entityType, body.data, body.action);
 
     return {
       entityType: body.entityType,

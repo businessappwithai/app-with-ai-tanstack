@@ -46,11 +46,11 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
-    sendResetPassword: async ({ user, url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
+    sendResetPassword: async ({ user, url: _url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
       console.log('Password reset requested for:', user.email || user.id);
       // TODO: Integrate email service
     },
-    sendVerificationEmail: async ({ user, url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
+    sendVerificationEmail: async ({ user, url: _url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
       console.log('Verification email sent to:', user.email || user.id);
       // TODO: Integrate email service
     },

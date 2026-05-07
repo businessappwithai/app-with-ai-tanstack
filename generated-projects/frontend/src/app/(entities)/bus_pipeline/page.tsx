@@ -11,7 +11,7 @@
  * - Server-side pagination
  * - Row actions (View, Edit, Delete)
  *
- * Generated: 2026-05-07T04:48:55.465Z
+ * Generated: 2026-05-07T08:59:26.692Z
  * Project: crm-app
  */
 
@@ -470,7 +470,7 @@ export default function PipelineListPage() {
         totalCount={
           quickSearch
             ? filteredData.length
-            : response?.meta||total || 0
+            : response?.meta?.total || 0
         }
         onView={(id) => router.push(`/bus_pipeline/${id}`)}
         onEdit={(id) => router.push(`/bus_pipeline/${id}`)}

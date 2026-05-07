@@ -5,7 +5,7 @@
  *
  * Automatically redirects to the main dashboard page.
  *
- * Generated: 2026-05-07T04:48:55.421Z
+ * Generated: 2026-05-07T08:59:26.658Z
  */
 
 import { useEffect } from 'react';

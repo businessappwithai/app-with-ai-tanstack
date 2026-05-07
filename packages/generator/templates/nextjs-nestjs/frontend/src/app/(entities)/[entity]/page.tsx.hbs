@@ -469,7 +469,7 @@ export default function {{entity.name}}ListPage() {
         totalCount={
           quickSearch
             ? filteredData.length
-            : response?.meta||total || 0
+            : response?.meta?.total || 0
         }
         onView={(id) => router.push(`/{{addBusPrefix entity.tableName}}/${id}`)}
         onEdit={(id) => router.push(`/{{addBusPrefix entity.tableName}}/${id}`)}

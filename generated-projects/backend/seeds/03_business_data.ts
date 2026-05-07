@@ -2,7 +2,7 @@
  * Business Data Seed
  * Populates business tables with sample data for E2E testing
  *
- * Generated: 2026-05-07T04:48:55.356Z
+ * Generated: 2026-05-07T08:59:26.594Z
  *
  * This seed creates sample records for each business entity to enable
  * proper E2E testing of CRUD operations.

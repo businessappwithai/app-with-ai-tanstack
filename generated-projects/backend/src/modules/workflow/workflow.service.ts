@@ -13,7 +13,7 @@
  * 6. Mutations applied in DB transaction
  * 7. Workflow record updated (status: success/error)
  *
- * Generated: 2026-05-07T04:48:55.279Z
+ * Generated: 2026-05-07T08:59:26.469Z
  * Project: crm-app
  */
 
@@ -41,9 +41,7 @@ export interface WorkflowStatus {
 export class WorkflowService {
   private readonly logger = new Logger(WorkflowService.name);
 
-  constructor(
-    @InjectDatabase() private readonly db: Knex,
-  ) {}
+  constructor(@InjectDatabase() private readonly db: Knex) {}
 
   /**
    * Trigger an entity lifecycle workflow.
@@ -53,9 +51,7 @@ export class WorkflowService {
    * @returns Trigger.dev run ID
    */
   async trigger(dto: TriggerWorkflowDto): Promise<string> {
-    this.logger.log(
-      `Triggering workflow for ${dto.entityName}:${dto.entityId} (${dto.operation})`
-    );
+    this.logger.log(`Triggering workflow for ${dto.entityName}:${dto.entityId} (${dto.operation})`);
 
     // Create workflow run record
     const [workflowRun] = await this.db('sys_workflow_runs')
@@ -69,12 +65,10 @@ export class WorkflowService {
       .returning('*');
 
     // Set entity workflow_status to draft
-    await this.db(dto.entityName)
-      .where('id', dto.entityId)
-      .update({
-        workflow_status: 'draft',
-        workflow_run_id: workflowRun.id,
-      });
+    await this.db(dto.entityName).where('id', dto.entityId).update({
+      workflow_status: 'draft',
+      workflow_run_id: workflowRun.id,
+    });
 
     // Trigger async workflow in Trigger.dev
     const handle = await entityLifecycleWorkflow.trigger({
@@ -85,9 +79,7 @@ export class WorkflowService {
       userId: dto.userId,
     });
 
-    this.logger.log(
-      `Workflow ${handle.id} triggered for ${dto.entityName}:${dto.entityId}`
-    );
+    this.logger.log(`Workflow ${handle.id} triggered for ${dto.entityName}:${dto.entityId}`);
 
     return handle.id;
   }
@@ -99,9 +91,7 @@ export class WorkflowService {
    * @returns Workflow status
    */
   async getStatus(runId: string): Promise<WorkflowStatus> {
-    const workflowRun = await this.db('sys_workflow_runs')
-      .where('id', runId)
-      .first();
+    const workflowRun = await this.db('sys_workflow_runs').where('id', runId).first();
 
     if (!workflowRun) {
       throw new Error(`Workflow run ${runId} not found`);
@@ -125,21 +115,17 @@ export class WorkflowService {
    * @returns New workflow run ID
    */
   async retry(workflowRunId: string): Promise<string> {
-    const workflowRun = await this.db('sys_workflow_runs')
-      .where('id', workflowRunId)
-      .first();
+    const workflowRun = await this.db('sys_workflow_runs').where('id', workflowRunId).first();
 
     if (!workflowRun) {
       throw new Error(`Workflow run ${workflowRunId} not found`);
     }
 
     // Reset entity workflow_status to none
-    await this.db(workflowRun.entity_name)
-      .where('id', workflowRun.entity_id)
-      .update({
-        workflow_status: 'none',
-        workflow_run_id: null,
-      });
+    await this.db(workflowRun.entity_name).where('id', workflowRun.entity_id).update({
+      workflow_status: 'none',
+      workflow_run_id: null,
+    });
 
     // Trigger new workflow
     return await this.trigger({
@@ -158,11 +144,7 @@ export class WorkflowService {
    * @param limit Number of runs to return
    * @returns Workflow runs
    */
-  async getEntityWorkflows(
-    entityName: string,
-    entityId: string,
-    limit = 10
-  ) {
+  async getEntityWorkflows(entityName: string, entityId: string, limit = 10) {
     return await this.db('sys_workflow_runs')
       .where({
         entity_name: entityName,

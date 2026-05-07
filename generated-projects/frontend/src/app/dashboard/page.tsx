@@ -8,7 +8,7 @@
  * - Technical precision with JetBrains Mono metrics
  * - Clean borders and refined spacing
  *
- * Generated: 2026-05-07T04:48:55.423Z
+ * Generated: 2026-05-07T08:59:26.660Z
  * Project: crm-app
  */
 
@@ -312,7 +312,7 @@ export default function DashboardPage() {
                 {totalEntities} registered {totalEntities === 1 ? 'entity' : 'entities'}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Generated: 2026-05-07T04:48:55.423Z
+                Generated: 2026-05-07T08:59:26.660Z
               </p>
             </div>
             <Link href="/admin">

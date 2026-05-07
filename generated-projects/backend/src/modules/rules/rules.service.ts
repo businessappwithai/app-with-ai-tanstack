@@ -4,7 +4,7 @@
  * Provides CRUD operations for managing business rules in the database.
  * Integrates with GoRules Zen Engine for rule evaluation.
  *
- * Generated: 2026-05-07T04:48:55.269Z
+ * Generated: 2026-05-07T08:59:26.454Z
  * Project: crm-app
  */
 
@@ -107,9 +107,7 @@ export class RulesService {
       .first();
 
     if (existing) {
-      throw new Error(
-        `Rule ${dto.ruleName} already exists for ${dto.entityName}:${dto.operation}`
-      );
+      throw new Error(`Rule ${dto.ruleName} already exists for ${dto.entityName}:${dto.operation}`);
     }
 
     const validation = await this.validateJDM(dto.jdmContent);
@@ -179,12 +177,10 @@ export class RulesService {
   async delete(id: string): Promise<void> {
     const rule = await this.findById(id);
 
-    await this.db('sys_rule_definitions')
-      .where('id', id)
-      .update({
-        is_active: false,
-        updated_at: new Date(),
-      });
+    await this.db('sys_rule_definitions').where('id', id).update({
+      is_active: false,
+      updated_at: new Date(),
+    });
 
     this.logger.log(`Deactivated rule ${rule.ruleName}`);
   }
@@ -230,7 +226,10 @@ export class RulesService {
   /**
    * Dry run - evaluate rule with sample context
    */
-  async dryRun(jdmContent: string, context: Record<string, unknown>): Promise<{
+  async dryRun(
+    jdmContent: string,
+    context: Record<string, unknown>,
+  ): Promise<{
     success: boolean;
     result?: unknown;
     errors?: string[];
@@ -266,7 +265,11 @@ export class RulesService {
       { file: 'bus_note.jdm.json', entityName: 'bus_note', operation: 'CREATE' },
       { file: 'bus_task.jdm.json', entityName: 'bus_task', operation: 'CREATE' },
       { file: 'bus_email_message.jdm.json', entityName: 'bus_email_message', operation: 'CREATE' },
-      { file: 'bus_email_template.jdm.json', entityName: 'bus_email_template', operation: 'CREATE' },
+      {
+        file: 'bus_email_template.jdm.json',
+        entityName: 'bus_email_template',
+        operation: 'CREATE',
+      },
       { file: 'bus_product.jdm.json', entityName: 'bus_product', operation: 'CREATE' },
       { file: 'bus_quote.jdm.json', entityName: 'bus_quote', operation: 'CREATE' },
       { file: 'bus_quote_item.jdm.json', entityName: 'bus_quote_item', operation: 'CREATE' },
@@ -302,7 +305,7 @@ export class RulesService {
             operation: operation as CreateRuleDto['operation'],
             jdmContent,
           },
-          'system-migration'
+          'system-migration',
         );
 
         migrated++;
@@ -341,7 +344,7 @@ export class RulesService {
       entityType,
       rule.jdm_content,
       data,
-      action
+      action,
     );
 
     const errors: string[] = [];
@@ -390,12 +393,7 @@ export class RulesService {
       return [];
     }
 
-    return this.rulesEngine.evaluateRulesWithJDM(
-      entityType,
-      rule.jdm_content,
-      data,
-      action
-    );
+    return this.rulesEngine.evaluateRulesWithJDM(entityType, rule.jdm_content, data, action);
   }
 
   private mapDbRuleToRule(record: Record<string, unknown>): Rule {

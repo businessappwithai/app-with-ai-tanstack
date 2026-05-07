@@ -15,7 +15,7 @@
  *
  * Supports optimistic concurrency via ETag/version.
  *
- * Generated: 2026-05-07T04:48:55.465Z
+ * Generated: 2026-05-07T08:59:26.691Z
  * Project: crm-app
  */
 
@@ -51,6 +51,8 @@ interface DealStage {
   is_won: boolean;
   is_lost: boolean;
   version?: number;
+  created_at?: string;
+  updated_at?: string;
   [key: string]: unknown;
 }
 
@@ -351,7 +353,7 @@ export default function DealStageDetailPage() {
                 <DynamicForm
                   tableName="bus_deal_stage"
                   initialData={data}
-                  onSubmit={(formData) => saveMutation.mutateAsync(formData)}
+                  onSubmit={async (formData) => { await saveMutation.mutateAsync(formData); }}
                   isSaving={saveMutation.isPending}
                   mode={isNew ? 'create' : mode === 'edit' ? 'edit' : 'view'}
                   readOnly={mode === 'view' && !isNew}
