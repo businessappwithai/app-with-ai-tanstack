@@ -22,7 +22,7 @@
     "clean": "rm -rf node_modules packages/*/node_modules packages/*/dist",
     "convert": "bun --filter @erdwithai/ai convert",
     "migrate": "bun run packages/generator/migrations/migrate.ts",
-    "generate:nextjs": "bun --filter @erdwithai/generator generate -- --stack nextjs",
+    "generate:tanstack": "bun --filter @erdwithai/generator generate -- --stack nextjs",
     "generate:odata": "bun --filter @erdwithai/generator generate -- --stack odata",
     "generate:ui5": "bun --filter @erdwithai/generator generate -- --stack ui5",
     "test": "bun --filter @erdwithai/web test",
