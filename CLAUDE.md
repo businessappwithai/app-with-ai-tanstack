@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 ## gstack
 
 Use the `/browse` skill from gstack for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
@@ -43,13 +47,30 @@ Available gstack skills:
 - `/gstack-upgrade` - Upgrade gstack to latest version
 - `/learn` - Learn from codebase patterns
 
+### Skill routing
+
+When the user's request matches an available skill, ALWAYS invoke it using the Skill
+tool as your FIRST action. Do NOT answer directly, do NOT use other tools first.
+
+Key routing rules:
+- Product ideas, "is this worth building", brainstorming → invoke office-hours
+- Bugs, errors, "why is this broken", 500 errors → invoke investigate
+- Ship, deploy, push, create PR → invoke ship
+- QA, test the site, find bugs → invoke qa
+- Code review, check my diff → invoke review
+- Update docs after shipping → invoke document-release
+- Weekly retro → invoke retro
+- Design system, brand → invoke design-consultation
+- Visual audit, design polish → invoke design-review
+- Architecture review → invoke plan-eng-review
+
 ---
 
 # ERDwithAI - AI Coding Assistant Guide
 
 **Project**: ERDwithAI - AI-Powered Entity Relationship Design & Code Generation Platform
 **Version**: 5.1.0
-**Runtime**: Bun.js 1.3+
+**Runtime**: Bun.js 1.3+ (primary package manager; `pnpm-workspace.yaml` also present but `bun.lock` is authoritative)
 **Node**: v20+ compatible
 
 ---
@@ -69,12 +90,21 @@ Available gstack skills:
 | `bun run migrate` | Run database migrations |
 | `bun run generate:tanstack` | Generate TanStack Start/NestJS app |
 | `bun run generate:odata` | Generate OData V4 service |
-| `bun run generate:ui5` | Generate OpenUI5 app |
 | `bun run convert` | Run AI conversion CLI |
-| `bun run test` | Run unit tests (Vitest) |
+| `bun run test` | Run unit tests (Vitest, via `@erdwithai/web`) |
 | `bun run test:e2e:server` | Run E2E tests with auto server startup |
 | `bun run test:playwright` | Run Playwright E2E tests |
 | `bun run clean` | Remove all node_modules and dist directories |
+
+**Run a single Vitest test file:**
+```bash
+bun --filter @erdwithai/web test -- path/to/file.spec.ts
+```
+
+**Run a single Playwright test file:**
+```bash
+playwright test tests/e2e/specific.e2e.spec.ts
+```
 
 ---
 
@@ -108,7 +138,7 @@ ERDwithAI transforms natural language descriptions into production-ready full-st
 ## Monorepo Structure
 
 ```
-app_with_ai/
+app-with-ai-tanstack/
 ├── packages/
 │   ├── core/          # Core business logic, types, hooks, RBAC, validation
 │   ├── generator/     # Code generation engine, CLI, Handlebars templates
@@ -123,6 +153,8 @@ app_with_ai/
 ├── webapp/            # Pre-built OpenUI5 HMS reference app
 └── backups/           # Database backups
 ```
+
+Root-level docs: `DESIGN.md` (architecture decisions), `HOOKS_GUIDE.md` (hook system), `READEME.md` (feature overview / quick start), `TODOS.md` (current work items).
 
 ### Package Aliases (workspace:*)
 
@@ -464,18 +496,19 @@ See `.env.example` for the full list.
 bun run test                  # Run all tests
 bun run test:watch            # Watch mode
 bun run test:coverage         # With coverage (80% threshold)
+bun --filter @erdwithai/web test -- path/to/file.spec.ts  # Single file
 ```
 
-Config: `vitest.config.ts` — jsdom environment, forks pool, 10s timeout.
+Config: `vitest.config.ts` — jsdom environment, forks pool, 10s timeout, setup file at `./test/setup.ts`.
 
 ### E2E Tests (Playwright)
 
 ```bash
-bun run test:playwright         # Headless Chromium/Firefox/WebKit
-bun run test:playwright:ui      # Interactive UI mode
-bun run test:playwright:debug   # Debug mode
-bun run test:e2e:server         # Auto-starts server, then runs E2E
-HEADLESS=false bun test tests/e2e/  # Browser visible
+bun run test:playwright              # Headless Chromium/Firefox/WebKit
+bun run test:playwright:ui           # Interactive UI mode
+bun run test:playwright:debug        # Debug mode
+bun run test:e2e:server              # Auto-starts server, then runs E2E
+playwright test tests/e2e/foo.e2e.spec.ts  # Single file
 ```
 
 Config: `playwright.config.ts` — base URL `http://localhost:5000`, 3-minute timeout, sequential workers, HTML/JSON/JUnit reporters.
@@ -595,23 +628,3 @@ bun run dev:mastra
 # App available at http://localhost:3000
 # Mastra dashboard at http://localhost:4111
 ```
-
-## Skill routing
-
-When the user's request matches an available skill, ALWAYS invoke it using the Skill
-tool as your FIRST action. Do NOT answer directly, do NOT use other tools first.
-The skill has specialized workflows that produce better results than ad-hoc answers.
-
-Key routing rules:
-- Product ideas, "is this worth building", brainstorming → invoke office-hours
-- Bugs, errors, "why is this broken", 500 errors → invoke investigate
-- Ship, deploy, push, create PR → invoke ship
-- QA, test the site, find bugs → invoke qa
-- Code review, check my diff → invoke review
-- Update docs after shipping → invoke document-release
-- Weekly retro → invoke retro
-- Design system, brand → invoke design-consultation
-- Visual audit, design polish → invoke design-review
-- Architecture review → invoke plan-eng-review
-- Save progress, checkpoint, resume → invoke checkpoint
-- Code quality, health check → invoke health
