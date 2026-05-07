@@ -2,7 +2,7 @@
  * Business Tables Migration
  * Creates all business entity tables
  *
- * Generated: 2026-05-07T08:59:26.512Z
+ * Generated: 2026-05-07T09:31:28.510Z
  */
 
 import type { Knex } from 'knex';

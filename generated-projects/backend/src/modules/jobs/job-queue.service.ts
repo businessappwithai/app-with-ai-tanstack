@@ -9,7 +9,7 @@
  * Uses Trigger.dev v3 tasks which run on Trigger.dev's durable execution
  * infrastructure without requiring a self-hosted Redis instance.
  *
- * Generated: 2026-05-07T08:59:26.448Z
+ * Generated: 2026-05-07T09:31:28.418Z
  * Project: crm-app
  */
 

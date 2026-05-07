@@ -2,7 +2,7 @@
  * System Tables Migration (sys_ prefix)
  * Application Dictionary tables following Compiere pattern
  *
- * Generated: 2026-05-07T04:48:55.301Z
+ * Generated: 2026-05-07T09:31:28.482Z
  */
 
 import type { Knex } from 'knex';

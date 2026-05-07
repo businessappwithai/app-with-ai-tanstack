@@ -1,6 +1,6 @@
 /**
  * Knex Configuration
- * Generated: 2026-05-07T08:59:26.612Z
+ * Generated: 2026-05-07T09:31:28.647Z
  */
 
 const dotenv = require('dotenv');

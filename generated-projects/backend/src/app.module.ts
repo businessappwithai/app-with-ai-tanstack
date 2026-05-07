@@ -1,7 +1,7 @@
 /**
  * Root Application Module
  *
- * Generated: 2026-05-07T08:59:26.410Z
+ * Generated: 2026-05-07T09:31:28.346Z
  * Project: crm-app
  */
 

@@ -1,7 +1,7 @@
 /**
  * Unit tests for generateReportTask (Trigger.dev v3)
  *
- * Generated: 2026-05-07T08:59:26.651Z
+ * Generated: 2026-05-07T09:31:28.708Z
  * Project: crm-app
  */
 

@@ -9,7 +9,10 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:cov": "vitest run --coverage"
   },
   "dependencies": {
     "next": "^14.1.0",
@@ -58,6 +61,7 @@
     "vitest": "^1.2.0",
     "@testing-library/react": "^14.1.0",
     "@testing-library/jest-dom": "^6.1.0",
+    "@testing-library/user-event": "^14.5.0",
     "@vitejs/plugin-react": "^4.2.0",
     "jsdom": "^24.0.0",
     "@playwright/test": "^1.40.0",

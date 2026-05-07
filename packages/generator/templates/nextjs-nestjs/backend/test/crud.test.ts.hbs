@@ -38,7 +38,7 @@ describe('CRUD Operations', () => {
 
   {{#each entities}}
   describe('{{pascalCase name}} CRUD', () => {
-    const basePath = '/api/{{kebabCase (plural name)}}';
+    const basePath = '/api/bus/{{addBusPrefix tableName}}';
 
     describe('CREATE', () => {
       it('should create a new {{name}}', async () => {
@@ -101,8 +101,10 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        // List endpoint returns { data: [...], meta: { total, page, limit } }
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get {{name}} by ID', async () => {
@@ -142,7 +144,9 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        // List endpoint returns { data: [...], meta: { total, page, limit } }
+        expect(response.body).toHaveProperty('data');
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -176,7 +180,16 @@ describe('CRUD Operations', () => {
 
       it('should return 404 when updating non-existent {{name}}', async () => {
         const nonExistentId = generateTestId();
-        const updateData = TestDataFactory.create{{pascalCase name}}();
+        // Only send string fields (no id) to avoid non-updateable field validation errors
+        const updateData = {
+          {{#each attributes}}
+          {{#unless (eq name "id")}}
+          {{#if (eq type "string")}}
+          {{name}}: 'Updated {{displayName}}',
+          {{/if}}
+          {{/unless}}
+          {{/each}}
+        };
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -243,7 +256,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -272,7 +285,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -355,7 +368,7 @@ describe('Error Handling', () => {
 
   it('should handle malformed JSON', async () => {
     const response = await request(app.getHttpServer())
-      .post('/api/users')
+      .post('/api/bus/{{addBusPrefix entities.[0].tableName}}')
       .set('Content-Type', 'application/json')
       .send('{ invalid json }');
 
@@ -370,7 +383,7 @@ describe('Error Handling', () => {
 
   it('should return appropriate content-type', async () => {
     const response = await request(app.getHttpServer())
-      .get('/api/users');
+      .get('/api/bus/{{addBusPrefix entities.[0].tableName}}');
 
     expect(response.headers['content-type']).toContain('application/json');
   });

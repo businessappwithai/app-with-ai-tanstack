@@ -6,10 +6,9 @@
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import Knex from 'knex';
-import knexConfig from '../knexfile';
+import { KNEX_CONNECTION } from '../src/database/database.constants';
 
 // Test database instance
 let testDb: Knex.Knex;
@@ -36,7 +35,8 @@ export async function initTestDatabase(): Promise<Knex.Knex> {
       },
     });
 
-    // Run migrations
+    // Roll back all migrations first to ensure a clean slate, then apply latest
+    await testDb.migrate.rollback({ all: true });
     await testDb.migrate.latest();
     // Run seeds (only if seed files exist)
     try {
@@ -53,7 +53,11 @@ export async function initTestDatabase(): Promise<Knex.Knex> {
  */
 export async function closeTestDatabase(): Promise<void> {
   if (testDb) {
-    await testDb.destroy();
+    try {
+      await testDb.destroy();
+    } catch (_e) {
+      // May already be destroyed by the NestJS module lifecycle
+    }
     testDb = undefined as any;
   }
 }
@@ -62,13 +66,26 @@ export async function closeTestDatabase(): Promise<void> {
  * Create test application
  */
 export async function createTestApp(module: any): Promise<NestFastifyApplication> {
-  const moduleFixture: TestingModule = await Test.createTestingModule({
+  const builder = Test.createTestingModule({
     imports: [module],
-  }).compile();
+  });
+
+  // Override KNEX_CONNECTION with the shared test database so the NestJS app
+  // uses the same pre-migrated SQLite in-memory database as the test helpers.
+  // SQLite :memory: databases are per-connection, so without this override the
+  // app would start with an empty database and all routes would return 500.
+  if (testDb) {
+    builder.overrideProvider(KNEX_CONNECTION).useValue(testDb);
+  }
+
+  const moduleFixture: TestingModule = await builder.compile();
 
   const app = moduleFixture.createNestApplication<NestFastifyApplication>(
     new FastifyAdapter()
   );
+
+  // Match production configuration
+  app.setGlobalPrefix('api');
 
   await app.init();
   await app.getHttpAdapter().getInstance().ready();
@@ -104,17 +121,18 @@ export const TestDataFactory = {
    * Create test Company data
    */
   createCompany(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      name: 'Test Name',
-      industry: 'Test Industry',
-      website: 'Test Website',
-      phone: 'Test Phone',
-      email: 'Test Email',
+      name: `Test Name ${uid}`,
+      industry: `Test Industry ${uid}`,
+      website: `Test Website ${uid}`,
+      phone: `Test Phone ${uid}`,
+      email: `Test Email ${uid}`,
       employee_count: 1,
       annual_revenue: 10.99,
-      status: 'Test Status',
-      owner_id: 'Test Owner Id',
+      status: `Test Status ${uid}`,
+      owner_id: `Test Owner Id ${uid}`,
       ...overrides,
     };
   },
@@ -123,19 +141,20 @@ export const TestDataFactory = {
    * Create test Contact data
    */
   createContact(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      company_id: 'Test Company Id',
-      first_name: 'Test First Name',
-      last_name: 'Test Last Name',
-      email: 'Test Email',
-      phone: 'Test Phone',
-      mobile: 'Test Mobile',
-      job_title: 'Test Job Title',
-      department: 'Test Department',
-      status: 'Test Status',
-      lead_source: 'Test Lead Source',
-      owner_id: 'Test Owner Id',
+      company_id: `Test Company Id ${uid}`,
+      first_name: `Test First Name ${uid}`,
+      last_name: `Test Last Name ${uid}`,
+      email: `Test Email ${uid}`,
+      phone: `Test Phone ${uid}`,
+      mobile: `Test Mobile ${uid}`,
+      job_title: `Test Job Title ${uid}`,
+      department: `Test Department ${uid}`,
+      status: `Test Status ${uid}`,
+      lead_source: `Test Lead Source ${uid}`,
+      owner_id: `Test Owner Id ${uid}`,
       ...overrides,
     };
   },
@@ -144,20 +163,21 @@ export const TestDataFactory = {
    * Create test Deal data
    */
   createDeal(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      company_id: 'Test Company Id',
-      contact_id: 'Test Contact Id',
-      name: 'Test Name',
+      company_id: `Test Company Id ${uid}`,
+      contact_id: `Test Contact Id ${uid}`,
+      name: `Test Name ${uid}`,
       amount: 10.99,
-      currency: 'Test Currency',
-      stage: 'Test Stage',
+      currency: `Test Currency ${uid}`,
+      stage: `Test Stage ${uid}`,
       probability: 1,
       expected_close_date: '2024-01-15',
       actual_close_date: '2024-01-15',
-      status: 'Test Status',
-      description: 'Test text content',
-      owner_id: 'Test Owner Id',
+      status: `Test Status ${uid}`,
+      description: `Test text content ${uid}`,
+      owner_id: `Test Owner Id ${uid}`,
       ...overrides,
     };
   },
@@ -166,10 +186,11 @@ export const TestDataFactory = {
    * Create test DealStage data
    */
   createDealStage(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      pipeline_id: 'Test Pipeline Id',
-      name: 'Test Name',
+      pipeline_id: `Test Pipeline Id ${uid}`,
+      name: `Test Name ${uid}`,
       sort_order: 1,
       default_probability: 1,
       is_won: true,
@@ -182,9 +203,10 @@ export const TestDataFactory = {
    * Create test Pipeline data
    */
   createPipeline(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      name: 'Test Name',
+      name: `Test Name ${uid}`,
       is_default: true,
       is_active: true,
       ...overrides,
@@ -195,19 +217,20 @@ export const TestDataFactory = {
    * Create test Activity data
    */
   createActivity(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      contact_id: 'Test Contact Id',
-      company_id: 'Test Company Id',
-      deal_id: 'Test Deal Id',
-      activity_type: 'Test Activity Type',
-      subject: 'Test Subject',
-      description: 'Test text content',
+      contact_id: `Test Contact Id ${uid}`,
+      company_id: `Test Company Id ${uid}`,
+      deal_id: `Test Deal Id ${uid}`,
+      activity_type: `Test Activity Type ${uid}`,
+      subject: `Test Subject ${uid}`,
+      description: `Test text content ${uid}`,
       scheduled_at: new Date().toISOString(),
       completed_at: new Date().toISOString(),
       duration_minutes: 1,
-      status: 'Test Status',
-      owner_id: 'Test Owner Id',
+      status: `Test Status ${uid}`,
+      owner_id: `Test Owner Id ${uid}`,
       ...overrides,
     };
   },
@@ -216,14 +239,15 @@ export const TestDataFactory = {
    * Create test Note data
    */
   createNote(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      contact_id: 'Test Contact Id',
-      company_id: 'Test Company Id',
-      deal_id: 'Test Deal Id',
-      content: 'Test text content',
+      contact_id: `Test Contact Id ${uid}`,
+      company_id: `Test Company Id ${uid}`,
+      deal_id: `Test Deal Id ${uid}`,
+      content: `Test text content ${uid}`,
       is_pinned: true,
-      author_id: 'Test Author Id',
+      author_id: `Test Author Id ${uid}`,
       ...overrides,
     };
   },
@@ -232,19 +256,20 @@ export const TestDataFactory = {
    * Create test Task data
    */
   createTask(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      contact_id: 'Test Contact Id',
-      company_id: 'Test Company Id',
-      deal_id: 'Test Deal Id',
-      title: 'Test Title',
-      description: 'Test text content',
-      priority: 'Test Priority',
-      status: 'Test Status',
+      contact_id: `Test Contact Id ${uid}`,
+      company_id: `Test Company Id ${uid}`,
+      deal_id: `Test Deal Id ${uid}`,
+      title: `Test Title ${uid}`,
+      description: `Test text content ${uid}`,
+      priority: `Test Priority ${uid}`,
+      status: `Test Status ${uid}`,
       due_date: '2024-01-15',
       completed_at: new Date().toISOString(),
-      assigned_to: 'Test Assigned To',
-      created_by: 'Test Created By',
+      assigned_to: `Test Assigned To ${uid}`,
+      created_by: `Test Created By ${uid}`,
       ...overrides,
     };
   },
@@ -253,15 +278,16 @@ export const TestDataFactory = {
    * Create test EmailMessage data
    */
   createEmailMessage(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      contact_id: 'Test Contact Id',
-      deal_id: 'Test Deal Id',
-      thread_id: 'Test Thread Id',
-      subject: 'Test Subject',
-      body_text: 'Test text content',
-      body_html: 'Test text content',
-      direction: 'Test Direction',
+      contact_id: `Test Contact Id ${uid}`,
+      deal_id: `Test Deal Id ${uid}`,
+      thread_id: `Test Thread Id ${uid}`,
+      subject: `Test Subject ${uid}`,
+      body_text: `Test text content ${uid}`,
+      body_html: `Test text content ${uid}`,
+      direction: `Test Direction ${uid}`,
       sent_at: new Date().toISOString(),
       received_at: new Date().toISOString(),
       opened_at: new Date().toISOString(),
@@ -274,13 +300,14 @@ export const TestDataFactory = {
    * Create test EmailTemplate data
    */
   createEmailTemplate(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      name: 'Test Name',
-      subject: 'Test Subject',
-      body_html: 'Test text content',
-      body_text: 'Test text content',
-      category: 'Test Category',
+      name: `Test Name ${uid}`,
+      subject: `Test Subject ${uid}`,
+      body_html: `Test text content ${uid}`,
+      body_text: `Test text content ${uid}`,
+      category: `Test Category ${uid}`,
       is_active: true,
       ...overrides,
     };
@@ -290,13 +317,14 @@ export const TestDataFactory = {
    * Create test Product data
    */
   createProduct(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      name: 'Test Name',
-      sku: 'Test Sku',
-      description: 'Test text content',
+      name: `Test Name ${uid}`,
+      sku: `Test Sku ${uid}`,
+      description: `Test text content ${uid}`,
       unit_price: 10.99,
-      currency: 'Test Currency',
+      currency: `Test Currency ${uid}`,
       is_active: true,
       ...overrides,
     };
@@ -306,18 +334,19 @@ export const TestDataFactory = {
    * Create test Quote data
    */
   createQuote(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      deal_id: 'Test Deal Id',
-      quote_number: 'Test Quote Number',
-      status: 'Test Status',
+      deal_id: `Test Deal Id ${uid}`,
+      quote_number: `Test Quote Number ${uid}`,
+      status: `Test Status ${uid}`,
       valid_until: '2024-01-15',
       subtotal: 10.99,
       discount_amount: 10.99,
       tax_amount: 10.99,
       total_amount: 10.99,
-      terms: 'Test text content',
-      notes: 'Test text content',
+      terms: `Test text content ${uid}`,
+      notes: `Test text content ${uid}`,
       ...overrides,
     };
   },
@@ -326,11 +355,12 @@ export const TestDataFactory = {
    * Create test QuoteItem data
    */
   createQuoteItem(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      quote_id: 'Test Quote Id',
-      product_id: 'Test Product Id',
-      description: 'Test Description',
+      quote_id: `Test Quote Id ${uid}`,
+      product_id: `Test Product Id ${uid}`,
+      description: `Test Description ${uid}`,
       quantity: 1,
       unit_price: 10.99,
       discount_percent: 10.99,
@@ -343,13 +373,14 @@ export const TestDataFactory = {
    * Create test User data
    */
   createUser(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      email: 'Test Email',
-      first_name: 'Test First Name',
-      last_name: 'Test Last Name',
-      role: 'Test Role',
-      team_id: 'Test Team Id',
+      email: `Test Email ${uid}`,
+      first_name: `Test First Name ${uid}`,
+      last_name: `Test Last Name ${uid}`,
+      role: `Test Role ${uid}`,
+      team_id: `Test Team Id ${uid}`,
       is_active: true,
       last_login: new Date().toISOString(),
       ...overrides,
@@ -360,10 +391,11 @@ export const TestDataFactory = {
    * Create test Team data
    */
   createTeam(overrides: Partial<any> = {}): any {
+    const uid = generateTestId().slice(0, 8);
     return {
       id: generateTestId(),
-      name: 'Test Name',
-      manager_id: 'Test Manager Id',
+      name: `Test Name ${uid}`,
+      manager_id: `Test Manager Id ${uid}`,
       ...overrides,
     };
   },

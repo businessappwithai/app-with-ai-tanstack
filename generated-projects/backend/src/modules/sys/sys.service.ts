@@ -4,7 +4,7 @@
  * Provides data access for all sys_ tables.
  * The field operations are critical for runtime UI modification.
  *
- * Generated: 2026-05-07T08:59:26.490Z
+ * Generated: 2026-05-07T09:31:28.474Z
  */
 
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';

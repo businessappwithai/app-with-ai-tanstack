@@ -1,7 +1,7 @@
 /**
  * NestJS Application Entry Point with Fastify Adapter
  *
- * Generated: 2026-05-07T08:59:26.407Z
+ * Generated: 2026-05-07T09:31:28.341Z
  * Project: crm-app
  */
 

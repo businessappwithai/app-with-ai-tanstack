@@ -3,7 +3,7 @@
  *
  * Provides workflow orchestration for entity lifecycle events.
  *
- * Generated: 2026-05-07T08:59:26.468Z
+ * Generated: 2026-05-07T09:31:28.448Z
  * Project: crm-app
  */
 

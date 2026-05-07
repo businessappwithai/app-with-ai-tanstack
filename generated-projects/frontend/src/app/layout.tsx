@@ -6,7 +6,7 @@
  * - Font loading (Inter, Newsreader, JetBrains Mono)
  * - Provider wrapping
  *
- * Generated: 2026-05-07T08:59:26.657Z
+ * Generated: 2026-05-07T09:31:28.718Z
  * Project: crm-app
  */
 

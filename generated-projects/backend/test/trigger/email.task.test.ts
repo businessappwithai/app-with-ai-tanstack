@@ -1,7 +1,7 @@
 /**
  * Unit tests for sendEmailTask (Trigger.dev v3)
  *
- * Generated: 2026-05-07T08:59:26.650Z
+ * Generated: 2026-05-07T09:31:28.705Z
  * Project: crm-app
  */
 

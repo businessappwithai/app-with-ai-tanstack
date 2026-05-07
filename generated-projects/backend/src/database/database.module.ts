@@ -1,7 +1,7 @@
 /**
  * Database Module with Knex.js
  *
- * Generated: 2026-05-07T08:59:26.618Z
+ * Generated: 2026-05-07T09:31:28.654Z
  */
 
 import { Module, Global, OnModuleDestroy, Inject } from '@nestjs/common';

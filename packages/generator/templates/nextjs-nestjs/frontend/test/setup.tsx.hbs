@@ -11,6 +11,30 @@ import { render, RenderOptions } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom';
 
+// Mock auth context - Sidebar and other components use useAuth
+vi.mock('../src/contexts/auth-context', () => ({
+  useAuth: () => ({
+    user: { id: 'test-user', email: 'test@example.com', name: 'Test User', role: 'admin' },
+    isLoading: false,
+    isAuthenticated: true,
+    isAdmin: () => true,
+    hasRole: (_role: string) => true,
+    hasPermission: (_perm: string) => true,
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+  }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+// Mock translations - DynamicTable and other components use useTranslations
+vi.mock('../src/lib/translations', () => ({
+  useTranslations: () => ({
+    t: (key: string) => key,
+    locale: 'en',
+  }),
+  TranslationProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
   useRouter: () => ({

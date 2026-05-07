@@ -1,7 +1,7 @@
 /**
  * Unit tests for syncEntityTask (Trigger.dev v3)
  *
- * Generated: 2026-05-07T08:59:26.652Z
+ * Generated: 2026-05-07T09:31:28.711Z
  * Project: crm-app
  */
 

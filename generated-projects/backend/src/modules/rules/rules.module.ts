@@ -3,7 +3,7 @@
  *
  * Business rules engine module for
  *
- * Generated: 2026-05-07T08:59:26.452Z
+ * Generated: 2026-05-07T09:31:28.422Z
  */
 
 import { Module } from '@nestjs/common';

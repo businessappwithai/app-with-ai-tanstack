@@ -1,7 +1,7 @@
 /**
  * Database Constants
  *
- * Generated: 2026-05-07T08:59:26.619Z
+ * Generated: 2026-05-07T09:31:28.655Z
  */
 
 export const KNEX_CONNECTION = 'KNEX_CONNECTION';

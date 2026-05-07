@@ -3,7 +3,7 @@
  *
  * Manage business rules with JDM Editor integration
  *
- * Generated: 2026-05-07T08:59:26.716Z
+ * Generated: 2026-05-07T09:31:28.811Z
  * Project: crm-app
  */
 

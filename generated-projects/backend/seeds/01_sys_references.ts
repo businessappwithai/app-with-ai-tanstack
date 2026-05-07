@@ -2,7 +2,7 @@
  * System Reference Types Seed
  * Standard reference types following Compiere pattern
  *
- * Generated: 2026-05-07T08:59:26.527Z
+ * Generated: 2026-05-07T09:31:28.547Z
  */
 
 import type { Knex } from 'knex';

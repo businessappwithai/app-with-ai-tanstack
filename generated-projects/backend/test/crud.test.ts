@@ -37,7 +37,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('Company CRUD', () => {
-    const basePath = '/api/companies';
+    const basePath = '/api/bus/bus_company';
 
     describe('CREATE', () => {
       it('should create a new Company', async () => {
@@ -96,8 +96,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get Company by ID', async () => {
@@ -137,7 +138,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -172,6 +173,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent Company', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createCompany();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -238,7 +240,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -267,7 +269,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -352,7 +354,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('Contact CRUD', () => {
-    const basePath = '/api/contacts';
+    const basePath = '/api/bus/bus_contact';
 
     describe('CREATE', () => {
       it('should create a new Contact', async () => {
@@ -413,8 +415,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get Contact by ID', async () => {
@@ -454,7 +457,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -493,6 +496,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent Contact', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createContact();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -559,7 +563,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -588,7 +592,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -717,7 +721,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('Deal CRUD', () => {
-    const basePath = '/api/deals';
+    const basePath = '/api/bus/bus_deal';
 
     describe('CREATE', () => {
       it('should create a new Deal', async () => {
@@ -778,8 +782,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get Deal by ID', async () => {
@@ -819,7 +824,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -854,6 +859,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent Deal', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createDeal();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -920,7 +926,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -949,7 +955,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -1062,7 +1068,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('DealStage CRUD', () => {
-    const basePath = '/api/deal-stages';
+    const basePath = '/api/bus/bus_deal_stage';
 
     describe('CREATE', () => {
       it('should create a new DealStage', async () => {
@@ -1124,8 +1130,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get DealStage by ID', async () => {
@@ -1165,7 +1172,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -1195,6 +1202,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent DealStage', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createDealStage();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -1261,7 +1269,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -1290,7 +1298,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -1402,7 +1410,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('Pipeline CRUD', () => {
-    const basePath = '/api/pipelines';
+    const basePath = '/api/bus/bus_pipeline';
 
     describe('CREATE', () => {
       it('should create a new Pipeline', async () => {
@@ -1461,8 +1469,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get Pipeline by ID', async () => {
@@ -1502,7 +1511,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -1531,6 +1540,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent Pipeline', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createPipeline();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -1597,7 +1607,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -1626,7 +1636,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -1699,7 +1709,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('Activity CRUD', () => {
-    const basePath = '/api/activities';
+    const basePath = '/api/bus/bus_activity';
 
     describe('CREATE', () => {
       it('should create a new Activity', async () => {
@@ -1759,8 +1769,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get Activity by ID', async () => {
@@ -1800,7 +1811,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -1835,6 +1846,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent Activity', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createActivity();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -1901,7 +1913,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -1930,7 +1942,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -2030,7 +2042,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('Note CRUD', () => {
-    const basePath = '/api/notes';
+    const basePath = '/api/bus/bus_note';
 
     describe('CREATE', () => {
       it('should create a new Note', async () => {
@@ -2089,8 +2101,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get Note by ID', async () => {
@@ -2130,7 +2143,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -2162,6 +2175,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent Note', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createNote();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -2228,7 +2242,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -2257,7 +2271,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -2336,7 +2350,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('Task CRUD', () => {
-    const basePath = '/api/tasks';
+    const basePath = '/api/bus/bus_task';
 
     describe('CREATE', () => {
       it('should create a new Task', async () => {
@@ -2397,8 +2411,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get Task by ID', async () => {
@@ -2438,7 +2453,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -2474,6 +2489,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent Task', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createTask();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -2540,7 +2556,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -2569,7 +2585,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -2680,7 +2696,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('EmailMessage CRUD', () => {
-    const basePath = '/api/email-messages';
+    const basePath = '/api/bus/bus_email_message';
 
     describe('CREATE', () => {
       it('should create a new EmailMessage', async () => {
@@ -2739,8 +2755,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get EmailMessage by ID', async () => {
@@ -2780,7 +2797,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -2813,6 +2830,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent EmailMessage', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createEmailMessage();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -2879,7 +2897,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -2908,7 +2926,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -2997,7 +3015,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('EmailTemplate CRUD', () => {
-    const basePath = '/api/email-templates';
+    const basePath = '/api/bus/bus_email_template';
 
     describe('CREATE', () => {
       it('should create a new EmailTemplate', async () => {
@@ -3057,8 +3075,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get EmailTemplate by ID', async () => {
@@ -3098,7 +3117,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -3129,6 +3148,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent EmailTemplate', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createEmailTemplate();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -3195,7 +3215,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -3224,7 +3244,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -3314,7 +3334,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('Product CRUD', () => {
-    const basePath = '/api/products';
+    const basePath = '/api/bus/bus_product';
 
     describe('CREATE', () => {
       it('should create a new Product', async () => {
@@ -3375,8 +3395,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get Product by ID', async () => {
@@ -3416,7 +3437,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -3447,6 +3468,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent Product', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createProduct();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -3513,7 +3535,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -3542,7 +3564,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -3661,7 +3683,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('Quote CRUD', () => {
-    const basePath = '/api/quotes';
+    const basePath = '/api/bus/bus_quote';
 
     describe('CREATE', () => {
       it('should create a new Quote', async () => {
@@ -3724,8 +3746,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get Quote by ID', async () => {
@@ -3765,7 +3788,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -3796,6 +3819,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent Quote', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createQuote();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -3862,7 +3886,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -3891,7 +3915,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -4040,7 +4064,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('QuoteItem CRUD', () => {
-    const basePath = '/api/quote-items';
+    const basePath = '/api/bus/bus_quote_item';
 
     describe('CREATE', () => {
       it('should create a new QuoteItem', async () => {
@@ -4102,8 +4126,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get QuoteItem by ID', async () => {
@@ -4143,7 +4168,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -4174,6 +4199,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent QuoteItem', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createQuoteItem();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -4240,7 +4266,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -4269,7 +4295,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -4383,7 +4409,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('User CRUD', () => {
-    const basePath = '/api/users';
+    const basePath = '/api/bus/bus_user';
 
     describe('CREATE', () => {
       it('should create a new User', async () => {
@@ -4444,8 +4470,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get User by ID', async () => {
@@ -4485,7 +4512,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -4518,6 +4545,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent User', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createUser();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -4584,7 +4612,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -4613,7 +4641,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -4734,7 +4762,7 @@ describe('CRUD Operations', () => {
   });
 
   describe('Team CRUD', () => {
-    const basePath = '/api/teams';
+    const basePath = '/api/bus/bus_team';
 
     describe('CREATE', () => {
       it('should create a new Team', async () => {
@@ -4791,8 +4819,9 @@ describe('CRUD Operations', () => {
           .get(basePath)
           .expect(200);
 
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body.length).toBeGreaterThanOrEqual(2);
+        expect(response.body).toHaveProperty('data');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(2);
       });
 
       it('should get Team by ID', async () => {
@@ -4832,7 +4861,7 @@ describe('CRUD Operations', () => {
           .get(`${basePath}?page=1&limit=10`)
           .expect(200);
 
-        expect(response.body.length).toBeLessThanOrEqual(10);
+        expect(response.body.data.length).toBeLessThanOrEqual(10);
       });
     });
 
@@ -4862,6 +4891,7 @@ describe('CRUD Operations', () => {
       it('should return 404 when updating non-existent Team', async () => {
         const nonExistentId = generateTestId();
         const updateData = TestDataFactory.createTeam();
+        delete updateData.id; // id is non-updateable, would cause 400 before 404
 
         await request(app.getHttpServer())
           .patch(`${basePath}/${nonExistentId}`)
@@ -4928,7 +4958,7 @@ describe('CRUD Operations', () => {
 
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Verify deletion
         await request(app.getHttpServer())
@@ -4957,7 +4987,7 @@ describe('CRUD Operations', () => {
         // First delete
         await request(app.getHttpServer())
           .delete(`${basePath}/${createdId}`)
-          .expect(200);
+          .expect(204);
 
         // Second delete should return 404
         await request(app.getHttpServer())
@@ -5022,7 +5052,7 @@ describe('Error Handling', () => {
 
   it('should handle malformed JSON', async () => {
     const response = await request(app.getHttpServer())
-      .post('/api/users')
+      .post('/api/bus/bus_company')
       .set('Content-Type', 'application/json')
       .send('{ invalid json }');
 
@@ -5037,7 +5067,7 @@ describe('Error Handling', () => {
 
   it('should return appropriate content-type', async () => {
     const response = await request(app.getHttpServer())
-      .get('/api/users');
+      .get('/api/bus/bus_company');
 
     expect(response.headers['content-type']).toContain('application/json');
   });

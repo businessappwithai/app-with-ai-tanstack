@@ -601,7 +601,20 @@ export async function executeAfterListHooks(
   }
 
   private async generateMigrations(outputDir: string, context: any): Promise<void> {
+    const migrationsDir = path.join(outputDir, 'migrations');
     const timestamp = Date.now();
+
+    // Remove any existing generated migration files to avoid duplicates on re-generation
+    try {
+      const existingFiles = await fs.readdir(migrationsDir);
+      for (const file of existingFiles) {
+        if (file.endsWith('_create_sys_tables.ts') || file.endsWith('_create_bus_tables.ts')) {
+          await fs.unlink(path.join(migrationsDir, file));
+        }
+      }
+    } catch (_e) {
+      // Directory may not exist yet, that's fine
+    }
 
     // sys tables migration
     const sysMigrationContent = await this.renderTemplate('../../common/migrations/sys-tables.migration.ts.hbs', context);

@@ -4,13 +4,14 @@
  * Dynamic service for all bus_ prefixed tables.
  * Validates data against Application Dictionary metadata.
  *
- * Generated: 2026-05-07T08:59:26.494Z
+ * Generated: 2026-05-07T09:31:28.479Z
  */
 
 import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
   Inject,
   Logger,
   Optional,
@@ -223,6 +224,7 @@ export class BusService {
       ? await this.db.findByIdOrFail(tableName, processedId.id || id)
       : await this.knex(tableName)
           .where('id', processedId.id || id)
+          .whereNull('deleted_at')
           .first();
 
     if (!result) {
@@ -275,12 +277,27 @@ export class BusService {
     }
 
     // Use DatabaseService if available, otherwise use knex directly
-    const result = this.db
-      ? ((await this.db.create(tableName, processedData)) as any)
-      : await this.knex(tableName)
-          .insert(processedData)
-          .returning('*')
-          .then((rows: any[]) => rows[0]);
+    let result: any;
+    try {
+      result = this.db
+        ? ((await this.db.create(tableName, processedData)) as any)
+        : await this.knex(tableName)
+            .insert(processedData)
+            .returning('*')
+            .then((rows: any[]) => rows[0]);
+    } catch (error: any) {
+      // Convert unique constraint violations to 409 Conflict
+      const msg: string = error?.message ?? '';
+      if (
+        error?.code === 'SQLITE_CONSTRAINT' ||
+        error?.code === '23505' ||
+        msg.includes('UNIQUE constraint failed') ||
+        msg.includes('duplicate key value')
+      ) {
+        throw new ConflictException('A record with the same unique field value already exists');
+      }
+      throw error;
+    }
 
     // Execute afterCreate hooks
     await executeAfterCreateHooks(entity, result);
@@ -315,13 +332,22 @@ export class BusService {
     }
 
     // Use DatabaseService if available, otherwise use knex directly
-    const result = this.db
-      ? ((await this.db.update(tableName, id, processedData, expectedVersion)) as any)
-      : await this.knex(tableName)
-          .where('id', id)
-          .update(processedData)
-          .returning('*')
-          .then((rows: any[]) => rows[0]);
+    let result: any;
+    if (this.db) {
+      result = (await this.db.update(tableName, id, processedData, expectedVersion)) as any;
+    } else {
+      // Check record exists before updating
+      const existing = await this.knex(tableName).where('id', id).whereNull('deleted_at').first();
+      if (!existing) {
+        throw new NotFoundException(`Record not found in ${tableName} with id: ${id}`);
+      }
+      // Always include timestamp even for empty patches
+      const updatePayload = Object.keys(processedData).length > 0
+        ? { ...processedData, updated_at: new Date() }
+        : { updated_at: new Date() };
+      await this.knex(tableName).where('id', id).update(updatePayload);
+      result = await this.knex(tableName).where('id', id).first();
+    }
 
     if (!result) {
       throw new NotFoundException(`Record not found in ${tableName} with id: ${id}`);
@@ -356,12 +382,19 @@ export class BusService {
     }
 
     // Use DatabaseService if available, otherwise use knex directly
-    const result = this.db
-      ? await this.db.softDelete(tableName, id)
-      : await this.knex(tableName)
-          .where('id', id)
-          .update({ is_deleted: true, deleted_at: new Date() })
-          .then(() => true);
+    let result: boolean;
+    if (this.db) {
+      result = await this.db.softDelete(tableName, id);
+    } else {
+      // Check record exists before soft-deleting
+      const existing = await this.knex(tableName).where('id', id).whereNull('deleted_at').first();
+      if (!existing) {
+        throw new NotFoundException(`Record not found in ${tableName} with id: ${id}`);
+      }
+      // Soft delete: set deleted_at timestamp (no is_deleted column)
+      const count = await this.knex(tableName).where('id', id).update({ deleted_at: new Date() });
+      result = count > 0;
+    }
 
     // Execute afterDelete hooks
     await executeAfterDeleteHooks(entity, result);
