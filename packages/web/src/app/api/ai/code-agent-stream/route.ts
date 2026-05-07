@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 interface CodeAgentStreamRequest {
   task: string;
   erdCode?: string;
-  stack?: 'nextjs-nestjs' | 'openui5-odata';
+  stack?: 'tanstackjs-nestjs' | 'openui5-odata';
   options?: {
     includeTests?: boolean;
     includeMigrations?: boolean;

@@ -26,7 +26,7 @@
   },
   "scripts": {
     "build": "bun build src/index.ts src/cli/generate.ts --outdir dist --target node --format esm --external @erdwithai/core --external handlebars --external commander --external prettier",
-    "generate": "node dist/cli/generate.js",
+    "generate": "node dist/cli/generate.js generate",
     "dev": "bun run build && bun run generate",
     "test": "vitest run",
     "test:watch": "vitest",

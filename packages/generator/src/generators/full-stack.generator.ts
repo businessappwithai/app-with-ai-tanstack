@@ -2,7 +2,7 @@
  * Full Stack Generator
  *
  * Orchestrates generation of complete full-stack applications using:
- * - nextjs-nestjs: NestJS + Next.js (Modern Web Stack)
+ * - tanstackjs-nestjs: NestJS + TanStack Start (Modern Web Stack)
  * - openui5-odatav4: OData + OpenUI5 (Enterprise SAP Stack)
  *
  * Generates both backend and frontend with Application Dictionary
@@ -17,7 +17,7 @@ import { NextJsFrontendGenerator, NextJsFrontendOptions } from './nextjs-nestjs/
 import { ODataBackendGenerator, ODataBackendOptions } from './openui5-odatav4/odata-backend.generator';
 import { OpenUI5FrontendGenerator, OpenUI5FrontendOptions } from './openui5-odatav4/openui5-frontend.generator';
 
-export type StackOption = 'nextjs-nestjs' | 'openui5-odatav4';
+export type StackOption = 'tanstackjs-nestjs' | 'openui5-odatav4';
 export type AIAddonOption = 'none' | 'basic' | 'advanced';
 
 export interface FullStackGeneratorOptions {
@@ -33,7 +33,7 @@ export interface FullStackGeneratorOptions {
   aiNlProvider?: 'anthropic' | 'openai';
   aiNlModel?: string;
 
-  // nextjs-nestjs specific
+  // tanstackjs-nestjs specific
   nextjsNestjs?: {
     backend: Partial<NestJsBackendOptions>;
     frontend: Partial<NextJsFrontendOptions>;
@@ -63,7 +63,7 @@ export class FullStackGenerator {
     await fs.mkdir(outputDir, { recursive: true });
 
     // Generate based on stack option
-    if (this.options.stackOption === 'nextjs-nestjs') {
+    if (this.options.stackOption === 'tanstackjs-nestjs') {
       await this.generateNextjsNestjs(entities, relationships, outputDir);
     } else {
       await this.generateOpenui5Odatav4(entities, relationships, outputDir);
@@ -86,7 +86,7 @@ export class FullStackGenerator {
   }
 
   /**
-   * Generate nextjs-nestjs: NestJS + Next.js
+   * Generate tanstackjs-nestjs: TanStack Start + NestJS
    */
   private async generateNextjsNestjs(
     entities: Entity[],
@@ -260,8 +260,8 @@ npm-debug.log*
    * Generate README content
    */
   private generateReadme(): string {
-    const stackInfo = this.options.stackOption === 'nextjs-nestjs'
-      ? '- **Backend**: NestJS + Fastify + Knex.js\n- **Frontend**: Next.js + Shadcn UI + TanStack'
+    const stackInfo = this.options.stackOption === 'tanstackjs-nestjs'
+      ? '- **Backend**: NestJS + Fastify + Knex.js\n- **Frontend**: TanStack Start + Shadcn UI + TanStack Query/Table/Form'
       : '- **Backend**: OData V4 Server (jaystack)\n- **Frontend**: OpenUI5 Flexible Column Layout';
 
     return `# ${this.options.projectName}
@@ -313,7 +313,7 @@ bun run dev
 
 # Or start individually
 bun run dev:backend   # Backend on http://localhost:3000
-bun run dev:frontend  # Frontend on http://localhost:${this.options.stackOption === 'nextjs-nestjs' ? '3001' : '8080'}
+bun run dev:frontend  # Frontend on http://localhost:${this.options.stackOption === 'tanstackjs-nestjs' ? '3001' : '8080'}
 \`\`\`
 
 ### Production Build
@@ -326,7 +326,7 @@ bun run build
 
 \`\`\`
 ${this.options.projectName}/
-├── backend/           # ${this.options.stackOption === 'nextjs-nestjs' ? 'NestJS API' : 'OData V4 Server'}
+├── backend/           # ${this.options.stackOption === 'tanstackjs-nestjs' ? 'NestJS API' : 'OData V4 Server'}
 │   ├── src/
 │   │   ├── modules/
 │   │   │   ├── sys/   # Application Dictionary modules
@@ -334,8 +334,8 @@ ${this.options.projectName}/
 │   │   └── ...
 │   ├── migrations/    # Database migrations
 │   └── seeds/         # Seed data
-├── frontend/          # ${this.options.stackOption === 'nextjs-nestjs' ? 'Next.js App' : 'OpenUI5 App'}
-│   ├── ${this.options.stackOption === 'nextjs-nestjs' ? 'src/app/' : 'webapp/'}
+├── frontend/          # ${this.options.stackOption === 'tanstackjs-nestjs' ? 'TanStack Start App' : 'OpenUI5 App'}
+│   ├── ${this.options.stackOption === 'tanstackjs-nestjs' ? 'src/app/' : 'webapp/'}
 │   └── ...
 └── package.json       # Root workspace config
 \`\`\`
@@ -344,7 +344,7 @@ ${this.options.projectName}/
 
 The UI layout can be modified at runtime through the admin interface:
 
-1. Navigate to /admin (nextjs-nestjs) or #/admin (openui5-odatav4)
+1. Navigate to /admin (tanstackjs-nestjs) or #/admin (openui5-odatav4)
 2. Select an entity to configure
 3. Drag and drop fields to reorder
 4. Changes take effect immediately
@@ -376,8 +376,8 @@ MIT
     };
 
     try {
-      if (this.options.stackOption === 'nextjs-nestjs') {
-        // nextjs-nestjs: NestJS + Next.js
+      if (this.options.stackOption === 'tanstackjs-nestjs') {
+        // tanstackjs-nestjs: TanStack Start + NestJS
         console.log('\n  📋 Linting NestJS backend...');
         const backendLintPassed = runLint('npm', ['run', 'lint'], path.join(outputDir, 'backend'));
         if (backendLintPassed) {
@@ -424,8 +424,8 @@ MIT
    * Get human-readable stack description
    */
   private getStackDescription(): string {
-    return this.options.stackOption === 'nextjs-nestjs'
-      ? 'nextjs-nestjs - Modern Web (NestJS + Next.js)'
+    return this.options.stackOption === 'tanstackjs-nestjs'
+      ? 'tanstackjs-nestjs - Modern Web (TanStack Start + NestJS)'
       : 'openui5-odatav4 - Enterprise SAP (OData + OpenUI5)';
   }
 }

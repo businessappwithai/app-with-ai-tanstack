@@ -132,7 +132,7 @@ export class GeneratorOrchestrator {
   static getAvailableStacks(): Array<{ value: StackOption; label: string; description: string }> {
     return [
       {
-        value: 'nextjs-nestjs',
+        value: 'tanstackjs-nestjs',
         label: 'Modern Web Stack',
         description: 'Next.js + Shadcn UI + TanStack | NestJS + Fastify + Knex.js',
       },
@@ -146,7 +146,7 @@ export class GeneratorOrchestrator {
 
   private getStackDescription(): string {
     switch (this.options.stackOption) {
-      case 'nextjs-nestjs':
+      case 'tanstackjs-nestjs':
         return 'Modern Web Stack (Next.js + NestJS)';
       case 'openui5-odatav4':
         return 'Enterprise SAP-Style Stack (OpenUI5 + OData V4)';

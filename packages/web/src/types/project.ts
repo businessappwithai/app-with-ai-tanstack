@@ -65,6 +65,6 @@ export const STEP_LABELS: Record<ProjectStep, string> = {
 };
 
 export const STACK_LABELS: Record<Project["stackType"], string> = {
-  "nestjs-nextjs": "nextjs-nestjs: NestJS + Next.js",
+  "nestjs-nextjs": "tanstackjs-nestjs: NestJS + TanStack Start",
   "odata-ui5": "openui5-odatav4: OData + OpenUI5",
 };

@@ -66,12 +66,12 @@ export async function POST(request: NextRequest) {
         let finalStackOption = stackOption;
         if (stackOption) {
           // Map stackOption to stackType
-          finalStackType = stackOption === "nextjs-nestjs" ? "nestjs-nextjs" : "odata-ui5";
+          finalStackType = stackOption === "tanstackjs-nestjs" ? "nestjs-nextjs" : "odata-ui5";
         } else if (!finalStackType) {
           // Use project's stack type as fallback
           finalStackType = project.stackType || "nestjs-nextjs";
           // Map stackType to stackOption
-          finalStackOption = finalStackType === "nestjs-nextjs" ? "nextjs-nestjs" : "openui5-odatav4";
+          finalStackOption = finalStackType === "nestjs-nextjs" ? "tanstackjs-nestjs" : "openui5-odatav4";
         }
 
         sendLog("info", `Initializing generator for stack: ${finalStackType}`);

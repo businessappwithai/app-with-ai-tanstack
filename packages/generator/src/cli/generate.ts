@@ -4,7 +4,7 @@
  *
  * Generates full-stack applications from Mermaid ERD diagrams.
  * Supports two stack options:
- * - nextjs-nestjs: NestJS + Next.js (Modern Web)
+ * - tanstackjs-nestjs: TanStack Start + NestJS (Modern Web)
  * - openui5-odatav4: OData + OpenUI5 (Enterprise SAP)
  *
  * Features:
@@ -24,6 +24,12 @@ import { Entity, Relationship } from '@erdwithai/core/types';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
+
+// When run via `bun --filter`, cwd is the package directory but INIT_CWD is
+// the workspace root where the user invoked bun. Use INIT_CWD so that relative
+// paths in --input / --output are resolved from the user's working directory.
+const resolvePath = (p: string) =>
+  path.isAbsolute(p) ? p : path.resolve(process.env.INIT_CWD || process.cwd(), p);
 
 const program = new Command();
 
@@ -48,8 +54,8 @@ program
   .option('-d, --description <desc>', 'Project description', 'Generated application')
   .option(
     '-s, --stack <stack>',
-    'Stack option: nextjs-nestjs (NestJS+Next.js) or openui5-odatav4 (OData+OpenUI5)',
-    'nextjs-nestjs'
+    'Stack option: tanstackjs-nestjs (TanStack Start+NestJS) or openui5-odatav4 (OData+OpenUI5)',
+    'tanstackjs-nestjs'
   )
   .option('--db <type>', 'Database type: postgresql or sqlite', 'postgresql')
   .option('--port <port>', 'Backend port', '3000')
@@ -79,7 +85,7 @@ program
 
         // Parse sys_ file if provided
         if (options.sysFile) {
-          const sysPath = path.resolve(options.sysFile);
+          const sysPath = resolvePath(options.sysFile);
           await fs.access(sysPath);
           console.log(`📄 Reading system entities from: ${sysPath}`);
           const sysContent = await fs.readFile(sysPath, 'utf-8');
@@ -91,7 +97,7 @@ program
 
         // Parse bus_ file if provided
         if (options.busFile) {
-          const busPath = path.resolve(options.busFile);
+          const busPath = resolvePath(options.busFile);
           await fs.access(busPath);
           console.log(`📄 Reading business entities from: ${busPath}`);
           const busContent = await fs.readFile(busPath, 'utf-8');
@@ -103,7 +109,7 @@ program
 
         // Parse REF_ file if provided
         if (options.refFile) {
-          const refPath = path.resolve(options.refFile);
+          const refPath = resolvePath(options.refFile);
           await fs.access(refPath);
           console.log(`📄 Reading reference entities from: ${refPath}`);
           const refContent = await fs.readFile(refPath, 'utf-8');
@@ -116,7 +122,7 @@ program
         console.log(`   ✓ Total: ${allEntities.length} entities, ${allRelationships.length} relationships`);
       } else {
         // Single file mode: parse one combined file
-        const inputPath = path.resolve(options.input);
+        const inputPath = resolvePath(options.input);
         await fs.access(inputPath);
 
         console.log(`📄 Reading ERD from: ${inputPath}`);
@@ -139,12 +145,12 @@ program
 
       // Validate stack option
       const stackOption = options.stack as StackOption;
-      if (!['nextjs-nestjs', 'openui5-odatav4'].includes(stackOption)) {
-        throw new Error('Invalid stack option. Use "nextjs-nestjs" or "openui5-odatav4"');
+      if (!['tanstackjs-nestjs', 'openui5-odatav4'].includes(stackOption)) {
+        throw new Error('Invalid stack option. Use "tanstackjs-nestjs" or "openui5-odatav4"');
       }
 
       // Create output directory
-      const outputDir = path.resolve(options.output);
+      const outputDir = resolvePath(options.output);
       await fs.mkdir(outputDir, { recursive: true });
 
       // Display generation info
@@ -165,7 +171,7 @@ program
         outputDir,
         port: parseInt(options.port, 10),
         nextjsNestjs:
-          stackOption === 'nextjs-nestjs'
+          stackOption === 'tanstackjs-nestjs'
             ? {
                 backend: {
                   databaseType: options.db as 'postgresql' | 'sqlite',
@@ -235,7 +241,7 @@ program
       const parser = new MermaidParser();
       const { entities, relationships } = parser.parse(erdContent);
 
-      const outputDir = path.resolve(options.output);
+      const outputDir = resolvePath(options.output);
       await fs.mkdir(outputDir, { recursive: true });
 
       if (options.stack === 'nestjs') {
@@ -291,7 +297,7 @@ program
       const parser = new MermaidParser();
       const { entities, relationships } = parser.parse(erdContent);
 
-      const outputDir = path.resolve(options.output);
+      const outputDir = resolvePath(options.output);
       await fs.mkdir(outputDir, { recursive: true });
 
       if (options.stack === 'nextjs') {
@@ -353,10 +359,10 @@ program
 
       // Stack selection
       console.log('\nSelect your stack:');
-      console.log('  1. nextjs-nestjs: NestJS + Next.js (Modern Web)');
+      console.log('  1. tanstackjs-nestjs: TanStack Start + NestJS (Modern Web)');
       console.log('  2. openui5-odatav4: OData + OpenUI5 (Enterprise SAP)');
       const stackChoice = await question('Choice [1]: ') || '1';
-      const stack = stackChoice === '2' ? 'openui5-odatav4' : 'nextjs-nestjs';
+      const stack = stackChoice === '2' ? 'openui5-odatav4' : 'tanstackjs-nestjs';
 
       // Database selection
       console.log('\nSelect database:');
@@ -399,9 +405,9 @@ program
     console.log('\n📋 Available Generation Options\n');
     console.log('═══════════════════════════════════════════\n');
 
-    console.log('🔷 nextjs-nestjs: Modern Web Stack');
+    console.log('🔷 tanstackjs-nestjs: Modern Web Stack');
     console.log('   Backend:  NestJS + Fastify + Knex.js');
-    console.log('   Frontend: Next.js + Shadcn UI + TanStack');
+    console.log('   Frontend: TanStack Start + Shadcn UI + TanStack Query/Table/Form');
     console.log('   Best for: Modern web applications, SPAs\n');
 
     console.log('🔶 openui5-odatav4: Enterprise SAP Stack');
@@ -422,8 +428,8 @@ program
  * Get human-readable stack description
  */
 function getStackDescription(stack: StackOption): string {
-  return stack === 'nextjs-nestjs'
-    ? 'nextjs-nestjs - Modern Web (NestJS + Next.js)'
+  return stack === 'tanstackjs-nestjs'
+    ? 'tanstackjs-nestjs - Modern Web (TanStack Start + NestJS)'
     : 'openui5-odatav4 - Enterprise SAP (OData + OpenUI5)';
 }
 
