@@ -67,7 +67,7 @@ Available gstack skills:
 | `bun run lint:fix` | ESLint auto-fix |
 | `bun run format` | Prettier format all files |
 | `bun run migrate` | Run database migrations |
-| `bun run generate:nextjs` | Generate Next.js/NestJS app |
+| `bun run generate:tanstack` | Generate TanStack Start/NestJS app |
 | `bun run generate:odata` | Generate OData V4 service |
 | `bun run generate:ui5` | Generate OpenUI5 app |
 | `bun run convert` | Run AI conversion CLI |
