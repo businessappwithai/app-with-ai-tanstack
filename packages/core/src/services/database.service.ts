@@ -1,57 +1,247 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Database service for ERDwithAI
- * Handles all database operations using Knex.js
+ * Handles all database operations using Kysely
  * ALL project data stored in local SQLite at database/generator.sql
- *
- * Note: `any` is used intentionally here — Knex query results are dynamically
- * typed at runtime based on schema and do not have static type information.
  */
 
-import type { Knex } from "knex";
-import knex from "knex";
+import Database from "better-sqlite3";
+import { Kysely, SqliteDialect, sql } from "kysely";
 import { resolve } from "path";
-import { Database } from "sqlite";
 
-// Create knex configuration with fallback
-function createKnex(): Knex {
-  const dbPath = resolve(process.cwd(), "database/generator.sql");
-
-  // Try to use sqlite (pure JS implementation) first
-  try {
-    return knex({
-      client: "sqlite3",
-      connection: {
-        filename: dbPath,
-      },
-      useNullAsDefault: true,
-    });
-  } catch (error) {
-    // Fallback to better-sqlite3 if sqlite fails
-    return knex({
-      client: "better-sqlite3",
-      connection: {
-        filename: dbPath,
-      },
-      useNullAsDefault: true,
-    });
-  }
+// Database schema types
+interface ProjectsTable {
+  id: string;
+  name: string;
+  description: string | null;
+  icon: string;
+  icon_color: string;
+  status: string;
+  is_deleted: boolean;
+  stack_type: string;
+  stack_version: string;
+  port: number;
+  base_url: string | null;
+  database_url: string | null;
+  database_type: string;
+  database_schema: string | null;
+  environment_variables: string | null;
+  secrets: string | null;
+  generated_path: string | null;
+  output_directory: string | null;
+  build_config: string | null;
+  is_typescript: boolean;
+  is_tailwind: boolean;
+  deployment_status: string | null;
+  deployment_url: string | null;
+  uptime: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
-// Create a safe wrapper around Knex to handle initialization errors
+interface ErdVersionsTable {
+  id: string;
+  project_id: string;
+  version_number: number;
+  mermaid_code: string;
+  description: string | null;
+  is_current: boolean;
+  validation_errors: string | null;
+  parsed_schema: string | null;
+  entity_count: number;
+  relationship_count: number;
+  ai_suggestions: string | null;
+  ai_enhanced: boolean;
+  import_source: string | null;
+  import_metadata: string | null;
+  created_by: string | null;
+  commit_message: string | null;
+  change_summary: string | null;
+  created_at: string;
+}
+
+interface WorkflowsTable {
+  id: string;
+  project_id: string;
+  name: string;
+  service_name: string;
+  workflow_type: string;
+  mermaid_code: string;
+  description: string | null;
+  extension_points: string | null;
+  config: string | null;
+  triggers: string | null;
+  conditions: string | null;
+  generated_code: string | null;
+  code_language: string;
+  status: string;
+  is_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+  last_executed_at: string | null;
+  hook_definitions: string | null;
+  flowchart_code: string | null;
+  generated_hook_code: string | null;
+  is_draft: number;
+}
+
+interface GenerationHistoryTable {
+  id: string;
+  project_id: string;
+  stack_type: string;
+  stack_version: string | null;
+  generation_options: string | null;
+  status: string;
+  progress: number;
+  current_step: string | null;
+  generated_path: string | null;
+  output_structure: string | null;
+  port: number | null;
+  file_manifest: string | null;
+  entry_points: string | null;
+  build_command: string | null;
+  start_command: string | null;
+  install_command: string | null;
+  dependencies: string | null;
+  dev_dependencies: string | null;
+  environment_config: string | null;
+  docker_config: string | null;
+  logs: string | null;
+  error_message: string | null;
+  warnings: string | null;
+  files_generated: number;
+  total_size_bytes: number;
+  started_at: string;
+  completed_at: string | null;
+  duration_ms: number | null;
+}
+
+interface DeploymentsTable {
+  id: string;
+  project_id: string;
+  status: string;
+  environment: string;
+  deployment_url: string | null;
+  port: number;
+  host: string;
+  process_id: string | null;
+  process_command: string | null;
+  uptime: string | null;
+  uptime_seconds: number | null;
+  last_health_check: string | null;
+  health_status: string | null;
+  resource_usage: string | null;
+  deployment_config: string | null;
+  auto_restart: boolean;
+  restart_count: number;
+  stdout_log: string | null;
+  stderr_log: string | null;
+  started_at: string | null;
+  stopped_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface EntitiesTable {
+  id: string;
+  project_id: string;
+  erd_version_id: string | null;
+  name: string;
+  display_name: string | null;
+  type: string;
+  description: string | null;
+  schema: string | null;
+  fields: string | null;
+  relationships: string | null;
+  generate_api: boolean;
+  generate_ui: boolean;
+  generate_crud: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface SettingsTable {
+  key: string;
+  value: string | null;
+  type: string;
+  description: string | null;
+  updated_at: string;
+}
+
+interface AuthUsersTable {
+  id: string;
+  email: string;
+  name: string | null;
+  image: string | null;
+  emailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface AuthSessionsTable {
+  id: string;
+  userId: string;
+  token: string;
+  expiresAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface AuthAccountsTable {
+  id: string;
+  userId: string;
+  provider: string;
+  providerAccountId: string;
+  refreshToken: string | null;
+  accessToken: string | null;
+  expiresAt: number | null;
+  createdAt: string;
+}
+
+interface AuthVerificationTokensTable {
+  token: string;
+  email: string;
+  expires: string;
+  createdAt: string;
+}
+
+interface Database {
+  projects: ProjectsTable;
+  erd_versions: ErdVersionsTable;
+  workflows: WorkflowsTable;
+  generation_history: GenerationHistoryTable;
+  deployments: DeploymentsTable;
+  entities: EntitiesTable;
+  settings: SettingsTable;
+  auth_users: AuthUsersTable;
+  auth_sessions: AuthSessionsTable;
+  auth_accounts: AuthAccountsTable;
+  auth_verification_tokens: AuthVerificationTokensTable;
+}
+
+// Create database connection
+function createDatabase(): Kysely<Database> {
+  const dbPath = resolve(process.cwd(), "database/generator.sql");
+
+  return new Kysely<Database>({
+    dialect: new SqliteDialect({
+      database: new Database(dbPath),
+    }),
+  });
+}
+
+// Create a safe wrapper around Kysely to handle initialization errors
 class SafeDatabase {
-  private db: Knex | null = null;
+  private db: Kysely<Database> | null = null;
   private error: Error | null = null;
   private initialized = false;
 
   private initDb() {
     if (this.initialized) return;
     this.initialized = true;
-    
+
     try {
-      this.db = createKnex();
-      // Test connection
-      this.db.raw("SELECT 1");
+      this.db = createDatabase();
     } catch (err) {
       this.error = err instanceof Error ? err : new Error(String(err));
       console.error("Database initialization failed:", this.error.message);
@@ -59,7 +249,7 @@ class SafeDatabase {
     }
   }
 
-  getDb(): Knex | null {
+  getDb(): Kysely<Database> | null {
     this.initDb();
     return this.db;
   }
@@ -67,28 +257,6 @@ class SafeDatabase {
   getError(): Error | null {
     this.initDb();
     return this.error;
-  }
-
-  table(name: string) {
-    const db = this.getDb();
-    if (!db) {
-      // Return a chainable query builder for when DB is unavailable
-      const createChain = () => ({
-        where: (_key: string, _value?: any) => createChain(),
-        andWhere: (_key: string, _value?: any) => createChain(),
-        orWhere: (_key: string, _value?: any) => createChain(),
-        orderBy: (_field: string, _dir?: string) => createChain(),
-        select: async (_fields?: string | string[]) => [],
-        first: async () => null,
-        insert: async (data: any) => { return [[data]]; },
-        update: async (_data: any) => createChain(),
-        delete: async () => null,
-        del: async () => null,
-        returning: async (_fields?: string | string[]) => [{}],
-      });
-      return createChain();
-    }
-    return db(name);
   }
 
   async destroy() {
@@ -101,52 +269,27 @@ class SafeDatabase {
 
 // Create singleton instance
 let safeDb: SafeDatabase | null = null;
-let dbProxy: any = null;
 
 /**
  * Get or create the database connection
  */
-export function getDatabase(): any {
-  if (!dbProxy) {
-    if (!safeDb) {
-      safeDb = new SafeDatabase();
-    }
-
-    const actualDb = safeDb.getDb();
-    const dbError = safeDb.getError();
-
-    if (dbError) {
-      console.warn("Database error during initialization:", dbError.message);
-    }
-
-    // Use native Knex if available, otherwise wrap with fallback
-    if (actualDb) {
-      dbProxy = actualDb;
-    } else {
-      // Create a fallback proxy object
-      const fallbackDb = (tableName: string) => {
-        const db = safeDb?.getDb();
-        if (db) {
-          return db(tableName);
-        }
-        return safeDb!.table(tableName);
-      };
-
-      // Attach Knex-like methods
-      fallbackDb.schema = {
-        hasTable: async (_name: string) => false,
-        hasColumn: async (_table: string, _column: string) => false,
-        alterTable: async (_name: string, _cb: any) => {},
-        createTable: async (_name: string, _cb: any) => {},
-      };
-      fallbackDb.fn = { now: () => ({ toString: () => 'CURRENT_TIMESTAMP' }) };
-      fallbackDb.raw = async () => ({ rows: [] });
-      fallbackDb.destroy = () => safeDb?.destroy();
-
-      dbProxy = fallbackDb;
-    }
+export function getDatabase(): Kysely<Database> {
+  if (!safeDb) {
+    safeDb = new SafeDatabase();
   }
-  return dbProxy;
+
+  const actualDb = safeDb.getDb();
+  const dbError = safeDb.getError();
+
+  if (dbError) {
+    console.warn("Database error during initialization:", dbError.message);
+  }
+
+  if (!actualDb) {
+    throw new Error("Database failed to initialize");
+  }
+
+  return actualDb;
 }
 
 /**
@@ -166,354 +309,320 @@ export async function closeDatabase(): Promise<void> {
 export async function runMigrations(): Promise<void> {
   const database = getDatabase();
 
-  // Skip migrations if database failed to initialize
-  const actualDb = database.getDb?.() || database;
-  if (!actualDb || !actualDb.schema) {
-    console.warn("Skipping migrations - database not available");
-    return;
-  }
-
   // ============================================
   // PROJECTS TABLE - Core project particulars
   // ============================================
-  await actualDb.schema.hasTable("projects").then(async (exists: boolean) => {
-    if (!exists) {
-      await actualDb.schema.createTable("projects", (table: any) => {
-        table.string("id").primary();
-        table.string("name").notNullable();
-        table.text("description").nullable();
-        table.string("icon", 50).defaultTo("📊");
-        table.string("icon_color", 20).defaultTo("#3b82f6");
-        table.string("status", 20).defaultTo("draft"); // draft, active, archived
-        table.boolean("is_deleted").defaultTo(false);
-
-        // Stack Configuration
-        table.string("stack_type", 50).defaultTo("nextjs");
-        table.string("stack_version", 20).defaultTo("latest"); // e.g., "14.1.0" for Next.js
-
-        // Port Configuration - Generated apps run on port 4001
-        table.integer("port").defaultTo(4001);
-        table.text("base_url").nullable(); // e.g., "http://localhost:4001"
-
-        // Database Configuration
-        table.text("database_url").nullable(); // Connection string
-        table.string("database_type", 20).defaultTo("sqlite"); // sqlite, postgres, mysql
-        table.text("database_schema").nullable(); // Imported schema
-
-        // Environment Variables - ALL project generated environments
-        table.text("environment_variables").nullable(); // JSON: {DEV: {}, PROD: {}, STAGING: {}}
-        table.text("secrets").nullable(); // JSON: encrypted secrets storage
-
-        // Generated Application Paths
-        table.text("generated_path").nullable(); // Where the app was generated
-        table.text("output_directory").nullable(); // e.g., "./output/my-project"
-
-        // Build Configuration
-        table.text("build_config").nullable(); // JSON: build options, webpack config, etc.
-        table.boolean("is_typescript").defaultTo(true);
-        table.boolean("is_tailwind").defaultTo(true);
-
-        // Timestamps
-        table.timestamp("created_at").defaultTo(database.fn.now());
-        table.timestamp("updated_at").defaultTo(database.fn.now());
-
-        // Indexes
-        table.index("status");
-        table.index("is_deleted");
-        table.index("stack_type");
-        table.index("created_at");
-      });
-    }
-
-    // Add missing columns to existing projects table
-    await database.schema.hasColumn("projects", "deployment_status").then(async (exists: boolean) => {
-      if (!exists) {
-        await database.schema.alterTable("projects", (table: any) => {
-          table.string("deployment_status", 20).nullable();
-        });
-      }
-    });
-
-    await database.schema.hasColumn("projects", "deployment_url").then(async (exists: boolean) => {
-      if (!exists) {
-        await database.schema.alterTable("projects", (table: any) => {
-          table.text("deployment_url").nullable();
-        });
-      }
-    });
-
-    await database.schema.hasColumn("projects", "uptime").then(async (exists: boolean) => {
-      if (!exists) {
-        await database.schema.alterTable("projects", (table: any) => {
-          table.text("uptime").nullable();
-        });
-      }
-    });
-  });
+  try {
+    await database.schema
+      .createTable("projects")
+      .ifNotExists()
+      .addColumn("id", "text", (col) => col.primaryKey())
+      .addColumn("name", "text", (col) => col.notNull())
+      .addColumn("description", "text")
+      .addColumn("icon", "text", (col) => col.defaultTo("📊"))
+      .addColumn("icon_color", "text", (col) => col.defaultTo("#3b82f6"))
+      .addColumn("status", "text", (col) => col.defaultTo("draft"))
+      .addColumn("is_deleted", "integer", (col) => col.defaultTo(0))
+      .addColumn("stack_type", "text", (col) => col.defaultTo("nestjs"))
+      .addColumn("stack_version", "text", (col) => col.defaultTo("latest"))
+      .addColumn("port", "integer", (col) => col.defaultTo(4001))
+      .addColumn("base_url", "text")
+      .addColumn("database_url", "text")
+      .addColumn("database_type", "text", (col) => col.defaultTo("sqlite"))
+      .addColumn("database_schema", "text")
+      .addColumn("environment_variables", "text")
+      .addColumn("secrets", "text")
+      .addColumn("generated_path", "text")
+      .addColumn("output_directory", "text")
+      .addColumn("build_config", "text")
+      .addColumn("is_typescript", "integer", (col) => col.defaultTo(1))
+      .addColumn("is_tailwind", "integer", (col) => col.defaultTo(1))
+      .addColumn("deployment_status", "text")
+      .addColumn("deployment_url", "text")
+      .addColumn("uptime", "text")
+      .addColumn("created_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addColumn("updated_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addIndex("status_idx", ["status"])
+      .addIndex("is_deleted_idx", ["is_deleted"])
+      .addIndex("stack_type_idx", ["stack_type"])
+      .addIndex("created_at_idx", ["created_at"])
+      .execute();
+  } catch {
+    // Table already exists, ignore
+  }
 
   // ============================================
   // ERD VERSIONS TABLE - Complete history/versions
   // ============================================
-  await database.schema.hasTable("erd_versions").then(async (exists: boolean) => {
-    if (!exists) {
-      await database.schema.createTable("erd_versions", (table: any) => {
-        table.string("id").primary();
-        table.string("project_id").notNullable().references("id").inTable("projects").onDelete("CASCADE");
-        table.integer("version_number").notNullable();
-        table.text("mermaid_code").notNullable();
-        table.text("description").nullable();
-        table.boolean("is_current").defaultTo(false);
-
-        // Validation & Analysis
-        table.text("validation_errors").nullable(); // JSON: array of validation errors
-        table.text("parsed_schema").nullable(); // JSON: parsed entities and relationships
-        table.integer("entity_count").defaultTo(0);
-        table.integer("relationship_count").defaultTo(0);
-
-        // AI Enhancement Data
-        table.text("ai_suggestions").nullable(); // JSON: AI-provided improvements
-        table.boolean("ai_enhanced").defaultTo(false);
-
-        // Import Metadata
-        table.string("import_source").nullable(); // manual, database_import, ai_generated
-        table.text("import_metadata").nullable(); // JSON: source database info, etc.
-
-        // Metadata
-        table.string("created_by").nullable(); // user, ai, system
-        table.string("commit_message").nullable(); // Version description
-        table.text("change_summary").nullable(); // JSON: what changed from previous version
-        table.timestamp("created_at").defaultTo(database.fn.now());
-
-        // Indexes
-        table.unique(["project_id", "version_number"]);
-        table.index("project_id");
-        table.index("is_current");
-        table.index("created_at");
-      });
-    }
-  });
+  try {
+    await database.schema
+      .createTable("erd_versions")
+      .ifNotExists()
+      .addColumn("id", "text", (col) => col.primaryKey())
+      .addColumn("project_id", "text", (col) => col.notNull())
+      .addColumn("version_number", "integer", (col) => col.notNull())
+      .addColumn("mermaid_code", "text", (col) => col.notNull())
+      .addColumn("description", "text")
+      .addColumn("is_current", "integer", (col) => col.defaultTo(0))
+      .addColumn("validation_errors", "text")
+      .addColumn("parsed_schema", "text")
+      .addColumn("entity_count", "integer", (col) => col.defaultTo(0))
+      .addColumn("relationship_count", "integer", (col) => col.defaultTo(0))
+      .addColumn("ai_suggestions", "text")
+      .addColumn("ai_enhanced", "integer", (col) => col.defaultTo(0))
+      .addColumn("import_source", "text")
+      .addColumn("import_metadata", "text")
+      .addColumn("created_by", "text")
+      .addColumn("commit_message", "text")
+      .addColumn("change_summary", "text")
+      .addColumn("created_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addIndex("project_id_idx", ["project_id"])
+      .addIndex("is_current_idx", ["is_current"])
+      .addIndex("created_at_idx", ["created_at"])
+      .execute();
+  } catch {
+    // Table already exists, ignore
+  }
 
   // ============================================
   // WORKFLOWS TABLE - All workflow particulars
   // ============================================
-  await database.schema.hasTable("workflows").then(async (exists: boolean) => {
-    if (!exists) {
-      await database.schema.createTable("workflows", (table: any) => {
-        table.string("id").primary();
-        table.string("project_id").notNullable().references("id").inTable("projects").onDelete("CASCADE");
-
-        // Workflow Identification
-        table.string("name").notNullable();
-        table.string("service_name").notNullable(); // e.g., "UserService", "OrderService"
-        table.string("workflow_type", 50).defaultTo("crud"); // crud, custom, event_driven
-
-        // Visual Design
-        table.text("mermaid_code").notNullable(); // Workflow diagram
-        table.text("description").nullable();
-
-        // Extension Points - BEFORE/AFTER hooks
-        table.text("extension_points").nullable(); // JSON: detailed hook configuration
-        // Example: {
-        //   beforeCreate: { enabled: true, code: "..." },
-        //   afterCreate: { enabled: true, code: "..." },
-        //   beforeUpdate: { enabled: false },
-        //   afterUpdate: { enabled: true, code: "..." },
-        //   beforeDelete: { enabled: true, code: "..." },
-        //   afterDelete: { enabled: false },
-        //   customHooks: [...]
-        // }
-
-        // Workflow Configuration
-        table.text("config").nullable(); // JSON: timeouts, retries, etc.
-        table.json("triggers").nullable(); // Event triggers
-        table.json("conditions").nullable(); // Conditional logic
-
-        // Generated Code
-        table.text("generated_code").nullable(); // The actual workflow implementation
-        table.string("code_language", 20).defaultTo("typescript"); // typescript, javascript, python
-
-        // Status
-        table.string("status", 20).defaultTo("draft"); // draft, active, inactive, deprecated
-        table.boolean("is_enabled").defaultTo(true);
-
-        // Timestamps
-        table.timestamp("created_at").defaultTo(database.fn.now());
-        table.timestamp("updated_at").defaultTo(database.fn.now());
-        table.timestamp("last_executed_at").nullable();
-
-        // Indexes
-        table.index("project_id");
-        table.index("service_name");
-        table.index("status");
-      });
-    }
-  });
+  try {
+    await database.schema
+      .createTable("workflows")
+      .ifNotExists()
+      .addColumn("id", "text", (col) => col.primaryKey())
+      .addColumn("project_id", "text", (col) => col.notNull())
+      .addColumn("name", "text", (col) => col.notNull())
+      .addColumn("service_name", "text", (col) => col.notNull())
+      .addColumn("workflow_type", "text", (col) => col.defaultTo("crud"))
+      .addColumn("mermaid_code", "text", (col) => col.notNull())
+      .addColumn("description", "text")
+      .addColumn("extension_points", "text")
+      .addColumn("config", "text")
+      .addColumn("triggers", "text")
+      .addColumn("conditions", "text")
+      .addColumn("generated_code", "text")
+      .addColumn("code_language", "text", (col) => col.defaultTo("typescript"))
+      .addColumn("status", "text", (col) => col.defaultTo("draft"))
+      .addColumn("is_enabled", "integer", (col) => col.defaultTo(1))
+      .addColumn("hook_definitions", "text")
+      .addColumn("flowchart_code", "text")
+      .addColumn("generated_hook_code", "text")
+      .addColumn("is_draft", "integer", (col) => col.defaultTo(0))
+      .addColumn("created_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addColumn("updated_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addColumn("last_executed_at", "text")
+      .addIndex("project_id_idx", ["project_id"])
+      .addIndex("service_name_idx", ["service_name"])
+      .addIndex("status_idx", ["status"])
+      .execute();
+  } catch {
+    // Table already exists, ignore
+  }
 
   // ============================================
   // GENERATION HISTORY TABLE - Track all generations
   // ============================================
-  await database.schema.hasTable("generation_history").then(async (exists: boolean) => {
-    if (!exists) {
-      await database.schema.createTable("generation_history", (table: any) => {
-        table.string("id").primary();
-        table.string("project_id").notNullable().references("id").inTable("projects").onDelete("CASCADE");
-
-        // Generation Configuration
-        table.string("stack_type").notNullable();
-        table.string("stack_version", 50).nullable();
-        table.text("generation_options").nullable(); // JSON: additional options
-
-        // Status Tracking
-        table.string("status", 20).notNullable(); // pending, generating, completed, failed, cancelled
-        table.integer("progress").defaultTo(0); // 0-100
-        table.string("current_step").nullable(); // e.g., "Creating models...", "Generating UI..."
-
-        // Output Information - Generated paths and environments
-        table.text("generated_path").nullable(); // Main output directory
-        table.text("output_structure").nullable(); // JSON: directory structure created
-        table.integer("port").nullable(); // Port assigned (4001)
-
-        // File Manifest - ALL generated files
-        table.text("file_manifest").nullable(); // JSON: {files: [{path, size, type, hash}]}
-        table.text("entry_points").nullable(); // JSON: main files to run
-
-        // Build & Run Configuration
-        table.text("build_command").nullable(); // e.g., "bun run build"
-        table.text("start_command").nullable(); // e.g., "bun run dev"
-        table.text("install_command").nullable(); // e.g., "bun install"
-        table.json("dependencies").nullable(); // Package dependencies
-        table.json("dev_dependencies").nullable(); // Dev dependencies
-
-        // Environment Configuration
-        table.text("environment_config").nullable(); // JSON: {DEV: {}, PROD: {}}
-        table.text("docker_config").nullable(); // JSON: docker configuration if generated
-
-        // Logs & Debugging
-        table.text("logs").nullable(); // Complete generation logs
-        table.text("error_message").nullable(); // Error details if failed
-        table.text("warnings").nullable(); // JSON: array of warnings
-        table.integer("files_generated").defaultTo(0);
-        table.integer("total_size_bytes").defaultTo(0);
-
-        // Timing
-        table.timestamp("started_at").defaultTo(database.fn.now());
-        table.timestamp("completed_at").nullable();
-        table.integer("duration_ms").nullable(); // Generation duration
-
-        // Indexes
-        table.index("project_id");
-        table.index("status");
-        table.index("started_at");
-      });
-    }
-  });
+  try {
+    await database.schema
+      .createTable("generation_history")
+      .ifNotExists()
+      .addColumn("id", "text", (col) => col.primaryKey())
+      .addColumn("project_id", "text", (col) => col.notNull())
+      .addColumn("stack_type", "text", (col) => col.notNull())
+      .addColumn("stack_version", "text")
+      .addColumn("generation_options", "text")
+      .addColumn("status", "text", (col) => col.notNull())
+      .addColumn("progress", "integer", (col) => col.defaultTo(0))
+      .addColumn("current_step", "text")
+      .addColumn("generated_path", "text")
+      .addColumn("output_structure", "text")
+      .addColumn("port", "integer")
+      .addColumn("file_manifest", "text")
+      .addColumn("entry_points", "text")
+      .addColumn("build_command", "text")
+      .addColumn("start_command", "text")
+      .addColumn("install_command", "text")
+      .addColumn("dependencies", "text")
+      .addColumn("dev_dependencies", "text")
+      .addColumn("environment_config", "text")
+      .addColumn("docker_config", "text")
+      .addColumn("logs", "text")
+      .addColumn("error_message", "text")
+      .addColumn("warnings", "text")
+      .addColumn("files_generated", "integer", (col) => col.defaultTo(0))
+      .addColumn("total_size_bytes", "integer", (col) => col.defaultTo(0))
+      .addColumn("started_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addColumn("completed_at", "text")
+      .addColumn("duration_ms", "integer")
+      .addIndex("project_id_idx", ["project_id"])
+      .addIndex("status_idx", ["status"])
+      .addIndex("started_at_idx", ["started_at"])
+      .execute();
+  } catch {
+    // Table already exists, ignore
+  }
 
   // ============================================
   // DEPLOYMENTS TABLE - Deployment particulars
   // ============================================
-  await database.schema.hasTable("deployments").then(async (exists: boolean) => {
-    if (!exists) {
-      await database.schema.createTable("deployments", (table: any) => {
-        table.string("id").primary();
-        table.string("project_id").notNullable().references("id").inTable("projects").onDelete("CASCADE");
-
-        // Deployment Status
-        table.string("status", 20).defaultTo("stopped"); // running, stopped, error, starting, stopping
-        table.string("environment", 20).defaultTo("development"); // development, staging, production
-
-        // Connection Details
-        table.string("deployment_url").nullable(); // e.g., "http://localhost:4001"
-        table.integer("port").defaultTo(4001);
-        table.string("host").defaultTo("localhost");
-
-        // Process Details
-        table.string("process_id").nullable(); // PID if running as separate process
-        table.text("process_command").nullable(); // Command used to start
-
-        // Health & Monitoring
-        table.text("uptime").nullable(); // Formatted uptime string
-        table.integer("uptime_seconds").nullable(); // Uptime in seconds
-        table.timestamp("last_health_check").nullable();
-        table.json("health_status").nullable(); // {status: "healthy", checks: [...]}
-
-        // Resource Usage
-        table.json("resource_usage").nullable(); // {cpu: ..., memory: ..., disk: ...}
-
-        // Deployment Configuration
-        table.text("deployment_config").nullable(); // JSON: env vars, settings
-        table.boolean("auto_restart").defaultTo(false);
-        table.integer("restart_count").defaultTo(0);
-
-        // Logs
-        table.text("stdout_log").nullable(); // Standard output
-        table.text("stderr_log").nullable(); // Error output
-
-        // Timestamps
-        table.timestamp("started_at").nullable();
-        table.timestamp("stopped_at").nullable();
-        table.timestamp("created_at").defaultTo(database.fn.now());
-        table.timestamp("updated_at").defaultTo(database.fn.now());
-
-        // Indexes
-        table.index("project_id");
-        table.index("status");
-        table.index("environment");
-      });
-    }
-  });
+  try {
+    await database.schema
+      .createTable("deployments")
+      .ifNotExists()
+      .addColumn("id", "text", (col) => col.primaryKey())
+      .addColumn("project_id", "text", (col) => col.notNull())
+      .addColumn("status", "text", (col) => col.defaultTo("stopped"))
+      .addColumn("environment", "text", (col) => col.defaultTo("development"))
+      .addColumn("deployment_url", "text")
+      .addColumn("port", "integer", (col) => col.defaultTo(4001))
+      .addColumn("host", "text", (col) => col.defaultTo("localhost"))
+      .addColumn("process_id", "text")
+      .addColumn("process_command", "text")
+      .addColumn("uptime", "text")
+      .addColumn("uptime_seconds", "integer")
+      .addColumn("last_health_check", "text")
+      .addColumn("health_status", "text")
+      .addColumn("resource_usage", "text")
+      .addColumn("deployment_config", "text")
+      .addColumn("auto_restart", "integer", (col) => col.defaultTo(0))
+      .addColumn("restart_count", "integer", (col) => col.defaultTo(0))
+      .addColumn("stdout_log", "text")
+      .addColumn("stderr_log", "text")
+      .addColumn("started_at", "text")
+      .addColumn("stopped_at", "text")
+      .addColumn("created_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addColumn("updated_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addIndex("project_id_idx", ["project_id"])
+      .addIndex("status_idx", ["status"])
+      .addIndex("environment_idx", ["environment"])
+      .execute();
+  } catch {
+    // Table already exists, ignore
+  }
 
   // ============================================
   // ENTITIES TABLE - Parsed schema entities
   // ============================================
-  await database.schema.hasTable("entities").then(async (exists: boolean) => {
-    if (!exists) {
-      await database.schema.createTable("entities", (table: any) => {
-        table.string("id").primary();
-        table.string("project_id").notNullable().references("id").inTable("projects").onDelete("CASCADE");
-        table.string("erd_version_id").nullable().references("id").inTable("erd_versions").onDelete("CASCADE");
-
-        // Entity Details
-        table.string("name").notNullable();
-        table.text("display_name").nullable();
-        table.string("type", 20).defaultTo("entity"); // entity, value_object, enum
-        table.text("description").nullable();
-
-        // Schema Definition
-        table.text("schema").nullable(); // JSON: complete entity schema
-        table.json("fields").nullable(); // JSON: array of fields
-        table.json("relationships").nullable(); // JSON: relationships to other entities
-
-        // Generation Options
-        table.boolean("generate_api").defaultTo(true);
-        table.boolean("generate_ui").defaultTo(true);
-        table.boolean("generate_crud").defaultTo(true);
-
-        // Timestamps
-        table.timestamp("created_at").defaultTo(database.fn.now());
-        table.timestamp("updated_at").defaultTo(database.fn.now());
-
-        // Indexes
-        table.index("project_id");
-        table.index("erd_version_id");
-        table.index("name");
-      });
-    }
-  });
+  try {
+    await database.schema
+      .createTable("entities")
+      .ifNotExists()
+      .addColumn("id", "text", (col) => col.primaryKey())
+      .addColumn("project_id", "text", (col) => col.notNull())
+      .addColumn("erd_version_id", "text")
+      .addColumn("name", "text", (col) => col.notNull())
+      .addColumn("display_name", "text")
+      .addColumn("type", "text", (col) => col.defaultTo("entity"))
+      .addColumn("description", "text")
+      .addColumn("schema", "text")
+      .addColumn("fields", "text")
+      .addColumn("relationships", "text")
+      .addColumn("generate_api", "integer", (col) => col.defaultTo(1))
+      .addColumn("generate_ui", "integer", (col) => col.defaultTo(1))
+      .addColumn("generate_crud", "integer", (col) => col.defaultTo(1))
+      .addColumn("created_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addColumn("updated_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addIndex("project_id_idx", ["project_id"])
+      .addIndex("erd_version_id_idx", ["erd_version_id"])
+      .addIndex("name_idx", ["name"])
+      .execute();
+  } catch {
+    // Table already exists, ignore
+  }
 
   // ============================================
   // SETTINGS TABLE - Application settings
   // ============================================
-  await database.schema.hasTable("settings").then(async (exists: boolean) => {
-    if (!exists) {
-      await database.schema.createTable("settings", (table: any) => {
-        table.string("key").primary();
-        table.text("value").nullable();
-        table.string("type", 20).defaultTo("string"); // string, number, boolean, json
-        table.text("description").nullable();
-        table.timestamp("updated_at").defaultTo(database.fn.now());
-      });
-    }
-  });
+  try {
+    await database.schema
+      .createTable("settings")
+      .ifNotExists()
+      .addColumn("key", "text", (col) => col.primaryKey())
+      .addColumn("value", "text")
+      .addColumn("type", "text", (col) => col.defaultTo("string"))
+      .addColumn("description", "text")
+      .addColumn("updated_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .execute();
+  } catch {
+    // Table already exists, ignore
+  }
+
+  // ============================================
+  // BETTER AUTH TABLES - Authentication
+  // ============================================
+
+  // Auth Users Table
+  try {
+    await database.schema
+      .createTable("auth_users")
+      .ifNotExists()
+      .addColumn("id", "text", (col) => col.primaryKey())
+      .addColumn("email", "text", (col) => col.notNull().unique())
+      .addColumn("name", "text")
+      .addColumn("image", "text")
+      .addColumn("emailVerified", "integer", (col) => col.defaultTo(0))
+      .addColumn("createdAt", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addColumn("updatedAt", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addIndex("email_idx", ["email"])
+      .execute();
+  } catch {
+    // Table already exists, ignore
+  }
+
+  // Auth Sessions Table
+  try {
+    await database.schema
+      .createTable("auth_sessions")
+      .ifNotExists()
+      .addColumn("id", "text", (col) => col.primaryKey())
+      .addColumn("userId", "text", (col) => col.notNull())
+      .addColumn("token", "text", (col) => col.notNull().unique())
+      .addColumn("expiresAt", "text", (col) => col.notNull())
+      .addColumn("createdAt", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addColumn("updatedAt", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addIndex("userId_idx", ["userId"])
+      .addIndex("token_idx", ["token"])
+      .execute();
+  } catch {
+    // Table already exists, ignore
+  }
+
+  // Auth Accounts Table (for OAuth)
+  try {
+    await database.schema
+      .createTable("auth_accounts")
+      .ifNotExists()
+      .addColumn("id", "text", (col) => col.primaryKey())
+      .addColumn("userId", "text", (col) => col.notNull())
+      .addColumn("provider", "text", (col) => col.notNull())
+      .addColumn("providerAccountId", "text", (col) => col.notNull())
+      .addColumn("refreshToken", "text")
+      .addColumn("accessToken", "text")
+      .addColumn("expiresAt", "integer")
+      .addColumn("createdAt", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addIndex("userId_idx", ["userId"])
+      .addIndex("provider_idx", ["provider"])
+      .execute();
+  } catch {
+    // Table already exists, ignore
+  }
+
+  // Auth Verification Tokens Table
+  try {
+    await database.schema
+      .createTable("auth_verification_tokens")
+      .ifNotExists()
+      .addColumn("token", "text", (col) => col.primaryKey())
+      .addColumn("email", "text", (col) => col.notNull())
+      .addColumn("expires", "text", (col) => col.notNull())
+      .addColumn("createdAt", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+      .addIndex("email_idx", ["email"])
+      .execute();
+  } catch {
+    // Table already exists, ignore
+  }
 }
 
 /**
@@ -539,7 +648,6 @@ function transformProject(dbProject: any): any {
     deploymentStatus: dbProject.deployment_status,
     deploymentUrl: dbProject.deployment_url,
     uptime: dbProject.uptime,
-    // Include all other fields...
   };
 }
 
@@ -553,23 +661,24 @@ export const projectDb = {
   async findAll(options?: { status?: string; includeDeleted?: boolean }) {
     try {
       const database = getDatabase();
-      let query = database("projects");
+      let query = database.selectFrom("projects").selectAll();
 
       if (!options?.includeDeleted) {
-        query = query.where("is_deleted", false);
+        query = query.where("is_deleted", "=", false as any);
       }
 
       if (options?.status) {
-        query = query.where("status", options.status);
+        query = query.where("status", "=", options.status);
       }
 
-      const dbProjects = await query.orderBy("updated_at", "desc").select("*");
+      const dbProjects = await query.orderBy("updated_at", "desc").execute();
 
-      // Transform all projects to camelCase
-      return dbProjects.map(transformProject);
+      return (dbProjects as any[]).map(transformProject);
     } catch (error) {
-      // If database fails, return empty array for now
-      console.warn("Database unavailable, returning empty projects list:", error instanceof Error ? error.message : String(error));
+      console.warn(
+        "Database unavailable, returning empty projects list:",
+        error instanceof Error ? error.message : String(error)
+      );
       return [];
     }
   },
@@ -580,21 +689,26 @@ export const projectDb = {
   async search(searchTerm: string) {
     try {
       const database = getDatabase();
-      const dbProjects = await database("projects")
-        .where("is_deleted", false)
-        .where((builder: any) => {
-          builder
-            .where("name", "like", `%${searchTerm}%`)
-            .orWhere("description", "like", `%${searchTerm}%`);
-        })
+      const dbProjects = await database
+        .selectFrom("projects")
+        .selectAll()
+        .where("is_deleted", "=", false as any)
+        .where((eb) =>
+          eb(sql`lower(${eb.ref("name")})`, "like", `%${searchTerm.toLowerCase()}%`).or(
+            sql`lower(${eb.ref("description")})`,
+            "like",
+            `%${searchTerm.toLowerCase()}%`
+          )
+        )
         .orderBy("updated_at", "desc")
-        .select("*");
+        .execute();
 
-      // Transform all projects to camelCase
-      return dbProjects.map(transformProject);
+      return (dbProjects as any[]).map(transformProject);
     } catch (error) {
-      // If database fails, return empty array for now
-      console.warn("Database unavailable, returning empty search results:", error instanceof Error ? error.message : String(error));
+      console.warn(
+        "Database unavailable, returning empty search results:",
+        error instanceof Error ? error.message : String(error)
+      );
       return [];
     }
   },
@@ -604,54 +718,54 @@ export const projectDb = {
    */
   async findById(id: string) {
     const database = getDatabase();
-    const dbProject = await database("projects")
-      .where("id", id)
-      .where("is_deleted", false)
-      .first();
+    const dbProject = await database
+      .selectFrom("projects")
+      .selectAll()
+      .where("id", "=", id)
+      .where("is_deleted", "=", false as any)
+      .executeTakeFirst();
 
     if (!dbProject) return null;
 
-    // Transform basic project fields to camelCase
     const project = transformProject(dbProject);
 
-    // Get ALL related data for complete project state
-    const [currentErdVersion, erdVersions, workflows, entities, latestGeneration, deployment] = await Promise.all([
-      erdVersionDb.getCurrentErdVersion(id),
-      erdVersionDb.getVersions(id),
-      workflowDb.getWorkflows(id),
-      entityDb.getByProject(id),
-      generationHistoryDb.getLatest(id),
-      deploymentDb.getDeployment(id),
-    ]);
+    const [currentErdVersion, erdVersions, workflows, entities, latestGeneration, deployment] =
+      await Promise.all([
+        erdVersionDb.getCurrentErdVersion(id),
+        erdVersionDb.getVersions(id),
+        workflowDb.getWorkflows(id),
+        entityDb.getByProject(id),
+        generationHistoryDb.getLatest(id),
+        deploymentDb.getDeployment(id),
+      ]);
 
     return {
       ...project,
-      // ERD Data
-      erdCode: currentErdVersion?.mermaid_code,
+      erdCode: (currentErdVersion as any)?.mermaid_code,
       erdVersions,
-      parsedSchema: currentErdVersion?.parsed_schema ? JSON.parse(currentErdVersion.parsed_schema) : undefined,
-
-      // Workflow Data
+      parsedSchema: (currentErdVersion as any)?.parsed_schema
+        ? JSON.parse((currentErdVersion as any).parsed_schema)
+        : undefined,
       workflows,
-
-      // Schema Entities
       entities,
-
-      // Generation Data
-      generatedPath: latestGeneration?.generated_path,
-      fileManifest: latestGeneration?.file_manifest ? JSON.parse(latestGeneration.file_manifest) : undefined,
-      generationStatus: latestGeneration?.status,
-      generationOptions: latestGeneration?.generation_options ? JSON.parse(latestGeneration.generation_options) : undefined,
-
-      // Deployment Data
-      deploymentStatus: deployment?.status,
-      deploymentUrl: deployment?.deployment_url,
-      uptime: deployment?.uptime,
-      deploymentEnvironment: deployment?.environment,
-
-      // Configuration Data
-      environmentVariables: dbProject.environment_variables ? JSON.parse(dbProject.environment_variables) : {},
-      buildConfig: dbProject.build_config ? JSON.parse(dbProject.build_config) : {},
+      generatedPath: (latestGeneration as any)?.generated_path,
+      fileManifest: (latestGeneration as any)?.file_manifest
+        ? JSON.parse((latestGeneration as any).file_manifest)
+        : undefined,
+      generationStatus: (latestGeneration as any)?.status,
+      generationOptions: (latestGeneration as any)?.generation_options
+        ? JSON.parse((latestGeneration as any).generation_options)
+        : undefined,
+      deploymentStatus: (deployment as any)?.status,
+      deploymentUrl: (deployment as any)?.deployment_url,
+      uptime: (deployment as any)?.uptime,
+      deploymentEnvironment: (deployment as any)?.environment,
+      environmentVariables: (dbProject as any).environment_variables
+        ? JSON.parse((dbProject as any).environment_variables)
+        : {},
+      buildConfig: (dbProject as any).build_config
+        ? JSON.parse((dbProject as any).build_config)
+        : {},
     };
   },
 
@@ -679,26 +793,34 @@ export const projectDb = {
     is_tailwind?: boolean;
   }) {
     const database = getDatabase();
-    const [project] = await database("projects").insert({
-      id: data.id,
-      name: data.name,
-      description: data.description,
-      icon: data.icon || "📊",
-      icon_color: data.icon_color || "#3b82f6",
-      stack_type: data.stack_type || "nextjs",
-      stack_version: data.stack_version || "latest",
-      port: data.port || 4001,
-      base_url: data.base_url || `http://localhost:${data.port || 4001}`,
-      database_url: data.database_url,
-      database_type: data.database_type || "sqlite",
-      environment_variables: JSON.stringify(data.environment_variables || {}),
-      secrets: JSON.stringify(data.secrets || {}),
-      generated_path: data.generated_path,
-      output_directory: data.output_directory,
-      build_config: JSON.stringify(data.build_config || {}),
-      is_typescript: data.is_typescript !== false,
-      is_tailwind: data.is_tailwind !== false,
-    }).returning("*");
+    const [project] = await database
+      .insertInto("projects")
+      .values({
+        id: data.id,
+        name: data.name,
+        description: data.description || null,
+        icon: data.icon || "📊",
+        icon_color: data.icon_color || "#3b82f6",
+        stack_type: data.stack_type || "nestjs",
+        stack_version: data.stack_version || "latest",
+        port: data.port || 4001,
+        base_url: data.base_url || `http://localhost:${data.port || 4001}`,
+        database_url: data.database_url || null,
+        database_type: data.database_type || "sqlite",
+        environment_variables: JSON.stringify(data.environment_variables || {}),
+        secrets: JSON.stringify(data.secrets || {}),
+        generated_path: data.generated_path || null,
+        output_directory: data.output_directory || null,
+        build_config: JSON.stringify(data.build_config || {}),
+        is_typescript: (data.is_typescript !== false ? 1 : 0) as any,
+        is_tailwind: (data.is_tailwind !== false ? 1 : 0) as any,
+        is_deleted: false as any,
+        status: "draft",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      } as any)
+      .returningAll()
+      .execute();
 
     return project;
   },
@@ -706,31 +828,34 @@ export const projectDb = {
   /**
    * Update a project
    */
-  async update(id: string, data: {
-    name?: string;
-    description?: string;
-    icon?: string;
-    icon_color?: string;
-    status?: string;
-    stack_type?: string;
-    stack_version?: string;
-    port?: number;
-    base_url?: string;
-    database_url?: string;
-    database_type?: string;
-    database_schema?: string;
-    environment_variables?: Record<string, any>;
-    secrets?: Record<string, any>;
-    generated_path?: string;
-    generatedPath?: string; // Alias for generated_path (camelCase)
-    output_directory?: string;
-    build_config?: Record<string, any>;
-    deployment_url?: string;
-    deploymentStatus?: string;
-    uptime?: string;
-  }) {
+  async update(
+    id: string,
+    data: {
+      name?: string;
+      description?: string;
+      icon?: string;
+      icon_color?: string;
+      status?: string;
+      stack_type?: string;
+      stack_version?: string;
+      port?: number;
+      base_url?: string;
+      database_url?: string;
+      database_type?: string;
+      database_schema?: string;
+      environment_variables?: Record<string, any>;
+      secrets?: Record<string, any>;
+      generated_path?: string;
+      generatedPath?: string;
+      output_directory?: string;
+      build_config?: Record<string, any>;
+      deployment_url?: string;
+      deploymentStatus?: string;
+      uptime?: string;
+    }
+  ) {
     const database = getDatabase();
-    const updateData: any = {};
+    const updateData: any = { updated_at: new Date().toISOString() };
 
     if (data.name !== undefined) updateData.name = data.name;
     if (data.description !== undefined) updateData.description = data.description;
@@ -744,20 +869,24 @@ export const projectDb = {
     if (data.database_url !== undefined) updateData.database_url = data.database_url;
     if (data.database_type !== undefined) updateData.database_type = data.database_type;
     if (data.database_schema !== undefined) updateData.database_schema = data.database_schema;
-    if (data.environment_variables !== undefined) updateData.environment_variables = JSON.stringify(data.environment_variables);
+    if (data.environment_variables !== undefined)
+      updateData.environment_variables = JSON.stringify(data.environment_variables);
     if (data.secrets !== undefined) updateData.secrets = JSON.stringify(data.secrets);
     if (data.generated_path !== undefined) updateData.generated_path = data.generated_path;
-    if (data.generatedPath !== undefined) updateData.generated_path = data.generatedPath; // camelCase alias
+    if (data.generatedPath !== undefined) updateData.generated_path = data.generatedPath;
     if (data.output_directory !== undefined) updateData.output_directory = data.output_directory;
-    if (data.build_config !== undefined) updateData.build_config = JSON.stringify(data.build_config);
+    if (data.build_config !== undefined)
+      updateData.build_config = JSON.stringify(data.build_config);
     if (data.deployment_url !== undefined) updateData.deployment_url = data.deployment_url;
     if (data.uptime !== undefined) updateData.uptime = data.uptime;
     if (data.deploymentStatus !== undefined) updateData.deployment_status = data.deploymentStatus;
 
-    const [project] = await database("projects")
-      .where("id", id)
-      .update(updateData)
-      .returning("*");
+    const [project] = await database
+      .updateTable("projects")
+      .set(updateData)
+      .where("id", "=", id)
+      .returningAll()
+      .execute();
 
     return project;
   },
@@ -767,11 +896,11 @@ export const projectDb = {
    */
   async softDelete(id: string) {
     const database = getDatabase();
-    await database("projects")
-      .where("id", id)
-      .update({
-        is_deleted: true,
-      });
+    await database
+      .updateTable("projects")
+      .set({ is_deleted: true as any })
+      .where("id", "=", id)
+      .execute();
   },
 
   /**
@@ -779,7 +908,7 @@ export const projectDb = {
    */
   async delete(id: string) {
     const database = getDatabase();
-    await database("projects").where("id", id).del();
+    await database.deleteFrom("projects").where("id", "=", id).execute();
   },
 };
 
@@ -792,10 +921,12 @@ export const erdVersionDb = {
    */
   async getVersions(projectId: string) {
     const database = getDatabase();
-    return await database("erd_versions")
-      .where("project_id", projectId)
+    return await database
+      .selectFrom("erd_versions")
+      .selectAll()
+      .where("project_id", "=", projectId)
       .orderBy("version_number", "desc")
-      .select("*");
+      .execute();
   },
 
   /**
@@ -803,10 +934,12 @@ export const erdVersionDb = {
    */
   async getCurrentErdVersion(projectId: string) {
     const database = getDatabase();
-    return await database("erd_versions")
-      .where("project_id", projectId)
-      .where("is_current", true)
-      .first();
+    return await database
+      .selectFrom("erd_versions")
+      .selectAll()
+      .where("project_id", "=", projectId)
+      .where("is_current", "=", true as any)
+      .executeTakeFirst();
   },
 
   /**
@@ -831,40 +964,47 @@ export const erdVersionDb = {
   }) {
     const database = getDatabase();
 
-    // Get the next version number
-    const lastVersion = await database("erd_versions")
-      .where("project_id", data.project_id)
+    const lastVersion = await database
+      .selectFrom("erd_versions")
+      .select("version_number")
+      .where("project_id", "=", data.project_id)
       .orderBy("version_number", "desc")
-      .first();
+      .executeTakeFirst();
 
-    const versionNumber = (lastVersion?.version_number || 0) + 1;
+    const versionNumber = ((lastVersion as any)?.version_number || 0) + 1;
 
-    // If this is the current version, unset previous current versions
     if (data.is_current) {
-      await database("erd_versions")
-        .where("project_id", data.project_id)
-        .update({ is_current: false });
+      await database
+        .updateTable("erd_versions")
+        .set({ is_current: false as any })
+        .where("project_id", "=", data.project_id)
+        .execute();
     }
 
-    const [version] = await database("erd_versions").insert({
-      id: `erd_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      project_id: data.project_id,
-      version_number: versionNumber,
-      mermaid_code: data.mermaid_code,
-      description: data.description,
-      is_current: data.is_current ?? true,
-      created_by: data.created_by,
-      validation_errors: JSON.stringify(data.validation_errors || []),
-      parsed_schema: JSON.stringify(data.parsed_schema || {}),
-      entity_count: data.entity_count || 0,
-      relationship_count: data.relationship_count || 0,
-      ai_suggestions: JSON.stringify(data.ai_suggestions || {}),
-      ai_enhanced: data.ai_enhanced || false,
-      import_source: data.import_source,
-      import_metadata: JSON.stringify(data.import_metadata || {}),
-      commit_message: data.commit_message,
-      change_summary: JSON.stringify(data.change_summary || {}),
-    }).returning("*");
+    const [version] = await database
+      .insertInto("erd_versions")
+      .values({
+        id: `erd_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        project_id: data.project_id,
+        version_number: versionNumber,
+        mermaid_code: data.mermaid_code,
+        description: data.description || null,
+        is_current: (data.is_current ?? true) as any,
+        created_by: data.created_by || null,
+        validation_errors: JSON.stringify(data.validation_errors || []),
+        parsed_schema: JSON.stringify(data.parsed_schema || {}),
+        entity_count: data.entity_count || 0,
+        relationship_count: data.relationship_count || 0,
+        ai_suggestions: JSON.stringify(data.ai_suggestions || {}),
+        ai_enhanced: (data.ai_enhanced || false) as any,
+        import_source: data.import_source || null,
+        import_metadata: JSON.stringify(data.import_metadata || {}),
+        commit_message: data.commit_message || null,
+        change_summary: JSON.stringify(data.change_summary || {}),
+        created_at: new Date().toISOString(),
+      } as any)
+      .returningAll()
+      .execute();
 
     return version;
   },
@@ -875,25 +1015,31 @@ export const erdVersionDb = {
   async setCurrentVersion(versionId: string) {
     const database = getDatabase();
 
-    const version = await database("erd_versions")
-      .where("id", versionId)
-      .first();
+    const version = await database
+      .selectFrom("erd_versions")
+      .selectAll()
+      .where("id", "=", versionId)
+      .executeTakeFirst();
 
     if (!version) return null;
 
-    // Unset previous current versions
-    await database("erd_versions")
-      .where("project_id", version.project_id)
-      .update({ is_current: false });
+    await database
+      .updateTable("erd_versions")
+      .set({ is_current: false as any })
+      .where("project_id", "=", (version as any).project_id)
+      .execute();
 
-    // Set this as current
-    await database("erd_versions")
-      .where("id", versionId)
-      .update({ is_current: true });
+    await database
+      .updateTable("erd_versions")
+      .set({ is_current: true as any })
+      .where("id", "=", versionId)
+      .execute();
 
-    return await database("erd_versions")
-      .where("id", versionId)
-      .first();
+    return await database
+      .selectFrom("erd_versions")
+      .selectAll()
+      .where("id", "=", versionId)
+      .executeTakeFirst();
   },
 
   /**
@@ -901,7 +1047,7 @@ export const erdVersionDb = {
    */
   async delete(versionId: string) {
     const database = getDatabase();
-    await database("erd_versions").where("id", versionId).del();
+    await database.deleteFrom("erd_versions").where("id", "=", versionId).execute();
   },
 };
 
@@ -914,10 +1060,12 @@ export const workflowDb = {
    */
   async getWorkflows(projectId: string) {
     const database = getDatabase();
-    return await database("workflows")
-      .where("project_id", projectId)
+    return await database
+      .selectFrom("workflows")
+      .selectAll()
+      .where("project_id", "=", projectId)
       .orderBy("created_at", "desc")
-      .select("*");
+      .execute();
   },
 
   /**
@@ -925,7 +1073,11 @@ export const workflowDb = {
    */
   async findById(id: string) {
     const database = getDatabase();
-    return await database("workflows").where("id", id).first();
+    return await database
+      .selectFrom("workflows")
+      .selectAll()
+      .where("id", "=", id)
+      .executeTakeFirst();
   },
 
   /**
@@ -946,21 +1098,29 @@ export const workflowDb = {
     code_language?: string;
   }) {
     const database = getDatabase();
-    const [workflow] = await database("workflows").insert({
-      id: `wf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      project_id: data.project_id,
-      name: data.name,
-      service_name: data.service_name,
-      workflow_type: data.workflow_type || "crud",
-      mermaid_code: data.mermaid_code,
-      description: data.description,
-      extension_points: JSON.stringify(data.extension_points || {}),
-      config: JSON.stringify(data.config || {}),
-      triggers: JSON.stringify(data.triggers || []),
-      conditions: JSON.stringify(data.conditions || []),
-      generated_code: data.generated_code,
-      code_language: data.code_language || "typescript",
-    }).returning("*");
+    const [workflow] = await database
+      .insertInto("workflows")
+      .values({
+        id: `wf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        project_id: data.project_id,
+        name: data.name,
+        service_name: data.service_name,
+        workflow_type: data.workflow_type || "crud",
+        mermaid_code: data.mermaid_code,
+        description: data.description || null,
+        extension_points: JSON.stringify(data.extension_points || {}),
+        config: JSON.stringify(data.config || {}),
+        triggers: JSON.stringify(data.triggers || []),
+        conditions: JSON.stringify(data.conditions || []),
+        generated_code: data.generated_code || null,
+        code_language: data.code_language || "typescript",
+        status: "draft",
+        is_enabled: true as any,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      } as any)
+      .returningAll()
+      .execute();
 
     return workflow;
   },
@@ -968,36 +1128,42 @@ export const workflowDb = {
   /**
    * Update a workflow
    */
-  async update(id: string, data: {
-    name?: string;
-    service_name?: string;
-    mermaid_code?: string;
-    description?: string;
-    status?: string;
-    extension_points?: any;
-    config?: any;
-    triggers?: any;
-    conditions?: any;
-    generated_code?: string;
-  }) {
+  async update(
+    id: string,
+    data: {
+      name?: string;
+      service_name?: string;
+      mermaid_code?: string;
+      description?: string;
+      status?: string;
+      extension_points?: any;
+      config?: any;
+      triggers?: any;
+      conditions?: any;
+      generated_code?: string;
+    }
+  ) {
     const database = getDatabase();
-    const updateData: any = {};
+    const updateData: any = { updated_at: new Date().toISOString() };
 
     if (data.name !== undefined) updateData.name = data.name;
     if (data.service_name !== undefined) updateData.service_name = data.service_name;
     if (data.mermaid_code !== undefined) updateData.mermaid_code = data.mermaid_code;
     if (data.description !== undefined) updateData.description = data.description;
     if (data.status !== undefined) updateData.status = data.status;
-    if (data.extension_points !== undefined) updateData.extension_points = JSON.stringify(data.extension_points);
+    if (data.extension_points !== undefined)
+      updateData.extension_points = JSON.stringify(data.extension_points);
     if (data.config !== undefined) updateData.config = JSON.stringify(data.config);
     if (data.triggers !== undefined) updateData.triggers = JSON.stringify(data.triggers);
     if (data.conditions !== undefined) updateData.conditions = JSON.stringify(data.conditions);
     if (data.generated_code !== undefined) updateData.generated_code = data.generated_code;
 
-    const [workflow] = await database("workflows")
-      .where("id", id)
-      .update(updateData)
-      .returning("*");
+    const [workflow] = await database
+      .updateTable("workflows")
+      .set(updateData)
+      .where("id", "=", id)
+      .returningAll()
+      .execute();
 
     return workflow;
   },
@@ -1007,13 +1173,12 @@ export const workflowDb = {
    */
   async delete(id: string) {
     const database = getDatabase();
-    await database("workflows").where("id", id).del();
+    await database.deleteFrom("workflows").where("id", "=", id).execute();
   },
 };
 
 /**
  * Hook Workflow database operations
- * Extends workflow functionality for hook-based workflows
  */
 export const hookWorkflowDb = {
   /**
@@ -1021,21 +1186,22 @@ export const hookWorkflowDb = {
    */
   async getByService(projectId: string, serviceName: string) {
     const database = getDatabase();
-    const workflow = await database("workflows")
-      .where("project_id", projectId)
-      .where("service_name", serviceName)
-      .where("workflow_type", "hooks")
-      .first();
+    const workflow = await database
+      .selectFrom("workflows")
+      .selectAll()
+      .where("project_id", "=", projectId)
+      .where("service_name", "=", serviceName)
+      .where("workflow_type", "=", "hooks")
+      .executeTakeFirst();
 
     if (!workflow) return null;
 
-    // Parse hook_definitions JSON
     return {
       ...workflow,
-      hook_definitions: workflow.hook_definitions
-        ? JSON.parse(workflow.hook_definitions)
+      hook_definitions: (workflow as any).hook_definitions
+        ? JSON.parse((workflow as any).hook_definitions)
         : [],
-      is_draft: Boolean(workflow.is_draft),
+      is_draft: Boolean((workflow as any).is_draft),
     };
   },
 
@@ -1044,17 +1210,17 @@ export const hookWorkflowDb = {
    */
   async getAllHookWorkflows(projectId: string) {
     const database = getDatabase();
-    const workflows = await database("workflows")
-      .where("project_id", projectId)
-      .where("workflow_type", "hooks")
+    const workflows = await database
+      .selectFrom("workflows")
+      .selectAll()
+      .where("project_id", "=", projectId)
+      .where("workflow_type", "=", "hooks")
       .orderBy("updated_at", "desc")
-      .select("*");
+      .execute();
 
-    return workflows.map((workflow: any) => ({
+    return (workflows as any[]).map((workflow) => ({
       ...workflow,
-      hook_definitions: workflow.hook_definitions
-        ? JSON.parse(workflow.hook_definitions)
-        : [],
+      hook_definitions: workflow.hook_definitions ? JSON.parse(workflow.hook_definitions) : [],
       is_draft: Boolean(workflow.is_draft),
     }));
   },
@@ -1072,8 +1238,6 @@ export const hookWorkflowDb = {
     description?: string;
   }) {
     const database = getDatabase();
-
-    // Check if workflow exists
     const existing = await this.getByService(data.projectId, data.serviceName);
 
     const workflowData = {
@@ -1083,18 +1247,19 @@ export const hookWorkflowDb = {
       workflow_type: "hooks",
       hook_definitions: JSON.stringify(data.hooks),
       flowchart_code: data.flowchartCode,
-      generated_hook_code: data.generatedHookCode,
+      generated_hook_code: data.generatedHookCode || null,
       is_draft: data.isDraft ? 1 : 0,
-      description: data.description,
+      description: data.description || null,
       updated_at: new Date().toISOString(),
     };
 
     if (existing) {
-      // Update existing
-      const [workflow] = await database("workflows")
-        .where("id", existing.id)
-        .update(workflowData)
-        .returning("*");
+      const [workflow] = await database
+        .updateTable("workflows")
+        .set(workflowData as any)
+        .where("id", "=", (existing as any).id)
+        .returningAll()
+        .execute();
 
       return {
         ...workflow,
@@ -1102,15 +1267,17 @@ export const hookWorkflowDb = {
         is_draft: data.isDraft,
       };
     } else {
-      // Create new
-      const [workflow] = await database("workflows")
-        .insert({
+      const [workflow] = await database
+        .insertInto("workflows")
+        .values({
           id: `wf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           ...workflowData,
           status: data.isDraft ? "draft" : "active",
+          is_enabled: true as any,
           created_at: new Date().toISOString(),
-        })
-        .returning("*");
+        } as any)
+        .returningAll()
+        .execute();
 
       return {
         ...workflow,
@@ -1157,11 +1324,12 @@ export const hookWorkflowDb = {
    */
   async deleteByService(projectId: string, serviceName: string) {
     const database = getDatabase();
-    await database("workflows")
-      .where("project_id", projectId)
-      .where("service_name", serviceName)
-      .where("workflow_type", "hooks")
-      .del();
+    await database
+      .deleteFrom("workflows")
+      .where("project_id", "=", projectId)
+      .where("service_name", "=", serviceName)
+      .where("workflow_type", "=", "hooks")
+      .execute();
   },
 
   /**
@@ -1172,41 +1340,36 @@ export const hookWorkflowDb = {
     serviceName: string;
     workflowId: string;
     hookType: string;
-    rules: string; // JSON stringified GoRules model
+    rules: string;
   }) {
     const database = getDatabase();
-
-    // Get the workflow
     const workflow = await this.getByService(data.projectId, data.serviceName);
     if (!workflow) {
       throw new Error(`Workflow not found for service ${data.serviceName}`);
     }
 
-    // Parse existing hook definitions
-    const hookDefinitions = workflow.hook_definitions || [];
-
-    // Find or create the hook that matches this hookType
+    const hookDefinitions = (workflow as any).hook_definitions || [];
     const hookIndex = hookDefinitions.findIndex((h: any) => h.type === data.hookType);
     if (hookIndex === -1) {
       throw new Error(`Hook of type ${data.hookType} not found in workflow`);
     }
 
-    // Store GoRules configuration in the hook
     hookDefinitions[hookIndex].goRules = data.rules;
 
-    // Update the workflow with the modified hook definitions
-    const [updatedWorkflow] = await database("workflows")
-      .where("id", workflow.id)
-      .update({
+    const [updatedWorkflow] = await database
+      .updateTable("workflows")
+      .set({
         hook_definitions: JSON.stringify(hookDefinitions),
         updated_at: new Date().toISOString(),
       })
-      .returning("*");
+      .where("id", "=", (workflow as any).id)
+      .returningAll()
+      .execute();
 
     return {
       ...updatedWorkflow,
       hook_definitions: hookDefinitions,
-      is_draft: updatedWorkflow.is_draft === 1,
+      is_draft: (updatedWorkflow as any).is_draft === 1,
     };
   },
 
@@ -1219,27 +1382,22 @@ export const hookWorkflowDb = {
     workflowId: string;
     hookType: string;
   }) {
-    // Get the workflow
     const workflow = await this.getByService(data.projectId, data.serviceName);
     if (!workflow) {
       return null;
     }
 
-    // Parse hook definitions
-    const hookDefinitions = workflow.hook_definitions || [];
-
-    // Find the hook that matches this hookType
+    const hookDefinitions = (workflow as any).hook_definitions || [];
     const hook = hookDefinitions.find((h: any) => h.type === data.hookType);
     if (!hook) {
       return null;
     }
 
-    // Return GoRules configuration
     return {
       workflowId: data.workflowId,
       hookType: data.hookType,
       rules: hook.goRules || null,
-      updatedAt: workflow.updated_at,
+      updatedAt: (workflow as any).updated_at,
     };
   },
 };
@@ -1253,10 +1411,12 @@ export const generationHistoryDb = {
    */
   async getAll(projectId: string) {
     const database = getDatabase();
-    return await database("generation_history")
-      .where("project_id", projectId)
+    return await database
+      .selectFrom("generation_history")
+      .selectAll()
+      .where("project_id", "=", projectId)
       .orderBy("started_at", "desc")
-      .select("*");
+      .execute();
   },
 
   /**
@@ -1264,10 +1424,12 @@ export const generationHistoryDb = {
    */
   async getLatest(projectId: string) {
     const database = getDatabase();
-    return await database("generation_history")
-      .where("project_id", projectId)
+    return await database
+      .selectFrom("generation_history")
+      .selectAll()
+      .where("project_id", "=", projectId)
       .orderBy("started_at", "desc")
-      .first();
+      .executeTakeFirst();
   },
 
   /**
@@ -1275,11 +1437,13 @@ export const generationHistoryDb = {
    */
   async getByStatus(projectId: string, status: string) {
     const database = getDatabase();
-    return await database("generation_history")
-      .where("project_id", projectId)
-      .where("status", status)
+    return await database
+      .selectFrom("generation_history")
+      .selectAll()
+      .where("project_id", "=", projectId)
+      .where("status", "=", status)
       .orderBy("started_at", "desc")
-      .select("*");
+      .execute();
   },
 
   /**
@@ -1293,15 +1457,20 @@ export const generationHistoryDb = {
     status: string;
   }) {
     const database = getDatabase();
-    const [generation] = await database("generation_history").insert({
-      id: `gen_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      project_id: data.project_id,
-      stack_type: data.stack_type,
-      stack_version: data.stack_version,
-      generation_options: JSON.stringify(data.generation_options || {}),
-      status: data.status,
-      progress: 0,
-    }).returning("*");
+    const [generation] = await database
+      .insertInto("generation_history")
+      .values({
+        id: `gen_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        project_id: data.project_id,
+        stack_type: data.stack_type,
+        stack_version: data.stack_version || null,
+        generation_options: JSON.stringify(data.generation_options || {}),
+        status: data.status,
+        progress: 0,
+        started_at: new Date().toISOString(),
+      } as any)
+      .returningAll()
+      .execute();
 
     return generation;
   },
@@ -1309,25 +1478,37 @@ export const generationHistoryDb = {
   /**
    * Update generation progress
    */
-  async updateProgress(id: string, data: {
-    progress?: number;
-    current_step?: string;
-    status?: string;
-    logs?: string;
-    error_message?: string;
-    warnings?: any;
-    files_generated?: number;
-    total_size_bytes?: number;
-  }) {
+  async updateProgress(
+    id: string,
+    data: {
+      progress?: number;
+      current_step?: string;
+      status?: string;
+      logs?: string;
+      error_message?: string;
+      warnings?: any;
+      files_generated?: number;
+      total_size_bytes?: number;
+    }
+  ) {
     const database = getDatabase();
-    const updateData: any = { ...data };
+    const updateData: any = {};
 
+    if (data.progress !== undefined) updateData.progress = data.progress;
+    if (data.current_step !== undefined) updateData.current_step = data.current_step;
+    if (data.status !== undefined) updateData.status = data.status;
+    if (data.logs !== undefined) updateData.logs = data.logs;
+    if (data.error_message !== undefined) updateData.error_message = data.error_message;
     if (data.warnings !== undefined) updateData.warnings = JSON.stringify(data.warnings);
+    if (data.files_generated !== undefined) updateData.files_generated = data.files_generated;
+    if (data.total_size_bytes !== undefined) updateData.total_size_bytes = data.total_size_bytes;
 
-    const [generation] = await database("generation_history")
-      .where("id", id)
-      .update(updateData)
-      .returning("*");
+    const [generation] = await database
+      .updateTable("generation_history")
+      .set(updateData)
+      .where("id", "=", id)
+      .returningAll()
+      .execute();
 
     return generation;
   },
@@ -1335,44 +1516,55 @@ export const generationHistoryDb = {
   /**
    * Complete generation with output details
    */
-  async complete(id: string, data: {
-    generated_path: string;
-    output_structure?: any;
-    port?: number;
-    file_manifest?: any;
-    entry_points?: any;
-    build_command?: string;
-    start_command?: string;
-    install_command?: string;
-    dependencies?: any;
-    dev_dependencies?: any;
-    environment_config?: any;
-    docker_config?: any;
-    duration_ms?: number;
-    files_generated?: number;
-    total_size_bytes?: number;
-  }) {
+  async complete(
+    id: string,
+    data: {
+      generated_path: string;
+      output_structure?: any;
+      port?: number;
+      file_manifest?: any;
+      entry_points?: any;
+      build_command?: string;
+      start_command?: string;
+      install_command?: string;
+      dependencies?: any;
+      dev_dependencies?: any;
+      environment_config?: any;
+      docker_config?: any;
+      duration_ms?: number;
+      files_generated?: number;
+      total_size_bytes?: number;
+    }
+  ) {
     const database = getDatabase();
     const updateData: any = {
       status: "completed",
       progress: 100,
-      completed_at: database.fn.now(),
+      completed_at: new Date().toISOString(),
       ...data,
     };
 
-    // Convert objects to JSON
-    if (data.output_structure !== undefined) updateData.output_structure = JSON.stringify(data.output_structure);
-    if (data.file_manifest !== undefined) updateData.file_manifest = JSON.stringify(data.file_manifest);
-    if (data.entry_points !== undefined) updateData.entry_points = JSON.stringify(data.entry_points);
-    if (data.dependencies !== undefined) updateData.dependencies = JSON.stringify(data.dependencies);
-    if (data.dev_dependencies !== undefined) updateData.dev_dependencies = JSON.stringify(data.dev_dependencies);
-    if (data.environment_config !== undefined) updateData.environment_config = JSON.stringify(data.environment_config);
-    if (data.docker_config !== undefined) updateData.docker_config = JSON.stringify(data.docker_config);
+    if (data.output_structure !== undefined)
+      updateData.output_structure = JSON.stringify(data.output_structure);
+    if (data.file_manifest !== undefined)
+      updateData.file_manifest = JSON.stringify(data.file_manifest);
+    if (data.entry_points !== undefined)
+      updateData.entry_points = JSON.stringify(data.entry_points);
+    if (data.dependencies !== undefined)
+      updateData.dependencies = JSON.stringify(data.dependencies);
+    if (data.dev_dependencies !== undefined)
+      updateData.dev_dependencies = JSON.stringify(data.dev_dependencies);
+    if (data.environment_config !== undefined)
+      updateData.environment_config = JSON.stringify(data.environment_config);
+    if (data.docker_config !== undefined)
+      updateData.docker_config = JSON.stringify(data.docker_config);
 
-    const [generation] = await database("generation_history")
-      .where("id", id)
-      .update(updateData)
-      .returning("*");
+    const [generation] = await database
+      .updateTable("generation_history")
+      .set(updateData)
+      .where("id", "=", id)
+      .returningAll()
+      .execute();
 
     return generation;
   },
@@ -1382,15 +1574,17 @@ export const generationHistoryDb = {
    */
   async fail(id: string, errorMessage: string, logs?: string) {
     const database = getDatabase();
-    const [generation] = await database("generation_history")
-      .where("id", id)
-      .update({
+    const [generation] = await database
+      .updateTable("generation_history")
+      .set({
         status: "failed",
         error_message: errorMessage,
-        logs,
-        completed_at: database.fn.now(),
+        logs: logs || null,
+        completed_at: new Date().toISOString(),
       })
-      .returning("*");
+      .where("id", "=", id)
+      .returningAll()
+      .execute();
 
     return generation;
   },
@@ -1405,10 +1599,12 @@ export const deploymentDb = {
    */
   async getDeployment(projectId: string, environment: string = "development") {
     const database = getDatabase();
-    return await database("deployments")
-      .where("project_id", projectId)
-      .where("environment", environment)
-      .first();
+    return await database
+      .selectFrom("deployments")
+      .selectAll()
+      .where("project_id", "=", projectId)
+      .where("environment", "=", environment)
+      .executeTakeFirst();
   },
 
   /**
@@ -1416,10 +1612,12 @@ export const deploymentDb = {
    */
   async getAllDeployments(projectId: string) {
     const database = getDatabase();
-    return await database("deployments")
-      .where("project_id", projectId)
+    return await database
+      .selectFrom("deployments")
+      .selectAll()
+      .where("project_id", "=", projectId)
       .orderBy("created_at", "desc")
-      .select("*");
+      .execute();
   },
 
   /**
@@ -1441,48 +1639,50 @@ export const deploymentDb = {
     stderr_log?: string;
   }) {
     const database = getDatabase();
-    const existing = await this.getDeployment(
-      data.project_id,
-      data.environment || "development"
-    );
+    const existing = await this.getDeployment(data.project_id, data.environment || "development");
 
     const updateData: any = {
       ...data,
-      updated_at: database.fn.now(),
+      updated_at: new Date().toISOString(),
     };
 
-    if (data.deployment_config !== undefined) updateData.deployment_config = JSON.stringify(data.deployment_config);
+    if (data.deployment_config !== undefined)
+      updateData.deployment_config = JSON.stringify(data.deployment_config);
 
     if (existing) {
-      // Handle running state
-      if (data.status === "running" && existing.status !== "running") {
-        updateData.started_at = database.fn.now();
-        updateData.restart_count = (existing.restart_count || 0) + 1;
-      } else if (data.status === "stopped" && existing.status === "running") {
-        updateData.stopped_at = database.fn.now();
-        // Calculate uptime
-        if (existing.started_at) {
-          const started = new Date(existing.started_at).getTime();
+      if (data.status === "running" && (existing as any).status !== "running") {
+        updateData.started_at = new Date().toISOString();
+        updateData.restart_count = ((existing as any).restart_count || 0) + 1;
+      } else if (data.status === "stopped" && (existing as any).status === "running") {
+        updateData.stopped_at = new Date().toISOString();
+        if ((existing as any).started_at) {
+          const started = new Date((existing as any).started_at).getTime();
           const now = Date.now();
           updateData.uptime_seconds = Math.floor((now - started) / 1000);
         }
       }
 
-      const [deployment] = await database("deployments")
-        .where("id", existing.id)
-        .update(updateData)
-        .returning("*");
+      const [deployment] = await database
+        .updateTable("deployments")
+        .set(updateData)
+        .where("id", "=", (existing as any).id)
+        .returningAll()
+        .execute();
       return deployment;
     } else {
-      // New deployment
       if (data.status === "running") {
-        updateData.started_at = database.fn.now();
+        updateData.started_at = new Date().toISOString();
       }
 
-      const [deployment] = await database("deployments").insert({
-        id: `dep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        ...updateData,
-      }).returning("*");
+      const [deployment] = await database
+        .insertInto("deployments")
+        .values({
+          id: `dep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          ...updateData,
+          created_at: new Date().toISOString(),
+        } as any)
+        .returningAll()
+        .execute();
       return deployment;
     }
   },
@@ -1490,25 +1690,32 @@ export const deploymentDb = {
   /**
    * Update deployment health
    */
-  async updateHealth(id: string, healthData: {
-    health_status?: any;
-    resource_usage?: any;
-    last_health_check?: Date;
-    stdout_log?: string;
-    stderr_log?: string;
-    uptime?: string;
-    uptime_seconds?: number;
-  }) {
+  async updateHealth(
+    id: string,
+    healthData: {
+      health_status?: any;
+      resource_usage?: any;
+      last_health_check?: Date;
+      stdout_log?: string;
+      stderr_log?: string;
+      uptime?: string;
+      uptime_seconds?: number;
+    }
+  ) {
     const database = getDatabase();
     const updateData: any = { ...healthData };
 
-    if (healthData.health_status !== undefined) updateData.health_status = JSON.stringify(healthData.health_status);
-    if (healthData.resource_usage !== undefined) updateData.resource_usage = JSON.stringify(healthData.resource_usage);
+    if (healthData.health_status !== undefined)
+      updateData.health_status = JSON.stringify(healthData.health_status);
+    if (healthData.resource_usage !== undefined)
+      updateData.resource_usage = JSON.stringify(healthData.resource_usage);
 
-    const [deployment] = await database("deployments")
-      .where("id", id)
-      .update(updateData)
-      .returning("*");
+    const [deployment] = await database
+      .updateTable("deployments")
+      .set(updateData)
+      .where("id", "=", id)
+      .returningAll()
+      .execute();
 
     return deployment;
   },
@@ -1519,20 +1726,21 @@ export const deploymentDb = {
   async delete(projectId: string, environment: string = "development") {
     const database = getDatabase();
 
-    // First stop it
-    await database("deployments")
-      .where("project_id", projectId)
-      .where("environment", environment)
-      .update({
+    await database
+      .updateTable("deployments")
+      .set({
         status: "stopped",
-        stopped_at: database.fn.now(),
-      });
+        stopped_at: new Date().toISOString(),
+      })
+      .where("project_id", "=", projectId)
+      .where("environment", "=", environment)
+      .execute();
 
-    // Then delete
-    await database("deployments")
-      .where("project_id", projectId)
-      .where("environment", environment)
-      .del();
+    await database
+      .deleteFrom("deployments")
+      .where("project_id", "=", projectId)
+      .where("environment", "=", environment)
+      .execute();
   },
 };
 
@@ -1545,10 +1753,12 @@ export const entityDb = {
    */
   async getByProject(projectId: string) {
     const database = getDatabase();
-    return await database("entities")
-      .where("project_id", projectId)
+    return await database
+      .selectFrom("entities")
+      .selectAll()
+      .where("project_id", "=", projectId)
       .orderBy("name")
-      .select("*");
+      .execute();
   },
 
   /**
@@ -1556,10 +1766,12 @@ export const entityDb = {
    */
   async getByErdVersion(erdVersionId: string) {
     const database = getDatabase();
-    return await database("entities")
-      .where("erd_version_id", erdVersionId)
+    return await database
+      .selectFrom("entities")
+      .selectAll()
+      .where("erd_version_id", "=", erdVersionId)
       .orderBy("name")
-      .select("*");
+      .execute();
   },
 
   /**
@@ -1581,32 +1793,41 @@ export const entityDb = {
   }) {
     const database = getDatabase();
 
-    // Check if entity exists
-    const existing = await database("entities")
-      .where("project_id", data.project_id)
-      .where("name", data.name)
-      .first();
+    const existing = await database
+      .selectFrom("entities")
+      .selectAll()
+      .where("project_id", "=", data.project_id)
+      .where("name", "=", data.name)
+      .executeTakeFirst();
 
     if (existing) {
-      const [entity] = await database("entities")
-        .where("id", existing.id)
-        .update({
+      const [entity] = await database
+        .updateTable("entities")
+        .set({
           ...data,
           schema: JSON.stringify(data.schema || {}),
           fields: JSON.stringify(data.fields || []),
           relationships: JSON.stringify(data.relationships || []),
-          updated_at: database.fn.now(),
-        })
-        .returning("*");
+          updated_at: new Date().toISOString(),
+        } as any)
+        .where("id", "=", (existing as any).id)
+        .returningAll()
+        .execute();
       return entity;
     } else {
-      const [entity] = await database("entities").insert({
-        id: `ent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        ...data,
-        schema: JSON.stringify(data.schema || {}),
-        fields: JSON.stringify(data.fields || []),
-        relationships: JSON.stringify(data.relationships || []),
-      }).returning("*");
+      const [entity] = await database
+        .insertInto("entities")
+        .values({
+          id: `ent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          ...data,
+          schema: JSON.stringify(data.schema || {}),
+          fields: JSON.stringify(data.fields || []),
+          relationships: JSON.stringify(data.relationships || []),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        } as any)
+        .returningAll()
+        .execute();
       return entity;
     }
   },
@@ -1616,7 +1837,7 @@ export const entityDb = {
    */
   async deleteByProject(projectId: string) {
     const database = getDatabase();
-    await database("entities").where("project_id", projectId).del();
+    await database.deleteFrom("entities").where("project_id", "=", projectId).execute();
   },
 };
 
@@ -1629,19 +1850,23 @@ export const settingsDb = {
    */
   async get(key: string) {
     const database = getDatabase();
-    const setting = await database("settings").where("key", key).first();
+    const setting = await database
+      .selectFrom("settings")
+      .selectAll()
+      .where("key", "=", key)
+      .executeTakeFirst();
+
     if (!setting) return null;
 
-    // Parse value based on type
-    switch (setting.type) {
+    switch ((setting as any).type) {
       case "number":
-        return Number(setting.value);
+        return Number((setting as any).value);
       case "boolean":
-        return setting.value === "true";
+        return (setting as any).value === "true";
       case "json":
-        return JSON.parse(setting.value || "{}");
+        return JSON.parse((setting as any).value || "{}");
       default:
-        return setting.value;
+        return (setting as any).value;
     }
   },
 
@@ -1663,28 +1888,38 @@ export const settingsDb = {
         stringValue = String(value);
     }
 
-    const existing = await database("settings").where("key", key).first();
+    const existing = await database
+      .selectFrom("settings")
+      .selectAll()
+      .where("key", "=", key)
+      .executeTakeFirst();
+
     if (existing) {
-      await database("settings")
-        .where("key", key)
-        .update({
+      await database
+        .updateTable("settings")
+        .set({
           value: stringValue,
           type,
           description,
-          updated_at: database.fn.now(),
-        });
+          updated_at: new Date().toISOString(),
+        })
+        .where("key", "=", key)
+        .execute();
     } else {
-      await database("settings").insert({
-        key,
-        value: stringValue,
-        type,
-        description,
-      });
+      await database
+        .insertInto("settings")
+        .values({
+          key,
+          value: stringValue,
+          type,
+          description,
+          updated_at: new Date().toISOString(),
+        } as any)
+        .execute();
     }
   },
 };
 
-// Export all database operations
 export const dbOperations = {
   projects: projectDb,
   erdVersions: erdVersionDb,

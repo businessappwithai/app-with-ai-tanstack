@@ -15,8 +15,8 @@
  * Week: 1
  */
 
-import { ZenEngine, ZenDecisionContent } from "@gorules/zen-engine";
 import type { ZenEngineResponse } from "@gorules/zen-engine";
+import { ZenDecisionContent, ZenEngine } from "@gorules/zen-engine";
 
 export interface EvaluationResult {
   success: boolean;
@@ -111,8 +111,8 @@ class ZenEngineSingleton {
           error: {
             code: "INVALID_FORMAT",
             message: "JDM must be a valid object",
-            details: "Received: " + typeof jdm
-          }
+            details: "Received: " + typeof jdm,
+          },
         };
       }
 
@@ -123,8 +123,8 @@ class ZenEngineSingleton {
           error: {
             code: "INVALID_DATA_TYPE",
             message: "Input data must be an object",
-            details: "Received: " + typeof input
-          }
+            details: "Received: " + typeof input,
+          },
         };
       }
 
@@ -134,7 +134,7 @@ class ZenEngineSingleton {
 
       // Evaluate with optional tracing
       const evaluationPromise = decision.evaluate(input, {
-        trace: options.trace ?? false
+        trace: options.trace ?? false,
       });
 
       let result: ZenEngineResponse;
@@ -148,7 +148,7 @@ class ZenEngineSingleton {
               () => reject(new Error(`RULE_TIMEOUT: Evaluation exceeded ${options.timeout}ms`)),
               options.timeout
             )
-          )
+          ),
         ]);
       } else {
         result = await evaluationPromise;
@@ -156,7 +156,7 @@ class ZenEngineSingleton {
 
       return {
         success: true,
-        decision: result
+        decision: result,
       };
     } catch (error) {
       // Handle known error types
@@ -168,8 +168,8 @@ class ZenEngineSingleton {
           error: {
             code: "RULE_TIMEOUT",
             message: `Rule evaluation timed out after ${options.timeout}ms`,
-            details: errorMessage
-          }
+            details: errorMessage,
+          },
         };
       }
 
@@ -179,8 +179,8 @@ class ZenEngineSingleton {
           error: {
             code: "ENGINE_COMPILATION_ERROR",
             message: "Failed to compile decision model",
-            details: errorMessage
-          }
+            details: errorMessage,
+          },
         };
       }
 
@@ -190,8 +190,8 @@ class ZenEngineSingleton {
           error: {
             code: "RULE_EVALUATION_FAILED",
             message: "Rule evaluation failed: invalid JDM structure",
-            details: errorMessage
-          }
+            details: errorMessage,
+          },
         };
       }
 
@@ -201,8 +201,8 @@ class ZenEngineSingleton {
         error: {
           code: "RULE_EVALUATION_FAILED",
           message: "Rule evaluation failed",
-          details: errorMessage
-        }
+          details: errorMessage,
+        },
       };
     }
   }
@@ -232,7 +232,7 @@ class ZenEngineSingleton {
     } catch (error) {
       return {
         valid: false,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -244,7 +244,7 @@ export const zenEngine = {
     ZenEngineSingleton.evaluate(jdm, input, options),
   validate: (jdm: unknown) => ZenEngineSingleton.validate(jdm),
   _reset: () => ZenEngineSingleton._reset(), // For testing only
-  getInstance: () => ZenEngineSingleton.getInstance() // For advanced usage
+  getInstance: () => ZenEngineSingleton.getInstance(), // For advanced usage
 };
 
 export default ZenEngineSingleton;

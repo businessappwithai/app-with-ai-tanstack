@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion -- test assertions: values are guaranteed by test setup */
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { MermaidParser } from "../mermaid.parser";
 
 const parser = new MermaidParser();

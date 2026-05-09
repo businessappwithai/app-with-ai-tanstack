@@ -1,1 +1,656 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_database_database_service_ts", "label": "database.service.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L1"}, {"id": "database_service_databaseservice", "label": "DatabaseService", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L30"}, {"id": "database_service_databaseservice_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L33"}, {"id": "database_service_databaseservice_getknex", "label": ".getKnex()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L43"}, {"id": "database_service_databaseservice_transaction", "label": ".transaction()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L50"}, {"id": "database_service_databaseservice_findall", "label": ".findAll()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L57"}, {"id": "database_service_databaseservice_findbyid", "label": ".findById()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L114"}, {"id": "database_service_databaseservice_findbyidorfail", "label": ".findByIdOrFail()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L127"}, {"id": "database_service_databaseservice_findby", "label": ".findBy()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L140"}, {"id": "database_service_databaseservice_create", "label": ".create()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L153"}, {"id": "database_service_databaseservice_update", "label": ".update()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L173"}, {"id": "database_service_databaseservice_softdelete", "label": ".softDelete()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L204"}, {"id": "database_service_databaseservice_harddelete", "label": ".hardDelete()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L222"}, {"id": "database_service_databaseservice_restore", "label": ".restore()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L234"}, {"id": "database_service_databaseservice_count", "label": ".count()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L250"}, {"id": "database_service_databaseservice_exists", "label": ".exists()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L266"}, {"id": "database_service_databaseservice_raw", "label": ".raw()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L279"}, {"id": "database_service_databaseservice_destroy", "label": ".destroy()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L287"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_database_database_service_ts", "target": "common", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_database_database_service_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_database_database_service_ts", "target": "uuid", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_database_database_service_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_database_database_constants", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_database_database_service_ts", "target": "database_service_databaseservice", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L30", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L33", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_getknex", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L43", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_transaction", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L50", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_findall", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L57", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_findbyid", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L114", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_findbyidorfail", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L127", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_findby", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L140", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_create", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L153", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_update", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L173", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_softdelete", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L204", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_harddelete", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L222", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_restore", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L234", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_count", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L250", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_exists", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L266", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_raw", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L279", "weight": 1.0}, {"source": "database_service_databaseservice", "target": "database_service_databaseservice_destroy", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L287", "weight": 1.0}, {"source": "database_service_databaseservice_findall", "target": "database_service_databaseservice_count", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L91", "weight": 1.0}, {"source": "database_service_databaseservice_create", "target": "database_service_databaseservice_findbyidorfail", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L167", "weight": 1.0}, {"source": "database_service_databaseservice_update", "target": "database_service_databaseservice_raw", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L194", "weight": 1.0}, {"source": "database_service_databaseservice_update", "target": "database_service_databaseservice_findbyidorfail", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L198", "weight": 1.0}, {"source": "database_service_databaseservice_softdelete", "target": "database_service_databaseservice_findbyidorfail", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L206", "weight": 1.0}, {"source": "database_service_databaseservice_softdelete", "target": "database_service_databaseservice_update", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L209", "weight": 1.0}, {"source": "database_service_databaseservice_restore", "target": "database_service_databaseservice_update", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L236", "weight": 1.0}], "raw_calls": [{"caller_nid": "database_service_databaseservice_findall", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L72"}, {"caller_nid": "database_service_databaseservice_findall", "callee": "knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L72"}, {"caller_nid": "database_service_databaseservice_findall", "callee": "entries", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L76"}, {"caller_nid": "database_service_databaseservice_findall", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L81"}, {"caller_nid": "database_service_databaseservice_findall", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L82"}, {"caller_nid": "database_service_databaseservice_findall", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L83"}, {"caller_nid": "database_service_databaseservice_findall", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L85"}, {"caller_nid": "database_service_databaseservice_findall", "callee": "clone", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L91"}, {"caller_nid": "database_service_databaseservice_findall", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L92"}, {"caller_nid": "database_service_databaseservice_findall", "callee": "offset", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L95"}, {"caller_nid": "database_service_databaseservice_findall", "callee": "limit", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L95"}, {"caller_nid": "database_service_databaseservice_findall", "callee": "orderBy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L95"}, {"caller_nid": "database_service_databaseservice_findall", "callee": "ceil", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L106"}, {"caller_nid": "database_service_databaseservice_findbyid", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L116"}, {"caller_nid": "database_service_databaseservice_findbyid", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L116"}, {"caller_nid": "database_service_databaseservice_findbyid", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L116"}, {"caller_nid": "database_service_databaseservice_findbyid", "callee": "knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L116"}, {"caller_nid": "database_service_databaseservice_findbyidorfail", "callee": "await this.findById", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L128"}, {"caller_nid": "database_service_databaseservice_findby", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L145"}, {"caller_nid": "database_service_databaseservice_findby", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L145"}, {"caller_nid": "database_service_databaseservice_findby", "callee": "knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L145"}, {"caller_nid": "database_service_databaseservice_create", "callee": "uuidv4", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L155"}, {"caller_nid": "database_service_databaseservice_create", "callee": "insert", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L165"}, {"caller_nid": "database_service_databaseservice_create", "callee": "knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L165"}, {"caller_nid": "database_service_databaseservice_update", "callee": "await this.findByIdOrFail", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L180"}, {"caller_nid": "database_service_databaseservice_update", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L190"}, {"caller_nid": "database_service_databaseservice_update", "callee": "knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L190"}, {"caller_nid": "database_service_databaseservice_softdelete", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L209"}, {"caller_nid": "database_service_databaseservice_softdelete", "callee": "knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L209"}, {"caller_nid": "database_service_databaseservice_harddelete", "callee": "delete", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L224"}, {"caller_nid": "database_service_databaseservice_harddelete", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L224"}, {"caller_nid": "database_service_databaseservice_harddelete", "callee": "knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L224"}, {"caller_nid": "database_service_databaseservice_restore", "callee": "whereNotNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L236"}, {"caller_nid": "database_service_databaseservice_restore", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L236"}, {"caller_nid": "database_service_databaseservice_restore", "callee": "knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L236"}, {"caller_nid": "database_service_databaseservice_count", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L251"}, {"caller_nid": "database_service_databaseservice_count", "callee": "knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L251"}, {"caller_nid": "database_service_databaseservice_count", "callee": "entries", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L253"}, {"caller_nid": "database_service_databaseservice_count", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L255"}, {"caller_nid": "database_service_databaseservice_count", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L260"}, {"caller_nid": "database_service_databaseservice_exists", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L268"}, {"caller_nid": "database_service_databaseservice_exists", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L268"}, {"caller_nid": "database_service_databaseservice_exists", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L268"}, {"caller_nid": "database_service_databaseservice_exists", "callee": "knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L268"}, {"caller_nid": "database_service_databaseservice_destroy", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts", "source_location": "L289"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_database_database_service_ts",
+      "label": "database.service.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "database_service_databaseservice",
+      "label": "DatabaseService",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L30"
+    },
+    {
+      "id": "database_service_databaseservice_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L33"
+    },
+    {
+      "id": "database_service_databaseservice_getknex",
+      "label": ".getKnex()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L43"
+    },
+    {
+      "id": "database_service_databaseservice_transaction",
+      "label": ".transaction()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L50"
+    },
+    {
+      "id": "database_service_databaseservice_findall",
+      "label": ".findAll()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L57"
+    },
+    {
+      "id": "database_service_databaseservice_findbyid",
+      "label": ".findById()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L114"
+    },
+    {
+      "id": "database_service_databaseservice_findbyidorfail",
+      "label": ".findByIdOrFail()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L127"
+    },
+    {
+      "id": "database_service_databaseservice_findby",
+      "label": ".findBy()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L140"
+    },
+    {
+      "id": "database_service_databaseservice_create",
+      "label": ".create()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L153"
+    },
+    {
+      "id": "database_service_databaseservice_update",
+      "label": ".update()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L173"
+    },
+    {
+      "id": "database_service_databaseservice_softdelete",
+      "label": ".softDelete()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L204"
+    },
+    {
+      "id": "database_service_databaseservice_harddelete",
+      "label": ".hardDelete()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L222"
+    },
+    {
+      "id": "database_service_databaseservice_restore",
+      "label": ".restore()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L234"
+    },
+    {
+      "id": "database_service_databaseservice_count",
+      "label": ".count()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L250"
+    },
+    {
+      "id": "database_service_databaseservice_exists",
+      "label": ".exists()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L266"
+    },
+    {
+      "id": "database_service_databaseservice_raw",
+      "label": ".raw()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L279"
+    },
+    {
+      "id": "database_service_databaseservice_destroy",
+      "label": ".destroy()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L287"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_database_database_service_ts",
+      "target": "common",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_database_database_service_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_database_database_service_ts",
+      "target": "uuid",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_database_database_service_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_database_database_constants",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_database_database_service_ts",
+      "target": "database_service_databaseservice",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_getknex",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_transaction",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_findall",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_findbyid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_findbyidorfail",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L127",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_findby",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_create",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L153",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_update",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L173",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_softdelete",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L204",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_harddelete",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L222",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_restore",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L234",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_count",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L250",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_exists",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L266",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_raw",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L279",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice",
+      "target": "database_service_databaseservice_destroy",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L287",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice_findall",
+      "target": "database_service_databaseservice_count",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice_create",
+      "target": "database_service_databaseservice_findbyidorfail",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L167",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice_update",
+      "target": "database_service_databaseservice_raw",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L194",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice_update",
+      "target": "database_service_databaseservice_findbyidorfail",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L198",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice_softdelete",
+      "target": "database_service_databaseservice_findbyidorfail",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L206",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice_softdelete",
+      "target": "database_service_databaseservice_update",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L209",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_databaseservice_restore",
+      "target": "database_service_databaseservice_update",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L236",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "database_service_databaseservice_findall",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findall",
+      "callee": "knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findall",
+      "callee": "entries",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findall",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findall",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findall",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findall",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findall",
+      "callee": "clone",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findall",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findall",
+      "callee": "offset",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findall",
+      "callee": "limit",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findall",
+      "callee": "orderBy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findall",
+      "callee": "ceil",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findbyid",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findbyid",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findbyid",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findbyid",
+      "callee": "knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findbyidorfail",
+      "callee": "await this.findById",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findby",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findby",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_findby",
+      "callee": "knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_create",
+      "callee": "uuidv4",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_create",
+      "callee": "insert",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L165"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_create",
+      "callee": "knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L165"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_update",
+      "callee": "await this.findByIdOrFail",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L180"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_update",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_update",
+      "callee": "knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_softdelete",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_softdelete",
+      "callee": "knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_harddelete",
+      "callee": "delete",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_harddelete",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_harddelete",
+      "callee": "knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_restore",
+      "callee": "whereNotNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_restore",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_restore",
+      "callee": "knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_count",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_count",
+      "callee": "knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_count",
+      "callee": "entries",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L253"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_count",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_count",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L260"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_exists",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L268"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_exists",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L268"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_exists",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L268"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_exists",
+      "callee": "knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L268"
+    },
+    {
+      "caller_nid": "database_service_databaseservice_destroy",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/database/database.service.ts",
+      "source_location": "L289"
+    }
+  ]
+}

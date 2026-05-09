@@ -14,31 +14,18 @@ export const migration = {
     // Add new columns to workflows table
     await db.schema
       .alterTable("workflows")
-      .addColumn("workflow_type", "text", (col: any) =>
-        col.defaultTo("sequence").notNull()
-      )
+      .addColumn("workflow_type", "text", (col: any) => col.defaultTo("sequence").notNull())
       .execute();
+
+    await db.schema.alterTable("workflows").addColumn("hook_definitions", "text").execute();
+
+    await db.schema.alterTable("workflows").addColumn("flowchart_code", "text").execute();
+
+    await db.schema.alterTable("workflows").addColumn("generated_hook_code", "text").execute();
 
     await db.schema
       .alterTable("workflows")
-      .addColumn("hook_definitions", "text")
-      .execute();
-
-    await db.schema
-      .alterTable("workflows")
-      .addColumn("flowchart_code", "text")
-      .execute();
-
-    await db.schema
-      .alterTable("workflows")
-      .addColumn("generated_hook_code", "text")
-      .execute();
-
-    await db.schema
-      .alterTable("workflows")
-      .addColumn("is_draft", "integer", (col: any) =>
-        col.defaultTo(0).notNull()
-      )
+      .addColumn("is_draft", "integer", (col: any) => col.defaultTo(0).notNull())
       .execute();
 
     console.log("Migration 003: Added hook workflow fields to workflows table");
@@ -46,33 +33,16 @@ export const migration = {
 
   down: async (db: any) => {
     // Drop the added columns
-    await db.schema
-      .alterTable("workflows")
-      .dropColumn("workflow_type")
-      .execute();
+    await db.schema.alterTable("workflows").dropColumn("workflow_type").execute();
 
-    await db.schema
-      .alterTable("workflows")
-      .dropColumn("hook_definitions")
-      .execute();
+    await db.schema.alterTable("workflows").dropColumn("hook_definitions").execute();
 
-    await db.schema
-      .alterTable("workflows")
-      .dropColumn("flowchart_code")
-      .execute();
+    await db.schema.alterTable("workflows").dropColumn("flowchart_code").execute();
 
-    await db.schema
-      .alterTable("workflows")
-      .dropColumn("generated_hook_code")
-      .execute();
+    await db.schema.alterTable("workflows").dropColumn("generated_hook_code").execute();
 
-    await db.schema
-      .alterTable("workflows")
-      .dropColumn("is_draft")
-      .execute();
+    await db.schema.alterTable("workflows").dropColumn("is_draft").execute();
 
-    console.log(
-      "Migration 003: Removed hook workflow fields from workflows table"
-    );
+    console.log("Migration 003: Removed hook workflow fields from workflows table");
   },
 };

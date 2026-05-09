@@ -1,1 +1,467 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_api_client_ts", "label": "api-client.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L1"}, {"id": "api_client_apiclient", "label": "ApiClient", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L23"}, {"id": "api_client_apiclient_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L27"}, {"id": "api_client_apiclient_setupinterceptors", "label": ".setupInterceptors()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L39"}, {"id": "api_client_apiclient_gettoken", "label": ".getToken()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L103"}, {"id": "api_client_apiclient_settoken", "label": ".setToken()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L123"}, {"id": "api_client_apiclient_cleartokens", "label": ".clearTokens()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L134"}, {"id": "api_client_apiclient_refreshtoken", "label": ".refreshToken()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L139"}, {"id": "api_client_apiclient_get", "label": ".get()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L166"}, {"id": "api_client_apiclient_post", "label": ".post()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L174"}, {"id": "api_client_apiclient_put", "label": ".put()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L186"}, {"id": "api_client_apiclient_patch", "label": ".patch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L198"}, {"id": "api_client_apiclient_delete", "label": ".delete()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L210"}, {"id": "api_client_apiclient_uploadfile", "label": ".uploadFile()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L218"}, {"id": "api_client_apiclient_authenticate", "label": ".authenticate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L246"}, {"id": "api_client_apiclient_logout", "label": ".logout()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L253"}, {"id": "api_client_apiclient_isauthenticated", "label": ".isAuthenticated()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L260"}, {"id": "api_client_getapiclient", "label": "getApiClient()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L268"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_api_client_ts", "target": "axios", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L5", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_api_client_ts", "target": "axios", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_api_client_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_api_client_ts", "target": "api_client_apiclient", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L23", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L27", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_setupinterceptors", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L39", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_gettoken", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L103", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_settoken", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L123", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_cleartokens", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L134", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_refreshtoken", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L139", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_get", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L166", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_post", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L174", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_put", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L186", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_patch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L198", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_delete", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L210", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_uploadfile", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L218", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_authenticate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L246", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_logout", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L253", "weight": 1.0}, {"source": "api_client_apiclient", "target": "api_client_apiclient_isauthenticated", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L260", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_api_client_ts", "target": "api_client_getapiclient", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L268", "weight": 1.0}, {"source": "api_client_apiclient_constructor", "target": "api_client_apiclient_setupinterceptors", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L36", "weight": 1.0}, {"source": "api_client_apiclient_gettoken", "target": "api_client_apiclient_cleartokens", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L112", "weight": 1.0}, {"source": "api_client_apiclient_authenticate", "target": "api_client_apiclient_settoken", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L247", "weight": 1.0}, {"source": "api_client_apiclient_logout", "target": "api_client_apiclient_cleartokens", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L254", "weight": 1.0}, {"source": "api_client_apiclient_isauthenticated", "target": "api_client_apiclient_gettoken", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L261", "weight": 1.0}], "raw_calls": [{"caller_nid": "api_client_apiclient_constructor", "callee": "create", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L28"}, {"caller_nid": "api_client_apiclient_setupinterceptors", "callee": "use", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L41"}, {"caller_nid": "api_client_apiclient_setupinterceptors", "callee": "use", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L55"}, {"caller_nid": "api_client_apiclient_gettoken", "callee": "getItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L107"}, {"caller_nid": "api_client_apiclient_gettoken", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L109"}, {"caller_nid": "api_client_apiclient_gettoken", "callee": "now", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L111"}, {"caller_nid": "api_client_apiclient_settoken", "callee": "now", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L128"}, {"caller_nid": "api_client_apiclient_settoken", "callee": "setItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L131"}, {"caller_nid": "api_client_apiclient_settoken", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L131"}, {"caller_nid": "api_client_apiclient_cleartokens", "callee": "removeItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L136"}, {"caller_nid": "api_client_apiclient_refreshtoken", "callee": "(async () => {\n      try {\n        const tokenData = this.getToken();\n        const response = await axios.post(\"/auth/refresh\", {\n          refresh_token: tokenData,\n        });\n\n        const newTokens = response.data;\n        this.setToken(newTokens);\n        return newTokens.access_token;\n      } finally {\n        this.tokenRefreshPromise = null;\n      }\n    })", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L145"}, {"caller_nid": "api_client_apiclient_get", "callee": "await this.client.get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L167"}, {"caller_nid": "api_client_apiclient_post", "callee": "await this.client.post", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L179"}, {"caller_nid": "api_client_apiclient_put", "callee": "await this.client.put", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L191"}, {"caller_nid": "api_client_apiclient_patch", "callee": "await this.client.patch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L203"}, {"caller_nid": "api_client_apiclient_delete", "callee": "await this.client.delete", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L211"}, {"caller_nid": "api_client_apiclient_uploadfile", "callee": "append", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L224"}, {"caller_nid": "api_client_apiclient_uploadfile", "callee": "await this.client.post", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts", "source_location": "L226"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_api_client_ts",
+      "label": "api-client.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "api_client_apiclient",
+      "label": "ApiClient",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L23"
+    },
+    {
+      "id": "api_client_apiclient_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "api_client_apiclient_setupinterceptors",
+      "label": ".setupInterceptors()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L39"
+    },
+    {
+      "id": "api_client_apiclient_gettoken",
+      "label": ".getToken()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L103"
+    },
+    {
+      "id": "api_client_apiclient_settoken",
+      "label": ".setToken()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L123"
+    },
+    {
+      "id": "api_client_apiclient_cleartokens",
+      "label": ".clearTokens()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L134"
+    },
+    {
+      "id": "api_client_apiclient_refreshtoken",
+      "label": ".refreshToken()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L139"
+    },
+    {
+      "id": "api_client_apiclient_get",
+      "label": ".get()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L166"
+    },
+    {
+      "id": "api_client_apiclient_post",
+      "label": ".post()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L174"
+    },
+    {
+      "id": "api_client_apiclient_put",
+      "label": ".put()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L186"
+    },
+    {
+      "id": "api_client_apiclient_patch",
+      "label": ".patch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L198"
+    },
+    {
+      "id": "api_client_apiclient_delete",
+      "label": ".delete()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L210"
+    },
+    {
+      "id": "api_client_apiclient_uploadfile",
+      "label": ".uploadFile()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L218"
+    },
+    {
+      "id": "api_client_apiclient_authenticate",
+      "label": ".authenticate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L246"
+    },
+    {
+      "id": "api_client_apiclient_logout",
+      "label": ".logout()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L253"
+    },
+    {
+      "id": "api_client_apiclient_isauthenticated",
+      "label": ".isAuthenticated()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L260"
+    },
+    {
+      "id": "api_client_getapiclient",
+      "label": "getApiClient()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L268"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_api_client_ts",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_api_client_ts",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_api_client_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_api_client_ts",
+      "target": "api_client_apiclient",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_setupinterceptors",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_gettoken",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_settoken",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L123",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_cleartokens",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L134",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_refreshtoken",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L139",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_get",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L166",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_post",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L174",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_put",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L186",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_patch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L198",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_delete",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L210",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_uploadfile",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L218",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_authenticate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L246",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_logout",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L253",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient",
+      "target": "api_client_apiclient_isauthenticated",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L260",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_api_client_ts",
+      "target": "api_client_getapiclient",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L268",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient_constructor",
+      "target": "api_client_apiclient_setupinterceptors",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient_gettoken",
+      "target": "api_client_apiclient_cleartokens",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient_authenticate",
+      "target": "api_client_apiclient_settoken",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L247",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient_logout",
+      "target": "api_client_apiclient_cleartokens",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L254",
+      "weight": 1.0
+    },
+    {
+      "source": "api_client_apiclient_isauthenticated",
+      "target": "api_client_apiclient_gettoken",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L261",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "api_client_apiclient_constructor",
+      "callee": "create",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "api_client_apiclient_setupinterceptors",
+      "callee": "use",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "api_client_apiclient_setupinterceptors",
+      "callee": "use",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "api_client_apiclient_gettoken",
+      "callee": "getItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "api_client_apiclient_gettoken",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "api_client_apiclient_gettoken",
+      "callee": "now",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "api_client_apiclient_settoken",
+      "callee": "now",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "api_client_apiclient_settoken",
+      "callee": "setItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "api_client_apiclient_settoken",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "api_client_apiclient_cleartokens",
+      "callee": "removeItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "api_client_apiclient_refreshtoken",
+      "callee": "(async () => {\n      try {\n        const tokenData = this.getToken();\n        const response = await axios.post(\"/auth/refresh\", {\n          refresh_token: tokenData,\n        });\n\n        const newTokens = response.data;\n        this.setToken(newTokens);\n        return newTokens.access_token;\n      } finally {\n        this.tokenRefreshPromise = null;\n      }\n    })",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "api_client_apiclient_get",
+      "callee": "await this.client.get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "api_client_apiclient_post",
+      "callee": "await this.client.post",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L179"
+    },
+    {
+      "caller_nid": "api_client_apiclient_put",
+      "callee": "await this.client.put",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "api_client_apiclient_patch",
+      "callee": "await this.client.patch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "api_client_apiclient_delete",
+      "callee": "await this.client.delete",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L211"
+    },
+    {
+      "caller_nid": "api_client_apiclient_uploadfile",
+      "callee": "append",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "api_client_apiclient_uploadfile",
+      "callee": "await this.client.post",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/api-client.ts",
+      "source_location": "L226"
+    }
+  ]
+}

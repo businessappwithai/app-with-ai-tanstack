@@ -234,7 +234,7 @@
           "controlAggregation": "endColumnPages",
           "level": 3
         },
-                "pOSTSList": {
+        "pOSTSList": {
           "name": "POSTSList",
           "controlAggregation": "midColumnPages",
           "level": 2
@@ -244,7 +244,7 @@
           "controlAggregation": "endColumnPages",
           "level": 3
         },
-                "cOMMENTSList": {
+        "cOMMENTSList": {
           "name": "COMMENTSList",
           "controlAggregation": "midColumnPages",
           "level": 2
@@ -254,7 +254,7 @@
           "controlAggregation": "endColumnPages",
           "level": 3
         },
-                "tAGSList": {
+        "tAGSList": {
           "name": "TAGSList",
           "controlAggregation": "midColumnPages",
           "level": 2
@@ -264,7 +264,7 @@
           "controlAggregation": "endColumnPages",
           "level": 3
         },
-                "pOSTTAGSList": {
+        "pOSTTAGSList": {
           "name": "POSTTAGSList",
           "controlAggregation": "midColumnPages",
           "level": 2
@@ -273,8 +273,7 @@
           "name": "POSTTAGSDetail",
           "controlAggregation": "endColumnPages",
           "level": 3
-        }
-        ,
+        },
         "entity.USERSList": {
           "viewId": "entity.USERSList",
           "viewName": "entity.USERSList",

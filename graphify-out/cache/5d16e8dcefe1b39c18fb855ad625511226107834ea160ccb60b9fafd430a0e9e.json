@@ -1,1 +1,487 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs", "label": "test-appointment-api.mjs", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L1"}, {"id": "test_appointment_api_log", "label": "log()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L21"}, {"id": "test_appointment_api_section", "label": "section()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L25"}, {"id": "test_appointment_api_fetchjson", "label": "fetchJSON()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L31"}, {"id": "test_appointment_api_testhealth", "label": "testHealth()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L48"}, {"id": "test_appointment_api_testdoctorsendpoint", "label": "testDoctorsEndpoint()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L62"}, {"id": "test_appointment_api_testpatientsendpoint", "label": "testPatientsEndpoint()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L87"}, {"id": "test_appointment_api_testcreateappointment", "label": "testCreateAppointment()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L112"}, {"id": "test_appointment_api_testgetappointments", "label": "testGetAppointments()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L155"}, {"id": "test_appointment_api_testbackendpropertymapping", "label": "testBackendPropertyMapping()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L181"}, {"id": "test_appointment_api_runtests", "label": "runTests()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L224"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs", "target": "test_appointment_api_log", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L21", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs", "target": "test_appointment_api_section", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L25", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs", "target": "test_appointment_api_fetchjson", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L31", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs", "target": "test_appointment_api_testhealth", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L48", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs", "target": "test_appointment_api_testdoctorsendpoint", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L62", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs", "target": "test_appointment_api_testpatientsendpoint", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L87", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs", "target": "test_appointment_api_testcreateappointment", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L112", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs", "target": "test_appointment_api_testgetappointments", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L155", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs", "target": "test_appointment_api_testbackendpropertymapping", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L181", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs", "target": "test_appointment_api_runtests", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L224", "weight": 1.0}, {"source": "test_appointment_api_section", "target": "test_appointment_api_log", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L26", "weight": 1.0}, {"source": "test_appointment_api_testhealth", "target": "test_appointment_api_section", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L49", "weight": 1.0}, {"source": "test_appointment_api_testhealth", "target": "test_appointment_api_fetchjson", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L51", "weight": 1.0}, {"source": "test_appointment_api_testhealth", "target": "test_appointment_api_log", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L52", "weight": 1.0}, {"source": "test_appointment_api_testdoctorsendpoint", "target": "test_appointment_api_section", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L63", "weight": 1.0}, {"source": "test_appointment_api_testdoctorsendpoint", "target": "test_appointment_api_fetchjson", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L65", "weight": 1.0}, {"source": "test_appointment_api_testdoctorsendpoint", "target": "test_appointment_api_log", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L68", "weight": 1.0}, {"source": "test_appointment_api_testpatientsendpoint", "target": "test_appointment_api_section", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L88", "weight": 1.0}, {"source": "test_appointment_api_testpatientsendpoint", "target": "test_appointment_api_fetchjson", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L90", "weight": 1.0}, {"source": "test_appointment_api_testpatientsendpoint", "target": "test_appointment_api_log", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L93", "weight": 1.0}, {"source": "test_appointment_api_testcreateappointment", "target": "test_appointment_api_section", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L113", "weight": 1.0}, {"source": "test_appointment_api_testcreateappointment", "target": "test_appointment_api_log", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L125", "weight": 1.0}, {"source": "test_appointment_api_testcreateappointment", "target": "test_appointment_api_fetchjson", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L131", "weight": 1.0}, {"source": "test_appointment_api_testgetappointments", "target": "test_appointment_api_section", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L156", "weight": 1.0}, {"source": "test_appointment_api_testgetappointments", "target": "test_appointment_api_fetchjson", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L158", "weight": 1.0}, {"source": "test_appointment_api_testgetappointments", "target": "test_appointment_api_log", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L161", "weight": 1.0}, {"source": "test_appointment_api_testbackendpropertymapping", "target": "test_appointment_api_section", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L182", "weight": 1.0}, {"source": "test_appointment_api_testbackendpropertymapping", "target": "test_appointment_api_log", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L184", "weight": 1.0}, {"source": "test_appointment_api_runtests", "target": "test_appointment_api_log", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L226", "weight": 1.0}, {"source": "test_appointment_api_runtests", "target": "test_appointment_api_testhealth", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L232", "weight": 1.0}, {"source": "test_appointment_api_runtests", "target": "test_appointment_api_testdoctorsendpoint", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L240", "weight": 1.0}, {"source": "test_appointment_api_runtests", "target": "test_appointment_api_testpatientsendpoint", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L247", "weight": 1.0}, {"source": "test_appointment_api_runtests", "target": "test_appointment_api_testcreateappointment", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L255", "weight": 1.0}, {"source": "test_appointment_api_runtests", "target": "test_appointment_api_testgetappointments", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L261", "weight": 1.0}, {"source": "test_appointment_api_runtests", "target": "test_appointment_api_testbackendpropertymapping", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L265", "weight": 1.0}, {"source": "test_appointment_api_runtests", "target": "test_appointment_api_section", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L268", "weight": 1.0}], "raw_calls": [{"caller_nid": "test_appointment_api_section", "callee": "repeat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L26"}, {"caller_nid": "test_appointment_api_section", "callee": "repeat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L28"}, {"caller_nid": "test_appointment_api_fetchjson", "callee": "fetch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L32"}, {"caller_nid": "test_appointment_api_fetchjson", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L45"}, {"caller_nid": "test_appointment_api_testcreateappointment", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L126"}, {"caller_nid": "test_appointment_api_testcreateappointment", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L133"}, {"caller_nid": "test_appointment_api_testbackendpropertymapping", "callee": "fetch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L199"}, {"caller_nid": "test_appointment_api_testbackendpropertymapping", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L205"}, {"caller_nid": "test_appointment_api_testbackendpropertymapping", "callee": "text", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L209"}, {"caller_nid": "test_appointment_api_testbackendpropertymapping", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L213"}, {"caller_nid": "test_appointment_api_testbackendpropertymapping", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L213"}, {"caller_nid": "test_appointment_api_runtests", "callee": "clear", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L225"}, {"caller_nid": "test_appointment_api_runtests", "callee": "exit", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs", "source_location": "L236"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs",
+      "label": "test-appointment-api.mjs",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_appointment_api_log",
+      "label": "log()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L21"
+    },
+    {
+      "id": "test_appointment_api_section",
+      "label": "section()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L25"
+    },
+    {
+      "id": "test_appointment_api_fetchjson",
+      "label": "fetchJSON()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L31"
+    },
+    {
+      "id": "test_appointment_api_testhealth",
+      "label": "testHealth()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L48"
+    },
+    {
+      "id": "test_appointment_api_testdoctorsendpoint",
+      "label": "testDoctorsEndpoint()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L62"
+    },
+    {
+      "id": "test_appointment_api_testpatientsendpoint",
+      "label": "testPatientsEndpoint()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L87"
+    },
+    {
+      "id": "test_appointment_api_testcreateappointment",
+      "label": "testCreateAppointment()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L112"
+    },
+    {
+      "id": "test_appointment_api_testgetappointments",
+      "label": "testGetAppointments()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L155"
+    },
+    {
+      "id": "test_appointment_api_testbackendpropertymapping",
+      "label": "testBackendPropertyMapping()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L181"
+    },
+    {
+      "id": "test_appointment_api_runtests",
+      "label": "runTests()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L224"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs",
+      "target": "test_appointment_api_log",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs",
+      "target": "test_appointment_api_section",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs",
+      "target": "test_appointment_api_fetchjson",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs",
+      "target": "test_appointment_api_testhealth",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs",
+      "target": "test_appointment_api_testdoctorsendpoint",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs",
+      "target": "test_appointment_api_testpatientsendpoint",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L87",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs",
+      "target": "test_appointment_api_testcreateappointment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs",
+      "target": "test_appointment_api_testgetappointments",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L155",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs",
+      "target": "test_appointment_api_testbackendpropertymapping",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L181",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_test_appointment_api_mjs",
+      "target": "test_appointment_api_runtests",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L224",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_section",
+      "target": "test_appointment_api_log",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testhealth",
+      "target": "test_appointment_api_section",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testhealth",
+      "target": "test_appointment_api_fetchjson",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testhealth",
+      "target": "test_appointment_api_log",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testdoctorsendpoint",
+      "target": "test_appointment_api_section",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testdoctorsendpoint",
+      "target": "test_appointment_api_fetchjson",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testdoctorsendpoint",
+      "target": "test_appointment_api_log",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testpatientsendpoint",
+      "target": "test_appointment_api_section",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L88",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testpatientsendpoint",
+      "target": "test_appointment_api_fetchjson",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L90",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testpatientsendpoint",
+      "target": "test_appointment_api_log",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testcreateappointment",
+      "target": "test_appointment_api_section",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testcreateappointment",
+      "target": "test_appointment_api_log",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L125",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testcreateappointment",
+      "target": "test_appointment_api_fetchjson",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L131",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testgetappointments",
+      "target": "test_appointment_api_section",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L156",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testgetappointments",
+      "target": "test_appointment_api_fetchjson",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L158",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testgetappointments",
+      "target": "test_appointment_api_log",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L161",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testbackendpropertymapping",
+      "target": "test_appointment_api_section",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L182",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_testbackendpropertymapping",
+      "target": "test_appointment_api_log",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L184",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_runtests",
+      "target": "test_appointment_api_log",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L226",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_runtests",
+      "target": "test_appointment_api_testhealth",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L232",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_runtests",
+      "target": "test_appointment_api_testdoctorsendpoint",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L240",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_runtests",
+      "target": "test_appointment_api_testpatientsendpoint",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L247",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_runtests",
+      "target": "test_appointment_api_testcreateappointment",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L255",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_runtests",
+      "target": "test_appointment_api_testgetappointments",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L261",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_runtests",
+      "target": "test_appointment_api_testbackendpropertymapping",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L265",
+      "weight": 1.0
+    },
+    {
+      "source": "test_appointment_api_runtests",
+      "target": "test_appointment_api_section",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L268",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "test_appointment_api_section",
+      "callee": "repeat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "test_appointment_api_section",
+      "callee": "repeat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "test_appointment_api_fetchjson",
+      "callee": "fetch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "test_appointment_api_fetchjson",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "test_appointment_api_testcreateappointment",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "test_appointment_api_testcreateappointment",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L133"
+    },
+    {
+      "caller_nid": "test_appointment_api_testbackendpropertymapping",
+      "callee": "fetch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L199"
+    },
+    {
+      "caller_nid": "test_appointment_api_testbackendpropertymapping",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "test_appointment_api_testbackendpropertymapping",
+      "callee": "text",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "test_appointment_api_testbackendpropertymapping",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L213"
+    },
+    {
+      "caller_nid": "test_appointment_api_testbackendpropertymapping",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L213"
+    },
+    {
+      "caller_nid": "test_appointment_api_runtests",
+      "callee": "clear",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L225"
+    },
+    {
+      "caller_nid": "test_appointment_api_runtests",
+      "callee": "exit",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/test-appointment-api.mjs",
+      "source_location": "L236"
+    }
+  ]
+}

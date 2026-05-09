@@ -34,12 +34,12 @@ export interface AuthSession extends Session {
  * User roles in the system
  */
 export type UserRole =
-  | "admin"        // Full system access
-  | "doctor"       // Clinical access, can view/edit patient records
-  | "nurse"        // Clinical access, limited edit capabilities
+  | "admin" // Full system access
+  | "doctor" // Clinical access, can view/edit patient records
+  | "nurse" // Clinical access, limited edit capabilities
   | "receptionist" // Front desk, patient registration, appointments
-  | "billing"      // Financial access, invoices and payments
-  | "readonly";    // Read-only access
+  | "billing" // Financial access, invoices and payments
+  | "readonly"; // Read-only access
 
 /**
  * Entity operations for RBAC

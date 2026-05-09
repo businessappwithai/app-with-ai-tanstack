@@ -1,1 +1,1394 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_nextjs_nestjs_nestjs_backend_generator_ts", "label": "nestjs-backend.generator.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L1"}, {"id": "nestjs_backend_generator_nestjsbackendgenerator", "label": "NestJsBackendGenerator", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L31"}, {"id": "nestjs_backend_generator_nestjsbackendgenerator_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L34"}, {"id": "nestjs_backend_generator_nestjsbackendgenerator_generate", "label": ".generate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L39"}, {"id": "nestjs_backend_generator_nestjsbackendgenerator_createdirectorystructure", "label": ".createDirectoryStructure()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L69"}, {"id": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext", "label": ".prepareContext()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L100"}, {"id": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "label": ".generateCoreFiles()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L171"}, {"id": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables", "label": ".generateSysTables()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L360"}, {"id": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "label": ".generateBusEntities()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L374"}, {"id": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "label": ".generateMigrations()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L603"}, {"id": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "label": ".generateConfigFiles()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L633"}, {"id": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "label": ".generateTestFiles()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L694"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_nextjs_nestjs_nestjs_backend_generator_ts", "target": "promises", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_nextjs_nestjs_nestjs_backend_generator_ts", "target": "path", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_nextjs_nestjs_nestjs_backend_generator_ts", "target": "types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_nextjs_nestjs_nestjs_backend_generator_ts", "target": "types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L18", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_nextjs_nestjs_nestjs_backend_generator_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_base_generator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L19", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_nextjs_nestjs_nestjs_backend_generator_ts", "target": "nestjs_backend_generator_nestjsbackendgenerator", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L31", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator", "target": "nestjs_backend_generator_nestjsbackendgenerator_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L34", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator", "target": "nestjs_backend_generator_nestjsbackendgenerator_generate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L39", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator", "target": "nestjs_backend_generator_nestjsbackendgenerator_createdirectorystructure", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L69", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator", "target": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L100", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator", "target": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L171", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator", "target": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L360", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator", "target": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L374", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator", "target": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L603", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator", "target": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L633", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator", "target": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L694", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator_generate", "target": "nestjs_backend_generator_nestjsbackendgenerator_createdirectorystructure", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L45", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator_generate", "target": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L48", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator_generate", "target": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L51", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator_generate", "target": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L54", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator_generate", "target": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L57", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator_generate", "target": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L60", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator_generate", "target": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L63", "weight": 1.0}, {"source": "nestjs_backend_generator_nestjsbackendgenerator_generate", "target": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L66", "weight": 1.0}], "raw_calls": [{"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_constructor", "callee": "super", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L35"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_constructor", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L35"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_createdirectorystructure", "callee": "mkdir", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L96"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_createdirectorystructure", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L96"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L102"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L105"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L108"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext", "callee": "flat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L111"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L111"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext", "callee": "flat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L129"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L129"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L167"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L173"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L174"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L174"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L177"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L178"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L178"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L190"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L191"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L191"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L199"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L200"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L200"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L202"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L206"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L207"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L207"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L209"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L213"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L214"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L214"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L216"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L220"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L221"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L221"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L223"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L227"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L228"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L228"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L230"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L234"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L235"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L235"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L237"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L242"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L243"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L243"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L245"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L249"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L250"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L250"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L252"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L257"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L258"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L258"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L260"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L273"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L274"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L274"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L276"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L282"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L283"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L283"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L285"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L292"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L293"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L293"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L295"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L308"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L309"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L309"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L311"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L325"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L326"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L326"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L328"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L341"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L342"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L342"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L344"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L352"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L353"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L353"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L355"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L362"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L363"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L363"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L366"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L367"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L367"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L370"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L371"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L371"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L376"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "callee": "mkdir", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L377"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L589"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L589"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L592"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L593"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L593"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L595"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L596"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L596"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L599"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L600"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L600"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "now", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L604"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L607"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L608"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L609"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L614"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L615"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L616"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L621"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L622"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L622"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L625"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L626"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L626"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L629"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L630"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L630"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L635"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L636"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L636"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L639"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L640"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L640"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L643"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L644"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L644"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L647"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L648"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L648"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L651"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L651"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L655"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L656"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L656"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L658"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L663"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L664"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L664"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L666"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L670"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L671"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L671"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L674"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L675"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L675"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L679"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L680"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L680"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L682"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L687"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L688"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L688"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L690"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L697"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L698"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L698"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L701"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L702"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L702"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L705"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L706"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L706"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L709"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L720"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L721"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L721"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L723"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L729"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L730"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L730"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L732"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L744"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L745"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L745"}, {"caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts", "source_location": "L747"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_nextjs_nestjs_nestjs_backend_generator_ts",
+      "label": "nestjs-backend.generator.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "nestjs_backend_generator_nestjsbackendgenerator",
+      "label": "NestJsBackendGenerator",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L31"
+    },
+    {
+      "id": "nestjs_backend_generator_nestjsbackendgenerator_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L34"
+    },
+    {
+      "id": "nestjs_backend_generator_nestjsbackendgenerator_generate",
+      "label": ".generate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L39"
+    },
+    {
+      "id": "nestjs_backend_generator_nestjsbackendgenerator_createdirectorystructure",
+      "label": ".createDirectoryStructure()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L69"
+    },
+    {
+      "id": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext",
+      "label": ".prepareContext()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L100"
+    },
+    {
+      "id": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "label": ".generateCoreFiles()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L171"
+    },
+    {
+      "id": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables",
+      "label": ".generateSysTables()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L360"
+    },
+    {
+      "id": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "label": ".generateBusEntities()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L374"
+    },
+    {
+      "id": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "label": ".generateMigrations()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L603"
+    },
+    {
+      "id": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "label": ".generateConfigFiles()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L633"
+    },
+    {
+      "id": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "label": ".generateTestFiles()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L694"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_nextjs_nestjs_nestjs_backend_generator_ts",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_nextjs_nestjs_nestjs_backend_generator_ts",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_nextjs_nestjs_nestjs_backend_generator_ts",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_nextjs_nestjs_nestjs_backend_generator_ts",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_nextjs_nestjs_nestjs_backend_generator_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_base_generator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_nextjs_nestjs_nestjs_backend_generator_ts",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_generate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_createdirectorystructure",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L69",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L100",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L171",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L360",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L374",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L603",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L633",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L694",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator_generate",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_createdirectorystructure",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator_generate",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator_generate",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator_generate",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator_generate",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator_generate",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator_generate",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "nestjs_backend_generator_nestjsbackendgenerator_generate",
+      "target": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L66",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_constructor",
+      "callee": "super",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_constructor",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_createdirectorystructure",
+      "callee": "mkdir",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_createdirectorystructure",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext",
+      "callee": "flat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext",
+      "callee": "flat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_preparecontext",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L199"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L200"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L200"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L202"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L206"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L207"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L207"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L213"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L214"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L214"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L216"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L220"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L221"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L221"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L223"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L228"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L228"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L230"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L234"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L237"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L243"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L243"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L245"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L249"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L250"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L250"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L252"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L257"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L258"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L258"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L260"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L274"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L274"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L283"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L283"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L285"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L292"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L293"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L293"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L295"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L308"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L311"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L325"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L326"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L326"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L328"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L341"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L342"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L342"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L344"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L352"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L353"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L353"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L355"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L362"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L363"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L363"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L366"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L367"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L367"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L370"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L371"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatesystables",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L371"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L376"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "callee": "mkdir",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L377"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L589"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L589"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L592"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L593"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L593"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L595"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L596"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L596"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L599"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L600"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatebusentities",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L600"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "now",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L604"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L607"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L608"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L609"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L614"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L615"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L616"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L621"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L622"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L622"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L625"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L626"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L626"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L629"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L630"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatemigrations",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L630"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L635"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L636"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L636"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L639"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L640"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L640"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L643"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L644"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L644"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L647"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L648"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L648"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L651"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L651"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L655"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L656"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L656"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L658"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L663"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L664"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L664"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L666"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L670"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L671"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L671"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L674"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L675"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L675"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L679"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L680"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L680"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L682"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L687"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L688"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L688"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generateconfigfiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L690"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L697"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L698"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L698"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L701"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L702"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L702"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L705"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L706"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L706"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L709"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L720"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L721"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L721"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L723"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L729"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L730"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L730"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L732"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L744"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L745"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L745"
+    },
+    {
+      "caller_nid": "nestjs_backend_generator_nestjsbackendgenerator_generatetestfiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/nextjs-nestjs/nestjs-backend.generator.ts",
+      "source_location": "L747"
+    }
+  ]
+}

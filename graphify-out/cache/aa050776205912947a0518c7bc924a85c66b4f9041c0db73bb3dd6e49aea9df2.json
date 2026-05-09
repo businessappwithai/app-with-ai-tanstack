@@ -1,1 +1,591 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "label": "use-entities.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L1"}, {"id": "use_entities_useentities", "label": "useEntities()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L116"}, {"id": "use_entities_useentity", "label": "useEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L135"}, {"id": "use_entities_useentitymetadata", "label": "useEntityMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L152"}, {"id": "use_entities_usetablemetadata", "label": "useTableMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L163"}, {"id": "use_entities_useformfields", "label": "useFormFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L174"}, {"id": "use_entities_usegridfields", "label": "useGridFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L185"}, {"id": "use_entities_useallformfields", "label": "useAllFormFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L199"}, {"id": "use_entities_useallgridfields", "label": "useAllGridFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L213"}, {"id": "use_entities_usefieldgroups", "label": "useFieldGroups()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L227"}, {"id": "use_entities_usecreateentity", "label": "useCreateEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L242"}, {"id": "use_entities_useupdateentity", "label": "useUpdateEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L256"}, {"id": "use_entities_usedeleteentity", "label": "useDeleteEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L277"}, {"id": "use_entities_useprefetchentity", "label": "usePrefetchEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L295"}, {"id": "use_entities_useprefetchentitylist", "label": "usePrefetchEntityList()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L306"}, {"id": "use_entities_usecreatefieldgroup", "label": "useCreateFieldGroup()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L321"}, {"id": "use_entities_useupdatefieldgroup", "label": "useUpdateFieldGroup()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L336"}, {"id": "use_entities_usedeletefieldgroup", "label": "useDeleteFieldGroup()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L350"}, {"id": "use_entities_useassignfieldtogroup", "label": "useAssignFieldToGroup()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L363"}, {"id": "use_entities_useupdatefieldstyle", "label": "useUpdateFieldStyle()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L377"}, {"id": "use_entities_usereflist", "label": "useRefList()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L414"}, {"id": "use_entities_usetablereference", "label": "useTableReference()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L434"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "react_query", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "api_client", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_useentities", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L116", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_useentity", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L135", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_useentitymetadata", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L152", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_usetablemetadata", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L163", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_useformfields", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L174", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_usegridfields", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L185", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_useallformfields", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L199", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_useallgridfields", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L213", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_usefieldgroups", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L227", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_usecreateentity", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L242", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_useupdateentity", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L256", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_usedeleteentity", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L277", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_useprefetchentity", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L295", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_useprefetchentitylist", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L306", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_usecreatefieldgroup", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L321", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_useupdatefieldgroup", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L336", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_usedeletefieldgroup", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L350", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_useassignfieldtogroup", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L363", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_useupdatefieldstyle", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L377", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_usereflist", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L414", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts", "target": "use_entities_usetablereference", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L434", "weight": 1.0}], "raw_calls": [{"caller_nid": "use_entities_useentities", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L124"}, {"caller_nid": "use_entities_useentities", "callee": "list", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L125"}, {"caller_nid": "use_entities_useentity", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L140"}, {"caller_nid": "use_entities_useentity", "callee": "detail", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L141"}, {"caller_nid": "use_entities_useentitymetadata", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L153"}, {"caller_nid": "use_entities_useentitymetadata", "callee": "metadata", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L154"}, {"caller_nid": "use_entities_usetablemetadata", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L164"}, {"caller_nid": "use_entities_usetablemetadata", "callee": "table", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L165"}, {"caller_nid": "use_entities_useformfields", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L175"}, {"caller_nid": "use_entities_useformfields", "callee": "fields", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L176"}, {"caller_nid": "use_entities_usegridfields", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L186"}, {"caller_nid": "use_entities_usegridfields", "callee": "fields", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L187"}, {"caller_nid": "use_entities_useallformfields", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L200"}, {"caller_nid": "use_entities_useallformfields", "callee": "fields", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L201"}, {"caller_nid": "use_entities_useallgridfields", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L214"}, {"caller_nid": "use_entities_useallgridfields", "callee": "fields", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L215"}, {"caller_nid": "use_entities_usefieldgroups", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L228"}, {"caller_nid": "use_entities_usecreateentity", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L245"}, {"caller_nid": "use_entities_usecreateentity", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L247"}, {"caller_nid": "use_entities_useupdateentity", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L259"}, {"caller_nid": "use_entities_useupdateentity", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L261"}, {"caller_nid": "use_entities_usedeleteentity", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L278"}, {"caller_nid": "use_entities_usedeleteentity", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L280"}, {"caller_nid": "use_entities_useprefetchentity", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L296"}, {"caller_nid": "use_entities_useprefetchentitylist", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L307"}, {"caller_nid": "use_entities_usecreatefieldgroup", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L322"}, {"caller_nid": "use_entities_usecreatefieldgroup", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L324"}, {"caller_nid": "use_entities_useupdatefieldgroup", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L337"}, {"caller_nid": "use_entities_useupdatefieldgroup", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L339"}, {"caller_nid": "use_entities_usedeletefieldgroup", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L351"}, {"caller_nid": "use_entities_usedeletefieldgroup", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L353"}, {"caller_nid": "use_entities_useassignfieldtogroup", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L364"}, {"caller_nid": "use_entities_useassignfieldtogroup", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L366"}, {"caller_nid": "use_entities_useupdatefieldstyle", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L378"}, {"caller_nid": "use_entities_useupdatefieldstyle", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L380"}, {"caller_nid": "use_entities_usereflist", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L415"}, {"caller_nid": "use_entities_usetablereference", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts", "source_location": "L438"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "label": "use-entities.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "use_entities_useentities",
+      "label": "useEntities()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L116"
+    },
+    {
+      "id": "use_entities_useentity",
+      "label": "useEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L135"
+    },
+    {
+      "id": "use_entities_useentitymetadata",
+      "label": "useEntityMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L152"
+    },
+    {
+      "id": "use_entities_usetablemetadata",
+      "label": "useTableMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L163"
+    },
+    {
+      "id": "use_entities_useformfields",
+      "label": "useFormFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L174"
+    },
+    {
+      "id": "use_entities_usegridfields",
+      "label": "useGridFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L185"
+    },
+    {
+      "id": "use_entities_useallformfields",
+      "label": "useAllFormFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L199"
+    },
+    {
+      "id": "use_entities_useallgridfields",
+      "label": "useAllGridFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L213"
+    },
+    {
+      "id": "use_entities_usefieldgroups",
+      "label": "useFieldGroups()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L227"
+    },
+    {
+      "id": "use_entities_usecreateentity",
+      "label": "useCreateEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L242"
+    },
+    {
+      "id": "use_entities_useupdateentity",
+      "label": "useUpdateEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L256"
+    },
+    {
+      "id": "use_entities_usedeleteentity",
+      "label": "useDeleteEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L277"
+    },
+    {
+      "id": "use_entities_useprefetchentity",
+      "label": "usePrefetchEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L295"
+    },
+    {
+      "id": "use_entities_useprefetchentitylist",
+      "label": "usePrefetchEntityList()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L306"
+    },
+    {
+      "id": "use_entities_usecreatefieldgroup",
+      "label": "useCreateFieldGroup()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L321"
+    },
+    {
+      "id": "use_entities_useupdatefieldgroup",
+      "label": "useUpdateFieldGroup()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L336"
+    },
+    {
+      "id": "use_entities_usedeletefieldgroup",
+      "label": "useDeleteFieldGroup()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L350"
+    },
+    {
+      "id": "use_entities_useassignfieldtogroup",
+      "label": "useAssignFieldToGroup()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L363"
+    },
+    {
+      "id": "use_entities_useupdatefieldstyle",
+      "label": "useUpdateFieldStyle()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L377"
+    },
+    {
+      "id": "use_entities_usereflist",
+      "label": "useRefList()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L414"
+    },
+    {
+      "id": "use_entities_usetablereference",
+      "label": "useTableReference()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L434"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "react_query",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "api_client",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useentities",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L116",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useentity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L135",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useentitymetadata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L152",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usetablemetadata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L163",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useformfields",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L174",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usegridfields",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L185",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useallformfields",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L199",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useallgridfields",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L213",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usefieldgroups",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L227",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usecreateentity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L242",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useupdateentity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L256",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usedeleteentity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L277",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useprefetchentity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L295",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useprefetchentitylist",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L306",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usecreatefieldgroup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L321",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useupdatefieldgroup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L336",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usedeletefieldgroup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L350",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useassignfieldtogroup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L363",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useupdatefieldstyle",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L377",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usereflist",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L414",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usetablereference",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L434",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "use_entities_useentities",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "use_entities_useentities",
+      "callee": "list",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "use_entities_useentity",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L140"
+    },
+    {
+      "caller_nid": "use_entities_useentity",
+      "callee": "detail",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "use_entities_useentitymetadata",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "use_entities_useentitymetadata",
+      "callee": "metadata",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "use_entities_usetablemetadata",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "use_entities_usetablemetadata",
+      "callee": "table",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L165"
+    },
+    {
+      "caller_nid": "use_entities_useformfields",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L175"
+    },
+    {
+      "caller_nid": "use_entities_useformfields",
+      "callee": "fields",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L176"
+    },
+    {
+      "caller_nid": "use_entities_usegridfields",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L186"
+    },
+    {
+      "caller_nid": "use_entities_usegridfields",
+      "callee": "fields",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L187"
+    },
+    {
+      "caller_nid": "use_entities_useallformfields",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L200"
+    },
+    {
+      "caller_nid": "use_entities_useallformfields",
+      "callee": "fields",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L201"
+    },
+    {
+      "caller_nid": "use_entities_useallgridfields",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L214"
+    },
+    {
+      "caller_nid": "use_entities_useallgridfields",
+      "callee": "fields",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L215"
+    },
+    {
+      "caller_nid": "use_entities_usefieldgroups",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L228"
+    },
+    {
+      "caller_nid": "use_entities_usecreateentity",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L245"
+    },
+    {
+      "caller_nid": "use_entities_usecreateentity",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L247"
+    },
+    {
+      "caller_nid": "use_entities_useupdateentity",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "use_entities_useupdateentity",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L261"
+    },
+    {
+      "caller_nid": "use_entities_usedeleteentity",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L278"
+    },
+    {
+      "caller_nid": "use_entities_usedeleteentity",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L280"
+    },
+    {
+      "caller_nid": "use_entities_useprefetchentity",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "use_entities_useprefetchentitylist",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L307"
+    },
+    {
+      "caller_nid": "use_entities_usecreatefieldgroup",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L322"
+    },
+    {
+      "caller_nid": "use_entities_usecreatefieldgroup",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L324"
+    },
+    {
+      "caller_nid": "use_entities_useupdatefieldgroup",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L337"
+    },
+    {
+      "caller_nid": "use_entities_useupdatefieldgroup",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L339"
+    },
+    {
+      "caller_nid": "use_entities_usedeletefieldgroup",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L351"
+    },
+    {
+      "caller_nid": "use_entities_usedeletefieldgroup",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L353"
+    },
+    {
+      "caller_nid": "use_entities_useassignfieldtogroup",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L364"
+    },
+    {
+      "caller_nid": "use_entities_useassignfieldtogroup",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L366"
+    },
+    {
+      "caller_nid": "use_entities_useupdatefieldstyle",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L378"
+    },
+    {
+      "caller_nid": "use_entities_useupdatefieldstyle",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "use_entities_usereflist",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L415"
+    },
+    {
+      "caller_nid": "use_entities_usetablereference",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/hooks/use-entities.ts",
+      "source_location": "L438"
+    }
+  ]
+}

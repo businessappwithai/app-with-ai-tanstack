@@ -1,1 +1,448 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts", "label": "odata-filter.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L1"}, {"id": "odata_filter_parseodatafilter", "label": "parseODataFilter()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L17"}, {"id": "odata_filter_parseliteral", "label": "parseLiteral()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L108"}, {"id": "odata_filter_getsimpletype", "label": "getSimpleType()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L134"}, {"id": "odata_filter_getsqloperator", "label": "getSQLOperator()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L152"}, {"id": "odata_filter_buildwhereclause", "label": "buildWhereClause()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L171"}, {"id": "odata_filter_parsefilter", "label": "parseFilter()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L247"}, {"id": "odata_filter_extractfiltercolumns", "label": "extractFilterColumns()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L288"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts", "target": "odata_filter_parseodatafilter", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts", "target": "odata_filter_parseliteral", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L108", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts", "target": "odata_filter_getsimpletype", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L134", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts", "target": "odata_filter_getsqloperator", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L152", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts", "target": "odata_filter_buildwhereclause", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L171", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts", "target": "odata_filter_parsefilter", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L247", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts", "target": "odata_filter_extractfiltercolumns", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L288", "weight": 1.0}, {"source": "odata_filter_parseodatafilter", "target": "odata_filter_parseliteral", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L58", "weight": 1.0}, {"source": "odata_filter_buildwhereclause", "target": "odata_filter_getsimpletype", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L201", "weight": 1.0}, {"source": "odata_filter_buildwhereclause", "target": "odata_filter_getsqloperator", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L202", "weight": 1.0}, {"source": "odata_filter_parsefilter", "target": "odata_filter_parseodatafilter", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L279", "weight": 1.0}, {"source": "odata_filter_parsefilter", "target": "odata_filter_buildwhereclause", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L282", "weight": 1.0}], "raw_calls": [{"caller_nid": "odata_filter_parseodatafilter", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L19"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L19"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L22"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L22"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L23"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L27"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L37"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L48"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L50"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L51"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L52"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L68"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L72"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L80"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L80"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L84"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L89"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L89"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L90"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L97"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "Number", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L97"}, {"caller_nid": "odata_filter_parseodatafilter", "callee": "Number", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L98"}, {"caller_nid": "odata_filter_parseliteral", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L109"}, {"caller_nid": "odata_filter_parseliteral", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L112"}, {"caller_nid": "odata_filter_parseliteral", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L112"}, {"caller_nid": "odata_filter_parseliteral", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L113"}, {"caller_nid": "odata_filter_parseliteral", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L121"}, {"caller_nid": "odata_filter_parseliteral", "callee": "Number", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L121"}, {"caller_nid": "odata_filter_parseliteral", "callee": "Number", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L121"}, {"caller_nid": "odata_filter_parseliteral", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L124"}, {"caller_nid": "odata_filter_getsimpletype", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L135"}, {"caller_nid": "odata_filter_getsimpletype", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L136"}, {"caller_nid": "odata_filter_getsimpletype", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L136"}, {"caller_nid": "odata_filter_getsimpletype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L136"}, {"caller_nid": "odata_filter_getsimpletype", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L138"}, {"caller_nid": "odata_filter_getsimpletype", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L138"}, {"caller_nid": "odata_filter_getsimpletype", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L139"}, {"caller_nid": "odata_filter_getsimpletype", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L139"}, {"caller_nid": "odata_filter_getsimpletype", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L139"}, {"caller_nid": "odata_filter_buildwhereclause", "callee": "toUpperCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L187"}, {"caller_nid": "odata_filter_buildwhereclause", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L195"}, {"caller_nid": "odata_filter_buildwhereclause", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L221"}, {"caller_nid": "odata_filter_parsefilter", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L258"}, {"caller_nid": "odata_filter_extractfiltercolumns", "callee": "exec", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L293"}, {"caller_nid": "odata_filter_extractfiltercolumns", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L294"}, {"caller_nid": "odata_filter_extractfiltercolumns", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts", "source_location": "L295"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts",
+      "label": "odata-filter.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "odata_filter_parseodatafilter",
+      "label": "parseODataFilter()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L17"
+    },
+    {
+      "id": "odata_filter_parseliteral",
+      "label": "parseLiteral()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L108"
+    },
+    {
+      "id": "odata_filter_getsimpletype",
+      "label": "getSimpleType()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L134"
+    },
+    {
+      "id": "odata_filter_getsqloperator",
+      "label": "getSQLOperator()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L152"
+    },
+    {
+      "id": "odata_filter_buildwhereclause",
+      "label": "buildWhereClause()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L171"
+    },
+    {
+      "id": "odata_filter_parsefilter",
+      "label": "parseFilter()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L247"
+    },
+    {
+      "id": "odata_filter_extractfiltercolumns",
+      "label": "extractFilterColumns()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L288"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts",
+      "target": "odata_filter_parseodatafilter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts",
+      "target": "odata_filter_parseliteral",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts",
+      "target": "odata_filter_getsimpletype",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L134",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts",
+      "target": "odata_filter_getsqloperator",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L152",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts",
+      "target": "odata_filter_buildwhereclause",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L171",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts",
+      "target": "odata_filter_parsefilter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L247",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter_ts",
+      "target": "odata_filter_extractfiltercolumns",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L288",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_filter_parseodatafilter",
+      "target": "odata_filter_parseliteral",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_filter_buildwhereclause",
+      "target": "odata_filter_getsimpletype",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L201",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_filter_buildwhereclause",
+      "target": "odata_filter_getsqloperator",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L202",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_filter_parsefilter",
+      "target": "odata_filter_parseodatafilter",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L279",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_filter_parsefilter",
+      "target": "odata_filter_buildwhereclause",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L282",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L19"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L19"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L22"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L22"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "Number",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "odata_filter_parseodatafilter",
+      "callee": "Number",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "odata_filter_parseliteral",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "odata_filter_parseliteral",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "odata_filter_parseliteral",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "odata_filter_parseliteral",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "odata_filter_parseliteral",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L121"
+    },
+    {
+      "caller_nid": "odata_filter_parseliteral",
+      "callee": "Number",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L121"
+    },
+    {
+      "caller_nid": "odata_filter_parseliteral",
+      "callee": "Number",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L121"
+    },
+    {
+      "caller_nid": "odata_filter_parseliteral",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "odata_filter_getsimpletype",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "odata_filter_getsimpletype",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "odata_filter_getsimpletype",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "odata_filter_getsimpletype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "odata_filter_getsimpletype",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "odata_filter_getsimpletype",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "odata_filter_getsimpletype",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L139"
+    },
+    {
+      "caller_nid": "odata_filter_getsimpletype",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L139"
+    },
+    {
+      "caller_nid": "odata_filter_getsimpletype",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L139"
+    },
+    {
+      "caller_nid": "odata_filter_buildwhereclause",
+      "callee": "toUpperCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L187"
+    },
+    {
+      "caller_nid": "odata_filter_buildwhereclause",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "odata_filter_buildwhereclause",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L221"
+    },
+    {
+      "caller_nid": "odata_filter_parsefilter",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L258"
+    },
+    {
+      "caller_nid": "odata_filter_extractfiltercolumns",
+      "callee": "exec",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L293"
+    },
+    {
+      "caller_nid": "odata_filter_extractfiltercolumns",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L294"
+    },
+    {
+      "caller_nid": "odata_filter_extractfiltercolumns",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/utils/odata-filter.ts",
+      "source_location": "L295"
+    }
+  ]
+}

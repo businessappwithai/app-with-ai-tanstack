@@ -5,25 +5,26 @@
  * Comprehensive UI integration tests using SAP OPA5 framework
  */
 
-sap.ui.define([
+sap.ui.define(
+  [
     "sap/ui/test/Opa5",
     "sap/ui/test/opaQunit",
     "./pages/App",
     "./pages/List",
     "./pages/Detail",
-    "./AllJourneys"
-], function (Opa5, opaQunit, App, List, Detail, AllJourneys) {
-    "use strict";
-
+    "./AllJourneys",
+  ],
+  (Opa5, opaQunit, App, List, Detail, AllJourneys) => {
     // Configure OPA5
     Opa5.extendConfig({
-        viewNamespace: "openui5-odatav4-test-app.view",
-        autoWait: true,
-        timeout: 15,
-        pollingInterval: 100,
-        asyncPolling: true
+      viewNamespace: "openui5-odatav4-test-app.view",
+      autoWait: true,
+      timeout: 15,
+      pollingInterval: 100,
+      asyncPolling: true,
     });
 
     // Run all journeys
     AllJourneys.run();
-});
+  }
+);

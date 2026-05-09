@@ -1,1 +1,582 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_process_manager_service_ts", "label": "process-manager.service.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L1"}, {"id": "process_manager_service_processmanagerservice", "label": "ProcessManagerService", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L21"}, {"id": "process_manager_service_processmanagerservice_isportreserved", "label": ".isPortReserved()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L27"}, {"id": "process_manager_service_processmanagerservice_findprocessonport", "label": ".findProcessOnPort()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L34"}, {"id": "process_manager_service_processmanagerservice_killprocess", "label": ".killProcess()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L58"}, {"id": "process_manager_service_processmanagerservice_clearport", "label": ".clearPort()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L74"}, {"id": "process_manager_service_processmanagerservice_getportfromenvfile", "label": ".getPortFromEnvFile()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L110"}, {"id": "process_manager_service_processmanagerservice_ensuredependencies", "label": ".ensureDependencies()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L136"}, {"id": "process_manager_service_processmanagerservice_startproject", "label": ".startProject()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L156"}, {"id": "process_manager_service_processmanagerservice_stopproject", "label": ".stopProject()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L289"}, {"id": "process_manager_service_processmanagerservice_isrunning", "label": ".isRunning()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L327"}, {"id": "process_manager_service_processmanagerservice_getrunningprocesses", "label": ".getRunningProcesses()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L338"}, {"id": "process_manager_service_processmanagerservice_stopall", "label": ".stopAll()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L347"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_process_manager_service_ts", "target": "child_process", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_process_manager_service_ts", "target": "path", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_process_manager_service_ts", "target": "fs", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_process_manager_service_ts", "target": "process_manager_service_processmanagerservice", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L21", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice", "target": "process_manager_service_processmanagerservice_isportreserved", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L27", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice", "target": "process_manager_service_processmanagerservice_findprocessonport", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L34", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice", "target": "process_manager_service_processmanagerservice_killprocess", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L58", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice", "target": "process_manager_service_processmanagerservice_clearport", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L74", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice", "target": "process_manager_service_processmanagerservice_getportfromenvfile", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L110", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice", "target": "process_manager_service_processmanagerservice_ensuredependencies", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L136", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice", "target": "process_manager_service_processmanagerservice_startproject", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L156", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice", "target": "process_manager_service_processmanagerservice_stopproject", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L289", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice", "target": "process_manager_service_processmanagerservice_isrunning", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L327", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice", "target": "process_manager_service_processmanagerservice_getrunningprocesses", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L338", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice", "target": "process_manager_service_processmanagerservice_stopall", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L347", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice_clearport", "target": "process_manager_service_processmanagerservice_isportreserved", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L76", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice_clearport", "target": "process_manager_service_processmanagerservice_findprocessonport", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L84", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice_clearport", "target": "process_manager_service_processmanagerservice_killprocess", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L86", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice_startproject", "target": "process_manager_service_processmanagerservice_getportfromenvfile", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L174", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice_startproject", "target": "process_manager_service_processmanagerservice_isportreserved", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L178", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice_startproject", "target": "process_manager_service_processmanagerservice_clearport", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L189", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice_startproject", "target": "process_manager_service_processmanagerservice_ensuredependencies", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L200", "weight": 1.0}, {"source": "process_manager_service_processmanagerservice_stopall", "target": "process_manager_service_processmanagerservice_getrunningprocesses", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L348", "weight": 1.0}], "raw_calls": [{"caller_nid": "process_manager_service_processmanagerservice_isportreserved", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L28"}, {"caller_nid": "process_manager_service_processmanagerservice_findprocessonport", "callee": "execSync", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L41"}, {"caller_nid": "process_manager_service_processmanagerservice_findprocessonport", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L42"}, {"caller_nid": "process_manager_service_processmanagerservice_findprocessonport", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L42"}, {"caller_nid": "process_manager_service_processmanagerservice_findprocessonport", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L45"}, {"caller_nid": "process_manager_service_processmanagerservice_killprocess", "callee": "execSync", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L61"}, {"caller_nid": "process_manager_service_processmanagerservice_killprocess", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L62"}, {"caller_nid": "process_manager_service_processmanagerservice_killprocess", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L66"}, {"caller_nid": "process_manager_service_processmanagerservice_getportfromenvfile", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L111"}, {"caller_nid": "process_manager_service_processmanagerservice_getportfromenvfile", "callee": "existsSync", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L113"}, {"caller_nid": "process_manager_service_processmanagerservice_getportfromenvfile", "callee": "readFileSync", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L117"}, {"caller_nid": "process_manager_service_processmanagerservice_getportfromenvfile", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L118"}, {"caller_nid": "process_manager_service_processmanagerservice_getportfromenvfile", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L125"}, {"caller_nid": "process_manager_service_processmanagerservice_getportfromenvfile", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L126"}, {"caller_nid": "process_manager_service_processmanagerservice_ensuredependencies", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L137"}, {"caller_nid": "process_manager_service_processmanagerservice_ensuredependencies", "callee": "existsSync", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L139"}, {"caller_nid": "process_manager_service_processmanagerservice_ensuredependencies", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L140"}, {"caller_nid": "process_manager_service_processmanagerservice_ensuredependencies", "callee": "execSync", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L144"}, {"caller_nid": "process_manager_service_processmanagerservice_ensuredependencies", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L145"}, {"caller_nid": "process_manager_service_processmanagerservice_ensuredependencies", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L147"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L164"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "cwd", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L164"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "existsSync", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L165"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L175"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L188"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L197"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "has", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L203"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L204"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "spawn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L227"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "toString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L232"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "on", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L237"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "on", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L241"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "on", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L246"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "set", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L252"}, {"caller_nid": "process_manager_service_processmanagerservice_startproject", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L277"}, {"caller_nid": "process_manager_service_processmanagerservice_stopproject", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L291"}, {"caller_nid": "process_manager_service_processmanagerservice_stopproject", "callee": "kill", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L300"}, {"caller_nid": "process_manager_service_processmanagerservice_stopproject", "callee": "kill", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L307"}, {"caller_nid": "process_manager_service_processmanagerservice_stopproject", "callee": "delete", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L310"}, {"caller_nid": "process_manager_service_processmanagerservice_stopproject", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L316"}, {"caller_nid": "process_manager_service_processmanagerservice_isrunning", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L328"}, {"caller_nid": "process_manager_service_processmanagerservice_getrunningprocesses", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L339"}, {"caller_nid": "process_manager_service_processmanagerservice_getrunningprocesses", "callee": "from", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L339"}, {"caller_nid": "process_manager_service_processmanagerservice_getrunningprocesses", "callee": "values", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L339"}, {"caller_nid": "process_manager_service_processmanagerservice_stopall", "callee": "all", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L349"}, {"caller_nid": "process_manager_service_processmanagerservice_stopall", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts", "source_location": "L350"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_process_manager_service_ts",
+      "label": "process-manager.service.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "process_manager_service_processmanagerservice",
+      "label": "ProcessManagerService",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L21"
+    },
+    {
+      "id": "process_manager_service_processmanagerservice_isportreserved",
+      "label": ".isPortReserved()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "process_manager_service_processmanagerservice_findprocessonport",
+      "label": ".findProcessOnPort()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L34"
+    },
+    {
+      "id": "process_manager_service_processmanagerservice_killprocess",
+      "label": ".killProcess()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L58"
+    },
+    {
+      "id": "process_manager_service_processmanagerservice_clearport",
+      "label": ".clearPort()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L74"
+    },
+    {
+      "id": "process_manager_service_processmanagerservice_getportfromenvfile",
+      "label": ".getPortFromEnvFile()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L110"
+    },
+    {
+      "id": "process_manager_service_processmanagerservice_ensuredependencies",
+      "label": ".ensureDependencies()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L136"
+    },
+    {
+      "id": "process_manager_service_processmanagerservice_startproject",
+      "label": ".startProject()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L156"
+    },
+    {
+      "id": "process_manager_service_processmanagerservice_stopproject",
+      "label": ".stopProject()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L289"
+    },
+    {
+      "id": "process_manager_service_processmanagerservice_isrunning",
+      "label": ".isRunning()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L327"
+    },
+    {
+      "id": "process_manager_service_processmanagerservice_getrunningprocesses",
+      "label": ".getRunningProcesses()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L338"
+    },
+    {
+      "id": "process_manager_service_processmanagerservice_stopall",
+      "label": ".stopAll()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L347"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_process_manager_service_ts",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_process_manager_service_ts",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_process_manager_service_ts",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_process_manager_service_ts",
+      "target": "process_manager_service_processmanagerservice",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice",
+      "target": "process_manager_service_processmanagerservice_isportreserved",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice",
+      "target": "process_manager_service_processmanagerservice_findprocessonport",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice",
+      "target": "process_manager_service_processmanagerservice_killprocess",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice",
+      "target": "process_manager_service_processmanagerservice_clearport",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice",
+      "target": "process_manager_service_processmanagerservice_getportfromenvfile",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L110",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice",
+      "target": "process_manager_service_processmanagerservice_ensuredependencies",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L136",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice",
+      "target": "process_manager_service_processmanagerservice_startproject",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L156",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice",
+      "target": "process_manager_service_processmanagerservice_stopproject",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L289",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice",
+      "target": "process_manager_service_processmanagerservice_isrunning",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L327",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice",
+      "target": "process_manager_service_processmanagerservice_getrunningprocesses",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L338",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice",
+      "target": "process_manager_service_processmanagerservice_stopall",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L347",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice_clearport",
+      "target": "process_manager_service_processmanagerservice_isportreserved",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice_clearport",
+      "target": "process_manager_service_processmanagerservice_findprocessonport",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice_clearport",
+      "target": "process_manager_service_processmanagerservice_killprocess",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice_startproject",
+      "target": "process_manager_service_processmanagerservice_getportfromenvfile",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L174",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice_startproject",
+      "target": "process_manager_service_processmanagerservice_isportreserved",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L178",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice_startproject",
+      "target": "process_manager_service_processmanagerservice_clearport",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L189",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice_startproject",
+      "target": "process_manager_service_processmanagerservice_ensuredependencies",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L200",
+      "weight": 1.0
+    },
+    {
+      "source": "process_manager_service_processmanagerservice_stopall",
+      "target": "process_manager_service_processmanagerservice_getrunningprocesses",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L348",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_isportreserved",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_findprocessonport",
+      "callee": "execSync",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_findprocessonport",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_findprocessonport",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_findprocessonport",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_killprocess",
+      "callee": "execSync",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_killprocess",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_killprocess",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_getportfromenvfile",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_getportfromenvfile",
+      "callee": "existsSync",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_getportfromenvfile",
+      "callee": "readFileSync",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L117"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_getportfromenvfile",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_getportfromenvfile",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_getportfromenvfile",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_ensuredependencies",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L137"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_ensuredependencies",
+      "callee": "existsSync",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L139"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_ensuredependencies",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L140"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_ensuredependencies",
+      "callee": "execSync",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L144"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_ensuredependencies",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_ensuredependencies",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "cwd",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "existsSync",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L165"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L175"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L188"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L197"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "has",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L204"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "spawn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "toString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L232"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "on",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L237"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "on",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L241"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "on",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L246"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "set",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L252"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_startproject",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L277"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_stopproject",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_stopproject",
+      "callee": "kill",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L300"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_stopproject",
+      "callee": "kill",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L307"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_stopproject",
+      "callee": "delete",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L310"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_stopproject",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L316"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_isrunning",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L328"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_getrunningprocesses",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L339"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_getrunningprocesses",
+      "callee": "from",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L339"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_getrunningprocesses",
+      "callee": "values",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L339"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_stopall",
+      "callee": "all",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L349"
+    },
+    {
+      "caller_nid": "process_manager_service_processmanagerservice_stopall",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/process-manager.service.ts",
+      "source_location": "L350"
+    }
+  ]
+}

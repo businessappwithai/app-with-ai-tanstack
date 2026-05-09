@@ -15,7 +15,7 @@
         "hitPolicy": "collect",
         "inputs": [
           { "id": "i1", "name": "Pipeline Id", "field": "pipeline_id" },
-          { "id": "i2", "name": "Name", "field": "name" },
+          { "id": "i2", "name": "Name", "field": "name" }
         ],
         "outputs": [
           { "id": "o1", "name": "Action", "field": "action" },

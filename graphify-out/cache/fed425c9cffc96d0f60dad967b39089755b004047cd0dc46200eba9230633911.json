@@ -1,1 +1,252 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_utils_naming_js", "label": "naming.js", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L1"}, {"id": "naming_pascalcase", "label": "pascalCase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L1"}, {"id": "naming_camelcase", "label": "camelCase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L6"}, {"id": "naming_snakecase", "label": "snakeCase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L10"}, {"id": "naming_kebabcase", "label": "kebabCase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L16"}, {"id": "naming_plural", "label": "plural()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L22"}, {"id": "naming_singular", "label": "singular()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L29"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_utils_naming_js", "target": "naming_pascalcase", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L1", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_utils_naming_js", "target": "naming_camelcase", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_utils_naming_js", "target": "naming_snakecase", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_utils_naming_js", "target": "naming_kebabcase", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_utils_naming_js", "target": "naming_plural", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L22", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_utils_naming_js", "target": "naming_singular", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L29", "weight": 1.0}, {"source": "naming_camelcase", "target": "naming_pascalcase", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L7", "weight": 1.0}], "raw_calls": [{"caller_nid": "naming_pascalcase", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L2"}, {"caller_nid": "naming_pascalcase", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L2"}, {"caller_nid": "naming_camelcase", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L8"}, {"caller_nid": "naming_camelcase", "callee": "charAt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L8"}, {"caller_nid": "naming_camelcase", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L8"}, {"caller_nid": "naming_snakecase", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L11"}, {"caller_nid": "naming_snakecase", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L11"}, {"caller_nid": "naming_snakecase", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L11"}, {"caller_nid": "naming_kebabcase", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L17"}, {"caller_nid": "naming_kebabcase", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L17"}, {"caller_nid": "naming_kebabcase", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L17"}, {"caller_nid": "naming_plural", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L23"}, {"caller_nid": "naming_plural", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L24"}, {"caller_nid": "naming_plural", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L25"}, {"caller_nid": "naming_plural", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L25"}, {"caller_nid": "naming_plural", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L25"}, {"caller_nid": "naming_singular", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L30"}, {"caller_nid": "naming_singular", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L31"}, {"caller_nid": "naming_singular", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L32"}, {"caller_nid": "naming_singular", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L33"}, {"caller_nid": "naming_singular", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L34"}, {"caller_nid": "naming_singular", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js", "source_location": "L35"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_utils_naming_js",
+      "label": "naming.js",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "naming_pascalcase",
+      "label": "pascalCase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "naming_camelcase",
+      "label": "camelCase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L6"
+    },
+    {
+      "id": "naming_snakecase",
+      "label": "snakeCase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L10"
+    },
+    {
+      "id": "naming_kebabcase",
+      "label": "kebabCase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L16"
+    },
+    {
+      "id": "naming_plural",
+      "label": "plural()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L22"
+    },
+    {
+      "id": "naming_singular",
+      "label": "singular()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L29"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_utils_naming_js",
+      "target": "naming_pascalcase",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_utils_naming_js",
+      "target": "naming_camelcase",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_utils_naming_js",
+      "target": "naming_snakecase",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_utils_naming_js",
+      "target": "naming_kebabcase",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_utils_naming_js",
+      "target": "naming_plural",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_utils_naming_js",
+      "target": "naming_singular",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "naming_camelcase",
+      "target": "naming_pascalcase",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L7",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "naming_pascalcase",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L2"
+    },
+    {
+      "caller_nid": "naming_pascalcase",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L2"
+    },
+    {
+      "caller_nid": "naming_camelcase",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L8"
+    },
+    {
+      "caller_nid": "naming_camelcase",
+      "callee": "charAt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L8"
+    },
+    {
+      "caller_nid": "naming_camelcase",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L8"
+    },
+    {
+      "caller_nid": "naming_snakecase",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L11"
+    },
+    {
+      "caller_nid": "naming_snakecase",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L11"
+    },
+    {
+      "caller_nid": "naming_snakecase",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L11"
+    },
+    {
+      "caller_nid": "naming_kebabcase",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L17"
+    },
+    {
+      "caller_nid": "naming_kebabcase",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L17"
+    },
+    {
+      "caller_nid": "naming_kebabcase",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L17"
+    },
+    {
+      "caller_nid": "naming_plural",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "naming_plural",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "naming_plural",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L25"
+    },
+    {
+      "caller_nid": "naming_plural",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L25"
+    },
+    {
+      "caller_nid": "naming_plural",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L25"
+    },
+    {
+      "caller_nid": "naming_singular",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "naming_singular",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "naming_singular",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "naming_singular",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "naming_singular",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "naming_singular",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/utils/naming.js",
+      "source_location": "L35"
+    }
+  ]
+}

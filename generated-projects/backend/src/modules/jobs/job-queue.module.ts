@@ -13,9 +13,9 @@
  * Project: crm-app
  */
 
-import { Module } from '@nestjs/common';
-import { JobQueueService } from './job-queue.service';
-import { JobQueueController } from './job-queue.controller';
+import { Module } from "@nestjs/common";
+import { JobQueueController } from "./job-queue.controller";
+import { JobQueueService } from "./job-queue.service";
 
 @Module({
   controllers: [JobQueueController],

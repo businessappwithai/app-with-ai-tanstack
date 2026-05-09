@@ -1,1 +1,694 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts", "label": "bus.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L1"}, {"id": "bus_controller_buscontroller", "label": "BusController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L42"}, {"id": "bus_controller_buscontroller_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L45"}, {"id": "bus_controller_buscontroller_getbusservice", "label": ".getBusService()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L52"}, {"id": "bus_controller_buscontroller_findall", "label": ".findAll()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L67"}, {"id": "bus_controller_buscontroller_parsefilters", "label": ".parseFilters()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L100"}, {"id": "bus_controller_buscontroller_findone", "label": ".findOne()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L167"}, {"id": "bus_controller_buscontroller_create", "label": ".create()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L189"}, {"id": "bus_controller_buscontroller_update", "label": ".update()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L222"}, {"id": "bus_controller_buscontroller_patch", "label": ".patch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L257"}, {"id": "bus_controller_buscontroller_delete", "label": ".delete()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L291"}, {"id": "bus_controller_buscontroller_getmetadata", "label": ".getMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L313"}, {"id": "bus_controller_buscontroller_getformfields", "label": ".getFormFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L330"}, {"id": "bus_controller_buscontroller_getgridfields", "label": ".getGridFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L347"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts", "target": "common", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts", "target": "swagger", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L32", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_service", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L33", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_decorators_current_user_decorator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L34", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_session_auth_guard", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L35", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_roles_guard", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L36", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts", "target": "bus_controller_buscontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L42", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L45", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_getbusservice", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L52", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_findall", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L67", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_parsefilters", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L100", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_findone", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L167", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_create", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L189", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_update", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L222", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_patch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L257", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_delete", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L291", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_getmetadata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L313", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_getformfields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L330", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_getgridfields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L347", "weight": 1.0}, {"source": "bus_controller_buscontroller_findall", "target": "bus_controller_buscontroller_parsefilters", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L83", "weight": 1.0}, {"source": "bus_controller_buscontroller_findall", "target": "bus_controller_buscontroller_getbusservice", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L89", "weight": 1.0}, {"source": "bus_controller_buscontroller_findone", "target": "bus_controller_buscontroller_getbusservice", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L174", "weight": 1.0}, {"source": "bus_controller_buscontroller_create", "target": "bus_controller_buscontroller_getbusservice", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L202", "weight": 1.0}, {"source": "bus_controller_buscontroller_update", "target": "bus_controller_buscontroller_getbusservice", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L239", "weight": 1.0}, {"source": "bus_controller_buscontroller_patch", "target": "bus_controller_buscontroller_getbusservice", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L273", "weight": 1.0}, {"source": "bus_controller_buscontroller_patch", "target": "bus_controller_buscontroller_update", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L274", "weight": 1.0}, {"source": "bus_controller_buscontroller_delete", "target": "bus_controller_buscontroller_getbusservice", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L299", "weight": 1.0}, {"source": "bus_controller_buscontroller_getmetadata", "target": "bus_controller_buscontroller_getbusservice", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L317", "weight": 1.0}, {"source": "bus_controller_buscontroller_getformfields", "target": "bus_controller_buscontroller_getbusservice", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L334", "weight": 1.0}, {"source": "bus_controller_buscontroller_getgridfields", "target": "bus_controller_buscontroller_getbusservice", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L351", "weight": 1.0}], "raw_calls": [{"caller_nid": "bus_controller_buscontroller_constructor", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L48"}, {"caller_nid": "bus_controller_buscontroller_constructor", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L49"}, {"caller_nid": "bus_controller_buscontroller_findall", "callee": "debug", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L76"}, {"caller_nid": "bus_controller_buscontroller_findall", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L85"}, {"caller_nid": "bus_controller_buscontroller_findall", "callee": "debug", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L86"}, {"caller_nid": "bus_controller_buscontroller_findall", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L86"}, {"caller_nid": "bus_controller_buscontroller_findall", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L91"}, {"caller_nid": "bus_controller_buscontroller_parsefilters", "callee": "entries", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L103"}, {"caller_nid": "bus_controller_buscontroller_parsefilters", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L105"}, {"caller_nid": "bus_controller_buscontroller_parsefilters", "callee": "substring", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L106"}, {"caller_nid": "bus_controller_buscontroller_parsefilters", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L109"}, {"caller_nid": "bus_controller_buscontroller_parsefilters", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L110"}, {"caller_nid": "bus_controller_buscontroller_parsefilters", "callee": "debug", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L143"}, {"caller_nid": "bus_controller_buscontroller_parsefilters", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L148"}, {"caller_nid": "bus_controller_buscontroller_parsefilters", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L148"}, {"caller_nid": "bus_controller_buscontroller_parsefilters", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L148"}, {"caller_nid": "bus_controller_buscontroller_parsefilters", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L148"}, {"caller_nid": "bus_controller_buscontroller_findone", "callee": "debug", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L172"}, {"caller_nid": "bus_controller_buscontroller_findone", "callee": "findById", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L174"}, {"caller_nid": "bus_controller_buscontroller_findone", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L176"}, {"caller_nid": "bus_controller_buscontroller_create", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L195"}, {"caller_nid": "bus_controller_buscontroller_create", "callee": "debug", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L196"}, {"caller_nid": "bus_controller_buscontroller_create", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L196"}, {"caller_nid": "bus_controller_buscontroller_create", "callee": "isArray", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L198"}, {"caller_nid": "bus_controller_buscontroller_create", "callee": "applySmartDefaults", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L202"}, {"caller_nid": "bus_controller_buscontroller_create", "callee": "validateData", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L204"}, {"caller_nid": "bus_controller_buscontroller_create", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L207"}, {"caller_nid": "bus_controller_buscontroller_update", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L232"}, {"caller_nid": "bus_controller_buscontroller_update", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L232"}, {"caller_nid": "bus_controller_buscontroller_update", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L232"}, {"caller_nid": "bus_controller_buscontroller_update", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L235"}, {"caller_nid": "bus_controller_buscontroller_update", "callee": "debug", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L236"}, {"caller_nid": "bus_controller_buscontroller_update", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L236"}, {"caller_nid": "bus_controller_buscontroller_update", "callee": "validateData", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L239"}, {"caller_nid": "bus_controller_buscontroller_update", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L242"}, {"caller_nid": "bus_controller_buscontroller_patch", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L266"}, {"caller_nid": "bus_controller_buscontroller_patch", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L266"}, {"caller_nid": "bus_controller_buscontroller_patch", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L266"}, {"caller_nid": "bus_controller_buscontroller_patch", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L269"}, {"caller_nid": "bus_controller_buscontroller_patch", "callee": "debug", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L270"}, {"caller_nid": "bus_controller_buscontroller_patch", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L270"}, {"caller_nid": "bus_controller_buscontroller_patch", "callee": "validateData", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L273"}, {"caller_nid": "bus_controller_buscontroller_patch", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L276"}, {"caller_nid": "bus_controller_buscontroller_delete", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L297"}, {"caller_nid": "bus_controller_buscontroller_delete", "callee": "softDelete", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L299"}, {"caller_nid": "bus_controller_buscontroller_delete", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L301"}, {"caller_nid": "bus_controller_buscontroller_getmetadata", "callee": "debug", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L315"}, {"caller_nid": "bus_controller_buscontroller_getmetadata", "callee": "getEntityMetadata", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L317"}, {"caller_nid": "bus_controller_buscontroller_getmetadata", "callee": "debug", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L319"}, {"caller_nid": "bus_controller_buscontroller_getformfields", "callee": "debug", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L332"}, {"caller_nid": "bus_controller_buscontroller_getformfields", "callee": "debug", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L336"}, {"caller_nid": "bus_controller_buscontroller_getgridfields", "callee": "debug", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L349"}, {"caller_nid": "bus_controller_buscontroller_getgridfields", "callee": "debug", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts", "source_location": "L353"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts",
+      "label": "bus.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "bus_controller_buscontroller",
+      "label": "BusController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L42"
+    },
+    {
+      "id": "bus_controller_buscontroller_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L45"
+    },
+    {
+      "id": "bus_controller_buscontroller_getbusservice",
+      "label": ".getBusService()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L52"
+    },
+    {
+      "id": "bus_controller_buscontroller_findall",
+      "label": ".findAll()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L67"
+    },
+    {
+      "id": "bus_controller_buscontroller_parsefilters",
+      "label": ".parseFilters()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L100"
+    },
+    {
+      "id": "bus_controller_buscontroller_findone",
+      "label": ".findOne()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L167"
+    },
+    {
+      "id": "bus_controller_buscontroller_create",
+      "label": ".create()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L189"
+    },
+    {
+      "id": "bus_controller_buscontroller_update",
+      "label": ".update()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L222"
+    },
+    {
+      "id": "bus_controller_buscontroller_patch",
+      "label": ".patch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L257"
+    },
+    {
+      "id": "bus_controller_buscontroller_delete",
+      "label": ".delete()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L291"
+    },
+    {
+      "id": "bus_controller_buscontroller_getmetadata",
+      "label": ".getMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L313"
+    },
+    {
+      "id": "bus_controller_buscontroller_getformfields",
+      "label": ".getFormFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L330"
+    },
+    {
+      "id": "bus_controller_buscontroller_getgridfields",
+      "label": ".getGridFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L347"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts",
+      "target": "common",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts",
+      "target": "swagger",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_service",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_decorators_current_user_decorator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_session_auth_guard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_roles_guard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_bus_bus_controller_ts",
+      "target": "bus_controller_buscontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_getbusservice",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_findall",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_parsefilters",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L100",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_findone",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L167",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_create",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L189",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_update",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L222",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_patch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L257",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_delete",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L291",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_getmetadata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L313",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_getformfields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L330",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_getgridfields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L347",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller_findall",
+      "target": "bus_controller_buscontroller_parsefilters",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller_findall",
+      "target": "bus_controller_buscontroller_getbusservice",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller_findone",
+      "target": "bus_controller_buscontroller_getbusservice",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L174",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller_create",
+      "target": "bus_controller_buscontroller_getbusservice",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L202",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller_update",
+      "target": "bus_controller_buscontroller_getbusservice",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L239",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller_patch",
+      "target": "bus_controller_buscontroller_getbusservice",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L273",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller_patch",
+      "target": "bus_controller_buscontroller_update",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L274",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller_delete",
+      "target": "bus_controller_buscontroller_getbusservice",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L299",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller_getmetadata",
+      "target": "bus_controller_buscontroller_getbusservice",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L317",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller_getformfields",
+      "target": "bus_controller_buscontroller_getbusservice",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L334",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller_getgridfields",
+      "target": "bus_controller_buscontroller_getbusservice",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L351",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "bus_controller_buscontroller_constructor",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_constructor",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L49"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_findall",
+      "callee": "debug",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_findall",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_findall",
+      "callee": "debug",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_findall",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_findall",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_parsefilters",
+      "callee": "entries",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_parsefilters",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_parsefilters",
+      "callee": "substring",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_parsefilters",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_parsefilters",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_parsefilters",
+      "callee": "debug",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_parsefilters",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_parsefilters",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_parsefilters",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_parsefilters",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_findone",
+      "callee": "debug",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L172"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_findone",
+      "callee": "findById",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_findone",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L176"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_create",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_create",
+      "callee": "debug",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L196"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_create",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L196"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_create",
+      "callee": "isArray",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_create",
+      "callee": "applySmartDefaults",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L202"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_create",
+      "callee": "validateData",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L204"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_create",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L207"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_update",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L232"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_update",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L232"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_update",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L232"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_update",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_update",
+      "callee": "debug",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_update",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_update",
+      "callee": "validateData",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L239"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_update",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_patch",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L266"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_patch",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L266"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_patch",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L266"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_patch",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L269"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_patch",
+      "callee": "debug",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L270"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_patch",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L270"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_patch",
+      "callee": "validateData",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_patch",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_delete",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L297"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_delete",
+      "callee": "softDelete",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L299"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_delete",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L301"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_getmetadata",
+      "callee": "debug",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L315"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_getmetadata",
+      "callee": "getEntityMetadata",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L317"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_getmetadata",
+      "callee": "debug",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L319"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_getformfields",
+      "callee": "debug",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L332"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_getformfields",
+      "callee": "debug",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L336"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_getgridfields",
+      "callee": "debug",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L349"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_getgridfields",
+      "callee": "debug",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L353"
+    }
+  ]
+}

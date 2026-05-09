@@ -23,9 +23,7 @@ export class ValidationError extends AppError {
 
 export class NotFoundError extends AppError {
   constructor(resource: string, id?: string) {
-    const message = id
-      ? `${resource} with id '${id}' not found`
-      : `${resource} not found`;
+    const message = id ? `${resource} with id '${id}' not found` : `${resource} not found`;
     super(message, "NOT_FOUND", 404);
   }
 }
@@ -104,11 +102,7 @@ export function logError(error: unknown, context?: string): void {
   const prefix = context ? `[${context}]` : "";
 
   if (isAppError(error)) {
-    console.error(
-      `${prefix} ${error.code}: ${error.message}`,
-      error.details || "",
-      error.stack
-    );
+    console.error(`${prefix} ${error.code}: ${error.message}`, error.details || "", error.stack);
   } else if (error instanceof Error) {
     console.error(`${prefix} ${error.message}`, error.stack);
   } else {
@@ -119,10 +113,7 @@ export function logError(error: unknown, context?: string): void {
 /**
  * Handle API response errors
  */
-export async function handleAPIResponse<T>(
-  response: Response,
-  _context?: string
-): Promise<T> {
+export async function handleAPIResponse<T>(response: Response, _context?: string): Promise<T> {
   if (!response.ok) {
     let errorData: unknown;
     try {
@@ -132,8 +123,7 @@ export async function handleAPIResponse<T>(
     }
 
     throw new APIError(
-      (errorData as { error?: string })?.error ||
-        `HTTP ${response.status}: ${response.statusText}`,
+      (errorData as { error?: string })?.error || `HTTP ${response.status}: ${response.statusText}`,
       response.status,
       errorData
     );

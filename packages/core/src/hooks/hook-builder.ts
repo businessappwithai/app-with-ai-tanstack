@@ -1,10 +1,10 @@
-import { Hook, HookContext, HookLifecycle } from '../types/hook.types';
-import { globalHookRegistry } from './hook-registry';
+import type { Hook, HookContext, HookLifecycle } from "../types/hook.types";
+import { globalHookRegistry } from "./hook-registry";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class HookBuilder<T = any> {
   private hook: Partial<Hook<T>> = {
-    priority: 100
+    priority: 100,
   };
 
   forEntity(entityName: string): this {
@@ -34,7 +34,7 @@ export class HookBuilder<T = any> {
 
   register(): void {
     if (!this.entityName || !this.hook.lifecycle || !this.hook.execute) {
-      throw new Error('Hook must have entity, lifecycle, and execute function');
+      throw new Error("Hook must have entity, lifecycle, and execute function");
     }
 
     globalHookRegistry.register(this.entityName, this.hook as Hook<T>);

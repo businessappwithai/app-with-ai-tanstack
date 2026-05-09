@@ -7,35 +7,35 @@
  * Project: crm-app
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { signIn } from '@/lib/auth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Loader2, LogIn, AlertCircle, Mail, Lock, Shield } from 'lucide-react';
-import { toast } from 'sonner';
+import { AlertCircle, Loader2, Lock, LogIn, Mail, Shield } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { signIn } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsPending(true);
 
     if (!email || !password) {
-      setError('Please enter both email and password');
+      setError("Please enter both email and password");
       setIsPending(false);
       return;
     }
@@ -44,26 +44,26 @@ export default function LoginPage() {
       const { data, error: signInError } = await signIn(email, password);
 
       if (signInError || !data) {
-        const msg = signInError || 'Invalid email or password';
+        const msg = signInError || "Invalid email or password";
         setError(msg);
-        toast.error('Sign in failed', {
+        toast.error("Sign in failed", {
           description: msg,
         });
         setIsPending(false);
         return;
       }
 
-      toast.success('Welcome back!', {
-        description: 'You have been signed in successfully',
+      toast.success("Welcome back!", {
+        description: "You have been signed in successfully",
       });
 
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push("/dashboard");
       }, 500);
     } catch (err: any) {
-      const errorMessage = err?.message || 'An unexpected error occurred';
+      const errorMessage = err?.message || "An unexpected error occurred";
       setError(errorMessage);
-      toast.error('Sign in failed', {
+      toast.error("Sign in failed", {
         description: errorMessage,
       });
       setIsPending(false);

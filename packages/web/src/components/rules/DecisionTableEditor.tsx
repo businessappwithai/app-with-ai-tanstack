@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { ArrowDownIcon, ArrowUpIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusIcon, TrashIcon, ArrowUpIcon, ArrowDownIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 export interface DecisionTableRule {
   id: string;
@@ -25,10 +25,7 @@ interface DecisionTableEditorProps {
   onChange: (data: DecisionTableData) => void;
 }
 
-export function DecisionTableEditor({
-  data,
-  onChange,
-}: DecisionTableEditorProps) {
+export function DecisionTableEditor({ data, onChange }: DecisionTableEditorProps) {
   const [rules, setRules] = useState<DecisionTableRule[]>(data.rules || []);
 
   useEffect(() => {
@@ -39,10 +36,13 @@ export function DecisionTableEditor({
     const newRule: DecisionTableRule = {
       id: `rule-${Date.now()}`,
       condition: "true",
-      output: data.outputs.reduce((acc, output) => {
-        acc[output] = "default";
-        return acc;
-      }, {} as Record<string, string>),
+      output: data.outputs.reduce(
+        (acc, output) => {
+          acc[output] = "default";
+          return acc;
+        },
+        {} as Record<string, string>
+      ),
     };
     setRules([...rules, newRule]);
   };
@@ -52,17 +52,13 @@ export function DecisionTableEditor({
   };
 
   const updateRuleCondition = (ruleId: string, condition: string) => {
-    setRules(
-      rules.map((r) => (r.id === ruleId ? { ...r, condition } : r))
-    );
+    setRules(rules.map((r) => (r.id === ruleId ? { ...r, condition } : r)));
   };
 
   const updateRuleOutput = (ruleId: string, outputKey: string, value: string) => {
     setRules(
       rules.map((r) =>
-        r.id === ruleId
-          ? { ...r, output: { ...r.output, [outputKey]: value } }
-          : r
+        r.id === ruleId ? { ...r, output: { ...r.output, [outputKey]: value } } : r
       )
     );
   };
@@ -134,11 +130,7 @@ export function DecisionTableEditor({
             {data.outputs.map((output) => (
               <div key={output} className="flex items-center gap-2">
                 <Input value={output} disabled className="flex-1" />
-                <Button
-                  onClick={() => removeOutput(output)}
-                  size="sm"
-                  variant="ghost"
-                >
+                <Button onClick={() => removeOutput(output)} size="sm" variant="ghost">
                   <TrashIcon className="h-4 w-4" />
                 </Button>
               </div>
@@ -161,22 +153,15 @@ export function DecisionTableEditor({
         <CardContent>
           <div className="space-y-4">
             {rules.map((rule, index) => (
-              <div
-                key={rule.id}
-                className="border rounded-lg p-4 space-y-3"
-              >
+              <div key={rule.id} className="border rounded-lg p-4 space-y-3">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <Label htmlFor={`condition-${rule.id}`}>
-                      Rule {index + 1} Condition
-                    </Label>
+                    <Label htmlFor={`condition-${rule.id}`}>Rule {index + 1} Condition</Label>
                     <Input
                       id={`condition-${rule.id}`}
                       value={rule.condition}
-                      onChange={(e) =>
-                        updateRuleCondition(rule.id, e.target.value)
-                      }
-                      placeholder='e.g., entity.age > 65'
+                      onChange={(e) => updateRuleCondition(rule.id, e.target.value)}
+                      placeholder="e.g., entity.age > 65"
                       className="font-mono text-sm mt-1"
                     />
                   </div>
@@ -197,11 +182,7 @@ export function DecisionTableEditor({
                     >
                       <ArrowDownIcon className="h-4 w-4" />
                     </Button>
-                    <Button
-                      onClick={() => removeRule(rule.id)}
-                      size="sm"
-                      variant="ghost"
-                    >
+                    <Button onClick={() => removeRule(rule.id)} size="sm" variant="ghost">
                       <TrashIcon className="h-4 w-4" />
                     </Button>
                   </div>
@@ -212,18 +193,13 @@ export function DecisionTableEditor({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
                     {data.outputs.map((output) => (
                       <div key={output} className="flex items-center gap-2">
-                        <Label
-                          htmlFor={`output-${rule.id}-${output}`}
-                          className="text-sm w-24"
-                        >
+                        <Label htmlFor={`output-${rule.id}-${output}`} className="text-sm w-24">
                           {output}:
                         </Label>
                         <Input
                           id={`output-${rule.id}-${output}`}
                           value={rule.output[output] || ""}
-                          onChange={(e) =>
-                            updateRuleOutput(rule.id, output, e.target.value)
-                          }
+                          onChange={(e) => updateRuleOutput(rule.id, output, e.target.value)}
                           placeholder="value"
                           className="flex-1"
                         />
@@ -243,10 +219,9 @@ export function DecisionTableEditor({
 
           {rules.length > 0 && (
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-800">
-              <strong>Rule Execution Order:</strong> Rules are evaluated from
-              top to bottom. The first rule that matches will be executed and
-              subsequent rules will be skipped. Use the arrow buttons to reorder
-              rules.
+              <strong>Rule Execution Order:</strong> Rules are evaluated from top to bottom. The
+              first rule that matches will be executed and subsequent rules will be skipped. Use the
+              arrow buttons to reorder rules.
             </div>
           )}
         </CardContent>

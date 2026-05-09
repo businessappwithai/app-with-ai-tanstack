@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Playwright E2E Test Configuration for nextjs-nestjs-test-app
@@ -6,31 +6,31 @@ import { defineConfig, devices } from '@playwright/test';
  */
 
 export default defineConfig({
-  testDir: './e2e/pages',
+  testDir: "./e2e/pages",
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: 1,
-  reporter: 'html',
+  reporter: "html",
 
   use: {
-    baseURL: process.env.FRONTEND_URL || 'http://localhost:3001',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    baseURL: process.env.FRONTEND_URL || "http://localhost:3001",
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
 
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
     },
   ],
 
   // Start dev server before running tests
   webServer: {
-    command: 'cd ../frontend && bun run dev',
-    url: 'http://localhost:3001',
+    command: "cd ../frontend && bun run dev",
+    url: "http://localhost:3001",
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
   },

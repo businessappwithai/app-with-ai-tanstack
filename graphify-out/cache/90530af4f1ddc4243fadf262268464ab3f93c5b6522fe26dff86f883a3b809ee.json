@@ -1,1 +1,87 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_types_ts", "label": "types.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts", "source_location": "L1"}, {"id": "types_visithookdefinition", "label": "visitHookDefinition()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts", "source_location": "L59"}, {"id": "types_visitparameter", "label": "visitParameter()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts", "source_location": "L66"}, {"id": "types_defaultresult", "label": "defaultResult()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts", "source_location": "L70"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_types_ts", "target": "types_visithookdefinition", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts", "source_location": "L59", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_types_ts", "target": "types_visitparameter", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts", "source_location": "L66", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_types_ts", "target": "types_defaultresult", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts", "source_location": "L70", "weight": 1.0}, {"source": "types_visithookdefinition", "target": "types_defaultresult", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts", "source_location": "L63", "weight": 1.0}, {"source": "types_visitparameter", "target": "types_defaultresult", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts", "source_location": "L67", "weight": 1.0}], "raw_calls": [{"caller_nid": "types_visithookdefinition", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts", "source_location": "L61"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "types_visithookdefinition",
+      "label": "visitHookDefinition()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts",
+      "source_location": "L59"
+    },
+    {
+      "id": "types_visitparameter",
+      "label": "visitParameter()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts",
+      "source_location": "L66"
+    },
+    {
+      "id": "types_defaultresult",
+      "label": "defaultResult()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts",
+      "source_location": "L70"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_types_ts",
+      "target": "types_visithookdefinition",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_types_ts",
+      "target": "types_visitparameter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_types_ts",
+      "target": "types_defaultresult",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "types_visithookdefinition",
+      "target": "types_defaultresult",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "types_visitparameter",
+      "target": "types_defaultresult",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts",
+      "source_location": "L67",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "types_visithookdefinition",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/types.ts",
+      "source_location": "L61"
+    }
+  ]
+}

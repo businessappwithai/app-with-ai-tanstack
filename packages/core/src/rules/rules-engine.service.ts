@@ -8,18 +8,17 @@
  * Week: 1
  */
 
-import type { Knex } from "knex";
-import { zenEngine } from "./zen-engine.singleton";
-import { ruleCache } from "./rule-cache.service";
 import { validateJDM } from "./jdm.schema";
+import { ruleCache } from "./rule-cache.service";
 import type {
+  IRulesEngineService,
   JDMContent,
   RuleDefinition,
   RuleEvaluationContext,
   RuleEvaluationResult,
   RuleValidationResult,
 } from "./rules.types";
-import type { IRulesEngineService } from "./rules.types";
+import { zenEngine } from "./zen-engine.singleton";
 
 /**
  * Database row structure for sys_rule_definitions table
@@ -45,9 +44,9 @@ interface RuleDefinitionRow {
  */
 export class RulesEngineService implements IRulesEngineService {
   /**
-   * @param db - Knex database instance
+   * @param db - Database instance
    */
-  constructor(private db: Knex) {}
+  constructor(private db: any) {}
 
   /**
    * Evaluate a rule against evaluation context
@@ -269,11 +268,11 @@ export class RulesEngineService implements IRulesEngineService {
    * @returns Array of rule definitions from version history
    */
   async getRuleHistory(ruleId: string): Promise<RuleDefinition[]> {
-    const rows = await this.db("sys_rule_versions")
+    const rows = (await this.db("sys_rule_versions")
       .where({ rule_id: ruleId })
-      .orderBy("version", "desc") as RuleDefinitionRow[];
+      .orderBy("version", "desc")) as RuleDefinitionRow[] | any[];
 
-    return rows.map((row) => this.mapVersionRowToDefinition(row));
+    return (rows as RuleDefinitionRow[]).map((row: RuleDefinitionRow) => this.mapVersionRowToDefinition(row));
   }
 
   /**
@@ -300,18 +299,16 @@ export class RulesEngineService implements IRulesEngineService {
     const offset = (page - 1) * limit;
 
     // Build query
-    let query = this.db<RuleDefinitionRow>("sys_rule_definitions")
-      .orderBy("created_at", "desc");
+    let query = this.db<RuleDefinitionRow>("sys_rule_definitions").orderBy("created_at", "desc");
 
     if (entityName) {
       query = query.where("entity_name", entityName);
     }
 
     // Get total count
-    const countResult = await query
-      .clone()
-      .count("* as count")
-      .first() as { count: string | number } | undefined;
+    const countResult = (await query.clone().count("* as count").first()) as
+      | { count: string | number }
+      | undefined;
 
     const total = Number(countResult?.count ?? 0);
 

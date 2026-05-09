@@ -7,44 +7,53 @@
  * Project: crm-app
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { signUp } from '@/lib/auth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Loader2, UserPlus, AlertCircle, Mail, Lock, User, Shield, CheckCircle2 } from 'lucide-react';
-import { toast } from 'sonner';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  Lock,
+  Mail,
+  Shield,
+  User,
+  UserPlus,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { signUp } from "@/lib/auth";
 
 export default function SignupPage() {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   const validateForm = () => {
     if (!name.trim()) {
-      setError('Please enter your name');
+      setError("Please enter your name");
       return false;
     }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please enter a valid email address');
+      setError("Please enter a valid email address");
       return false;
     }
     if (!password || password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setError("Password must be at least 8 characters long");
       return false;
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return false;
     }
     return true;
@@ -52,7 +61,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setSuccess(false);
     setIsPending(true);
 
@@ -65,9 +74,9 @@ export default function SignupPage() {
       const { data, error: signUpError } = await signUp(email, password, name);
 
       if (signUpError || !data) {
-        const msg = signUpError || 'Failed to create account';
+        const msg = signUpError || "Failed to create account";
         setError(msg);
-        toast.error('Sign up failed', {
+        toast.error("Sign up failed", {
           description: msg,
         });
         setIsPending(false);
@@ -75,17 +84,17 @@ export default function SignupPage() {
       }
 
       setSuccess(true);
-      toast.success('Account created successfully!', {
-        description: 'Redirecting to dashboard...',
+      toast.success("Account created successfully!", {
+        description: "Redirecting to dashboard...",
       });
 
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push("/dashboard");
       }, 1500);
     } catch (err: any) {
-      const errorMessage = err?.message || 'An unexpected error occurred';
+      const errorMessage = err?.message || "An unexpected error occurred";
       setError(errorMessage);
-      toast.error('Sign up failed', {
+      toast.error("Sign up failed", {
         description: errorMessage,
       });
       setIsPending(false);

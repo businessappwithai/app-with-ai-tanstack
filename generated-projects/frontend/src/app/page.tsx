@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Home Page - Redirect to Dashboard
@@ -8,15 +8,15 @@
  * Generated: 2026-05-07T09:31:28.728Z
  */
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
     // Redirect to dashboard which has all entities
-    router.replace('/dashboard');
+    router.replace("/dashboard");
   }, [router]);
 
   // Show loading state while redirecting

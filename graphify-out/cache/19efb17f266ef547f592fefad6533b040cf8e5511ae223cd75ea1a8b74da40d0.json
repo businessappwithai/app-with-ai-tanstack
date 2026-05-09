@@ -1,1 +1,151 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_session_helpers_ts", "label": "session-helpers.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L1"}, {"id": "session_helpers_extractsessiontoken", "label": "extractSessionToken()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L17"}, {"id": "session_helpers_parsecookies", "label": "parseCookies()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L50"}, {"id": "session_helpers_formatsetcookie", "label": "formatSetCookie()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L107"}, {"id": "session_helpers_getuserfromrequest", "label": "getUserFromRequest()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L147"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_session_helpers_ts", "target": "session_helpers_extractsessiontoken", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_session_helpers_ts", "target": "session_helpers_parsecookies", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L50", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_session_helpers_ts", "target": "session_helpers_formatsetcookie", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L107", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_session_helpers_ts", "target": "session_helpers_getuserfromrequest", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L147", "weight": 1.0}, {"source": "session_helpers_extractsessiontoken", "target": "session_helpers_parsecookies", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L40", "weight": 1.0}, {"source": "session_helpers_getuserfromrequest", "target": "session_helpers_extractsessiontoken", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L155", "weight": 1.0}], "raw_calls": [{"caller_nid": "session_helpers_extractsessiontoken", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L25"}, {"caller_nid": "session_helpers_parsecookies", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L53"}, {"caller_nid": "session_helpers_parsecookies", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L53"}, {"caller_nid": "session_helpers_formatsetcookie", "callee": "encodeURIComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L122"}, {"caller_nid": "session_helpers_formatsetcookie", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L129"}, {"caller_nid": "session_helpers_formatsetcookie", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L133"}, {"caller_nid": "session_helpers_formatsetcookie", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L137"}, {"caller_nid": "session_helpers_formatsetcookie", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L140"}, {"caller_nid": "session_helpers_getuserfromrequest", "callee": "getSession", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts", "source_location": "L162"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_session_helpers_ts",
+      "label": "session-helpers.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "session_helpers_extractsessiontoken",
+      "label": "extractSessionToken()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L17"
+    },
+    {
+      "id": "session_helpers_parsecookies",
+      "label": "parseCookies()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L50"
+    },
+    {
+      "id": "session_helpers_formatsetcookie",
+      "label": "formatSetCookie()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L107"
+    },
+    {
+      "id": "session_helpers_getuserfromrequest",
+      "label": "getUserFromRequest()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L147"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_session_helpers_ts",
+      "target": "session_helpers_extractsessiontoken",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_session_helpers_ts",
+      "target": "session_helpers_parsecookies",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_session_helpers_ts",
+      "target": "session_helpers_formatsetcookie",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_session_helpers_ts",
+      "target": "session_helpers_getuserfromrequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "session_helpers_extractsessiontoken",
+      "target": "session_helpers_parsecookies",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "session_helpers_getuserfromrequest",
+      "target": "session_helpers_extractsessiontoken",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L155",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "session_helpers_extractsessiontoken",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L25"
+    },
+    {
+      "caller_nid": "session_helpers_parsecookies",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "session_helpers_parsecookies",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "session_helpers_formatsetcookie",
+      "callee": "encodeURIComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "session_helpers_formatsetcookie",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "session_helpers_formatsetcookie",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L133"
+    },
+    {
+      "caller_nid": "session_helpers_formatsetcookie",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L137"
+    },
+    {
+      "caller_nid": "session_helpers_formatsetcookie",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L140"
+    },
+    {
+      "caller_nid": "session_helpers_getuserfromrequest",
+      "callee": "getSession",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/session-helpers.ts",
+      "source_location": "L162"
+    }
+  ]
+}

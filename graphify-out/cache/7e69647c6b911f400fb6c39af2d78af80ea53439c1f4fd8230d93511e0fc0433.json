@@ -1,1 +1,401 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts", "label": "hooks.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L1"}, {"id": "hooks_gethooks", "label": "getHooks()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L34"}, {"id": "hooks_executebeforecreatehooks", "label": "executeBeforeCreateHooks()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L42"}, {"id": "hooks_executeaftercreatehooks", "label": "executeAfterCreateHooks()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L60"}, {"id": "hooks_executebeforeupdatehooks", "label": "executeBeforeUpdateHooks()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L76"}, {"id": "hooks_executeafterupdatehooks", "label": "executeAfterUpdateHooks()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L94"}, {"id": "hooks_executebeforedeletehooks", "label": "executeBeforeDeleteHooks()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L110"}, {"id": "hooks_executeafterdeletehooks", "label": "executeAfterDeleteHooks()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L128"}, {"id": "hooks_executebeforereadhooks", "label": "executeBeforeReadHooks()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L144"}, {"id": "hooks_executeafterreadhooks", "label": "executeAfterReadHooks()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L162"}, {"id": "hooks_executebeforelisthooks", "label": "executeBeforeListHooks()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L178"}, {"id": "hooks_executeafterlisthooks", "label": "executeAfterListHooks()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L196"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts", "target": "hooks_gethooks", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L34", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts", "target": "hooks_executebeforecreatehooks", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L42", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts", "target": "hooks_executeaftercreatehooks", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L60", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts", "target": "hooks_executebeforeupdatehooks", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L76", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts", "target": "hooks_executeafterupdatehooks", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L94", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts", "target": "hooks_executebeforedeletehooks", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L110", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts", "target": "hooks_executeafterdeletehooks", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L128", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts", "target": "hooks_executebeforereadhooks", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L144", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts", "target": "hooks_executeafterreadhooks", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L162", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts", "target": "hooks_executebeforelisthooks", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L178", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts", "target": "hooks_executeafterlisthooks", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L196", "weight": 1.0}, {"source": "hooks_executebeforecreatehooks", "target": "hooks_gethooks", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L46", "weight": 1.0}, {"source": "hooks_executeaftercreatehooks", "target": "hooks_gethooks", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L64", "weight": 1.0}, {"source": "hooks_executebeforeupdatehooks", "target": "hooks_gethooks", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L80", "weight": 1.0}, {"source": "hooks_executeafterupdatehooks", "target": "hooks_gethooks", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L98", "weight": 1.0}, {"source": "hooks_executebeforedeletehooks", "target": "hooks_gethooks", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L114", "weight": 1.0}, {"source": "hooks_executeafterdeletehooks", "target": "hooks_gethooks", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L132", "weight": 1.0}, {"source": "hooks_executebeforereadhooks", "target": "hooks_gethooks", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L148", "weight": 1.0}, {"source": "hooks_executeafterreadhooks", "target": "hooks_gethooks", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L166", "weight": 1.0}, {"source": "hooks_executebeforelisthooks", "target": "hooks_gethooks", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L182", "weight": 1.0}, {"source": "hooks_executeafterlisthooks", "target": "hooks_gethooks", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L200", "weight": 1.0}], "raw_calls": [{"caller_nid": "hooks_executebeforecreatehooks", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L50"}, {"caller_nid": "hooks_executebeforecreatehooks", "callee": "hookFn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L52"}, {"caller_nid": "hooks_executeaftercreatehooks", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L67"}, {"caller_nid": "hooks_executeaftercreatehooks", "callee": "hookFn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L69"}, {"caller_nid": "hooks_executebeforeupdatehooks", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L84"}, {"caller_nid": "hooks_executebeforeupdatehooks", "callee": "hookFn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L86"}, {"caller_nid": "hooks_executeafterupdatehooks", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L101"}, {"caller_nid": "hooks_executeafterupdatehooks", "callee": "hookFn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L103"}, {"caller_nid": "hooks_executebeforedeletehooks", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L117"}, {"caller_nid": "hooks_executebeforedeletehooks", "callee": "hookFn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L119"}, {"caller_nid": "hooks_executeafterdeletehooks", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L135"}, {"caller_nid": "hooks_executeafterdeletehooks", "callee": "hookFn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L137"}, {"caller_nid": "hooks_executebeforereadhooks", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L152"}, {"caller_nid": "hooks_executebeforereadhooks", "callee": "hookFn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L154"}, {"caller_nid": "hooks_executeafterreadhooks", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L169"}, {"caller_nid": "hooks_executeafterreadhooks", "callee": "hookFn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L171"}, {"caller_nid": "hooks_executebeforelisthooks", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L186"}, {"caller_nid": "hooks_executebeforelisthooks", "callee": "hookFn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L188"}, {"caller_nid": "hooks_executeafterlisthooks", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L203"}, {"caller_nid": "hooks_executeafterlisthooks", "callee": "hookFn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts", "source_location": "L205"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts",
+      "label": "hooks.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "hooks_gethooks",
+      "label": "getHooks()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L34"
+    },
+    {
+      "id": "hooks_executebeforecreatehooks",
+      "label": "executeBeforeCreateHooks()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L42"
+    },
+    {
+      "id": "hooks_executeaftercreatehooks",
+      "label": "executeAfterCreateHooks()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L60"
+    },
+    {
+      "id": "hooks_executebeforeupdatehooks",
+      "label": "executeBeforeUpdateHooks()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L76"
+    },
+    {
+      "id": "hooks_executeafterupdatehooks",
+      "label": "executeAfterUpdateHooks()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L94"
+    },
+    {
+      "id": "hooks_executebeforedeletehooks",
+      "label": "executeBeforeDeleteHooks()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L110"
+    },
+    {
+      "id": "hooks_executeafterdeletehooks",
+      "label": "executeAfterDeleteHooks()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L128"
+    },
+    {
+      "id": "hooks_executebeforereadhooks",
+      "label": "executeBeforeReadHooks()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L144"
+    },
+    {
+      "id": "hooks_executeafterreadhooks",
+      "label": "executeAfterReadHooks()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L162"
+    },
+    {
+      "id": "hooks_executebeforelisthooks",
+      "label": "executeBeforeListHooks()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L178"
+    },
+    {
+      "id": "hooks_executeafterlisthooks",
+      "label": "executeAfterListHooks()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L196"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts",
+      "target": "hooks_gethooks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts",
+      "target": "hooks_executebeforecreatehooks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts",
+      "target": "hooks_executeaftercreatehooks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts",
+      "target": "hooks_executebeforeupdatehooks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts",
+      "target": "hooks_executeafterupdatehooks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts",
+      "target": "hooks_executebeforedeletehooks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L110",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts",
+      "target": "hooks_executeafterdeletehooks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L128",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts",
+      "target": "hooks_executebeforereadhooks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L144",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts",
+      "target": "hooks_executeafterreadhooks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L162",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts",
+      "target": "hooks_executebeforelisthooks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L178",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_hooks_hooks_ts",
+      "target": "hooks_executeafterlisthooks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L196",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_executebeforecreatehooks",
+      "target": "hooks_gethooks",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_executeaftercreatehooks",
+      "target": "hooks_gethooks",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L64",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_executebeforeupdatehooks",
+      "target": "hooks_gethooks",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_executeafterupdatehooks",
+      "target": "hooks_gethooks",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L98",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_executebeforedeletehooks",
+      "target": "hooks_gethooks",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_executeafterdeletehooks",
+      "target": "hooks_gethooks",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L132",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_executebeforereadhooks",
+      "target": "hooks_gethooks",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L148",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_executeafterreadhooks",
+      "target": "hooks_gethooks",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L166",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_executebeforelisthooks",
+      "target": "hooks_gethooks",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L182",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_executeafterlisthooks",
+      "target": "hooks_gethooks",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L200",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "hooks_executebeforecreatehooks",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "hooks_executebeforecreatehooks",
+      "callee": "hookFn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "hooks_executeaftercreatehooks",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "hooks_executeaftercreatehooks",
+      "callee": "hookFn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "hooks_executebeforeupdatehooks",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "hooks_executebeforeupdatehooks",
+      "callee": "hookFn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "hooks_executeafterupdatehooks",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "hooks_executeafterupdatehooks",
+      "callee": "hookFn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "hooks_executebeforedeletehooks",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L117"
+    },
+    {
+      "caller_nid": "hooks_executebeforedeletehooks",
+      "callee": "hookFn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "hooks_executeafterdeletehooks",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "hooks_executeafterdeletehooks",
+      "callee": "hookFn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L137"
+    },
+    {
+      "caller_nid": "hooks_executebeforereadhooks",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "hooks_executebeforereadhooks",
+      "callee": "hookFn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "hooks_executeafterreadhooks",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L169"
+    },
+    {
+      "caller_nid": "hooks_executeafterreadhooks",
+      "callee": "hookFn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "hooks_executebeforelisthooks",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L186"
+    },
+    {
+      "caller_nid": "hooks_executebeforelisthooks",
+      "callee": "hookFn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L188"
+    },
+    {
+      "caller_nid": "hooks_executeafterlisthooks",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "hooks_executeafterlisthooks",
+      "callee": "hookFn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/hooks/hooks.ts",
+      "source_location": "L205"
+    }
+  ]
+}

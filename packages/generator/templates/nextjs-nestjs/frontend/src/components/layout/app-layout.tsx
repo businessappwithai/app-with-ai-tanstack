@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * App Layout Component
@@ -8,10 +8,10 @@
  * Generated: {{now}}
  */
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Sidebar, Header } from '@/components/layout';
-import { useAuth } from '@/contexts/auth-context';
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { Header, Sidebar } from "@/components/layout";
+import { useAuth } from "@/contexts/auth-context";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -23,7 +23,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [isAuthenticated, isLoading, router]);
 
@@ -44,9 +44,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-auto p-6">
-          {children}
-        </main>
+        <main className="flex-1 overflow-auto p-6">{children}</main>
       </div>
     </div>
   );

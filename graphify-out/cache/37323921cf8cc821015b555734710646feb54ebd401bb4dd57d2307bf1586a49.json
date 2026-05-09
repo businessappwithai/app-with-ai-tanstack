@@ -1,1 +1,248 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx", "label": "page.tsx", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L1"}, {"id": "page_getentitycategory", "label": "getEntityCategory()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L76"}, {"id": "page_getcategorycolors", "label": "getCategoryColors()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L103"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx", "target": "react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx", "target": "link", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L18", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx", "target": "react_query", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L19", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx", "target": "api_client", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L20", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx", "target": "lucide_react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L21", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx", "target": "button", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L36", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx", "target": "input", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L37", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx", "target": "page_getentitycategory", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L76", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx", "target": "page_getcategorycolors", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L103", "weight": 1.0}], "raw_calls": [{"caller_nid": "page_getentitycategory", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L77"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L79"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L79"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L79"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L80"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L80"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L80"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L84"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L84"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L84"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L85"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L85"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L89"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L89"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L89"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L90"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L90"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L90"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L94"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L94"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L94"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L95"}, {"caller_nid": "page_getentitycategory", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx", "source_location": "L95"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx",
+      "label": "page.tsx",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "page_getentitycategory",
+      "label": "getEntityCategory()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L76"
+    },
+    {
+      "id": "page_getcategorycolors",
+      "label": "getCategoryColors()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L103"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx",
+      "target": "link",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx",
+      "target": "react_query",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx",
+      "target": "api_client",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx",
+      "target": "button",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx",
+      "target": "input",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx",
+      "target": "page_getentitycategory",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_app_admin_page_tsx",
+      "target": "page_getcategorycolors",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L103",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "page_getentitycategory",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/app/admin/page.tsx",
+      "source_location": "L95"
+    }
+  ]
+}

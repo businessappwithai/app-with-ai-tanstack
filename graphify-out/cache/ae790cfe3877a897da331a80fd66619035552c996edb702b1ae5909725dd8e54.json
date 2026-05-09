@@ -1,1 +1,511 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_service_ts", "label": "auth.service.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L1"}, {"id": "auth_service_authservice", "label": "AuthService", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L21"}, {"id": "auth_service_authservice_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L25"}, {"id": "auth_service_authservice_login", "label": ".login()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L42"}, {"id": "auth_service_authservice_register", "label": ".register()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L63"}, {"id": "auth_service_authservice_logout", "label": ".logout()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L94"}, {"id": "auth_service_authservice_getsession", "label": ".getSession()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L109"}, {"id": "auth_service_authservice_hasrole", "label": ".hasRole()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L128"}, {"id": "auth_service_authservice_haspermission", "label": ".hasPermission()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L142"}, {"id": "auth_service_authservice_assignrole", "label": ".assignRole()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L207"}, {"id": "auth_service_authservice_removerole", "label": ".removeRole()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L240"}, {"id": "auth_service_authservice_getuserroles", "label": ".getUserRoles()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L262"}, {"id": "auth_service_authservice_createknexadapter", "label": ".createKnexAdapter()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L274"}, {"id": "auth_service_createauthservice", "label": "createAuthService()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L301"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_service_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_types_ts", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_service_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_better_auth_config_ts", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_service_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_service_ts", "target": "auth_service_authservice", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L21", "weight": 1.0}, {"source": "auth_service_authservice", "target": "auth_service_authservice_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L25", "weight": 1.0}, {"source": "auth_service_authservice", "target": "auth_service_authservice_login", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L42", "weight": 1.0}, {"source": "auth_service_authservice", "target": "auth_service_authservice_register", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L63", "weight": 1.0}, {"source": "auth_service_authservice", "target": "auth_service_authservice_logout", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L94", "weight": 1.0}, {"source": "auth_service_authservice", "target": "auth_service_authservice_getsession", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L109", "weight": 1.0}, {"source": "auth_service_authservice", "target": "auth_service_authservice_hasrole", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L128", "weight": 1.0}, {"source": "auth_service_authservice", "target": "auth_service_authservice_haspermission", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L142", "weight": 1.0}, {"source": "auth_service_authservice", "target": "auth_service_authservice_assignrole", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L207", "weight": 1.0}, {"source": "auth_service_authservice", "target": "auth_service_authservice_removerole", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L240", "weight": 1.0}, {"source": "auth_service_authservice", "target": "auth_service_authservice_getuserroles", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L262", "weight": 1.0}, {"source": "auth_service_authservice", "target": "auth_service_authservice_createknexadapter", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L274", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_service_ts", "target": "auth_service_createauthservice", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L301", "weight": 1.0}, {"source": "auth_service_authservice_constructor", "target": "auth_service_authservice_createknexadapter", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L29", "weight": 1.0}, {"source": "auth_service_authservice_register", "target": "auth_service_authservice_assignrole", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L85", "weight": 1.0}, {"source": "auth_service_authservice_haspermission", "target": "auth_service_authservice_hasrole", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L148", "weight": 1.0}], "raw_calls": [{"caller_nid": "auth_service_authservice_constructor", "callee": "createBetterAuth", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L31"}, {"caller_nid": "auth_service_authservice_login", "callee": "signInEmail", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L45"}, {"caller_nid": "auth_service_authservice_register", "callee": "signUpEmail", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L66"}, {"caller_nid": "auth_service_authservice_logout", "callee": "signOut", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L95"}, {"caller_nid": "auth_service_authservice_hasrole", "callee": "isArray", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L129"}, {"caller_nid": "auth_service_authservice_hasrole", "callee": "pluck", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L131"}, {"caller_nid": "auth_service_authservice_hasrole", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L131"}, {"caller_nid": "auth_service_authservice_hasrole", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L131"}, {"caller_nid": "auth_service_authservice_hasrole", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L131"}, {"caller_nid": "auth_service_authservice_hasrole", "callee": "some", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L136"}, {"caller_nid": "auth_service_authservice_haspermission", "callee": "pluck", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L154"}, {"caller_nid": "auth_service_authservice_haspermission", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L154"}, {"caller_nid": "auth_service_authservice_haspermission", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L154"}, {"caller_nid": "auth_service_authservice_haspermission", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L154"}, {"caller_nid": "auth_service_authservice_haspermission", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L164"}, {"caller_nid": "auth_service_authservice_haspermission", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L164"}, {"caller_nid": "auth_service_authservice_haspermission", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L164"}, {"caller_nid": "auth_service_authservice_haspermission", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L164"}, {"caller_nid": "auth_service_authservice_haspermission", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L164"}, {"caller_nid": "auth_service_authservice_haspermission", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L164"}, {"caller_nid": "auth_service_authservice_haspermission", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L168"}, {"caller_nid": "auth_service_authservice_assignrole", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L209"}, {"caller_nid": "auth_service_authservice_assignrole", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L209"}, {"caller_nid": "auth_service_authservice_assignrole", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L209"}, {"caller_nid": "auth_service_authservice_assignrole", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L218"}, {"caller_nid": "auth_service_authservice_assignrole", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L218"}, {"caller_nid": "auth_service_authservice_assignrole", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L218"}, {"caller_nid": "auth_service_authservice_assignrole", "callee": "insert", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L230"}, {"caller_nid": "auth_service_authservice_assignrole", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L230"}, {"caller_nid": "auth_service_authservice_removerole", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L242"}, {"caller_nid": "auth_service_authservice_removerole", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L242"}, {"caller_nid": "auth_service_authservice_removerole", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L242"}, {"caller_nid": "auth_service_authservice_removerole", "callee": "delete", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L251"}, {"caller_nid": "auth_service_authservice_removerole", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L251"}, {"caller_nid": "auth_service_authservice_removerole", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L251"}, {"caller_nid": "auth_service_authservice_getuserroles", "callee": "pluck", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L263"}, {"caller_nid": "auth_service_authservice_getuserroles", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L263"}, {"caller_nid": "auth_service_authservice_getuserroles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L263"}, {"caller_nid": "auth_service_authservice_getuserroles", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts", "source_location": "L263"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_service_ts",
+      "label": "auth.service.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "auth_service_authservice",
+      "label": "AuthService",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L21"
+    },
+    {
+      "id": "auth_service_authservice_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L25"
+    },
+    {
+      "id": "auth_service_authservice_login",
+      "label": ".login()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L42"
+    },
+    {
+      "id": "auth_service_authservice_register",
+      "label": ".register()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L63"
+    },
+    {
+      "id": "auth_service_authservice_logout",
+      "label": ".logout()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L94"
+    },
+    {
+      "id": "auth_service_authservice_getsession",
+      "label": ".getSession()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L109"
+    },
+    {
+      "id": "auth_service_authservice_hasrole",
+      "label": ".hasRole()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L128"
+    },
+    {
+      "id": "auth_service_authservice_haspermission",
+      "label": ".hasPermission()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L142"
+    },
+    {
+      "id": "auth_service_authservice_assignrole",
+      "label": ".assignRole()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L207"
+    },
+    {
+      "id": "auth_service_authservice_removerole",
+      "label": ".removeRole()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L240"
+    },
+    {
+      "id": "auth_service_authservice_getuserroles",
+      "label": ".getUserRoles()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L262"
+    },
+    {
+      "id": "auth_service_authservice_createknexadapter",
+      "label": ".createKnexAdapter()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L274"
+    },
+    {
+      "id": "auth_service_createauthservice",
+      "label": "createAuthService()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L301"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_service_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_types_ts",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_service_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_better_auth_config_ts",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_service_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_service_ts",
+      "target": "auth_service_authservice",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_service_authservice",
+      "target": "auth_service_authservice_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_service_authservice",
+      "target": "auth_service_authservice_login",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_service_authservice",
+      "target": "auth_service_authservice_register",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_service_authservice",
+      "target": "auth_service_authservice_logout",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_service_authservice",
+      "target": "auth_service_authservice_getsession",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_service_authservice",
+      "target": "auth_service_authservice_hasrole",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L128",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_service_authservice",
+      "target": "auth_service_authservice_haspermission",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_service_authservice",
+      "target": "auth_service_authservice_assignrole",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L207",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_service_authservice",
+      "target": "auth_service_authservice_removerole",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L240",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_service_authservice",
+      "target": "auth_service_authservice_getuserroles",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L262",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_service_authservice",
+      "target": "auth_service_authservice_createknexadapter",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L274",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_service_ts",
+      "target": "auth_service_createauthservice",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L301",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_service_authservice_constructor",
+      "target": "auth_service_authservice_createknexadapter",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_service_authservice_register",
+      "target": "auth_service_authservice_assignrole",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L85",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_service_authservice_haspermission",
+      "target": "auth_service_authservice_hasrole",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L148",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "auth_service_authservice_constructor",
+      "callee": "createBetterAuth",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "auth_service_authservice_login",
+      "callee": "signInEmail",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "auth_service_authservice_register",
+      "callee": "signUpEmail",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "auth_service_authservice_logout",
+      "callee": "signOut",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "auth_service_authservice_hasrole",
+      "callee": "isArray",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "auth_service_authservice_hasrole",
+      "callee": "pluck",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "auth_service_authservice_hasrole",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "auth_service_authservice_hasrole",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "auth_service_authservice_hasrole",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "auth_service_authservice_hasrole",
+      "callee": "some",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "auth_service_authservice_haspermission",
+      "callee": "pluck",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "auth_service_authservice_haspermission",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "auth_service_authservice_haspermission",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "auth_service_authservice_haspermission",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "auth_service_authservice_haspermission",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "auth_service_authservice_haspermission",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "auth_service_authservice_haspermission",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "auth_service_authservice_haspermission",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "auth_service_authservice_haspermission",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "auth_service_authservice_haspermission",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "auth_service_authservice_haspermission",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L168"
+    },
+    {
+      "caller_nid": "auth_service_authservice_assignrole",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "auth_service_authservice_assignrole",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "auth_service_authservice_assignrole",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "auth_service_authservice_assignrole",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L218"
+    },
+    {
+      "caller_nid": "auth_service_authservice_assignrole",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L218"
+    },
+    {
+      "caller_nid": "auth_service_authservice_assignrole",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L218"
+    },
+    {
+      "caller_nid": "auth_service_authservice_assignrole",
+      "callee": "insert",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L230"
+    },
+    {
+      "caller_nid": "auth_service_authservice_assignrole",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L230"
+    },
+    {
+      "caller_nid": "auth_service_authservice_removerole",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "auth_service_authservice_removerole",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "auth_service_authservice_removerole",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "auth_service_authservice_removerole",
+      "callee": "delete",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "auth_service_authservice_removerole",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "auth_service_authservice_removerole",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "auth_service_authservice_getuserroles",
+      "callee": "pluck",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L263"
+    },
+    {
+      "caller_nid": "auth_service_authservice_getuserroles",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L263"
+    },
+    {
+      "caller_nid": "auth_service_authservice_getuserroles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L263"
+    },
+    {
+      "caller_nid": "auth_service_authservice_getuserroles",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/auth.service.ts",
+      "source_location": "L263"
+    }
+  ]
+}

@@ -1,1 +1,125 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_workflow_goruleserrorboundary_tsx", "label": "GoRulesErrorBoundary.tsx", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L1"}, {"id": "goruleserrorboundary_goruleserrorboundary", "label": "GoRulesErrorBoundary", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L16"}, {"id": "goruleserrorboundary_goruleserrorboundary_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L20"}, {"id": "goruleserrorboundary_goruleserrorboundary_getderivedstatefromerror", "label": ".getDerivedStateFromError()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L25"}, {"id": "goruleserrorboundary_goruleserrorboundary_componentdidcatch", "label": ".componentDidCatch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L29"}, {"id": "goruleserrorboundary_goruleserrorboundary_render", "label": ".render()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L33"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_workflow_goruleserrorboundary_tsx", "target": "react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L3", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_workflow_goruleserrorboundary_tsx", "target": "lucide_react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L4", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_workflow_goruleserrorboundary_tsx", "target": "goruleserrorboundary_goruleserrorboundary", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L16", "weight": 1.0}, {"source": "goruleserrorboundary_goruleserrorboundary", "target": "goruleserrorboundary_goruleserrorboundary_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L20", "weight": 1.0}, {"source": "goruleserrorboundary_goruleserrorboundary", "target": "goruleserrorboundary_goruleserrorboundary_getderivedstatefromerror", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L25", "weight": 1.0}, {"source": "goruleserrorboundary_goruleserrorboundary", "target": "goruleserrorboundary_goruleserrorboundary_componentdidcatch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L29", "weight": 1.0}, {"source": "goruleserrorboundary_goruleserrorboundary", "target": "goruleserrorboundary_goruleserrorboundary_render", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L33", "weight": 1.0}], "raw_calls": [{"caller_nid": "goruleserrorboundary_goruleserrorboundary_constructor", "callee": "super", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L21"}, {"caller_nid": "goruleserrorboundary_goruleserrorboundary_componentdidcatch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx", "source_location": "L30"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_workflow_goruleserrorboundary_tsx",
+      "label": "GoRulesErrorBoundary.tsx",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "goruleserrorboundary_goruleserrorboundary",
+      "label": "GoRulesErrorBoundary",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L16"
+    },
+    {
+      "id": "goruleserrorboundary_goruleserrorboundary_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L20"
+    },
+    {
+      "id": "goruleserrorboundary_goruleserrorboundary_getderivedstatefromerror",
+      "label": ".getDerivedStateFromError()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L25"
+    },
+    {
+      "id": "goruleserrorboundary_goruleserrorboundary_componentdidcatch",
+      "label": ".componentDidCatch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L29"
+    },
+    {
+      "id": "goruleserrorboundary_goruleserrorboundary_render",
+      "label": ".render()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L33"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_workflow_goruleserrorboundary_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_workflow_goruleserrorboundary_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_workflow_goruleserrorboundary_tsx",
+      "target": "goruleserrorboundary_goruleserrorboundary",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "goruleserrorboundary_goruleserrorboundary",
+      "target": "goruleserrorboundary_goruleserrorboundary_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "goruleserrorboundary_goruleserrorboundary",
+      "target": "goruleserrorboundary_goruleserrorboundary_getderivedstatefromerror",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "goruleserrorboundary_goruleserrorboundary",
+      "target": "goruleserrorboundary_goruleserrorboundary_componentdidcatch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "goruleserrorboundary_goruleserrorboundary",
+      "target": "goruleserrorboundary_goruleserrorboundary_render",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L33",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "goruleserrorboundary_goruleserrorboundary_constructor",
+      "callee": "super",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "goruleserrorboundary_goruleserrorboundary_componentdidcatch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/workflow/GoRulesErrorBoundary.tsx",
+      "source_location": "L30"
+    }
+  ]
+}

@@ -12,12 +12,12 @@
  * - sys_field entries with randomized seq_no for runtime modification demo
  */
 
-import type { Knex } from 'knex';
-import { v4 as uuidv4 } from 'uuid';
+import type { Knex } from "knex";
+import { v4 as uuidv4 } from "uuid";
 
 export async function seed(knex: Knex): Promise<void> {
   const now = new Date();
-  const createdBy = '';
+  const createdBy = "";
 
   // ============================================================================
   // Helper Functions
@@ -42,14 +42,14 @@ export async function seed(knex: Knex): Promise<void> {
    */
   function typeToReferenceId(type: string): number {
     const mapping: Record<string, number> = {
-      'string': 10,
-      'integer': 11,
-      'decimal': 12,
-      'boolean': 20,
-      'date': 15,
-      'datetime': 16,
-      'text': 14,
-      'json': 28,
+      string: 10,
+      integer: 11,
+      decimal: 12,
+      boolean: 20,
+      date: 15,
+      datetime: 16,
+      text: 14,
+      json: 28,
     };
     return mapping[type] || 10;
   }
@@ -60,12 +60,12 @@ export async function seed(knex: Knex): Promise<void> {
   const adminRoleId = uuidv4();
   const userRoleId = uuidv4();
 
-  await knex('sys_role').insert([
+  await knex("sys_role").insert([
     {
       sys_role_id: adminRoleId,
-      name: 'Administrator',
-      description: 'System administrator with full access',
-      user_level: 'S',
+      name: "Administrator",
+      description: "System administrator with full access",
+      user_level: "S",
       is_master_role: true,
       is_can_export: true,
       is_can_report: true,
@@ -73,7 +73,7 @@ export async function seed(knex: Knex): Promise<void> {
       is_personal_access: false,
       max_query_records: 0,
       is_show_accounting: true,
-      entity_type: 'D',
+      entity_type: "D",
       is_active: true,
       created_by: createdBy,
       updated_by: createdBy,
@@ -82,9 +82,9 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       sys_role_id: userRoleId,
-      name: 'User',
-      description: 'Standard user with limited access',
-      user_level: 'C',
+      name: "User",
+      description: "Standard user with limited access",
+      user_level: "C",
       is_master_role: false,
       is_can_export: true,
       is_can_report: true,
@@ -92,7 +92,7 @@ export async function seed(knex: Knex): Promise<void> {
       is_personal_access: false,
       max_query_records: 1000,
       is_show_accounting: false,
-      entity_type: 'D',
+      entity_type: "D",
       is_active: true,
       created_by: createdBy,
       updated_by: createdBy,
@@ -106,19 +106,19 @@ export async function seed(knex: Knex): Promise<void> {
   // ============================================================================
   const adminUserId = uuidv4();
 
-  await knex('sys_user').insert({
+  await knex("sys_user").insert({
     sys_user_id: adminUserId,
-    name: 'System Administrator',
-    email: 'admin@localhost',
-    password_hash: '$2b$10$rIC/7qZmzCi9F4g4OKL8wO4k5XYzJ5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5', // placeholder
-    description: 'Default system administrator',
+    name: "System Administrator",
+    email: "admin@localhost",
+    password_hash: "$2b$10$rIC/7qZmzCi9F4g4OKL8wO4k5XYzJ5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5", // placeholder
+    description: "Default system administrator",
     is_system_user: true,
     is_sales_rep: false,
     login_failure_count: 0,
     is_locked: false,
     is_account_verified: true,
     default_sys_role_id: adminRoleId,
-    entity_type: 'D',
+    entity_type: "D",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -127,10 +127,10 @@ export async function seed(knex: Knex): Promise<void> {
   });
 
   // Assign admin role to admin user
-  await knex('sys_user_roles').insert({
+  await knex("sys_user_roles").insert({
     sys_user_id: adminUserId,
     sys_role_id: adminRoleId,
-    entity_type: 'D',
+    entity_type: "D",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -145,14 +145,14 @@ export async function seed(knex: Knex): Promise<void> {
   const fieldGroupDetails = uuidv4();
   const fieldGroupSystem = uuidv4();
 
-  await knex('sys_field_group').insert([
+  await knex("sys_field_group").insert([
     {
       sys_field_group_id: fieldGroupGeneral,
-      name: 'General',
-      description: 'General information fields',
-      field_group_type: 'C',
+      name: "General",
+      description: "General information fields",
+      field_group_type: "C",
       is_collapsed_by_default: false,
-      entity_type: 'D',
+      entity_type: "D",
       is_active: true,
       created_by: createdBy,
       updated_by: createdBy,
@@ -161,11 +161,11 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       sys_field_group_id: fieldGroupDetails,
-      name: 'Details',
-      description: 'Detailed information fields',
-      field_group_type: 'C',
+      name: "Details",
+      description: "Detailed information fields",
+      field_group_type: "C",
       is_collapsed_by_default: true,
-      entity_type: 'D',
+      entity_type: "D",
       is_active: true,
       created_by: createdBy,
       updated_by: createdBy,
@@ -174,11 +174,11 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       sys_field_group_id: fieldGroupSystem,
-      name: 'System',
-      description: 'System fields (audit trail)',
-      field_group_type: 'C',
+      name: "System",
+      description: "System fields (audit trail)",
+      field_group_type: "C",
       is_collapsed_by_default: true,
-      entity_type: 'D',
+      entity_type: "D",
       is_active: true,
       created_by: createdBy,
       updated_by: createdBy,
@@ -199,14 +199,14 @@ export async function seed(knex: Knex): Promise<void> {
   const cUSTOMERTabId = uuidv4();
 
   // Create sys_window entry FIRST (sys_table references it)
-  await knex('sys_window').insert({
+  await knex("sys_window").insert({
     sys_window_id: cUSTOMERWindowId,
-    name: 'Customer',
-    description: 'Maintain Customer records',
-    window_type: 'M',
+    name: "Customer",
+    description: "Maintain Customer records",
+    window_type: "M",
     is_sales_transaction: false,
     is_default: true,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -215,18 +215,18 @@ export async function seed(knex: Knex): Promise<void> {
   });
 
   // Create sys_table entry AFTER sys_window
-  await knex('sys_table').insert({
+  await knex("sys_table").insert({
     sys_table_id: cUSTOMERTableId,
-    table_name: 'bus_customer',
-    name: 'Customer',
-    description: 'CUSTOMER entity',
-    access_level: 'A',
+    table_name: "bus_customer",
+    name: "Customer",
+    description: "CUSTOMER entity",
+    access_level: "A",
     is_view: false,
     is_document: false,
     is_high_volume: false,
     is_changelog: true,
     sys_window_id: cUSTOMERWindowId,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -235,11 +235,11 @@ export async function seed(knex: Knex): Promise<void> {
   });
 
   // Create sys_tab entry
-  await knex('sys_tab').insert({
+  await knex("sys_tab").insert({
     sys_tab_id: cUSTOMERTabId,
     sys_window_id: cUSTOMERWindowId,
     sys_table_id: cUSTOMERTableId,
-    name: 'Customer',
+    name: "Customer",
     tab_level: 0,
     seq_no: 10,
     is_single_row: true,
@@ -249,7 +249,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_read_only: false,
     is_insert_record: true,
     is_advanced_tab: false,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -264,16 +264,16 @@ export async function seed(knex: Knex): Promise<void> {
   const cUSTOMER_id_columnId = uuidv4();
   cUSTOMERColumns.push({
     id: cUSTOMER_id_columnId,
-    name: 'id',
-    displayName: 'Id',
+    name: "id",
+    displayName: "Id",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: cUSTOMER_id_columnId,
     sys_table_id: cUSTOMERTableId,
-    column_name: 'id',
-    name: 'Id',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "id",
+    name: "Id",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: true,
     is_parent: false,
     is_mandatory: false,
@@ -285,7 +285,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: false,
     seq_no: cUSTOMERColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -296,16 +296,16 @@ export async function seed(knex: Knex): Promise<void> {
   const cUSTOMER_name_columnId = uuidv4();
   cUSTOMERColumns.push({
     id: cUSTOMER_name_columnId,
-    name: 'name',
-    displayName: 'Name',
+    name: "name",
+    displayName: "Name",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: cUSTOMER_name_columnId,
     sys_table_id: cUSTOMERTableId,
-    column_name: 'name',
-    name: 'Name',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "name",
+    name: "Name",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -317,7 +317,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: cUSTOMERColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -328,16 +328,16 @@ export async function seed(knex: Knex): Promise<void> {
   const cUSTOMER_email_columnId = uuidv4();
   cUSTOMERColumns.push({
     id: cUSTOMER_email_columnId,
-    name: 'email',
-    displayName: 'Email',
+    name: "email",
+    displayName: "Email",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: cUSTOMER_email_columnId,
     sys_table_id: cUSTOMERTableId,
-    column_name: 'email',
-    name: 'Email',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "email",
+    name: "Email",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -349,7 +349,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: cUSTOMERColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -360,16 +360,16 @@ export async function seed(knex: Knex): Promise<void> {
   const cUSTOMER_phone_columnId = uuidv4();
   cUSTOMERColumns.push({
     id: cUSTOMER_phone_columnId,
-    name: 'phone',
-    displayName: 'Phone',
+    name: "phone",
+    displayName: "Phone",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: cUSTOMER_phone_columnId,
     sys_table_id: cUSTOMERTableId,
-    column_name: 'phone',
-    name: 'Phone',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "phone",
+    name: "Phone",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -381,7 +381,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: cUSTOMERColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -392,16 +392,16 @@ export async function seed(knex: Knex): Promise<void> {
   const cUSTOMER_city_columnId = uuidv4();
   cUSTOMERColumns.push({
     id: cUSTOMER_city_columnId,
-    name: 'city',
-    displayName: 'City',
+    name: "city",
+    displayName: "City",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: cUSTOMER_city_columnId,
     sys_table_id: cUSTOMERTableId,
-    column_name: 'city',
-    name: 'City',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "city",
+    name: "City",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -413,7 +413,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: cUSTOMERColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -424,16 +424,16 @@ export async function seed(knex: Knex): Promise<void> {
   const cUSTOMER_status_columnId = uuidv4();
   cUSTOMERColumns.push({
     id: cUSTOMER_status_columnId,
-    name: 'status',
-    displayName: 'Status',
+    name: "status",
+    displayName: "Status",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: cUSTOMER_status_columnId,
     sys_table_id: cUSTOMERTableId,
-    column_name: 'status',
-    name: 'Status',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "status",
+    name: "Status",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -445,7 +445,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: cUSTOMERColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -456,16 +456,16 @@ export async function seed(knex: Knex): Promise<void> {
   const cUSTOMER_createdAt_columnId = uuidv4();
   cUSTOMERColumns.push({
     id: cUSTOMER_createdAt_columnId,
-    name: 'created_at',
-    displayName: 'Created At',
+    name: "created_at",
+    displayName: "Created At",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: cUSTOMER_createdAt_columnId,
     sys_table_id: cUSTOMERTableId,
-    column_name: 'created_at',
-    name: 'Created At',
-    sys_reference_id: typeToReferenceId('date'),
+    column_name: "created_at",
+    name: "Created At",
+    sys_reference_id: typeToReferenceId("date"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -477,7 +477,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: cUSTOMERColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -492,7 +492,7 @@ export async function seed(knex: Knex): Promise<void> {
 
   for (let i = 0; i < cUSTOMERColumns.length; i++) {
     const col = cUSTOMERColumns[i];
-    await knex('sys_field').insert({
+    await knex("sys_field").insert({
       sys_field_id: uuidv4(),
       sys_tab_id: cUSTOMERTabId,
       sys_column_id: col.id,
@@ -507,7 +507,7 @@ export async function seed(knex: Knex): Promise<void> {
       is_same_line: false,
       is_heading: false,
       is_field_only: false,
-      entity_type: 'U',
+      entity_type: "U",
       is_active: true,
       created_by: createdBy,
       updated_by: createdBy,
@@ -517,14 +517,14 @@ export async function seed(knex: Knex): Promise<void> {
   }
 
   // Grant access to admin role
-  await knex('sys_access').insert({
+  await knex("sys_access").insert({
     sys_role_id: adminRoleId,
     sys_table_id: cUSTOMERTableId,
     sys_window_id: cUSTOMERWindowId,
-    access_type_table: 'W',
+    access_type_table: "W",
     is_read_only: false,
     is_exclude: false,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -533,14 +533,14 @@ export async function seed(knex: Knex): Promise<void> {
   });
 
   // Grant read access to user role
-  await knex('sys_access').insert({
+  await knex("sys_access").insert({
     sys_role_id: userRoleId,
     sys_table_id: cUSTOMERTableId,
     sys_window_id: cUSTOMERWindowId,
-    access_type_table: 'R',
+    access_type_table: "R",
     is_read_only: true,
     is_exclude: false,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -548,7 +548,7 @@ export async function seed(knex: Knex): Promise<void> {
     updated_at: now,
   });
 
-  console.log('✓ Created dictionary entries for Customer');
+  console.log("✓ Created dictionary entries for Customer");
 
   // --------------------------------------------------------------------------
   // Order (bus_order)
@@ -558,14 +558,14 @@ export async function seed(knex: Knex): Promise<void> {
   const oRDERTabId = uuidv4();
 
   // Create sys_window entry FIRST (sys_table references it)
-  await knex('sys_window').insert({
+  await knex("sys_window").insert({
     sys_window_id: oRDERWindowId,
-    name: 'Order',
-    description: 'Maintain Order records',
-    window_type: 'M',
+    name: "Order",
+    description: "Maintain Order records",
+    window_type: "M",
     is_sales_transaction: false,
     is_default: true,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -574,18 +574,18 @@ export async function seed(knex: Knex): Promise<void> {
   });
 
   // Create sys_table entry AFTER sys_window
-  await knex('sys_table').insert({
+  await knex("sys_table").insert({
     sys_table_id: oRDERTableId,
-    table_name: 'bus_order',
-    name: 'Order',
-    description: 'ORDER entity',
-    access_level: 'A',
+    table_name: "bus_order",
+    name: "Order",
+    description: "ORDER entity",
+    access_level: "A",
     is_view: false,
     is_document: false,
     is_high_volume: false,
     is_changelog: true,
     sys_window_id: oRDERWindowId,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -594,11 +594,11 @@ export async function seed(knex: Knex): Promise<void> {
   });
 
   // Create sys_tab entry
-  await knex('sys_tab').insert({
+  await knex("sys_tab").insert({
     sys_tab_id: oRDERTabId,
     sys_window_id: oRDERWindowId,
     sys_table_id: oRDERTableId,
-    name: 'Order',
+    name: "Order",
     tab_level: 0,
     seq_no: 10,
     is_single_row: true,
@@ -608,7 +608,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_read_only: false,
     is_insert_record: true,
     is_advanced_tab: false,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -623,16 +623,16 @@ export async function seed(knex: Knex): Promise<void> {
   const oRDER_id_columnId = uuidv4();
   oRDERColumns.push({
     id: oRDER_id_columnId,
-    name: 'id',
-    displayName: 'Id',
+    name: "id",
+    displayName: "Id",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: oRDER_id_columnId,
     sys_table_id: oRDERTableId,
-    column_name: 'id',
-    name: 'Id',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "id",
+    name: "Id",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: true,
     is_parent: false,
     is_mandatory: false,
@@ -644,7 +644,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: false,
     seq_no: oRDERColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -655,16 +655,16 @@ export async function seed(knex: Knex): Promise<void> {
   const oRDER_customerId_columnId = uuidv4();
   oRDERColumns.push({
     id: oRDER_customerId_columnId,
-    name: 'customer_id',
-    displayName: 'Customer Id',
+    name: "customer_id",
+    displayName: "Customer Id",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: oRDER_customerId_columnId,
     sys_table_id: oRDERTableId,
-    column_name: 'customer_id',
-    name: 'Customer Id',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "customer_id",
+    name: "Customer Id",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -676,7 +676,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: oRDERColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -687,16 +687,16 @@ export async function seed(knex: Knex): Promise<void> {
   const oRDER_orderDate_columnId = uuidv4();
   oRDERColumns.push({
     id: oRDER_orderDate_columnId,
-    name: 'order_date',
-    displayName: 'Order Date',
+    name: "order_date",
+    displayName: "Order Date",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: oRDER_orderDate_columnId,
     sys_table_id: oRDERTableId,
-    column_name: 'order_date',
-    name: 'Order Date',
-    sys_reference_id: typeToReferenceId('date'),
+    column_name: "order_date",
+    name: "Order Date",
+    sys_reference_id: typeToReferenceId("date"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -708,7 +708,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: oRDERColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -719,16 +719,16 @@ export async function seed(knex: Knex): Promise<void> {
   const oRDER_totalAmount_columnId = uuidv4();
   oRDERColumns.push({
     id: oRDER_totalAmount_columnId,
-    name: 'total_amount',
-    displayName: 'Total Amount',
+    name: "total_amount",
+    displayName: "Total Amount",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: oRDER_totalAmount_columnId,
     sys_table_id: oRDERTableId,
-    column_name: 'total_amount',
-    name: 'Total Amount',
-    sys_reference_id: typeToReferenceId('decimal'),
+    column_name: "total_amount",
+    name: "Total Amount",
+    sys_reference_id: typeToReferenceId("decimal"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -740,7 +740,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: oRDERColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -751,16 +751,16 @@ export async function seed(knex: Knex): Promise<void> {
   const oRDER_status_columnId = uuidv4();
   oRDERColumns.push({
     id: oRDER_status_columnId,
-    name: 'status',
-    displayName: 'Status',
+    name: "status",
+    displayName: "Status",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: oRDER_status_columnId,
     sys_table_id: oRDERTableId,
-    column_name: 'status',
-    name: 'Status',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "status",
+    name: "Status",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -772,7 +772,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: oRDERColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -783,16 +783,16 @@ export async function seed(knex: Knex): Promise<void> {
   const oRDER_createdAt_columnId = uuidv4();
   oRDERColumns.push({
     id: oRDER_createdAt_columnId,
-    name: 'created_at',
-    displayName: 'Created At',
+    name: "created_at",
+    displayName: "Created At",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: oRDER_createdAt_columnId,
     sys_table_id: oRDERTableId,
-    column_name: 'created_at',
-    name: 'Created At',
-    sys_reference_id: typeToReferenceId('datetime'),
+    column_name: "created_at",
+    name: "Created At",
+    sys_reference_id: typeToReferenceId("datetime"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -804,7 +804,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: oRDERColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -819,7 +819,7 @@ export async function seed(knex: Knex): Promise<void> {
 
   for (let i = 0; i < oRDERColumns.length; i++) {
     const col = oRDERColumns[i];
-    await knex('sys_field').insert({
+    await knex("sys_field").insert({
       sys_field_id: uuidv4(),
       sys_tab_id: oRDERTabId,
       sys_column_id: col.id,
@@ -834,7 +834,7 @@ export async function seed(knex: Knex): Promise<void> {
       is_same_line: false,
       is_heading: false,
       is_field_only: false,
-      entity_type: 'U',
+      entity_type: "U",
       is_active: true,
       created_by: createdBy,
       updated_by: createdBy,
@@ -844,14 +844,14 @@ export async function seed(knex: Knex): Promise<void> {
   }
 
   // Grant access to admin role
-  await knex('sys_access').insert({
+  await knex("sys_access").insert({
     sys_role_id: adminRoleId,
     sys_table_id: oRDERTableId,
     sys_window_id: oRDERWindowId,
-    access_type_table: 'W',
+    access_type_table: "W",
     is_read_only: false,
     is_exclude: false,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -860,14 +860,14 @@ export async function seed(knex: Knex): Promise<void> {
   });
 
   // Grant read access to user role
-  await knex('sys_access').insert({
+  await knex("sys_access").insert({
     sys_role_id: userRoleId,
     sys_table_id: oRDERTableId,
     sys_window_id: oRDERWindowId,
-    access_type_table: 'R',
+    access_type_table: "R",
     is_read_only: true,
     is_exclude: false,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -875,7 +875,7 @@ export async function seed(knex: Knex): Promise<void> {
     updated_at: now,
   });
 
-  console.log('✓ Created dictionary entries for Order');
+  console.log("✓ Created dictionary entries for Order");
 
   // --------------------------------------------------------------------------
   // Order Item (bus_order_item)
@@ -885,14 +885,14 @@ export async function seed(knex: Knex): Promise<void> {
   const oRDERITEMTabId = uuidv4();
 
   // Create sys_window entry FIRST (sys_table references it)
-  await knex('sys_window').insert({
+  await knex("sys_window").insert({
     sys_window_id: oRDERITEMWindowId,
-    name: 'Order Item',
-    description: 'Maintain Order Item records',
-    window_type: 'M',
+    name: "Order Item",
+    description: "Maintain Order Item records",
+    window_type: "M",
     is_sales_transaction: false,
     is_default: true,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -901,18 +901,18 @@ export async function seed(knex: Knex): Promise<void> {
   });
 
   // Create sys_table entry AFTER sys_window
-  await knex('sys_table').insert({
+  await knex("sys_table").insert({
     sys_table_id: oRDERITEMTableId,
-    table_name: 'bus_order_item',
-    name: 'Order Item',
-    description: 'ORDER_ITEM entity',
-    access_level: 'A',
+    table_name: "bus_order_item",
+    name: "Order Item",
+    description: "ORDER_ITEM entity",
+    access_level: "A",
     is_view: false,
     is_document: false,
     is_high_volume: false,
     is_changelog: true,
     sys_window_id: oRDERITEMWindowId,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -921,11 +921,11 @@ export async function seed(knex: Knex): Promise<void> {
   });
 
   // Create sys_tab entry
-  await knex('sys_tab').insert({
+  await knex("sys_tab").insert({
     sys_tab_id: oRDERITEMTabId,
     sys_window_id: oRDERITEMWindowId,
     sys_table_id: oRDERITEMTableId,
-    name: 'Order Item',
+    name: "Order Item",
     tab_level: 0,
     seq_no: 10,
     is_single_row: true,
@@ -935,7 +935,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_read_only: false,
     is_insert_record: true,
     is_advanced_tab: false,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -950,16 +950,16 @@ export async function seed(knex: Knex): Promise<void> {
   const oRDERITEM_id_columnId = uuidv4();
   oRDERITEMColumns.push({
     id: oRDERITEM_id_columnId,
-    name: 'id',
-    displayName: 'Id',
+    name: "id",
+    displayName: "Id",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: oRDERITEM_id_columnId,
     sys_table_id: oRDERITEMTableId,
-    column_name: 'id',
-    name: 'Id',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "id",
+    name: "Id",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: true,
     is_parent: false,
     is_mandatory: false,
@@ -971,7 +971,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: false,
     seq_no: oRDERITEMColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -982,16 +982,16 @@ export async function seed(knex: Knex): Promise<void> {
   const oRDERITEM_orderId_columnId = uuidv4();
   oRDERITEMColumns.push({
     id: oRDERITEM_orderId_columnId,
-    name: 'order_id',
-    displayName: 'Order Id',
+    name: "order_id",
+    displayName: "Order Id",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: oRDERITEM_orderId_columnId,
     sys_table_id: oRDERITEMTableId,
-    column_name: 'order_id',
-    name: 'Order Id',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "order_id",
+    name: "Order Id",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -1003,7 +1003,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: oRDERITEMColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1014,16 +1014,16 @@ export async function seed(knex: Knex): Promise<void> {
   const oRDERITEM_productId_columnId = uuidv4();
   oRDERITEMColumns.push({
     id: oRDERITEM_productId_columnId,
-    name: 'product_id',
-    displayName: 'Product Id',
+    name: "product_id",
+    displayName: "Product Id",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: oRDERITEM_productId_columnId,
     sys_table_id: oRDERITEMTableId,
-    column_name: 'product_id',
-    name: 'Product Id',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "product_id",
+    name: "Product Id",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -1035,7 +1035,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: oRDERITEMColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1046,16 +1046,16 @@ export async function seed(knex: Knex): Promise<void> {
   const oRDERITEM_quantity_columnId = uuidv4();
   oRDERITEMColumns.push({
     id: oRDERITEM_quantity_columnId,
-    name: 'quantity',
-    displayName: 'Quantity',
+    name: "quantity",
+    displayName: "Quantity",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: oRDERITEM_quantity_columnId,
     sys_table_id: oRDERITEMTableId,
-    column_name: 'quantity',
-    name: 'Quantity',
-    sys_reference_id: typeToReferenceId('integer'),
+    column_name: "quantity",
+    name: "Quantity",
+    sys_reference_id: typeToReferenceId("integer"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -1067,7 +1067,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: oRDERITEMColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1078,16 +1078,16 @@ export async function seed(knex: Knex): Promise<void> {
   const oRDERITEM_unitPrice_columnId = uuidv4();
   oRDERITEMColumns.push({
     id: oRDERITEM_unitPrice_columnId,
-    name: 'unit_price',
-    displayName: 'Unit Price',
+    name: "unit_price",
+    displayName: "Unit Price",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: oRDERITEM_unitPrice_columnId,
     sys_table_id: oRDERITEMTableId,
-    column_name: 'unit_price',
-    name: 'Unit Price',
-    sys_reference_id: typeToReferenceId('decimal'),
+    column_name: "unit_price",
+    name: "Unit Price",
+    sys_reference_id: typeToReferenceId("decimal"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -1099,7 +1099,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: oRDERITEMColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1110,16 +1110,16 @@ export async function seed(knex: Knex): Promise<void> {
   const oRDERITEM_lineTotal_columnId = uuidv4();
   oRDERITEMColumns.push({
     id: oRDERITEM_lineTotal_columnId,
-    name: 'line_total',
-    displayName: 'Line Total',
+    name: "line_total",
+    displayName: "Line Total",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: oRDERITEM_lineTotal_columnId,
     sys_table_id: oRDERITEMTableId,
-    column_name: 'line_total',
-    name: 'Line Total',
-    sys_reference_id: typeToReferenceId('decimal'),
+    column_name: "line_total",
+    name: "Line Total",
+    sys_reference_id: typeToReferenceId("decimal"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -1131,7 +1131,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: oRDERITEMColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1146,7 +1146,7 @@ export async function seed(knex: Knex): Promise<void> {
 
   for (let i = 0; i < oRDERITEMColumns.length; i++) {
     const col = oRDERITEMColumns[i];
-    await knex('sys_field').insert({
+    await knex("sys_field").insert({
       sys_field_id: uuidv4(),
       sys_tab_id: oRDERITEMTabId,
       sys_column_id: col.id,
@@ -1161,7 +1161,7 @@ export async function seed(knex: Knex): Promise<void> {
       is_same_line: false,
       is_heading: false,
       is_field_only: false,
-      entity_type: 'U',
+      entity_type: "U",
       is_active: true,
       created_by: createdBy,
       updated_by: createdBy,
@@ -1171,14 +1171,14 @@ export async function seed(knex: Knex): Promise<void> {
   }
 
   // Grant access to admin role
-  await knex('sys_access').insert({
+  await knex("sys_access").insert({
     sys_role_id: adminRoleId,
     sys_table_id: oRDERITEMTableId,
     sys_window_id: oRDERITEMWindowId,
-    access_type_table: 'W',
+    access_type_table: "W",
     is_read_only: false,
     is_exclude: false,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1187,14 +1187,14 @@ export async function seed(knex: Knex): Promise<void> {
   });
 
   // Grant read access to user role
-  await knex('sys_access').insert({
+  await knex("sys_access").insert({
     sys_role_id: userRoleId,
     sys_table_id: oRDERITEMTableId,
     sys_window_id: oRDERITEMWindowId,
-    access_type_table: 'R',
+    access_type_table: "R",
     is_read_only: true,
     is_exclude: false,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1202,7 +1202,7 @@ export async function seed(knex: Knex): Promise<void> {
     updated_at: now,
   });
 
-  console.log('✓ Created dictionary entries for Order Item');
+  console.log("✓ Created dictionary entries for Order Item");
 
   // --------------------------------------------------------------------------
   // Product (bus_product)
@@ -1212,14 +1212,14 @@ export async function seed(knex: Knex): Promise<void> {
   const pRODUCTTabId = uuidv4();
 
   // Create sys_window entry FIRST (sys_table references it)
-  await knex('sys_window').insert({
+  await knex("sys_window").insert({
     sys_window_id: pRODUCTWindowId,
-    name: 'Product',
-    description: 'Maintain Product records',
-    window_type: 'M',
+    name: "Product",
+    description: "Maintain Product records",
+    window_type: "M",
     is_sales_transaction: false,
     is_default: true,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1228,18 +1228,18 @@ export async function seed(knex: Knex): Promise<void> {
   });
 
   // Create sys_table entry AFTER sys_window
-  await knex('sys_table').insert({
+  await knex("sys_table").insert({
     sys_table_id: pRODUCTTableId,
-    table_name: 'bus_product',
-    name: 'Product',
-    description: 'PRODUCT entity',
-    access_level: 'A',
+    table_name: "bus_product",
+    name: "Product",
+    description: "PRODUCT entity",
+    access_level: "A",
     is_view: false,
     is_document: false,
     is_high_volume: false,
     is_changelog: true,
     sys_window_id: pRODUCTWindowId,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1248,11 +1248,11 @@ export async function seed(knex: Knex): Promise<void> {
   });
 
   // Create sys_tab entry
-  await knex('sys_tab').insert({
+  await knex("sys_tab").insert({
     sys_tab_id: pRODUCTTabId,
     sys_window_id: pRODUCTWindowId,
     sys_table_id: pRODUCTTableId,
-    name: 'Product',
+    name: "Product",
     tab_level: 0,
     seq_no: 10,
     is_single_row: true,
@@ -1262,7 +1262,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_read_only: false,
     is_insert_record: true,
     is_advanced_tab: false,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1277,16 +1277,16 @@ export async function seed(knex: Knex): Promise<void> {
   const pRODUCT_id_columnId = uuidv4();
   pRODUCTColumns.push({
     id: pRODUCT_id_columnId,
-    name: 'id',
-    displayName: 'Id',
+    name: "id",
+    displayName: "Id",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: pRODUCT_id_columnId,
     sys_table_id: pRODUCTTableId,
-    column_name: 'id',
-    name: 'Id',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "id",
+    name: "Id",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: true,
     is_parent: false,
     is_mandatory: false,
@@ -1298,7 +1298,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: false,
     seq_no: pRODUCTColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1309,16 +1309,16 @@ export async function seed(knex: Knex): Promise<void> {
   const pRODUCT_name_columnId = uuidv4();
   pRODUCTColumns.push({
     id: pRODUCT_name_columnId,
-    name: 'name',
-    displayName: 'Name',
+    name: "name",
+    displayName: "Name",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: pRODUCT_name_columnId,
     sys_table_id: pRODUCTTableId,
-    column_name: 'name',
-    name: 'Name',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "name",
+    name: "Name",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -1330,7 +1330,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: pRODUCTColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1341,16 +1341,16 @@ export async function seed(knex: Knex): Promise<void> {
   const pRODUCT_description_columnId = uuidv4();
   pRODUCTColumns.push({
     id: pRODUCT_description_columnId,
-    name: 'description',
-    displayName: 'Description',
+    name: "description",
+    displayName: "Description",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: pRODUCT_description_columnId,
     sys_table_id: pRODUCTTableId,
-    column_name: 'description',
-    name: 'Description',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "description",
+    name: "Description",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -1362,7 +1362,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: pRODUCTColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1373,16 +1373,16 @@ export async function seed(knex: Knex): Promise<void> {
   const pRODUCT_price_columnId = uuidv4();
   pRODUCTColumns.push({
     id: pRODUCT_price_columnId,
-    name: 'price',
-    displayName: 'Price',
+    name: "price",
+    displayName: "Price",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: pRODUCT_price_columnId,
     sys_table_id: pRODUCTTableId,
-    column_name: 'price',
-    name: 'Price',
-    sys_reference_id: typeToReferenceId('decimal'),
+    column_name: "price",
+    name: "Price",
+    sys_reference_id: typeToReferenceId("decimal"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -1394,7 +1394,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: pRODUCTColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1405,16 +1405,16 @@ export async function seed(knex: Knex): Promise<void> {
   const pRODUCT_stockQuantity_columnId = uuidv4();
   pRODUCTColumns.push({
     id: pRODUCT_stockQuantity_columnId,
-    name: 'stock_quantity',
-    displayName: 'Stock Quantity',
+    name: "stock_quantity",
+    displayName: "Stock Quantity",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: pRODUCT_stockQuantity_columnId,
     sys_table_id: pRODUCTTableId,
-    column_name: 'stock_quantity',
-    name: 'Stock Quantity',
-    sys_reference_id: typeToReferenceId('integer'),
+    column_name: "stock_quantity",
+    name: "Stock Quantity",
+    sys_reference_id: typeToReferenceId("integer"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -1426,7 +1426,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: pRODUCTColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1437,16 +1437,16 @@ export async function seed(knex: Knex): Promise<void> {
   const pRODUCT_category_columnId = uuidv4();
   pRODUCTColumns.push({
     id: pRODUCT_category_columnId,
-    name: 'category',
-    displayName: 'Category',
+    name: "category",
+    displayName: "Category",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: pRODUCT_category_columnId,
     sys_table_id: pRODUCTTableId,
-    column_name: 'category',
-    name: 'Category',
-    sys_reference_id: typeToReferenceId('string'),
+    column_name: "category",
+    name: "Category",
+    sys_reference_id: typeToReferenceId("string"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -1458,7 +1458,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: pRODUCTColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1469,16 +1469,16 @@ export async function seed(knex: Knex): Promise<void> {
   const pRODUCT_isActive_columnId = uuidv4();
   pRODUCTColumns.push({
     id: pRODUCT_isActive_columnId,
-    name: 'is_active',
-    displayName: 'Is Active',
+    name: "is_active",
+    displayName: "Is Active",
   });
 
-  await knex('sys_column').insert({
+  await knex("sys_column").insert({
     sys_column_id: pRODUCT_isActive_columnId,
     sys_table_id: pRODUCTTableId,
-    column_name: 'is_active',
-    name: 'Is Active',
-    sys_reference_id: typeToReferenceId('boolean'),
+    column_name: "is_active",
+    name: "Is Active",
+    sys_reference_id: typeToReferenceId("boolean"),
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -1490,7 +1490,7 @@ export async function seed(knex: Knex): Promise<void> {
     is_allow_logging: true,
     is_allow_copy: true,
     seq_no: pRODUCTColumnSeqNo,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1505,7 +1505,7 @@ export async function seed(knex: Knex): Promise<void> {
 
   for (let i = 0; i < pRODUCTColumns.length; i++) {
     const col = pRODUCTColumns[i];
-    await knex('sys_field').insert({
+    await knex("sys_field").insert({
       sys_field_id: uuidv4(),
       sys_tab_id: pRODUCTTabId,
       sys_column_id: col.id,
@@ -1520,7 +1520,7 @@ export async function seed(knex: Knex): Promise<void> {
       is_same_line: false,
       is_heading: false,
       is_field_only: false,
-      entity_type: 'U',
+      entity_type: "U",
       is_active: true,
       created_by: createdBy,
       updated_by: createdBy,
@@ -1530,14 +1530,14 @@ export async function seed(knex: Knex): Promise<void> {
   }
 
   // Grant access to admin role
-  await knex('sys_access').insert({
+  await knex("sys_access").insert({
     sys_role_id: adminRoleId,
     sys_table_id: pRODUCTTableId,
     sys_window_id: pRODUCTWindowId,
-    access_type_table: 'W',
+    access_type_table: "W",
     is_read_only: false,
     is_exclude: false,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1546,14 +1546,14 @@ export async function seed(knex: Knex): Promise<void> {
   });
 
   // Grant read access to user role
-  await knex('sys_access').insert({
+  await knex("sys_access").insert({
     sys_role_id: userRoleId,
     sys_table_id: pRODUCTTableId,
     sys_window_id: pRODUCTWindowId,
-    access_type_table: 'R',
+    access_type_table: "R",
     is_read_only: true,
     is_exclude: false,
-    entity_type: 'U',
+    entity_type: "U",
     is_active: true,
     created_by: createdBy,
     updated_by: createdBy,
@@ -1561,20 +1561,19 @@ export async function seed(knex: Knex): Promise<void> {
     updated_at: now,
   });
 
-  console.log('✓ Created dictionary entries for Product');
-
+  console.log("✓ Created dictionary entries for Product");
 
   // ============================================================================
   // Summary
   // ============================================================================
-  console.log('');
-  console.log('Dictionary seed complete:');
-  console.log('  - 4 business entities');
-  console.log('  - 2 default roles (Administrator, User)');
-  console.log('  - 1 admin user (admin@localhost)');
-  console.log('  - 3 field groups');
-  console.log('');
-  console.log('NOTE: Field seq_no values are randomized to demonstrate');
-  console.log('      runtime UI modification capability. Administrators can');
-  console.log('      reorder fields via the admin interface.');
+  console.log("");
+  console.log("Dictionary seed complete:");
+  console.log("  - 4 business entities");
+  console.log("  - 2 default roles (Administrator, User)");
+  console.log("  - 1 admin user (admin@localhost)");
+  console.log("  - 3 field groups");
+  console.log("");
+  console.log("NOTE: Field seq_no values are randomized to demonstrate");
+  console.log("      runtime UI modification capability. Administrators can");
+  console.log("      reorder fields via the admin interface.");
 }

@@ -5,22 +5,22 @@
  * Tests for React components including forms and tables
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
-import { render, mockApiResponses, createMockFetch } from './setup';
+import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createMockFetch, mockApiResponses, render } from "./setup";
 
 // Import components - adjust paths as needed
 // import { DynamicForm } from '../src/components/forms/dynamic-form';
 // import { DynamicTable } from '../src/components/tables/dynamic-table';
 
-describe('Component Tests', () => {
+describe("Component Tests", () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
-  describe('CUSTOMER Components', () => {
-    describe('CUSTOMER Form', () => {
-      it('should render all form fields', async () => {
+  describe("CUSTOMER Components", () => {
+    describe("CUSTOMER Form", () => {
+      it("should render all form fields", async () => {
         // const { container } = render(<DynamicForm entityType="bus_customer" />);
 
         // Example assertions - uncomment when components are available
@@ -33,7 +33,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should validate required fields', async () => {
+      it("should validate required fields", async () => {
         // const { getByRole } = render(<DynamicForm entityType="bus_customer" />);
 
         // Submit empty form
@@ -61,7 +61,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should handle form submission', async () => {
+      it("should handle form submission", async () => {
         const onSubmit = vi.fn();
         // render(<DynamicForm entityType="bus_customer" onSubmit={onSubmit} />);
 
@@ -92,7 +92,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should handle form errors', async () => {
+      it("should handle form errors", async () => {
         // const onSubmit = vi.fn().mockRejectedValue(new Error('Submit failed'));
         // render(<DynamicForm entityType="bus_customer" onSubmit={onSubmit} />);
 
@@ -103,7 +103,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support edit mode', async () => {
+      it("should support edit mode", async () => {
         const existingData = mockApiResponses.cUSTOMER.single;
         // render(<DynamicForm entityType="bus_customer" initialData={existingData} mode="edit" />);
 
@@ -117,8 +117,8 @@ describe('Component Tests', () => {
       });
     });
 
-    describe('CUSTOMER Table', () => {
-      it('should render table with data', async () => {
+    describe("CUSTOMER Table", () => {
+      it("should render table with data", async () => {
         const data = mockApiResponses.cUSTOMER.list;
         // render(<DynamicTable entityType="bus_customer" data={data} />);
 
@@ -135,7 +135,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support sorting', async () => {
+      it("should support sorting", async () => {
         const data = mockApiResponses.cUSTOMER.list;
         // render(<DynamicTable entityType="bus_customer" data={data} />);
 
@@ -146,7 +146,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support row selection', async () => {
+      it("should support row selection", async () => {
         const data = mockApiResponses.cUSTOMER.list;
         const onSelect = vi.fn();
         // render(<DynamicTable entityType="bus_customer" data={data} onSelect={onSelect} />);
@@ -159,7 +159,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should render empty state', async () => {
+      it("should render empty state", async () => {
         // render(<DynamicTable entityType="bus_customer" data={[]} />);
 
         // Verify empty message
@@ -167,7 +167,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support pagination', async () => {
+      it("should support pagination", async () => {
         const manyItems = Array.from({ length: 50 }, (_, i) => ({
           ...mockApiResponses.cUSTOMER.single,
           id: `test-id-${i}`,
@@ -181,9 +181,9 @@ describe('Component Tests', () => {
     });
   });
 
-  describe('ORDER Components', () => {
-    describe('ORDER Form', () => {
-      it('should render all form fields', async () => {
+  describe("ORDER Components", () => {
+    describe("ORDER Form", () => {
+      it("should render all form fields", async () => {
         // const { container } = render(<DynamicForm entityType="bus_order" />);
 
         // Example assertions - uncomment when components are available
@@ -195,7 +195,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should validate required fields', async () => {
+      it("should validate required fields", async () => {
         // const { getByRole } = render(<DynamicForm entityType="bus_order" />);
 
         // Submit empty form
@@ -220,7 +220,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should handle form submission', async () => {
+      it("should handle form submission", async () => {
         const onSubmit = vi.fn();
         // render(<DynamicForm entityType="bus_order" onSubmit={onSubmit} />);
 
@@ -242,7 +242,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should handle form errors', async () => {
+      it("should handle form errors", async () => {
         // const onSubmit = vi.fn().mockRejectedValue(new Error('Submit failed'));
         // render(<DynamicForm entityType="bus_order" onSubmit={onSubmit} />);
 
@@ -253,7 +253,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support edit mode', async () => {
+      it("should support edit mode", async () => {
         const existingData = mockApiResponses.oRDER.single;
         // render(<DynamicForm entityType="bus_order" initialData={existingData} mode="edit" />);
 
@@ -264,8 +264,8 @@ describe('Component Tests', () => {
       });
     });
 
-    describe('ORDER Table', () => {
-      it('should render table with data', async () => {
+    describe("ORDER Table", () => {
+      it("should render table with data", async () => {
         const data = mockApiResponses.oRDER.list;
         // render(<DynamicTable entityType="bus_order" data={data} />);
 
@@ -281,7 +281,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support sorting', async () => {
+      it("should support sorting", async () => {
         const data = mockApiResponses.oRDER.list;
         // render(<DynamicTable entityType="bus_order" data={data} />);
 
@@ -292,7 +292,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support row selection', async () => {
+      it("should support row selection", async () => {
         const data = mockApiResponses.oRDER.list;
         const onSelect = vi.fn();
         // render(<DynamicTable entityType="bus_order" data={data} onSelect={onSelect} />);
@@ -305,7 +305,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should render empty state', async () => {
+      it("should render empty state", async () => {
         // render(<DynamicTable entityType="bus_order" data={[]} />);
 
         // Verify empty message
@@ -313,7 +313,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support pagination', async () => {
+      it("should support pagination", async () => {
         const manyItems = Array.from({ length: 50 }, (_, i) => ({
           ...mockApiResponses.oRDER.single,
           id: `test-id-${i}`,
@@ -327,9 +327,9 @@ describe('Component Tests', () => {
     });
   });
 
-  describe('ORDERITEM Components', () => {
-    describe('ORDERITEM Form', () => {
-      it('should render all form fields', async () => {
+  describe("ORDERITEM Components", () => {
+    describe("ORDERITEM Form", () => {
+      it("should render all form fields", async () => {
         // const { container } = render(<DynamicForm entityType="bus_order_item" />);
 
         // Example assertions - uncomment when components are available
@@ -341,7 +341,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should validate required fields', async () => {
+      it("should validate required fields", async () => {
         // const { getByRole } = render(<DynamicForm entityType="bus_order_item" />);
 
         // Submit empty form
@@ -366,7 +366,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should handle form submission', async () => {
+      it("should handle form submission", async () => {
         const onSubmit = vi.fn();
         // render(<DynamicForm entityType="bus_order_item" onSubmit={onSubmit} />);
 
@@ -388,7 +388,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should handle form errors', async () => {
+      it("should handle form errors", async () => {
         // const onSubmit = vi.fn().mockRejectedValue(new Error('Submit failed'));
         // render(<DynamicForm entityType="bus_order_item" onSubmit={onSubmit} />);
 
@@ -399,7 +399,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support edit mode', async () => {
+      it("should support edit mode", async () => {
         const existingData = mockApiResponses.oRDERITEM.single;
         // render(<DynamicForm entityType="bus_order_item" initialData={existingData} mode="edit" />);
 
@@ -410,8 +410,8 @@ describe('Component Tests', () => {
       });
     });
 
-    describe('ORDERITEM Table', () => {
-      it('should render table with data', async () => {
+    describe("ORDERITEM Table", () => {
+      it("should render table with data", async () => {
         const data = mockApiResponses.oRDERITEM.list;
         // render(<DynamicTable entityType="bus_order_item" data={data} />);
 
@@ -427,7 +427,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support sorting', async () => {
+      it("should support sorting", async () => {
         const data = mockApiResponses.oRDERITEM.list;
         // render(<DynamicTable entityType="bus_order_item" data={data} />);
 
@@ -438,7 +438,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support row selection', async () => {
+      it("should support row selection", async () => {
         const data = mockApiResponses.oRDERITEM.list;
         const onSelect = vi.fn();
         // render(<DynamicTable entityType="bus_order_item" data={data} onSelect={onSelect} />);
@@ -451,7 +451,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should render empty state', async () => {
+      it("should render empty state", async () => {
         // render(<DynamicTable entityType="bus_order_item" data={[]} />);
 
         // Verify empty message
@@ -459,7 +459,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support pagination', async () => {
+      it("should support pagination", async () => {
         const manyItems = Array.from({ length: 50 }, (_, i) => ({
           ...mockApiResponses.oRDERITEM.single,
           id: `test-id-${i}`,
@@ -473,9 +473,9 @@ describe('Component Tests', () => {
     });
   });
 
-  describe('PRODUCT Components', () => {
-    describe('PRODUCT Form', () => {
-      it('should render all form fields', async () => {
+  describe("PRODUCT Components", () => {
+    describe("PRODUCT Form", () => {
+      it("should render all form fields", async () => {
         // const { container } = render(<DynamicForm entityType="bus_product" />);
 
         // Example assertions - uncomment when components are available
@@ -488,7 +488,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should validate required fields', async () => {
+      it("should validate required fields", async () => {
         // const { getByRole } = render(<DynamicForm entityType="bus_product" />);
 
         // Submit empty form
@@ -516,7 +516,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should handle form submission', async () => {
+      it("should handle form submission", async () => {
         const onSubmit = vi.fn();
         // render(<DynamicForm entityType="bus_product" onSubmit={onSubmit} />);
 
@@ -541,7 +541,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should handle form errors', async () => {
+      it("should handle form errors", async () => {
         // const onSubmit = vi.fn().mockRejectedValue(new Error('Submit failed'));
         // render(<DynamicForm entityType="bus_product" onSubmit={onSubmit} />);
 
@@ -552,7 +552,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support edit mode', async () => {
+      it("should support edit mode", async () => {
         const existingData = mockApiResponses.pRODUCT.single;
         // render(<DynamicForm entityType="bus_product" initialData={existingData} mode="edit" />);
 
@@ -564,8 +564,8 @@ describe('Component Tests', () => {
       });
     });
 
-    describe('PRODUCT Table', () => {
-      it('should render table with data', async () => {
+    describe("PRODUCT Table", () => {
+      it("should render table with data", async () => {
         const data = mockApiResponses.pRODUCT.list;
         // render(<DynamicTable entityType="bus_product" data={data} />);
 
@@ -582,7 +582,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support sorting', async () => {
+      it("should support sorting", async () => {
         const data = mockApiResponses.pRODUCT.list;
         // render(<DynamicTable entityType="bus_product" data={data} />);
 
@@ -593,7 +593,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support row selection', async () => {
+      it("should support row selection", async () => {
         const data = mockApiResponses.pRODUCT.list;
         const onSelect = vi.fn();
         // render(<DynamicTable entityType="bus_product" data={data} onSelect={onSelect} />);
@@ -606,7 +606,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should render empty state', async () => {
+      it("should render empty state", async () => {
         // render(<DynamicTable entityType="bus_product" data={[]} />);
 
         // Verify empty message
@@ -614,7 +614,7 @@ describe('Component Tests', () => {
         expect(true).toBe(true); // Placeholder
       });
 
-      it('should support pagination', async () => {
+      it("should support pagination", async () => {
         const manyItems = Array.from({ length: 50 }, (_, i) => ({
           ...mockApiResponses.pRODUCT.single,
           id: `test-id-${i}`,
@@ -627,19 +627,18 @@ describe('Component Tests', () => {
       });
     });
   });
-
 });
 
-describe('CRUD Operations Integration', () => {
-  describe('CUSTOMER CRUD', () => {
-    it('should create CUSTOMER', async () => {
+describe("CRUD Operations Integration", () => {
+  describe("CUSTOMER CRUD", () => {
+    it("should create CUSTOMER", async () => {
       global.fetch = createMockFetch({
-        '/api/c-u-s-t-o-m-e-rs': mockApiResponses.cUSTOMER.single,
+        "/api/c-u-s-t-o-m-e-rs": mockApiResponses.cUSTOMER.single,
       });
 
       // Simulate create operation
-      const response = await fetch('/api/c-u-s-t-o-m-e-rs', {
-        method: 'POST',
+      const response = await fetch("/api/c-u-s-t-o-m-e-rs", {
+        method: "POST",
         body: JSON.stringify(mockApiResponses.cUSTOMER.single),
       });
 
@@ -648,53 +647,55 @@ describe('CRUD Operations Integration', () => {
       expect(data.id).toBeDefined();
     });
 
-    it('should read CUSTOMERs', async () => {
+    it("should read CUSTOMERs", async () => {
       global.fetch = createMockFetch({
-        '/api/c-u-s-t-o-m-e-rs': mockApiResponses.cUSTOMER.list,
+        "/api/c-u-s-t-o-m-e-rs": mockApiResponses.cUSTOMER.list,
       });
 
-      const response = await fetch('/api/c-u-s-t-o-m-e-rs');
+      const response = await fetch("/api/c-u-s-t-o-m-e-rs");
       expect(response.ok).toBe(true);
 
       const data = await response.json();
       expect(Array.isArray(data)).toBe(true);
     });
 
-    it('should update CUSTOMER', async () => {
+    it("should update CUSTOMER", async () => {
       global.fetch = createMockFetch({
-        '/api/c-u-s-t-o-m-e-rs/test-id-1': mockApiResponses.cUSTOMER.single,
+        "/api/c-u-s-t-o-m-e-rs/test-id-1": mockApiResponses.cUSTOMER.single,
       });
 
-      const response = await fetch('/api/c-u-s-t-o-m-e-rs/test-id-1', {
-        method: 'PATCH',
-        body: JSON.stringify({ /* update data */ }),
+      const response = await fetch("/api/c-u-s-t-o-m-e-rs/test-id-1", {
+        method: "PATCH",
+        body: JSON.stringify({
+          /* update data */
+        }),
       });
 
       expect(response.ok).toBe(true);
     });
 
-    it('should delete CUSTOMER', async () => {
+    it("should delete CUSTOMER", async () => {
       global.fetch = createMockFetch({
-        '/api/c-u-s-t-o-m-e-rs/test-id-1': { success: true },
+        "/api/c-u-s-t-o-m-e-rs/test-id-1": { success: true },
       });
 
-      const response = await fetch('/api/c-u-s-t-o-m-e-rs/test-id-1', {
-        method: 'DELETE',
+      const response = await fetch("/api/c-u-s-t-o-m-e-rs/test-id-1", {
+        method: "DELETE",
       });
 
       expect(response.ok).toBe(true);
     });
   });
 
-  describe('ORDER CRUD', () => {
-    it('should create ORDER', async () => {
+  describe("ORDER CRUD", () => {
+    it("should create ORDER", async () => {
       global.fetch = createMockFetch({
-        '/api/o-r-d-e-rs': mockApiResponses.oRDER.single,
+        "/api/o-r-d-e-rs": mockApiResponses.oRDER.single,
       });
 
       // Simulate create operation
-      const response = await fetch('/api/o-r-d-e-rs', {
-        method: 'POST',
+      const response = await fetch("/api/o-r-d-e-rs", {
+        method: "POST",
         body: JSON.stringify(mockApiResponses.oRDER.single),
       });
 
@@ -703,53 +704,55 @@ describe('CRUD Operations Integration', () => {
       expect(data.id).toBeDefined();
     });
 
-    it('should read ORDERs', async () => {
+    it("should read ORDERs", async () => {
       global.fetch = createMockFetch({
-        '/api/o-r-d-e-rs': mockApiResponses.oRDER.list,
+        "/api/o-r-d-e-rs": mockApiResponses.oRDER.list,
       });
 
-      const response = await fetch('/api/o-r-d-e-rs');
+      const response = await fetch("/api/o-r-d-e-rs");
       expect(response.ok).toBe(true);
 
       const data = await response.json();
       expect(Array.isArray(data)).toBe(true);
     });
 
-    it('should update ORDER', async () => {
+    it("should update ORDER", async () => {
       global.fetch = createMockFetch({
-        '/api/o-r-d-e-rs/test-id-1': mockApiResponses.oRDER.single,
+        "/api/o-r-d-e-rs/test-id-1": mockApiResponses.oRDER.single,
       });
 
-      const response = await fetch('/api/o-r-d-e-rs/test-id-1', {
-        method: 'PATCH',
-        body: JSON.stringify({ /* update data */ }),
+      const response = await fetch("/api/o-r-d-e-rs/test-id-1", {
+        method: "PATCH",
+        body: JSON.stringify({
+          /* update data */
+        }),
       });
 
       expect(response.ok).toBe(true);
     });
 
-    it('should delete ORDER', async () => {
+    it("should delete ORDER", async () => {
       global.fetch = createMockFetch({
-        '/api/o-r-d-e-rs/test-id-1': { success: true },
+        "/api/o-r-d-e-rs/test-id-1": { success: true },
       });
 
-      const response = await fetch('/api/o-r-d-e-rs/test-id-1', {
-        method: 'DELETE',
+      const response = await fetch("/api/o-r-d-e-rs/test-id-1", {
+        method: "DELETE",
       });
 
       expect(response.ok).toBe(true);
     });
   });
 
-  describe('ORDERITEM CRUD', () => {
-    it('should create ORDER_ITEM', async () => {
+  describe("ORDERITEM CRUD", () => {
+    it("should create ORDER_ITEM", async () => {
       global.fetch = createMockFetch({
-        '/api/o-r-d-e-r-i-t-e-ms': mockApiResponses.oRDERITEM.single,
+        "/api/o-r-d-e-r-i-t-e-ms": mockApiResponses.oRDERITEM.single,
       });
 
       // Simulate create operation
-      const response = await fetch('/api/o-r-d-e-r-i-t-e-ms', {
-        method: 'POST',
+      const response = await fetch("/api/o-r-d-e-r-i-t-e-ms", {
+        method: "POST",
         body: JSON.stringify(mockApiResponses.oRDERITEM.single),
       });
 
@@ -758,53 +761,55 @@ describe('CRUD Operations Integration', () => {
       expect(data.id).toBeDefined();
     });
 
-    it('should read ORDER_ITEMs', async () => {
+    it("should read ORDER_ITEMs", async () => {
       global.fetch = createMockFetch({
-        '/api/o-r-d-e-r-i-t-e-ms': mockApiResponses.oRDERITEM.list,
+        "/api/o-r-d-e-r-i-t-e-ms": mockApiResponses.oRDERITEM.list,
       });
 
-      const response = await fetch('/api/o-r-d-e-r-i-t-e-ms');
+      const response = await fetch("/api/o-r-d-e-r-i-t-e-ms");
       expect(response.ok).toBe(true);
 
       const data = await response.json();
       expect(Array.isArray(data)).toBe(true);
     });
 
-    it('should update ORDER_ITEM', async () => {
+    it("should update ORDER_ITEM", async () => {
       global.fetch = createMockFetch({
-        '/api/o-r-d-e-r-i-t-e-ms/test-id-1': mockApiResponses.oRDERITEM.single,
+        "/api/o-r-d-e-r-i-t-e-ms/test-id-1": mockApiResponses.oRDERITEM.single,
       });
 
-      const response = await fetch('/api/o-r-d-e-r-i-t-e-ms/test-id-1', {
-        method: 'PATCH',
-        body: JSON.stringify({ /* update data */ }),
+      const response = await fetch("/api/o-r-d-e-r-i-t-e-ms/test-id-1", {
+        method: "PATCH",
+        body: JSON.stringify({
+          /* update data */
+        }),
       });
 
       expect(response.ok).toBe(true);
     });
 
-    it('should delete ORDER_ITEM', async () => {
+    it("should delete ORDER_ITEM", async () => {
       global.fetch = createMockFetch({
-        '/api/o-r-d-e-r-i-t-e-ms/test-id-1': { success: true },
+        "/api/o-r-d-e-r-i-t-e-ms/test-id-1": { success: true },
       });
 
-      const response = await fetch('/api/o-r-d-e-r-i-t-e-ms/test-id-1', {
-        method: 'DELETE',
+      const response = await fetch("/api/o-r-d-e-r-i-t-e-ms/test-id-1", {
+        method: "DELETE",
       });
 
       expect(response.ok).toBe(true);
     });
   });
 
-  describe('PRODUCT CRUD', () => {
-    it('should create PRODUCT', async () => {
+  describe("PRODUCT CRUD", () => {
+    it("should create PRODUCT", async () => {
       global.fetch = createMockFetch({
-        '/api/p-r-o-d-u-c-ts': mockApiResponses.pRODUCT.single,
+        "/api/p-r-o-d-u-c-ts": mockApiResponses.pRODUCT.single,
       });
 
       // Simulate create operation
-      const response = await fetch('/api/p-r-o-d-u-c-ts', {
-        method: 'POST',
+      const response = await fetch("/api/p-r-o-d-u-c-ts", {
+        method: "POST",
         body: JSON.stringify(mockApiResponses.pRODUCT.single),
       });
 
@@ -813,42 +818,43 @@ describe('CRUD Operations Integration', () => {
       expect(data.id).toBeDefined();
     });
 
-    it('should read PRODUCTs', async () => {
+    it("should read PRODUCTs", async () => {
       global.fetch = createMockFetch({
-        '/api/p-r-o-d-u-c-ts': mockApiResponses.pRODUCT.list,
+        "/api/p-r-o-d-u-c-ts": mockApiResponses.pRODUCT.list,
       });
 
-      const response = await fetch('/api/p-r-o-d-u-c-ts');
+      const response = await fetch("/api/p-r-o-d-u-c-ts");
       expect(response.ok).toBe(true);
 
       const data = await response.json();
       expect(Array.isArray(data)).toBe(true);
     });
 
-    it('should update PRODUCT', async () => {
+    it("should update PRODUCT", async () => {
       global.fetch = createMockFetch({
-        '/api/p-r-o-d-u-c-ts/test-id-1': mockApiResponses.pRODUCT.single,
+        "/api/p-r-o-d-u-c-ts/test-id-1": mockApiResponses.pRODUCT.single,
       });
 
-      const response = await fetch('/api/p-r-o-d-u-c-ts/test-id-1', {
-        method: 'PATCH',
-        body: JSON.stringify({ /* update data */ }),
+      const response = await fetch("/api/p-r-o-d-u-c-ts/test-id-1", {
+        method: "PATCH",
+        body: JSON.stringify({
+          /* update data */
+        }),
       });
 
       expect(response.ok).toBe(true);
     });
 
-    it('should delete PRODUCT', async () => {
+    it("should delete PRODUCT", async () => {
       global.fetch = createMockFetch({
-        '/api/p-r-o-d-u-c-ts/test-id-1': { success: true },
+        "/api/p-r-o-d-u-c-ts/test-id-1": { success: true },
       });
 
-      const response = await fetch('/api/p-r-o-d-u-c-ts/test-id-1', {
-        method: 'DELETE',
+      const response = await fetch("/api/p-r-o-d-u-c-ts/test-id-1", {
+        method: "DELETE",
       });
 
       expect(response.ok).toBe(true);
     });
   });
-
 });

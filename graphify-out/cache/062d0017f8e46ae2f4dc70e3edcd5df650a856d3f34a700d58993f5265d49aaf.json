@@ -1,1 +1,525 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts", "label": "labsample.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L1"}, {"id": "labsample_controller_labsample", "label": "LabSample", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L11"}, {"id": "labsample_controller_gettablecolumns", "label": "getTableColumns()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L24"}, {"id": "labsample_controller_createpropertynamemap", "label": "createPropertyNameMap()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L44"}, {"id": "labsample_controller_labsamplecontroller", "label": "LabSampleController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L66"}, {"id": "labsample_controller_labsamplecontroller_find", "label": ".find()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L73"}, {"id": "labsample_controller_labsamplecontroller_findone", "label": ".findOne()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L111"}, {"id": "labsample_controller_labsamplecontroller_insert", "label": ".insert()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L132"}, {"id": "labsample_controller_labsamplecontroller_update", "label": ".update()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L165"}, {"id": "labsample_controller_labsamplecontroller_remove", "label": ".remove()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L198"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts", "target": "odata_v4_server", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L1", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_database_connection", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L2", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L3", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_formatter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L4", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts", "target": "crypto", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L5", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts", "target": "labsample_controller_labsample", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts", "target": "labsample_controller_gettablecolumns", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L24", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts", "target": "labsample_controller_createpropertynamemap", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L44", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts", "target": "labsample_controller_labsamplecontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L66", "weight": 1.0}, {"source": "labsample_controller_labsamplecontroller", "target": "labsample_controller_labsamplecontroller_find", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L73", "weight": 1.0}, {"source": "labsample_controller_labsamplecontroller", "target": "labsample_controller_labsamplecontroller_findone", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L111", "weight": 1.0}, {"source": "labsample_controller_labsamplecontroller", "target": "labsample_controller_labsamplecontroller_insert", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L132", "weight": 1.0}, {"source": "labsample_controller_labsamplecontroller", "target": "labsample_controller_labsamplecontroller_update", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L165", "weight": 1.0}, {"source": "labsample_controller_labsamplecontroller", "target": "labsample_controller_labsamplecontroller_remove", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L198", "weight": 1.0}, {"source": "labsample_controller_labsamplecontroller_find", "target": "labsample_controller_gettablecolumns", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L80", "weight": 1.0}, {"source": "labsample_controller_labsamplecontroller_find", "target": "labsample_controller_createpropertynamemap", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L81", "weight": 1.0}, {"source": "labsample_controller_labsamplecontroller_findone", "target": "labsample_controller_gettablecolumns", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L123", "weight": 1.0}, {"source": "labsample_controller_labsamplecontroller_insert", "target": "labsample_controller_gettablecolumns", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L156", "weight": 1.0}, {"source": "labsample_controller_labsamplecontroller_update", "target": "labsample_controller_gettablecolumns", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L189", "weight": 1.0}], "raw_calls": [{"caller_nid": "labsample_controller_gettablecolumns", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L25"}, {"caller_nid": "labsample_controller_gettablecolumns", "callee": "raw", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L29"}, {"caller_nid": "labsample_controller_gettablecolumns", "callee": "orderBy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L32"}, {"caller_nid": "labsample_controller_gettablecolumns", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L32"}, {"caller_nid": "labsample_controller_gettablecolumns", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L32"}, {"caller_nid": "labsample_controller_gettablecolumns", "callee": "select", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L32"}, {"caller_nid": "labsample_controller_gettablecolumns", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L32"}, {"caller_nid": "labsample_controller_createpropertynamemap", "callee": "set", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L48"}, {"caller_nid": "labsample_controller_createpropertynamemap", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L51"}, {"caller_nid": "labsample_controller_createpropertynamemap", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L51"}, {"caller_nid": "labsample_controller_createpropertynamemap", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L51"}, {"caller_nid": "labsample_controller_createpropertynamemap", "callee": "set", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L55"}, {"caller_nid": "labsample_controller_labsamplecontroller_find", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L74"}, {"caller_nid": "labsample_controller_labsamplecontroller_find", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L75"}, {"caller_nid": "labsample_controller_labsamplecontroller_find", "callee": "parseFilter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L82"}, {"caller_nid": "labsample_controller_labsamplecontroller_find", "callee": "whereRaw", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L84"}, {"caller_nid": "labsample_controller_labsamplecontroller_find", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L87"}, {"caller_nid": "labsample_controller_labsamplecontroller_find", "callee": "orderBy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L94"}, {"caller_nid": "labsample_controller_labsamplecontroller_find", "callee": "select", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L99"}, {"caller_nid": "labsample_controller_labsamplecontroller_find", "callee": "transformDatesInResults", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L103"}, {"caller_nid": "labsample_controller_labsamplecontroller_findone", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L112"}, {"caller_nid": "labsample_controller_labsamplecontroller_findone", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L114"}, {"caller_nid": "labsample_controller_labsamplecontroller_findone", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L114"}, {"caller_nid": "labsample_controller_labsamplecontroller_findone", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L114"}, {"caller_nid": "labsample_controller_labsamplecontroller_findone", "callee": "transformSingleResult", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L124"}, {"caller_nid": "labsample_controller_labsamplecontroller_insert", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L133"}, {"caller_nid": "labsample_controller_labsamplecontroller_insert", "callee": "randomUUID", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L137"}, {"caller_nid": "labsample_controller_labsamplecontroller_insert", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L142"}, {"caller_nid": "labsample_controller_labsamplecontroller_insert", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L143"}, {"caller_nid": "labsample_controller_labsamplecontroller_insert", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L148"}, {"caller_nid": "labsample_controller_labsamplecontroller_insert", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L151"}, {"caller_nid": "labsample_controller_labsamplecontroller_insert", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L151"}, {"caller_nid": "labsample_controller_labsamplecontroller_insert", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L151"}, {"caller_nid": "labsample_controller_labsamplecontroller_insert", "callee": "transformSingleResult", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L157"}, {"caller_nid": "labsample_controller_labsamplecontroller_update", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L166"}, {"caller_nid": "labsample_controller_labsamplecontroller_update", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L170"}, {"caller_nid": "labsample_controller_labsamplecontroller_update", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L175"}, {"caller_nid": "labsample_controller_labsamplecontroller_update", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L175"}, {"caller_nid": "labsample_controller_labsamplecontroller_update", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L180"}, {"caller_nid": "labsample_controller_labsamplecontroller_update", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L180"}, {"caller_nid": "labsample_controller_labsamplecontroller_update", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L180"}, {"caller_nid": "labsample_controller_labsamplecontroller_update", "callee": "transformSingleResult", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L190"}, {"caller_nid": "labsample_controller_labsamplecontroller_remove", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L199"}, {"caller_nid": "labsample_controller_labsamplecontroller_remove", "callee": "del", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L201"}, {"caller_nid": "labsample_controller_labsamplecontroller_remove", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L201"}, {"caller_nid": "labsample_controller_labsamplecontroller_remove", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts", "source_location": "L201"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts",
+      "label": "labsample.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "labsample_controller_labsample",
+      "label": "LabSample",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "labsample_controller_gettablecolumns",
+      "label": "getTableColumns()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L24"
+    },
+    {
+      "id": "labsample_controller_createpropertynamemap",
+      "label": "createPropertyNameMap()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L44"
+    },
+    {
+      "id": "labsample_controller_labsamplecontroller",
+      "label": "LabSampleController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L66"
+    },
+    {
+      "id": "labsample_controller_labsamplecontroller_find",
+      "label": ".find()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L73"
+    },
+    {
+      "id": "labsample_controller_labsamplecontroller_findone",
+      "label": ".findOne()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "id": "labsample_controller_labsamplecontroller_insert",
+      "label": ".insert()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L132"
+    },
+    {
+      "id": "labsample_controller_labsamplecontroller_update",
+      "label": ".update()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L165"
+    },
+    {
+      "id": "labsample_controller_labsamplecontroller_remove",
+      "label": ".remove()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L198"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts",
+      "target": "odata_v4_server",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_database_connection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_filter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_utils_odata_formatter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts",
+      "target": "crypto",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts",
+      "target": "labsample_controller_labsample",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts",
+      "target": "labsample_controller_gettablecolumns",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts",
+      "target": "labsample_controller_createpropertynamemap",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_src_controllers_generated_labsample_controller_ts",
+      "target": "labsample_controller_labsamplecontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "labsample_controller_labsamplecontroller",
+      "target": "labsample_controller_labsamplecontroller_find",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L73",
+      "weight": 1.0
+    },
+    {
+      "source": "labsample_controller_labsamplecontroller",
+      "target": "labsample_controller_labsamplecontroller_findone",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L111",
+      "weight": 1.0
+    },
+    {
+      "source": "labsample_controller_labsamplecontroller",
+      "target": "labsample_controller_labsamplecontroller_insert",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L132",
+      "weight": 1.0
+    },
+    {
+      "source": "labsample_controller_labsamplecontroller",
+      "target": "labsample_controller_labsamplecontroller_update",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L165",
+      "weight": 1.0
+    },
+    {
+      "source": "labsample_controller_labsamplecontroller",
+      "target": "labsample_controller_labsamplecontroller_remove",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L198",
+      "weight": 1.0
+    },
+    {
+      "source": "labsample_controller_labsamplecontroller_find",
+      "target": "labsample_controller_gettablecolumns",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "labsample_controller_labsamplecontroller_find",
+      "target": "labsample_controller_createpropertynamemap",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L81",
+      "weight": 1.0
+    },
+    {
+      "source": "labsample_controller_labsamplecontroller_findone",
+      "target": "labsample_controller_gettablecolumns",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L123",
+      "weight": 1.0
+    },
+    {
+      "source": "labsample_controller_labsamplecontroller_insert",
+      "target": "labsample_controller_gettablecolumns",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L156",
+      "weight": 1.0
+    },
+    {
+      "source": "labsample_controller_labsamplecontroller_update",
+      "target": "labsample_controller_gettablecolumns",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L189",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "labsample_controller_gettablecolumns",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L25"
+    },
+    {
+      "caller_nid": "labsample_controller_gettablecolumns",
+      "callee": "raw",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "labsample_controller_gettablecolumns",
+      "callee": "orderBy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "labsample_controller_gettablecolumns",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "labsample_controller_gettablecolumns",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "labsample_controller_gettablecolumns",
+      "callee": "select",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "labsample_controller_gettablecolumns",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "labsample_controller_createpropertynamemap",
+      "callee": "set",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "labsample_controller_createpropertynamemap",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "labsample_controller_createpropertynamemap",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "labsample_controller_createpropertynamemap",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "labsample_controller_createpropertynamemap",
+      "callee": "set",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_find",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_find",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_find",
+      "callee": "parseFilter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_find",
+      "callee": "whereRaw",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_find",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_find",
+      "callee": "orderBy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_find",
+      "callee": "select",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_find",
+      "callee": "transformDatesInResults",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_findone",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_findone",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_findone",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_findone",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_findone",
+      "callee": "transformSingleResult",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_insert",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L133"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_insert",
+      "callee": "randomUUID",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L137"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_insert",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_insert",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_insert",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_insert",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_insert",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_insert",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_insert",
+      "callee": "transformSingleResult",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L157"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_update",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L166"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_update",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L170"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_update",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L175"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_update",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L175"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_update",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L180"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_update",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L180"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_update",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L180"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_update",
+      "callee": "transformSingleResult",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_remove",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L199"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_remove",
+      "callee": "del",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L201"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_remove",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L201"
+    },
+    {
+      "caller_nid": "labsample_controller_labsamplecontroller_remove",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/src/controllers/generated/labsample.controller.ts",
+      "source_location": "L201"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Field Layout Editor
@@ -9,33 +9,40 @@
  * Auto-generated component
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAllFormFields, useAllGridFields, useFieldGroups, useUpdateFieldStyle, entityKeys, type FieldMetadata } from '@/hooks/use-entities';
-import { apiClient } from '@/lib/api-client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { toast } from 'sonner';
+import { DragDropContext, Draggable, Droppable, type DropResult } from "@hello-pangea/dnd";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  GripVertical,
-  Eye,
-  EyeOff,
-  Save,
-  RotateCcw,
-  Columns,
-  FormInput,
-  Layers,
   ChevronDown,
   ChevronUp,
+  Columns,
+  Eye,
+  EyeOff,
+  FormInput,
+  GripVertical,
+  Layers,
   Palette,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+  RotateCcw,
+  Save,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import {
+  entityKeys,
+  type FieldMetadata,
+  useAllFormFields,
+  useAllGridFields,
+  useFieldGroups,
+  useUpdateFieldStyle,
+} from "@/hooks/use-entities";
+import { apiClient } from "@/lib/api-client";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
@@ -52,14 +59,14 @@ interface EditableField extends FieldMetadata {
 
 // Color options for field styling
 const COLOR_OPTIONS = [
-  { value: 'contrast', label: 'Auto', color: 'bg-gray-100 border-gray-300' },
-  { value: '#3b82f6', label: 'Blue', color: 'bg-blue-500' },
-  { value: '#ef4444', label: 'Red', color: 'bg-red-500' },
-  { value: '#22c55e', label: 'Green', color: 'bg-green-500' },
-  { value: '#f59e0b', label: 'Orange', color: 'bg-orange-500' },
-  { value: '#8b5cf6', label: 'Purple', color: 'bg-purple-500' },
-  { value: '#06b6d4', label: 'Cyan', color: 'bg-cyan-500' },
-  { value: '#ec4899', label: 'Pink', color: 'bg-pink-500' },
+  { value: "contrast", label: "Auto", color: "bg-gray-100 border-gray-300" },
+  { value: "#3b82f6", label: "Blue", color: "bg-blue-500" },
+  { value: "#ef4444", label: "Red", color: "bg-red-500" },
+  { value: "#22c55e", label: "Green", color: "bg-green-500" },
+  { value: "#f59e0b", label: "Orange", color: "bg-orange-500" },
+  { value: "#8b5cf6", label: "Purple", color: "bg-purple-500" },
+  { value: "#06b6d4", label: "Cyan", color: "bg-cyan-500" },
+  { value: "#ec4899", label: "Pink", color: "bg-pink-500" },
 ];
 
 // ============================================================================
@@ -67,20 +74,20 @@ const COLOR_OPTIONS = [
 // ============================================================================
 
 const REFERENCE_TYPE_LABELS: Record<number, string> = {
-  10: 'String',
-  11: 'Integer',
-  12: 'Decimal',
-  13: 'UUID',
-  14: 'Text',
-  15: 'Date',
-  16: 'DateTime',
-  17: 'List',
-  18: 'Table Ref',
-  19: 'Direct Ref',
-  20: 'Boolean',
-  24: 'URL',
-  30: 'Email',
-  31: 'Phone',
+  10: "String",
+  11: "Integer",
+  12: "Decimal",
+  13: "UUID",
+  14: "Text",
+  15: "Date",
+  16: "DateTime",
+  17: "List",
+  18: "Table Ref",
+  19: "Direct Ref",
+  20: "Boolean",
+  24: "URL",
+  30: "Email",
+  31: "Phone",
 };
 
 // ============================================================================
@@ -92,7 +99,7 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
 
   const [editableFields, setEditableFields] = useState<EditableField[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
-  const [editMode, setEditMode] = useState<'form' | 'grid'>('form');
+  const [editMode, setEditMode] = useState<"form" | "grid">("form");
   const [expandedFieldIds, setExpandedFieldIds] = useState<Set<string>>(new Set());
 
   // Load field groups for displaying group information
@@ -102,14 +109,24 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
   const updateFieldStyleMutation = useUpdateFieldStyle(entityName);
 
   // Load ALL form and grid field data (including hidden ones) for layout editor
-  const { data: formFields, isLoading: formLoading, error: formError, refetch: refetchForm } = useAllFormFields(entityName);
-  const { data: gridFields, isLoading: gridLoading, error: gridError, refetch: refetchGrid } = useAllGridFields(entityName);
+  const {
+    data: formFields,
+    isLoading: formLoading,
+    error: formError,
+    refetch: refetchForm,
+  } = useAllFormFields(entityName);
+  const {
+    data: gridFields,
+    isLoading: gridLoading,
+    error: gridError,
+    refetch: refetchGrid,
+  } = useAllGridFields(entityName);
 
   // Select the appropriate fields based on current mode
-  const fields = editMode === 'form' ? formFields : gridFields;
-  const isLoading = editMode === 'form' ? formLoading : gridLoading;
-  const error = editMode === 'form' ? formError : gridError;
-  const _refetch = editMode === 'form' ? refetchForm : refetchGrid;
+  const fields = editMode === "form" ? formFields : gridFields;
+  const isLoading = editMode === "form" ? formLoading : gridLoading;
+  const error = editMode === "form" ? formError : gridError;
+  const _refetch = editMode === "form" ? refetchForm : refetchGrid;
 
   // Initialize editable fields when data loads or edit mode changes
   useEffect(() => {
@@ -117,7 +134,7 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
       setEditableFields(
         fields.map((f) => ({
           ...f,
-          originalSeqNo: editMode === 'form' ? f.seq_no : f.seq_no_grid,
+          originalSeqNo: editMode === "form" ? f.seq_no : f.seq_no_grid,
           hasChanges: false,
         }))
       );
@@ -126,24 +143,37 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
 
   // Batch update mutation
   const batchUpdateMutation = useMutation({
-    mutationFn: async (updates: Array<{ id: string; seq_no?: number; seq_no_grid?: number; is_displayed?: boolean; is_displayed_grid?: boolean }>) => {
-      return apiClient.put('/sys/fields/batch-reorder', { fields: updates });
+    mutationFn: async (
+      updates: Array<{
+        id: string;
+        seq_no?: number;
+        seq_no_grid?: number;
+        is_displayed?: boolean;
+        is_displayed_grid?: boolean;
+      }>
+    ) => {
+      return apiClient.put("/sys/fields/batch-reorder", { fields: updates });
     },
     onSuccess: async (_, updates) => {
       // Create a map of updated field IDs to their new values
-      const updatesMap = new Map(updates.map(u => [u.id, u]));
+      const updatesMap = new Map(updates.map((u) => [u.id, u]));
 
       // Update the local state immediately with the saved values
-      setEditableFields(prev => {
-        return prev.map(field => {
+      setEditableFields((prev) => {
+        return prev.map((field) => {
           const update = updatesMap.get(field.sys_field_id);
           if (update) {
             return {
               ...field,
               seq_no: update.seq_no !== undefined ? update.seq_no : field.seq_no,
-              seq_no_grid: update.seq_no_grid !== undefined ? update.seq_no_grid : field.seq_no_grid,
-              is_displayed: update.is_displayed !== undefined ? update.is_displayed : field.is_displayed,
-              is_displayed_grid: update.is_displayed_grid !== undefined ? update.is_displayed_grid : field.is_displayed_grid,
+              seq_no_grid:
+                update.seq_no_grid !== undefined ? update.seq_no_grid : field.seq_no_grid,
+              is_displayed:
+                update.is_displayed !== undefined ? update.is_displayed : field.is_displayed,
+              is_displayed_grid:
+                update.is_displayed_grid !== undefined
+                  ? update.is_displayed_grid
+                  : field.is_displayed_grid,
               hasChanges: false,
             };
           }
@@ -152,12 +182,12 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
       });
 
       // Force immediate refetch of all field queries (bypasses staleTime)
-      await queryClient.refetchQueries({ queryKey: entityKeys.fields(entityName, 'form') });
-      await queryClient.refetchQueries({ queryKey: entityKeys.fields(entityName, 'grid') });
-      await queryClient.refetchQueries({ queryKey: ['field-groups', entityName] });
+      await queryClient.refetchQueries({ queryKey: entityKeys.fields(entityName, "form") });
+      await queryClient.refetchQueries({ queryKey: entityKeys.fields(entityName, "grid") });
+      await queryClient.refetchQueries({ queryKey: ["field-groups", entityName] });
 
       setHasChanges(false);
-      toast.success('Field layout saved successfully');
+      toast.success("Field layout saved successfully");
     },
     onError: (error: any) => {
       toast.error(`Failed to update field layout: ${error.message}`);
@@ -165,56 +195,60 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
   });
 
   // Handle drag end
-  const onDragEnd = useCallback((result: DropResult) => {
-    if (!result.destination) return;
+  const onDragEnd = useCallback(
+    (result: DropResult) => {
+      if (!result.destination) return;
 
-    const sourceIndex = result.source.index;
-    const destIndex = result.destination.index;
+      const sourceIndex = result.source.index;
+      const destIndex = result.destination.index;
 
-    if (sourceIndex === destIndex) return;
+      if (sourceIndex === destIndex) return;
 
-    setEditableFields((prev) => {
-      const items = Array.from(prev);
-      const [reorderedItem] = items.splice(sourceIndex, 1);
-      items.splice(destIndex, 0, reorderedItem);
+      setEditableFields((prev) => {
+        const items = Array.from(prev);
+        const [reorderedItem] = items.splice(sourceIndex, 1);
+        items.splice(destIndex, 0, reorderedItem);
 
-      // Update sequence numbers based on new positions and current mode
-      const updated = items.map((item, index) => {
-        if (editMode === 'form') {
-          // Only update form seq_no, leave grid seq_no_grid unchanged
-          return {
-            ...item,
-            seq_no: (index + 1) * 10,
-            hasChanges: true,
-          };
-        } else {
-          // Only update grid seq_no_grid, leave form seq_no unchanged
-          return {
-            ...item,
-            seq_no_grid: (index + 1) * 10,
-            hasChanges: true,
-          };
-        }
+        // Update sequence numbers based on new positions and current mode
+        const updated = items.map((item, index) => {
+          if (editMode === "form") {
+            // Only update form seq_no, leave grid seq_no_grid unchanged
+            return {
+              ...item,
+              seq_no: (index + 1) * 10,
+              hasChanges: true,
+            };
+          } else {
+            // Only update grid seq_no_grid, leave form seq_no unchanged
+            return {
+              ...item,
+              seq_no_grid: (index + 1) * 10,
+              hasChanges: true,
+            };
+          }
+        });
+
+        return updated;
       });
 
-      return updated;
-    });
-
-    setHasChanges(true);
-  }, [editMode]);
+      setHasChanges(true);
+    },
+    [editMode]
+  );
 
   // Toggle field visibility
-  const toggleVisibility = useCallback((fieldId: string, visibilityType: 'form' | 'grid') => {
+  const toggleVisibility = useCallback((fieldId: string, visibilityType: "form" | "grid") => {
     setEditableFields((prev) => {
       const updated = prev.map((f) => {
         if (f.sys_field_id !== fieldId) return f;
 
-        const newFormDisplayed = visibilityType === 'form' ? !f.is_displayed : f.is_displayed;
-        const newGridDisplayed = visibilityType === 'grid' ? !f.is_displayed_grid : f.is_displayed_grid;
+        const newFormDisplayed = visibilityType === "form" ? !f.is_displayed : f.is_displayed;
+        const newGridDisplayed =
+          visibilityType === "grid" ? !f.is_displayed_grid : f.is_displayed_grid;
 
         console.log(`Toggling ${fieldId} ${visibilityType}:`, {
           before: { form: f.is_displayed, grid: f.is_displayed_grid },
-          after: { form: newFormDisplayed, grid: newGridDisplayed }
+          after: { form: newFormDisplayed, grid: newGridDisplayed },
         });
 
         return {
@@ -225,7 +259,7 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
         };
       });
 
-      console.log('Updated fields:', updated);
+      console.log("Updated fields:", updated);
       return updated;
     });
     setHasChanges(true);
@@ -259,7 +293,7 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
       setEditableFields(
         fields.map((f) => ({
           ...f,
-          originalSeqNo: editMode === 'form' ? f.seq_no : f.seq_no_grid,
+          originalSeqNo: editMode === "form" ? f.seq_no : f.seq_no_grid,
           hasChanges: false,
         }))
       );
@@ -269,7 +303,7 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
 
   // Toggle field detail expansion
   const toggleFieldExpansion = useCallback((fieldId: string) => {
-    setExpandedFieldIds(prev => {
+    setExpandedFieldIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(fieldId)) {
         newSet.delete(fieldId);
@@ -281,40 +315,42 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
   }, []);
 
   // Update column span
-  const updateColSpan = useCallback((fieldId: string, colSpan: number) => {
-    updateFieldStyleMutation.mutate(
-      { fieldId, style: { col_span: colSpan } },
-      {
-        onSuccess: () => {
-          // Update local state
-          setEditableFields(prev =>
-            prev.map(f =>
-              f.sys_field_id === fieldId ? { ...f, col_span: colSpan } : f
-            )
-          );
-          toast.success('Column span updated');
-        },
-      }
-    );
-  }, [updateFieldStyleMutation]);
+  const updateColSpan = useCallback(
+    (fieldId: string, colSpan: number) => {
+      updateFieldStyleMutation.mutate(
+        { fieldId, style: { col_span: colSpan } },
+        {
+          onSuccess: () => {
+            // Update local state
+            setEditableFields((prev) =>
+              prev.map((f) => (f.sys_field_id === fieldId ? { ...f, col_span: colSpan } : f))
+            );
+            toast.success("Column span updated");
+          },
+        }
+      );
+    },
+    [updateFieldStyleMutation]
+  );
 
   // Update field color
-  const updateFieldColor = useCallback((fieldId: string, color: string) => {
-    updateFieldStyleMutation.mutate(
-      { fieldId, style: { color } },
-      {
-        onSuccess: () => {
-          // Update local state
-          setEditableFields(prev =>
-            prev.map(f =>
-              f.sys_field_id === fieldId ? { ...f, color } : f
-            )
-          );
-          toast.success('Field color updated');
-        },
-      }
-    );
-  }, [updateFieldStyleMutation]);
+  const updateFieldColor = useCallback(
+    (fieldId: string, color: string) => {
+      updateFieldStyleMutation.mutate(
+        { fieldId, style: { color } },
+        {
+          onSuccess: () => {
+            // Update local state
+            setEditableFields((prev) =>
+              prev.map((f) => (f.sys_field_id === fieldId ? { ...f, color } : f))
+            );
+            toast.success("Field color updated");
+          },
+        }
+      );
+    },
+    [updateFieldStyleMutation]
+  );
 
   if (isLoading) {
     return (
@@ -354,7 +390,7 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
             <CardTitle className="flex items-center gap-2">
               Field Layout Editor
               <Badge variant="outline" className="ml-2">
-                {editMode === 'form' ? 'Form Fields' : 'Grid Columns'}
+                {editMode === "form" ? "Form Fields" : "Grid Columns"}
               </Badge>
               {hasChanges && (
                 <Badge variant="secondary" className="ml-2">
@@ -363,9 +399,9 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
               )}
             </CardTitle>
             <CardDescription>
-              {editMode === 'form'
-                ? 'Configure field order and visibility for forms (create/edit screens).'
-                : 'Configure column order and visibility for data grids/lists.'}
+              {editMode === "form"
+                ? "Configure field order and visibility for forms (create/edit screens)."
+                : "Configure column order and visibility for data grids/lists."}
             </CardDescription>
           </div>
 
@@ -373,17 +409,17 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
             {/* Edit mode toggle */}
             <div className="flex items-center gap-2 border rounded-lg p-1">
               <Button
-                variant={editMode === 'form' ? 'secondary' : 'ghost'}
+                variant={editMode === "form" ? "secondary" : "ghost"}
                 size="sm"
-                onClick={() => setEditMode('form')}
+                onClick={() => setEditMode("form")}
               >
                 <FormInput className="h-4 w-4 mr-1" />
                 Form
               </Button>
               <Button
-                variant={editMode === 'grid' ? 'secondary' : 'ghost'}
+                variant={editMode === "grid" ? "secondary" : "ghost"}
                 size="sm"
-                onClick={() => setEditMode('grid')}
+                onClick={() => setEditMode("grid")}
               >
                 <Columns className="h-4 w-4 mr-1" />
                 Grid
@@ -391,12 +427,7 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
             </div>
 
             {/* Action buttons */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleReset}
-              disabled={!hasChanges}
-            >
+            <Button variant="outline" size="sm" onClick={handleReset} disabled={!hasChanges}>
               <RotateCcw className="h-4 w-4 mr-1" />
               Reset
             </Button>
@@ -406,7 +437,7 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
               disabled={!hasChanges || batchUpdateMutation.isPending}
             >
               <Save className="h-4 w-4 mr-1" />
-              {batchUpdateMutation.isPending ? 'Saving...' : 'Save'}
+              {batchUpdateMutation.isPending ? "Saving..." : "Save"}
             </Button>
           </div>
         </div>
@@ -416,11 +447,7 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="fields">
             {(provided) => (
-              <div
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                className="space-y-2"
-              >
+              <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
                 {editableFields.map((field, index) => (
                   <Draggable
                     key={field.sys_field_id}
@@ -432,12 +459,14 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         className={cn(
-                          'flex items-center gap-4 p-4 border rounded-lg bg-card transition-opacity',
-                          snapshot.isDragging && 'shadow-lg ring-2 ring-primary',
-                          field.hasChanges && 'border-primary/50',
+                          "flex items-center gap-4 p-4 border rounded-lg bg-card transition-opacity",
+                          snapshot.isDragging && "shadow-lg ring-2 ring-primary",
+                          field.hasChanges && "border-primary/50",
                           // Dim the field if it's hidden in the current mode
-                          (editMode === 'form' && !field.is_displayed) && 'opacity-50 bg-muted/30',
-                          (editMode === 'grid' && !field.is_displayed_grid) && 'opacity-50 bg-muted/30'
+                          editMode === "form" && !field.is_displayed && "opacity-50 bg-muted/30",
+                          editMode === "grid" &&
+                            !field.is_displayed_grid &&
+                            "opacity-50 bg-muted/30"
                         )}
                       >
                         {/* Drag handle */}
@@ -463,7 +492,7 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
                               {field.column_name}
                             </Badge>
                             <Badge variant="secondary" className="text-xs">
-                              {REFERENCE_TYPE_LABELS[field.sys_reference_id] || 'Unknown'}
+                              {REFERENCE_TYPE_LABELS[field.sys_reference_id] || "Unknown"}
                             </Badge>
                             {field.is_mandatory && (
                               <Badge variant="destructive" className="text-xs">
@@ -478,12 +507,12 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
                               </Badge>
                             )}
                             {/* Show "Hidden" badge for fields not displayed in current mode */}
-                            {(editMode === 'form' && !field.is_displayed) && (
+                            {editMode === "form" && !field.is_displayed && (
                               <Badge variant="outline" className="text-xs border-dashed">
                                 Hidden in Form
                               </Badge>
                             )}
-                            {(editMode === 'grid' && !field.is_displayed_grid) && (
+                            {editMode === "grid" && !field.is_displayed_grid && (
                               <Badge variant="outline" className="text-xs border-dashed">
                                 Hidden in Grid
                               </Badge>
@@ -502,7 +531,9 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
                                     min={1}
                                     max={12}
                                     step={1}
-                                    onValueChange={([value]) => updateColSpan(field.sys_field_id, value)}
+                                    onValueChange={([value]) =>
+                                      updateColSpan(field.sys_field_id, value)
+                                    }
                                     className="flex-1"
                                   />
                                   <span className="text-sm font-medium w-8 text-center">
@@ -521,19 +552,21 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
                                   {COLOR_OPTIONS.map((colorOption) => (
                                     <button
                                       key={colorOption.value}
-                                      onClick={() => updateFieldColor(field.sys_field_id, colorOption.value)}
+                                      onClick={() =>
+                                        updateFieldColor(field.sys_field_id, colorOption.value)
+                                      }
                                       className={cn(
-                                        'w-8 h-8 rounded-full border-2 transition-all hover:scale-110',
+                                        "w-8 h-8 rounded-full border-2 transition-all hover:scale-110",
                                         colorOption.color,
                                         field.color === colorOption.value
-                                          ? 'ring-2 ring-offset-2 ring-primary'
-                                          : 'ring-0'
+                                          ? "ring-2 ring-offset-2 ring-primary"
+                                          : "ring-0"
                                       )}
                                       title={colorOption.label}
                                     />
                                   ))}
                                 </div>
-                                {field.color && field.color !== 'contrast' && (
+                                {field.color && field.color !== "contrast" && (
                                   <div
                                     className="w-8 h-8 rounded-full border-2"
                                     style={{ backgroundColor: field.color }}
@@ -552,7 +585,11 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
                             size="sm"
                             onClick={() => toggleFieldExpansion(field.sys_field_id)}
                             className="h-8 w-8 p-0"
-                            title={expandedFieldIds.has(field.sys_field_id) ? 'Hide styling options' : 'Show styling options'}
+                            title={
+                              expandedFieldIds.has(field.sys_field_id)
+                                ? "Hide styling options"
+                                : "Show styling options"
+                            }
                           >
                             {expandedFieldIds.has(field.sys_field_id) ? (
                               <ChevronUp className="h-4 w-4" />
@@ -565,14 +602,12 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
                             <Switch
                               id={`form-${field.sys_field_id}`}
                               checked={field.is_displayed}
-                              onCheckedChange={() =>
-                                toggleVisibility(field.sys_field_id, 'form')
-                              }
+                              onCheckedChange={() => toggleVisibility(field.sys_field_id, "form")}
                             />
                             <Label
                               htmlFor={`form-${field.sys_field_id}`}
                               className="text-sm cursor-pointer"
-                              title={field.is_displayed ? 'Visible in forms' : 'Hidden in forms'}
+                              title={field.is_displayed ? "Visible in forms" : "Hidden in forms"}
                             >
                               {field.is_displayed ? (
                                 <Eye className="h-4 w-4" />
@@ -586,14 +621,14 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
                             <Switch
                               id={`grid-${field.sys_field_id}`}
                               checked={field.is_displayed_grid}
-                              onCheckedChange={() =>
-                                toggleVisibility(field.sys_field_id, 'grid')
-                              }
+                              onCheckedChange={() => toggleVisibility(field.sys_field_id, "grid")}
                             />
                             <Label
                               htmlFor={`grid-${field.sys_field_id}`}
                               className="text-sm cursor-pointer flex items-center gap-1"
-                              title={field.is_displayed_grid ? 'Visible in grids' : 'Hidden in grids'}
+                              title={
+                                field.is_displayed_grid ? "Visible in grids" : "Hidden in grids"
+                              }
                             >
                               <Columns className="h-4 w-4" />
                             </Label>

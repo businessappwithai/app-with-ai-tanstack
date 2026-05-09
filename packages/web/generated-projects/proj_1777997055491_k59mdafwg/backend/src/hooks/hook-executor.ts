@@ -5,8 +5,8 @@
  * Generated: 2026-05-06T11:42:08.722Z
  */
 
-import { HookContext, HookLifecycle } from './hook.types';
-import { globalHookRegistry } from './hook-registry';
+import type { HookContext, HookLifecycle } from "./hook.types";
+import { globalHookRegistry } from "./hook-registry";
 
 export class HookExecutor {
   async execute<T>(
@@ -22,7 +22,7 @@ export class HookExecutor {
       entity: entityName,
       lifecycle,
       data: result,
-      metadata
+      metadata,
     };
 
     for (const hook of hooks) {

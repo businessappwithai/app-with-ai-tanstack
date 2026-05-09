@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
 import { Info } from "lucide-react";
+import React from "react";
 
 interface WizardStepHeaderProps {
   stepNumber: number;
@@ -41,9 +41,7 @@ export function WizardStepHeader({
         <div className="flex-shrink-0 mt-0.5">
           <Info className="w-5 h-5 text-primary" />
         </div>
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          {description}
-        </p>
+        <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
       </div>
     </div>
   );

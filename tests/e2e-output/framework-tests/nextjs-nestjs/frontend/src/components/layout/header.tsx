@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Header Component
@@ -6,9 +6,10 @@
  * Generated: {{now}}
  */
 
-import { Bell, Search, Settings, LogOut, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Bell, LogOut, Search, Settings, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,10 +17,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/contexts/auth-context';
-import { useRouter } from 'next/navigation';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/auth-context";
 
 interface HeaderProps {
   className?: string;
@@ -31,21 +31,21 @@ export function Header({ className }: HeaderProps) {
 
   const handleLogout = () => {
     logout();
-    router.push('/login');
+    router.push("/login");
   };
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
 
   return (
     <header
-      className={`sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6 ${className || ''}`}
+      className={`sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6 ${className || ""}`}
     >
       {/* Search */}
       <div className="flex-1">
@@ -90,9 +90,9 @@ export function Header({ className }: HeaderProps) {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-9 w-9 rounded-full">
               <Avatar className="h-9 w-9">
-                <AvatarImage src="" alt={user?.name || ''} />
+                <AvatarImage src="" alt={user?.name || ""} />
                 <AvatarFallback className="bg-primary text-primary-foreground">
-                  {user ? getInitials(user.name) : 'U'}
+                  {user ? getInitials(user.name) : "U"}
                 </AvatarFallback>
               </Avatar>
             </Button>
@@ -105,11 +105,11 @@ export function Header({ className }: HeaderProps) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => nextRouter.push('/profile')}>
+            <DropdownMenuItem onClick={() => nextRouter.push("/profile")}>
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => nextRouter.push('/settings')}>
+            <DropdownMenuItem onClick={() => nextRouter.push("/settings")}>
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
             </DropdownMenuItem>

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Authentication Context
@@ -8,7 +8,7 @@
  * Generated: {{now}}
  */
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
 
 // ============================================================================
 // Types
@@ -49,8 +49,8 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 // ============================================================================
 
 const STORAGE_KEYS = {
-  TOKEN: 'auth_token',
-  USER: 'auth_user',
+  TOKEN: "auth_token",
+  USER: "auth_user",
 };
 
 // ============================================================================
@@ -76,7 +76,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
       } catch (error) {
-        console.error('Failed to parse stored user data:', error);
+        console.error("Failed to parse stored user data:", error);
         // Clear invalid data
         localStorage.removeItem(STORAGE_KEYS.TOKEN);
         localStorage.removeItem(STORAGE_KEYS.USER);
@@ -88,18 +88,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Update API client when token changes
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       // Dynamically import apiClient to avoid SSR issues
-      import('@/lib/api-client').then(({ apiClient }) => {
+      import("@/lib/api-client").then(({ apiClient }) => {
         apiClient.setAuthToken(token);
       });
     }
   }, [token]);
 
   const login = async (email: string, password: string) => {
-    const { apiClient } = await import('@/lib/api-client');
+    const { apiClient } = await import("@/lib/api-client");
 
-    const response = await apiClient.post<AuthTokens>('/auth/login', {
+    const response = await apiClient.post<AuthTokens>("/auth/login", {
       email,
       password,
     });
@@ -126,7 +126,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Implementation depends on backend refresh token strategy
     // For now, just ensure token is still valid
     if (!token) {
-      throw new Error('No token to refresh');
+      throw new Error("No token to refresh");
     }
   };
 
@@ -141,7 +141,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const isAdmin = (): boolean => {
-    return hasAnyRole(['System Administrator', 'Administrator']);
+    return hasAnyRole(["System Administrator", "Administrator"]);
   };
 
   const value: AuthContextValue = {
@@ -167,7 +167,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 }
@@ -199,8 +199,8 @@ export function withAuth<P extends object>(
 
     if (!isAuthenticated) {
       // Redirect to login
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
       }
       return fallback;
     }
@@ -210,7 +210,9 @@ export function withAuth<P extends object>(
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
-            <p className="text-muted-foreground mt-2">You need administrator privileges to access this page.</p>
+            <p className="text-muted-foreground mt-2">
+              You need administrator privileges to access this page.
+            </p>
           </div>
         </div>
       );
@@ -221,7 +223,9 @@ export function withAuth<P extends object>(
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
-            <p className="text-muted-foreground mt-2">You do not have permission to access this page.</p>
+            <p className="text-muted-foreground mt-2">
+              You do not have permission to access this page.
+            </p>
           </div>
         </div>
       );

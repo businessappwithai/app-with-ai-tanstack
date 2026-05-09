@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Dynamic Icon Component
@@ -9,8 +9,8 @@
  * Auto-generated component
  */
 
-import * as LucideIcons from 'lucide-react';
-import { HTMLAttributes } from 'react';
+import * as LucideIcons from "lucide-react";
+import type { HTMLAttributes } from "react";
 
 export interface IconProps extends HTMLAttributes<HTMLSpanElement> {
   name: string;
@@ -18,7 +18,13 @@ export interface IconProps extends HTMLAttributes<HTMLSpanElement> {
   className?: string;
 }
 
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string; size?: number }>> = LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string; size?: number }>>;
+const ICON_MAP: Record<
+  string,
+  React.ComponentType<{ className?: string; size?: number }>
+> = LucideIcons as unknown as Record<
+  string,
+  React.ComponentType<{ className?: string; size?: number }>
+>;
 
 /**
  * Renders an icon from lucide-react by name
@@ -30,7 +36,16 @@ export function Icon({ name, size = 16, className, ...props }: IconProps) {
   if (!IconComponent) {
     // Fallback to a default icon if name is not found
     return (
-      <span className={className} {...props} style={{ fontSize: `${size}px`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span
+        className={className}
+        {...props}
+        style={{
+          fontSize: `${size}px`,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         📊
       </span>
     );

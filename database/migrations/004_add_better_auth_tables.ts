@@ -30,7 +30,12 @@ export async function up(knex: Knex): Promise<void> {
   // Create better_auth_sessions table
   await knex.schema.createTable("better_auth_sessions", (table) => {
     table.uuid("id").primary().defaultTo(knex.raw("gen_random_uuid()"));
-    table.uuid("user_id").references("id").inTable("better_auth_users").notNullable().onDelete("CASCADE");
+    table
+      .uuid("user_id")
+      .references("id")
+      .inTable("better_auth_users")
+      .notNullable()
+      .onDelete("CASCADE");
     table.timestamp("expires_at").notNullable();
     table.string("token", 255).notNullable().unique();
     table.timestamp("created_at").defaultTo(knex.fn.now());
@@ -40,7 +45,12 @@ export async function up(knex: Knex): Promise<void> {
   // Create better_auth_accounts table (for social login)
   await knex.schema.createTable("better_auth_accounts", (table) => {
     table.uuid("id").primary().defaultTo(knex.raw("gen_random_uuid()"));
-    table.uuid("user_id").references("id").inTable("better_auth_users").notNullable().onDelete("CASCADE");
+    table
+      .uuid("user_id")
+      .references("id")
+      .inTable("better_auth_users")
+      .notNullable()
+      .onDelete("CASCADE");
     table.string("account_id", 255).notNullable();
     table.string("provider_id", 255).notNullable();
     table.text("access_token");
@@ -64,11 +74,11 @@ export async function up(knex: Knex): Promise<void> {
   });
 
   // Create indexes for better performance
-  await knex.raw('CREATE INDEX idx_sessions_user_id ON better_auth_sessions(user_id)');
-  await knex.raw('CREATE INDEX idx_sessions_token ON better_auth_sessions(token)');
-  await knex.raw('CREATE INDEX idx_sessions_expires_at ON better_auth_sessions(expires_at)');
-  await knex.raw('CREATE INDEX idx_accounts_user_id ON better_auth_accounts(user_id)');
-  await knex.raw('CREATE INDEX idx_verification_expires ON better_auth_verification(expires_at)');
+  await knex.raw("CREATE INDEX idx_sessions_user_id ON better_auth_sessions(user_id)");
+  await knex.raw("CREATE INDEX idx_sessions_token ON better_auth_sessions(token)");
+  await knex.raw("CREATE INDEX idx_sessions_expires_at ON better_auth_sessions(expires_at)");
+  await knex.raw("CREATE INDEX idx_accounts_user_id ON better_auth_accounts(user_id)");
+  await knex.raw("CREATE INDEX idx_verification_expires ON better_auth_verification(expires_at)");
 }
 
 export async function down(knex: Knex): Promise<void> {

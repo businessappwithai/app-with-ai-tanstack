@@ -13,36 +13,36 @@
  * Generated: {{now}}
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { LayoutGrid, Layers } from 'lucide-react';
-import { AppLayout } from '@/components/layout/app-layout';
-import { FieldLayoutEditor } from '@/components/admin/field-layout-editor';
-import { FieldGroupManager } from '@/components/admin/field-group-manager';
+import { Layers, LayoutGrid } from "lucide-react";
+import { useState } from "react";
+import { FieldGroupManager } from "@/components/admin/field-group-manager";
+import { FieldLayoutEditor } from "@/components/admin/field-layout-editor";
+import { AppLayout } from "@/components/layout/app-layout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-type TabValue = 'layout' | 'groups';
+type TabValue = "layout" | "groups";
 
 // Available business entities for field customization
 const BUSINESS_ENTITIES = [
-  { value: 'bus_customer', label: 'Customers' },
-  { value: 'bus_product', label: 'Products' },
-  { value: 'bus_sales_order', label: 'Sales Orders' },
-  { value: 'bus_sales_order_line', label: 'Sales Order Lines' },
+  { value: "bus_customer", label: "Customers" },
+  { value: "bus_product", label: "Products" },
+  { value: "bus_sales_order", label: "Sales Orders" },
+  { value: "bus_sales_order_line", label: "Sales Order Lines" },
 ];
 
 export default function FieldLayoutPage() {
-  const [selectedTable, setSelectedTable] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<TabValue>('layout');
+  const [selectedTable, setSelectedTable] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<TabValue>("layout");
 
   return (
     <AppLayout>
@@ -57,15 +57,10 @@ export default function FieldLayoutPage() {
         <Card>
           <CardHeader>
             <CardTitle>Select Entity</CardTitle>
-            <CardDescription>
-              Choose an entity to customize its field layout
-            </CardDescription>
+            <CardDescription>Choose an entity to customize its field layout</CardDescription>
           </CardHeader>
           <CardContent>
-            <Select
-              value={selectedTable}
-              onValueChange={setSelectedTable}
-            >
+            <Select value={selectedTable} onValueChange={setSelectedTable}>
               <SelectTrigger className="w-full md:w-[400px]">
                 <SelectValue placeholder="Select an entity..." />
               </SelectTrigger>
@@ -81,7 +76,11 @@ export default function FieldLayoutPage() {
         </Card>
 
         {selectedTable && (
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} className="space-y-6">
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as TabValue)}
+            className="space-y-6"
+          >
             <TabsList className="grid w-full max-w-md grid-cols-2">
               <TabsTrigger value="layout" className="flex items-center gap-2">
                 <LayoutGrid className="h-4 w-4" />

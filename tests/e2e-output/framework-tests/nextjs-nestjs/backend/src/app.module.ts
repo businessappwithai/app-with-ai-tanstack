@@ -5,23 +5,21 @@
  * Project: nextjs-nestjs-test-app
  */
 
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-
-import { DatabaseModule } from './database/database.module';
-import { SysModule } from './modules/sys/sys.module';
-import { BusModule } from './modules/bus/bus.module';
-
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
+import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
+import { TransformInterceptor } from "./common/interceptors/transform.interceptor";
+import { DatabaseModule } from "./database/database.module";
+import { BusModule } from "./modules/bus/bus.module";
+import { SysModule } from "./modules/sys/sys.module";
 
 @Module({
   imports: [
     // Configuration
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.local', '.env'],
+      envFilePath: [".env.local", ".env"],
     }),
 
     // Database (Knex.js)

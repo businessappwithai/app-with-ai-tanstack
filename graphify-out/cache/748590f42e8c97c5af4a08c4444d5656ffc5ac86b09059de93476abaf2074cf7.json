@@ -1,1 +1,1236 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "label": "page.tsx", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L1"}, {"id": "page_loadprivacysettings", "label": "loadPrivacySettings()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L111"}, {"id": "page_saveprivacysettings", "label": "savePrivacySettings()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L124"}, {"id": "page_handleprivacychange", "label": "handlePrivacyChange()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L133"}, {"id": "page_loadtheme", "label": "loadTheme()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L140"}, {"id": "page_loadprofile", "label": "loadProfile()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L152"}, {"id": "page_handlethemechange", "label": "handleThemeChange()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L165"}, {"id": "page_handlesavechanges", "label": "handleSaveChanges()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L189"}, {"id": "page_loadnotificationsettings", "label": "loadNotificationSettings()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L226"}, {"id": "page_savenotificationsettings", "label": "saveNotificationSettings()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L239"}, {"id": "page_checknotificationpermission", "label": "checkNotificationPermission()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L248"}, {"id": "page_requestnotificationpermission", "label": "requestNotificationPermission()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L255"}, {"id": "page_handlenotificationchange", "label": "handleNotificationChange()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L305"}, {"id": "page_loadcacheinfo", "label": "loadCacheInfo()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L344"}, {"id": "page_clearcache", "label": "clearCache()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L384"}, {"id": "page_removetempfiles", "label": "removeTempFiles()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L423"}, {"id": "page_exportuserdata", "label": "exportUserData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L459"}, {"id": "page_deletealldata", "label": "deleteAllData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L521"}, {"id": "page_handleconfirmaction", "label": "handleConfirmAction()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L569"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L3", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "link", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L4", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "navigation", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L5", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "lucide_react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_loadprivacysettings", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L111", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_saveprivacysettings", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L124", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_handleprivacychange", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L133", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_loadtheme", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L140", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_loadprofile", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L152", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_handlethemechange", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L165", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_handlesavechanges", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L189", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_loadnotificationsettings", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L226", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_savenotificationsettings", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L239", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_checknotificationpermission", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L248", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_requestnotificationpermission", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L255", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_handlenotificationchange", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L305", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_loadcacheinfo", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L344", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_clearcache", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L384", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_removetempfiles", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L423", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_exportuserdata", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L459", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_deletealldata", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L521", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx", "target": "page_handleconfirmaction", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L569", "weight": 1.0}, {"source": "page_handleprivacychange", "target": "page_saveprivacysettings", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L136", "weight": 1.0}, {"source": "page_handlenotificationchange", "target": "page_requestnotificationpermission", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L309", "weight": 1.0}, {"source": "page_handlenotificationchange", "target": "page_savenotificationsettings", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L320", "weight": 1.0}, {"source": "page_clearcache", "target": "page_loadcacheinfo", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L410", "weight": 1.0}, {"source": "page_removetempfiles", "target": "page_loadcacheinfo", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L446", "weight": 1.0}, {"source": "page_handleconfirmaction", "target": "page_clearcache", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L572", "weight": 1.0}, {"source": "page_handleconfirmaction", "target": "page_removetempfiles", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L575", "weight": 1.0}, {"source": "page_handleconfirmaction", "target": "page_exportuserdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L578", "weight": 1.0}, {"source": "page_handleconfirmaction", "target": "page_deletealldata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L581", "weight": 1.0}], "raw_calls": [{"caller_nid": "page_loadprivacysettings", "callee": "getItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L113"}, {"caller_nid": "page_loadprivacysettings", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L115"}, {"caller_nid": "page_loadprivacysettings", "callee": "setPrivacySettings", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L116"}, {"caller_nid": "page_loadprivacysettings", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L119"}, {"caller_nid": "page_saveprivacysettings", "callee": "setItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L126"}, {"caller_nid": "page_saveprivacysettings", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L126"}, {"caller_nid": "page_saveprivacysettings", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L128"}, {"caller_nid": "page_handleprivacychange", "callee": "setPrivacySettings", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L135"}, {"caller_nid": "page_loadtheme", "callee": "getItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L142"}, {"caller_nid": "page_loadtheme", "callee": "setTheme", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L144"}, {"caller_nid": "page_loadtheme", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L147"}, {"caller_nid": "page_loadprofile", "callee": "getItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L154"}, {"caller_nid": "page_loadprofile", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L156"}, {"caller_nid": "page_loadprofile", "callee": "setProfile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L157"}, {"caller_nid": "page_loadprofile", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L160"}, {"caller_nid": "page_handlethemechange", "callee": "setTheme", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L166"}, {"caller_nid": "page_handlethemechange", "callee": "setItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L168"}, {"caller_nid": "page_handlethemechange", "callee": "matchMedia", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L172"}, {"caller_nid": "page_handlethemechange", "callee": "toggle", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L173"}, {"caller_nid": "page_handlethemechange", "callee": "toggle", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L175"}, {"caller_nid": "page_handlethemechange", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L178"}, {"caller_nid": "page_handlethemechange", "callee": "setTimeout", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L182"}, {"caller_nid": "page_handlethemechange", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L184"}, {"caller_nid": "page_handlesavechanges", "callee": "setIsSaving", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L190"}, {"caller_nid": "page_handlesavechanges", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L199"}, {"caller_nid": "page_handlesavechanges", "callee": "setItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L202"}, {"caller_nid": "page_handlesavechanges", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L202"}, {"caller_nid": "page_handlesavechanges", "callee": "setItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L203"}, {"caller_nid": "page_handlesavechanges", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L203"}, {"caller_nid": "page_handlesavechanges", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L208"}, {"caller_nid": "page_handlesavechanges", "callee": "setTimeout", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L212"}, {"caller_nid": "page_handlesavechanges", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L214"}, {"caller_nid": "page_handlesavechanges", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L215"}, {"caller_nid": "page_handlesavechanges", "callee": "setTimeout", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L219"}, {"caller_nid": "page_handlesavechanges", "callee": "setIsSaving", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L221"}, {"caller_nid": "page_loadnotificationsettings", "callee": "getItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L228"}, {"caller_nid": "page_loadnotificationsettings", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L230"}, {"caller_nid": "page_loadnotificationsettings", "callee": "setNotifications", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L231"}, {"caller_nid": "page_loadnotificationsettings", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L234"}, {"caller_nid": "page_savenotificationsettings", "callee": "setItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L241"}, {"caller_nid": "page_savenotificationsettings", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L241"}, {"caller_nid": "page_savenotificationsettings", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L243"}, {"caller_nid": "page_checknotificationpermission", "callee": "setNotificationPermission", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L250"}, {"caller_nid": "page_requestnotificationpermission", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L257"}, {"caller_nid": "page_requestnotificationpermission", "callee": "setTimeout", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L261"}, {"caller_nid": "page_requestnotificationpermission", "callee": "requestPermission", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L270"}, {"caller_nid": "page_requestnotificationpermission", "callee": "setNotificationPermission", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L271"}, {"caller_nid": "page_requestnotificationpermission", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L280"}, {"caller_nid": "page_requestnotificationpermission", "callee": "setTimeout", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L284"}, {"caller_nid": "page_requestnotificationpermission", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L287"}, {"caller_nid": "page_requestnotificationpermission", "callee": "setTimeout", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L291"}, {"caller_nid": "page_requestnotificationpermission", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L296"}, {"caller_nid": "page_requestnotificationpermission", "callee": "setTimeout", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L300"}, {"caller_nid": "page_handlenotificationchange", "callee": "setIsUpdatingNotification", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L308"}, {"caller_nid": "page_handlenotificationchange", "callee": "setIsUpdatingNotification", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L312"}, {"caller_nid": "page_handlenotificationchange", "callee": "setNotifications", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L319"}, {"caller_nid": "page_handlenotificationchange", "callee": "setIsUpdatingNotification", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L321"}, {"caller_nid": "page_handlenotificationchange", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L336"}, {"caller_nid": "page_handlenotificationchange", "callee": "setTimeout", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L340"}, {"caller_nid": "page_loadcacheinfo", "callee": "setIsLoadingCache", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L345"}, {"caller_nid": "page_loadcacheinfo", "callee": "key", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L352"}, {"caller_nid": "page_loadcacheinfo", "callee": "getItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L353"}, {"caller_nid": "page_loadcacheinfo", "callee": "toFixed", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L359"}, {"caller_nid": "page_loadcacheinfo", "callee": "toFixed", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L362"}, {"caller_nid": "page_loadcacheinfo", "callee": "getItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L365"}, {"caller_nid": "page_loadcacheinfo", "callee": "setCacheInfo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L367"}, {"caller_nid": "page_loadcacheinfo", "callee": "toLocaleDateString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L370"}, {"caller_nid": "page_loadcacheinfo", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L373"}, {"caller_nid": "page_loadcacheinfo", "callee": "setCacheInfo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L374"}, {"caller_nid": "page_loadcacheinfo", "callee": "setIsLoadingCache", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L380"}, {"caller_nid": "page_clearcache", "callee": "setIsClearingCache", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L385"}, {"caller_nid": "page_clearcache", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L386"}, {"caller_nid": "page_clearcache", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L391"}, {"caller_nid": "page_clearcache", "callee": "all", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L392"}, {"caller_nid": "page_clearcache", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L392"}, {"caller_nid": "page_clearcache", "callee": "getItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L396"}, {"caller_nid": "page_clearcache", "callee": "clear", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L397"}, {"caller_nid": "page_clearcache", "callee": "setItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L398"}, {"caller_nid": "page_clearcache", "callee": "setItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L401"}, {"caller_nid": "page_clearcache", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L401"}, {"caller_nid": "page_clearcache", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L405"}, {"caller_nid": "page_clearcache", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L412"}, {"caller_nid": "page_clearcache", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L413"}, {"caller_nid": "page_clearcache", "callee": "setIsClearingCache", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L418"}, {"caller_nid": "page_clearcache", "callee": "setShowConfirmDialog", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L419"}, {"caller_nid": "page_removetempfiles", "callee": "setIsRemovingTempFiles", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L424"}, {"caller_nid": "page_removetempfiles", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L425"}, {"caller_nid": "page_removetempfiles", "callee": "databases", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L429"}, {"caller_nid": "page_removetempfiles", "callee": "all", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L430"}, {"caller_nid": "page_removetempfiles", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L431"}, {"caller_nid": "page_removetempfiles", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L431"}, {"caller_nid": "page_removetempfiles", "callee": "clear", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L437"}, {"caller_nid": "page_removetempfiles", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L441"}, {"caller_nid": "page_removetempfiles", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L448"}, {"caller_nid": "page_removetempfiles", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L449"}, {"caller_nid": "page_removetempfiles", "callee": "setIsRemovingTempFiles", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L454"}, {"caller_nid": "page_removetempfiles", "callee": "setShowConfirmDialog", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L455"}, {"caller_nid": "page_exportuserdata", "callee": "setIsExportingData", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L460"}, {"caller_nid": "page_exportuserdata", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L461"}, {"caller_nid": "page_exportuserdata", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L466"}, {"caller_nid": "page_exportuserdata", "callee": "key", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L478"}, {"caller_nid": "page_exportuserdata", "callee": "getItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L480"}, {"caller_nid": "page_exportuserdata", "callee": "key", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L486"}, {"caller_nid": "page_exportuserdata", "callee": "getItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L488"}, {"caller_nid": "page_exportuserdata", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L493"}, {"caller_nid": "page_exportuserdata", "callee": "createObjectURL", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L496"}, {"caller_nid": "page_exportuserdata", "callee": "createElement", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L497"}, {"caller_nid": "page_exportuserdata", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L499"}, {"caller_nid": "page_exportuserdata", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L499"}, {"caller_nid": "page_exportuserdata", "callee": "appendChild", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L500"}, {"caller_nid": "page_exportuserdata", "callee": "click", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L501"}, {"caller_nid": "page_exportuserdata", "callee": "removeChild", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L502"}, {"caller_nid": "page_exportuserdata", "callee": "revokeObjectURL", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L503"}, {"caller_nid": "page_exportuserdata", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L505"}, {"caller_nid": "page_exportuserdata", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L510"}, {"caller_nid": "page_exportuserdata", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L511"}, {"caller_nid": "page_exportuserdata", "callee": "setIsExportingData", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L516"}, {"caller_nid": "page_exportuserdata", "callee": "setShowConfirmDialog", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L517"}, {"caller_nid": "page_deletealldata", "callee": "setIsDeletingAllData", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L522"}, {"caller_nid": "page_deletealldata", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L523"}, {"caller_nid": "page_deletealldata", "callee": "clear", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L527"}, {"caller_nid": "page_deletealldata", "callee": "clear", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L528"}, {"caller_nid": "page_deletealldata", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L532"}, {"caller_nid": "page_deletealldata", "callee": "all", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L533"}, {"caller_nid": "page_deletealldata", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L533"}, {"caller_nid": "page_deletealldata", "callee": "databases", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L537"}, {"caller_nid": "page_deletealldata", "callee": "all", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L538"}, {"caller_nid": "page_deletealldata", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L539"}, {"caller_nid": "page_deletealldata", "callee": "getRegistrations", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L544"}, {"caller_nid": "page_deletealldata", "callee": "all", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L545"}, {"caller_nid": "page_deletealldata", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L545"}, {"caller_nid": "page_deletealldata", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L550"}, {"caller_nid": "page_deletealldata", "callee": "setTimeout", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L556"}, {"caller_nid": "page_deletealldata", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L560"}, {"caller_nid": "page_deletealldata", "callee": "setActionStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L561"}, {"caller_nid": "page_deletealldata", "callee": "setIsDeletingAllData", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx", "source_location": "L565"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "label": "page.tsx",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "page_loadprivacysettings",
+      "label": "loadPrivacySettings()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L111"
+    },
+    {
+      "id": "page_saveprivacysettings",
+      "label": "savePrivacySettings()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L124"
+    },
+    {
+      "id": "page_handleprivacychange",
+      "label": "handlePrivacyChange()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L133"
+    },
+    {
+      "id": "page_loadtheme",
+      "label": "loadTheme()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L140"
+    },
+    {
+      "id": "page_loadprofile",
+      "label": "loadProfile()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L152"
+    },
+    {
+      "id": "page_handlethemechange",
+      "label": "handleThemeChange()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L165"
+    },
+    {
+      "id": "page_handlesavechanges",
+      "label": "handleSaveChanges()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L189"
+    },
+    {
+      "id": "page_loadnotificationsettings",
+      "label": "loadNotificationSettings()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L226"
+    },
+    {
+      "id": "page_savenotificationsettings",
+      "label": "saveNotificationSettings()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L239"
+    },
+    {
+      "id": "page_checknotificationpermission",
+      "label": "checkNotificationPermission()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L248"
+    },
+    {
+      "id": "page_requestnotificationpermission",
+      "label": "requestNotificationPermission()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L255"
+    },
+    {
+      "id": "page_handlenotificationchange",
+      "label": "handleNotificationChange()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L305"
+    },
+    {
+      "id": "page_loadcacheinfo",
+      "label": "loadCacheInfo()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L344"
+    },
+    {
+      "id": "page_clearcache",
+      "label": "clearCache()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L384"
+    },
+    {
+      "id": "page_removetempfiles",
+      "label": "removeTempFiles()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L423"
+    },
+    {
+      "id": "page_exportuserdata",
+      "label": "exportUserData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L459"
+    },
+    {
+      "id": "page_deletealldata",
+      "label": "deleteAllData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L521"
+    },
+    {
+      "id": "page_handleconfirmaction",
+      "label": "handleConfirmAction()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L569"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "link",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "navigation",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_loadprivacysettings",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L111",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_saveprivacysettings",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L124",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_handleprivacychange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L133",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_loadtheme",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_loadprofile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L152",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_handlethemechange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L165",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_handlesavechanges",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L189",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_loadnotificationsettings",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L226",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_savenotificationsettings",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L239",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_checknotificationpermission",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L248",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_requestnotificationpermission",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L255",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_handlenotificationchange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L305",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_loadcacheinfo",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L344",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_clearcache",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L384",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_removetempfiles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L423",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_exportuserdata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L459",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_deletealldata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L521",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_settings_page_tsx",
+      "target": "page_handleconfirmaction",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L569",
+      "weight": 1.0
+    },
+    {
+      "source": "page_handleprivacychange",
+      "target": "page_saveprivacysettings",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L136",
+      "weight": 1.0
+    },
+    {
+      "source": "page_handlenotificationchange",
+      "target": "page_requestnotificationpermission",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L309",
+      "weight": 1.0
+    },
+    {
+      "source": "page_handlenotificationchange",
+      "target": "page_savenotificationsettings",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L320",
+      "weight": 1.0
+    },
+    {
+      "source": "page_clearcache",
+      "target": "page_loadcacheinfo",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L410",
+      "weight": 1.0
+    },
+    {
+      "source": "page_removetempfiles",
+      "target": "page_loadcacheinfo",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L446",
+      "weight": 1.0
+    },
+    {
+      "source": "page_handleconfirmaction",
+      "target": "page_clearcache",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L572",
+      "weight": 1.0
+    },
+    {
+      "source": "page_handleconfirmaction",
+      "target": "page_removetempfiles",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L575",
+      "weight": 1.0
+    },
+    {
+      "source": "page_handleconfirmaction",
+      "target": "page_exportuserdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L578",
+      "weight": 1.0
+    },
+    {
+      "source": "page_handleconfirmaction",
+      "target": "page_deletealldata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L581",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "page_loadprivacysettings",
+      "callee": "getItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "page_loadprivacysettings",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "page_loadprivacysettings",
+      "callee": "setPrivacySettings",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "page_loadprivacysettings",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "page_saveprivacysettings",
+      "callee": "setItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "page_saveprivacysettings",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "page_saveprivacysettings",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "page_handleprivacychange",
+      "callee": "setPrivacySettings",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "page_loadtheme",
+      "callee": "getItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "page_loadtheme",
+      "callee": "setTheme",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L144"
+    },
+    {
+      "caller_nid": "page_loadtheme",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "page_loadprofile",
+      "callee": "getItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "page_loadprofile",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L156"
+    },
+    {
+      "caller_nid": "page_loadprofile",
+      "callee": "setProfile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L157"
+    },
+    {
+      "caller_nid": "page_loadprofile",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L160"
+    },
+    {
+      "caller_nid": "page_handlethemechange",
+      "callee": "setTheme",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L166"
+    },
+    {
+      "caller_nid": "page_handlethemechange",
+      "callee": "setItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L168"
+    },
+    {
+      "caller_nid": "page_handlethemechange",
+      "callee": "matchMedia",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L172"
+    },
+    {
+      "caller_nid": "page_handlethemechange",
+      "callee": "toggle",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "page_handlethemechange",
+      "callee": "toggle",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L175"
+    },
+    {
+      "caller_nid": "page_handlethemechange",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "page_handlethemechange",
+      "callee": "setTimeout",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "page_handlethemechange",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L184"
+    },
+    {
+      "caller_nid": "page_handlesavechanges",
+      "callee": "setIsSaving",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "page_handlesavechanges",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L199"
+    },
+    {
+      "caller_nid": "page_handlesavechanges",
+      "callee": "setItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L202"
+    },
+    {
+      "caller_nid": "page_handlesavechanges",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L202"
+    },
+    {
+      "caller_nid": "page_handlesavechanges",
+      "callee": "setItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "page_handlesavechanges",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "page_handlesavechanges",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L208"
+    },
+    {
+      "caller_nid": "page_handlesavechanges",
+      "callee": "setTimeout",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "page_handlesavechanges",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L214"
+    },
+    {
+      "caller_nid": "page_handlesavechanges",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L215"
+    },
+    {
+      "caller_nid": "page_handlesavechanges",
+      "callee": "setTimeout",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L219"
+    },
+    {
+      "caller_nid": "page_handlesavechanges",
+      "callee": "setIsSaving",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L221"
+    },
+    {
+      "caller_nid": "page_loadnotificationsettings",
+      "callee": "getItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L228"
+    },
+    {
+      "caller_nid": "page_loadnotificationsettings",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L230"
+    },
+    {
+      "caller_nid": "page_loadnotificationsettings",
+      "callee": "setNotifications",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L231"
+    },
+    {
+      "caller_nid": "page_loadnotificationsettings",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L234"
+    },
+    {
+      "caller_nid": "page_savenotificationsettings",
+      "callee": "setItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L241"
+    },
+    {
+      "caller_nid": "page_savenotificationsettings",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L241"
+    },
+    {
+      "caller_nid": "page_savenotificationsettings",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L243"
+    },
+    {
+      "caller_nid": "page_checknotificationpermission",
+      "callee": "setNotificationPermission",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L250"
+    },
+    {
+      "caller_nid": "page_requestnotificationpermission",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L257"
+    },
+    {
+      "caller_nid": "page_requestnotificationpermission",
+      "callee": "setTimeout",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L261"
+    },
+    {
+      "caller_nid": "page_requestnotificationpermission",
+      "callee": "requestPermission",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L270"
+    },
+    {
+      "caller_nid": "page_requestnotificationpermission",
+      "callee": "setNotificationPermission",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L271"
+    },
+    {
+      "caller_nid": "page_requestnotificationpermission",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L280"
+    },
+    {
+      "caller_nid": "page_requestnotificationpermission",
+      "callee": "setTimeout",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L284"
+    },
+    {
+      "caller_nid": "page_requestnotificationpermission",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L287"
+    },
+    {
+      "caller_nid": "page_requestnotificationpermission",
+      "callee": "setTimeout",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "page_requestnotificationpermission",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "page_requestnotificationpermission",
+      "callee": "setTimeout",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L300"
+    },
+    {
+      "caller_nid": "page_handlenotificationchange",
+      "callee": "setIsUpdatingNotification",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L308"
+    },
+    {
+      "caller_nid": "page_handlenotificationchange",
+      "callee": "setIsUpdatingNotification",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "page_handlenotificationchange",
+      "callee": "setNotifications",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L319"
+    },
+    {
+      "caller_nid": "page_handlenotificationchange",
+      "callee": "setIsUpdatingNotification",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L321"
+    },
+    {
+      "caller_nid": "page_handlenotificationchange",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L336"
+    },
+    {
+      "caller_nid": "page_handlenotificationchange",
+      "callee": "setTimeout",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L340"
+    },
+    {
+      "caller_nid": "page_loadcacheinfo",
+      "callee": "setIsLoadingCache",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L345"
+    },
+    {
+      "caller_nid": "page_loadcacheinfo",
+      "callee": "key",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L352"
+    },
+    {
+      "caller_nid": "page_loadcacheinfo",
+      "callee": "getItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L353"
+    },
+    {
+      "caller_nid": "page_loadcacheinfo",
+      "callee": "toFixed",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L359"
+    },
+    {
+      "caller_nid": "page_loadcacheinfo",
+      "callee": "toFixed",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L362"
+    },
+    {
+      "caller_nid": "page_loadcacheinfo",
+      "callee": "getItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L365"
+    },
+    {
+      "caller_nid": "page_loadcacheinfo",
+      "callee": "setCacheInfo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L367"
+    },
+    {
+      "caller_nid": "page_loadcacheinfo",
+      "callee": "toLocaleDateString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L370"
+    },
+    {
+      "caller_nid": "page_loadcacheinfo",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L373"
+    },
+    {
+      "caller_nid": "page_loadcacheinfo",
+      "callee": "setCacheInfo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L374"
+    },
+    {
+      "caller_nid": "page_loadcacheinfo",
+      "callee": "setIsLoadingCache",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "setIsClearingCache",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L385"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L386"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L391"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "all",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L392"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L392"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "getItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L396"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "clear",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L397"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "setItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L398"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "setItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L401"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L401"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L405"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L412"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L413"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "setIsClearingCache",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L418"
+    },
+    {
+      "caller_nid": "page_clearcache",
+      "callee": "setShowConfirmDialog",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L419"
+    },
+    {
+      "caller_nid": "page_removetempfiles",
+      "callee": "setIsRemovingTempFiles",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L424"
+    },
+    {
+      "caller_nid": "page_removetempfiles",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L425"
+    },
+    {
+      "caller_nid": "page_removetempfiles",
+      "callee": "databases",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L429"
+    },
+    {
+      "caller_nid": "page_removetempfiles",
+      "callee": "all",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L430"
+    },
+    {
+      "caller_nid": "page_removetempfiles",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L431"
+    },
+    {
+      "caller_nid": "page_removetempfiles",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L431"
+    },
+    {
+      "caller_nid": "page_removetempfiles",
+      "callee": "clear",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L437"
+    },
+    {
+      "caller_nid": "page_removetempfiles",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L441"
+    },
+    {
+      "caller_nid": "page_removetempfiles",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L448"
+    },
+    {
+      "caller_nid": "page_removetempfiles",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L449"
+    },
+    {
+      "caller_nid": "page_removetempfiles",
+      "callee": "setIsRemovingTempFiles",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L454"
+    },
+    {
+      "caller_nid": "page_removetempfiles",
+      "callee": "setShowConfirmDialog",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L455"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "setIsExportingData",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L460"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L461"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L466"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "key",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L478"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "getItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L480"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "key",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L486"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "getItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L488"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L493"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "createObjectURL",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L496"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "createElement",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L497"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L499"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L499"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "appendChild",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L500"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "click",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L501"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "removeChild",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L502"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "revokeObjectURL",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L503"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L505"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L510"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L511"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "setIsExportingData",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L516"
+    },
+    {
+      "caller_nid": "page_exportuserdata",
+      "callee": "setShowConfirmDialog",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L517"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "setIsDeletingAllData",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L522"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L523"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "clear",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L527"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "clear",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L528"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L532"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "all",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L533"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L533"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "databases",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L537"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "all",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L538"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L539"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "getRegistrations",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L544"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "all",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L545"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L545"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L550"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "setTimeout",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L556"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L560"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "setActionStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L561"
+    },
+    {
+      "caller_nid": "page_deletealldata",
+      "callee": "setIsDeletingAllData",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/settings/page.tsx",
+      "source_location": "L565"
+    }
+  ]
+}

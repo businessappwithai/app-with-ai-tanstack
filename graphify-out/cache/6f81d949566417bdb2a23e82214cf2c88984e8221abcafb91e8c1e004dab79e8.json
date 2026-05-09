@@ -1,1 +1,776 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "label": "BusLabResultList.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L1"}, {"id": "buslabresultlist_controller_buslabresultlistcontroller", "label": "BusLabResultListController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L22"}, {"id": "buslabresultlist_controller_buslabresultlistcontroller_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L26"}, {"id": "buslabresultlist_controller_buslabresultlistcontroller_initializetable", "label": "._initializeTable()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L38"}, {"id": "buslabresultlist_controller_buslabresultlistcontroller_getfieldsfrommetadata", "label": "._getFieldsFromMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L57"}, {"id": "buslabresultlist_controller_buslabresultlistcontroller_formatcellvalue", "label": "._formatCellValue()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L71"}, {"id": "buslabresultlist_controller_buslabresultlistcontroller_oncreatepress", "label": ".onCreatePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L78"}, {"id": "buslabresultlist_controller_buslabresultlistcontroller_onitempress", "label": ".onItemPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L80"}, {"id": "buslabresultlist_controller_buslabresultlistcontroller_onsearch", "label": ".onSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L85"}, {"id": "buslabresultlist_controller_buslabresultlistcontroller_onquicksearch", "label": ".onQuickSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L94"}, {"id": "buslabresultlist_controller_buslabresultlistcontroller_onsort", "label": ".onSort()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L95"}, {"id": "buslabresultlist_controller_buslabresultlistcontroller_onrefresh", "label": ".onRefresh()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L96"}, {"id": "buslabresultlist_controller_buslabresultlistcontroller_ontoggleadvancedsearch", "label": ".onToggleAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L97"}, {"id": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch", "label": ".onAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L98"}, {"id": "buslabresultlist_controller_buslabresultlistcontroller_onclearadvancedsearch", "label": ".onClearAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L102"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L5", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "jsonmodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "odatamodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "filter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "filteroperator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "sorter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "messagetoast", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "router", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "event", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "column", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "columnlistitem", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "text", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "label", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "objectstatus", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L18", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts", "target": "buslabresultlist_controller_buslabresultlistcontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L22", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller", "target": "buslabresultlist_controller_buslabresultlistcontroller_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L26", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller", "target": "buslabresultlist_controller_buslabresultlistcontroller_initializetable", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L38", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller", "target": "buslabresultlist_controller_buslabresultlistcontroller_getfieldsfrommetadata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L57", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller", "target": "buslabresultlist_controller_buslabresultlistcontroller_formatcellvalue", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L71", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller", "target": "buslabresultlist_controller_buslabresultlistcontroller_oncreatepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L78", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller", "target": "buslabresultlist_controller_buslabresultlistcontroller_onitempress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L80", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller", "target": "buslabresultlist_controller_buslabresultlistcontroller_onsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L85", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller", "target": "buslabresultlist_controller_buslabresultlistcontroller_onquicksearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L94", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller", "target": "buslabresultlist_controller_buslabresultlistcontroller_onsort", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L95", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller", "target": "buslabresultlist_controller_buslabresultlistcontroller_onrefresh", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L96", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller", "target": "buslabresultlist_controller_buslabresultlistcontroller_ontoggleadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L97", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller", "target": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L98", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller", "target": "buslabresultlist_controller_buslabresultlistcontroller_onclearadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L102", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller_oninit", "target": "buslabresultlist_controller_buslabresultlistcontroller_getfieldsfrommetadata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L32", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller_oninit", "target": "buslabresultlist_controller_buslabresultlistcontroller_initializetable", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L35", "weight": 1.0}, {"source": "buslabresultlist_controller_buslabresultlistcontroller_onquicksearch", "target": "buslabresultlist_controller_buslabresultlistcontroller_onsearch", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L94", "weight": 1.0}], "raw_calls": [{"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_oninit", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L27"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_oninit", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L27"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L34"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L34"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L39"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L41"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L41"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable", "callee": "removeAllColumns", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L42"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable", "callee": "removeAllItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L42"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L43"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L45"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable", "callee": "bindItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L53"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L53"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L54"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_formatcellvalue", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L74"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_formatcellvalue", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L74"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_formatcellvalue", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L74"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_formatcellvalue", "callee": "toLocaleDateString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L74"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_formatcellvalue", "callee": "String", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L75"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_oncreatepress", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L78"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_oncreatepress", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L78"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_oncreatepress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L78"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress", "callee": "getPath", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L81"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress", "callee": "getBindingContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L81"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress", "callee": "getSource", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L81"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L82"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress", "callee": "substring", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L82"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress", "callee": "lastIndexOf", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L82"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L82"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L82"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L82"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsearch", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L86"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L87"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L87"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L89"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L90"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsort", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L95"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsort", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L95"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsort", "callee": "getSorters", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L95"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsort", "callee": "sort", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L95"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsort", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L95"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onrefresh", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L96"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onrefresh", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L96"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onrefresh", "callee": "refresh", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L96"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onrefresh", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L96"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_ontoggleadvancedsearch", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L97"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_ontoggleadvancedsearch", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L97"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch", "callee": "getSelectedKey", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L99"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L99"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch", "callee": "getSelectedKey", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L99"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L99"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch", "callee": "getValue", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L99"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L99"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L100"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L100"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L100"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L100"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L100"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L100"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onclearadvancedsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L102"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onclearadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L102"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onclearadvancedsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L102"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onclearadvancedsearch", "callee": "setValue", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L102"}, {"caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onclearadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts", "source_location": "L102"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "label": "BusLabResultList.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "buslabresultlist_controller_buslabresultlistcontroller",
+      "label": "BusLabResultListController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L22"
+    },
+    {
+      "id": "buslabresultlist_controller_buslabresultlistcontroller_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L26"
+    },
+    {
+      "id": "buslabresultlist_controller_buslabresultlistcontroller_initializetable",
+      "label": "._initializeTable()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L38"
+    },
+    {
+      "id": "buslabresultlist_controller_buslabresultlistcontroller_getfieldsfrommetadata",
+      "label": "._getFieldsFromMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L57"
+    },
+    {
+      "id": "buslabresultlist_controller_buslabresultlistcontroller_formatcellvalue",
+      "label": "._formatCellValue()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L71"
+    },
+    {
+      "id": "buslabresultlist_controller_buslabresultlistcontroller_oncreatepress",
+      "label": ".onCreatePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L78"
+    },
+    {
+      "id": "buslabresultlist_controller_buslabresultlistcontroller_onitempress",
+      "label": ".onItemPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "id": "buslabresultlist_controller_buslabresultlistcontroller_onsearch",
+      "label": ".onSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L85"
+    },
+    {
+      "id": "buslabresultlist_controller_buslabresultlistcontroller_onquicksearch",
+      "label": ".onQuickSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L94"
+    },
+    {
+      "id": "buslabresultlist_controller_buslabresultlistcontroller_onsort",
+      "label": ".onSort()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "id": "buslabresultlist_controller_buslabresultlistcontroller_onrefresh",
+      "label": ".onRefresh()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L96"
+    },
+    {
+      "id": "buslabresultlist_controller_buslabresultlistcontroller_ontoggleadvancedsearch",
+      "label": ".onToggleAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L97"
+    },
+    {
+      "id": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch",
+      "label": ".onAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L98"
+    },
+    {
+      "id": "buslabresultlist_controller_buslabresultlistcontroller_onclearadvancedsearch",
+      "label": ".onClearAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L102"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "jsonmodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "odatamodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "filter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "filteroperator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "sorter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "messagetoast",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "router",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "event",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "column",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "columnlistitem",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "text",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "label",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "objectstatus",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultlist_controller_ts",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_initializetable",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_getfieldsfrommetadata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_formatcellvalue",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_oncreatepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_onitempress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_onsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L85",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_onquicksearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_onsort",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L95",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_onrefresh",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L96",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_ontoggleadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L97",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L98",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_onclearadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller_oninit",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_getfieldsfrommetadata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller_oninit",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_initializetable",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultlist_controller_buslabresultlistcontroller_onquicksearch",
+      "target": "buslabresultlist_controller_buslabresultlistcontroller_onsearch",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L94",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_oninit",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_oninit",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable",
+      "callee": "removeAllColumns",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable",
+      "callee": "removeAllItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable",
+      "callee": "bindItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_initializetable",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_formatcellvalue",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_formatcellvalue",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_formatcellvalue",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_formatcellvalue",
+      "callee": "toLocaleDateString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_formatcellvalue",
+      "callee": "String",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_oncreatepress",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_oncreatepress",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_oncreatepress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress",
+      "callee": "getPath",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress",
+      "callee": "getBindingContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress",
+      "callee": "getSource",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress",
+      "callee": "substring",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress",
+      "callee": "lastIndexOf",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onitempress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsearch",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsort",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsort",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsort",
+      "callee": "getSorters",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsort",
+      "callee": "sort",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onsort",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onrefresh",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onrefresh",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onrefresh",
+      "callee": "refresh",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onrefresh",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_ontoggleadvancedsearch",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_ontoggleadvancedsearch",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch",
+      "callee": "getSelectedKey",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch",
+      "callee": "getSelectedKey",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch",
+      "callee": "getValue",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onadvancedsearch",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onclearadvancedsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onclearadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onclearadvancedsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onclearadvancedsearch",
+      "callee": "setValue",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "buslabresultlist_controller_buslabresultlistcontroller_onclearadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultList.controller.ts",
+      "source_location": "L102"
+    }
+  ]
+}

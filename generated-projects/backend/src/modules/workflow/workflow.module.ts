@@ -7,10 +7,10 @@
  * Project: crm-app
  */
 
-import { Module, forwardRef } from '@nestjs/common';
-import { WorkflowController } from './workflow.controller';
-import { WorkflowService } from './workflow.service';
-import { RulesModule } from '../rules/rules.module';
+import { forwardRef, Module } from "@nestjs/common";
+import { RulesModule } from "../rules/rules.module";
+import { WorkflowController } from "./workflow.controller";
+import { WorkflowService } from "./workflow.service";
 
 @Module({
   imports: [forwardRef(() => RulesModule)],

@@ -12,11 +12,11 @@
  *   POST /api/auth/sign-out
  */
 
-const AUTH_BASE = '/api/auth';
+const AUTH_BASE = "/api/auth";
 
 async function authFetch<T = unknown>(
   path: string,
-  options: RequestInit = {},
+  options: RequestInit = {}
 ): Promise<{ data: T | null; error: string | null }> {
   try {
     const hasBody = options.body != null;
@@ -24,11 +24,11 @@ async function authFetch<T = unknown>(
       ...(options.headers as Record<string, string>),
     };
     if (hasBody) {
-      headers['Content-Type'] = 'application/json';
+      headers["Content-Type"] = "application/json";
     }
 
     const res = await fetch(`${AUTH_BASE}${path}`, {
-      credentials: 'include',
+      credentials: "include",
       ...options,
       headers,
     });
@@ -43,9 +43,9 @@ async function authFetch<T = unknown>(
 
     if (!res.ok) {
       const message =
-        (body as Record<string, string>)?.message
-        || (body as Record<string, string>)?.error
-        || res.statusText;
+        (body as Record<string, string>)?.message ||
+        (body as Record<string, string>)?.error ||
+        res.statusText;
       return { data: null, error: message };
     }
 
@@ -53,29 +53,29 @@ async function authFetch<T = unknown>(
   } catch (err: unknown) {
     return {
       data: null,
-      error: err instanceof Error ? err.message : 'Network error',
+      error: err instanceof Error ? err.message : "Network error",
     };
   }
 }
 
 export async function signIn(email: string, password: string) {
-  return authFetch('/sign-in/email', {
-    method: 'POST',
+  return authFetch("/sign-in/email", {
+    method: "POST",
     body: JSON.stringify({ email, password }),
   });
 }
 
 export async function signUp(email: string, password: string, name: string) {
-  return authFetch('/sign-up/email', {
-    method: 'POST',
+  return authFetch("/sign-up/email", {
+    method: "POST",
     body: JSON.stringify({ email, password, name }),
   });
 }
 
 export async function signOut() {
-  return authFetch('/sign-out', { method: 'POST' });
+  return authFetch("/sign-out", { method: "POST" });
 }
 
 export async function getSession() {
-  return authFetch('/get-session');
+  return authFetch("/get-session");
 }

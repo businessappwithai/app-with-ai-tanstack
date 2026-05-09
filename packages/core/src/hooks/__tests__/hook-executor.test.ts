@@ -1,7 +1,7 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import type { Hook } from "../../types/hook.types";
 import { HookExecutor } from "../hook-executor";
 import { globalHookRegistry } from "../hook-registry";
-import type { Hook } from "../../types/hook.types";
 
 // Use the real global registry but clean up after each test
 afterEach(() => {
@@ -41,13 +41,19 @@ describe("HookExecutor", () => {
         name: "first",
         lifecycle: "beforeCreate",
         priority: 10,
-        execute: async (ctx) => { order.push(1); return ctx.data; },
+        execute: async (ctx) => {
+          order.push(1);
+          return ctx.data;
+        },
       };
       const hook2: Hook = {
         name: "second",
         lifecycle: "beforeCreate",
         priority: 20,
-        execute: async (ctx) => { order.push(2); return ctx.data; },
+        execute: async (ctx) => {
+          order.push(2);
+          return ctx.data;
+        },
       };
       globalHookRegistry.register("Patient", hook2); // register in reverse order
       globalHookRegistry.register("Patient", hook1);
@@ -100,19 +106,25 @@ describe("HookExecutor", () => {
         name: "patientBefore",
         lifecycle: "beforeCreate",
         priority: 100,
-        execute: async () => { executed.push("patientBefore"); },
+        execute: async () => {
+          executed.push("patientBefore");
+        },
       });
       globalHookRegistry.register("Doctor", {
         name: "doctorBefore",
         lifecycle: "beforeCreate",
         priority: 100,
-        execute: async () => { executed.push("doctorBefore"); },
+        execute: async () => {
+          executed.push("doctorBefore");
+        },
       });
       globalHookRegistry.register("Patient", {
         name: "patientAfter",
         lifecycle: "afterCreate",
         priority: 100,
-        execute: async () => { executed.push("patientAfter"); },
+        execute: async () => {
+          executed.push("patientAfter");
+        },
       });
 
       await executor.execute("Patient", "beforeCreate", {});

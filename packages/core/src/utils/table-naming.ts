@@ -3,16 +3,16 @@
  * Handles sys_ and bus_ prefixed table names
  */
 
-import { pascalCase, camelCase, snakeCase } from './naming';
 import {
-  SYS_TABLE_PREFIX,
   BUS_TABLE_PREFIX,
+  isBusinessTable,
   isSystemTable,
-  isBusinessTable
-} from '../types/sys-dictionary.types';
+  SYS_TABLE_PREFIX,
+} from "../types/sys-dictionary.types";
+import { camelCase, pascalCase, snakeCase } from "./naming";
 
 // Re-export for convenience
-export { SYS_TABLE_PREFIX, BUS_TABLE_PREFIX, isSystemTable, isBusinessTable };
+export { BUS_TABLE_PREFIX, isBusinessTable, isSystemTable, SYS_TABLE_PREFIX };
 
 // ============================================================================
 // System Table Names
@@ -20,29 +20,29 @@ export { SYS_TABLE_PREFIX, BUS_TABLE_PREFIX, isSystemTable, isBusinessTable };
 
 export const SystemTables = {
   // Core Application Dictionary
-  TABLE: 'sys_table',
-  COLUMN: 'sys_column',
-  WINDOW: 'sys_window',
-  TAB: 'sys_tab',
-  FIELD: 'sys_field',
-  FIELD_GROUP: 'sys_field_group',
-  REFERENCE: 'sys_reference',
-  REF_LIST: 'sys_ref_list',
-  REF_TABLE: 'sys_ref_table',
-  VAL_RULE: 'sys_val_rule',
+  TABLE: "sys_table",
+  COLUMN: "sys_column",
+  WINDOW: "sys_window",
+  TAB: "sys_tab",
+  FIELD: "sys_field",
+  FIELD_GROUP: "sys_field_group",
+  REFERENCE: "sys_reference",
+  REF_LIST: "sys_ref_list",
+  REF_TABLE: "sys_ref_table",
+  VAL_RULE: "sys_val_rule",
 
   // Security
-  USER: 'sys_user',
-  ROLE: 'sys_role',
-  USER_ROLES: 'sys_user_roles',
-  ACCESS: 'sys_access',
+  USER: "sys_user",
+  ROLE: "sys_role",
+  USER_ROLES: "sys_user_roles",
+  ACCESS: "sys_access",
 
   // Audit
-  CHANGE_LOG: 'sys_change_log',
-  SESSION: 'sys_session',
+  CHANGE_LOG: "sys_change_log",
+  SESSION: "sys_session",
 } as const;
 
-export type SystemTableName = typeof SystemTables[keyof typeof SystemTables];
+export type SystemTableName = (typeof SystemTables)[keyof typeof SystemTables];
 
 // ============================================================================
 // Prefix Functions
@@ -90,12 +90,12 @@ export function removeTablePrefix(name: string): string {
 /**
  * Gets the prefix from a table name
  */
-export function getTablePrefix(name: string): 'sys_' | 'bus_' | null {
+export function getTablePrefix(name: string): "sys_" | "bus_" | null {
   if (name.startsWith(SYS_TABLE_PREFIX)) {
-    return 'sys_';
+    return "sys_";
   }
   if (name.startsWith(BUS_TABLE_PREFIX)) {
-    return 'bus_';
+    return "bus_";
   }
   return null;
 }
@@ -133,7 +133,7 @@ export function entityNameToTableName(entityName: string): string {
  * Example: 'bus_customer' -> 'BusCustomer'
  */
 export function tableNameToModelName(tableName: string): string {
-  return pascalCase(tableName.replace(/_/g, ' ')).replace(/ /g, '');
+  return pascalCase(tableName.replace(/_/g, " ")).replace(/ /g, "");
 }
 
 /**
@@ -185,9 +185,11 @@ export function tableNameToRoutePath(tableName: string, includePrefix: boolean =
   if (includePrefix) {
     const prefix = getTablePrefix(tableName);
     const name = removeTablePrefix(tableName);
-    return prefix ? `/${prefix.replace('_', '')}/${name.replace(/_/g, '-')}` : `/${name.replace(/_/g, '-')}`;
+    return prefix
+      ? `/${prefix.replace("_", "")}/${name.replace(/_/g, "-")}`
+      : `/${name.replace(/_/g, "-")}`;
   }
-  return `/${removeTablePrefix(tableName).replace(/_/g, '-')}`;
+  return `/${removeTablePrefix(tableName).replace(/_/g, "-")}`;
 }
 
 /**
@@ -197,13 +199,13 @@ export function tableNameToRoutePath(tableName: string, includePrefix: boolean =
 export function tableNameToEntitySetName(tableName: string): string {
   const modelName = tableNameToModelName(tableName);
   // Simple pluralization - in real usage, consider a proper pluralization library
-  if (modelName.endsWith('y')) {
-    return modelName.slice(0, -1) + 'ies';
+  if (modelName.endsWith("y")) {
+    return modelName.slice(0, -1) + "ies";
   }
-  if (modelName.endsWith('s') || modelName.endsWith('x') || modelName.endsWith('ch')) {
-    return modelName + 'es';
+  if (modelName.endsWith("s") || modelName.endsWith("x") || modelName.endsWith("ch")) {
+    return modelName + "es";
   }
-  return modelName + 's';
+  return modelName + "s";
 }
 
 // ============================================================================
@@ -230,7 +232,7 @@ export function generateForeignKeyName(referencedTableName: string): string {
  * Checks if a column name looks like a foreign key
  */
 export function isForeignKeyColumn(columnName: string): boolean {
-  return columnName.endsWith('_id') && columnName !== 'id';
+  return columnName.endsWith("_id") && columnName !== "id";
 }
 
 /**
@@ -299,27 +301,27 @@ export function groupTablesByPrefix(tableNames: string[]): {
 /**
  * Generates migration file name for system tables
  */
-export function generateSysMigrationName(version: string = '001'): string {
+export function generateSysMigrationName(version: string = "001"): string {
   return `${version}_create_sys_tables`;
 }
 
 /**
  * Generates migration file name for a business entity
  */
-export function generateBusMigrationName(entityName: string, version: string = '002'): string {
+export function generateBusMigrationName(entityName: string, version: string = "002"): string {
   return `${version}_create_${snakeCase(entityName)}`;
 }
 
 /**
  * Generates seed file name for system reference data
  */
-export function generateSysSeedName(version: string = '001'): string {
+export function generateSysSeedName(version: string = "001"): string {
   return `${version}_seed_sys_references`;
 }
 
 /**
  * Generates seed file name for dictionary entries
  */
-export function generateDictionarySeedName(version: string = '002'): string {
+export function generateDictionarySeedName(version: string = "002"): string {
   return `${version}_seed_sys_dictionary`;
 }

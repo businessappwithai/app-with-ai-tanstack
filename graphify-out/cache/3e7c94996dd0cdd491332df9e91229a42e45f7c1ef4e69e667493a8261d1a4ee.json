@@ -1,1 +1,55 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_migrations_js_backup_010_add_parent_column_to_sys_tab_js", "label": "010_add_parent_column_to_sys_tab.js", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/010_add_parent_column_to_sys_tab.js", "source_location": "L1"}, {"id": "010_add_parent_column_to_sys_tab_addcolumnifnotexists", "label": "addColumnIfNotExists()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/010_add_parent_column_to_sys_tab.js", "source_location": "L13"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_migrations_js_backup_010_add_parent_column_to_sys_tab_js", "target": "010_add_parent_column_to_sys_tab_addcolumnifnotexists", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/010_add_parent_column_to_sys_tab.js", "source_location": "L13", "weight": 1.0}], "raw_calls": [{"caller_nid": "010_add_parent_column_to_sys_tab_addcolumnifnotexists", "callee": "raw", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/010_add_parent_column_to_sys_tab.js", "source_location": "L20"}, {"caller_nid": "010_add_parent_column_to_sys_tab_addcolumnifnotexists", "callee": "table", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/010_add_parent_column_to_sys_tab.js", "source_location": "L33"}, {"caller_nid": "010_add_parent_column_to_sys_tab_addcolumnifnotexists", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/010_add_parent_column_to_sys_tab.js", "source_location": "L36"}, {"caller_nid": "010_add_parent_column_to_sys_tab_addcolumnifnotexists", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/010_add_parent_column_to_sys_tab.js", "source_location": "L38"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_migrations_js_backup_010_add_parent_column_to_sys_tab_js",
+      "label": "010_add_parent_column_to_sys_tab.js",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/010_add_parent_column_to_sys_tab.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "010_add_parent_column_to_sys_tab_addcolumnifnotexists",
+      "label": "addColumnIfNotExists()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/010_add_parent_column_to_sys_tab.js",
+      "source_location": "L13"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_migrations_js_backup_010_add_parent_column_to_sys_tab_js",
+      "target": "010_add_parent_column_to_sys_tab_addcolumnifnotexists",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/010_add_parent_column_to_sys_tab.js",
+      "source_location": "L13",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "010_add_parent_column_to_sys_tab_addcolumnifnotexists",
+      "callee": "raw",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/010_add_parent_column_to_sys_tab.js",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "010_add_parent_column_to_sys_tab_addcolumnifnotexists",
+      "callee": "table",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/010_add_parent_column_to_sys_tab.js",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "010_add_parent_column_to_sys_tab_addcolumnifnotexists",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/010_add_parent_column_to_sys_tab.js",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "010_add_parent_column_to_sys_tab_addcolumnifnotexists",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/010_add_parent_column_to_sys_tab.js",
+      "source_location": "L38"
+    }
+  ]
+}

@@ -1,23 +1,24 @@
 "use client";
 
-import React from "react";
 import {
-  GitBranch,
   CheckCircle2,
-  CircleX,
-  Loader2,
-  Play,
-  Save,
-  Settings,
   ChevronDown,
   ChevronRight,
+  CircleX,
   Database,
-  Sparkles,
+  GitBranch,
+  Loader2,
+  Play,
   RefreshCw,
+  Save,
+  Settings,
+  Sparkles,
 } from "lucide-react";
+import React from "react";
 import { GoRulesEditor } from "./GoRulesEditor";
 import { GoRulesErrorBoundary } from "./GoRulesErrorBoundary";
-import { useWorkflowEditor, WorkflowStep } from "./useWorkflowEditor";
+import { useWorkflowEditor, type WorkflowStep } from "./useWorkflowEditor";
+
 export type { WorkflowEditorProps } from "./useWorkflowEditor";
 
 interface WorkflowEditorComponentProps {
@@ -118,7 +119,9 @@ export function WorkflowEditor(props: WorkflowEditorComponentProps) {
                   ? "bg-primary/20 text-primary border border-primary/30"
                   : "bg-secondary text-muted-foreground hover:bg-secondary/80"
               }`}
-              style={!selectedHookType ? { color: "#FF8400", borderColor: "rgba(255, 132, 0, 0.3)" } : {}}
+              style={
+                !selectedHookType ? { color: "#FF8400", borderColor: "rgba(255, 132, 0, 0.3)" } : {}
+              }
             >
               All Hooks ({workflows.length})
             </button>
@@ -133,7 +136,11 @@ export function WorkflowEditor(props: WorkflowEditorComponentProps) {
                       ? "bg-primary/20 text-primary border border-primary/30"
                       : "bg-secondary text-muted-foreground hover:bg-secondary/80"
                   }`}
-                  style={selectedHookType === hookType ? { color: "#FF8400", borderColor: "rgba(255, 132, 0, 0.3)" } : {}}
+                  style={
+                    selectedHookType === hookType
+                      ? { color: "#FF8400", borderColor: "rgba(255, 132, 0, 0.3)" }
+                      : {}
+                  }
                 >
                   <div className={`w-2 h-2 rounded-full ${getHookColor(hookType)}`} />
                   {hookType}
@@ -175,7 +182,9 @@ export function WorkflowEditor(props: WorkflowEditorComponentProps) {
             <div className="p-4 bg-secondary rounded-lg border border-border">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${getHookColor(selectedWorkflow.hookType)}`} />
+                  <div
+                    className={`w-3 h-3 rounded-full ${getHookColor(selectedWorkflow.hookType)}`}
+                  />
                   <div>
                     <h4 className="font-semibold text-foreground">
                       {selectedWorkflow.hookType} Hook Workflow
@@ -213,8 +222,8 @@ export function WorkflowEditor(props: WorkflowEditorComponentProps) {
                 </div>
               </div>
               <div className="text-xs text-muted-foreground">
-                {selectedWorkflow.steps.length} steps •{" "}
-                {selectedWorkflow.rules.length} business rules configured
+                {selectedWorkflow.steps.length} steps • {selectedWorkflow.rules.length} business
+                rules configured
               </div>
             </div>
 
@@ -336,8 +345,8 @@ export function WorkflowEditor(props: WorkflowEditorComponentProps) {
                   executionStatus.status === "success"
                     ? "bg-emerald-500/10 border-emerald-500/30"
                     : executionStatus.status === "error"
-                    ? "bg-red-500/10 border-red-500/30"
-                    : "bg-primary/10 border-primary/30"
+                      ? "bg-red-500/10 border-red-500/30"
+                      : "bg-primary/10 border-primary/30"
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -356,8 +365,8 @@ export function WorkflowEditor(props: WorkflowEditorComponentProps) {
                         executionStatus.status === "success"
                           ? "text-emerald-500"
                           : executionStatus.status === "error"
-                          ? "text-red-500"
-                          : "text-foreground"
+                            ? "text-red-500"
+                            : "text-foreground"
                       }`}
                     >
                       {executionStatus.message}
@@ -475,8 +484,8 @@ export function WorkflowEditor(props: WorkflowEditorComponentProps) {
                       Transactional Guarantee
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      All rules must succeed for changes to commit. If any rule fails, everything
-                      is rolled back automatically.
+                      All rules must succeed for changes to commit. If any rule fails, everything is
+                      rolled back automatically.
                     </p>
                   </div>
                 </div>

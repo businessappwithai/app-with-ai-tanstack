@@ -3,7 +3,7 @@
  * Platform-agnostic guard implementations that can be used by both NestJS and OData V4 stacks
  */
 
-import type { UserRole, EntityOperation } from "./auth.types.js";
+import type { EntityOperation, UserRole } from "./auth.types.js";
 
 /**
  * User context from session

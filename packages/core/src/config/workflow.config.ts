@@ -179,9 +179,7 @@ export function validateWorkflowConfig(): void {
   // Check Trigger.dev configuration
   if (TRIGGER_DEV_CONFIG.ENABLED) {
     if (!TRIGGER_DEV_CONFIG.API_KEY) {
-      errors.push(
-        "TRIGGER_API_KEY is required when ENABLE_TRIGGER_WORKFLOWS=true"
-      );
+      errors.push("TRIGGER_API_KEY is required when ENABLE_TRIGGER_WORKFLOWS=true");
     }
 
     if (!TRIGGER_DEV_CONFIG.API_URL) {
@@ -212,9 +210,7 @@ export function validateWorkflowConfig(): void {
   }
 
   if (errors.length > 0) {
-    throw new Error(
-      `CONFIGURATION_INVALID: Workflow configuration errors:\n${errors.join("\n")}`
-    );
+    throw new Error(`CONFIGURATION_INVALID: Workflow configuration errors:\n${errors.join("\n")}`);
   }
 }
 

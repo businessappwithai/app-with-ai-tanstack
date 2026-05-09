@@ -1,1 +1,57 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_copilotprovider_tsx", "label": "CopilotProvider.tsx", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/CopilotProvider.tsx", "source_location": "L1"}, {"id": "copilotprovider_copilotprovider", "label": "CopilotProvider()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/CopilotProvider.tsx", "source_location": "L58"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_copilotprovider_tsx", "target": "react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/CopilotProvider.tsx", "source_location": "L3", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_copilotprovider_tsx", "target": "react_core", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/CopilotProvider.tsx", "source_location": "L4", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_copilotprovider_tsx", "target": "styles_css", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/CopilotProvider.tsx", "source_location": "L5", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_copilotprovider_tsx", "target": "copilotprovider_copilotprovider", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/CopilotProvider.tsx", "source_location": "L58", "weight": 1.0}], "raw_calls": []}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_copilotprovider_tsx",
+      "label": "CopilotProvider.tsx",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/CopilotProvider.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "copilotprovider_copilotprovider",
+      "label": "CopilotProvider()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/CopilotProvider.tsx",
+      "source_location": "L58"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_copilotprovider_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/CopilotProvider.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_copilotprovider_tsx",
+      "target": "react_core",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/CopilotProvider.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_copilotprovider_tsx",
+      "target": "styles_css",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/CopilotProvider.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_copilotprovider_tsx",
+      "target": "copilotprovider_copilotprovider",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/CopilotProvider.tsx",
+      "source_location": "L58",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

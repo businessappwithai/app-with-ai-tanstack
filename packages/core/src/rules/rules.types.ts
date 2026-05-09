@@ -120,10 +120,7 @@ export interface IRulesEngineService {
   /**
    * Evaluate rule against context
    */
-  evaluate(
-    jdmContent: JDMContent,
-    context: RuleEvaluationContext
-  ): Promise<RuleEvaluationResult>;
+  evaluate(jdmContent: JDMContent, context: RuleEvaluationContext): Promise<RuleEvaluationResult>;
 
   /**
    * Validate JDM content
@@ -152,10 +149,7 @@ export interface IRulesEngineService {
   /**
    * Update rule
    */
-  updateRule(
-    ruleId: string,
-    jdmContent: JDMContent
-  ): Promise<RuleDefinition>;
+  updateRule(ruleId: string, jdmContent: JDMContent): Promise<RuleDefinition>;
 
   /**
    * Get rule history
@@ -181,8 +175,5 @@ export interface IRulesEngineService {
   /**
    * Dry run rule
    */
-  dryRun(
-    jdmContent: JDMContent,
-    context: RuleEvaluationContext
-  ): Promise<RuleEvaluationResult>;
+  dryRun(jdmContent: JDMContent, context: RuleEvaluationContext): Promise<RuleEvaluationResult>;
 }

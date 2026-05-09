@@ -6,7 +6,10 @@
  * 2. "fieldName type" (e.g., "age number")
  * 3. "fieldName" (fallback, type defaults to string)
  */
-export function parseEntityAttribute(attr: string, entityName: string): {
+export function parseEntityAttribute(
+  attr: string,
+  entityName: string
+): {
   name: string;
   type: string;
   entity: string;

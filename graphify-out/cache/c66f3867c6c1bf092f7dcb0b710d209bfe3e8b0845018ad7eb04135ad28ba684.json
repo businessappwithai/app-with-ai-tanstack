@@ -1,1 +1,911 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "label": "utils.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L1"}, {"id": "utils_cn", "label": "cn()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L11"}, {"id": "utils_formatdate", "label": "formatDate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L18"}, {"id": "utils_formatdatetime", "label": "formatDateTime()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L45"}, {"id": "utils_formatrelativetime", "label": "formatRelativeTime()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L60"}, {"id": "utils_truncate", "label": "truncate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L94"}, {"id": "utils_generateid", "label": "generateId()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L102"}, {"id": "utils_debounce", "label": "debounce()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L109"}, {"id": "utils_throttle", "label": "throttle()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L129"}, {"id": "utils_sleep", "label": "sleep()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L147"}, {"id": "utils_formatfilesize", "label": "formatFileSize()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L154"}, {"id": "utils_deepclone", "label": "deepClone()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L167"}, {"id": "utils_isempty", "label": "isEmpty()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L186"}, {"id": "utils_getinitials", "label": "getInitials()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L197"}, {"id": "utils_capitalize", "label": "capitalize()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L209"}, {"id": "utils_titlecase", "label": "titleCase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L216"}, {"id": "utils_slugify", "label": "slugify()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L226"}, {"id": "utils_safejsonparse", "label": "safeJsonParse()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L238"}, {"id": "utils_retry", "label": "retry()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L249"}, {"id": "utils_copytoclipboard", "label": "copyToClipboard()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L268"}, {"id": "utils_downloadfile", "label": "downloadFile()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L297"}, {"id": "utils_formatcurrency", "label": "formatCurrency()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L316"}, {"id": "utils_formatnumber", "label": "formatNumber()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L330"}, {"id": "utils_getcontrastcolor", "label": "getContrastColor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L340"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "clsx", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L5", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "tailwind_merge", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_cn", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_formatdate", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L18", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_formatdatetime", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L45", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_formatrelativetime", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L60", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_truncate", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L94", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_generateid", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L102", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_debounce", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L109", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_throttle", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L129", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_sleep", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L147", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_formatfilesize", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L154", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_deepclone", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L167", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_isempty", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L186", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_getinitials", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L197", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_capitalize", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L209", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_titlecase", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L216", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_slugify", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L226", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_safejsonparse", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L238", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_retry", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L249", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_copytoclipboard", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L268", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_downloadfile", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L297", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_formatcurrency", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L316", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_formatnumber", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L330", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts", "target": "utils_getcontrastcolor", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L340", "weight": 1.0}, {"source": "utils_formatdatetime", "target": "utils_formatdate", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L48", "weight": 1.0}, {"source": "utils_retry", "target": "utils_sleep", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L259", "weight": 1.0}], "raw_calls": [{"caller_nid": "utils_cn", "callee": "twMerge", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L12"}, {"caller_nid": "utils_cn", "callee": "clsx", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L12"}, {"caller_nid": "utils_formatdate", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L29"}, {"caller_nid": "utils_formatdate", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L29"}, {"caller_nid": "utils_formatdate", "callee": "toLocaleDateString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L31"}, {"caller_nid": "utils_formatrelativetime", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L70"}, {"caller_nid": "utils_formatrelativetime", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L70"}, {"caller_nid": "utils_formatrelativetime", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L73"}, {"caller_nid": "utils_formatrelativetime", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L73"}, {"caller_nid": "utils_formatrelativetime", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L74"}, {"caller_nid": "utils_formatrelativetime", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L75"}, {"caller_nid": "utils_formatrelativetime", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L76"}, {"caller_nid": "utils_formatrelativetime", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L77"}, {"caller_nid": "utils_formatrelativetime", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L83"}, {"caller_nid": "utils_formatrelativetime", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L83"}, {"caller_nid": "utils_formatrelativetime", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L84"}, {"caller_nid": "utils_formatrelativetime", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L84"}, {"caller_nid": "utils_formatrelativetime", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L85"}, {"caller_nid": "utils_formatrelativetime", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L85"}, {"caller_nid": "utils_truncate", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L96"}, {"caller_nid": "utils_truncate", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L96"}, {"caller_nid": "utils_generateid", "callee": "now", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L103"}, {"caller_nid": "utils_generateid", "callee": "substr", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L103"}, {"caller_nid": "utils_generateid", "callee": "toString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L103"}, {"caller_nid": "utils_generateid", "callee": "random", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L103"}, {"caller_nid": "utils_debounce", "callee": "clearTimeout", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L121"}, {"caller_nid": "utils_debounce", "callee": "setTimeout", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L122"}, {"caller_nid": "utils_throttle", "callee": "func", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L137"}, {"caller_nid": "utils_throttle", "callee": "setTimeout", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L139"}, {"caller_nid": "utils_formatfilesize", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L159"}, {"caller_nid": "utils_formatfilesize", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L159"}, {"caller_nid": "utils_formatfilesize", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L159"}, {"caller_nid": "utils_formatfilesize", "callee": "parseFloat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L161"}, {"caller_nid": "utils_formatfilesize", "callee": "toFixed", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L161"}, {"caller_nid": "utils_formatfilesize", "callee": "pow", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L161"}, {"caller_nid": "utils_deepclone", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L169"}, {"caller_nid": "utils_deepclone", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L170"}, {"caller_nid": "utils_deepclone", "callee": "call", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L174"}, {"caller_nid": "utils_isempty", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L188"}, {"caller_nid": "utils_isempty", "callee": "isArray", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L189"}, {"caller_nid": "utils_isempty", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L190"}, {"caller_nid": "utils_getinitials", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L198"}, {"caller_nid": "utils_getinitials", "callee": "toUpperCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L198"}, {"caller_nid": "utils_getinitials", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L198"}, {"caller_nid": "utils_getinitials", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L198"}, {"caller_nid": "utils_getinitials", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L198"}, {"caller_nid": "utils_capitalize", "callee": "toUpperCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L210"}, {"caller_nid": "utils_capitalize", "callee": "charAt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L210"}, {"caller_nid": "utils_capitalize", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L210"}, {"caller_nid": "utils_titlecase", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L217"}, {"caller_nid": "utils_titlecase", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L217"}, {"caller_nid": "utils_titlecase", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L217"}, {"caller_nid": "utils_slugify", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L227"}, {"caller_nid": "utils_slugify", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L227"}, {"caller_nid": "utils_slugify", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L227"}, {"caller_nid": "utils_slugify", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L227"}, {"caller_nid": "utils_slugify", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L227"}, {"caller_nid": "utils_safejsonparse", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L240"}, {"caller_nid": "utils_retry", "callee": "fn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L256"}, {"caller_nid": "utils_retry", "callee": "pow", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L259"}, {"caller_nid": "utils_copytoclipboard", "callee": "writeText", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L271"}, {"caller_nid": "utils_copytoclipboard", "callee": "createElement", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L275"}, {"caller_nid": "utils_copytoclipboard", "callee": "appendChild", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L279"}, {"caller_nid": "utils_copytoclipboard", "callee": "select", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L280"}, {"caller_nid": "utils_copytoclipboard", "callee": "execCommand", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L282"}, {"caller_nid": "utils_copytoclipboard", "callee": "removeChild", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L283"}, {"caller_nid": "utils_copytoclipboard", "callee": "removeChild", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L286"}, {"caller_nid": "utils_downloadfile", "callee": "createObjectURL", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L303"}, {"caller_nid": "utils_downloadfile", "callee": "createElement", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L304"}, {"caller_nid": "utils_downloadfile", "callee": "appendChild", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L307"}, {"caller_nid": "utils_downloadfile", "callee": "click", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L308"}, {"caller_nid": "utils_downloadfile", "callee": "removeChild", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L309"}, {"caller_nid": "utils_downloadfile", "callee": "revokeObjectURL", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L310"}, {"caller_nid": "utils_formatcurrency", "callee": "format", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L321"}, {"caller_nid": "utils_formatnumber", "callee": "format", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L334"}, {"caller_nid": "utils_getcontrastcolor", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L341"}, {"caller_nid": "utils_getcontrastcolor", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L342"}, {"caller_nid": "utils_getcontrastcolor", "callee": "substr", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L342"}, {"caller_nid": "utils_getcontrastcolor", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L343"}, {"caller_nid": "utils_getcontrastcolor", "callee": "substr", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L343"}, {"caller_nid": "utils_getcontrastcolor", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L344"}, {"caller_nid": "utils_getcontrastcolor", "callee": "substr", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts", "source_location": "L344"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "label": "utils.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "utils_cn",
+      "label": "cn()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "utils_formatdate",
+      "label": "formatDate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L18"
+    },
+    {
+      "id": "utils_formatdatetime",
+      "label": "formatDateTime()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L45"
+    },
+    {
+      "id": "utils_formatrelativetime",
+      "label": "formatRelativeTime()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L60"
+    },
+    {
+      "id": "utils_truncate",
+      "label": "truncate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L94"
+    },
+    {
+      "id": "utils_generateid",
+      "label": "generateId()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L102"
+    },
+    {
+      "id": "utils_debounce",
+      "label": "debounce()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L109"
+    },
+    {
+      "id": "utils_throttle",
+      "label": "throttle()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L129"
+    },
+    {
+      "id": "utils_sleep",
+      "label": "sleep()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L147"
+    },
+    {
+      "id": "utils_formatfilesize",
+      "label": "formatFileSize()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L154"
+    },
+    {
+      "id": "utils_deepclone",
+      "label": "deepClone()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L167"
+    },
+    {
+      "id": "utils_isempty",
+      "label": "isEmpty()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L186"
+    },
+    {
+      "id": "utils_getinitials",
+      "label": "getInitials()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L197"
+    },
+    {
+      "id": "utils_capitalize",
+      "label": "capitalize()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L209"
+    },
+    {
+      "id": "utils_titlecase",
+      "label": "titleCase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L216"
+    },
+    {
+      "id": "utils_slugify",
+      "label": "slugify()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L226"
+    },
+    {
+      "id": "utils_safejsonparse",
+      "label": "safeJsonParse()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L238"
+    },
+    {
+      "id": "utils_retry",
+      "label": "retry()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L249"
+    },
+    {
+      "id": "utils_copytoclipboard",
+      "label": "copyToClipboard()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L268"
+    },
+    {
+      "id": "utils_downloadfile",
+      "label": "downloadFile()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L297"
+    },
+    {
+      "id": "utils_formatcurrency",
+      "label": "formatCurrency()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L316"
+    },
+    {
+      "id": "utils_formatnumber",
+      "label": "formatNumber()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L330"
+    },
+    {
+      "id": "utils_getcontrastcolor",
+      "label": "getContrastColor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L340"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "clsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "tailwind_merge",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_cn",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_formatdate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_formatdatetime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_formatrelativetime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_truncate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_generateid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_debounce",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_throttle",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L129",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_sleep",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_formatfilesize",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L154",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_deepclone",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L167",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_isempty",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L186",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_getinitials",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L197",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_capitalize",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L209",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_titlecase",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L216",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_slugify",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L226",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_safejsonparse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L238",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_retry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L249",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_copytoclipboard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L268",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_downloadfile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L297",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_formatcurrency",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L316",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_formatnumber",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L330",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_utils_ts",
+      "target": "utils_getcontrastcolor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L340",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_formatdatetime",
+      "target": "utils_formatdate",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_retry",
+      "target": "utils_sleep",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L259",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "utils_cn",
+      "callee": "twMerge",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L12"
+    },
+    {
+      "caller_nid": "utils_cn",
+      "callee": "clsx",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L12"
+    },
+    {
+      "caller_nid": "utils_formatdate",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "utils_formatdate",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "utils_formatdate",
+      "callee": "toLocaleDateString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "utils_formatrelativetime",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "utils_formatrelativetime",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "utils_formatrelativetime",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "utils_formatrelativetime",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "utils_formatrelativetime",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "utils_formatrelativetime",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "utils_formatrelativetime",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "utils_formatrelativetime",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "utils_formatrelativetime",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "utils_formatrelativetime",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "utils_formatrelativetime",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "utils_formatrelativetime",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "utils_formatrelativetime",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "utils_formatrelativetime",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "utils_truncate",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "utils_truncate",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "utils_generateid",
+      "callee": "now",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "utils_generateid",
+      "callee": "substr",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "utils_generateid",
+      "callee": "toString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "utils_generateid",
+      "callee": "random",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "utils_debounce",
+      "callee": "clearTimeout",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L121"
+    },
+    {
+      "caller_nid": "utils_debounce",
+      "callee": "setTimeout",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "utils_throttle",
+      "callee": "func",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L137"
+    },
+    {
+      "caller_nid": "utils_throttle",
+      "callee": "setTimeout",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L139"
+    },
+    {
+      "caller_nid": "utils_formatfilesize",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L159"
+    },
+    {
+      "caller_nid": "utils_formatfilesize",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L159"
+    },
+    {
+      "caller_nid": "utils_formatfilesize",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L159"
+    },
+    {
+      "caller_nid": "utils_formatfilesize",
+      "callee": "parseFloat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "utils_formatfilesize",
+      "callee": "toFixed",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "utils_formatfilesize",
+      "callee": "pow",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "utils_deepclone",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L169"
+    },
+    {
+      "caller_nid": "utils_deepclone",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L170"
+    },
+    {
+      "caller_nid": "utils_deepclone",
+      "callee": "call",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "utils_isempty",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L188"
+    },
+    {
+      "caller_nid": "utils_isempty",
+      "callee": "isArray",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L189"
+    },
+    {
+      "caller_nid": "utils_isempty",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "utils_getinitials",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "utils_getinitials",
+      "callee": "toUpperCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "utils_getinitials",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "utils_getinitials",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "utils_getinitials",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "utils_capitalize",
+      "callee": "toUpperCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L210"
+    },
+    {
+      "caller_nid": "utils_capitalize",
+      "callee": "charAt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L210"
+    },
+    {
+      "caller_nid": "utils_capitalize",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L210"
+    },
+    {
+      "caller_nid": "utils_titlecase",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L217"
+    },
+    {
+      "caller_nid": "utils_titlecase",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L217"
+    },
+    {
+      "caller_nid": "utils_titlecase",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L217"
+    },
+    {
+      "caller_nid": "utils_slugify",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "utils_slugify",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "utils_slugify",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "utils_slugify",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "utils_slugify",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "utils_safejsonparse",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L240"
+    },
+    {
+      "caller_nid": "utils_retry",
+      "callee": "fn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L256"
+    },
+    {
+      "caller_nid": "utils_retry",
+      "callee": "pow",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "utils_copytoclipboard",
+      "callee": "writeText",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L271"
+    },
+    {
+      "caller_nid": "utils_copytoclipboard",
+      "callee": "createElement",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L275"
+    },
+    {
+      "caller_nid": "utils_copytoclipboard",
+      "callee": "appendChild",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L279"
+    },
+    {
+      "caller_nid": "utils_copytoclipboard",
+      "callee": "select",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L280"
+    },
+    {
+      "caller_nid": "utils_copytoclipboard",
+      "callee": "execCommand",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "utils_copytoclipboard",
+      "callee": "removeChild",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L283"
+    },
+    {
+      "caller_nid": "utils_copytoclipboard",
+      "callee": "removeChild",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L286"
+    },
+    {
+      "caller_nid": "utils_downloadfile",
+      "callee": "createObjectURL",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L303"
+    },
+    {
+      "caller_nid": "utils_downloadfile",
+      "callee": "createElement",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L304"
+    },
+    {
+      "caller_nid": "utils_downloadfile",
+      "callee": "appendChild",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L307"
+    },
+    {
+      "caller_nid": "utils_downloadfile",
+      "callee": "click",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L308"
+    },
+    {
+      "caller_nid": "utils_downloadfile",
+      "callee": "removeChild",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "utils_downloadfile",
+      "callee": "revokeObjectURL",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L310"
+    },
+    {
+      "caller_nid": "utils_formatcurrency",
+      "callee": "format",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L321"
+    },
+    {
+      "caller_nid": "utils_formatnumber",
+      "callee": "format",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L334"
+    },
+    {
+      "caller_nid": "utils_getcontrastcolor",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L341"
+    },
+    {
+      "caller_nid": "utils_getcontrastcolor",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L342"
+    },
+    {
+      "caller_nid": "utils_getcontrastcolor",
+      "callee": "substr",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L342"
+    },
+    {
+      "caller_nid": "utils_getcontrastcolor",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L343"
+    },
+    {
+      "caller_nid": "utils_getcontrastcolor",
+      "callee": "substr",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L343"
+    },
+    {
+      "caller_nid": "utils_getcontrastcolor",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L344"
+    },
+    {
+      "caller_nid": "utils_getcontrastcolor",
+      "callee": "substr",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/utils.ts",
+      "source_location": "L344"
+    }
+  ]
+}

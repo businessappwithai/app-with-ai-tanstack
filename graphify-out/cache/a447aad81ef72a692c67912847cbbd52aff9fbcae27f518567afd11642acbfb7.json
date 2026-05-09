@@ -1,1 +1,816 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "label": "BusAppointmentList.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L1"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller", "label": "BusAppointmentListController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L22"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L26"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller_initializetable", "label": "._initializeTable()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L38"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller_getfieldsfrommetadata", "label": "._getFieldsFromMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L57"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller_formatcellvalue", "label": "._formatCellValue()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L73"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller_formatstatusstate", "label": "._formatStatusState()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L80"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller_oncreatepress", "label": ".onCreatePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L89"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller_onitempress", "label": ".onItemPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L91"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller_onsearch", "label": ".onSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L96"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller_onquicksearch", "label": ".onQuickSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L105"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller_onsort", "label": ".onSort()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L106"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller_onrefresh", "label": ".onRefresh()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L107"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller_ontoggleadvancedsearch", "label": ".onToggleAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L108"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch", "label": ".onAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L109"}, {"id": "busappointmentlist_controller_busappointmentlistcontroller_onclearadvancedsearch", "label": ".onClearAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L113"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L5", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "jsonmodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "odatamodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "filter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "filteroperator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "sorter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "messagetoast", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "router", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "event", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "column", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "columnlistitem", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "text", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "label", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "objectstatus", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L18", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts", "target": "busappointmentlist_controller_busappointmentlistcontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L22", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller", "target": "busappointmentlist_controller_busappointmentlistcontroller_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L26", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller", "target": "busappointmentlist_controller_busappointmentlistcontroller_initializetable", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L38", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller", "target": "busappointmentlist_controller_busappointmentlistcontroller_getfieldsfrommetadata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L57", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller", "target": "busappointmentlist_controller_busappointmentlistcontroller_formatcellvalue", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L73", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller", "target": "busappointmentlist_controller_busappointmentlistcontroller_formatstatusstate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L80", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller", "target": "busappointmentlist_controller_busappointmentlistcontroller_oncreatepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L89", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller", "target": "busappointmentlist_controller_busappointmentlistcontroller_onitempress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L91", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller", "target": "busappointmentlist_controller_busappointmentlistcontroller_onsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L96", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller", "target": "busappointmentlist_controller_busappointmentlistcontroller_onquicksearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L105", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller", "target": "busappointmentlist_controller_busappointmentlistcontroller_onsort", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L106", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller", "target": "busappointmentlist_controller_busappointmentlistcontroller_onrefresh", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L107", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller", "target": "busappointmentlist_controller_busappointmentlistcontroller_ontoggleadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L108", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller", "target": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L109", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller", "target": "busappointmentlist_controller_busappointmentlistcontroller_onclearadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L113", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller_oninit", "target": "busappointmentlist_controller_busappointmentlistcontroller_getfieldsfrommetadata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L32", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller_oninit", "target": "busappointmentlist_controller_busappointmentlistcontroller_initializetable", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L35", "weight": 1.0}, {"source": "busappointmentlist_controller_busappointmentlistcontroller_onquicksearch", "target": "busappointmentlist_controller_busappointmentlistcontroller_onsearch", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L105", "weight": 1.0}], "raw_calls": [{"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_oninit", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L27"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_oninit", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L27"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L34"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L34"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L39"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L41"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L41"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable", "callee": "removeAllColumns", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L42"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable", "callee": "removeAllItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L42"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L43"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L45"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable", "callee": "bindItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L53"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L53"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L54"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatcellvalue", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L76"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatcellvalue", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L76"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatcellvalue", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L76"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatcellvalue", "callee": "toLocaleDateString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L76"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatcellvalue", "callee": "String", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L77"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatstatusstate", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L82"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatstatusstate", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L83"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatstatusstate", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L84"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatstatusstate", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L85"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_oncreatepress", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L89"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_oncreatepress", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L89"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_oncreatepress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L89"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress", "callee": "getPath", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L92"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress", "callee": "getBindingContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L92"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress", "callee": "getSource", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L92"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L93"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress", "callee": "substring", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L93"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress", "callee": "lastIndexOf", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L93"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L93"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L93"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L93"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsearch", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L97"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L98"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L98"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L100"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L101"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsort", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L106"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsort", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L106"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsort", "callee": "getSorters", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L106"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsort", "callee": "sort", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L106"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsort", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L106"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onrefresh", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L107"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onrefresh", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L107"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onrefresh", "callee": "refresh", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L107"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onrefresh", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L107"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_ontoggleadvancedsearch", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L108"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_ontoggleadvancedsearch", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L108"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch", "callee": "getSelectedKey", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L110"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L110"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch", "callee": "getSelectedKey", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L110"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L110"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch", "callee": "getValue", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L110"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L110"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L111"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L111"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L111"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L111"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L111"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L111"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onclearadvancedsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L113"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onclearadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L113"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onclearadvancedsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L113"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onclearadvancedsearch", "callee": "setValue", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L113"}, {"caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onclearadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts", "source_location": "L113"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "label": "BusAppointmentList.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller",
+      "label": "BusAppointmentListController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L22"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L26"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller_initializetable",
+      "label": "._initializeTable()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L38"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller_getfieldsfrommetadata",
+      "label": "._getFieldsFromMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L57"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller_formatcellvalue",
+      "label": "._formatCellValue()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L73"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller_formatstatusstate",
+      "label": "._formatStatusState()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller_oncreatepress",
+      "label": ".onCreatePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L89"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller_onitempress",
+      "label": ".onItemPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L91"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller_onsearch",
+      "label": ".onSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L96"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller_onquicksearch",
+      "label": ".onQuickSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L105"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller_onsort",
+      "label": ".onSort()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L106"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller_onrefresh",
+      "label": ".onRefresh()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L107"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller_ontoggleadvancedsearch",
+      "label": ".onToggleAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L108"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch",
+      "label": ".onAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L109"
+    },
+    {
+      "id": "busappointmentlist_controller_busappointmentlistcontroller_onclearadvancedsearch",
+      "label": ".onClearAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L113"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "jsonmodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "odatamodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "filter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "filteroperator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "sorter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "messagetoast",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "router",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "event",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "column",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "columnlistitem",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "text",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "label",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "objectstatus",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busappointmentlist_controller_ts",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_initializetable",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_getfieldsfrommetadata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_formatcellvalue",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L73",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_formatstatusstate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_oncreatepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_onitempress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_onsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L96",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_onquicksearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L105",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_onsort",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L106",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_onrefresh",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_ontoggleadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_onclearadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller_oninit",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_getfieldsfrommetadata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller_oninit",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_initializetable",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "busappointmentlist_controller_busappointmentlistcontroller_onquicksearch",
+      "target": "busappointmentlist_controller_busappointmentlistcontroller_onsearch",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L105",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_oninit",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_oninit",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable",
+      "callee": "removeAllColumns",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable",
+      "callee": "removeAllItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable",
+      "callee": "bindItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_initializetable",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatcellvalue",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatcellvalue",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatcellvalue",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatcellvalue",
+      "callee": "toLocaleDateString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatcellvalue",
+      "callee": "String",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatstatusstate",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatstatusstate",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatstatusstate",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_formatstatusstate",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_oncreatepress",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_oncreatepress",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_oncreatepress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress",
+      "callee": "getPath",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress",
+      "callee": "getBindingContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress",
+      "callee": "getSource",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress",
+      "callee": "substring",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress",
+      "callee": "lastIndexOf",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onitempress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsearch",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsort",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsort",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsort",
+      "callee": "getSorters",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsort",
+      "callee": "sort",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onsort",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onrefresh",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onrefresh",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onrefresh",
+      "callee": "refresh",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onrefresh",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_ontoggleadvancedsearch",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_ontoggleadvancedsearch",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch",
+      "callee": "getSelectedKey",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch",
+      "callee": "getSelectedKey",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch",
+      "callee": "getValue",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onadvancedsearch",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onclearadvancedsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onclearadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onclearadvancedsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onclearadvancedsearch",
+      "callee": "setValue",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "busappointmentlist_controller_busappointmentlistcontroller_onclearadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusAppointmentList.controller.ts",
+      "source_location": "L113"
+    }
+  ]
+}

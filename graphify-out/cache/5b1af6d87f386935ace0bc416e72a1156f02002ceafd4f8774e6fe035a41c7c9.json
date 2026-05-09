@@ -1,1 +1,108 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_notfound_controller_ts", "label": "NotFound.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts", "source_location": "L1"}, {"id": "notfound_controller_notfoundcontroller", "label": "NotFoundController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts", "source_location": "L15"}, {"id": "notfound_controller_notfoundcontroller_onnavback", "label": ".onNavBack()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts", "source_location": "L20"}, {"id": "notfound_controller_notfoundcontroller_onlinkpress", "label": ".onLinkPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts", "source_location": "L27"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_notfound_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_notfound_controller_ts", "target": "notfound_controller_notfoundcontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts", "source_location": "L15", "weight": 1.0}, {"source": "notfound_controller_notfoundcontroller", "target": "notfound_controller_notfoundcontroller_onnavback", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts", "source_location": "L20", "weight": 1.0}, {"source": "notfound_controller_notfoundcontroller", "target": "notfound_controller_notfoundcontroller_onlinkpress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts", "source_location": "L27", "weight": 1.0}], "raw_calls": [{"caller_nid": "notfound_controller_notfoundcontroller_onnavback", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts", "source_location": "L21"}, {"caller_nid": "notfound_controller_notfoundcontroller_onnavback", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts", "source_location": "L21"}, {"caller_nid": "notfound_controller_notfoundcontroller_onnavback", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts", "source_location": "L21"}, {"caller_nid": "notfound_controller_notfoundcontroller_onlinkpress", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts", "source_location": "L28"}, {"caller_nid": "notfound_controller_notfoundcontroller_onlinkpress", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts", "source_location": "L28"}, {"caller_nid": "notfound_controller_notfoundcontroller_onlinkpress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts", "source_location": "L28"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_notfound_controller_ts",
+      "label": "NotFound.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "notfound_controller_notfoundcontroller",
+      "label": "NotFoundController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts",
+      "source_location": "L15"
+    },
+    {
+      "id": "notfound_controller_notfoundcontroller_onnavback",
+      "label": ".onNavBack()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts",
+      "source_location": "L20"
+    },
+    {
+      "id": "notfound_controller_notfoundcontroller_onlinkpress",
+      "label": ".onLinkPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts",
+      "source_location": "L27"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_notfound_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_notfound_controller_ts",
+      "target": "notfound_controller_notfoundcontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "notfound_controller_notfoundcontroller",
+      "target": "notfound_controller_notfoundcontroller_onnavback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "notfound_controller_notfoundcontroller",
+      "target": "notfound_controller_notfoundcontroller_onlinkpress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "notfound_controller_notfoundcontroller_onnavback",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "notfound_controller_notfoundcontroller_onnavback",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "notfound_controller_notfoundcontroller_onnavback",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "notfound_controller_notfoundcontroller_onlinkpress",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "notfound_controller_notfoundcontroller_onlinkpress",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "notfound_controller_notfoundcontroller_onlinkpress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/NotFound.controller.ts",
+      "source_location": "L28"
+    }
+  ]
+}

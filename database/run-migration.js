@@ -16,7 +16,7 @@ async function runMigration() {
   try {
     // Get existing columns
     const pragma = await db.raw("PRAGMA table_info(projects)");
-    const existingColumns = pragma.map(col => col.name);
+    const existingColumns = pragma.map((col) => col.name);
     console.log("Existing columns:", existingColumns);
 
     if (!existingColumns.includes("generated_path")) {

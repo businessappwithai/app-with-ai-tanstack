@@ -1,1 +1,68 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_types_sys_dictionary_types_ts", "label": "sys-dictionary.types.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts", "source_location": "L1"}, {"id": "sys_dictionary_types_issystemtable", "label": "isSystemTable()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts", "source_location": "L645"}, {"id": "sys_dictionary_types_isbusinesstable", "label": "isBusinessTable()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts", "source_location": "L649"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_types_sys_dictionary_types_ts", "target": "zod", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_types_sys_dictionary_types_ts", "target": "sys_dictionary_types_issystemtable", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts", "source_location": "L645", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_types_sys_dictionary_types_ts", "target": "sys_dictionary_types_isbusinesstable", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts", "source_location": "L649", "weight": 1.0}], "raw_calls": [{"caller_nid": "sys_dictionary_types_issystemtable", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts", "source_location": "L646"}, {"caller_nid": "sys_dictionary_types_isbusinesstable", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts", "source_location": "L650"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_types_sys_dictionary_types_ts",
+      "label": "sys-dictionary.types.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "sys_dictionary_types_issystemtable",
+      "label": "isSystemTable()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts",
+      "source_location": "L645"
+    },
+    {
+      "id": "sys_dictionary_types_isbusinesstable",
+      "label": "isBusinessTable()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts",
+      "source_location": "L649"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_types_sys_dictionary_types_ts",
+      "target": "zod",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_types_sys_dictionary_types_ts",
+      "target": "sys_dictionary_types_issystemtable",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts",
+      "source_location": "L645",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_types_sys_dictionary_types_ts",
+      "target": "sys_dictionary_types_isbusinesstable",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts",
+      "source_location": "L649",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "sys_dictionary_types_issystemtable",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts",
+      "source_location": "L646"
+    },
+    {
+      "caller_nid": "sys_dictionary_types_isbusinesstable",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/types/sys-dictionary.types.ts",
+      "source_location": "L650"
+    }
+  ]
+}

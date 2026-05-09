@@ -15,38 +15,36 @@
  * - /bus_* (all entity pages)
  */
 
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 // Define public routes that don't require authentication
-const publicRoutes = [
-  '/',
-  '/auth/login',
-  '/auth/signup',
-];
+const publicRoutes = ["/", "/auth/login", "/auth/signup"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow public routes (exact match for '/', prefix match for others)
-  if (publicRoutes.some(route => route === '/' ? pathname === '/' : pathname.startsWith(route))) {
+  if (
+    publicRoutes.some((route) => (route === "/" ? pathname === "/" : pathname.startsWith(route)))
+  ) {
     return NextResponse.next();
   }
 
   // Allow all API routes (proxied to backend, auth handled server-side)
-  if (pathname.startsWith('/api/')) {
+  if (pathname.startsWith("/api/")) {
     return NextResponse.next();
   }
 
   // Check for session cookie (matches better-auth cookiePrefix)
   // The cookie name follows the pattern: {cookiePrefix}.session_token
   // where cookiePrefix is set in better-auth config
-  const sessionToken = request.cookies.get('hospital_app.session_token')?.value;
+  const sessionToken = request.cookies.get("hospital_app.session_token")?.value;
 
   if (!sessionToken) {
     // No session - redirect to login
     const url = request.nextUrl.clone();
-    url.pathname = '/auth/login';
+    url.pathname = "/auth/login";
     return NextResponse.redirect(url);
   }
 
@@ -63,6 +61,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

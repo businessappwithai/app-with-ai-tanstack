@@ -6,18 +6,18 @@
  */
 
 export type HookLifecycle =
-  | 'beforeCreate'
-  | 'afterCreate'
-  | 'beforeUpdate'
-  | 'afterUpdate'
-  | 'beforeDelete'
-  | 'afterDelete'
-  | 'beforeQuery'
-  | 'afterQuery'
-  | 'beforeRead'
-  | 'afterRead'
-  | 'beforeList'
-  | 'afterList';
+  | "beforeCreate"
+  | "afterCreate"
+  | "beforeUpdate"
+  | "afterUpdate"
+  | "beforeDelete"
+  | "afterDelete"
+  | "beforeQuery"
+  | "afterQuery"
+  | "beforeRead"
+  | "afterRead"
+  | "beforeList"
+  | "afterList";
 
 export interface HookContext<T = any> {
   entity: string;

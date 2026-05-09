@@ -1,5 +1,5 @@
-import { Entity, Relationship } from '@erdwithai/core/types';
-import { TemplateLoader } from '../templates/loader';
+import type { Entity, Relationship } from "@erdwithai/core/types";
+import { TemplateLoader } from "../templates/loader";
 
 export abstract class BaseGenerator {
   protected templateLoader: TemplateLoader;

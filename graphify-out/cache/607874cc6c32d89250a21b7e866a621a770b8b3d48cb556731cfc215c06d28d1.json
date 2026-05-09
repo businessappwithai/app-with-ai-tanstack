@@ -1,1 +1,1550 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts", "label": "Admin.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L1"}, {"id": "admin_controller_admincontroller", "label": "AdminController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L80"}, {"id": "admin_controller_admincontroller_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L85"}, {"id": "admin_controller_admincontroller_loadsystables", "label": "._loadSysTables()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L114"}, {"id": "admin_controller_admincontroller_loadfieldcountsfortables", "label": "._loadFieldCountsForTables()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L151"}, {"id": "admin_controller_admincontroller_loadstatistics", "label": "._loadStatistics()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L177"}, {"id": "admin_controller_admincontroller_ontableselectionchange", "label": ".onTableSelectionChange()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L206"}, {"id": "admin_controller_admincontroller_selecttable", "label": "._selectTable()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L234"}, {"id": "admin_controller_admincontroller_ontablesearch", "label": ".onTableSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L245"}, {"id": "admin_controller_admincontroller_loadfieldmetadata", "label": "._loadFieldMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L268"}, {"id": "admin_controller_admincontroller_updatevisiblefields", "label": "._updateVisibleFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L302"}, {"id": "admin_controller_admincontroller_onmodechange", "label": ".onModeChange()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L319"}, {"id": "admin_controller_admincontroller_onfielddrop", "label": ".onFieldDrop()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L330"}, {"id": "admin_controller_admincontroller_onmovefieldup", "label": ".onMoveFieldUp()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L362"}, {"id": "admin_controller_admincontroller_onmovefielddown", "label": ".onMoveFieldDown()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L393"}, {"id": "admin_controller_admincontroller_onseqnochange", "label": ".onSeqNoChange()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L424"}, {"id": "admin_controller_admincontroller_onvisibilitychange", "label": ".onVisibilityChange()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L432"}, {"id": "admin_controller_admincontroller_recalculateseqnumbers", "label": "._recalculateSeqNumbers()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L441"}, {"id": "admin_controller_admincontroller_onrefreshpress", "label": ".onRefreshPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L454"}, {"id": "admin_controller_admincontroller_dorefresh", "label": "._doRefresh()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L473"}, {"id": "admin_controller_admincontroller_onsavepress", "label": ".onSavePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L488"}, {"id": "admin_controller_admincontroller_getchangedfields", "label": "._getChangedFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L521"}, {"id": "admin_controller_admincontroller_batchupdatefields", "label": "._batchUpdateFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L548"}, {"id": "admin_controller_admincontroller_onnavback", "label": ".onNavBack()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L574"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts", "target": "jsonmodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts", "target": "filter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L18", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts", "target": "filteroperator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L19", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts", "target": "sorter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L20", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts", "target": "messagebox", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L21", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts", "target": "messagetoast", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L22", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts", "target": "event", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L23", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts", "target": "admin_controller_admincontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L80", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L85", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_loadsystables", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L114", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_loadfieldcountsfortables", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L151", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_loadstatistics", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L177", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_ontableselectionchange", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L206", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_selecttable", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L234", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_ontablesearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L245", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_loadfieldmetadata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L268", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_updatevisiblefields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L302", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_onmodechange", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L319", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_onfielddrop", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L330", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_onmovefieldup", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L362", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_onmovefielddown", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L393", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_onseqnochange", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L424", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_onvisibilitychange", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L432", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_recalculateseqnumbers", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L441", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_onrefreshpress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L454", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_dorefresh", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L473", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_onsavepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L488", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_getchangedfields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L521", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_batchupdatefields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L548", "weight": 1.0}, {"source": "admin_controller_admincontroller", "target": "admin_controller_admincontroller_onnavback", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L574", "weight": 1.0}, {"source": "admin_controller_admincontroller_oninit", "target": "admin_controller_admincontroller_loadsystables", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L106", "weight": 1.0}, {"source": "admin_controller_admincontroller_oninit", "target": "admin_controller_admincontroller_loadstatistics", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L107", "weight": 1.0}, {"source": "admin_controller_admincontroller_ontableselectionchange", "target": "admin_controller_admincontroller_selecttable", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L226", "weight": 1.0}, {"source": "admin_controller_admincontroller_selecttable", "target": "admin_controller_admincontroller_loadfieldmetadata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L239", "weight": 1.0}, {"source": "admin_controller_admincontroller_onmodechange", "target": "admin_controller_admincontroller_loadfieldmetadata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L323", "weight": 1.0}, {"source": "admin_controller_admincontroller_onfielddrop", "target": "admin_controller_admincontroller_recalculateseqnumbers", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L353", "weight": 1.0}, {"source": "admin_controller_admincontroller_onfielddrop", "target": "admin_controller_admincontroller_updatevisiblefields", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L356", "weight": 1.0}, {"source": "admin_controller_admincontroller_onmovefieldup", "target": "admin_controller_admincontroller_recalculateseqnumbers", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L383", "weight": 1.0}, {"source": "admin_controller_admincontroller_onmovefieldup", "target": "admin_controller_admincontroller_updatevisiblefields", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L386", "weight": 1.0}, {"source": "admin_controller_admincontroller_onmovefielddown", "target": "admin_controller_admincontroller_recalculateseqnumbers", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L414", "weight": 1.0}, {"source": "admin_controller_admincontroller_onmovefielddown", "target": "admin_controller_admincontroller_updatevisiblefields", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L417", "weight": 1.0}, {"source": "admin_controller_admincontroller_onseqnochange", "target": "admin_controller_admincontroller_updatevisiblefields", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L426", "weight": 1.0}, {"source": "admin_controller_admincontroller_onvisibilitychange", "target": "admin_controller_admincontroller_updatevisiblefields", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L434", "weight": 1.0}, {"source": "admin_controller_admincontroller_onrefreshpress", "target": "admin_controller_admincontroller_dorefresh", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L465", "weight": 1.0}, {"source": "admin_controller_admincontroller_dorefresh", "target": "admin_controller_admincontroller_loadsystables", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L476", "weight": 1.0}, {"source": "admin_controller_admincontroller_dorefresh", "target": "admin_controller_admincontroller_loadstatistics", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L477", "weight": 1.0}, {"source": "admin_controller_admincontroller_dorefresh", "target": "admin_controller_admincontroller_loadfieldmetadata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L481", "weight": 1.0}, {"source": "admin_controller_admincontroller_onsavepress", "target": "admin_controller_admincontroller_getchangedfields", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L494", "weight": 1.0}, {"source": "admin_controller_admincontroller_onsavepress", "target": "admin_controller_admincontroller_batchupdatefields", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L503", "weight": 1.0}], "raw_calls": [{"caller_nid": "admin_controller_admincontroller_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L104"}, {"caller_nid": "admin_controller_admincontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L104"}, {"caller_nid": "admin_controller_admincontroller_loadsystables", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L115"}, {"caller_nid": "admin_controller_admincontroller_loadsystables", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L115"}, {"caller_nid": "admin_controller_admincontroller_loadsystables", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L116"}, {"caller_nid": "admin_controller_admincontroller_loadsystables", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L116"}, {"caller_nid": "admin_controller_admincontroller_loadsystables", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L118"}, {"caller_nid": "admin_controller_admincontroller_loadsystables", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L120"}, {"caller_nid": "admin_controller_admincontroller_loadsystables", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L120"}, {"caller_nid": "admin_controller_admincontroller_loadsystables", "callee": "requestContexts", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L120"}, {"caller_nid": "admin_controller_admincontroller_loadsystables", "callee": "bindList", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L120"}, {"caller_nid": "admin_controller_admincontroller_loadfieldcountsfortables", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L152"}, {"caller_nid": "admin_controller_admincontroller_loadfieldcountsfortables", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L152"}, {"caller_nid": "admin_controller_admincontroller_loadfieldcountsfortables", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L154"}, {"caller_nid": "admin_controller_admincontroller_loadfieldcountsfortables", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L154"}, {"caller_nid": "admin_controller_admincontroller_loadfieldcountsfortables", "callee": "requestContexts", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L154"}, {"caller_nid": "admin_controller_admincontroller_loadfieldcountsfortables", "callee": "bindList", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L154"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L178"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L178"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L179"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L179"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L181"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L181"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "requestContexts", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L181"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "bindList", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L181"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L188"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L188"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "requestContexts", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L188"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "bindList", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L188"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L195"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L195"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "requestContexts", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L195"}, {"caller_nid": "admin_controller_admincontroller_loadstatistics", "callee": "bindList", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L195"}, {"caller_nid": "admin_controller_admincontroller_ontableselectionchange", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L207"}, {"caller_nid": "admin_controller_admincontroller_ontableselectionchange", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L207"}, {"caller_nid": "admin_controller_admincontroller_ontableselectionchange", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L208"}, {"caller_nid": "admin_controller_admincontroller_ontableselectionchange", "callee": "getBindingContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L212"}, {"caller_nid": "admin_controller_admincontroller_ontableselectionchange", "callee": "getObject", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L215"}, {"caller_nid": "admin_controller_admincontroller_ontableselectionchange", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L217"}, {"caller_nid": "admin_controller_admincontroller_ontableselectionchange", "callee": "confirm", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L218"}, {"caller_nid": "admin_controller_admincontroller_selecttable", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L235"}, {"caller_nid": "admin_controller_admincontroller_selecttable", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L235"}, {"caller_nid": "admin_controller_admincontroller_selecttable", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L236"}, {"caller_nid": "admin_controller_admincontroller_selecttable", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L237"}, {"caller_nid": "admin_controller_admincontroller_selecttable", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L238"}, {"caller_nid": "admin_controller_admincontroller_ontablesearch", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L246"}, {"caller_nid": "admin_controller_admincontroller_ontablesearch", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L246"}, {"caller_nid": "admin_controller_admincontroller_ontablesearch", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L247"}, {"caller_nid": "admin_controller_admincontroller_ontablesearch", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L247"}, {"caller_nid": "admin_controller_admincontroller_ontablesearch", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L248"}, {"caller_nid": "admin_controller_admincontroller_ontablesearch", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L251"}, {"caller_nid": "admin_controller_admincontroller_ontablesearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L255"}, {"caller_nid": "admin_controller_admincontroller_ontablesearch", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L261"}, {"caller_nid": "admin_controller_admincontroller_loadfieldmetadata", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L269"}, {"caller_nid": "admin_controller_admincontroller_loadfieldmetadata", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L269"}, {"caller_nid": "admin_controller_admincontroller_loadfieldmetadata", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L270"}, {"caller_nid": "admin_controller_admincontroller_loadfieldmetadata", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L273"}, {"caller_nid": "admin_controller_admincontroller_loadfieldmetadata", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L274"}, {"caller_nid": "admin_controller_admincontroller_loadfieldmetadata", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L276"}, {"caller_nid": "admin_controller_admincontroller_loadfieldmetadata", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L276"}, {"caller_nid": "admin_controller_admincontroller_loadfieldmetadata", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L282"}, {"caller_nid": "admin_controller_admincontroller_loadfieldmetadata", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L282"}, {"caller_nid": "admin_controller_admincontroller_loadfieldmetadata", "callee": "requestContexts", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L282"}, {"caller_nid": "admin_controller_admincontroller_loadfieldmetadata", "callee": "bindList", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L282"}, {"caller_nid": "admin_controller_admincontroller_updatevisiblefields", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L303"}, {"caller_nid": "admin_controller_admincontroller_updatevisiblefields", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L303"}, {"caller_nid": "admin_controller_admincontroller_updatevisiblefields", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L304"}, {"caller_nid": "admin_controller_admincontroller_updatevisiblefields", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L305"}, {"caller_nid": "admin_controller_admincontroller_updatevisiblefields", "callee": "sort", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L309"}, {"caller_nid": "admin_controller_admincontroller_updatevisiblefields", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L309"}, {"caller_nid": "admin_controller_admincontroller_updatevisiblefields", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L313"}, {"caller_nid": "admin_controller_admincontroller_onmodechange", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L320"}, {"caller_nid": "admin_controller_admincontroller_onmodechange", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L320"}, {"caller_nid": "admin_controller_admincontroller_onmodechange", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L321"}, {"caller_nid": "admin_controller_admincontroller_onfielddrop", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L331"}, {"caller_nid": "admin_controller_admincontroller_onfielddrop", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L331"}, {"caller_nid": "admin_controller_admincontroller_onfielddrop", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L332"}, {"caller_nid": "admin_controller_admincontroller_onfielddrop", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L333"}, {"caller_nid": "admin_controller_admincontroller_onfielddrop", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L334"}, {"caller_nid": "admin_controller_admincontroller_onfielddrop", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L338"}, {"caller_nid": "admin_controller_admincontroller_onfielddrop", "callee": "getItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L339"}, {"caller_nid": "admin_controller_admincontroller_onfielddrop", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L340"}, {"caller_nid": "admin_controller_admincontroller_onfielddrop", "callee": "indexOf", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L342"}, {"caller_nid": "admin_controller_admincontroller_onfielddrop", "callee": "indexOf", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L343"}, {"caller_nid": "admin_controller_admincontroller_onfielddrop", "callee": "splice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L349"}, {"caller_nid": "admin_controller_admincontroller_onfielddrop", "callee": "splice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L351"}, {"caller_nid": "admin_controller_admincontroller_onfielddrop", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L354"}, {"caller_nid": "admin_controller_admincontroller_onfielddrop", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L355"}, {"caller_nid": "admin_controller_admincontroller_onmovefieldup", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L363"}, {"caller_nid": "admin_controller_admincontroller_onmovefieldup", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L363"}, {"caller_nid": "admin_controller_admincontroller_onmovefieldup", "callee": "getParent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L364"}, {"caller_nid": "admin_controller_admincontroller_onmovefieldup", "callee": "getSource", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L364"}, {"caller_nid": "admin_controller_admincontroller_onmovefieldup", "callee": "isA", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L366"}, {"caller_nid": "admin_controller_admincontroller_onmovefieldup", "callee": "getParent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L367"}, {"caller_nid": "admin_controller_admincontroller_onmovefieldup", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L372"}, {"caller_nid": "admin_controller_admincontroller_onmovefieldup", "callee": "getItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L373"}, {"caller_nid": "admin_controller_admincontroller_onmovefieldup", "callee": "indexOf", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L374"}, {"caller_nid": "admin_controller_admincontroller_onmovefieldup", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L378"}, {"caller_nid": "admin_controller_admincontroller_onmovefieldup", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L384"}, {"caller_nid": "admin_controller_admincontroller_onmovefieldup", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L385"}, {"caller_nid": "admin_controller_admincontroller_onmovefieldup", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L387"}, {"caller_nid": "admin_controller_admincontroller_onmovefielddown", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L394"}, {"caller_nid": "admin_controller_admincontroller_onmovefielddown", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L394"}, {"caller_nid": "admin_controller_admincontroller_onmovefielddown", "callee": "getParent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L395"}, {"caller_nid": "admin_controller_admincontroller_onmovefielddown", "callee": "getSource", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L395"}, {"caller_nid": "admin_controller_admincontroller_onmovefielddown", "callee": "isA", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L397"}, {"caller_nid": "admin_controller_admincontroller_onmovefielddown", "callee": "getParent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L398"}, {"caller_nid": "admin_controller_admincontroller_onmovefielddown", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L403"}, {"caller_nid": "admin_controller_admincontroller_onmovefielddown", "callee": "getItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L404"}, {"caller_nid": "admin_controller_admincontroller_onmovefielddown", "callee": "indexOf", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L405"}, {"caller_nid": "admin_controller_admincontroller_onmovefielddown", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L407"}, {"caller_nid": "admin_controller_admincontroller_onmovefielddown", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L415"}, {"caller_nid": "admin_controller_admincontroller_onmovefielddown", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L416"}, {"caller_nid": "admin_controller_admincontroller_onmovefielddown", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L418"}, {"caller_nid": "admin_controller_admincontroller_onseqnochange", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L425"}, {"caller_nid": "admin_controller_admincontroller_onseqnochange", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L425"}, {"caller_nid": "admin_controller_admincontroller_onseqnochange", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L425"}, {"caller_nid": "admin_controller_admincontroller_onvisibilitychange", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L433"}, {"caller_nid": "admin_controller_admincontroller_onvisibilitychange", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L433"}, {"caller_nid": "admin_controller_admincontroller_onvisibilitychange", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L433"}, {"caller_nid": "admin_controller_admincontroller_recalculateseqnumbers", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L442"}, {"caller_nid": "admin_controller_admincontroller_recalculateseqnumbers", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L442"}, {"caller_nid": "admin_controller_admincontroller_recalculateseqnumbers", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L443"}, {"caller_nid": "admin_controller_admincontroller_recalculateseqnumbers", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L446"}, {"caller_nid": "admin_controller_admincontroller_onrefreshpress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L455"}, {"caller_nid": "admin_controller_admincontroller_onrefreshpress", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L455"}, {"caller_nid": "admin_controller_admincontroller_onrefreshpress", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L456"}, {"caller_nid": "admin_controller_admincontroller_onrefreshpress", "callee": "confirm", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L457"}, {"caller_nid": "admin_controller_admincontroller_dorefresh", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L474"}, {"caller_nid": "admin_controller_admincontroller_dorefresh", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L474"}, {"caller_nid": "admin_controller_admincontroller_dorefresh", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L475"}, {"caller_nid": "admin_controller_admincontroller_dorefresh", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L479"}, {"caller_nid": "admin_controller_admincontroller_onsavepress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L489"}, {"caller_nid": "admin_controller_admincontroller_onsavepress", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L489"}, {"caller_nid": "admin_controller_admincontroller_onsavepress", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L490"}, {"caller_nid": "admin_controller_admincontroller_onsavepress", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L491"}, {"caller_nid": "admin_controller_admincontroller_onsavepress", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L492"}, {"caller_nid": "admin_controller_admincontroller_onsavepress", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L497"}, {"caller_nid": "admin_controller_admincontroller_onsavepress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L501"}, {"caller_nid": "admin_controller_admincontroller_onsavepress", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L503"}, {"caller_nid": "admin_controller_admincontroller_onsavepress", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L503"}, {"caller_nid": "admin_controller_admincontroller_getchangedfields", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L526"}, {"caller_nid": "admin_controller_admincontroller_batchupdatefields", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L549"}, {"caller_nid": "admin_controller_admincontroller_batchupdatefields", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L549"}, {"caller_nid": "admin_controller_admincontroller_batchupdatefields", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L552"}, {"caller_nid": "admin_controller_admincontroller_batchupdatefields", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L568"}, {"caller_nid": "admin_controller_admincontroller_batchupdatefields", "callee": "all", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L568"}, {"caller_nid": "admin_controller_admincontroller_onnavback", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L575"}, {"caller_nid": "admin_controller_admincontroller_onnavback", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L575"}, {"caller_nid": "admin_controller_admincontroller_onnavback", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L576"}, {"caller_nid": "admin_controller_admincontroller_onnavback", "callee": "confirm", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L577"}, {"caller_nid": "admin_controller_admincontroller_onnavback", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L585"}, {"caller_nid": "admin_controller_admincontroller_onnavback", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L585"}, {"caller_nid": "admin_controller_admincontroller_onnavback", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts", "source_location": "L585"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts",
+      "label": "Admin.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_controller_admincontroller",
+      "label": "AdminController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "id": "admin_controller_admincontroller_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L85"
+    },
+    {
+      "id": "admin_controller_admincontroller_loadsystables",
+      "label": "._loadSysTables()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L114"
+    },
+    {
+      "id": "admin_controller_admincontroller_loadfieldcountsfortables",
+      "label": "._loadFieldCountsForTables()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L151"
+    },
+    {
+      "id": "admin_controller_admincontroller_loadstatistics",
+      "label": "._loadStatistics()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L177"
+    },
+    {
+      "id": "admin_controller_admincontroller_ontableselectionchange",
+      "label": ".onTableSelectionChange()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L206"
+    },
+    {
+      "id": "admin_controller_admincontroller_selecttable",
+      "label": "._selectTable()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L234"
+    },
+    {
+      "id": "admin_controller_admincontroller_ontablesearch",
+      "label": ".onTableSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L245"
+    },
+    {
+      "id": "admin_controller_admincontroller_loadfieldmetadata",
+      "label": "._loadFieldMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L268"
+    },
+    {
+      "id": "admin_controller_admincontroller_updatevisiblefields",
+      "label": "._updateVisibleFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L302"
+    },
+    {
+      "id": "admin_controller_admincontroller_onmodechange",
+      "label": ".onModeChange()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L319"
+    },
+    {
+      "id": "admin_controller_admincontroller_onfielddrop",
+      "label": ".onFieldDrop()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L330"
+    },
+    {
+      "id": "admin_controller_admincontroller_onmovefieldup",
+      "label": ".onMoveFieldUp()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L362"
+    },
+    {
+      "id": "admin_controller_admincontroller_onmovefielddown",
+      "label": ".onMoveFieldDown()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L393"
+    },
+    {
+      "id": "admin_controller_admincontroller_onseqnochange",
+      "label": ".onSeqNoChange()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L424"
+    },
+    {
+      "id": "admin_controller_admincontroller_onvisibilitychange",
+      "label": ".onVisibilityChange()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L432"
+    },
+    {
+      "id": "admin_controller_admincontroller_recalculateseqnumbers",
+      "label": "._recalculateSeqNumbers()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L441"
+    },
+    {
+      "id": "admin_controller_admincontroller_onrefreshpress",
+      "label": ".onRefreshPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L454"
+    },
+    {
+      "id": "admin_controller_admincontroller_dorefresh",
+      "label": "._doRefresh()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L473"
+    },
+    {
+      "id": "admin_controller_admincontroller_onsavepress",
+      "label": ".onSavePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L488"
+    },
+    {
+      "id": "admin_controller_admincontroller_getchangedfields",
+      "label": "._getChangedFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L521"
+    },
+    {
+      "id": "admin_controller_admincontroller_batchupdatefields",
+      "label": "._batchUpdateFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L548"
+    },
+    {
+      "id": "admin_controller_admincontroller_onnavback",
+      "label": ".onNavBack()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L574"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts",
+      "target": "jsonmodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts",
+      "target": "filter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts",
+      "target": "filteroperator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts",
+      "target": "sorter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts",
+      "target": "messagebox",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts",
+      "target": "messagetoast",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts",
+      "target": "event",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_admin_controller_ts",
+      "target": "admin_controller_admincontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L85",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_loadsystables",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_loadfieldcountsfortables",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L151",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_loadstatistics",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L177",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_ontableselectionchange",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L206",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_selecttable",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L234",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_ontablesearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L245",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_loadfieldmetadata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L268",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_updatevisiblefields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L302",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_onmodechange",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L319",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_onfielddrop",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L330",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_onmovefieldup",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L362",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_onmovefielddown",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L393",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_onseqnochange",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L424",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_onvisibilitychange",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L432",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_recalculateseqnumbers",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L441",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_onrefreshpress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L454",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_dorefresh",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L473",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_onsavepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L488",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_getchangedfields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L521",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_batchupdatefields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L548",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller",
+      "target": "admin_controller_admincontroller_onnavback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L574",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_oninit",
+      "target": "admin_controller_admincontroller_loadsystables",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L106",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_oninit",
+      "target": "admin_controller_admincontroller_loadstatistics",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_ontableselectionchange",
+      "target": "admin_controller_admincontroller_selecttable",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L226",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_selecttable",
+      "target": "admin_controller_admincontroller_loadfieldmetadata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L239",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_onmodechange",
+      "target": "admin_controller_admincontroller_loadfieldmetadata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L323",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_onfielddrop",
+      "target": "admin_controller_admincontroller_recalculateseqnumbers",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L353",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_onfielddrop",
+      "target": "admin_controller_admincontroller_updatevisiblefields",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L356",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_onmovefieldup",
+      "target": "admin_controller_admincontroller_recalculateseqnumbers",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L383",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_onmovefieldup",
+      "target": "admin_controller_admincontroller_updatevisiblefields",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L386",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_onmovefielddown",
+      "target": "admin_controller_admincontroller_recalculateseqnumbers",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L414",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_onmovefielddown",
+      "target": "admin_controller_admincontroller_updatevisiblefields",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L417",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_onseqnochange",
+      "target": "admin_controller_admincontroller_updatevisiblefields",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L426",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_onvisibilitychange",
+      "target": "admin_controller_admincontroller_updatevisiblefields",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L434",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_onrefreshpress",
+      "target": "admin_controller_admincontroller_dorefresh",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L465",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_dorefresh",
+      "target": "admin_controller_admincontroller_loadsystables",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L476",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_dorefresh",
+      "target": "admin_controller_admincontroller_loadstatistics",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L477",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_dorefresh",
+      "target": "admin_controller_admincontroller_loadfieldmetadata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L481",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_onsavepress",
+      "target": "admin_controller_admincontroller_getchangedfields",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L494",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_controller_admincontroller_onsavepress",
+      "target": "admin_controller_admincontroller_batchupdatefields",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L503",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "admin_controller_admincontroller_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L104"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L104"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadsystables",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadsystables",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadsystables",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadsystables",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadsystables",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadsystables",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L120"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadsystables",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L120"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadsystables",
+      "callee": "requestContexts",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L120"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadsystables",
+      "callee": "bindList",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L120"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldcountsfortables",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldcountsfortables",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldcountsfortables",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldcountsfortables",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldcountsfortables",
+      "callee": "requestContexts",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldcountsfortables",
+      "callee": "bindList",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L179"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L179"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L181"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L181"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "requestContexts",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L181"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "bindList",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L181"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L188"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L188"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "requestContexts",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L188"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "bindList",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L188"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "requestContexts",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadstatistics",
+      "callee": "bindList",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontableselectionchange",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L207"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontableselectionchange",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L207"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontableselectionchange",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L208"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontableselectionchange",
+      "callee": "getBindingContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontableselectionchange",
+      "callee": "getObject",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L215"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontableselectionchange",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L217"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontableselectionchange",
+      "callee": "confirm",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L218"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_selecttable",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_selecttable",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_selecttable",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_selecttable",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L237"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_selecttable",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L238"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontablesearch",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L246"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontablesearch",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L246"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontablesearch",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L247"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontablesearch",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L247"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontablesearch",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L248"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontablesearch",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontablesearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_ontablesearch",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L261"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldmetadata",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L269"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldmetadata",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L269"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldmetadata",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L270"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldmetadata",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldmetadata",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L274"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldmetadata",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldmetadata",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldmetadata",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldmetadata",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldmetadata",
+      "callee": "requestContexts",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_loadfieldmetadata",
+      "callee": "bindList",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_updatevisiblefields",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L303"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_updatevisiblefields",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L303"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_updatevisiblefields",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L304"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_updatevisiblefields",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L305"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_updatevisiblefields",
+      "callee": "sort",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_updatevisiblefields",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_updatevisiblefields",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L313"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmodechange",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L320"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmodechange",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L320"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmodechange",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L321"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onfielddrop",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L331"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onfielddrop",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L331"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onfielddrop",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L332"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onfielddrop",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L333"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onfielddrop",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L334"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onfielddrop",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L338"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onfielddrop",
+      "callee": "getItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L339"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onfielddrop",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L340"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onfielddrop",
+      "callee": "indexOf",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L342"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onfielddrop",
+      "callee": "indexOf",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L343"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onfielddrop",
+      "callee": "splice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L349"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onfielddrop",
+      "callee": "splice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L351"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onfielddrop",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L354"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onfielddrop",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L355"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefieldup",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L363"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefieldup",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L363"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefieldup",
+      "callee": "getParent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L364"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefieldup",
+      "callee": "getSource",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L364"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefieldup",
+      "callee": "isA",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L366"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefieldup",
+      "callee": "getParent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L367"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefieldup",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L372"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefieldup",
+      "callee": "getItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L373"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefieldup",
+      "callee": "indexOf",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L374"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefieldup",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L378"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefieldup",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L384"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefieldup",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L385"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefieldup",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L387"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefielddown",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L394"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefielddown",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L394"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefielddown",
+      "callee": "getParent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L395"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefielddown",
+      "callee": "getSource",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L395"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefielddown",
+      "callee": "isA",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L397"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefielddown",
+      "callee": "getParent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L398"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefielddown",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L403"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefielddown",
+      "callee": "getItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L404"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefielddown",
+      "callee": "indexOf",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L405"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefielddown",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L407"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefielddown",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L415"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefielddown",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L416"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onmovefielddown",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L418"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onseqnochange",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L425"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onseqnochange",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L425"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onseqnochange",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L425"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onvisibilitychange",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L433"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onvisibilitychange",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L433"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onvisibilitychange",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L433"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_recalculateseqnumbers",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L442"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_recalculateseqnumbers",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L442"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_recalculateseqnumbers",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L443"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_recalculateseqnumbers",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L446"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onrefreshpress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L455"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onrefreshpress",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L455"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onrefreshpress",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L456"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onrefreshpress",
+      "callee": "confirm",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L457"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_dorefresh",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L474"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_dorefresh",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L474"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_dorefresh",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L475"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_dorefresh",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L479"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onsavepress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L489"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onsavepress",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L489"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onsavepress",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L490"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onsavepress",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L491"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onsavepress",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L492"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onsavepress",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L497"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onsavepress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L501"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onsavepress",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L503"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onsavepress",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L503"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_getchangedfields",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L526"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_batchupdatefields",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L549"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_batchupdatefields",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L549"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_batchupdatefields",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L552"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_batchupdatefields",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L568"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_batchupdatefields",
+      "callee": "all",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L568"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onnavback",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L575"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onnavback",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L575"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onnavback",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L576"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onnavback",
+      "callee": "confirm",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L577"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onnavback",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L585"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onnavback",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L585"
+    },
+    {
+      "caller_nid": "admin_controller_admincontroller_onnavback",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/Admin.controller.ts",
+      "source_location": "L585"
+    }
+  ]
+}

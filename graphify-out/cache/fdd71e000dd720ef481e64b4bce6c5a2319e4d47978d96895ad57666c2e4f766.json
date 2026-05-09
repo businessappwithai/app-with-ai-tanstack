@@ -1,1 +1,344 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "label": "setup.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L1"}, {"id": "setup_createtempdir", "label": "createTempDir()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L26"}, {"id": "setup_cleanuptempdir", "label": "cleanupTempDir()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L35"}, {"id": "setup_createtestentity", "label": "createTestEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L46"}, {"id": "setup_createcomplexentity", "label": "createComplexEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L68"}, {"id": "setup_createtestrelationship", "label": "createTestRelationship()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L92"}, {"id": "setup_createtestentityset", "label": "createTestEntitySet()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L106"}, {"id": "setup_assertfileexists", "label": "assertFileExists()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L277"}, {"id": "setup_assertdirexists", "label": "assertDirExists()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L289"}, {"id": "setup_readfilecontent", "label": "readFileContent()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L301"}, {"id": "setup_listfilesrecursively", "label": "listFilesRecursively()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L308"}, {"id": "setup_assertfilecontains", "label": "assertFileContains()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L328"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "vitest", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "promises", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "path", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "os", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "setup_createtempdir", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L26", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "setup_cleanuptempdir", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L35", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "setup_createtestentity", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L46", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "setup_createcomplexentity", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L68", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "setup_createtestrelationship", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L92", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "setup_createtestentityset", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L106", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "setup_assertfileexists", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L277", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "setup_assertdirexists", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L289", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "setup_readfilecontent", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L301", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "setup_listfilesrecursively", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L308", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts", "target": "setup_assertfilecontains", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L328", "weight": 1.0}], "raw_calls": [{"caller_nid": "setup_createtempdir", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L27"}, {"caller_nid": "setup_createtempdir", "callee": "tmpdir", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L27"}, {"caller_nid": "setup_createtempdir", "callee": "now", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L27"}, {"caller_nid": "setup_createtempdir", "callee": "mkdir", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L28"}, {"caller_nid": "setup_cleanuptempdir", "callee": "rm", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L37"}, {"caller_nid": "setup_assertfileexists", "callee": "stat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L279"}, {"caller_nid": "setup_assertfileexists", "callee": "isFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L280"}, {"caller_nid": "setup_assertdirexists", "callee": "stat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L291"}, {"caller_nid": "setup_assertdirexists", "callee": "isDirectory", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L292"}, {"caller_nid": "setup_readfilecontent", "callee": "readFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L302"}, {"caller_nid": "setup_listfilesrecursively", "callee": "readdir", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L309"}, {"caller_nid": "setup_listfilesrecursively", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L312"}, {"caller_nid": "setup_listfilesrecursively", "callee": "stat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L313"}, {"caller_nid": "setup_listfilesrecursively", "callee": "isDirectory", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L315"}, {"caller_nid": "setup_listfilesrecursively", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L318"}, {"caller_nid": "setup_assertfilecontains", "callee": "readFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L332"}, {"caller_nid": "setup_assertfilecontains", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L336"}, {"caller_nid": "setup_assertfilecontains", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts", "source_location": "L337"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "label": "setup.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "setup_createtempdir",
+      "label": "createTempDir()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L26"
+    },
+    {
+      "id": "setup_cleanuptempdir",
+      "label": "cleanupTempDir()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L35"
+    },
+    {
+      "id": "setup_createtestentity",
+      "label": "createTestEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L46"
+    },
+    {
+      "id": "setup_createcomplexentity",
+      "label": "createComplexEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L68"
+    },
+    {
+      "id": "setup_createtestrelationship",
+      "label": "createTestRelationship()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L92"
+    },
+    {
+      "id": "setup_createtestentityset",
+      "label": "createTestEntitySet()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L106"
+    },
+    {
+      "id": "setup_assertfileexists",
+      "label": "assertFileExists()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L277"
+    },
+    {
+      "id": "setup_assertdirexists",
+      "label": "assertDirExists()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L289"
+    },
+    {
+      "id": "setup_readfilecontent",
+      "label": "readFileContent()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L301"
+    },
+    {
+      "id": "setup_listfilesrecursively",
+      "label": "listFilesRecursively()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L308"
+    },
+    {
+      "id": "setup_assertfilecontains",
+      "label": "assertFileContains()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L328"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "os",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "setup_createtempdir",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "setup_cleanuptempdir",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "setup_createtestentity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "setup_createcomplexentity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "setup_createtestrelationship",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "setup_createtestentityset",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L106",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "setup_assertfileexists",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L277",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "setup_assertdirexists",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L289",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "setup_readfilecontent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L301",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "setup_listfilesrecursively",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L308",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_test_setup_ts",
+      "target": "setup_assertfilecontains",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L328",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "setup_createtempdir",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "setup_createtempdir",
+      "callee": "tmpdir",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "setup_createtempdir",
+      "callee": "now",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "setup_createtempdir",
+      "callee": "mkdir",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "setup_cleanuptempdir",
+      "callee": "rm",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "setup_assertfileexists",
+      "callee": "stat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L279"
+    },
+    {
+      "caller_nid": "setup_assertfileexists",
+      "callee": "isFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L280"
+    },
+    {
+      "caller_nid": "setup_assertdirexists",
+      "callee": "stat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "setup_assertdirexists",
+      "callee": "isDirectory",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L292"
+    },
+    {
+      "caller_nid": "setup_readfilecontent",
+      "callee": "readFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L302"
+    },
+    {
+      "caller_nid": "setup_listfilesrecursively",
+      "callee": "readdir",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "setup_listfilesrecursively",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "setup_listfilesrecursively",
+      "callee": "stat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L313"
+    },
+    {
+      "caller_nid": "setup_listfilesrecursively",
+      "callee": "isDirectory",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L315"
+    },
+    {
+      "caller_nid": "setup_listfilesrecursively",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L318"
+    },
+    {
+      "caller_nid": "setup_assertfilecontains",
+      "callee": "readFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L332"
+    },
+    {
+      "caller_nid": "setup_assertfilecontains",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L336"
+    },
+    {
+      "caller_nid": "setup_assertfilecontains",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/test/setup.ts",
+      "source_location": "L337"
+    }
+  ]
+}

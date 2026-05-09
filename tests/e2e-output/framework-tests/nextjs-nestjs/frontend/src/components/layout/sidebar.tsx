@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Sidebar Navigation Component
@@ -6,34 +6,34 @@
  * Generated: 2026-03-20T16:41:26.611Z
  */
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  LayoutDashboard,
-  Settings,
-  Users,
-  FileText,
-  Database,
+  Activity,
+  Building2,
+  Calendar,
   ChevronLeft,
   ChevronRight,
-  Building2,
-  ShoppingCart,
-  Package,
-  Receipt,
-  Heart,
-  UserCircle,
-  Calendar,
-  FileCheck,
-  TestTube,
-  Activity,
-  Pill,
   ClipboardList,
-} from 'lucide-react';
-import { useAuth } from '@/contexts/auth-context';
+  Database,
+  FileCheck,
+  FileText,
+  Heart,
+  LayoutDashboard,
+  Package,
+  Pill,
+  Receipt,
+  Settings,
+  ShoppingCart,
+  TestTube,
+  UserCircle,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuth } from "@/contexts/auth-context";
+import { cn } from "@/lib/utils";
 
 interface NavItem {
   title: string;
@@ -46,51 +46,51 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-    title: 'Dashboard',
-    href: '/',
+    title: "Dashboard",
+    href: "/",
     icon: LayoutDashboard,
-    description: 'Overview and statistics',
+    description: "Overview and statistics",
   },
   {
-    title: 'Customer',
-    href: '/bus_customer',
+    title: "Customer",
+    href: "/bus_customer",
     icon: Building2,
-    description: 'Manage Customer',
+    description: "Manage Customer",
   },
   {
-    title: 'Order',
-    href: '/bus_order',
+    title: "Order",
+    href: "/bus_order",
     icon: ShoppingCart,
-    description: 'Manage Order',
+    description: "Manage Order",
   },
   {
-    title: 'Product',
-    href: '/bus_product',
+    title: "Product",
+    href: "/bus_product",
     icon: Package,
-    description: 'Manage Product',
+    description: "Manage Product",
   },
 ];
 
 const adminItems: NavItem[] = [
   {
-    title: 'Dictionary',
-    href: '/admin/dictionary',
+    title: "Dictionary",
+    href: "/admin/dictionary",
     icon: Database,
-    description: 'Application Dictionary',
+    description: "Application Dictionary",
     requireAdmin: true,
   },
   {
-    title: 'Field Layout',
-    href: '/admin/fields',
+    title: "Field Layout",
+    href: "/admin/fields",
     icon: Settings,
-    description: 'Field layout editor',
+    description: "Field layout editor",
     requireAdmin: true,
   },
   {
-    title: 'Users',
-    href: '/admin/users',
+    title: "Users",
+    href: "/admin/users",
     icon: Users,
-    description: 'User management',
+    description: "User management",
     requireAdmin: true,
   },
 ];
@@ -110,9 +110,9 @@ export function Sidebar({ className }: SidebarProps) {
   return (
     <div
       className={cn(
-        'relative flex flex-col border-r bg-background',
-        isCollapsed ? 'w-16' : 'w-64',
-        'transition-all duration-300',
+        "relative flex flex-col border-r bg-background",
+        isCollapsed ? "w-16" : "w-64",
+        "transition-all duration-300",
         className
       )}
     >
@@ -132,11 +132,7 @@ export function Sidebar({ className }: SidebarProps) {
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="h-8 w-8"
         >
-          {isCollapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
-          )}
+          {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </Button>
       </div>
 
@@ -146,14 +142,17 @@ export function Sidebar({ className }: SidebarProps) {
           {/* Main Navigation */}
           {!isCollapsed && (
             <div className="px-2">
-              <p className="mb-2 px-2 text-xs font-semibold text-muted-foreground">
-                Main Menu
-              </p>
+              <p className="mb-2 px-2 text-xs font-semibold text-muted-foreground">Main Menu</p>
             </div>
           )}
           <div className="space-y-1">
             {navItems.map((item) => (
-              <NavItem key={item.href} item={item} isActive={pathname === item.href} isCollapsed={isCollapsed} />
+              <NavItem
+                key={item.href}
+                item={item}
+                isActive={pathname === item.href}
+                isCollapsed={isCollapsed}
+              />
             ))}
           </div>
 
@@ -169,7 +168,12 @@ export function Sidebar({ className }: SidebarProps) {
               )}
               <div className="space-y-1">
                 {adminItems.map((item) => (
-                  <NavItem key={item.href} item={item} isActive={pathname === item.href} isCollapsed={isCollapsed} />
+                  <NavItem
+                    key={item.href}
+                    item={item}
+                    isActive={pathname === item.href}
+                    isCollapsed={isCollapsed}
+                  />
                 ))}
               </div>
             </>
@@ -196,14 +200,11 @@ function NavItem({ item, isActive, isCollapsed }: NavItemProps) {
 
   return (
     <Button
-      variant={isActive ? 'secondary' : 'ghost'}
-      className={cn(
-        'w-full justify-start gap-2',
-        isCollapsed && 'justify-center px-2'
-      )}
+      variant={isActive ? "secondary" : "ghost"}
+      className={cn("w-full justify-start gap-2", isCollapsed && "justify-center px-2")}
       onClick={handleClick}
     >
-      <Icon className={cn('h-4 w-4', !isCollapsed && 'mr-2')} />
+      <Icon className={cn("h-4 w-4", !isCollapsed && "mr-2")} />
       {!isCollapsed && (
         <>
           <span className="flex-1 text-left">{item.title}</span>

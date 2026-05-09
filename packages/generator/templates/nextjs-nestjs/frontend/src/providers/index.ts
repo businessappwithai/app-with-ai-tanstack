@@ -6,5 +6,5 @@
  * Generated: {{now}}
  */
 
-export { QueryProvider } from './query-provider';
-export { BrowserRouter, useRouter } from './browser-router-provider';
+export { BrowserRouter, useRouter } from "./browser-router-provider";
+export { QueryProvider } from "./query-provider";

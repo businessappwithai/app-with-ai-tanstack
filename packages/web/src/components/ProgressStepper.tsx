@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
 import { Check } from "lucide-react";
+import React from "react";
 import type { ProjectStep } from "@/types/project";
 
 const steps: Array<{ key: ProjectStep; label: string; number: number }> = [
@@ -29,8 +29,7 @@ export function ProgressStepper({
     <div className="px-6 py-8">
       <div className="flex items-center justify-between relative max-w-3xl mx-auto">
         {steps.map((step, index) => {
-          const isCompleted =
-            completedSteps.includes(step.key) || index < currentIndex;
+          const isCompleted = completedSteps.includes(step.key) || index < currentIndex;
           const isCurrent = step.key === currentStep;
           const isClickable = onStepClick && (isCompleted || isCurrent);
 

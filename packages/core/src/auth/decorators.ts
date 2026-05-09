@@ -8,7 +8,7 @@
  * For Express: Use the metadata keys with your own middleware
  */
 
-import type { UserRole, EntityOperation } from "./auth.types.js";
+import type { EntityOperation, UserRole } from "./auth.types.js";
 
 /**
  * Public route metadata key
@@ -116,7 +116,9 @@ export function getRequiredRoles(metadata: Record<string, unknown>): RoleMetadat
  *
  * This helper can be used by guards/middleware to extract permission requirements
  */
-export function getRequiredPermissions(metadata: Record<string, unknown>): PermissionMetadata | null {
+export function getRequiredPermissions(
+  metadata: Record<string, unknown>
+): PermissionMetadata | null {
   const permissions = metadata[REQUIRED_PERMISSIONS_KEY] as PermissionMetadata | undefined;
   return permissions ?? null;
 }

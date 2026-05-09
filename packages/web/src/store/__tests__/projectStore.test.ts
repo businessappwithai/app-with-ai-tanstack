@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
 import { act } from "@testing-library/react";
-import { useProjectStore } from "../projectStore";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Project } from "../../types/project";
+import { useProjectStore } from "../projectStore";
 
 // ---------------------------------------------------------------------------
 // Mock the API layer so no real HTTP calls are made
@@ -28,11 +28,7 @@ vi.mock("@/lib/api/projects", () => ({
   },
 }));
 
-import {
-  projectsApi,
-  erdVersionsApi,
-  workflowsApi,
-} from "@/lib/api/projects";
+import { erdVersionsApi, projectsApi, workflowsApi } from "@/lib/api/projects";
 
 // ---------------------------------------------------------------------------
 // Helpers

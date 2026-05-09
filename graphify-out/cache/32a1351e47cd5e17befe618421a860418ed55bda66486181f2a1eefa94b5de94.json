@@ -1,1 +1,404 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts", "label": "BusPrescriptionCreate.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L1"}, {"id": "busprescriptioncreate_controller_busprescriptioncreatecontroller", "label": "BusPrescriptionCreateController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L19"}, {"id": "busprescriptioncreate_controller_busprescriptioncreatecontroller_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L22"}, {"id": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata", "label": "._collectFormData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L27"}, {"id": "busprescriptioncreate_controller_busprescriptioncreatecontroller_validateformdata", "label": "._validateFormData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L42"}, {"id": "busprescriptioncreate_controller_busprescriptioncreatecontroller_cleanformdata", "label": "._cleanFormData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L56"}, {"id": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "label": ".onSavePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L62"}, {"id": "busprescriptioncreate_controller_busprescriptioncreatecontroller_oncancelpress", "label": ".onCancelPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L86"}, {"id": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onnavback", "label": ".onNavBack()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L97"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts", "target": "jsonmodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts", "target": "odatamodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts", "target": "messagebox", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts", "target": "messagetoast", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts", "target": "router", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts", "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L19", "weight": 1.0}, {"source": "busprescriptioncreate_controller_busprescriptioncreatecontroller", "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L22", "weight": 1.0}, {"source": "busprescriptioncreate_controller_busprescriptioncreatecontroller", "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L27", "weight": 1.0}, {"source": "busprescriptioncreate_controller_busprescriptioncreatecontroller", "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_validateformdata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L42", "weight": 1.0}, {"source": "busprescriptioncreate_controller_busprescriptioncreatecontroller", "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_cleanformdata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L56", "weight": 1.0}, {"source": "busprescriptioncreate_controller_busprescriptioncreatecontroller", "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L62", "weight": 1.0}, {"source": "busprescriptioncreate_controller_busprescriptioncreatecontroller", "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_oncancelpress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L86", "weight": 1.0}, {"source": "busprescriptioncreate_controller_busprescriptioncreatecontroller", "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onnavback", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L97", "weight": 1.0}, {"source": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L63", "weight": 1.0}, {"source": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_validateformdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L64", "weight": 1.0}, {"source": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_cleanformdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L71", "weight": 1.0}], "raw_calls": [{"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L24"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L24"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L30"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L31"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L32"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L33"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L34"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L35"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L36"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L37"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L38"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_validateformdata", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L51"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_validateformdata", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L52"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_validateformdata", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L52"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_cleanformdata", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L58"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_cleanformdata", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L58"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L66"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L67"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L67"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "callee": "bindList", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L68"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "callee": "create", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L71"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L72"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L72"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "callee": "created", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L72"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L81"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L82"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_oncancelpress", "callee": "confirm", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L87"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onnavback", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L98"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onnavback", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L98"}, {"caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onnavback", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts", "source_location": "L98"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts",
+      "label": "BusPrescriptionCreate.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "busprescriptioncreate_controller_busprescriptioncreatecontroller",
+      "label": "BusPrescriptionCreateController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L19"
+    },
+    {
+      "id": "busprescriptioncreate_controller_busprescriptioncreatecontroller_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L22"
+    },
+    {
+      "id": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata",
+      "label": "._collectFormData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "busprescriptioncreate_controller_busprescriptioncreatecontroller_validateformdata",
+      "label": "._validateFormData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L42"
+    },
+    {
+      "id": "busprescriptioncreate_controller_busprescriptioncreatecontroller_cleanformdata",
+      "label": "._cleanFormData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L56"
+    },
+    {
+      "id": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "label": ".onSavePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L62"
+    },
+    {
+      "id": "busprescriptioncreate_controller_busprescriptioncreatecontroller_oncancelpress",
+      "label": ".onCancelPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L86"
+    },
+    {
+      "id": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onnavback",
+      "label": ".onNavBack()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L97"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts",
+      "target": "jsonmodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts",
+      "target": "odatamodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts",
+      "target": "messagebox",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts",
+      "target": "messagetoast",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts",
+      "target": "router",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptioncreate_controller_ts",
+      "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptioncreate_controller_busprescriptioncreatecontroller",
+      "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptioncreate_controller_busprescriptioncreatecontroller",
+      "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptioncreate_controller_busprescriptioncreatecontroller",
+      "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_validateformdata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptioncreate_controller_busprescriptioncreatecontroller",
+      "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_cleanformdata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptioncreate_controller_busprescriptioncreatecontroller",
+      "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptioncreate_controller_busprescriptioncreatecontroller",
+      "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_oncancelpress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptioncreate_controller_busprescriptioncreatecontroller",
+      "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onnavback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L97",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_validateformdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L64",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "target": "busprescriptioncreate_controller_busprescriptioncreatecontroller_cleanformdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L71",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_validateformdata",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_validateformdata",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_validateformdata",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_cleanformdata",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_cleanformdata",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "callee": "bindList",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "callee": "create",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "callee": "created",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onsavepress",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_oncancelpress",
+      "callee": "confirm",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onnavback",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onnavback",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "busprescriptioncreate_controller_busprescriptioncreatecontroller_onnavback",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionCreate.controller.ts",
+      "source_location": "L98"
+    }
+  ]
+}

@@ -22,18 +22,17 @@ interface MessageConfig {
 }
 
 const MessageHelper = {
-
   /**
    * Default configuration for all message toasts
    * Using proper sap.ui.core.Popup.Dock enum values
    */
   _getDefaultConfig(): MessageConfig {
     return {
-      duration: 3000,           // 3 seconds
-      width: "15em",             // Responsive width
+      duration: 3000, // 3 seconds
+      width: "15em", // Responsive width
       closeOnBrowserNavigation: true,
       my: Popup.Dock.CenterBottom,
-      at: Popup.Dock.CenterBottom
+      at: Popup.Dock.CenterBottom,
     };
   },
 
@@ -118,7 +117,7 @@ const MessageHelper = {
       Object.assign(oConfig, oCustomConfig);
     }
     MessageToast.show(sMessage, oConfig);
-  }
+  },
 };
 
 export default MessageHelper;

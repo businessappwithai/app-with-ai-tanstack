@@ -1,1 +1,386 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts", "label": "BusDepartmentCreate.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L1"}, {"id": "busdepartmentcreate_controller_busdepartmentcreatecontroller", "label": "BusDepartmentCreateController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L19"}, {"id": "busdepartmentcreate_controller_busdepartmentcreatecontroller_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L22"}, {"id": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata", "label": "._collectFormData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L27"}, {"id": "busdepartmentcreate_controller_busdepartmentcreatecontroller_validateformdata", "label": "._validateFormData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L39"}, {"id": "busdepartmentcreate_controller_busdepartmentcreatecontroller_cleanformdata", "label": "._cleanFormData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L50"}, {"id": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "label": ".onSavePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L56"}, {"id": "busdepartmentcreate_controller_busdepartmentcreatecontroller_oncancelpress", "label": ".onCancelPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L80"}, {"id": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onnavback", "label": ".onNavBack()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L91"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts", "target": "jsonmodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts", "target": "odatamodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts", "target": "messagebox", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts", "target": "messagetoast", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts", "target": "router", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts", "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L19", "weight": 1.0}, {"source": "busdepartmentcreate_controller_busdepartmentcreatecontroller", "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L22", "weight": 1.0}, {"source": "busdepartmentcreate_controller_busdepartmentcreatecontroller", "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L27", "weight": 1.0}, {"source": "busdepartmentcreate_controller_busdepartmentcreatecontroller", "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_validateformdata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L39", "weight": 1.0}, {"source": "busdepartmentcreate_controller_busdepartmentcreatecontroller", "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_cleanformdata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L50", "weight": 1.0}, {"source": "busdepartmentcreate_controller_busdepartmentcreatecontroller", "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L56", "weight": 1.0}, {"source": "busdepartmentcreate_controller_busdepartmentcreatecontroller", "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_oncancelpress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L80", "weight": 1.0}, {"source": "busdepartmentcreate_controller_busdepartmentcreatecontroller", "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onnavback", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L91", "weight": 1.0}, {"source": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L57", "weight": 1.0}, {"source": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_validateformdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L58", "weight": 1.0}, {"source": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_cleanformdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L65", "weight": 1.0}], "raw_calls": [{"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L24"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L24"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L30"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L31"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L32"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L33"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L34"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L35"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_validateformdata", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L45"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_validateformdata", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L46"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_validateformdata", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L46"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_cleanformdata", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L52"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_cleanformdata", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L52"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L60"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L61"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L61"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "callee": "bindList", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L62"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "callee": "create", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L65"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L66"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L66"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "callee": "created", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L66"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L75"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L76"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_oncancelpress", "callee": "confirm", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L81"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onnavback", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L92"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onnavback", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L92"}, {"caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onnavback", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts", "source_location": "L92"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts",
+      "label": "BusDepartmentCreate.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "busdepartmentcreate_controller_busdepartmentcreatecontroller",
+      "label": "BusDepartmentCreateController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L19"
+    },
+    {
+      "id": "busdepartmentcreate_controller_busdepartmentcreatecontroller_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L22"
+    },
+    {
+      "id": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata",
+      "label": "._collectFormData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "busdepartmentcreate_controller_busdepartmentcreatecontroller_validateformdata",
+      "label": "._validateFormData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L39"
+    },
+    {
+      "id": "busdepartmentcreate_controller_busdepartmentcreatecontroller_cleanformdata",
+      "label": "._cleanFormData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L50"
+    },
+    {
+      "id": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "label": ".onSavePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L56"
+    },
+    {
+      "id": "busdepartmentcreate_controller_busdepartmentcreatecontroller_oncancelpress",
+      "label": ".onCancelPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "id": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onnavback",
+      "label": ".onNavBack()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L91"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts",
+      "target": "jsonmodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts",
+      "target": "odatamodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts",
+      "target": "messagebox",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts",
+      "target": "messagetoast",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts",
+      "target": "router",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busdepartmentcreate_controller_ts",
+      "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "busdepartmentcreate_controller_busdepartmentcreatecontroller",
+      "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "busdepartmentcreate_controller_busdepartmentcreatecontroller",
+      "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "busdepartmentcreate_controller_busdepartmentcreatecontroller",
+      "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_validateformdata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "busdepartmentcreate_controller_busdepartmentcreatecontroller",
+      "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_cleanformdata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "busdepartmentcreate_controller_busdepartmentcreatecontroller",
+      "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "busdepartmentcreate_controller_busdepartmentcreatecontroller",
+      "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_oncancelpress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "busdepartmentcreate_controller_busdepartmentcreatecontroller",
+      "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onnavback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_validateformdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "target": "busdepartmentcreate_controller_busdepartmentcreatecontroller_cleanformdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L65",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_validateformdata",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_validateformdata",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_validateformdata",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_cleanformdata",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_cleanformdata",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "callee": "bindList",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "callee": "create",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "callee": "created",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onsavepress",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_oncancelpress",
+      "callee": "confirm",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onnavback",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onnavback",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "busdepartmentcreate_controller_busdepartmentcreatecontroller_onnavback",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusDepartmentCreate.controller.ts",
+      "source_location": "L92"
+    }
+  ]
+}

@@ -1,1 +1,233 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_database_service_ts", "label": "database.service.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L1"}, {"id": "database_service_createknex", "label": "createKnex()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L14"}, {"id": "database_service_getdatabase", "label": "getDatabase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L32"}, {"id": "database_service_closedatabase", "label": "closeDatabase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L43"}, {"id": "database_service_runmigrations", "label": "runMigrations()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L54"}, {"id": "database_service_transformproject", "label": "transformProject()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L403"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_database_service_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_database_service_ts", "target": "database_service_createknex", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_database_service_ts", "target": "database_service_getdatabase", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L32", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_database_service_ts", "target": "database_service_closedatabase", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L43", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_database_service_ts", "target": "database_service_runmigrations", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L54", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_database_service_ts", "target": "database_service_transformproject", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L403", "weight": 1.0}, {"source": "database_service_getdatabase", "target": "database_service_createknex", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L34", "weight": 1.0}, {"source": "database_service_getdatabase", "target": "database_service_runmigrations", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L35", "weight": 1.0}, {"source": "database_service_runmigrations", "target": "database_service_getdatabase", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L55", "weight": 1.0}], "raw_calls": [{"caller_nid": "database_service_createknex", "callee": "require", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L16"}, {"caller_nid": "database_service_createknex", "callee": "knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L17"}, {"caller_nid": "database_service_closedatabase", "callee": "destroy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L45"}, {"caller_nid": "database_service_runmigrations", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L60"}, {"caller_nid": "database_service_runmigrations", "callee": "hasTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L60"}, {"caller_nid": "database_service_runmigrations", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L138"}, {"caller_nid": "database_service_runmigrations", "callee": "hasTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L138"}, {"caller_nid": "database_service_runmigrations", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L180"}, {"caller_nid": "database_service_runmigrations", "callee": "hasTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L180"}, {"caller_nid": "database_service_runmigrations", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L236"}, {"caller_nid": "database_service_runmigrations", "callee": "hasTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L236"}, {"caller_nid": "database_service_runmigrations", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L295"}, {"caller_nid": "database_service_runmigrations", "callee": "hasTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L295"}, {"caller_nid": "database_service_runmigrations", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L349"}, {"caller_nid": "database_service_runmigrations", "callee": "hasTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L349"}, {"caller_nid": "database_service_runmigrations", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L387"}, {"caller_nid": "database_service_runmigrations", "callee": "hasTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts", "source_location": "L387"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_database_service_ts",
+      "label": "database.service.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "database_service_createknex",
+      "label": "createKnex()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L14"
+    },
+    {
+      "id": "database_service_getdatabase",
+      "label": "getDatabase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L32"
+    },
+    {
+      "id": "database_service_closedatabase",
+      "label": "closeDatabase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L43"
+    },
+    {
+      "id": "database_service_runmigrations",
+      "label": "runMigrations()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L54"
+    },
+    {
+      "id": "database_service_transformproject",
+      "label": "transformProject()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L403"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_database_service_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_database_service_ts",
+      "target": "database_service_createknex",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_database_service_ts",
+      "target": "database_service_getdatabase",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_database_service_ts",
+      "target": "database_service_closedatabase",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_database_service_ts",
+      "target": "database_service_runmigrations",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_services_database_service_ts",
+      "target": "database_service_transformproject",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L403",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_getdatabase",
+      "target": "database_service_createknex",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_getdatabase",
+      "target": "database_service_runmigrations",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "database_service_runmigrations",
+      "target": "database_service_getdatabase",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L55",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "database_service_createknex",
+      "callee": "require",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L16"
+    },
+    {
+      "caller_nid": "database_service_createknex",
+      "callee": "knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L17"
+    },
+    {
+      "caller_nid": "database_service_closedatabase",
+      "callee": "destroy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "database_service_runmigrations",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "database_service_runmigrations",
+      "callee": "hasTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "database_service_runmigrations",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "database_service_runmigrations",
+      "callee": "hasTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "database_service_runmigrations",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L180"
+    },
+    {
+      "caller_nid": "database_service_runmigrations",
+      "callee": "hasTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L180"
+    },
+    {
+      "caller_nid": "database_service_runmigrations",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "database_service_runmigrations",
+      "callee": "hasTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "database_service_runmigrations",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L295"
+    },
+    {
+      "caller_nid": "database_service_runmigrations",
+      "callee": "hasTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L295"
+    },
+    {
+      "caller_nid": "database_service_runmigrations",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L349"
+    },
+    {
+      "caller_nid": "database_service_runmigrations",
+      "callee": "hasTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L349"
+    },
+    {
+      "caller_nid": "database_service_runmigrations",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L387"
+    },
+    {
+      "caller_nid": "database_service_runmigrations",
+      "callee": "hasTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/services/database.service.ts",
+      "source_location": "L387"
+    }
+  ]
+}

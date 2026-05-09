@@ -17,20 +17,20 @@
  * Project: crm-app
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import type { Knex } from 'knex';
-import { InjectDatabase } from '../../database/database.service.decorator';
-import { entityLifecycleWorkflow } from '../../trigger/entity-lifecycle-workflow.task';
+import { Injectable, Logger } from "@nestjs/common";
+import type { Knex } from "knex";
+import { InjectDatabase } from "../../database/database.service.decorator";
+import { entityLifecycleWorkflow } from "../../trigger/entity-lifecycle-workflow.task";
 
 export interface TriggerWorkflowDto {
   entityName: string;
   entityId: string;
-  operation: 'create' | 'update' | 'delete';
+  operation: "create" | "update" | "delete";
   userId: string;
 }
 
 export interface WorkflowStatus {
-  status: 'draft' | 'success' | 'error';
+  status: "draft" | "success" | "error";
   completedAt?: Date;
   error?: string;
   mutationsApplied?: Record<string, unknown>;
@@ -54,19 +54,19 @@ export class WorkflowService {
     this.logger.log(`Triggering workflow for ${dto.entityName}:${dto.entityId} (${dto.operation})`);
 
     // Create workflow run record
-    const [workflowRun] = await this.db('sys_workflow_runs')
+    const [workflowRun] = await this.db("sys_workflow_runs")
       .insert({
         entity_name: dto.entityName,
         entity_id: dto.entityId,
         operation: dto.operation,
-        status: 'draft',
+        status: "draft",
         created_by: dto.userId,
       })
-      .returning('*');
+      .returning("*");
 
     // Set entity workflow_status to draft
-    await this.db(dto.entityName).where('id', dto.entityId).update({
-      workflow_status: 'draft',
+    await this.db(dto.entityName).where("id", dto.entityId).update({
+      workflow_status: "draft",
       workflow_run_id: workflowRun.id,
     });
 
@@ -91,7 +91,7 @@ export class WorkflowService {
    * @returns Workflow status
    */
   async getStatus(runId: string): Promise<WorkflowStatus> {
-    const workflowRun = await this.db('sys_workflow_runs').where('id', runId).first();
+    const workflowRun = await this.db("sys_workflow_runs").where("id", runId).first();
 
     if (!workflowRun) {
       throw new Error(`Workflow run ${runId} not found`);
@@ -115,15 +115,15 @@ export class WorkflowService {
    * @returns New workflow run ID
    */
   async retry(workflowRunId: string): Promise<string> {
-    const workflowRun = await this.db('sys_workflow_runs').where('id', workflowRunId).first();
+    const workflowRun = await this.db("sys_workflow_runs").where("id", workflowRunId).first();
 
     if (!workflowRun) {
       throw new Error(`Workflow run ${workflowRunId} not found`);
     }
 
     // Reset entity workflow_status to none
-    await this.db(workflowRun.entity_name).where('id', workflowRun.entity_id).update({
-      workflow_status: 'none',
+    await this.db(workflowRun.entity_name).where("id", workflowRun.entity_id).update({
+      workflow_status: "none",
       workflow_run_id: null,
     });
 
@@ -145,12 +145,12 @@ export class WorkflowService {
    * @returns Workflow runs
    */
   async getEntityWorkflows(entityName: string, entityId: string, limit = 10) {
-    return await this.db('sys_workflow_runs')
+    return await this.db("sys_workflow_runs")
       .where({
         entity_name: entityName,
         entity_id: entityId,
       })
-      .orderBy('created_at', 'desc')
+      .orderBy("created_at", "desc")
       .limit(limit);
   }
 
@@ -161,22 +161,22 @@ export class WorkflowService {
    * @returns Workflow runs
    */
   async getAllWorkflows(filters?: {
-    status?: 'draft' | 'success' | 'error';
+    status?: "draft" | "success" | "error";
     entityName?: string;
     limit?: number;
   }) {
-    let query = this.db('sys_workflow_runs');
+    let query = this.db("sys_workflow_runs");
 
     if (filters?.status) {
-      query = query.where('status', filters.status);
+      query = query.where("status", filters.status);
     }
 
     if (filters?.entityName) {
-      query = query.where('entity_name', filters.entityName);
+      query = query.where("entity_name", filters.entityName);
     }
 
     const limit = filters?.limit ?? 100;
 
-    return await query.orderBy('created_at', 'desc').limit(limit);
+    return await query.orderBy("created_at", "desc").limit(limit);
   }
 }

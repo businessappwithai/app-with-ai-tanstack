@@ -9,10 +9,10 @@
  */
 
 import {
+  TRIGGER_DEV_CONFIG,
+  WORKFLOW_ERROR_CODES,
   WORKFLOW_POLLING,
   WORKFLOW_TIMEOUTS,
-  WORKFLOW_ERROR_CODES,
-  TRIGGER_DEV_CONFIG,
 } from "@erdwithai/core/config";
 
 /**
@@ -79,7 +79,7 @@ export interface PollingOptions {
 function calculateBackoff(attempt: number, baseDelayMs: number): number {
   const jitter = 1 + (Math.random() * 2 - 1) * 0.25; // +/- 25%
   const backoff = Math.min(
-    baseDelayMs * Math.pow(2, attempt),
+    baseDelayMs * 2 ** attempt,
     WORKFLOW_POLLING.MAX_ATTEMPTS * WORKFLOW_POLLING.INTERVAL_MS
   );
   return Math.floor(backoff * jitter);
@@ -174,10 +174,7 @@ export async function pollWorkflowStatus(
 
       // Log error but continue polling (transient network issues)
       if (TRIGGER_DEV_CONFIG.ENABLED && process.env.NODE_ENV !== "test") {
-        console.error(
-          `[WorkflowPolling] Poll attempt ${attempts + 1} failed:`,
-          lastError.message
-        );
+        console.error(`[WorkflowPolling] Poll attempt ${attempts + 1} failed:`, lastError.message);
       }
 
       // Wait before retry (with backoff)
@@ -208,24 +205,20 @@ export async function pollWorkflowStatus(
  * @returns {Promise<TriggerDevWorkflowRun>} Workflow run data
  * @throws {Error} If API request fails
  */
-async function fetchWorkflowRun(
-  runId: string
-): Promise<TriggerDevWorkflowRun> {
+async function fetchWorkflowRun(runId: string): Promise<TriggerDevWorkflowRun> {
   const apiUrl = `${TRIGGER_DEV_CONFIG.API_URL}/api/v1/runs/${runId}`;
 
   const response = await fetch(apiUrl, {
     method: "GET",
     headers: {
-      "Authorization": `Bearer ${TRIGGER_DEV_CONFIG.API_KEY}`,
+      Authorization: `Bearer ${TRIGGER_DEV_CONFIG.API_KEY}`,
       "Content-Type": "application/json",
     },
     signal: AbortSignal.timeout(WORKFLOW_TIMEOUTS.POLL_TIMEOUT_MS),
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Trigger.dev API error: ${response.status} ${response.statusText}`
-    );
+    throw new Error(`Trigger.dev API error: ${response.status} ${response.statusText}`);
   }
 
   const data = await response.json();
@@ -238,9 +231,7 @@ async function fetchWorkflowRun(
  * @param status - Trigger.dev workflow status
  * @returns {boolean} True if status is terminal
  */
-function isTerminalStatus(
-  status: TriggerDevWorkflowRun["status"]
-): boolean {
+function isTerminalStatus(status: TriggerDevWorkflowRun["status"]): boolean {
   return ["SUCCESS", "FAILURE", "CANCELLED", "TIMEOUT"].includes(status);
 }
 

@@ -1,1 +1,236 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_dictionary_generator_ts", "label": "dictionary.generator.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L1"}, {"id": "dictionary_generator_dictionarygenerator", "label": "DictionaryGenerator", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L58"}, {"id": "dictionary_generator_dictionarygenerator_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L61"}, {"id": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "label": ".generateDictionaryContext()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L71"}, {"id": "dictionary_generator_dictionarygenerator_getsystemtablenames", "label": ".getSystemTableNames()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L209"}, {"id": "dictionary_generator_dictionarygenerator_getstandardreferences", "label": ".getStandardReferences()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L221"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_dictionary_generator_ts", "target": "types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_dictionary_generator_ts", "target": "types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_dictionary_generator_ts", "target": "types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L25", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_dictionary_generator_ts", "target": "dictionary_generator_dictionarygenerator", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L58", "weight": 1.0}, {"source": "dictionary_generator_dictionarygenerator", "target": "dictionary_generator_dictionarygenerator_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L61", "weight": 1.0}, {"source": "dictionary_generator_dictionarygenerator", "target": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L71", "weight": 1.0}, {"source": "dictionary_generator_dictionarygenerator", "target": "dictionary_generator_dictionarygenerator_getsystemtablenames", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L209", "weight": 1.0}, {"source": "dictionary_generator_dictionarygenerator", "target": "dictionary_generator_dictionarygenerator_getstandardreferences", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L221", "weight": 1.0}], "raw_calls": [{"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "entityToBusEntity", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L93"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L94"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L97"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "set", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L100"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "generateSysTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L105"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L108"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L111"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L147"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "generateSysWindow", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L152"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L156"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "generateSysTab", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L161"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L166"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "generateSysFieldGroups", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L169"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L170"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L174"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L177"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "generateSysFields", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L182"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L183"}, {"caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts", "source_location": "L189"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_dictionary_generator_ts",
+      "label": "dictionary.generator.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "dictionary_generator_dictionarygenerator",
+      "label": "DictionaryGenerator",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L58"
+    },
+    {
+      "id": "dictionary_generator_dictionarygenerator_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L61"
+    },
+    {
+      "id": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "label": ".generateDictionaryContext()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L71"
+    },
+    {
+      "id": "dictionary_generator_dictionarygenerator_getsystemtablenames",
+      "label": ".getSystemTableNames()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L209"
+    },
+    {
+      "id": "dictionary_generator_dictionarygenerator_getstandardreferences",
+      "label": ".getStandardReferences()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L221"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_dictionary_generator_ts",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_dictionary_generator_ts",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_dictionary_generator_ts",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_dictionary_generator_ts",
+      "target": "dictionary_generator_dictionarygenerator",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "dictionary_generator_dictionarygenerator",
+      "target": "dictionary_generator_dictionarygenerator_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "dictionary_generator_dictionarygenerator",
+      "target": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "dictionary_generator_dictionarygenerator",
+      "target": "dictionary_generator_dictionarygenerator_getsystemtablenames",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L209",
+      "weight": 1.0
+    },
+    {
+      "source": "dictionary_generator_dictionarygenerator",
+      "target": "dictionary_generator_dictionarygenerator_getstandardreferences",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L221",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "entityToBusEntity",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "set",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "generateSysTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "generateSysWindow",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L156"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "generateSysTab",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L166"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "generateSysFieldGroups",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L169"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L170"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "generateSysFields",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L183"
+    },
+    {
+      "caller_nid": "dictionary_generator_dictionarygenerator_generatedictionarycontext",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/dictionary.generator.ts",
+      "source_location": "L189"
+    }
+  ]
+}

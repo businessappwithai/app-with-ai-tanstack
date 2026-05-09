@@ -4,7 +4,7 @@
  */
 
 import { deploymentDb, processManagerService, projectDb } from "@erdwithai/core/services";
-import { startActionLog, addLogEntry, completeActionLog } from "@/lib/logs/logs.service";
+import { addLogEntry, completeActionLog, startActionLog } from "@/lib/logs/logs.service";
 
 export const deploymentApi = {
   /**
@@ -26,11 +26,20 @@ export const deploymentApi = {
     }
 
     const projectPort = port || project.port;
-    const actionId = startActionLog(projectId, "start", `Starting project on port ${projectPort}...`);
+    const actionId = startActionLog(
+      projectId,
+      "start",
+      `Starting project on port ${projectPort}...`
+    );
 
     try {
       addLogEntry(actionId, "Checking project configuration...", "running");
-      addLogEntry(actionId, `Project: ${project.name}`, "running", `ID: ${project.id}\nStack: ${project.stackType}\nPath: ${project.generatedPath}`);
+      addLogEntry(
+        actionId,
+        `Project: ${project.name}`,
+        "running",
+        `ID: ${project.id}\nStack: ${project.stackType}\nPath: ${project.generatedPath}`
+      );
 
       addLogEntry(actionId, "Validating generated files...", "running");
       if (!project.generatedPath) {
@@ -52,7 +61,12 @@ export const deploymentApi = {
       }
 
       addLogEntry(actionId, "Dependencies installed successfully", "success");
-      addLogEntry(actionId, "Server started successfully", "success", `URL: ${result.url}\nPort: ${projectPort}`);
+      addLogEntry(
+        actionId,
+        "Server started successfully",
+        "success",
+        `URL: ${result.url}\nPort: ${projectPort}`
+      );
 
       // Update deployment in database
       const deployment = await deploymentDb.upsert({
@@ -130,12 +144,15 @@ export const deploymentApi = {
   /**
    * Update deployment status
    */
-  async upsert(projectId: string, data: {
-    status?: string;
-    port?: number;
-    deploymentUrl?: string;
-    uptime?: string;
-  }) {
+  async upsert(
+    projectId: string,
+    data: {
+      status?: string;
+      port?: number;
+      deploymentUrl?: string;
+      uptime?: string;
+    }
+  ) {
     const deployment = await deploymentDb.upsert({
       project_id: projectId,
       status: data.status ?? "unknown",
@@ -145,5 +162,5 @@ export const deploymentApi = {
     });
 
     return { deployment };
-  }
+  },
 };

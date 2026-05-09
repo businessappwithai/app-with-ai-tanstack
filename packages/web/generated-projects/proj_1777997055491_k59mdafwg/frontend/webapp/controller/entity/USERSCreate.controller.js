@@ -6,82 +6,91 @@
  *
  * Generated: 2026-05-06T11:42:08.778Z
  */
-sap.ui.define([
-  "sap/ui/core/mvc/Controller",
-  "sap/ui/model/json/JSONModel",
-  "sap/m/MessageToast",
-  "sap/m/MessageBox"
-], function(Controller, JSONModel, MessageToast, MessageBox) {
-  "use strict";
+sap.ui.define(
+  [
+    "sap/ui/core/mvc/Controller",
+    "sap/ui/model/json/JSONModel",
+    "sap/m/MessageToast",
+    "sap/m/MessageBox",
+  ],
+  (Controller, JSONModel, MessageToast, MessageBox) =>
+    Controller.extend("q-a-test-project.controller.entity.USERSCreate", {
+      onInit: function () {
+        var oViewModel = new JSONModel({
+          busy: false,
+          entityName: "bus_users",
+          entityDisplayName: "Users",
+          entitySetName: "Bususerses",
+          formData: {},
+        });
+        this.getView().setModel(oViewModel, "view");
 
-  return Controller.extend("q-a-test-project.controller.entity.USERSCreate", {
+        this.getOwnerComponent()
+          .getRouter()
+          .getRoute("uSERSCreate")
+          .attachPatternMatched(this._onRouteMatched, this);
+      },
 
-    onInit: function() {
-      var oViewModel = new JSONModel({
-        busy: false,
-        entityName: "bus_users",
-        entityDisplayName: "Users",
-        entitySetName: "Bususerses",
-        formData: {}
-      });
-      this.getView().setModel(oViewModel, "view");
+      _onRouteMatched: function () {
+        // Reset form data
+        this.getView().getModel("view").setProperty("/formData", {
+          username: "",
+          email: "",
+          password_hash: "",
+        });
+      },
 
-      this.getOwnerComponent().getRouter()
-        .getRoute("uSERSCreate")
-        .attachPatternMatched(this._onRouteMatched, this);
-    },
+      onSavePress: function () {
+        var oView = this.getView();
+        var oViewModel = oView.getModel("view");
+        var oFormData = oViewModel.getProperty("/formData");
+        var sEntitySet = oViewModel.getProperty("/entitySetName");
 
-    _onRouteMatched: function() {
-      // Reset form data
-      this.getView().getModel("view").setProperty("/formData", {
-        username: "",
-        email: "",
-        password_hash: "",
-      });
-    },
+        // Basic validation
+        if (!oFormData.username && oFormData.username !== 0 && oFormData.username !== false) {
+          MessageBox.error("Username is required");
+          return;
+        }
+        if (!oFormData.email && oFormData.email !== 0 && oFormData.email !== false) {
+          MessageBox.error("Email is required");
+          return;
+        }
+        if (
+          !oFormData.password_hash &&
+          oFormData.password_hash !== 0 &&
+          oFormData.password_hash !== false
+        ) {
+          MessageBox.error("Password Hash is required");
+          return;
+        }
 
-    onSavePress: function() {
-      var oView = this.getView();
-      var oViewModel = oView.getModel("view");
-      var oFormData = oViewModel.getProperty("/formData");
-      var sEntitySet = oViewModel.getProperty("/entitySetName");
+        oViewModel.setProperty("/busy", true);
 
-      // Basic validation
-      if (!oFormData.username && oFormData.username !== 0 && oFormData.username !== false) {
-        MessageBox.error("Username is required");
-        return;
-      }
-      if (!oFormData.email && oFormData.email !== 0 && oFormData.email !== false) {
-        MessageBox.error("Email is required");
-        return;
-      }
-      if (!oFormData.password_hash && oFormData.password_hash !== 0 && oFormData.password_hash !== false) {
-        MessageBox.error("Password Hash is required");
-        return;
-      }
+        var oModel = this.getOwnerComponent().getModel();
+        var oListBinding = oModel.bindList("/" + sEntitySet);
+        var oContext = oListBinding.create(oFormData);
 
-      oViewModel.setProperty("/busy", true);
+        oContext
+          .created()
+          .then(
+            function () {
+              oViewModel.setProperty("/busy", false);
+              MessageToast.show("Users created successfully");
+              this.onNavBack();
+            }.bind(this)
+          )
+          .catch((oError) => {
+            oViewModel.setProperty("/busy", false);
+            MessageBox.error("Failed to create: " + (oError.message || "Unknown error"));
+          });
+      },
 
-      var oModel = this.getOwnerComponent().getModel();
-      var oListBinding = oModel.bindList("/" + sEntitySet);
-      var oContext = oListBinding.create(oFormData);
-
-      oContext.created().then(function() {
-        oViewModel.setProperty("/busy", false);
-        MessageToast.show("Users created successfully");
+      onCancelPress: function () {
         this.onNavBack();
-      }.bind(this)).catch(function(oError) {
-        oViewModel.setProperty("/busy", false);
-        MessageBox.error("Failed to create: " + (oError.message || "Unknown error"));
-      });
-    },
+      },
 
-    onCancelPress: function() {
-      this.onNavBack();
-    },
-
-    onNavBack: function() {
-      this.getOwnerComponent().getRouter().navTo("uSERSList");
-    }
-  });
-});
+      onNavBack: function () {
+        this.getOwnerComponent().getRouter().navTo("uSERSList");
+      },
+    })
+);

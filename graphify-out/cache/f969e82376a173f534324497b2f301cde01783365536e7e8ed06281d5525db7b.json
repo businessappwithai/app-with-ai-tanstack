@@ -1,1 +1,197 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx", "label": "LogsViewer.tsx", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L1"}, {"id": "logsviewer_toggleentry", "label": "toggleEntry()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L78"}, {"id": "logsviewer_handledelete", "label": "handleDelete()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L90"}, {"id": "logsviewer_handledownload", "label": "handleDownload()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L97"}, {"id": "logsviewer_getstatusicon", "label": "getStatusIcon()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L116"}, {"id": "logsviewer_getstatuscolor", "label": "getStatusColor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L129"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx", "target": "react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L3", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx", "target": "lucide_react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L4", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx", "target": "logs_service", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx", "target": "logsviewer_toggleentry", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L78", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx", "target": "logsviewer_handledelete", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L90", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx", "target": "logsviewer_handledownload", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L97", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx", "target": "logsviewer_getstatusicon", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L116", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx", "target": "logsviewer_getstatuscolor", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L129", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx", "target": "logsviewer_getstatusicon", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L177", "weight": 1.0}], "raw_calls": [{"caller_nid": "logsviewer_toggleentry", "callee": "setExpandedEntries", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L79"}, {"caller_nid": "logsviewer_handledelete", "callee": "confirm", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L91"}, {"caller_nid": "logsviewer_handledelete", "callee": "deleteActionLog", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L92"}, {"caller_nid": "logsviewer_handledelete", "callee": "onClose", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L93"}, {"caller_nid": "logsviewer_handledownload", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L100"}, {"caller_nid": "logsviewer_handledownload", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L100"}, {"caller_nid": "logsviewer_handledownload", "callee": "createObjectURL", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L108"}, {"caller_nid": "logsviewer_handledownload", "callee": "createElement", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L109"}, {"caller_nid": "logsviewer_handledownload", "callee": "now", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L111"}, {"caller_nid": "logsviewer_handledownload", "callee": "click", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L112"}, {"caller_nid": "logsviewer_handledownload", "callee": "revokeObjectURL", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx", "source_location": "L113"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx",
+      "label": "LogsViewer.tsx",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "logsviewer_toggleentry",
+      "label": "toggleEntry()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L78"
+    },
+    {
+      "id": "logsviewer_handledelete",
+      "label": "handleDelete()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L90"
+    },
+    {
+      "id": "logsviewer_handledownload",
+      "label": "handleDownload()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L97"
+    },
+    {
+      "id": "logsviewer_getstatusicon",
+      "label": "getStatusIcon()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L116"
+    },
+    {
+      "id": "logsviewer_getstatuscolor",
+      "label": "getStatusColor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L129"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx",
+      "target": "logs_service",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx",
+      "target": "logsviewer_toggleentry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx",
+      "target": "logsviewer_handledelete",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L90",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx",
+      "target": "logsviewer_handledownload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L97",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx",
+      "target": "logsviewer_getstatusicon",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L116",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx",
+      "target": "logsviewer_getstatuscolor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L129",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_logs_logsviewer_tsx",
+      "target": "logsviewer_getstatusicon",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L177",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "logsviewer_toggleentry",
+      "callee": "setExpandedEntries",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "logsviewer_handledelete",
+      "callee": "confirm",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "logsviewer_handledelete",
+      "callee": "deleteActionLog",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "logsviewer_handledelete",
+      "callee": "onClose",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "logsviewer_handledownload",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "logsviewer_handledownload",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "logsviewer_handledownload",
+      "callee": "createObjectURL",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "logsviewer_handledownload",
+      "callee": "createElement",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "logsviewer_handledownload",
+      "callee": "now",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "logsviewer_handledownload",
+      "callee": "click",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "logsviewer_handledownload",
+      "callee": "revokeObjectURL",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/logs/LogsViewer.tsx",
+      "source_location": "L113"
+    }
+  ]
+}

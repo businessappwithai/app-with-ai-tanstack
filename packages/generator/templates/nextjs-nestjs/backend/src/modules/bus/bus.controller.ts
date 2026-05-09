@@ -8,26 +8,26 @@
  */
 
 import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Patch,
-  Delete,
   Body,
-  Param,
-  Query,
+  Controller,
+  Delete,
+  Get,
   Headers,
   HttpCode,
   HttpStatus,
+  Param,
   ParseUUIDPipe,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
-import { BusService } from './bus.service';
+  Patch,
+  Post,
+  Put,
+  Query,
+} from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import type { BusService } from "./bus.service";
 
-@ApiTags('bus')
+@ApiTags("bus")
 @ApiBearerAuth()
-@Controller('bus')
+@Controller("bus")
 export class BusController {
   constructor(private readonly busService: BusService) {}
 
@@ -35,17 +35,17 @@ export class BusController {
    * List all records for a business entity
    * GET /api/bus/:entity
    */
-  @Get(':entity')
-  @ApiOperation({ summary: 'List all records for a business entity' })
-  @ApiParam({ name: 'entity', description: 'Entity name (e.g., customer, order)' })
-  @ApiResponse({ status: 200, description: 'Returns paginated list of records' })
+  @Get(":entity")
+  @ApiOperation({ summary: "List all records for a business entity" })
+  @ApiParam({ name: "entity", description: "Entity name (e.g., customer, order)" })
+  @ApiResponse({ status: 200, description: "Returns paginated list of records" })
   async findAll(
     @Param('entity') entity: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('orderBy') orderBy?: string,
     @Query('orderDir') orderDir?: 'asc' | 'desc',
-    @Query() query?: Record<string, any>,
+    @Query() query?: Record<string, any>
   ) {
     // Extract filters from query params (exclude pagination params)
     const { page: _p, limit: _l, orderBy: _ob, orderDir: _od, ...filters } = query || {};
@@ -57,16 +57,13 @@ export class BusController {
    * Get a single record by ID
    * GET /api/bus/:entity/:id
    */
-  @Get(':entity/:id')
-  @ApiOperation({ summary: 'Get a single record by ID' })
-  @ApiParam({ name: 'entity', description: 'Entity name' })
-  @ApiParam({ name: 'id', description: 'Record UUID' })
-  @ApiResponse({ status: 200, description: 'Returns the record' })
-  @ApiResponse({ status: 404, description: 'Record not found' })
-  async findOne(
-    @Param('entity') entity: string,
-    @Param('id') id: string,
-  ) {
+  @Get(":entity/:id")
+  @ApiOperation({ summary: "Get a single record by ID" })
+  @ApiParam({ name: "entity", description: "Entity name" })
+  @ApiParam({ name: "id", description: "Record UUID" })
+  @ApiResponse({ status: 200, description: "Returns the record" })
+  @ApiResponse({ status: 404, description: "Record not found" })
+  async findOne(@Param('entity') entity: string, @Param('id') id: string) {
     return this.busService.findById(entity, id);
   }
 
@@ -86,9 +83,9 @@ export class BusController {
    * Create a new field group
    * POST /api/bus/:entity/field-groups
    */
-  @Post(':entity/field-groups')
-  @ApiOperation({ summary: 'Create a new field group' })
-  @ApiParam({ name: 'entity', description: 'Entity name' })
+  @Post(":entity/field-groups")
+  @ApiOperation({ summary: "Create a new field group" })
+  @ApiParam({ name: "entity", description: "Entity name" })
   async createFieldGroup(@Param('entity') entity: string, @Body() groupData: any) {
     return this.busService.createFieldGroup(entity, groupData);
   }
@@ -97,10 +94,10 @@ export class BusController {
    * Update a field group
    * PUT /api/bus/:entity/field-groups/:groupId
    */
-  @Put(':entity/field-groups/:groupId')
-  @ApiOperation({ summary: 'Update a field group' })
-  @ApiParam({ name: 'entity', description: 'Entity name' })
-  @ApiParam({ name: 'groupId', description: 'Group ID' })
+  @Put(":entity/field-groups/:groupId")
+  @ApiOperation({ summary: "Update a field group" })
+  @ApiParam({ name: "entity", description: "Entity name" })
+  @ApiParam({ name: "groupId", description: "Group ID" })
   async updateFieldGroup(
     @Param('entity') entity: string,
     @Param('groupId') groupId: string,
@@ -113,11 +110,11 @@ export class BusController {
    * Delete a field group
    * @Delete /api/bus/:entity/field-groups/:groupId
    */
-  @Delete(':entity/field-groups/:groupId')
+  @Delete(":entity/field-groups/:groupId")
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a field group' })
-  @ApiParam({ name: 'entity', description: 'Entity name' })
-  @ApiParam({ name: 'groupId', description: 'Group ID' })
+  @ApiOperation({ summary: "Delete a field group" })
+  @ApiParam({ name: "entity", description: "Entity name" })
+  @ApiParam({ name: "groupId", description: "Group ID" })
   async deleteFieldGroup(@Param('entity') entity: string, @Param('groupId') groupId: string) {
     await this.busService.deleteFieldGroup(entity, groupId);
   }
@@ -126,10 +123,10 @@ export class BusController {
    * Assign field to a group
    * PUT /api/bus/:entity/fields/:fieldId/group
    */
-  @Put(':entity/fields/:fieldId/group')
-  @ApiOperation({ summary: 'Assign field to a group' })
-  @ApiParam({ name: 'entity', description: 'Entity name' })
-  @ApiParam({ name: 'fieldId', description: 'Field ID' })
+  @Put(":entity/fields/:fieldId/group")
+  @ApiOperation({ summary: "Assign field to a group" })
+  @ApiParam({ name: "entity", description: "Entity name" })
+  @ApiParam({ name: "fieldId", description: "Field ID" })
   async assignFieldToGroup(
     @Param('entity') entity: string,
     @Param('fieldId') fieldId: string,
@@ -143,10 +140,10 @@ export class BusController {
    * Update field styling
    * PATCH /api/bus/:entity/fields/:fieldId/style
    */
-  @Patch(':entity/fields/:fieldId/style')
-  @ApiOperation({ summary: 'Update field styling (color, col_span, etc.)' })
-  @ApiParam({ name: 'entity', description: 'Entity name' })
-  @ApiParam({ name: 'fieldId', description: 'Field ID' })
+  @Patch(":entity/fields/:fieldId/style")
+  @ApiOperation({ summary: "Update field styling (color, col_span, etc.)" })
+  @ApiParam({ name: "entity", description: "Entity name" })
+  @ApiParam({ name: "fieldId", description: "Field ID" })
   async updateFieldStyle(
     @Param('entity') entity: string,
     @Param('fieldId') fieldId: string,
@@ -160,17 +157,14 @@ export class BusController {
    * Create a new record
    * POST /api/bus/:entity
    */
-  @Post(':entity')
-  @ApiOperation({ summary: 'Create a new record' })
-  @ApiParam({ name: 'entity', description: 'Entity name' })
-  @ApiResponse({ status: 201, description: 'Record created successfully' })
-  @ApiResponse({ status: 400, description: 'Validation error' })
-  async create(
-    @Param('entity') entity: string,
-    @Body() data: Record<string, any>,
-  ) {
+  @Post(":entity")
+  @ApiOperation({ summary: "Create a new record" })
+  @ApiParam({ name: "entity", description: "Entity name" })
+  @ApiResponse({ status: 201, description: "Record created successfully" })
+  @ApiResponse({ status: 400, description: "Validation error" })
+  async create(@Param('entity') entity: string, @Body() data: Record<string, any>) {
     // Validate data against dictionary metadata
-    await this.busService.validateData(entity, data, 'create');
+    await this.busService.validateData(entity, data, "create");
     return this.busService.create(entity, data);
   }
 
@@ -178,26 +172,24 @@ export class BusController {
    * Update an existing record (full replace)
    * PUT /api/bus/:entity/:id
    */
-  @Put(':entity/:id')
-  @ApiOperation({ summary: 'Update a record (full replace)' })
-  @ApiParam({ name: 'entity', description: 'Entity name' })
-  @ApiParam({ name: 'id', description: 'Record UUID' })
-  @ApiResponse({ status: 200, description: 'Record updated successfully' })
-  @ApiResponse({ status: 404, description: 'Record not found' })
-  @ApiResponse({ status: 409, description: 'Conflict - record was modified' })
+  @Put(":entity/:id")
+  @ApiOperation({ summary: "Update a record (full replace)" })
+  @ApiParam({ name: "entity", description: "Entity name" })
+  @ApiParam({ name: "id", description: "Record UUID" })
+  @ApiResponse({ status: 200, description: "Record updated successfully" })
+  @ApiResponse({ status: 404, description: "Record not found" })
+  @ApiResponse({ status: 409, description: "Conflict - record was modified" })
   async update(
     @Param('entity') entity: string,
     @Param('id') id: string,
     @Body() data: Record<string, any>,
-    @Headers('if-match') ifMatch?: string,
+    @Headers('if-match') ifMatch?: string
   ) {
     // Extract version from If-Match header
-    const version = ifMatch
-      ? parseInt(ifMatch.replace(/"/g, '').replace('v', ''), 10)
-      : undefined;
+    const version = ifMatch ? parseInt(ifMatch.replace(/"/g, "").replace("v", ""), 10) : undefined;
 
     // Validate data against dictionary metadata
-    await this.busService.validateData(entity, data, 'update');
+    await this.busService.validateData(entity, data, "update");
     return this.busService.update(entity, id, data, version);
   }
 
@@ -205,25 +197,23 @@ export class BusController {
    * Partially update a record
    * PATCH /api/bus/:entity/:id
    */
-  @Patch(':entity/:id')
-  @ApiOperation({ summary: 'Partially update a record' })
-  @ApiParam({ name: 'entity', description: 'Entity name' })
-  @ApiParam({ name: 'id', description: 'Record UUID' })
-  @ApiResponse({ status: 200, description: 'Record updated successfully' })
-  @ApiResponse({ status: 404, description: 'Record not found' })
-  @ApiResponse({ status: 409, description: 'Conflict - record was modified' })
+  @Patch(":entity/:id")
+  @ApiOperation({ summary: "Partially update a record" })
+  @ApiParam({ name: "entity", description: "Entity name" })
+  @ApiParam({ name: "id", description: "Record UUID" })
+  @ApiResponse({ status: 200, description: "Record updated successfully" })
+  @ApiResponse({ status: 404, description: "Record not found" })
+  @ApiResponse({ status: 409, description: "Conflict - record was modified" })
   async patch(
     @Param('entity') entity: string,
     @Param('id') id: string,
     @Body() data: Record<string, any>,
-    @Headers('if-match') ifMatch?: string,
+    @Headers('if-match') ifMatch?: string
   ) {
-    const version = ifMatch
-      ? parseInt(ifMatch.replace(/"/g, '').replace('v', ''), 10)
-      : undefined;
+    const version = ifMatch ? parseInt(ifMatch.replace(/"/g, "").replace("v", ""), 10) : undefined;
 
     // Validate partial data against dictionary metadata
-    await this.busService.validateData(entity, data, 'patch');
+    await this.busService.validateData(entity, data, "patch");
     return this.busService.update(entity, id, data, version);
   }
 
@@ -231,17 +221,14 @@ export class BusController {
    * Delete a record (soft delete)
    * DELETE /api/bus/:entity/:id
    */
-  @Delete(':entity/:id')
+  @Delete(":entity/:id")
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a record (soft delete)' })
-  @ApiParam({ name: 'entity', description: 'Entity name' })
-  @ApiParam({ name: 'id', description: 'Record UUID' })
-  @ApiResponse({ status: 204, description: 'Record deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Record not found' })
-  async delete(
-    @Param('entity') entity: string,
-    @Param('id') id: string,
-  ) {
+  @ApiOperation({ summary: "Delete a record (soft delete)" })
+  @ApiParam({ name: "entity", description: "Entity name" })
+  @ApiParam({ name: "id", description: "Record UUID" })
+  @ApiResponse({ status: 204, description: "Record deleted successfully" })
+  @ApiResponse({ status: 404, description: "Record not found" })
+  async delete(@Param('entity') entity: string, @Param('id') id: string) {
     await this.busService.softDelete(entity, id);
   }
 

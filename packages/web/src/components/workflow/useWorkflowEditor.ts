@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export interface WorkflowStep {
   id: string;
@@ -72,9 +72,8 @@ export function useWorkflowEditor({
   const [goRulesData, setGoRulesData] = useState<any>(null);
   const [isSavingRules, setIsSavingRules] = useState(false);
 
-  const getWorkflowApiPath = (
-    action: "validate" | "apply" | "generate" | "files" | "gorules"
-  ) => `/api/projects/${projectId}/workflows/${serviceName}/${action}`;
+  const getWorkflowApiPath = (action: "validate" | "apply" | "generate" | "files" | "gorules") =>
+    `/api/projects/${projectId}/workflows/${serviceName}/${action}`;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const parseFlowchart = (code: string): any[] => {

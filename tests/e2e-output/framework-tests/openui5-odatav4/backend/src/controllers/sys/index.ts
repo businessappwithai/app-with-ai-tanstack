@@ -6,5 +6,5 @@
  * Generated: 2026-02-09T13:00:26.931Z
  */
 
-export * from './sys-table.controller';
-export * from './sys-field.controller';
+export * from "./sys-field.controller";
+export * from "./sys-table.controller";

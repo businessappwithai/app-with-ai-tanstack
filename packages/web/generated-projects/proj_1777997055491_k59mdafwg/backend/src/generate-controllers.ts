@@ -7,10 +7,10 @@
  * Generated: 2026-05-06T11:42:08.723Z
  */
 
-import { initializeDatabase, getKnex, closeDatabase } from './database/connection';
-import { getBusinessTables, DatabaseTable } from './utils/dynamic-schema';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
+import { closeDatabase, getKnex, initializeDatabase } from "./database/connection";
+import { type DatabaseTable, getBusinessTables } from "./utils/dynamic-schema";
 
 // Generate controller class code for a single entity
 function generateControllerClass(table: DatabaseTable): string {
@@ -226,8 +226,8 @@ export class \${entityName}Controller extends ODataController {
 // Generate index file that exports all controllers
 function generateIndexFile(tables: DatabaseTable[]): string {
   const exports = tables
-    .map(t => `export * from './$\{t.entityName.toLowerCase()}.controller';`)
-    .join('\\n');
+    .map((t) => `export * from './$\{t.entityName.toLowerCase()}.controller';`)
+    .join("\\n");
 
   return `/**
  * Auto-generated controller index
@@ -240,7 +240,7 @@ $\{exports}
 
 // Main generation logic
 async function main() {
-  console.log('🔧 Generating OData V4 Controllers...\\n');
+  console.log("🔧 Generating OData V4 Controllers...\\n");
 
   // Initialize database
   await initializeDatabase();
@@ -251,7 +251,7 @@ async function main() {
   console.log(`Found $\{tables.length} entities to generate\\n`);
 
   // Create controllers directory
-  const controllersDir = path.join(__dirname, 'controllers', 'generated');
+  const controllersDir = path.join(__dirname, "controllers", "generated");
   if (!fs.existsSync(controllersDir)) {
     fs.mkdirSync(controllersDir, { recursive: true });
   }
@@ -262,14 +262,14 @@ async function main() {
     const fileName = `$\{table.entityName.toLowerCase()}.controller.ts`;
     const filePath = path.join(controllersDir, fileName);
 
-    fs.writeFileSync(filePath, controllerCode, 'utf-8');
+    fs.writeFileSync(filePath, controllerCode, "utf-8");
     console.log(`✅ Generated: $\{fileName}`);
   }
 
   // Generate index file
   const indexCode = generateIndexFile(tables);
-  const indexPath = path.join(controllersDir, 'index.ts');
-  fs.writeFileSync(indexPath, indexCode, 'utf-8');
+  const indexPath = path.join(controllersDir, "index.ts");
+  fs.writeFileSync(indexPath, indexCode, "utf-8");
   console.log(`✅ Generated: index.ts\\n`);
 
   console.log(`🎉 Successfully generated $\{tables.length} controllers!`);
@@ -279,7 +279,7 @@ async function main() {
   process.exit(0);
 }
 
-main().catch(err => {
-  console.error('❌ Generation failed:', err);
+main().catch((err) => {
+  console.error("❌ Generation failed:", err);
   process.exit(1);
 });

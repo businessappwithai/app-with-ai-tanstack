@@ -7,10 +7,10 @@
  * Generated: 2026-03-20T16:41:26.574Z
  */
 
-import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../../database/database.module';
-import { SysController } from './sys.controller';
-import { SysService } from './sys.service';
+import { Module } from "@nestjs/common";
+import { DatabaseModule } from "../../database/database.module";
+import { SysController } from "./sys.controller";
+import { SysService } from "./sys.service";
 
 @Module({
   imports: [DatabaseModule],

@@ -1,1 +1,55 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_migrations_js_backup_008_fix_sys_foreign_keys_js", "label": "008_fix_sys_foreign_keys.js", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/008_fix_sys_foreign_keys.js", "source_location": "L1"}, {"id": "008_fix_sys_foreign_keys_checkandaddfk", "label": "checkAndAddFK()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/008_fix_sys_foreign_keys.js", "source_location": "L11"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_migrations_js_backup_008_fix_sys_foreign_keys_js", "target": "008_fix_sys_foreign_keys_checkandaddfk", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/008_fix_sys_foreign_keys.js", "source_location": "L11", "weight": 1.0}], "raw_calls": [{"caller_nid": "008_fix_sys_foreign_keys_checkandaddfk", "callee": "raw", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/008_fix_sys_foreign_keys.js", "source_location": "L20"}, {"caller_nid": "008_fix_sys_foreign_keys_checkandaddfk", "callee": "raw", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/008_fix_sys_foreign_keys.js", "source_location": "L37"}, {"caller_nid": "008_fix_sys_foreign_keys_checkandaddfk", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/008_fix_sys_foreign_keys.js", "source_location": "L46"}, {"caller_nid": "008_fix_sys_foreign_keys_checkandaddfk", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/008_fix_sys_foreign_keys.js", "source_location": "L48"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_migrations_js_backup_008_fix_sys_foreign_keys_js",
+      "label": "008_fix_sys_foreign_keys.js",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/008_fix_sys_foreign_keys.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "008_fix_sys_foreign_keys_checkandaddfk",
+      "label": "checkAndAddFK()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/008_fix_sys_foreign_keys.js",
+      "source_location": "L11"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_migrations_js_backup_008_fix_sys_foreign_keys_js",
+      "target": "008_fix_sys_foreign_keys_checkandaddfk",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/008_fix_sys_foreign_keys.js",
+      "source_location": "L11",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "008_fix_sys_foreign_keys_checkandaddfk",
+      "callee": "raw",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/008_fix_sys_foreign_keys.js",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "008_fix_sys_foreign_keys_checkandaddfk",
+      "callee": "raw",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/008_fix_sys_foreign_keys.js",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "008_fix_sys_foreign_keys_checkandaddfk",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/008_fix_sys_foreign_keys.js",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "008_fix_sys_foreign_keys_checkandaddfk",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/008_fix_sys_foreign_keys.js",
+      "source_location": "L48"
+    }
+  ]
+}

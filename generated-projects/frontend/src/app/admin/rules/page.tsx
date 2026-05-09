@@ -7,24 +7,13 @@
  * Project: crm-app
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api-client';
-import {
-  Scale,
-  Plus,
-  Edit,
-  Trash2,
-  RefreshCw,
-  Search,
-  CheckCircle,
-  XCircle,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CheckCircle, Edit, Plus, RefreshCw, Scale, Search, Trash2, XCircle } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,8 +23,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { apiClient } from "@/lib/api-client";
 
 interface Rule {
   id: string;
@@ -49,22 +40,26 @@ interface Rule {
 }
 
 export default function AdminRulesPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [entityFilter, setEntityFilter] = useState<string>('');
-  const [operationFilter, setOperationFilter] = useState<string>('');
-  const [activeFilter, setActiveFilter] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [entityFilter, setEntityFilter] = useState<string>("");
+  const [operationFilter, setOperationFilter] = useState<string>("");
+  const [activeFilter, setActiveFilter] = useState<string>("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [ruleToDelete, setRuleToDelete] = useState<Rule | null>(null);
 
   const queryClient = useQueryClient();
 
-  const { data: rules, isLoading, refetch } = useQuery({
-    queryKey: ['admin', 'rules', { entityFilter, operationFilter, activeFilter }],
+  const {
+    data: rules,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["admin", "rules", { entityFilter, operationFilter, activeFilter }],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (entityFilter) params.append('entityName', entityFilter);
-      if (operationFilter) params.append('operation', operationFilter);
-      if (activeFilter !== '') params.append('isActive', activeFilter);
+      if (entityFilter) params.append("entityName", entityFilter);
+      if (operationFilter) params.append("operation", operationFilter);
+      if (activeFilter !== "") params.append("isActive", activeFilter);
 
       const response = await apiClient.get<Rule[]>(`/api/rules?${params.toString()}`);
       return response;
@@ -76,8 +71,8 @@ export default function AdminRulesPage() {
       await apiClient.delete(`/api/rules/${ruleId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'rules'] });
-      toast.success('Rule deactivated successfully');
+      queryClient.invalidateQueries({ queryKey: ["admin", "rules"] });
+      toast.success("Rule deactivated successfully");
       setDeleteDialogOpen(false);
       setRuleToDelete(null);
     },
@@ -86,14 +81,15 @@ export default function AdminRulesPage() {
     },
   });
 
-  const filteredRules = rules?.filter((rule) => {
-    const matchesSearch =
-      searchQuery === '' ||
-      rule.ruleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      rule.entityName.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredRules =
+    rules?.filter((rule) => {
+      const matchesSearch =
+        searchQuery === "" ||
+        rule.ruleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        rule.entityName.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesSearch;
-  }) || [];
+      return matchesSearch;
+    }) || [];
 
   const entityNames = Array.from(new Set(rules?.map((r) => r.entityName) || []));
   const operations = Array.from(new Set(rules?.map((r) => r.operation) || []));
@@ -118,9 +114,7 @@ export default function AdminRulesPage() {
               <div className="flex items-center gap-4 mb-4">
                 <Scale className="h-8 w-8 text-black" />
                 <div>
-                  <h1 className="text-6xl font-bold tracking-tight text-black">
-                    Business Rules
-                  </h1>
+                  <h1 className="text-6xl font-bold tracking-tight text-black">Business Rules</h1>
                   <p className="text-xl text-gray-600 font-light mt-2">
                     Manage validation rules and business logic with JDM Editor
                   </p>
@@ -135,7 +129,7 @@ export default function AdminRulesPage() {
                 disabled={isLoading}
                 className="border-2 border-black hover:bg-black hover:text-white transition-colors rounded-none"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
                 Refresh
               </Button>
               <Link href="/admin/rules/new">
@@ -247,9 +241,9 @@ export default function AdminRulesPage() {
           </div>
         ) : filteredRules.length === 0 ? (
           <div className="text-center py-16 text-gray-500 border-2 border-black">
-            {searchQuery || entityFilter || operationFilter || activeFilter !== ''
-              ? 'No rules match your search criteria.'
-              : 'No rules found. Create your first rule to get started.'}
+            {searchQuery || entityFilter || operationFilter || activeFilter !== ""
+              ? "No rules match your search criteria."
+              : "No rules found. Create your first rule to get started."}
           </div>
         ) : (
           <div className="border-2 border-black">
@@ -274,9 +268,7 @@ export default function AdminRulesPage() {
                 </div>
 
                 <div className="col-span-2">
-                  <code className="text-sm bg-gray-100 px-2 py-1 font-mono">
-                    {rule.entityName}
-                  </code>
+                  <code className="text-sm bg-gray-100 px-2 py-1 font-mono">{rule.entityName}</code>
                 </div>
 
                 <div className="col-span-2">
@@ -341,8 +333,8 @@ export default function AdminRulesPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Deactivate Rule</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to deactivate the rule <strong>{ruleToDelete?.ruleName}</strong>?
-              This will disable the rule but keep its history. You can reactivate it later.
+              Are you sure you want to deactivate the rule <strong>{ruleToDelete?.ruleName}</strong>
+              ? This will disable the rule but keep its history. You can reactivate it later.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -359,9 +351,7 @@ export default function AdminRulesPage() {
 
       <footer className="border-t-2 border-black mt-16">
         <div className="max-w-7xl mx-auto px-8 py-8">
-          <p className="text-sm text-gray-500">
-            crm-app · Business Rules Management
-          </p>
+          <p className="text-sm text-gray-500">crm-app · Business Rules Management</p>
         </div>
       </footer>
     </div>

@@ -1,3 +1,3 @@
-export * from './naming';
-export * from './formatting';
-export * from './table-naming';
+export * from "./formatting";
+export * from "./naming";
+export * from "./table-naming";

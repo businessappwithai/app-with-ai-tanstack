@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import { Download, ZoomIn, ZoomOut } from "lucide-react";
 import mermaid from "mermaid";
-import { ZoomIn, ZoomOut, Download } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface FlowchartPreviewProps {
   flowchartCode: string;

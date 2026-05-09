@@ -9,10 +9,10 @@
  * Generated: 2026-02-09T13:00:26.937Z
  */
 
-import { odata, ODataHttpContext, ODataController } from 'odata-v4-server';
-import { BaseEntity, ODataResult } from '../base.controller';
-import { v4 as uuidv4 } from 'uuid';
-import { getKnex } from '../../database/connection';
+import { ODataController, type ODataHttpContext, odata } from "odata-v4-server";
+import { v4 as uuidv4 } from "uuid";
+import { getKnex } from "../../database/connection";
+import type { BaseEntity, ODataResult } from "../base.controller";
 
 // ============================================================================
 // C U S T O M E R Entity Interface
@@ -33,8 +33,8 @@ export interface CUSTOMER extends BaseEntity {
 // ============================================================================
 
 export class CUSTOMERController extends ODataController {
-  protected static tableName = 'bus_customer';
-  protected static primaryKey = 'bus_customer_id';
+  protected static tableName = "bus_customer";
+  protected static primaryKey = "bus_customer_id";
 
   /**
    * GET /odata/CUSTOMERs
@@ -48,8 +48,7 @@ export class CUSTOMERController extends ODataController {
     // Handle null query parameter passed by odata-v4-server
     const q = query || {};
 
-    let dbQuery = getKnex()(CUSTOMERController.tableName)
-      .whereNull('deleted_at');
+    let dbQuery = getKnex()(CUSTOMERController.tableName).whereNull("deleted_at");
 
     // Apply $filter
     if (q.$filter) {
@@ -59,21 +58,21 @@ export class CUSTOMERController extends ODataController {
     // Get total count if $count=true
     let count: number | undefined;
     if (q.$count) {
-      const [{ totalCount }] = await dbQuery.clone().count('* as totalCount');
+      const [{ totalCount }] = await dbQuery.clone().count("* as totalCount");
       count = parseInt(totalCount as string, 10);
     }
 
     // Apply $orderby
     if (q.$orderby) {
-      const orderParts = q.$orderby.split(',').map((part: string) => {
-        const [field, dir] = part.trim().split(' ');
-        return { column: field, order: dir?.toLowerCase() === 'desc' ? 'desc' : 'asc' };
+      const orderParts = q.$orderby.split(",").map((part: string) => {
+        const [field, dir] = part.trim().split(" ");
+        return { column: field, order: dir?.toLowerCase() === "desc" ? "desc" : "asc" };
       });
       for (const order of orderParts) {
         dbQuery = dbQuery.orderBy(order.column, order.order);
       }
     } else {
-      dbQuery = dbQuery.orderBy('created_at', 'desc');
+      dbQuery = dbQuery.orderBy("created_at", "desc");
     }
 
     // Apply $skip and $top (pagination)
@@ -86,17 +85,17 @@ export class CUSTOMERController extends ODataController {
 
     // Apply $select
     if (q.$select) {
-      const columns = q.$select.split(',').map((col: string) => col.trim());
+      const columns = q.$select.split(",").map((col: string) => col.trim());
       dbQuery = dbQuery.select(columns);
     }
 
     const results = await dbQuery;
 
     // Set OData response headers
-    ctx.response.setHeader('OData-Version', '4.0');
+    ctx.response.setHeader("OData-Version", "4.0");
 
     return {
-      ...(count !== undefined && { '@odata.count': count }),
+      ...(count !== undefined && { "@odata.count": count }),
       value: results as CUSTOMER[],
     };
   }
@@ -113,11 +112,11 @@ export class CUSTOMERController extends ODataController {
   ): Promise<CUSTOMER | null> {
     let dbQuery = getKnex()(CUSTOMERController.tableName)
       .where(CUSTOMERController.primaryKey, key)
-      .whereNull('deleted_at');
+      .whereNull("deleted_at");
 
     // Apply $select
     if (query && query.$select) {
-      const columns = query.$select.split(',').map((col: string) => col.trim());
+      const columns = query.$select.split(",").map((col: string) => col.trim());
       dbQuery = dbQuery.select(columns);
     }
 
@@ -157,10 +156,12 @@ export class CUSTOMERController extends ODataController {
     await getKnex()(CUSTOMERController.tableName).insert(newRecord);
 
     // Return the created record
-    const recordId = (newRecord as Record<string, unknown>)[CUSTOMERController.primaryKey] as string;
-    const result = await getKnex()(CUSTOMERController.tableName)
+    const recordId = (newRecord as Record<string, unknown>)[
+      CUSTOMERController.primaryKey
+    ] as string;
+    const result = (await getKnex()(CUSTOMERController.tableName)
       .where(CUSTOMERController.primaryKey, recordId)
-      .first() as Promise<CUSTOMER>;
+      .first()) as Promise<CUSTOMER>;
 
     ctx.response.status(201);
     return result;
@@ -178,7 +179,7 @@ export class CUSTOMERController extends ODataController {
   ): Promise<CUSTOMER> {
     const existing = await getKnex()(CUSTOMERController.tableName)
       .where(CUSTOMERController.primaryKey, key)
-      .whereNull('deleted_at')
+      .whereNull("deleted_at")
       .first();
 
     if (!existing) {
@@ -189,8 +190,8 @@ export class CUSTOMERController extends ODataController {
     // Check ETag for concurrency
     if (body.version !== undefined && body.version !== existing.version) {
       ctx.response.status(412);
-      ctx.response.setHeader('ETag', `W/"${existing.version}"`);
-      throw new Error('Concurrency conflict: record has been modified');
+      ctx.response.setHeader("ETag", `W/"${existing.version}"`);
+      throw new Error("Concurrency conflict: record has been modified");
     }
 
     const now = new Date();
@@ -204,11 +205,11 @@ export class CUSTOMERController extends ODataController {
       .where(CUSTOMERController.primaryKey, key)
       .update(updated);
 
-    const result = await getKnex()(CUSTOMERController.tableName)
+    const result = (await getKnex()(CUSTOMERController.tableName)
       .where(CUSTOMERController.primaryKey, key)
-      .first() as Promise<CUSTOMER>;
+      .first()) as Promise<CUSTOMER>;
 
-    ctx.response.setHeader('ETag', `W/"${updated.version}"`);
+    ctx.response.setHeader("ETag", `W/"${updated.version}"`);
     return result;
   }
 
@@ -224,7 +225,7 @@ export class CUSTOMERController extends ODataController {
   ): Promise<CUSTOMER> {
     const existing = await getKnex()(CUSTOMERController.tableName)
       .where(CUSTOMERController.primaryKey, key)
-      .whereNull('deleted_at')
+      .whereNull("deleted_at")
       .first();
 
     if (!existing) {
@@ -235,8 +236,8 @@ export class CUSTOMERController extends ODataController {
     // Check ETag for concurrency
     if (delta.version !== undefined && delta.version !== existing.version) {
       ctx.response.status(412);
-      ctx.response.setHeader('ETag', `W/"${existing.version}"`);
-      throw new Error('Concurrency conflict: record has been modified');
+      ctx.response.setHeader("ETag", `W/"${existing.version}"`);
+      throw new Error("Concurrency conflict: record has been modified");
     }
 
     const now = new Date();
@@ -250,11 +251,11 @@ export class CUSTOMERController extends ODataController {
       .where(CUSTOMERController.primaryKey, key)
       .update(updated);
 
-    const result = await getKnex()(CUSTOMERController.tableName)
+    const result = (await getKnex()(CUSTOMERController.tableName)
       .where(CUSTOMERController.primaryKey, key)
-      .first() as Promise<CUSTOMER>;
+      .first()) as Promise<CUSTOMER>;
 
-    ctx.response.setHeader('ETag', `W/"${updated.version}"`);
+    ctx.response.setHeader("ETag", `W/"${updated.version}"`);
     return result;
   }
 
@@ -266,7 +267,7 @@ export class CUSTOMERController extends ODataController {
   async remove(@odata.key key: string, @odata.context ctx: ODataHttpContext): Promise<void> {
     const existing = await getKnex()(CUSTOMERController.tableName)
       .where(CUSTOMERController.primaryKey, key)
-      .whereNull('deleted_at')
+      .whereNull("deleted_at")
       .first();
 
     if (!existing) {
@@ -307,14 +308,13 @@ export class CUSTOMERController extends ODataController {
 
       const containsMatch = condition.match(/contains\((\w+),\s*'([^']+)'\)/);
       if (containsMatch) {
-        qb = qb.where(containsMatch[1], 'like', `%${containsMatch[2]}%`);
+        qb = qb.where(containsMatch[1], "like", `%${containsMatch[2]}%`);
         continue;
       }
 
       const boolMatch = condition.match(/(\w+)\s+eq\s+(true|false)/);
       if (boolMatch) {
-        qb = qb.where(boolMatch[1], boolMatch[2] === 'true');
-        continue;
+        qb = qb.where(boolMatch[1], boolMatch[2] === "true");
       }
     }
 

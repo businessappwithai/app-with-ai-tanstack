@@ -1,1 +1,387 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts", "label": "metadata.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L1"}, {"id": "metadata_buildentitytypefromdb", "label": "buildEntityTypeFromDb()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L167"}, {"id": "metadata_configdeftoentitytype", "label": "configDefToEntityType()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L201"}, {"id": "metadata_buildmetadata", "label": "buildMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L245"}, {"id": "metadata_generateedmx", "label": "generateEdmx()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L328"}, {"id": "metadata_topascalcase", "label": "toPascalCase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L414"}, {"id": "metadata_pluralize", "label": "pluralize()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L426"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L21", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_config_odata_config", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L22", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts", "target": "metadata_buildentitytypefromdb", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L167", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts", "target": "metadata_configdeftoentitytype", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L201", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts", "target": "metadata_buildmetadata", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L245", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts", "target": "metadata_generateedmx", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L328", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts", "target": "metadata_topascalcase", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L414", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts", "target": "metadata_pluralize", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L426", "weight": 1.0}, {"source": "metadata_buildentitytypefromdb", "target": "metadata_topascalcase", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L190", "weight": 1.0}, {"source": "metadata_buildmetadata", "target": "metadata_configdeftoentitytype", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L256", "weight": 1.0}, {"source": "metadata_buildmetadata", "target": "metadata_buildentitytypefromdb", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L304", "weight": 1.0}, {"source": "metadata_buildmetadata", "target": "metadata_generateedmx", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L318", "weight": 1.0}], "raw_calls": [{"caller_nid": "metadata_buildentitytypefromdb", "callee": "orderBy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L171"}, {"caller_nid": "metadata_buildentitytypefromdb", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L171"}, {"caller_nid": "metadata_buildentitytypefromdb", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L171"}, {"caller_nid": "metadata_buildentitytypefromdb", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L171"}, {"caller_nid": "metadata_buildentitytypefromdb", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L171"}, {"caller_nid": "metadata_buildentitytypefromdb", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L177"}, {"caller_nid": "metadata_buildentitytypefromdb", "callee": "find", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L186"}, {"caller_nid": "metadata_configdeftoentitytype", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L202"}, {"caller_nid": "metadata_configdeftoentitytype", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L212"}, {"caller_nid": "metadata_configdeftoentitytype", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L212"}, {"caller_nid": "metadata_buildmetadata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L257"}, {"caller_nid": "metadata_buildmetadata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L258"}, {"caller_nid": "metadata_buildmetadata", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L261"}, {"caller_nid": "metadata_buildmetadata", "callee": "add", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L269"}, {"caller_nid": "metadata_buildmetadata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L277"}, {"caller_nid": "metadata_buildmetadata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L278"}, {"caller_nid": "metadata_buildmetadata", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L281"}, {"caller_nid": "metadata_buildmetadata", "callee": "add", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L289"}, {"caller_nid": "metadata_buildmetadata", "callee": "orderBy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L296"}, {"caller_nid": "metadata_buildmetadata", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L296"}, {"caller_nid": "metadata_buildmetadata", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L296"}, {"caller_nid": "metadata_buildmetadata", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L296"}, {"caller_nid": "metadata_buildmetadata", "callee": "has", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L302"}, {"caller_nid": "metadata_buildmetadata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L305"}, {"caller_nid": "metadata_buildmetadata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L306"}, {"caller_nid": "metadata_buildmetadata", "callee": "add", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L311"}, {"caller_nid": "metadata_buildmetadata", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L315"}, {"caller_nid": "metadata_generateedmx", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L330"}, {"caller_nid": "metadata_generateedmx", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L330"}, {"caller_nid": "metadata_generateedmx", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L374"}, {"caller_nid": "metadata_generateedmx", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L374"}, {"caller_nid": "metadata_topascalcase", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L415"}, {"caller_nid": "metadata_topascalcase", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L415"}, {"caller_nid": "metadata_topascalcase", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L415"}, {"caller_nid": "metadata_pluralize", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L427"}, {"caller_nid": "metadata_pluralize", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L428"}, {"caller_nid": "metadata_pluralize", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts", "source_location": "L428"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts",
+      "label": "metadata.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "metadata_buildentitytypefromdb",
+      "label": "buildEntityTypeFromDb()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L167"
+    },
+    {
+      "id": "metadata_configdeftoentitytype",
+      "label": "configDefToEntityType()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L201"
+    },
+    {
+      "id": "metadata_buildmetadata",
+      "label": "buildMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L245"
+    },
+    {
+      "id": "metadata_generateedmx",
+      "label": "generateEdmx()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L328"
+    },
+    {
+      "id": "metadata_topascalcase",
+      "label": "toPascalCase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L414"
+    },
+    {
+      "id": "metadata_pluralize",
+      "label": "pluralize()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L426"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_config_odata_config",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts",
+      "target": "metadata_buildentitytypefromdb",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L167",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts",
+      "target": "metadata_configdeftoentitytype",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L201",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts",
+      "target": "metadata_buildmetadata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L245",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts",
+      "target": "metadata_generateedmx",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L328",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts",
+      "target": "metadata_topascalcase",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L414",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_utils_metadata_ts",
+      "target": "metadata_pluralize",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L426",
+      "weight": 1.0
+    },
+    {
+      "source": "metadata_buildentitytypefromdb",
+      "target": "metadata_topascalcase",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L190",
+      "weight": 1.0
+    },
+    {
+      "source": "metadata_buildmetadata",
+      "target": "metadata_configdeftoentitytype",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L256",
+      "weight": 1.0
+    },
+    {
+      "source": "metadata_buildmetadata",
+      "target": "metadata_buildentitytypefromdb",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L304",
+      "weight": 1.0
+    },
+    {
+      "source": "metadata_buildmetadata",
+      "target": "metadata_generateedmx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L318",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "metadata_buildentitytypefromdb",
+      "callee": "orderBy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "metadata_buildentitytypefromdb",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "metadata_buildentitytypefromdb",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "metadata_buildentitytypefromdb",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "metadata_buildentitytypefromdb",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "metadata_buildentitytypefromdb",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "metadata_buildentitytypefromdb",
+      "callee": "find",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L186"
+    },
+    {
+      "caller_nid": "metadata_configdeftoentitytype",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L202"
+    },
+    {
+      "caller_nid": "metadata_configdeftoentitytype",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "metadata_configdeftoentitytype",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L257"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L258"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L261"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "add",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L269"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L277"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L278"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L281"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "add",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L289"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "orderBy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "has",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L302"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L305"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L306"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "add",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L311"
+    },
+    {
+      "caller_nid": "metadata_buildmetadata",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L315"
+    },
+    {
+      "caller_nid": "metadata_generateedmx",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L330"
+    },
+    {
+      "caller_nid": "metadata_generateedmx",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L330"
+    },
+    {
+      "caller_nid": "metadata_generateedmx",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L374"
+    },
+    {
+      "caller_nid": "metadata_generateedmx",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L374"
+    },
+    {
+      "caller_nid": "metadata_topascalcase",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L415"
+    },
+    {
+      "caller_nid": "metadata_topascalcase",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L415"
+    },
+    {
+      "caller_nid": "metadata_topascalcase",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L415"
+    },
+    {
+      "caller_nid": "metadata_pluralize",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L427"
+    },
+    {
+      "caller_nid": "metadata_pluralize",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L428"
+    },
+    {
+      "caller_nid": "metadata_pluralize",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/utils/metadata.ts",
+      "source_location": "L428"
+    }
+  ]
+}

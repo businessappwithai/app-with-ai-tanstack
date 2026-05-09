@@ -9,16 +9,28 @@
  * infrastructure and runtime UI configuration support.
  */
 
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import { Entity, Relationship } from '@erdwithai/core/types';
-import { NestJsBackendGenerator, NestJsBackendOptions } from './nextjs-nestjs/nestjs-backend.generator';
-import { NextJsFrontendGenerator, NextJsFrontendOptions } from './nextjs-nestjs/nextjs-frontend.generator';
-import { ODataBackendGenerator, ODataBackendOptions } from './openui5-odatav4/odata-backend.generator';
-import { OpenUI5FrontendGenerator, OpenUI5FrontendOptions } from './openui5-odatav4/openui5-frontend.generator';
+import type { Entity, Relationship } from "@erdwithai/core/types";
+import * as fs from "fs/promises";
+import * as path from "path";
+import {
+  NestJsBackendGenerator,
+  type NestJsBackendOptions,
+} from "./nextjs-nestjs/nestjs-backend.generator";
+import {
+  NextJsFrontendGenerator,
+  type NextJsFrontendOptions,
+} from "./nextjs-nestjs/nextjs-frontend.generator";
+import {
+  ODataBackendGenerator,
+  type ODataBackendOptions,
+} from "./openui5-odatav4/odata-backend.generator";
+import {
+  OpenUI5FrontendGenerator,
+  type OpenUI5FrontendOptions,
+} from "./openui5-odatav4/openui5-frontend.generator";
 
-export type StackOption = 'tanstackjs-nestjs' | 'openui5-odatav4';
-export type AIAddonOption = 'none' | 'basic' | 'advanced';
+export type StackOption = "tanstackjs-nestjs" | "openui5-odatav4";
+export type AIAddonOption = "none" | "basic" | "advanced";
 
 export interface FullStackGeneratorOptions {
   stackOption: StackOption;
@@ -30,7 +42,7 @@ export interface FullStackGeneratorOptions {
 
   // AI Natural Language Add-on (optional)
   aiNlAddon?: AIAddonOption;
-  aiNlProvider?: 'anthropic' | 'openai';
+  aiNlProvider?: "anthropic" | "openai";
   aiNlModel?: string;
 
   // tanstackjs-nestjs specific
@@ -63,7 +75,7 @@ export class FullStackGenerator {
     await fs.mkdir(outputDir, { recursive: true });
 
     // Generate based on stack option
-    if (this.options.stackOption === 'tanstackjs-nestjs') {
+    if (this.options.stackOption === "tanstackjs-nestjs") {
       await this.generateNextjsNestjs(entities, relationships, outputDir);
     } else {
       await this.generateOpenui5Odatav4(entities, relationships, outputDir);
@@ -76,12 +88,14 @@ export class FullStackGenerator {
     console.log(`   Stack: ${this.getStackDescription()}`);
     console.log(`   Entities: ${entities.length}`);
     console.log(`   Relationships: ${relationships.length}`);
-    if (this.options.aiNlAddon && this.options.aiNlAddon !== 'none') {
-      console.log(`   AI NL Add-on: ${this.options.aiNlAddon} (${this.options.aiNlProvider || 'anthropic'})`);
+    if (this.options.aiNlAddon && this.options.aiNlAddon !== "none") {
+      console.log(
+        `   AI NL Add-on: ${this.options.aiNlAddon} (${this.options.aiNlProvider || "anthropic"})`
+      );
     }
 
     // Run mandatory linting checks
-    console.log('\n🔍 Running mandatory linting checks...');
+    console.log("\n🔍 Running mandatory linting checks...");
     await this.runLintingChecks(outputDir);
   }
 
@@ -93,14 +107,14 @@ export class FullStackGenerator {
     relationships: Relationship[],
     outputDir: string
   ): Promise<void> {
-    const backendDir = path.join(outputDir, 'backend');
-    const frontendDir = path.join(outputDir, 'frontend');
+    const backendDir = path.join(outputDir, "backend");
+    const frontendDir = path.join(outputDir, "frontend");
 
     // AI NL Add-on config (passed to templates)
     const aiConfig = {
-      aiNlAddon: this.options.aiNlAddon || 'none',
-      aiNlProvider: this.options.aiNlProvider || 'anthropic',
-      aiNlModel: this.options.aiNlModel || 'claude-sonnet-4-20250514',
+      aiNlAddon: this.options.aiNlAddon || "none",
+      aiNlProvider: this.options.aiNlProvider || "anthropic",
+      aiNlModel: this.options.aiNlModel || "claude-sonnet-4-20250514",
     };
 
     // Backend options
@@ -108,12 +122,12 @@ export class FullStackGenerator {
       projectName: this.options.projectName,
       projectVersion: this.options.projectVersion,
       projectDescription: this.options.projectDescription,
-      databaseType: 'sqlite',
+      databaseType: "sqlite",
       port: this.options.port,
       enableSwagger: true,
       enableCors: true,
       ...aiConfig,
-      ...this.options.nextjsNestjs?.backend
+      ...this.options.nextjsNestjs?.backend,
     };
 
     // Frontend options
@@ -124,14 +138,14 @@ export class FullStackGenerator {
       apiBaseUrl: `http://localhost:${this.options.port}`,
       enableDarkMode: true,
       ...aiConfig,
-      ...this.options.nextjsNestjs?.frontend
+      ...this.options.nextjsNestjs?.frontend,
     };
 
-    console.log('📦 Generating NestJS backend...');
+    console.log("📦 Generating NestJS backend...");
     const backendGenerator = new NestJsBackendGenerator(backendOptions);
     await backendGenerator.generate(entities, relationships, backendDir);
 
-    console.log('📦 Generating Next.js frontend...');
+    console.log("📦 Generating Next.js frontend...");
     const frontendGenerator = new NextJsFrontendGenerator(frontendOptions);
     await frontendGenerator.generate(entities, relationships, frontendDir);
   }
@@ -144,14 +158,14 @@ export class FullStackGenerator {
     relationships: Relationship[],
     outputDir: string
   ): Promise<void> {
-    const backendDir = path.join(outputDir, 'backend');
-    const frontendDir = path.join(outputDir, 'frontend');
+    const backendDir = path.join(outputDir, "backend");
+    const frontendDir = path.join(outputDir, "frontend");
 
     // AI NL Add-on config (passed to templates)
     const aiConfig = {
-      aiNlAddon: this.options.aiNlAddon || 'none',
-      aiNlProvider: this.options.aiNlProvider || 'anthropic',
-      aiNlModel: this.options.aiNlModel || 'claude-sonnet-4-20250514',
+      aiNlAddon: this.options.aiNlAddon || "none",
+      aiNlProvider: this.options.aiNlProvider || "anthropic",
+      aiNlModel: this.options.aiNlModel || "claude-sonnet-4-20250514",
     };
 
     // Backend options
@@ -159,11 +173,11 @@ export class FullStackGenerator {
       projectName: this.options.projectName,
       projectVersion: this.options.projectVersion,
       projectDescription: this.options.projectDescription,
-      databaseType: 'sqlite',
+      databaseType: "sqlite",
       port: this.options.port,
-      odataPath: '/odata',
+      odataPath: "/odata",
       ...aiConfig,
-      ...this.options.openui5Odatav4?.backend
+      ...this.options.openui5Odatav4?.backend,
     };
 
     // Frontend options
@@ -172,16 +186,16 @@ export class FullStackGenerator {
       projectVersion: this.options.projectVersion,
       projectDescription: this.options.projectDescription,
       odataBaseUrl: `http://localhost:${this.options.port}`,
-      ui5Theme: 'sap_horizon',
+      ui5Theme: "sap_horizon",
       ...aiConfig,
-      ...this.options.openui5Odatav4?.frontend
+      ...this.options.openui5Odatav4?.frontend,
     };
 
-    console.log('📦 Generating OData V4 backend...');
+    console.log("📦 Generating OData V4 backend...");
     const backendGenerator = new ODataBackendGenerator(backendOptions);
     await backendGenerator.generate(entities, relationships, backendDir);
 
-    console.log('📦 Generating OpenUI5 frontend...');
+    console.log("📦 Generating OpenUI5 frontend...");
     const frontendGenerator = new OpenUI5FrontendGenerator(frontendOptions);
     await frontendGenerator.generate(entities, relationships, frontendDir);
   }
@@ -196,30 +210,30 @@ export class FullStackGenerator {
       version: this.options.projectVersion,
       description: this.options.projectDescription,
       private: true,
-      workspaces: ['backend', 'frontend'],
+      workspaces: ["backend", "frontend"],
       scripts: {
-        'dev': 'concurrently "npm run dev:backend" "npm run dev:frontend"',
-        'dev:backend': 'cd backend && npm run start:dev',
-        'dev:frontend': 'cd frontend && npm run dev',
-        'build': 'npm run build:backend && npm run build:frontend',
-        'build:backend': 'cd backend && npm run build',
-        'build:frontend': 'cd frontend && npm run build',
-        'db:migrate': 'cd backend && npm run migrate',
-        'db:seed': 'cd backend && npm run seed'
+        dev: 'concurrently "npm run dev:backend" "npm run dev:frontend"',
+        "dev:backend": "cd backend && npm run start:dev",
+        "dev:frontend": "cd frontend && npm run dev",
+        build: "npm run build:backend && npm run build:frontend",
+        "build:backend": "cd backend && npm run build",
+        "build:frontend": "cd frontend && npm run build",
+        "db:migrate": "cd backend && npm run migrate",
+        "db:seed": "cd backend && npm run seed",
       },
       devDependencies: {
-        concurrently: '^8.2.0'
-      }
+        concurrently: "^8.2.0",
+      },
     };
 
     await fs.writeFile(
-      path.join(outputDir, 'package.json'),
+      path.join(outputDir, "package.json"),
       JSON.stringify(rootPackageJson, null, 2)
     );
 
     // README.md
     const readme = this.generateReadme();
-    await fs.writeFile(path.join(outputDir, 'README.md'), readme);
+    await fs.writeFile(path.join(outputDir, "README.md"), readme);
 
     // .gitignore
     const gitignore = `# Dependencies
@@ -253,16 +267,17 @@ npm-debug.log*
 *.db
 *.sqlite
 `;
-    await fs.writeFile(path.join(outputDir, '.gitignore'), gitignore);
+    await fs.writeFile(path.join(outputDir, ".gitignore"), gitignore);
   }
 
   /**
    * Generate README content
    */
   private generateReadme(): string {
-    const stackInfo = this.options.stackOption === 'tanstackjs-nestjs'
-      ? '- **Backend**: NestJS + Fastify + Knex.js\n- **Frontend**: TanStack Start + Shadcn UI + TanStack Query/Table/Form'
-      : '- **Backend**: OData V4 Server (jaystack)\n- **Frontend**: OpenUI5 Flexible Column Layout';
+    const stackInfo =
+      this.options.stackOption === "tanstackjs-nestjs"
+        ? "- **Backend**: NestJS + Fastify + Knex.js\n- **Frontend**: TanStack Start + Shadcn UI + TanStack Query/Table/Form"
+        : "- **Backend**: OData V4 Server (jaystack)\n- **Frontend**: OpenUI5 Flexible Column Layout";
 
     return `# ${this.options.projectName}
 
@@ -313,7 +328,7 @@ bun run dev
 
 # Or start individually
 bun run dev:backend   # Backend on http://localhost:3000
-bun run dev:frontend  # Frontend on http://localhost:${this.options.stackOption === 'tanstackjs-nestjs' ? '3001' : '8080'}
+bun run dev:frontend  # Frontend on http://localhost:${this.options.stackOption === "tanstackjs-nestjs" ? "3001" : "8080"}
 \`\`\`
 
 ### Production Build
@@ -326,7 +341,7 @@ bun run build
 
 \`\`\`
 ${this.options.projectName}/
-├── backend/           # ${this.options.stackOption === 'tanstackjs-nestjs' ? 'NestJS API' : 'OData V4 Server'}
+├── backend/           # ${this.options.stackOption === "tanstackjs-nestjs" ? "NestJS API" : "OData V4 Server"}
 │   ├── src/
 │   │   ├── modules/
 │   │   │   ├── sys/   # Application Dictionary modules
@@ -334,8 +349,8 @@ ${this.options.projectName}/
 │   │   └── ...
 │   ├── migrations/    # Database migrations
 │   └── seeds/         # Seed data
-├── frontend/          # ${this.options.stackOption === 'tanstackjs-nestjs' ? 'TanStack Start App' : 'OpenUI5 App'}
-│   ├── ${this.options.stackOption === 'tanstackjs-nestjs' ? 'src/app/' : 'webapp/'}
+├── frontend/          # ${this.options.stackOption === "tanstackjs-nestjs" ? "TanStack Start App" : "OpenUI5 App"}
+│   ├── ${this.options.stackOption === "tanstackjs-nestjs" ? "src/app/" : "webapp/"}
 │   └── ...
 └── package.json       # Root workspace config
 \`\`\`
@@ -364,11 +379,11 @@ MIT
    */
   private async runLintingChecks(outputDir: string): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { execFileSync } = require('child_process') as typeof import('child_process');
+    const { execFileSync } = require("child_process") as typeof import("child_process");
 
     const runLint = (command: string, args: string[], cwd: string): boolean => {
       try {
-        execFileSync(command, args, { cwd, stdio: 'pipe', timeout: 60000 });
+        execFileSync(command, args, { cwd, stdio: "pipe", timeout: 60000 });
         return true;
       } catch (_error: unknown) {
         return false;
@@ -376,46 +391,58 @@ MIT
     };
 
     try {
-      if (this.options.stackOption === 'tanstackjs-nestjs') {
+      if (this.options.stackOption === "tanstackjs-nestjs") {
         // tanstackjs-nestjs: TanStack Start + NestJS
-        console.log('\n  📋 Linting NestJS backend...');
-        const backendLintPassed = runLint('npm', ['run', 'lint'], path.join(outputDir, 'backend'));
+        console.log("\n  📋 Linting NestJS backend...");
+        const backendLintPassed = runLint("npm", ["run", "lint"], path.join(outputDir, "backend"));
         if (backendLintPassed) {
-          console.log('  ✅ Backend linting passed');
+          console.log("  ✅ Backend linting passed");
         } else {
-          console.warn('  ⚠️  Backend linting found issues (run "cd backend && npm run lint:fix" to auto-fix)');
+          console.warn(
+            '  ⚠️  Backend linting found issues (run "cd backend && npm run lint:fix" to auto-fix)'
+          );
         }
 
-        console.log('\n  📋 Linting Next.js frontend...');
-        const frontendLintPassed = runLint('npm', ['run', 'lint'], path.join(outputDir, 'frontend'));
+        console.log("\n  📋 Linting Next.js frontend...");
+        const frontendLintPassed = runLint(
+          "npm",
+          ["run", "lint"],
+          path.join(outputDir, "frontend")
+        );
         if (frontendLintPassed) {
-          console.log('  ✅ Frontend linting passed');
+          console.log("  ✅ Frontend linting passed");
         } else {
-          console.warn('  ⚠️  Frontend linting found issues (run "cd frontend && npm run lint:fix" to auto-fix)');
+          console.warn(
+            '  ⚠️  Frontend linting found issues (run "cd frontend && npm run lint:fix" to auto-fix)'
+          );
         }
       } else {
         // openui5-odatav4: OData + OpenUI5
-        console.log('\n  📋 Linting OData backend...');
-        const backendLintPassed = runLint('npm', ['run', 'lint'], path.join(outputDir, 'backend'));
+        console.log("\n  📋 Linting OData backend...");
+        const backendLintPassed = runLint("npm", ["run", "lint"], path.join(outputDir, "backend"));
         if (backendLintPassed) {
-          console.log('  ✅ Backend linting passed');
+          console.log("  ✅ Backend linting passed");
         } else {
-          console.warn('  ⚠️  Backend linting found issues (run "cd backend && npm run lint:fix" to auto-fix)');
+          console.warn(
+            '  ⚠️  Backend linting found issues (run "cd backend && npm run lint:fix" to auto-fix)'
+          );
         }
 
-        console.log('\n  📋 Linting OpenUI5 frontend with UI5 linter...');
-        const ui5LintPassed = runLint('npx', ['ui5-lint'], path.join(outputDir, 'frontend'));
+        console.log("\n  📋 Linting OpenUI5 frontend with UI5 linter...");
+        const ui5LintPassed = runLint("npx", ["ui5-lint"], path.join(outputDir, "frontend"));
         if (ui5LintPassed) {
-          console.log('  ✅ Frontend UI5 linting passed');
+          console.log("  ✅ Frontend UI5 linting passed");
         } else {
-          console.warn('  ⚠️  UI5 linting found issues (check ui5lint.yaml for rules)');
+          console.warn("  ⚠️  UI5 linting found issues (check ui5lint.yaml for rules)");
         }
       }
 
-      console.log('\n✨ Linting checks completed!');
-      console.log('   Tip: Run "npm run lint:fix" in backend/frontend directories to auto-fix issues');
+      console.log("\n✨ Linting checks completed!");
+      console.log(
+        '   Tip: Run "npm run lint:fix" in backend/frontend directories to auto-fix issues'
+      );
     } catch (error) {
-      console.warn('  ⚠️  Linting could not be completed (dependencies not installed?)');
+      console.warn("  ⚠️  Linting could not be completed (dependencies not installed?)");
       console.log('   Tip: Run "bun install" first, then run linting manually');
     }
   }
@@ -424,9 +451,9 @@ MIT
    * Get human-readable stack description
    */
   private getStackDescription(): string {
-    return this.options.stackOption === 'tanstackjs-nestjs'
-      ? 'tanstackjs-nestjs - Modern Web (TanStack Start + NestJS)'
-      : 'openui5-odatav4 - Enterprise SAP (OData + OpenUI5)';
+    return this.options.stackOption === "tanstackjs-nestjs"
+      ? "tanstackjs-nestjs - Modern Web (TanStack Start + NestJS)"
+      : "openui5-odatav4 - Enterprise SAP (OData + OpenUI5)";
   }
 }
 

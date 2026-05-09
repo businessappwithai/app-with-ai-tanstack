@@ -18,7 +18,7 @@
           { "id": "i2", "name": "Deal Id", "field": "deal_id" },
           { "id": "i3", "name": "Thread Id", "field": "thread_id" },
           { "id": "i4", "name": "Subject", "field": "subject" },
-          { "id": "i7", "name": "Direction", "field": "direction" },
+          { "id": "i7", "name": "Direction", "field": "direction" }
         ],
         "outputs": [
           { "id": "o1", "name": "Action", "field": "action" },

@@ -3,9 +3,9 @@
  * Manages child processes for running generated projects
  */
 
-import { spawn, ChildProcess, execSync } from "child_process";
-import { join } from "path";
+import { type ChildProcess, execSync, spawn } from "child_process";
 import { existsSync, readFileSync } from "fs";
+import { join } from "path";
 
 interface RunningProcess {
   process: ChildProcess;
@@ -34,9 +34,8 @@ export class ProcessManagerService {
   private async findProcessOnPort(port: number): Promise<string | null> {
     try {
       // Try to get the PID of the process using the port
-      const command = process.platform === "win32"
-        ? `netstat -ano | findstr :${port}`
-        : `lsof -ti:${port}`;
+      const command =
+        process.platform === "win32" ? `netstat -ano | findstr :${port}` : `lsof -ti:${port}`;
 
       const result = execSync(command, { encoding: "utf-8" });
       const pid = result.trim().split("\n")[0];
@@ -57,10 +56,11 @@ export class ProcessManagerService {
    */
   private async killProcess(pid: string): Promise<boolean> {
     try {
-      const killCommand = process.platform === "win32" ? `taskkill /F /PID ${pid}` : `kill -9 ${pid}`;
+      const killCommand =
+        process.platform === "win32" ? `taskkill /F /PID ${pid}` : `kill -9 ${pid}`;
       execSync(killCommand);
       console.log(`Killed process ${pid} using port`);
-      await new Promise(resolve => setTimeout(resolve, 500)); // Wait for port to be released
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for port to be released
       return true;
     } catch (error) {
       console.error(`Failed to kill process ${pid}:`, error);
@@ -133,7 +133,10 @@ export class ProcessManagerService {
   /**
    * Ensure dependencies are installed
    */
-  private async ensureDependencies(projectDir: string, type: "frontend" | "backend" = "backend"): Promise<void> {
+  private async ensureDependencies(
+    projectDir: string,
+    type: "frontend" | "backend" = "backend"
+  ): Promise<void> {
     const nodeModulesPath = join(projectDir, "node_modules");
 
     if (!existsSync(nodeModulesPath)) {
@@ -336,9 +339,7 @@ export class ProcessManagerService {
    * Get all running processes
    */
   getRunningProcesses(): RunningProcess[] {
-    return Array.from(this.runningProcesses.values()).filter((p) =>
-      p.process.exitCode === null
-    );
+    return Array.from(this.runningProcesses.values()).filter((p) => p.process.exitCode === null);
   }
 
   /**
@@ -346,9 +347,7 @@ export class ProcessManagerService {
    */
   async stopAll(): Promise<void> {
     const processes = this.getRunningProcesses();
-    await Promise.all(
-      processes.map((p) => this.stopProject(p.projectId))
-    );
+    await Promise.all(processes.map((p) => this.stopProject(p.projectId)));
   }
 }
 

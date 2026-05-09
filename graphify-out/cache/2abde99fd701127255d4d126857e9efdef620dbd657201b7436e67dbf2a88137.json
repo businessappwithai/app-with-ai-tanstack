@@ -1,1 +1,160 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx", "label": "page.tsx", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L1"}, {"id": "page_ruleeditorpage", "label": "RuleEditorPage()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L25"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx", "target": "react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L3", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx", "target": "navigation", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L4", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx", "target": "card", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L5", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx", "target": "button", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx", "target": "badge", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx", "target": "tabs", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx", "target": "lucide_react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx", "target": "sonner", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx", "target": "jdmeditor", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx", "target": "page_ruleeditorpage", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L25", "weight": 1.0}], "raw_calls": [{"caller_nid": "page_ruleeditorpage", "callee": "useParams", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L26"}, {"caller_nid": "page_ruleeditorpage", "callee": "useRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L27"}, {"caller_nid": "page_ruleeditorpage", "callee": "useState", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L28"}, {"caller_nid": "page_ruleeditorpage", "callee": "useState", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L29"}, {"caller_nid": "page_ruleeditorpage", "callee": "useState", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L30"}, {"caller_nid": "page_ruleeditorpage", "callee": "useState", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L31"}, {"caller_nid": "page_ruleeditorpage", "callee": "useState", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L32"}, {"caller_nid": "page_ruleeditorpage", "callee": "useEffect", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx", "source_location": "L35"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx",
+      "label": "page.tsx",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "page_ruleeditorpage",
+      "label": "RuleEditorPage()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L25"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx",
+      "target": "navigation",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx",
+      "target": "card",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx",
+      "target": "button",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx",
+      "target": "badge",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx",
+      "target": "tabs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx",
+      "target": "sonner",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx",
+      "target": "jdmeditor",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_admin_rules_entity_ruleid_page_tsx",
+      "target": "page_ruleeditorpage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "page_ruleeditorpage",
+      "callee": "useParams",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "page_ruleeditorpage",
+      "callee": "useRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "page_ruleeditorpage",
+      "callee": "useState",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "page_ruleeditorpage",
+      "callee": "useState",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "page_ruleeditorpage",
+      "callee": "useState",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "page_ruleeditorpage",
+      "callee": "useState",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "page_ruleeditorpage",
+      "callee": "useState",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "page_ruleeditorpage",
+      "callee": "useEffect",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/admin/rules/[entity]/[ruleId]/page.tsx",
+      "source_location": "L35"
+    }
+  ]
+}

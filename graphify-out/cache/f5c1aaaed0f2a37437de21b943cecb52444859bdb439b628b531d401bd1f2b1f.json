@@ -1,1 +1,532 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "label": "page.tsx", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L1"}, {"id": "page_pollserverstatus", "label": "pollServerStatus()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L105"}, {"id": "page_addlog", "label": "addLog()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L155"}, {"id": "page_handleaddenvvar", "label": "handleAddEnvVar()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L166"}, {"id": "page_handleremoveenvvar", "label": "handleRemoveEnvVar()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L170"}, {"id": "page_handleenvvarchange", "label": "handleEnvVarChange()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L174"}, {"id": "page_togglesecretvisibility", "label": "toggleSecretVisibility()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L184"}, {"id": "page_handledeploy", "label": "handleDeploy()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L188"}, {"id": "page_handleviewapp", "label": "handleViewApp()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L277"}, {"id": "page_handlestopserver", "label": "handleStopServer()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L283"}, {"id": "page_handlebacktoprojects", "label": "handleBackToProjects()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L304"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L3", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "navigation", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L4", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "lucide_react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L5", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "projectstore", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L19", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "progressstepper", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L20", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "page_pollserverstatus", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L105", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "page_addlog", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L155", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "page_handleaddenvvar", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L166", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "page_handleremoveenvvar", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L170", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "page_handleenvvarchange", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L174", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "page_togglesecretvisibility", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L184", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "page_handledeploy", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L188", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "page_handleviewapp", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L277", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "page_handlestopserver", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L283", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx", "target": "page_handlebacktoprojects", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L304", "weight": 1.0}, {"source": "page_handledeploy", "target": "page_addlog", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L195", "weight": 1.0}, {"source": "page_handlestopserver", "target": "page_addlog", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L300", "weight": 1.0}], "raw_calls": [{"caller_nid": "page_pollserverstatus", "callee": "fetch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L107"}, {"caller_nid": "page_pollserverstatus", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L109"}, {"caller_nid": "page_pollserverstatus", "callee": "setServerStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L111"}, {"caller_nid": "page_pollserverstatus", "callee": "setServerPid", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L112"}, {"caller_nid": "page_pollserverstatus", "callee": "setServerStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L114"}, {"caller_nid": "page_pollserverstatus", "callee": "setServerPid", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L115"}, {"caller_nid": "page_pollserverstatus", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L119"}, {"caller_nid": "page_pollserverstatus", "callee": "setServerStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L120"}, {"caller_nid": "page_addlog", "callee": "setLogs", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L156"}, {"caller_nid": "page_handleaddenvvar", "callee": "setEnvVars", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L167"}, {"caller_nid": "page_handleremoveenvvar", "callee": "setEnvVars", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L171"}, {"caller_nid": "page_handleremoveenvvar", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L171"}, {"caller_nid": "page_handleenvvarchange", "callee": "setEnvVars", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L179"}, {"caller_nid": "page_handleenvvarchange", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L180"}, {"caller_nid": "page_togglesecretvisibility", "callee": "setShowSecrets", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L185"}, {"caller_nid": "page_handledeploy", "callee": "setIsDeploying", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L189"}, {"caller_nid": "page_handledeploy", "callee": "setDeploymentComplete", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L190"}, {"caller_nid": "page_handledeploy", "callee": "setError", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L191"}, {"caller_nid": "page_handledeploy", "callee": "setLogs", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L192"}, {"caller_nid": "page_handledeploy", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L200"}, {"caller_nid": "page_handledeploy", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L205"}, {"caller_nid": "page_handledeploy", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L205"}, {"caller_nid": "page_handledeploy", "callee": "fetch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L210"}, {"caller_nid": "page_handledeploy", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L213"}, {"caller_nid": "page_handledeploy", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L216"}, {"caller_nid": "page_handledeploy", "callee": "getReader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L221"}, {"caller_nid": "page_handledeploy", "callee": "read", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L229"}, {"caller_nid": "page_handledeploy", "callee": "decode", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L232"}, {"caller_nid": "page_handledeploy", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L233"}, {"caller_nid": "page_handledeploy", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L233"}, {"caller_nid": "page_handledeploy", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L236"}, {"caller_nid": "page_handledeploy", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L238"}, {"caller_nid": "page_handledeploy", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L238"}, {"caller_nid": "page_handledeploy", "callee": "setDeploymentComplete", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L244"}, {"caller_nid": "page_handledeploy", "callee": "setDeploymentUrl", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L245"}, {"caller_nid": "page_handledeploy", "callee": "updateProject", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L246"}, {"caller_nid": "page_handledeploy", "callee": "setError", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L252"}, {"caller_nid": "page_handledeploy", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L256"}, {"caller_nid": "page_handledeploy", "callee": "setError", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L270"}, {"caller_nid": "page_handledeploy", "callee": "setIsDeploying", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L273"}, {"caller_nid": "page_handleviewapp", "callee": "open", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L279"}, {"caller_nid": "page_handlestopserver", "callee": "setServerStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L285"}, {"caller_nid": "page_handlestopserver", "callee": "fetch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L286"}, {"caller_nid": "page_handlestopserver", "callee": "setServerStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L291"}, {"caller_nid": "page_handlestopserver", "callee": "setServerPid", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L292"}, {"caller_nid": "page_handlestopserver", "callee": "setLiveLogs", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L293"}, {"caller_nid": "page_handlestopserver", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L298"}, {"caller_nid": "page_handlestopserver", "callee": "setServerStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L299"}, {"caller_nid": "page_handlebacktoprojects", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx", "source_location": "L305"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "label": "page.tsx",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "page_pollserverstatus",
+      "label": "pollServerStatus()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L105"
+    },
+    {
+      "id": "page_addlog",
+      "label": "addLog()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L155"
+    },
+    {
+      "id": "page_handleaddenvvar",
+      "label": "handleAddEnvVar()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L166"
+    },
+    {
+      "id": "page_handleremoveenvvar",
+      "label": "handleRemoveEnvVar()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L170"
+    },
+    {
+      "id": "page_handleenvvarchange",
+      "label": "handleEnvVarChange()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L174"
+    },
+    {
+      "id": "page_togglesecretvisibility",
+      "label": "toggleSecretVisibility()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L184"
+    },
+    {
+      "id": "page_handledeploy",
+      "label": "handleDeploy()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L188"
+    },
+    {
+      "id": "page_handleviewapp",
+      "label": "handleViewApp()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L277"
+    },
+    {
+      "id": "page_handlestopserver",
+      "label": "handleStopServer()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L283"
+    },
+    {
+      "id": "page_handlebacktoprojects",
+      "label": "handleBackToProjects()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L304"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "navigation",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "projectstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "progressstepper",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "page_pollserverstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L105",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "page_addlog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L155",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "page_handleaddenvvar",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L166",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "page_handleremoveenvvar",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L170",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "page_handleenvvarchange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L174",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "page_togglesecretvisibility",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L184",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "page_handledeploy",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L188",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "page_handleviewapp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L277",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "page_handlestopserver",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L283",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_projects_id_deploy_page_tsx",
+      "target": "page_handlebacktoprojects",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L304",
+      "weight": 1.0
+    },
+    {
+      "source": "page_handledeploy",
+      "target": "page_addlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L195",
+      "weight": 1.0
+    },
+    {
+      "source": "page_handlestopserver",
+      "target": "page_addlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L300",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "page_pollserverstatus",
+      "callee": "fetch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "page_pollserverstatus",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "page_pollserverstatus",
+      "callee": "setServerStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "page_pollserverstatus",
+      "callee": "setServerPid",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "page_pollserverstatus",
+      "callee": "setServerStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "page_pollserverstatus",
+      "callee": "setServerPid",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "page_pollserverstatus",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "page_pollserverstatus",
+      "callee": "setServerStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L120"
+    },
+    {
+      "caller_nid": "page_addlog",
+      "callee": "setLogs",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L156"
+    },
+    {
+      "caller_nid": "page_handleaddenvvar",
+      "callee": "setEnvVars",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "page_handleremoveenvvar",
+      "callee": "setEnvVars",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "page_handleremoveenvvar",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "page_handleenvvarchange",
+      "callee": "setEnvVars",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L179"
+    },
+    {
+      "caller_nid": "page_handleenvvarchange",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L180"
+    },
+    {
+      "caller_nid": "page_togglesecretvisibility",
+      "callee": "setShowSecrets",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L185"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "setIsDeploying",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L189"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "setDeploymentComplete",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "setError",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "setLogs",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L192"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L200"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "fetch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L210"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L213"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L216"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "getReader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L221"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "read",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L229"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "decode",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L232"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L233"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L233"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L238"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L238"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "setDeploymentComplete",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L244"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "setDeploymentUrl",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L245"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "updateProject",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L246"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "setError",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L252"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L256"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "setError",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L270"
+    },
+    {
+      "caller_nid": "page_handledeploy",
+      "callee": "setIsDeploying",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "page_handleviewapp",
+      "callee": "open",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L279"
+    },
+    {
+      "caller_nid": "page_handlestopserver",
+      "callee": "setServerStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L285"
+    },
+    {
+      "caller_nid": "page_handlestopserver",
+      "callee": "fetch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L286"
+    },
+    {
+      "caller_nid": "page_handlestopserver",
+      "callee": "setServerStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "page_handlestopserver",
+      "callee": "setServerPid",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L292"
+    },
+    {
+      "caller_nid": "page_handlestopserver",
+      "callee": "setLiveLogs",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L293"
+    },
+    {
+      "caller_nid": "page_handlestopserver",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L298"
+    },
+    {
+      "caller_nid": "page_handlestopserver",
+      "callee": "setServerStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L299"
+    },
+    {
+      "caller_nid": "page_handlebacktoprojects",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/projects/[id]/deploy/page.tsx",
+      "source_location": "L305"
+    }
+  ]
+}

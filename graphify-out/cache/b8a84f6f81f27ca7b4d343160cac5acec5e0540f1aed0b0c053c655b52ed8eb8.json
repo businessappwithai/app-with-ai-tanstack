@@ -1,1 +1,539 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_openui5_e2e_generator_ts", "label": "openui5-e2e.generator.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L1"}, {"id": "openui5_e2e_generator_openui5opa5e2etestgenerator", "label": "OpenUI5OPA5E2ETestGenerator", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L11"}, {"id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate", "label": ".generate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L12"}, {"id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5config", "label": ".generateOPA5Config()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L31"}, {"id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures", "label": ".generateFixtures()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L61"}, {"id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests", "label": ".generateEntityJourneyTests()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L112"}, {"id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode", "label": ".generateCreateJourneyCode()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L201"}, {"id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode", "label": ".generateUpdateJourneyCode()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L215"}, {"id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatepageobject", "label": ".generatePageObject()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L229"}, {"id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatenavigationtests", "label": ".generateNavigationTests()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L353"}, {"id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata", "label": ".generateOPA5TestData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L382"}, {"id": "openui5_e2e_generator_openui5opa5e2etestgenerator_capitalize", "label": ".capitalize()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L400"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_openui5_e2e_generator_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_openui5_e2e_generator_ts", "target": "types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_openui5_e2e_generator_ts", "target": "promises", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_openui5_e2e_generator_ts", "target": "path", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_openui5_e2e_generator_ts", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L11", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L12", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5config", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L31", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L61", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L112", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L201", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L215", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatepageobject", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L229", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatenavigationtests", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L353", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L382", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_capitalize", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L400", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5config", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L17", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L20", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L24", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatenavigationtests", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L28", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L108", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L149", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L164", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatepageobject", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L198", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_capitalize", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L209", "weight": 1.0}, {"source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode", "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_capitalize", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L223", "weight": 1.0}], "raw_calls": [{"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L13"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate", "callee": "mkdir", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L14"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5config", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L55"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5config", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L56"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L102"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L103"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L109"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L109"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L192"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L193"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L205"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode", "callee": "getMockValueForType", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L208"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L209"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L212"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L219"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode", "callee": "getUniqueMockValue", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L222"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L223"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L226"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatepageobject", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L347"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatepageobject", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L348"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatenavigationtests", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L366"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatenavigationtests", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L366"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatenavigationtests", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L376"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatenavigationtests", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L377"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L384"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L385"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L386"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L389"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L390"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata", "callee": "getSampleDataForEntity", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L390"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L391"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L394"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L395"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L397"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_capitalize", "callee": "toUpperCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L401"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_capitalize", "callee": "charAt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L401"}, {"caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_capitalize", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts", "source_location": "L401"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_openui5_e2e_generator_ts",
+      "label": "openui5-e2e.generator.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "openui5_e2e_generator_openui5opa5e2etestgenerator",
+      "label": "OpenUI5OPA5E2ETestGenerator",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate",
+      "label": ".generate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L12"
+    },
+    {
+      "id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5config",
+      "label": ".generateOPA5Config()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L31"
+    },
+    {
+      "id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures",
+      "label": ".generateFixtures()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L61"
+    },
+    {
+      "id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests",
+      "label": ".generateEntityJourneyTests()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L112"
+    },
+    {
+      "id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode",
+      "label": ".generateCreateJourneyCode()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L201"
+    },
+    {
+      "id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode",
+      "label": ".generateUpdateJourneyCode()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L215"
+    },
+    {
+      "id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatepageobject",
+      "label": ".generatePageObject()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L229"
+    },
+    {
+      "id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatenavigationtests",
+      "label": ".generateNavigationTests()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L353"
+    },
+    {
+      "id": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata",
+      "label": ".generateOPA5TestData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L382"
+    },
+    {
+      "id": "openui5_e2e_generator_openui5opa5e2etestgenerator_capitalize",
+      "label": ".capitalize()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L400"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_openui5_e2e_generator_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_openui5_e2e_generator_ts",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_openui5_e2e_generator_ts",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_openui5_e2e_generator_ts",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_openui5_e2e_generator_ts",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5config",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L201",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L215",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatepageobject",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L229",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatenavigationtests",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L353",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L382",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_capitalize",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L400",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5config",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatenavigationtests",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L149",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L164",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatepageobject",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L198",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_capitalize",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L209",
+      "weight": 1.0
+    },
+    {
+      "source": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode",
+      "target": "openui5_e2e_generator_openui5opa5e2etestgenerator_capitalize",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L223",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L13"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generate",
+      "callee": "mkdir",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L14"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5config",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5config",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatefixtures",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L192"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateentityjourneytests",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L193"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode",
+      "callee": "getMockValueForType",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L208"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatecreatejourneycode",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L219"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode",
+      "callee": "getUniqueMockValue",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L222"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L223"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateupdatejourneycode",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L226"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatepageobject",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L347"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatepageobject",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L348"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatenavigationtests",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L366"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatenavigationtests",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L366"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatenavigationtests",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L376"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generatenavigationtests",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L377"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L384"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L385"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L386"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L389"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L390"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata",
+      "callee": "getSampleDataForEntity",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L390"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L391"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L394"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L395"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_generateopa5testdata",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L397"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_capitalize",
+      "callee": "toUpperCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L401"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_capitalize",
+      "callee": "charAt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L401"
+    },
+    {
+      "caller_nid": "openui5_e2e_generator_openui5opa5e2etestgenerator_capitalize",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/openui5-e2e.generator.ts",
+      "source_location": "L401"
+    }
+  ]
+}

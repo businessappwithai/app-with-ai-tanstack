@@ -11,10 +11,10 @@
  * Generated: 2026-05-07T09:31:28.375Z
  */
 
-import { Module } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { SessionAuthGuard } from './guards/session-auth.guard';
-import { RolesGuard } from './guards/roles.guard';
+import { Module } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { RolesGuard } from "./guards/roles.guard";
+import { SessionAuthGuard } from "./guards/session-auth.guard";
 
 @Module({
   providers: [Reflector, SessionAuthGuard, RolesGuard],

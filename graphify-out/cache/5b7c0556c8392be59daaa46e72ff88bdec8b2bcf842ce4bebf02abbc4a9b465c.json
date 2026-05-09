@@ -1,1 +1,692 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_visitor_ts", "label": "visitor.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L1"}, {"id": "visitor_hookcodegenerationvisitor", "label": "HookCodeGenerationVisitor", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L33"}, {"id": "visitor_hookcodegenerationvisitor_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L37"}, {"id": "visitor_hookcodegenerationvisitor_visithookdefinition", "label": ".visitHookDefinition()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L45"}, {"id": "visitor_hookcodegenerationvisitor_visitparameter", "label": ".visitParameter()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L74"}, {"id": "visitor_hookcodegenerationvisitor_generateheadercomment", "label": ".generateHeaderComment()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L81"}, {"id": "visitor_hookcodegenerationvisitor_generatefunctionsignature", "label": ".generateFunctionSignature()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L100"}, {"id": "visitor_hookcodegenerationvisitor_generatefunctionbody", "label": ".generateFunctionBody()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L145"}, {"id": "visitor_hookcodegenerationvisitor_generatebeforecreatebody", "label": ".generateBeforeCreateBody()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L200"}, {"id": "visitor_hookcodegenerationvisitor_generateaftercreatebody", "label": ".generateAfterCreateBody()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L214"}, {"id": "visitor_hookcodegenerationvisitor_generatebeforeupdatebody", "label": ".generateBeforeUpdateBody()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L226"}, {"id": "visitor_hookcodegenerationvisitor_generateafterupdatebody", "label": ".generateAfterUpdateBody()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L240"}, {"id": "visitor_hookcodegenerationvisitor_generatebeforedeletebody", "label": ".generateBeforeDeleteBody()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L252"}, {"id": "visitor_hookcodegenerationvisitor_generateafterdeletebody", "label": ".generateAfterDeleteBody()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L266"}, {"id": "visitor_hookcodegenerationvisitor_generatebeforereadbody", "label": ".generateBeforeReadBody()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L278"}, {"id": "visitor_hookcodegenerationvisitor_generateafterreadbody", "label": ".generateAfterReadBody()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L292"}, {"id": "visitor_hookcodegenerationvisitor_generatebeforelistbody", "label": ".generateBeforeListBody()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L304"}, {"id": "visitor_hookcodegenerationvisitor_generateafterlistbody", "label": ".generateAfterListBody()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L318"}, {"id": "visitor_hookcodegenerationvisitor_generatevalidationbody", "label": ".generateValidationBody()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L330"}, {"id": "visitor_hookcodegenerationvisitor_generatereturnstatement", "label": ".generateReturnStatement()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L350"}, {"id": "visitor_hookcodegenerationvisitor_getdataparametername", "label": ".getDataParameterName()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L365"}, {"id": "visitor_hookcodegenerationvisitor_formathookname", "label": ".formatHookName()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L379"}, {"id": "visitor_hookcodegenerationvisitor_getexecutiondescription", "label": ".getExecutionDescription()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L387"}, {"id": "visitor_createvisitor", "label": "createVisitor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L400"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_visitor_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_visitor_ts", "target": "visitor_hookcodegenerationvisitor", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L33", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L37", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_visithookdefinition", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L45", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_visitparameter", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L74", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generateheadercomment", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L81", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generatefunctionsignature", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L100", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generatefunctionbody", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L145", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generatebeforecreatebody", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L200", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generateaftercreatebody", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L214", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generatebeforeupdatebody", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L226", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generateafterupdatebody", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L240", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generatebeforedeletebody", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L252", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generateafterdeletebody", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L266", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generatebeforereadbody", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L278", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generateafterreadbody", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L292", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generatebeforelistbody", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L304", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generateafterlistbody", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L318", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generatevalidationbody", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L330", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_generatereturnstatement", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L350", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_getdataparametername", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L365", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_formathookname", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L379", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor", "target": "visitor_hookcodegenerationvisitor_getexecutiondescription", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L387", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_visitor_ts", "target": "visitor_createvisitor", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L400", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_visithookdefinition", "target": "visitor_hookcodegenerationvisitor_generateheadercomment", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L59", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_visithookdefinition", "target": "visitor_hookcodegenerationvisitor_generatefunctionsignature", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L63", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_visithookdefinition", "target": "visitor_hookcodegenerationvisitor_generatefunctionbody", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L66", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generateheadercomment", "target": "visitor_hookcodegenerationvisitor_formathookname", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L84", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generateheadercomment", "target": "visitor_hookcodegenerationvisitor_getexecutiondescription", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L89", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generatefunctionsignature", "target": "visitor_hookcodegenerationvisitor_getdataparametername", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L107", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generatefunctionbody", "target": "visitor_hookcodegenerationvisitor_generatebeforecreatebody", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L166", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generatefunctionbody", "target": "visitor_hookcodegenerationvisitor_generateaftercreatebody", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L168", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generatefunctionbody", "target": "visitor_hookcodegenerationvisitor_generatebeforeupdatebody", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L170", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generatefunctionbody", "target": "visitor_hookcodegenerationvisitor_generateafterupdatebody", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L172", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generatefunctionbody", "target": "visitor_hookcodegenerationvisitor_generatebeforedeletebody", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L174", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generatefunctionbody", "target": "visitor_hookcodegenerationvisitor_generateafterdeletebody", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L176", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generatefunctionbody", "target": "visitor_hookcodegenerationvisitor_generatebeforereadbody", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L178", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generatefunctionbody", "target": "visitor_hookcodegenerationvisitor_generateafterreadbody", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L180", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generatefunctionbody", "target": "visitor_hookcodegenerationvisitor_generatebeforelistbody", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L182", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generatefunctionbody", "target": "visitor_hookcodegenerationvisitor_generateafterlistbody", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L184", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generatefunctionbody", "target": "visitor_hookcodegenerationvisitor_generatevalidationbody", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L186", "weight": 1.0}, {"source": "visitor_hookcodegenerationvisitor_generatefunctionbody", "target": "visitor_hookcodegenerationvisitor_generatereturnstatement", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L190", "weight": 1.0}], "raw_calls": [{"caller_nid": "visitor_hookcodegenerationvisitor_constructor", "callee": "super", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L38"}, {"caller_nid": "visitor_hookcodegenerationvisitor_visithookdefinition", "callee": "add", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L51"}, {"caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L114"}, {"caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L116"}, {"caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L117"}, {"caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L119"}, {"caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L122"}, {"caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L125"}, {"caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L129"}, {"caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L131"}, {"caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionbody", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L161"}, {"caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionbody", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L161"}, {"caller_nid": "visitor_hookcodegenerationvisitor_generatereturnstatement", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L351"}, {"caller_nid": "visitor_hookcodegenerationvisitor_generatereturnstatement", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L356"}, {"caller_nid": "visitor_hookcodegenerationvisitor_getdataparametername", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L366"}, {"caller_nid": "visitor_hookcodegenerationvisitor_getdataparametername", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L368"}, {"caller_nid": "visitor_hookcodegenerationvisitor_formathookname", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L380"}, {"caller_nid": "visitor_hookcodegenerationvisitor_formathookname", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L380"}, {"caller_nid": "visitor_hookcodegenerationvisitor_formathookname", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L380"}, {"caller_nid": "visitor_hookcodegenerationvisitor_formathookname", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L381"}, {"caller_nid": "visitor_hookcodegenerationvisitor_formathookname", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L381"}, {"caller_nid": "visitor_hookcodegenerationvisitor_getexecutiondescription", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L388"}, {"caller_nid": "visitor_hookcodegenerationvisitor_getexecutiondescription", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts", "source_location": "L390"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_visitor_ts",
+      "label": "visitor.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor",
+      "label": "HookCodeGenerationVisitor",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L33"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L37"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_visithookdefinition",
+      "label": ".visitHookDefinition()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L45"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_visitparameter",
+      "label": ".visitParameter()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L74"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generateheadercomment",
+      "label": ".generateHeaderComment()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L81"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generatefunctionsignature",
+      "label": ".generateFunctionSignature()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L100"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "label": ".generateFunctionBody()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L145"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generatebeforecreatebody",
+      "label": ".generateBeforeCreateBody()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L200"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generateaftercreatebody",
+      "label": ".generateAfterCreateBody()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L214"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generatebeforeupdatebody",
+      "label": ".generateBeforeUpdateBody()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L226"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generateafterupdatebody",
+      "label": ".generateAfterUpdateBody()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L240"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generatebeforedeletebody",
+      "label": ".generateBeforeDeleteBody()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L252"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generateafterdeletebody",
+      "label": ".generateAfterDeleteBody()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L266"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generatebeforereadbody",
+      "label": ".generateBeforeReadBody()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L278"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generateafterreadbody",
+      "label": ".generateAfterReadBody()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L292"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generatebeforelistbody",
+      "label": ".generateBeforeListBody()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L304"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generateafterlistbody",
+      "label": ".generateAfterListBody()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L318"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generatevalidationbody",
+      "label": ".generateValidationBody()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L330"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_generatereturnstatement",
+      "label": ".generateReturnStatement()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L350"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_getdataparametername",
+      "label": ".getDataParameterName()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L365"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_formathookname",
+      "label": ".formatHookName()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L379"
+    },
+    {
+      "id": "visitor_hookcodegenerationvisitor_getexecutiondescription",
+      "label": ".getExecutionDescription()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L387"
+    },
+    {
+      "id": "visitor_createvisitor",
+      "label": "createVisitor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L400"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_visitor_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_visitor_ts",
+      "target": "visitor_hookcodegenerationvisitor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_visithookdefinition",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_visitparameter",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generateheadercomment",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L81",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generatefunctionsignature",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L100",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L145",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generatebeforecreatebody",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L200",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generateaftercreatebody",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L214",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generatebeforeupdatebody",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L226",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generateafterupdatebody",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L240",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generatebeforedeletebody",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L252",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generateafterdeletebody",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L266",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generatebeforereadbody",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L278",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generateafterreadbody",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L292",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generatebeforelistbody",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L304",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generateafterlistbody",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L318",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generatevalidationbody",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L330",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_generatereturnstatement",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L350",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_getdataparametername",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L365",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_formathookname",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L379",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor",
+      "target": "visitor_hookcodegenerationvisitor_getexecutiondescription",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L387",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_visitor_ts",
+      "target": "visitor_createvisitor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L400",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_visithookdefinition",
+      "target": "visitor_hookcodegenerationvisitor_generateheadercomment",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_visithookdefinition",
+      "target": "visitor_hookcodegenerationvisitor_generatefunctionsignature",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_visithookdefinition",
+      "target": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generateheadercomment",
+      "target": "visitor_hookcodegenerationvisitor_formathookname",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generateheadercomment",
+      "target": "visitor_hookcodegenerationvisitor_getexecutiondescription",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generatefunctionsignature",
+      "target": "visitor_hookcodegenerationvisitor_getdataparametername",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "target": "visitor_hookcodegenerationvisitor_generatebeforecreatebody",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L166",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "target": "visitor_hookcodegenerationvisitor_generateaftercreatebody",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L168",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "target": "visitor_hookcodegenerationvisitor_generatebeforeupdatebody",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L170",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "target": "visitor_hookcodegenerationvisitor_generateafterupdatebody",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L172",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "target": "visitor_hookcodegenerationvisitor_generatebeforedeletebody",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L174",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "target": "visitor_hookcodegenerationvisitor_generateafterdeletebody",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L176",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "target": "visitor_hookcodegenerationvisitor_generatebeforereadbody",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L178",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "target": "visitor_hookcodegenerationvisitor_generateafterreadbody",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L180",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "target": "visitor_hookcodegenerationvisitor_generatebeforelistbody",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L182",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "target": "visitor_hookcodegenerationvisitor_generateafterlistbody",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L184",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "target": "visitor_hookcodegenerationvisitor_generatevalidationbody",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L186",
+      "weight": 1.0
+    },
+    {
+      "source": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "target": "visitor_hookcodegenerationvisitor_generatereturnstatement",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L190",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_constructor",
+      "callee": "super",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_visithookdefinition",
+      "callee": "add",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L117"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionsignature",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_generatefunctionbody",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_generatereturnstatement",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L351"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_generatereturnstatement",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L356"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_getdataparametername",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L366"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_getdataparametername",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L368"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_formathookname",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_formathookname",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_formathookname",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_formathookname",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L381"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_formathookname",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L381"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_getexecutiondescription",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L388"
+    },
+    {
+      "caller_nid": "visitor_hookcodegenerationvisitor_getexecutiondescription",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/visitor.ts",
+      "source_location": "L390"
+    }
+  ]
+}

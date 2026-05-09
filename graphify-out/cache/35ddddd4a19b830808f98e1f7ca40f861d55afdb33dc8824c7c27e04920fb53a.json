@@ -1,1 +1,134 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_trigger_entity_lifecycle_workflow_task_ts", "label": "entity-lifecycle-workflow.task.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L1"}, {"id": "entity_lifecycle_workflow_task_loadentitywithcontext", "label": "loadEntityWithContext()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L217"}, {"id": "entity_lifecycle_workflow_task_evaluaterules", "label": "evaluateRules()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L242"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_trigger_entity_lifecycle_workflow_task_ts", "target": "v3", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_trigger_entity_lifecycle_workflow_task_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_trigger_entity_lifecycle_workflow_task_ts", "target": "zen_engine", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L18", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_trigger_entity_lifecycle_workflow_task_ts", "target": "entity_lifecycle_workflow_task_loadentitywithcontext", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L217", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_trigger_entity_lifecycle_workflow_task_ts", "target": "entity_lifecycle_workflow_task_evaluaterules", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L242", "weight": 1.0}], "raw_calls": [{"caller_nid": "entity_lifecycle_workflow_task_loadentitywithcontext", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L223"}, {"caller_nid": "entity_lifecycle_workflow_task_loadentitywithcontext", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L223"}, {"caller_nid": "entity_lifecycle_workflow_task_loadentitywithcontext", "callee": "knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L223"}, {"caller_nid": "entity_lifecycle_workflow_task_evaluaterules", "callee": "createDecision", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L248"}, {"caller_nid": "entity_lifecycle_workflow_task_evaluaterules", "callee": "from", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L248"}, {"caller_nid": "entity_lifecycle_workflow_task_evaluaterules", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L248"}, {"caller_nid": "entity_lifecycle_workflow_task_evaluaterules", "callee": "evaluate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L249"}, {"caller_nid": "entity_lifecycle_workflow_task_evaluaterules", "callee": "isArray", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L254"}, {"caller_nid": "entity_lifecycle_workflow_task_evaluaterules", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L260"}, {"caller_nid": "entity_lifecycle_workflow_task_evaluaterules", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts", "source_location": "L271"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_trigger_entity_lifecycle_workflow_task_ts",
+      "label": "entity-lifecycle-workflow.task.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "entity_lifecycle_workflow_task_loadentitywithcontext",
+      "label": "loadEntityWithContext()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L217"
+    },
+    {
+      "id": "entity_lifecycle_workflow_task_evaluaterules",
+      "label": "evaluateRules()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L242"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_trigger_entity_lifecycle_workflow_task_ts",
+      "target": "v3",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_trigger_entity_lifecycle_workflow_task_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_trigger_entity_lifecycle_workflow_task_ts",
+      "target": "zen_engine",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_trigger_entity_lifecycle_workflow_task_ts",
+      "target": "entity_lifecycle_workflow_task_loadentitywithcontext",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L217",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_trigger_entity_lifecycle_workflow_task_ts",
+      "target": "entity_lifecycle_workflow_task_evaluaterules",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L242",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "entity_lifecycle_workflow_task_loadentitywithcontext",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L223"
+    },
+    {
+      "caller_nid": "entity_lifecycle_workflow_task_loadentitywithcontext",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L223"
+    },
+    {
+      "caller_nid": "entity_lifecycle_workflow_task_loadentitywithcontext",
+      "callee": "knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L223"
+    },
+    {
+      "caller_nid": "entity_lifecycle_workflow_task_evaluaterules",
+      "callee": "createDecision",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L248"
+    },
+    {
+      "caller_nid": "entity_lifecycle_workflow_task_evaluaterules",
+      "callee": "from",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L248"
+    },
+    {
+      "caller_nid": "entity_lifecycle_workflow_task_evaluaterules",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L248"
+    },
+    {
+      "caller_nid": "entity_lifecycle_workflow_task_evaluaterules",
+      "callee": "evaluate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L249"
+    },
+    {
+      "caller_nid": "entity_lifecycle_workflow_task_evaluaterules",
+      "callee": "isArray",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L254"
+    },
+    {
+      "caller_nid": "entity_lifecycle_workflow_task_evaluaterules",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L260"
+    },
+    {
+      "caller_nid": "entity_lifecycle_workflow_task_evaluaterules",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/trigger/entity-lifecycle-workflow.task.ts",
+      "source_location": "L271"
+    }
+  ]
+}

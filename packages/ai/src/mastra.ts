@@ -1,6 +1,6 @@
-import { Mastra } from '@mastra/core';
-import { domainAgent, entityAgent, relationshipAgent, mermaidAgent } from './agents';
-import { erdDesignWorkflow } from './workflows';
+import { Mastra } from "@mastra/core";
+import { domainAgent, entityAgent, mermaidAgent, relationshipAgent } from "./agents";
+import { erdDesignWorkflow } from "./workflows";
 
 // Initialize Mastra instance ⭐
 export const mastra = new Mastra({
@@ -8,13 +8,12 @@ export const mastra = new Mastra({
     domainAgent,
     entityAgent,
     relationshipAgent,
-    mermaidAgent
+    mermaidAgent,
   },
   workflows: {
-    erdDesignWorkflow
-  }
+    erdDesignWorkflow,
+  },
 });
 
 // Export for external use
-export { domainAgent, entityAgent, relationshipAgent, mermaidAgent };
-export { erdDesignWorkflow };
+export { domainAgent, entityAgent, erdDesignWorkflow, mermaidAgent, relationshipAgent };

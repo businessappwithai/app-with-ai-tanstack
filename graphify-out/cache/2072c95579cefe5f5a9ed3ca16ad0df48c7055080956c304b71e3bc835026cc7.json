@@ -1,1 +1,459 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts", "label": "errors.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L1"}, {"id": "errors_apperror", "label": "AppError", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L5"}, {"id": "errors_apperror_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L6"}, {"id": "errors_validationerror", "label": "ValidationError", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L18"}, {"id": "errors_validationerror_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L19"}, {"id": "errors_notfounderror", "label": "NotFoundError", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L24"}, {"id": "errors_notfounderror_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L25"}, {"id": "errors_conflicterror", "label": "ConflictError", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L33"}, {"id": "errors_conflicterror_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L34"}, {"id": "errors_unauthorizederror", "label": "UnauthorizedError", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L39"}, {"id": "errors_unauthorizederror_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L40"}, {"id": "errors_forbiddenerror", "label": "ForbiddenError", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L45"}, {"id": "errors_forbiddenerror_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L46"}, {"id": "errors_apierror", "label": "APIError", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L51"}, {"id": "errors_apierror_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L52"}, {"id": "errors_networkerror", "label": "NetworkError", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L61"}, {"id": "errors_networkerror_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L62"}, {"id": "errors_isapperror", "label": "isAppError()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L70"}, {"id": "errors_isvalidationerror", "label": "isValidationError()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L77"}, {"id": "errors_formaterror", "label": "formatError()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L84"}, {"id": "errors_logerror", "label": "logError()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L103"}, {"id": "errors_handleapiresponse", "label": "handleAPIResponse()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L122"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts", "target": "errors_apperror", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L5", "weight": 1.0}, {"source": "errors_apperror", "target": "errors_apperror_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts", "target": "errors_validationerror", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L18", "weight": 1.0}, {"source": "errors_validationerror", "target": "errors_validationerror_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L19", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts", "target": "errors_notfounderror", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L24", "weight": 1.0}, {"source": "errors_notfounderror", "target": "errors_notfounderror_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L25", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts", "target": "errors_conflicterror", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L33", "weight": 1.0}, {"source": "errors_conflicterror", "target": "errors_conflicterror_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L34", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts", "target": "errors_unauthorizederror", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L39", "weight": 1.0}, {"source": "errors_unauthorizederror", "target": "errors_unauthorizederror_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L40", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts", "target": "errors_forbiddenerror", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L45", "weight": 1.0}, {"source": "errors_forbiddenerror", "target": "errors_forbiddenerror_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L46", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts", "target": "errors_apierror", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L51", "weight": 1.0}, {"source": "errors_apierror", "target": "errors_apierror_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L52", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts", "target": "errors_networkerror", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L61", "weight": 1.0}, {"source": "errors_networkerror", "target": "errors_networkerror_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L62", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts", "target": "errors_isapperror", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L70", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts", "target": "errors_isvalidationerror", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L77", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts", "target": "errors_formaterror", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L84", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts", "target": "errors_logerror", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L103", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts", "target": "errors_handleapiresponse", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L122", "weight": 1.0}, {"source": "errors_formaterror", "target": "errors_isapperror", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L85", "weight": 1.0}, {"source": "errors_logerror", "target": "errors_isapperror", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L106", "weight": 1.0}], "raw_calls": [{"caller_nid": "errors_apperror_constructor", "callee": "super", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L12"}, {"caller_nid": "errors_apperror_constructor", "callee": "captureStackTrace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L14"}, {"caller_nid": "errors_validationerror_constructor", "callee": "super", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L20"}, {"caller_nid": "errors_notfounderror_constructor", "callee": "super", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L29"}, {"caller_nid": "errors_conflicterror_constructor", "callee": "super", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L35"}, {"caller_nid": "errors_unauthorizederror_constructor", "callee": "super", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L41"}, {"caller_nid": "errors_forbiddenerror_constructor", "callee": "super", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L47"}, {"caller_nid": "errors_apierror_constructor", "callee": "super", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L57"}, {"caller_nid": "errors_networkerror_constructor", "callee": "super", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L63"}, {"caller_nid": "errors_logerror", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L107"}, {"caller_nid": "errors_logerror", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L113"}, {"caller_nid": "errors_logerror", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L115"}, {"caller_nid": "errors_handleapiresponse", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L129"}, {"caller_nid": "errors_handleapiresponse", "callee": "text", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L131"}, {"caller_nid": "errors_handleapiresponse", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts", "source_location": "L142"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts",
+      "label": "errors.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "errors_apperror",
+      "label": "AppError",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L5"
+    },
+    {
+      "id": "errors_apperror_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L6"
+    },
+    {
+      "id": "errors_validationerror",
+      "label": "ValidationError",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L18"
+    },
+    {
+      "id": "errors_validationerror_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L19"
+    },
+    {
+      "id": "errors_notfounderror",
+      "label": "NotFoundError",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L24"
+    },
+    {
+      "id": "errors_notfounderror_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L25"
+    },
+    {
+      "id": "errors_conflicterror",
+      "label": "ConflictError",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L33"
+    },
+    {
+      "id": "errors_conflicterror_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L34"
+    },
+    {
+      "id": "errors_unauthorizederror",
+      "label": "UnauthorizedError",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L39"
+    },
+    {
+      "id": "errors_unauthorizederror_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L40"
+    },
+    {
+      "id": "errors_forbiddenerror",
+      "label": "ForbiddenError",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L45"
+    },
+    {
+      "id": "errors_forbiddenerror_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L46"
+    },
+    {
+      "id": "errors_apierror",
+      "label": "APIError",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L51"
+    },
+    {
+      "id": "errors_apierror_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L52"
+    },
+    {
+      "id": "errors_networkerror",
+      "label": "NetworkError",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L61"
+    },
+    {
+      "id": "errors_networkerror_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L62"
+    },
+    {
+      "id": "errors_isapperror",
+      "label": "isAppError()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L70"
+    },
+    {
+      "id": "errors_isvalidationerror",
+      "label": "isValidationError()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L77"
+    },
+    {
+      "id": "errors_formaterror",
+      "label": "formatError()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L84"
+    },
+    {
+      "id": "errors_logerror",
+      "label": "logError()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L103"
+    },
+    {
+      "id": "errors_handleapiresponse",
+      "label": "handleAPIResponse()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L122"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts",
+      "target": "errors_apperror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "errors_apperror",
+      "target": "errors_apperror_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts",
+      "target": "errors_validationerror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "errors_validationerror",
+      "target": "errors_validationerror_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts",
+      "target": "errors_notfounderror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "errors_notfounderror",
+      "target": "errors_notfounderror_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts",
+      "target": "errors_conflicterror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "errors_conflicterror",
+      "target": "errors_conflicterror_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts",
+      "target": "errors_unauthorizederror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "errors_unauthorizederror",
+      "target": "errors_unauthorizederror_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts",
+      "target": "errors_forbiddenerror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "errors_forbiddenerror",
+      "target": "errors_forbiddenerror_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts",
+      "target": "errors_apierror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "errors_apierror",
+      "target": "errors_apierror_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts",
+      "target": "errors_networkerror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "errors_networkerror",
+      "target": "errors_networkerror_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts",
+      "target": "errors_isapperror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts",
+      "target": "errors_isvalidationerror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts",
+      "target": "errors_formaterror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts",
+      "target": "errors_logerror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_errors_ts",
+      "target": "errors_handleapiresponse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L122",
+      "weight": 1.0
+    },
+    {
+      "source": "errors_formaterror",
+      "target": "errors_isapperror",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L85",
+      "weight": 1.0
+    },
+    {
+      "source": "errors_logerror",
+      "target": "errors_isapperror",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L106",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "errors_apperror_constructor",
+      "callee": "super",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L12"
+    },
+    {
+      "caller_nid": "errors_apperror_constructor",
+      "callee": "captureStackTrace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L14"
+    },
+    {
+      "caller_nid": "errors_validationerror_constructor",
+      "callee": "super",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "errors_notfounderror_constructor",
+      "callee": "super",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "errors_conflicterror_constructor",
+      "callee": "super",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "errors_unauthorizederror_constructor",
+      "callee": "super",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "errors_forbiddenerror_constructor",
+      "callee": "super",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "errors_apierror_constructor",
+      "callee": "super",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "errors_networkerror_constructor",
+      "callee": "super",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "errors_logerror",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "errors_logerror",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "errors_logerror",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "errors_handleapiresponse",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "errors_handleapiresponse",
+      "callee": "text",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "errors_handleapiresponse",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/errors.ts",
+      "source_location": "L142"
+    }
+  ]
+}

@@ -1,1 +1,138 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_roles_guard_ts", "label": "roles.guard.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L1"}, {"id": "roles_guard_rolesguard", "label": "RolesGuard", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L18"}, {"id": "roles_guard_rolesguard_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L19"}, {"id": "roles_guard_rolesguard_canactivate", "label": ".canActivate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L21"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_roles_guard_ts", "target": "common", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_roles_guard_ts", "target": "core", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_roles_guard_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_decorators_roles_decorator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_roles_guard_ts", "target": "roles_guard_rolesguard", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L18", "weight": 1.0}, {"source": "roles_guard_rolesguard", "target": "roles_guard_rolesguard_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L19", "weight": 1.0}, {"source": "roles_guard_rolesguard", "target": "roles_guard_rolesguard_canactivate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L21", "weight": 1.0}], "raw_calls": [{"caller_nid": "roles_guard_rolesguard_canactivate", "callee": "getAllAndOverride", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L23"}, {"caller_nid": "roles_guard_rolesguard_canactivate", "callee": "getHandler", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L24"}, {"caller_nid": "roles_guard_rolesguard_canactivate", "callee": "getClass", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L25"}, {"caller_nid": "roles_guard_rolesguard_canactivate", "callee": "getRequest", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L34"}, {"caller_nid": "roles_guard_rolesguard_canactivate", "callee": "switchToHttp", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L34"}, {"caller_nid": "roles_guard_rolesguard_canactivate", "callee": "some", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L45"}, {"caller_nid": "roles_guard_rolesguard_canactivate", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L49"}, {"caller_nid": "roles_guard_rolesguard_canactivate", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts", "source_location": "L49"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_roles_guard_ts",
+      "label": "roles.guard.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "roles_guard_rolesguard",
+      "label": "RolesGuard",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L18"
+    },
+    {
+      "id": "roles_guard_rolesguard_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L19"
+    },
+    {
+      "id": "roles_guard_rolesguard_canactivate",
+      "label": ".canActivate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L21"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_roles_guard_ts",
+      "target": "common",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_roles_guard_ts",
+      "target": "core",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_roles_guard_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_decorators_roles_decorator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_roles_guard_ts",
+      "target": "roles_guard_rolesguard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "roles_guard_rolesguard",
+      "target": "roles_guard_rolesguard_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "roles_guard_rolesguard",
+      "target": "roles_guard_rolesguard_canactivate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "roles_guard_rolesguard_canactivate",
+      "callee": "getAllAndOverride",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "roles_guard_rolesguard_canactivate",
+      "callee": "getHandler",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "roles_guard_rolesguard_canactivate",
+      "callee": "getClass",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L25"
+    },
+    {
+      "caller_nid": "roles_guard_rolesguard_canactivate",
+      "callee": "getRequest",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "roles_guard_rolesguard_canactivate",
+      "callee": "switchToHttp",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "roles_guard_rolesguard_canactivate",
+      "callee": "some",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "roles_guard_rolesguard_canactivate",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L49"
+    },
+    {
+      "caller_nid": "roles_guard_rolesguard_canactivate",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/auth/guards/roles.guard.ts",
+      "source_location": "L49"
+    }
+  ]
+}

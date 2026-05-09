@@ -1,1 +1,202 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_index_ts", "label": "index.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L1"}, {"id": "index_aitomermaidconverter", "label": "AIToMermaidConverter", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L22"}, {"id": "index_aitomermaidconverter_convert", "label": ".convert()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L23"}, {"id": "index_aitomermaidconverter_convertfast", "label": ".convertFast()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L65"}, {"id": "index_aitomermaidconverter_analyzeonly", "label": ".analyzeOnly()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L74"}, {"id": "index_converttomermaid", "label": "convertToMermaid()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L81"}, {"id": "index_converttomermaidfast", "label": "convertToMermaidFast()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L86"}, {"id": "index_analyzedomainonly", "label": "analyzeDomainOnly()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L93"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_index_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_openai_fallback", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L1", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_index_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L2", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_index_ts", "target": "index_aitomermaidconverter", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L22", "weight": 1.0}, {"source": "index_aitomermaidconverter", "target": "index_aitomermaidconverter_convert", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L23", "weight": 1.0}, {"source": "index_aitomermaidconverter", "target": "index_aitomermaidconverter_convertfast", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L65", "weight": 1.0}, {"source": "index_aitomermaidconverter", "target": "index_aitomermaidconverter_analyzeonly", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L74", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_index_ts", "target": "index_converttomermaid", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L81", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_index_ts", "target": "index_converttomermaidfast", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L86", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_index_ts", "target": "index_analyzedomainonly", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L93", "weight": 1.0}, {"source": "index_aitomermaidconverter_convertfast", "target": "index_aitomermaidconverter_convert", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L66", "weight": 1.0}, {"source": "index_aitomermaidconverter_analyzeonly", "target": "index_aitomermaidconverter_convert", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L75", "weight": 1.0}, {"source": "index_converttomermaid", "target": "index_aitomermaidconverter_convertfast", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L83", "weight": 1.0}, {"source": "index_converttomermaidfast", "target": "index_aitomermaidconverter_convertfast", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L90", "weight": 1.0}, {"source": "index_analyzedomainonly", "target": "index_aitomermaidconverter_analyzeonly", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L97", "weight": 1.0}], "raw_calls": [{"caller_nid": "index_aitomermaidconverter_convert", "callee": "analyzeDomainWithOpenAI", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L26"}, {"caller_nid": "index_aitomermaidconverter_convert", "callee": "generateMermaidWithValidation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts", "source_location": "L44"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_index_ts",
+      "label": "index.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "index_aitomermaidconverter",
+      "label": "AIToMermaidConverter",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L22"
+    },
+    {
+      "id": "index_aitomermaidconverter_convert",
+      "label": ".convert()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L23"
+    },
+    {
+      "id": "index_aitomermaidconverter_convertfast",
+      "label": ".convertFast()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L65"
+    },
+    {
+      "id": "index_aitomermaidconverter_analyzeonly",
+      "label": ".analyzeOnly()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L74"
+    },
+    {
+      "id": "index_converttomermaid",
+      "label": "convertToMermaid()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L81"
+    },
+    {
+      "id": "index_converttomermaidfast",
+      "label": "convertToMermaidFast()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L86"
+    },
+    {
+      "id": "index_analyzedomainonly",
+      "label": "analyzeDomainOnly()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L93"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_index_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_openai_fallback",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_index_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_index_ts",
+      "target": "index_aitomermaidconverter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "index_aitomermaidconverter",
+      "target": "index_aitomermaidconverter_convert",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "index_aitomermaidconverter",
+      "target": "index_aitomermaidconverter_convertfast",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "index_aitomermaidconverter",
+      "target": "index_aitomermaidconverter_analyzeonly",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_index_ts",
+      "target": "index_converttomermaid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L81",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_index_ts",
+      "target": "index_converttomermaidfast",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_ai_src_converter_index_ts",
+      "target": "index_analyzedomainonly",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "index_aitomermaidconverter_convertfast",
+      "target": "index_aitomermaidconverter_convert",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "index_aitomermaidconverter_analyzeonly",
+      "target": "index_aitomermaidconverter_convert",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "index_converttomermaid",
+      "target": "index_aitomermaidconverter_convertfast",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "index_converttomermaidfast",
+      "target": "index_aitomermaidconverter_convertfast",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L90",
+      "weight": 1.0
+    },
+    {
+      "source": "index_analyzedomainonly",
+      "target": "index_aitomermaidconverter_analyzeonly",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L97",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "index_aitomermaidconverter_convert",
+      "callee": "analyzeDomainWithOpenAI",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "index_aitomermaidconverter_convert",
+      "callee": "generateMermaidWithValidation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/ai/src/converter/index.ts",
+      "source_location": "L44"
+    }
+  ]
+}

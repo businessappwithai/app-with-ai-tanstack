@@ -8,23 +8,23 @@
  */
 
 import {
+  Body,
   Controller,
   Get,
+  Headers,
+  Param,
+  ParseUUIDPipe,
+  Patch,
   Post,
   Put,
-  Patch,
-  Body,
-  Param,
   Query,
-  Headers,
-  ParseUUIDPipe,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { SysService } from './sys.service';
+} from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import type { SysService } from "./sys.service";
 
-@ApiTags('sys')
+@ApiTags("sys")
 @ApiBearerAuth()
-@Controller('sys')
+@Controller("sys")
 export class SysController {
   constructor(private readonly sysService: SysService) {}
 
@@ -32,24 +32,24 @@ export class SysController {
   // SYS_TABLE Endpoints
   // ============================================================================
 
-  @Get('tables')
-  @ApiOperation({ summary: 'List all tables' })
+  @Get("tables")
+  @ApiOperation({ summary: "List all tables" })
   async findAllTables(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('search') search?: string,
-    @Query('prefix') prefix?: string,
+    @Query('prefix') prefix?: string
   ) {
     return this.sysService.findAllTables({ page, limit, search, prefix });
   }
 
-  @Get('tables/all')
-  @ApiOperation({ summary: 'List all database tables including sys_ tables' })
+  @Get("tables/all")
+  @ApiOperation({ summary: "List all database tables including sys_ tables" })
   async findAllDatabaseTables(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('search') search?: string,
-    @Query('prefix') prefix?: string,
+    @Query('prefix') prefix?: string
   ) {
     return this.sysService.findAllDatabaseTables({
       page: page ? parseInt(page, 10) : 1,
@@ -71,8 +71,8 @@ export class SysController {
     return this.sysService.createTable(data);
   }
 
-  @Patch('tables/:id')
-  @ApiOperation({ summary: 'Update table' })
+  @Patch("tables/:id")
+  @ApiOperation({ summary: "Update table" })
   async updateTable(@Param('id', ParseUUIDPipe) id: string, @Body() data: Record<string, unknown>) {
     return this.sysService.updateTable(id, data);
   }
@@ -81,12 +81,12 @@ export class SysController {
   // SYS_COLUMN Endpoints
   // ============================================================================
 
-  @Get('columns')
-  @ApiOperation({ summary: 'List all columns' })
+  @Get("columns")
+  @ApiOperation({ summary: "List all columns" })
   async findAllColumns(
     @Query('tableId') tableId?: string,
     @Query('page') page?: number,
-    @Query('limit') limit?: number,
+    @Query('limit') limit?: number
   ) {
     return this.sysService.findAllColumns({ tableId, page, limit });
   }
@@ -103,11 +103,11 @@ export class SysController {
     return this.sysService.findColumnsFromSchema(tableName);
   }
 
-  @Patch('columns/:id')
-  @ApiOperation({ summary: 'Update column' })
+  @Patch("columns/:id")
+  @ApiOperation({ summary: "Update column" })
   async updateColumn(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() data: Record<string, unknown>,
+    @Body() data: Record<string, unknown>
   ) {
     return this.sysService.updateColumn(id, data);
   }
@@ -116,14 +116,14 @@ export class SysController {
   // SYS_FIELD Endpoints (Critical for Runtime UI Modification)
   // ============================================================================
 
-  @Get('fields')
-  @ApiOperation({ summary: 'List all fields' })
+  @Get("fields")
+  @ApiOperation({ summary: "List all fields" })
   async findAllFields(
     @Query('tabId') tabId?: string,
     @Query('tableId') tableId?: string,
     @Query('view') view?: 'form' | 'grid',
     @Query('page') page?: number,
-    @Query('limit') limit?: number,
+    @Query('limit') limit?: number
   ) {
     return this.sysService.findAllFields({ tabId, tableId, view, page, limit });
   }
@@ -134,14 +134,14 @@ export class SysController {
     return this.sysService.findFieldById(id);
   }
 
-  @Patch('fields/:id')
-  @ApiOperation({ summary: 'Update field (seq_no, is_displayed, etc.)' })
+  @Patch("fields/:id")
+  @ApiOperation({ summary: "Update field (seq_no, is_displayed, etc.)" })
   async updateField(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: Record<string, unknown>,
-    @Headers('if-match') ifMatch?: string,
+    @Headers('if-match') ifMatch?: string
   ) {
-    const version = ifMatch ? parseInt(ifMatch.replace(/"/g, ''), 10) : undefined;
+    const version = ifMatch ? parseInt(ifMatch.replace(/"/g, ""), 10) : undefined;
     return this.sysService.updateField(id, data, version);
   }
 
@@ -185,11 +185,11 @@ export class SysController {
     return this.sysService.createFieldGroup(data);
   }
 
-  @Patch('field-groups/:id')
-  @ApiOperation({ summary: 'Update field group' })
+  @Patch("field-groups/:id")
+  @ApiOperation({ summary: "Update field group" })
   async updateFieldGroup(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() data: Record<string, unknown>,
+    @Body() data: Record<string, unknown>
   ) {
     return this.sysService.updateFieldGroup(id, data);
   }
@@ -198,8 +198,8 @@ export class SysController {
   // SYS_REFERENCE Endpoints
   // ============================================================================
 
-  @Get('references')
-  @ApiOperation({ summary: 'List all references (lookup types)' })
+  @Get("references")
+  @ApiOperation({ summary: "List all references (lookup types)" })
   async findAllReferences(@Query('page') page?: number, @Query('limit') limit?: number) {
     return this.sysService.findAllReferences({ page, limit });
   }

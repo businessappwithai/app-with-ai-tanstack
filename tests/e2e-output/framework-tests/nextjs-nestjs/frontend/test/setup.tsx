@@ -5,14 +5,14 @@
  * Provides test utilities and mocks for React/Next.js testing
  */
 
-import React from 'react';
-import { vi } from 'vitest';
-import { render, RenderOptions } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import '@testing-library/jest-dom';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { type RenderOptions, render } from "@testing-library/react";
+import type React from "react";
+import { vi } from "vitest";
+import "@testing-library/jest-dom";
 
 // Mock next/navigation
-vi.mock('next/navigation', () => ({
+vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: vi.fn(),
     replace: vi.fn(),
@@ -21,13 +21,13 @@ vi.mock('next/navigation', () => ({
     forward: vi.fn(),
     refresh: vi.fn(),
   }),
-  usePathname: () => '/',
+  usePathname: () => "/",
   useSearchParams: () => new URLSearchParams(),
   useParams: () => ({}),
 }));
 
 // Mock next/link
-vi.mock('next/link', () => ({
+vi.mock("next/link", () => ({
   default: ({ children, href }: { children: React.ReactNode; href: string }) => (
     <a href={href}>{children}</a>
   ),
@@ -50,22 +50,15 @@ export function createTestQueryClient() {
 }
 
 // Custom render function with providers
-interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
+interface CustomRenderOptions extends Omit<RenderOptions, "wrapper"> {
   queryClient?: QueryClient;
 }
 
-export function renderWithProviders(
-  ui: React.ReactElement,
-  options: CustomRenderOptions = {}
-) {
+export function renderWithProviders(ui: React.ReactElement, options: CustomRenderOptions = {}) {
   const { queryClient = createTestQueryClient(), ...renderOptions } = options;
 
   function Wrapper({ children }: { children: React.ReactNode }) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
-    );
+    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
   }
 
   return {
@@ -75,7 +68,7 @@ export function renderWithProviders(
 }
 
 // Re-export everything from testing-library
-export * from '@testing-library/react';
+export * from "@testing-library/react";
 export { renderWithProviders as render };
 
 /**
@@ -85,85 +78,85 @@ export const mockApiResponses = {
   cUSTOMER: {
     list: [
       {
-        id: 'test-id-1',
-        name: 'Test Name 1',
-        email: 'Test Email 1',
-        phone: 'Test Phone 1',
-        city: 'Test City 1',
-        status: 'Test Status 1',
-        created_at: '2024-01-15',
+        id: "test-id-1",
+        name: "Test Name 1",
+        email: "Test Email 1",
+        phone: "Test Phone 1",
+        city: "Test City 1",
+        status: "Test Status 1",
+        created_at: "2024-01-15",
       },
       {
-        id: 'test-id-2',
-        name: 'Test Name 2',
-        email: 'Test Email 2',
-        phone: 'Test Phone 2',
-        city: 'Test City 2',
-        status: 'Test Status 2',
-        created_at: '2024-01-16',
+        id: "test-id-2",
+        name: "Test Name 2",
+        email: "Test Email 2",
+        phone: "Test Phone 2",
+        city: "Test City 2",
+        status: "Test Status 2",
+        created_at: "2024-01-16",
       },
     ],
     single: {
-      id: 'test-id-1',
-      name: 'Test Name',
-      email: 'Test Email',
-      phone: 'Test Phone',
-      city: 'Test City',
-      status: 'Test Status',
-      created_at: '2024-01-15',
+      id: "test-id-1",
+      name: "Test Name",
+      email: "Test Email",
+      phone: "Test Phone",
+      city: "Test City",
+      status: "Test Status",
+      created_at: "2024-01-15",
     },
   },
   oRDER: {
     list: [
       {
-        id: 'test-id-1',
-        customer_id: 'Test Customer Id 1',
-        order_date: '2024-01-15',
+        id: "test-id-1",
+        customer_id: "Test Customer Id 1",
+        order_date: "2024-01-15",
         total_amount: 10.99,
-        status: 'Test Status 1',
-        created_at: '2024-01-15T10:00:00Z',
+        status: "Test Status 1",
+        created_at: "2024-01-15T10:00:00Z",
       },
       {
-        id: 'test-id-2',
-        customer_id: 'Test Customer Id 2',
-        order_date: '2024-01-16',
+        id: "test-id-2",
+        customer_id: "Test Customer Id 2",
+        order_date: "2024-01-16",
         total_amount: 20.99,
-        status: 'Test Status 2',
-        created_at: '2024-01-16T10:00:00Z',
+        status: "Test Status 2",
+        created_at: "2024-01-16T10:00:00Z",
       },
     ],
     single: {
-      id: 'test-id-1',
-      customer_id: 'Test Customer Id',
-      order_date: '2024-01-15',
+      id: "test-id-1",
+      customer_id: "Test Customer Id",
+      order_date: "2024-01-15",
       total_amount: 10.99,
-      status: 'Test Status',
-      created_at: '2024-01-15T10:00:00Z',
+      status: "Test Status",
+      created_at: "2024-01-15T10:00:00Z",
     },
   },
   oRDERITEM: {
     list: [
       {
-        id: 'test-id-1',
-        order_id: 'Test Order Id 1',
-        product_id: 'Test Product Id 1',
+        id: "test-id-1",
+        order_id: "Test Order Id 1",
+        product_id: "Test Product Id 1",
         quantity: 1,
         unit_price: 10.99,
         line_total: 10.99,
       },
       {
-        id: 'test-id-2',
-        order_id: 'Test Order Id 2',
-        product_id: 'Test Product Id 2',
+        id: "test-id-2",
+        order_id: "Test Order Id 2",
+        product_id: "Test Product Id 2",
         quantity: 2,
         unit_price: 20.99,
         line_total: 20.99,
       },
     ],
     single: {
-      id: 'test-id-1',
-      order_id: 'Test Order Id',
-      product_id: 'Test Product Id',
+      id: "test-id-1",
+      order_id: "Test Order Id",
+      product_id: "Test Product Id",
       quantity: 1,
       unit_price: 10.99,
       line_total: 10.99,
@@ -172,31 +165,31 @@ export const mockApiResponses = {
   pRODUCT: {
     list: [
       {
-        id: 'test-id-1',
-        name: 'Test Name 1',
-        description: 'Test Description 1',
+        id: "test-id-1",
+        name: "Test Name 1",
+        description: "Test Description 1",
         price: 10.99,
         stock_quantity: 1,
-        category: 'Test Category 1',
+        category: "Test Category 1",
         is_active: true,
       },
       {
-        id: 'test-id-2',
-        name: 'Test Name 2',
-        description: 'Test Description 2',
+        id: "test-id-2",
+        name: "Test Name 2",
+        description: "Test Description 2",
         price: 20.99,
         stock_quantity: 2,
-        category: 'Test Category 2',
+        category: "Test Category 2",
         is_active: false,
       },
     ],
     single: {
-      id: 'test-id-1',
-      name: 'Test Name',
-      description: 'Test Description',
+      id: "test-id-1",
+      name: "Test Name",
+      description: "Test Description",
       price: 10.99,
       stock_quantity: 1,
-      category: 'Test Category',
+      category: "Test Category",
       is_active: true,
     },
   },
@@ -207,8 +200,8 @@ export const mockApiResponses = {
  */
 export function createMockFetch(responses: Record<string, unknown>) {
   return vi.fn((input: RequestInfo | URL, options?: RequestInit) => {
-    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    const path = url.replace(/^https?:\/\/[^/]+/, '');
+    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    const path = url.replace(/^https?:\/\/[^/]+/, "");
 
     // Find matching response
     for (const [pattern, response] of Object.entries(responses)) {
@@ -218,7 +211,7 @@ export function createMockFetch(responses: Record<string, unknown>) {
           status: 200,
           json: () => Promise.resolve(response),
           text: () => Promise.resolve(JSON.stringify(response)),
-          headers: new Headers({ 'content-type': 'application/json' }),
+          headers: new Headers({ "content-type": "application/json" }),
         } as Response);
       }
     }
@@ -227,9 +220,9 @@ export function createMockFetch(responses: Record<string, unknown>) {
     return Promise.resolve({
       ok: false,
       status: 404,
-      json: () => Promise.resolve({ message: 'Not found' }),
+      json: () => Promise.resolve({ message: "Not found" }),
       text: () => Promise.resolve('{"message": "Not found"}'),
-      headers: new Headers({ 'content-type': 'application/json' }),
+      headers: new Headers({ "content-type": "application/json" }),
     } as Response);
   }) as unknown as typeof fetch;
 }
@@ -246,7 +239,7 @@ export async function waitFor(callback: () => boolean | void, timeout = 5000) {
     } catch {
       // Continue waiting
     }
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
   }
-  throw new Error('Timeout waiting for condition');
+  throw new Error("Timeout waiting for condition");
 }

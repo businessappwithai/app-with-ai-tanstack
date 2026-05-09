@@ -1,1 +1,283 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts", "label": "setup.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L1"}, {"id": "setup_inittestdatabase", "label": "initTestDatabase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L23"}, {"id": "setup_closetestdatabase", "label": "closeTestDatabase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L54"}, {"id": "setup_createtestapp", "label": "createTestApp()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L64"}, {"id": "setup_closetestapp", "label": "closeTestApp()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L82"}, {"id": "setup_generatetestid", "label": "generateTestId()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L91"}, {"id": "setup_cleanuptestdata", "label": "cleanupTestData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L108"}, {"id": "setup_resetdatabase", "label": "resetDatabase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L117"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts", "target": "testing", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts", "target": "common", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts", "target": "platform_fastify", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_knexfile", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts", "target": "setup_inittestdatabase", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L23", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts", "target": "setup_closetestdatabase", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L54", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts", "target": "setup_createtestapp", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L64", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts", "target": "setup_closetestapp", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L82", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts", "target": "setup_generatetestid", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L91", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts", "target": "setup_cleanuptestdata", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L108", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts", "target": "setup_resetdatabase", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L117", "weight": 1.0}, {"source": "setup_cleanuptestdata", "target": "setup_inittestdatabase", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L109", "weight": 1.0}, {"source": "setup_resetdatabase", "target": "setup_cleanuptestdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L118", "weight": 1.0}, {"source": "setup_resetdatabase", "target": "setup_inittestdatabase", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L119", "weight": 1.0}], "raw_calls": [{"caller_nid": "setup_inittestdatabase", "callee": "Knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L25"}, {"caller_nid": "setup_inittestdatabase", "callee": "latest", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L40"}, {"caller_nid": "setup_inittestdatabase", "callee": "run", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L43"}, {"caller_nid": "setup_closetestdatabase", "callee": "destroy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L56"}, {"caller_nid": "setup_createtestapp", "callee": "compile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L65"}, {"caller_nid": "setup_createtestapp", "callee": "createTestingModule", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L65"}, {"caller_nid": "setup_createtestapp", "callee": "createNestApplication", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L69"}, {"caller_nid": "setup_createtestapp", "callee": "init", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L73"}, {"caller_nid": "setup_createtestapp", "callee": "ready", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L74"}, {"caller_nid": "setup_createtestapp", "callee": "getInstance", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L74"}, {"caller_nid": "setup_createtestapp", "callee": "getHttpAdapter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L74"}, {"caller_nid": "setup_closetestapp", "callee": "close", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L84"}, {"caller_nid": "setup_generatetestid", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L92"}, {"caller_nid": "setup_resetdatabase", "callee": "run", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts", "source_location": "L120"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts",
+      "label": "setup.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "setup_inittestdatabase",
+      "label": "initTestDatabase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L23"
+    },
+    {
+      "id": "setup_closetestdatabase",
+      "label": "closeTestDatabase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L54"
+    },
+    {
+      "id": "setup_createtestapp",
+      "label": "createTestApp()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L64"
+    },
+    {
+      "id": "setup_closetestapp",
+      "label": "closeTestApp()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L82"
+    },
+    {
+      "id": "setup_generatetestid",
+      "label": "generateTestId()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L91"
+    },
+    {
+      "id": "setup_cleanuptestdata",
+      "label": "cleanupTestData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L108"
+    },
+    {
+      "id": "setup_resetdatabase",
+      "label": "resetDatabase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L117"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts",
+      "target": "testing",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts",
+      "target": "common",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts",
+      "target": "platform_fastify",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_knexfile",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts",
+      "target": "setup_inittestdatabase",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts",
+      "target": "setup_closetestdatabase",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts",
+      "target": "setup_createtestapp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L64",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts",
+      "target": "setup_closetestapp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L82",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts",
+      "target": "setup_generatetestid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts",
+      "target": "setup_cleanuptestdata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_test_setup_ts",
+      "target": "setup_resetdatabase",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L117",
+      "weight": 1.0
+    },
+    {
+      "source": "setup_cleanuptestdata",
+      "target": "setup_inittestdatabase",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "setup_resetdatabase",
+      "target": "setup_cleanuptestdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L118",
+      "weight": 1.0
+    },
+    {
+      "source": "setup_resetdatabase",
+      "target": "setup_inittestdatabase",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L119",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "setup_inittestdatabase",
+      "callee": "Knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L25"
+    },
+    {
+      "caller_nid": "setup_inittestdatabase",
+      "callee": "latest",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "setup_inittestdatabase",
+      "callee": "run",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "setup_closetestdatabase",
+      "callee": "destroy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "setup_createtestapp",
+      "callee": "compile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "setup_createtestapp",
+      "callee": "createTestingModule",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "setup_createtestapp",
+      "callee": "createNestApplication",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "setup_createtestapp",
+      "callee": "init",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "setup_createtestapp",
+      "callee": "ready",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "setup_createtestapp",
+      "callee": "getInstance",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "setup_createtestapp",
+      "callee": "getHttpAdapter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "setup_closetestapp",
+      "callee": "close",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "setup_generatetestid",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "setup_resetdatabase",
+      "callee": "run",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/test/setup.ts",
+      "source_location": "L120"
+    }
+  ]
+}

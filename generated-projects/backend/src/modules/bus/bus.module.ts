@@ -7,9 +7,9 @@
  * Generated: 2026-05-07T09:31:28.480Z
  */
 
-import { Module } from '@nestjs/common';
-import { BusController } from './bus.controller';
-import { BusService } from './bus.service';
+import { Module } from "@nestjs/common";
+import { BusController } from "./bus.controller";
+import { BusService } from "./bus.service";
 
 @Module({
   controllers: [BusController],

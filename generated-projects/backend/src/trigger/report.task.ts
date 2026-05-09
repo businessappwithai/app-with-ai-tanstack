@@ -8,7 +8,7 @@
  * Project: crm-app
  */
 
-import { task } from '@trigger.dev/sdk/v3';
+import { task } from "@trigger.dev/sdk/v3";
 
 export interface ReportTaskPayload {
   reportType: string;
@@ -17,7 +17,7 @@ export interface ReportTaskPayload {
 }
 
 export const generateReportTask = task({
-  id: 'generate-report',
+  id: "generate-report",
   maxDuration: 300,
   retry: {
     maxAttempts: 2,

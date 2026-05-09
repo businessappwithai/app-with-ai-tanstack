@@ -6,11 +6,15 @@
  * and Frontend Generator for the selected stack option.
  */
 
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import { Entity, Relationship } from '@erdwithai/core/types';
-import { DictionaryGenerator, DictionaryContext } from './dictionary.generator';
-import { FullStackGenerator, FullStackGeneratorOptions, StackOption } from './full-stack.generator';
+import type { Entity, Relationship } from "@erdwithai/core/types";
+import * as fs from "fs/promises";
+import * as path from "path";
+import { type DictionaryContext, DictionaryGenerator } from "./dictionary.generator";
+import {
+  FullStackGenerator,
+  type FullStackGeneratorOptions,
+  type StackOption,
+} from "./full-stack.generator";
 
 export interface OrchestratorOptions {
   stackOption: StackOption;
@@ -19,11 +23,11 @@ export interface OrchestratorOptions {
   projectDescription: string;
   outputDir: string;
   port: number;
-  databaseType: 'postgresql' | 'mysql' | 'sqlite';
+  databaseType: "postgresql" | "mysql" | "sqlite";
   includeRbac: boolean;
   randomizeFieldOrder: boolean;
-  aiNlAddon?: 'none' | 'basic' | 'advanced';
-  aiNlProvider?: 'anthropic' | 'openai';
+  aiNlAddon?: "none" | "basic" | "advanced";
+  aiNlProvider?: "anthropic" | "openai";
   aiNlModel?: string;
 }
 
@@ -61,10 +65,7 @@ export class GeneratorOrchestrator {
   /**
    * Generate complete application from entities and relationships
    */
-  async generate(
-    entities: Entity[],
-    relationships: Relationship[]
-  ): Promise<GenerationResult> {
+  async generate(entities: Entity[], relationships: Relationship[]): Promise<GenerationResult> {
     console.log(`\n🚀 Starting generation with ${this.getStackDescription()}...`);
     console.log(`   Project: ${this.options.projectName}`);
     console.log(`   Entities: ${entities.length}`);
@@ -72,7 +73,7 @@ export class GeneratorOrchestrator {
     console.log(`   Database: ${this.options.databaseType}`);
 
     // Step 1: Generate Dictionary Context
-    console.log('\n📖 Generating Application Dictionary metadata...');
+    console.log("\n📖 Generating Application Dictionary metadata...");
     const dictionaryContext = this.dictionaryGenerator.generateDictionaryContext(
       entities,
       relationships
@@ -119,10 +120,7 @@ export class GeneratorOrchestrator {
   /**
    * Generate only the dictionary context (useful for testing)
    */
-  generateDictionary(
-    entities: Entity[],
-    relationships: Relationship[]
-  ): DictionaryContext {
+  generateDictionary(entities: Entity[], relationships: Relationship[]): DictionaryContext {
     return this.dictionaryGenerator.generateDictionaryContext(entities, relationships);
   }
 
@@ -132,24 +130,24 @@ export class GeneratorOrchestrator {
   static getAvailableStacks(): Array<{ value: StackOption; label: string; description: string }> {
     return [
       {
-        value: 'tanstackjs-nestjs',
-        label: 'Modern Web Stack',
-        description: 'Next.js + Shadcn UI + TanStack | NestJS + Fastify + Knex.js',
+        value: "tanstackjs-nestjs",
+        label: "Modern Web Stack",
+        description: "Next.js + Shadcn UI + TanStack | NestJS + Fastify + Knex.js",
       },
       {
-        value: 'openui5-odatav4',
-        label: 'Enterprise SAP-Style Stack',
-        description: 'OpenUI5 FCL | OData V4 Server (jaystack)',
+        value: "openui5-odatav4",
+        label: "Enterprise SAP-Style Stack",
+        description: "OpenUI5 FCL | OData V4 Server (jaystack)",
       },
     ];
   }
 
   private getStackDescription(): string {
     switch (this.options.stackOption) {
-      case 'tanstackjs-nestjs':
-        return 'Modern Web Stack (Next.js + NestJS)';
-      case 'openui5-odatav4':
-        return 'Enterprise SAP-Style Stack (OpenUI5 + OData V4)';
+      case "tanstackjs-nestjs":
+        return "Modern Web Stack (Next.js + NestJS)";
+      case "openui5-odatav4":
+        return "Enterprise SAP-Style Stack (OpenUI5 + OData V4)";
       default:
         return this.options.stackOption;
     }

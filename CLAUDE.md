@@ -126,12 +126,13 @@ ERDwithAI transforms natural language descriptions into production-ready full-st
 | Runtime | Bun.js 1.3+ |
 | AI Orchestration | Mastra.ai v1.10+, CopilotKit v1.53+ |
 | AI Model | Anthropic Claude (claude-sonnet-4-20250514) |
-| Frontend | Next.js 14+, React 18+, Shadcn UI, TailwindCSS, Zustand |
-| Backend | NestJS 10+, Fastify, Knex.js |
+| Frontend | TanStack Start v1.x, Vite 5+, React 18+, Shadcn UI, TailwindCSS, Zustand |
+| Backend | NestJS 10+, Fastify, Kysely (type-safe SQL) |
 | Database | PostgreSQL (production), SQLite (Mastra state/dev) |
 | Templates | Handlebars 4.7+ |
 | Testing | Playwright v1.57+, Vitest, Testing Library |
 | Code Sandbox | E2B Code Interpreter |
+| Linter/Formatter | Biome (unified ESLint + Prettier) |
 
 ---
 
@@ -143,7 +144,7 @@ app-with-ai-tanstack/
 │   ├── core/          # Core business logic, types, hooks, RBAC, validation
 │   ├── generator/     # Code generation engine, CLI, Handlebars templates
 │   ├── ai/            # Mastra.ai agents, CopilotKit, AI workflows, CLI
-│   └── web/           # Next.js 14 web application
+│   └── web/           # TanStack Start v1 web application (Vite + Vinxi)
 ├── database/          # Knex migrations, knexfile.ts, generator.sql
 ├── docs/              # Architecture, development, testing, roadmap docs
 ├── generated-projects/# Output directory for generated applications
@@ -275,36 +276,54 @@ src/
 
 ### @erdwithai/web (`packages/web/`)
 
-Next.js 14 web application with App Router.
+TanStack Start v1 full-stack application using Vite + Vinxi, with file-based routing and server functions.
+
+**Key differences from Next.js:**
+- Routes use `$` prefix for dynamic segments: `$id` instead of `[id]`
+- Route parameters accessed via `Route.useParams()` instead of `useParams()`
+- Navigation via `useNavigate({ to: '/path', params: {} })` instead of `useRouter().push()`
+- Environment variables use `import.meta.env.VITE_*` instead of `process.env.NEXT_PUBLIC_*`
+- API routes use `createAPIFileRoute()` instead of `NextResponse`
+- Server functions (RPC-style calls) available via TanStack Start's server function pattern
 
 ```
 src/
-├── app/
-│   ├── page.tsx               # Root → redirects to /projects
-│   ├── providers.tsx          # CopilotKit provider wrapper
+├── routes/
+│   ├── __root.tsx             # Root layout (replaces app/layout.tsx + app/providers.tsx)
+│   ├── index.tsx              # Root → redirects to /projects
 │   ├── projects/
-│   │   ├── page.tsx           # Projects list (Zustand store)
-│   │   └── [id]/
-│   │       ├── init/          # Project initialization step
-│   │       ├── design/        # ERD design step (HITL approval)
-│   │       ├── generate/      # Code generation step
-│   │       ├── enhance/       # Service enhancement step
-│   │       │   └── [serviceName]/
-│   │       └── deploy/        # Deployment step
+│   │   ├── index.tsx          # Projects list (Zustand store)
+│   │   └── $id/
+│   │       ├── init.tsx       # Project initialization step
+│   │       ├── design.tsx     # ERD design step (HITL approval)
+│   │       ├── generate.tsx   # Code generation step
+│   │       ├── enhance/
+│   │       │   └── $serviceName.tsx
+│   │       └── deploy.tsx     # Deployment step
 │   └── api/
+│       ├── copilotkit.ts                # CopilotKit runtime endpoint
+│       ├── generate.ts
+│       ├── deploy.ts
 │       ├── ai/
-│       │   ├── convert/route.ts         # AI conversion endpoint
-│       │   ├── convert-stream/route.ts  # Streaming AI conversion
-│       │   ├── code-agent/route.ts      # Code agent endpoint
-│       │   └── code-agent-stream/route.ts
-│       ├── copilotkit/route.ts          # CopilotKit runtime endpoint
-│       ├── deploy/route.ts
-│       ├── generate/route.ts
+│       │   ├── convert.ts               # AI conversion endpoint
+│       │   ├── convert-stream.ts        # Streaming AI conversion
+│       │   ├── code-agent.ts            # Code agent endpoint
+│       │   └── code-agent-stream.ts
 │       └── projects/
-│           ├── route.ts                 # CRUD for projects
-│           └── [id]/
-│               ├── erd-versions/        # ERD version history & restore
-│               └── workflows/[serviceName]/ # Workflow management
+│           ├── index.ts                 # CRUD for projects
+│           └── $id/
+│               ├── index.ts             # Single project CRUD
+│               ├── erd-versions/
+│               │   ├── index.ts         # ERD version history
+│               │   └── $versionId/restore.ts
+│               └── workflows/$serviceName/
+│                   ├── index.ts         # Workflow management
+│                   ├── draft.ts
+│                   ├── apply.ts
+│                   ├── validate.ts
+│                   ├── generate.ts
+│                   ├── gorules.ts
+│                   └── files/
 ├── components/
 │   ├── ProgressStepper.tsx    # Multi-step project wizard
 │   ├── approval/              # HITL entity approval cards
@@ -351,14 +370,14 @@ src/
 
 ### Import Order
 
-1. External dependencies (React, Next.js, etc.)
+1. External dependencies (React, TanStack, etc.)
 2. Internal package imports (`@erdwithai/*`)
 3. Relative imports (`./types`, `../utils`)
 4. Type-only imports (`import type`)
 
 ```typescript
 import React from "react";
-import Link from "next/link";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Database } from "lucide-react";
 
 import { mastra } from "@erdwithai/ai";
@@ -440,13 +459,164 @@ export async function analyzeDomain(description: string) {
 ### User-Facing AI Flow (Project Wizard)
 
 ```
-/projects → New Project → /projects/[id]/init
+/projects → New Project → /projects/$id/init
   → Natural language description
   → AI agents extract entities (domain → entity → relationship → mermaid)
-  → /projects/[id]/design (HITL approval of ERD)
-  → /projects/[id]/generate (select stack, trigger code generation)
-  → /projects/[id]/enhance/[serviceName] (AI-assisted enhancements)
-  → /projects/[id]/deploy
+  → /projects/$id/design (HITL approval of ERD)
+  → /projects/$id/generate (select stack, trigger code generation)
+  → /projects/$id/enhance/$serviceName (AI-assisted enhancements)
+  → /projects/$id/deploy
+```
+
+---
+
+## TanStack Start Patterns
+
+### File-Based Routing
+
+TanStack Start uses file-based routing with Vite/Vinxi. Key differences from Next.js:
+- Dynamic segments use `$` prefix: `$id`, `$serviceName`, etc. (not `[id]`)
+- API routes go in `routes/api/` with `index.ts` or specific method files
+- Route files must export `export const Route = createFileRoute('/path')({ component })`
+
+### Page Route Example
+
+```typescript
+// routes/projects/$id/design.tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/projects/$id/design")({
+  component: DesignPage,
+});
+
+function DesignPage() {
+  const { id } = Route.useParams();
+  const navigate = useNavigate();
+
+  return (
+    <div>
+      <button onClick={() => navigate({ to: "/projects" })}>
+        Back to Projects
+      </button>
+      <p>Project ID: {id}</p>
+    </div>
+  );
+}
+```
+
+### API Route Example (createAPIFileRoute)
+
+```typescript
+// routes/api/projects/$id/index.ts
+import { createAPIFileRoute } from "@tanstack/start/api";
+import type { Project } from "@erdwithai/core/types";
+
+export const Route = createAPIFileRoute("/api/projects/$id")({
+  GET: async ({ request, params }) => {
+    const projectId = params.id;
+    // Fetch from database using Kysely
+    const project = await db
+      .selectFrom("projects")
+      .selectAll()
+      .where("id", "=", projectId)
+      .executeTakeFirst();
+
+    return new Response(JSON.stringify(project), {
+      headers: { "Content-Type": "application/json" },
+    });
+  },
+
+  PUT: async ({ request, params }) => {
+    const projectId = params.id;
+    const data = await request.json();
+    // Update logic here
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  },
+});
+```
+
+### Streaming API Route Example (SSE)
+
+```typescript
+// routes/api/generate.ts
+import { createAPIFileRoute } from "@tanstack/start/api";
+
+export const Route = createAPIFileRoute("/api/generate")({
+  POST: async ({ request }) => {
+    const { projectId } = await request.json();
+
+    return new Response(
+      new ReadableStream({
+        async start(controller) {
+          try {
+            // Generate code in chunks
+            const chunks = await generateProject(projectId);
+            for (const chunk of chunks) {
+              controller.enqueue(`data: ${JSON.stringify(chunk)}\n\n`);
+            }
+            controller.close();
+          } catch (error) {
+            controller.error(error);
+          }
+        },
+      }),
+      {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "Connection": "keep-alive",
+        },
+      }
+    );
+  },
+});
+```
+
+### Navigation Patterns
+
+| Pattern | Next.js | TanStack Start |
+|---------|---------|---|
+| Navigate to route | `router.push('/path')` | `navigate({ to: '/path' })` |
+| Navigate with params | `router.push('/path/123')` | `navigate({ to: '/path/$id', params: { id: '123' } })` |
+| Get URL params | `useParams()` returns `{ id }` | `Route.useParams()` returns `{ id }` |
+| Link component | `<Link href="/path">` | `<Link to="/path">` |
+| Get search params | `useSearchParams()` | `useSearch()` |
+
+### Environment Variables in Routes
+
+**Client-side (routes/*.tsx):**
+```typescript
+const apiUrl = import.meta.env.VITE_API_URL;
+const mastraUrl = import.meta.env.VITE_MASTRA_URL;
+```
+
+**Server-side (routes/api/*):**
+```typescript
+const databaseUrl = process.env.DATABASE_URL;
+const apiKey = process.env.ANTHROPIC_API_KEY;
+```
+
+### CopilotKit Integration
+
+Update from Next.js `copilotRuntimeNextJSAppRouterEndpoint` to generic HTTP endpoint:
+
+```typescript
+// routes/api/copilotkit.ts
+import { createAPIFileRoute } from "@tanstack/start/api";
+import { copilotRuntimeGenericHTTPEndpoint } from "@copilotkit/runtime";
+
+export const Route = createAPIFileRoute("/api/copilotkit")({
+  POST: async ({ request }) => {
+    const handler = copilotRuntimeGenericHTTPEndpoint({
+      runtime: yourCopilotRuntime,
+      serviceAdapter: yourServiceAdapter,
+      endpoint: "/api/copilotkit",
+    });
+    return handler(request);
+  },
+});
 ```
 
 ---
@@ -457,11 +627,14 @@ export async function analyzeDomain(description: string) {
 - `ANTHROPIC_API_KEY` - Anthropic API key (Claude claude-sonnet-4-20250514)
 - `DATABASE_URL` - PostgreSQL connection string
 
-**Web Application:**
-- `NEXT_PUBLIC_APP_URL` - Application URL (default: `http://localhost:3000`)
-- `NEXT_PUBLIC_API_URL` - API URL (default: `http://localhost:3000/api`)
-- `NEXT_PUBLIC_MASTRA_URL` - Mastra service URL (default: `http://localhost:4111`)
+**Web Application (TanStack Start):**
+- `VITE_APP_URL` - Application URL (default: `http://localhost:3000`)
+- `VITE_API_URL` - API URL (default: `http://localhost:3000/api`)
+- `VITE_MASTRA_URL` - Mastra service URL (default: `http://localhost:4111`)
+- `VITE_ERD_DESIGN_AUTO_RETRY_COUNT` - Auto-retry count for ERD design (default: `3`)
 - `COPILOTKIT_API_KEY` - CopilotKit API key
+
+**Note**: TanStack Start uses Vite, so environment variables must be prefixed with `VITE_` for client-side access via `import.meta.env.VITE_*`. Server-side API routes access them via `process.env.*`.
 
 **Mastra AI Service:**
 - `MASTRA_DATABASE_URL` - Mastra state database (default: SQLite `mastra.db`)
@@ -519,21 +692,31 @@ Test files: `tests/e2e/**/*.e2e.spec.ts`
 
 ## Database
 
-**Engine**: Knex.js with PostgreSQL (production) / SQLite (development)
+**Engine**: Kysely (type-safe SQL query builder) with PostgreSQL (production) / SQLite (development)
 
-**Migrations** (`database/migrations/`):
-- `001_initial_schema.ts` - Core tables
-- `002_add_project_generation_fields.ts` - Generation metadata
-- `003_add_hook_workflow_fields.ts` - Hook and workflow support
+**Migrations**: Handled via Kysely schema builder in `packages/core/src/services/database.service.ts`
+- No separate migration files — schema is defined in TypeScript with `database.schema.createTable()`
+- Run migrations via the service initialization
 
-**Run migrations**:
-```bash
-bun run migrate
-# or directly:
-bun run packages/generator/migrations/migrate.ts
+**Database Service** (`packages/core/src/services/database.service.ts`):
+- Provides `SafeDatabase` wrapper for type-safe queries
+- All operations use Kysely query builder: `db.selectFrom('table')`, `db.insertInto('table')`, etc.
+- Key methods: `projectDb`, `erdVersionDb`, `workflowDb`, `generationHistoryDb`, `deploymentDb`, `entityDb`, `settingsDb`
+
+**Kysely Query Examples**:
+```typescript
+// SELECT
+const projects = await db.selectFrom('projects').selectAll().execute();
+
+// INSERT
+await db.insertInto('projects').values({ id, name, description }).execute();
+
+// UPDATE
+await db.updateTable('projects').set({ name: 'updated' }).where('id', '=', id).execute();
+
+// DELETE
+await db.deleteFrom('projects').where('id', '=', id).execute();
 ```
-
-**Knex config**: `database/knexfile.ts`
 
 ---
 
@@ -565,11 +748,12 @@ bun run packages/generator/migrations/migrate.ts
 | `packages/ai/src/workflows/erd-design-workflow.ts` | HITL ERD design workflow |
 | `packages/generator/src/parsers/mermaid.parser.ts` | Mermaid ERD parser |
 | `packages/generator/src/generators/orchestrator.ts` | Generation orchestrator |
-| `packages/generator/templates/nextjs-nestjs/` | Next.js/NestJS templates |
+| `packages/generator/templates/tanstackjs-nestjs/` | TanStack Start/NestJS templates |
 | `packages/generator/templates/openui5-odatav4/` | OpenUI5/OData templates |
-| `packages/web/src/app/providers.tsx` | CopilotKit provider |
-| `packages/web/src/app/api/copilotkit/route.ts` | CopilotKit runtime endpoint |
+| `packages/web/src/routes/__root.tsx` | Root layout (replaces Next.js layout.tsx) |
+| `packages/web/src/routes/api/copilotkit.ts` | CopilotKit runtime endpoint |
 | `packages/web/src/hooks/useHumanInTheLoop.ts` | HITL React hook |
+| `packages/core/src/services/database.service.ts` | Kysely database service (replaces Knex) |
 | `webapp/` | Pre-built OpenUI5 HMS reference application |
 | `docs/architecture.md` | System architecture deep-dive |
 | `docs/DEVELOPMENT.md` | Build system details |

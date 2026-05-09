@@ -7,11 +7,11 @@
 export const testData = {
   CUSTOMER: {
     create: {
-      name: 'Test Name',
-      email: 'test@example.com',
-      phone: '+1234567890',
-      city: 'test_value',
-      status: 'test_value',
+      name: "Test Name",
+      email: "test@example.com",
+      phone: "+1234567890",
+      city: "test_value",
+      status: "test_value",
     },
     update: {
       name: `Test Name 1`,
@@ -25,11 +25,11 @@ export const testData = {
     create: {
       order_date: new Date().toISOString(),
       total_amount: 123.45,
-      status: 'test_value',
+      status: "test_value",
     },
     update: {
       order_date: `test_1`,
-      total_amount: 101.50,
+      total_amount: 101.5,
       status: `test_value_1`,
     },
   },
@@ -41,23 +41,23 @@ export const testData = {
     },
     update: {
       quantity: 101,
-      unit_price: 101.50,
-      line_total: 101.50,
+      unit_price: 101.5,
+      line_total: 101.5,
     },
   },
   PRODUCT: {
     create: {
-      name: 'Test Name',
-      description: 'test_value',
+      name: "Test Name",
+      description: "test_value",
       price: 123.45,
       stock_quantity: 123,
-      category: 'test_value',
+      category: "test_value",
       is_active: true,
     },
     update: {
       name: `Test Name 1`,
       description: `test_value_1`,
-      price: 101.50,
+      price: 101.5,
       stock_quantity: 101,
       category: `test_value_1`,
       is_active: `test_1`,
@@ -69,55 +69,63 @@ export const testData = {
 function mockValue(type: string, fieldName: string): any {
   const typeLower = type.toLowerCase();
 
-  if (typeLower.includes('string') || typeLower.includes('text') || typeLower.includes('varchar')) {
-    if (fieldName.includes('email')) {
-      return 'test@example.com';
+  if (typeLower.includes("string") || typeLower.includes("text") || typeLower.includes("varchar")) {
+    if (fieldName.includes("email")) {
+      return "test@example.com";
     }
-    if (fieldName.includes('name')) {
-      return 'Test Name';
+    if (fieldName.includes("name")) {
+      return "Test Name";
     }
-    return 'test_value';
+    return "test_value";
   }
 
-  if (typeLower.includes('int') || typeLower.includes('number') || typeLower.includes('integer')) {
+  if (typeLower.includes("int") || typeLower.includes("number") || typeLower.includes("integer")) {
     return 123;
   }
 
-  if (typeLower.includes('decimal') || typeLower.includes('float') || typeLower.includes('double')) {
+  if (
+    typeLower.includes("decimal") ||
+    typeLower.includes("float") ||
+    typeLower.includes("double")
+  ) {
     return 123.45;
   }
 
-  if (typeLower.includes('bool') || typeLower.includes('boolean')) {
+  if (typeLower.includes("bool") || typeLower.includes("boolean")) {
     return true;
   }
 
-  if (typeLower.includes('date') || typeLower.includes('time')) {
+  if (typeLower.includes("date") || typeLower.includes("time")) {
     return new Date().toISOString();
   }
 
-  return 'test_value';
+  return "test_value";
 }
 
 // Mock unique value helper
 function mockUniqueValue(type: string, fieldName: string, index: number): any {
   const typeLower = type.toLowerCase();
 
-  if (typeLower.includes('string') || typeLower.includes('text') || typeLower.includes('varchar')) {
-    if (fieldName.includes('email')) {
+  if (typeLower.includes("string") || typeLower.includes("text") || typeLower.includes("varchar")) {
+    if (fieldName.includes("email")) {
       return `test${index}@example.com`;
     }
-    if (fieldName.includes('name')) {
+    if (fieldName.includes("name")) {
       return `Test Name ${index}`;
     }
     return `test_value_${index}`;
   }
 
-  if (typeLower.includes('int') || typeLower.includes('number') || typeLower.includes('integer')) {
+  if (typeLower.includes("int") || typeLower.includes("number") || typeLower.includes("integer")) {
     return 100 + index;
   }
 
-  if (typeLower.includes('decimal') || typeLower.includes('float') || typeLower.includes('double')) {
-    return (100.50 + index).toFixed(2);
+  if (
+    typeLower.includes("decimal") ||
+    typeLower.includes("float") ||
+    typeLower.includes("double")
+  ) {
+    return (100.5 + index).toFixed(2);
   }
 
   return `test_${index}`;

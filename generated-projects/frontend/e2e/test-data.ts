@@ -7,14 +7,14 @@
 export const testData = {
   Company: {
     create: {
-      name: 'Test Name',
-      industry: 'test_value',
-      website: 'test_value',
-      phone: '+1234567890',
-      email: 'test@example.com',
+      name: "Test Name",
+      industry: "test_value",
+      website: "test_value",
+      phone: "+1234567890",
+      email: "test@example.com",
       employee_count: 123,
       annual_revenue: 123.45,
-      status: 'test_value',
+      status: "test_value",
     },
     update: {
       name: `Test Name 1`,
@@ -23,21 +23,21 @@ export const testData = {
       phone: `test_value_1`,
       email: `test1@example.com`,
       employee_count: 101,
-      annual_revenue: 101.50,
+      annual_revenue: 101.5,
       status: `test_value_1`,
     },
   },
   Contact: {
     create: {
-      first_name: 'Test Name',
-      last_name: 'Test Name',
-      email: 'test@example.com',
-      phone: '+1234567890',
-      mobile: 'test_value',
-      job_title: 'test_value',
-      department: 'test_value',
-      status: 'test_value',
-      lead_source: 'test_value',
+      first_name: "Test Name",
+      last_name: "Test Name",
+      email: "test@example.com",
+      phone: "+1234567890",
+      mobile: "test_value",
+      job_title: "test_value",
+      department: "test_value",
+      status: "test_value",
+      lead_source: "test_value",
     },
     update: {
       first_name: `Test Name 1`,
@@ -53,19 +53,19 @@ export const testData = {
   },
   Deal: {
     create: {
-      name: 'Test Name',
+      name: "Test Name",
       amount: 123.45,
-      currency: 'test_value',
-      stage: 'test_value',
+      currency: "test_value",
+      stage: "test_value",
       probability: 123,
       expected_close_date: new Date().toISOString(),
       actual_close_date: new Date().toISOString(),
-      status: 'test_value',
-      description: 'test_value',
+      status: "test_value",
+      description: "test_value",
     },
     update: {
       name: `Test Name 1`,
-      amount: 101.50,
+      amount: 101.5,
       currency: `test_value_1`,
       stage: `test_value_1`,
       probability: 101,
@@ -77,7 +77,7 @@ export const testData = {
   },
   DealStage: {
     create: {
-      name: 'Test Name',
+      name: "Test Name",
       sort_order: 123,
       default_probability: 123,
       is_won: true,
@@ -93,7 +93,7 @@ export const testData = {
   },
   Pipeline: {
     create: {
-      name: 'Test Name',
+      name: "Test Name",
       is_default: true,
       is_active: true,
     },
@@ -105,13 +105,13 @@ export const testData = {
   },
   Activity: {
     create: {
-      activity_type: 'test_value',
-      subject: 'test_value',
-      description: 'test_value',
+      activity_type: "test_value",
+      subject: "test_value",
+      description: "test_value",
       scheduled_at: new Date().toISOString(),
       completed_at: new Date().toISOString(),
       duration_minutes: 123,
-      status: 'test_value',
+      status: "test_value",
     },
     update: {
       activity_type: `test_value_1`,
@@ -125,7 +125,7 @@ export const testData = {
   },
   Note: {
     create: {
-      content: 'test_value',
+      content: "test_value",
       is_pinned: true,
     },
     update: {
@@ -135,14 +135,14 @@ export const testData = {
   },
   Task: {
     create: {
-      title: 'test_value',
-      description: 'test_value',
-      priority: 'test_value',
-      status: 'test_value',
+      title: "test_value",
+      description: "test_value",
+      priority: "test_value",
+      status: "test_value",
       due_date: new Date().toISOString(),
       completed_at: new Date().toISOString(),
-      assigned_to: 'test_value',
-      created_by: 'test_value',
+      assigned_to: "test_value",
+      created_by: "test_value",
     },
     update: {
       title: `test_value_1`,
@@ -157,10 +157,10 @@ export const testData = {
   },
   EmailMessage: {
     create: {
-      subject: 'test_value',
-      body_text: 'test_value',
-      body_html: 'test_value',
-      direction: 'test_value',
+      subject: "test_value",
+      body_text: "test_value",
+      body_html: "test_value",
+      direction: "test_value",
       sent_at: new Date().toISOString(),
       received_at: new Date().toISOString(),
       opened_at: new Date().toISOString(),
@@ -179,11 +179,11 @@ export const testData = {
   },
   EmailTemplate: {
     create: {
-      name: 'Test Name',
-      subject: 'test_value',
-      body_html: 'test_value',
-      body_text: 'test_value',
-      category: 'test_value',
+      name: "Test Name",
+      subject: "test_value",
+      body_html: "test_value",
+      body_text: "test_value",
+      category: "test_value",
       is_active: true,
     },
     update: {
@@ -197,49 +197,49 @@ export const testData = {
   },
   Product: {
     create: {
-      name: 'Test Name',
-      sku: 'test_value',
-      description: 'test_value',
+      name: "Test Name",
+      sku: "test_value",
+      description: "test_value",
       unit_price: 123.45,
-      currency: 'test_value',
+      currency: "test_value",
       is_active: true,
     },
     update: {
       name: `Test Name 1`,
       sku: `test_value_1`,
       description: `test_value_1`,
-      unit_price: 101.50,
+      unit_price: 101.5,
       currency: `test_value_1`,
       is_active: `test_1`,
     },
   },
   Quote: {
     create: {
-      quote_number: 'test_value',
-      status: 'test_value',
+      quote_number: "test_value",
+      status: "test_value",
       valid_until: new Date().toISOString(),
       subtotal: 123.45,
       discount_amount: 123.45,
       tax_amount: 123.45,
       total_amount: 123.45,
-      terms: 'test_value',
-      notes: 'test_value',
+      terms: "test_value",
+      notes: "test_value",
     },
     update: {
       quote_number: `test_value_1`,
       status: `test_value_1`,
       valid_until: `test_1`,
-      subtotal: 101.50,
-      discount_amount: 101.50,
-      tax_amount: 101.50,
-      total_amount: 101.50,
+      subtotal: 101.5,
+      discount_amount: 101.5,
+      tax_amount: 101.5,
+      total_amount: 101.5,
       terms: `test_value_1`,
       notes: `test_value_1`,
     },
   },
   QuoteItem: {
     create: {
-      description: 'test_value',
+      description: "test_value",
       quantity: 123,
       unit_price: 123.45,
       discount_percent: 123.45,
@@ -248,17 +248,17 @@ export const testData = {
     update: {
       description: `test_value_1`,
       quantity: 101,
-      unit_price: 101.50,
-      discount_percent: 101.50,
-      total_price: 101.50,
+      unit_price: 101.5,
+      discount_percent: 101.5,
+      total_price: 101.5,
     },
   },
   User: {
     create: {
-      email: 'test@example.com',
-      first_name: 'Test Name',
-      last_name: 'Test Name',
-      role: 'test_value',
+      email: "test@example.com",
+      first_name: "Test Name",
+      last_name: "Test Name",
+      role: "test_value",
       is_active: true,
       last_login: new Date().toISOString(),
     },
@@ -273,7 +273,7 @@ export const testData = {
   },
   Team: {
     create: {
-      name: 'Test Name',
+      name: "Test Name",
     },
     update: {
       name: `Test Name 1`,
@@ -285,55 +285,63 @@ export const testData = {
 function mockValue(type: string, fieldName: string): any {
   const typeLower = type.toLowerCase();
 
-  if (typeLower.includes('string') || typeLower.includes('text') || typeLower.includes('varchar')) {
-    if (fieldName.includes('email')) {
-      return 'test@example.com';
+  if (typeLower.includes("string") || typeLower.includes("text") || typeLower.includes("varchar")) {
+    if (fieldName.includes("email")) {
+      return "test@example.com";
     }
-    if (fieldName.includes('name')) {
-      return 'Test Name';
+    if (fieldName.includes("name")) {
+      return "Test Name";
     }
-    return 'test_value';
+    return "test_value";
   }
 
-  if (typeLower.includes('int') || typeLower.includes('number') || typeLower.includes('integer')) {
+  if (typeLower.includes("int") || typeLower.includes("number") || typeLower.includes("integer")) {
     return 123;
   }
 
-  if (typeLower.includes('decimal') || typeLower.includes('float') || typeLower.includes('double')) {
+  if (
+    typeLower.includes("decimal") ||
+    typeLower.includes("float") ||
+    typeLower.includes("double")
+  ) {
     return 123.45;
   }
 
-  if (typeLower.includes('bool') || typeLower.includes('boolean')) {
+  if (typeLower.includes("bool") || typeLower.includes("boolean")) {
     return true;
   }
 
-  if (typeLower.includes('date') || typeLower.includes('time')) {
+  if (typeLower.includes("date") || typeLower.includes("time")) {
     return new Date().toISOString();
   }
 
-  return 'test_value';
+  return "test_value";
 }
 
 // Mock unique value helper
 function mockUniqueValue(type: string, fieldName: string, index: number): any {
   const typeLower = type.toLowerCase();
 
-  if (typeLower.includes('string') || typeLower.includes('text') || typeLower.includes('varchar')) {
-    if (fieldName.includes('email')) {
+  if (typeLower.includes("string") || typeLower.includes("text") || typeLower.includes("varchar")) {
+    if (fieldName.includes("email")) {
       return `test${index}@example.com`;
     }
-    if (fieldName.includes('name')) {
+    if (fieldName.includes("name")) {
       return `Test Name ${index}`;
     }
     return `test_value_${index}`;
   }
 
-  if (typeLower.includes('int') || typeLower.includes('number') || typeLower.includes('integer')) {
+  if (typeLower.includes("int") || typeLower.includes("number") || typeLower.includes("integer")) {
     return 100 + index;
   }
 
-  if (typeLower.includes('decimal') || typeLower.includes('float') || typeLower.includes('double')) {
-    return (100.50 + index).toFixed(2);
+  if (
+    typeLower.includes("decimal") ||
+    typeLower.includes("float") ||
+    typeLower.includes("double")
+  ) {
+    return (100.5 + index).toFixed(2);
   }
 
   return `test_${index}`;

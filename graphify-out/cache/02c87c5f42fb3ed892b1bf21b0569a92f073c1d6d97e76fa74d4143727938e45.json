@@ -1,1 +1,275 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_rule_cache_service_ts", "label": "rule-cache.service.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L1"}, {"id": "rule_cache_service_rulecacheservice", "label": "RuleCacheService", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L43"}, {"id": "rule_cache_service_rulecacheservice_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L48"}, {"id": "rule_cache_service_rulecacheservice_getkey", "label": ".getKey()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L61"}, {"id": "rule_cache_service_rulecacheservice_get", "label": ".get()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L72"}, {"id": "rule_cache_service_rulecacheservice_set", "label": ".set()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L92"}, {"id": "rule_cache_service_rulecacheservice_has", "label": ".has()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L109"}, {"id": "rule_cache_service_rulecacheservice_invalidate", "label": ".invalidate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L120"}, {"id": "rule_cache_service_rulecacheservice_invalidateentity", "label": ".invalidateEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L130"}, {"id": "rule_cache_service_rulecacheservice_clear", "label": ".clear()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L141"}, {"id": "rule_cache_service_rulecacheservice_getstats", "label": ".getStats()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L152"}, {"id": "rule_cache_service_rulecacheservice_reset", "label": "._reset()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L169"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_rule_cache_service_ts", "target": "lru_cache", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_rule_cache_service_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_rules_types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_rule_cache_service_ts", "target": "rule_cache_service_rulecacheservice", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L43", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice", "target": "rule_cache_service_rulecacheservice_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L48", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice", "target": "rule_cache_service_rulecacheservice_getkey", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L61", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice", "target": "rule_cache_service_rulecacheservice_get", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L72", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice", "target": "rule_cache_service_rulecacheservice_set", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L92", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice", "target": "rule_cache_service_rulecacheservice_has", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L109", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice", "target": "rule_cache_service_rulecacheservice_invalidate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L120", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice", "target": "rule_cache_service_rulecacheservice_invalidateentity", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L130", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice", "target": "rule_cache_service_rulecacheservice_clear", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L141", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice", "target": "rule_cache_service_rulecacheservice_getstats", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L152", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice", "target": "rule_cache_service_rulecacheservice_reset", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L169", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice_get", "target": "rule_cache_service_rulecacheservice_getkey", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L73", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice_set", "target": "rule_cache_service_rulecacheservice_getkey", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L93", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice_has", "target": "rule_cache_service_rulecacheservice_getkey", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L110", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice_invalidate", "target": "rule_cache_service_rulecacheservice_getkey", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L121", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice_invalidateentity", "target": "rule_cache_service_rulecacheservice_invalidate", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L134", "weight": 1.0}, {"source": "rule_cache_service_rulecacheservice_reset", "target": "rule_cache_service_rulecacheservice_clear", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L170", "weight": 1.0}], "raw_calls": [{"caller_nid": "rule_cache_service_rulecacheservice_set", "callee": "now", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L96"}, {"caller_nid": "rule_cache_service_rulecacheservice_invalidate", "callee": "delete", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts", "source_location": "L122"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_rule_cache_service_ts",
+      "label": "rule-cache.service.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "rule_cache_service_rulecacheservice",
+      "label": "RuleCacheService",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L43"
+    },
+    {
+      "id": "rule_cache_service_rulecacheservice_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L48"
+    },
+    {
+      "id": "rule_cache_service_rulecacheservice_getkey",
+      "label": ".getKey()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L61"
+    },
+    {
+      "id": "rule_cache_service_rulecacheservice_get",
+      "label": ".get()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L72"
+    },
+    {
+      "id": "rule_cache_service_rulecacheservice_set",
+      "label": ".set()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L92"
+    },
+    {
+      "id": "rule_cache_service_rulecacheservice_has",
+      "label": ".has()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L109"
+    },
+    {
+      "id": "rule_cache_service_rulecacheservice_invalidate",
+      "label": ".invalidate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L120"
+    },
+    {
+      "id": "rule_cache_service_rulecacheservice_invalidateentity",
+      "label": ".invalidateEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L130"
+    },
+    {
+      "id": "rule_cache_service_rulecacheservice_clear",
+      "label": ".clear()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L141"
+    },
+    {
+      "id": "rule_cache_service_rulecacheservice_getstats",
+      "label": ".getStats()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L152"
+    },
+    {
+      "id": "rule_cache_service_rulecacheservice_reset",
+      "label": "._reset()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L169"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_rule_cache_service_ts",
+      "target": "lru_cache",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_rule_cache_service_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_rules_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_rule_cache_service_ts",
+      "target": "rule_cache_service_rulecacheservice",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice",
+      "target": "rule_cache_service_rulecacheservice_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice",
+      "target": "rule_cache_service_rulecacheservice_getkey",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice",
+      "target": "rule_cache_service_rulecacheservice_get",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice",
+      "target": "rule_cache_service_rulecacheservice_set",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice",
+      "target": "rule_cache_service_rulecacheservice_has",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice",
+      "target": "rule_cache_service_rulecacheservice_invalidate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L120",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice",
+      "target": "rule_cache_service_rulecacheservice_invalidateentity",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L130",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice",
+      "target": "rule_cache_service_rulecacheservice_clear",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L141",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice",
+      "target": "rule_cache_service_rulecacheservice_getstats",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L152",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice",
+      "target": "rule_cache_service_rulecacheservice_reset",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L169",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice_get",
+      "target": "rule_cache_service_rulecacheservice_getkey",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L73",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice_set",
+      "target": "rule_cache_service_rulecacheservice_getkey",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice_has",
+      "target": "rule_cache_service_rulecacheservice_getkey",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L110",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice_invalidate",
+      "target": "rule_cache_service_rulecacheservice_getkey",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice_invalidateentity",
+      "target": "rule_cache_service_rulecacheservice_invalidate",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L134",
+      "weight": 1.0
+    },
+    {
+      "source": "rule_cache_service_rulecacheservice_reset",
+      "target": "rule_cache_service_rulecacheservice_clear",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L170",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "rule_cache_service_rulecacheservice_set",
+      "callee": "now",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "rule_cache_service_rulecacheservice_invalidate",
+      "callee": "delete",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/rule-cache.service.ts",
+      "source_location": "L122"
+    }
+  ]
+}

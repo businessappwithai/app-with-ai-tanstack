@@ -15,10 +15,7 @@
     },
     "preserveOutput": "always",
     "reporter": [
-      [
-        "list",
-        null
-      ],
+      ["list", null],
       [
         "html",
         {
@@ -55,9 +52,7 @@
         "name": "odata-ui5",
         "testDir": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/tests/e2e/complete-tests",
         "testIgnore": [],
-        "testMatch": [
-          "**/odata-ui5.e2e-test.ts"
-        ],
+        "testMatch": ["**/odata-ui5.e2e-test.ts"],
         "timeout": 30000
       }
     ],

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { Component, ErrorInfo, ReactNode } from "react";
 import { AlertCircle, RefreshCw } from "lucide-react";
+import React, { Component, type ErrorInfo, type ReactNode } from "react";
 
 interface GoRulesErrorBoundaryProps {
   children: ReactNode;
@@ -44,7 +44,8 @@ export class GoRulesErrorBoundary extends Component<
               GoRules Editor Failed to Load
             </h3>
             <p className="text-sm text-muted-foreground mb-6 max-w-md">
-              {this.state.error?.message || "An unexpected error occurred while loading the business rules editor."}
+              {this.state.error?.message ||
+                "An unexpected error occurred while loading the business rules editor."}
             </p>
             <div className="flex gap-3 justify-center">
               <button

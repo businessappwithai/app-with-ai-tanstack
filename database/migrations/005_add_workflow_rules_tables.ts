@@ -57,20 +57,20 @@ export async function up(knex: Knex): Promise<void> {
 
   // Create indexes for better performance
   await knex.raw(
-    'CREATE INDEX idx_rule_definitions_entity ON sys_rule_definitions(entity_name, operation)'
+    "CREATE INDEX idx_rule_definitions_entity ON sys_rule_definitions(entity_name, operation)"
   );
   await knex.raw(
-    'CREATE INDEX idx_rule_definitions_active ON sys_rule_definitions(is_active) WHERE is_active = true'
+    "CREATE INDEX idx_rule_definitions_active ON sys_rule_definitions(is_active) WHERE is_active = true"
   );
 
   await knex.raw(
-    'CREATE INDEX idx_workflow_runs_entity ON sys_workflow_runs(entity_name, entity_id)'
+    "CREATE INDEX idx_workflow_runs_entity ON sys_workflow_runs(entity_name, entity_id)"
   );
-  await knex.raw('CREATE INDEX idx_workflow_runs_status ON sys_workflow_runs(status)');
+  await knex.raw("CREATE INDEX idx_workflow_runs_status ON sys_workflow_runs(status)");
+  await knex.raw("CREATE INDEX idx_workflow_runs_created_at ON sys_workflow_runs(created_at DESC)");
   await knex.raw(
-    'CREATE INDEX idx_workflow_runs_created_at ON sys_workflow_runs(created_at DESC)'
+    "CREATE INDEX idx_workflow_runs_trigger_run_id ON sys_workflow_runs(trigger_run_id)"
   );
-  await knex.raw('CREATE INDEX idx_workflow_runs_trigger_run_id ON sys_workflow_runs(trigger_run_id)');
 }
 
 export async function down(knex: Knex): Promise<void> {

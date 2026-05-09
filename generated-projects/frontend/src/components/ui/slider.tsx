@@ -1,34 +1,35 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
-export interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
-  value?: number[]
-  onValueChange?: (value: number[]) => void
-  min?: number
-  max?: number
-  step?: number
+export interface SliderProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange"> {
+  value?: number[];
+  onValueChange?: (value: number[]) => void;
+  min?: number;
+  max?: number;
+  step?: number;
 }
 
 const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
-  ({ className, value = [0], onValueChange, min = 0, max = 100, step = 1, disabled, ...props }, ref) => {
+  (
+    { className, value = [0], onValueChange, min = 0, max = 100, step = 1, disabled, ...props },
+    ref
+  ) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (disabled) return
-      const newValue = Number(e.target.value)
-      onValueChange?.([newValue])
-    }
+      if (disabled) return;
+      const newValue = Number(e.target.value);
+      onValueChange?.([newValue]);
+    };
 
     // Calculate percentage for visual fill
-    const percentage = ((value[0] - min) / (max - min)) * 100
+    const percentage = ((value[0] - min) / (max - min)) * 100;
 
     return (
       <div className="relative flex w-full touch-none select-none items-center">
         <div className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
-          <div
-            className="absolute h-full bg-primary"
-            style={{ width: `${percentage}%` }}
-          />
+          <div className="absolute h-full bg-primary" style={{ width: `${percentage}%` }} />
         </div>
         <input
           ref={ref}
@@ -47,9 +48,9 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
           {...props}
         />
       </div>
-    )
+    );
   }
-)
-Slider.displayName = "Slider"
+);
+Slider.displayName = "Slider";
 
-export { Slider }
+export { Slider };

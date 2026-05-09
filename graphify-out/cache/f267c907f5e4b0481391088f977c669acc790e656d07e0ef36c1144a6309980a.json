@@ -1,1 +1,1280 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts", "label": "UserDetail.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L1"}, {"id": "userdetail_controller_userdetail", "label": "UserDetail", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L103"}, {"id": "userdetail_controller_userdetail_getrouter", "label": "._getRouter()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L105"}, {"id": "userdetail_controller_userdetail_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L109"}, {"id": "userdetail_controller_userdetail_onroutematched", "label": "._onRouteMatched()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L130"}, {"id": "userdetail_controller_userdetail_loadrecord", "label": "._loadRecord()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L149"}, {"id": "userdetail_controller_userdetail_loadfieldmetadata", "label": "._loadFieldMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L219"}, {"id": "userdetail_controller_userdetail_oneditpress", "label": ".onEditPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L279"}, {"id": "userdetail_controller_userdetail_onsavepress", "label": ".onSavePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L283"}, {"id": "userdetail_controller_userdetail_oncancelpress", "label": ".onCancelPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L306"}, {"id": "userdetail_controller_userdetail_ondeletepress", "label": ".onDeletePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L312"}, {"id": "userdetail_controller_userdetail_deleterecord", "label": "._deleteRecord()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L323"}, {"id": "userdetail_controller_userdetail_onnavback", "label": ".onNavBack()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L348"}, {"id": "userdetail_controller_userdetail_formatdate", "label": ".formatDate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L355"}, {"id": "userdetail_controller_userdetail_loadtabhierarchy", "label": "._loadTabHierarchy()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L366"}, {"id": "userdetail_controller_userdetail_loadchilddata", "label": "._loadChildData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L418"}, {"id": "userdetail_controller_userdetail_ontabexpand", "label": ".onTabExpand()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L477"}, {"id": "userdetail_controller_userdetail_renderchildtabs", "label": "._renderChildTabs()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L552"}, {"id": "userdetail_controller_userdetail_oncreatechildrecord", "label": ".onCreateChildRecord()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L723"}, {"id": "userdetail_controller_userdetail_oneditchildrecord", "label": ".onEditChildRecord()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L751"}, {"id": "userdetail_controller_userdetail_ondeletechildrecord", "label": ".onDeleteChildRecord()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L759"}, {"id": "userdetail_controller_userdetail_openchildrecorddialog", "label": "._openChildRecordDialog()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L767"}, {"id": "userdetail_controller_userdetail_createchildrecordform", "label": "._createChildRecordForm()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L796"}, {"id": "userdetail_controller_userdetail_savechildrecord", "label": "._saveChildRecord()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L868"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts", "target": "jsonmodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts", "target": "filter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L18", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts", "target": "filteroperator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L19", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts", "target": "sorter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L20", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts", "target": "messagebox", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L21", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts", "target": "dateformat", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L22", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts", "target": "odatamodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L23", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts", "target": "messagehelper", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L24", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts", "target": "userdetail_controller_userdetail", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L103", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_getrouter", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L105", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L109", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_onroutematched", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L130", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_loadrecord", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L149", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_loadfieldmetadata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L219", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_oneditpress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L279", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_onsavepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L283", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_oncancelpress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L306", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_ondeletepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L312", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_deleterecord", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L323", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_onnavback", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L348", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_formatdate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L355", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_loadtabhierarchy", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L366", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_loadchilddata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L418", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_ontabexpand", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L477", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_renderchildtabs", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L552", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_oncreatechildrecord", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L723", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_oneditchildrecord", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L751", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_ondeletechildrecord", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L759", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_openchildrecorddialog", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L767", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_createchildrecordform", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L796", "weight": 1.0}, {"source": "userdetail_controller_userdetail", "target": "userdetail_controller_userdetail_savechildrecord", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L868", "weight": 1.0}, {"source": "userdetail_controller_userdetail_oninit", "target": "userdetail_controller_userdetail_getrouter", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L125", "weight": 1.0}, {"source": "userdetail_controller_userdetail_onroutematched", "target": "userdetail_controller_userdetail_loadrecord", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L146", "weight": 1.0}, {"source": "userdetail_controller_userdetail_loadrecord", "target": "userdetail_controller_userdetail_loadfieldmetadata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L195", "weight": 1.0}, {"source": "userdetail_controller_userdetail_loadrecord", "target": "userdetail_controller_userdetail_loadtabhierarchy", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L203", "weight": 1.0}, {"source": "userdetail_controller_userdetail_onnavback", "target": "userdetail_controller_userdetail_getrouter", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L349", "weight": 1.0}, {"source": "userdetail_controller_userdetail_ontabexpand", "target": "userdetail_controller_userdetail_loadchilddata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L495", "weight": 1.0}, {"source": "userdetail_controller_userdetail_oncreatechildrecord", "target": "userdetail_controller_userdetail_openchildrecorddialog", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L737", "weight": 1.0}, {"source": "userdetail_controller_userdetail_openchildrecorddialog", "target": "userdetail_controller_userdetail_createchildrecordform", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L772", "weight": 1.0}], "raw_calls": [{"caller_nid": "userdetail_controller_userdetail_getrouter", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L106"}, {"caller_nid": "userdetail_controller_userdetail_getrouter", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L106"}, {"caller_nid": "userdetail_controller_userdetail_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L123"}, {"caller_nid": "userdetail_controller_userdetail_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L123"}, {"caller_nid": "userdetail_controller_userdetail_oninit", "callee": "attachPatternMatched", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L125"}, {"caller_nid": "userdetail_controller_userdetail_oninit", "callee": "getRoute", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L125"}, {"caller_nid": "userdetail_controller_userdetail_oninit", "callee": "bind", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L127"}, {"caller_nid": "userdetail_controller_userdetail_onroutematched", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L131"}, {"caller_nid": "userdetail_controller_userdetail_onroutematched", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L132"}, {"caller_nid": "userdetail_controller_userdetail_onroutematched", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L132"}, {"caller_nid": "userdetail_controller_userdetail_onroutematched", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L135"}, {"caller_nid": "userdetail_controller_userdetail_onroutematched", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L137"}, {"caller_nid": "userdetail_controller_userdetail_onroutematched", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L139"}, {"caller_nid": "userdetail_controller_userdetail_onroutematched", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L141"}, {"caller_nid": "userdetail_controller_userdetail_onroutematched", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L142"}, {"caller_nid": "userdetail_controller_userdetail_onroutematched", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L145"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L150"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L151"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L152"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L154"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L155"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L157"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L157"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L162"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "bindElement", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L167"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L190"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L191"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L195"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L195"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L203"}, {"caller_nid": "userdetail_controller_userdetail_loadrecord", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L203"}, {"caller_nid": "userdetail_controller_userdetail_oneditpress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L280"}, {"caller_nid": "userdetail_controller_userdetail_oneditpress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L280"}, {"caller_nid": "userdetail_controller_userdetail_oneditpress", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L280"}, {"caller_nid": "userdetail_controller_userdetail_onsavepress", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L284"}, {"caller_nid": "userdetail_controller_userdetail_onsavepress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L285"}, {"caller_nid": "userdetail_controller_userdetail_onsavepress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L285"}, {"caller_nid": "userdetail_controller_userdetail_onsavepress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L286"}, {"caller_nid": "userdetail_controller_userdetail_onsavepress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L288"}, {"caller_nid": "userdetail_controller_userdetail_onsavepress", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L291"}, {"caller_nid": "userdetail_controller_userdetail_onsavepress", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L291"}, {"caller_nid": "userdetail_controller_userdetail_onsavepress", "callee": "submitBatch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L291"}, {"caller_nid": "userdetail_controller_userdetail_onsavepress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L300"}, {"caller_nid": "userdetail_controller_userdetail_onsavepress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L301"}, {"caller_nid": "userdetail_controller_userdetail_onsavepress", "callee": "showSuccess", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L302"}, {"caller_nid": "userdetail_controller_userdetail_oncancelpress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L307"}, {"caller_nid": "userdetail_controller_userdetail_oncancelpress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L307"}, {"caller_nid": "userdetail_controller_userdetail_oncancelpress", "callee": "resetChanges", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L308"}, {"caller_nid": "userdetail_controller_userdetail_oncancelpress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L309"}, {"caller_nid": "userdetail_controller_userdetail_oncancelpress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L309"}, {"caller_nid": "userdetail_controller_userdetail_oncancelpress", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L309"}, {"caller_nid": "userdetail_controller_userdetail_ondeletepress", "callee": "confirm", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L313"}, {"caller_nid": "userdetail_controller_userdetail_deleterecord", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L324"}, {"caller_nid": "userdetail_controller_userdetail_deleterecord", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L325"}, {"caller_nid": "userdetail_controller_userdetail_deleterecord", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L326"}, {"caller_nid": "userdetail_controller_userdetail_deleterecord", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L326"}, {"caller_nid": "userdetail_controller_userdetail_deleterecord", "callee": "getBindingContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L327"}, {"caller_nid": "userdetail_controller_userdetail_deleterecord", "callee": "showError", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L330"}, {"caller_nid": "userdetail_controller_userdetail_deleterecord", "callee": "getPath", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L334"}, {"caller_nid": "userdetail_controller_userdetail_deleterecord", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L336"}, {"caller_nid": "userdetail_controller_userdetail_deleterecord", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L338"}, {"caller_nid": "userdetail_controller_userdetail_deleterecord", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L338"}, {"caller_nid": "userdetail_controller_userdetail_deleterecord", "callee": "requestOption", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L338"}, {"caller_nid": "userdetail_controller_userdetail_onnavback", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L351"}, {"caller_nid": "userdetail_controller_userdetail_formatdate", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L358"}, {"caller_nid": "userdetail_controller_userdetail_formatdate", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L358"}, {"caller_nid": "userdetail_controller_userdetail_formatdate", "callee": "getDateInstance", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L359"}, {"caller_nid": "userdetail_controller_userdetail_formatdate", "callee": "format", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L360"}, {"caller_nid": "userdetail_controller_userdetail_ontabexpand", "callee": "getSource", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L478"}, {"caller_nid": "userdetail_controller_userdetail_ontabexpand", "callee": "data", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L479"}, {"caller_nid": "userdetail_controller_userdetail_ontabexpand", "callee": "data", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L480"}, {"caller_nid": "userdetail_controller_userdetail_ontabexpand", "callee": "data", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L481"}, {"caller_nid": "userdetail_controller_userdetail_ontabexpand", "callee": "data", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L482"}, {"caller_nid": "userdetail_controller_userdetail_ontabexpand", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L485"}, {"caller_nid": "userdetail_controller_userdetail_ontabexpand", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L489"}, {"caller_nid": "userdetail_controller_userdetail_ontabexpand", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L489"}, {"caller_nid": "userdetail_controller_userdetail_ontabexpand", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L490"}, {"caller_nid": "userdetail_controller_userdetail_ontabexpand", "callee": "find", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L491"}, {"caller_nid": "userdetail_controller_userdetail_ontabexpand", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L493"}, {"caller_nid": "userdetail_controller_userdetail_ontabexpand", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L495"}, {"caller_nid": "userdetail_controller_userdetail_ontabexpand", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L495"}, {"caller_nid": "userdetail_controller_userdetail_renderchildtabs", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L553"}, {"caller_nid": "userdetail_controller_userdetail_renderchildtabs", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L555"}, {"caller_nid": "userdetail_controller_userdetail_renderchildtabs", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L556"}, {"caller_nid": "userdetail_controller_userdetail_renderchildtabs", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L559"}, {"caller_nid": "userdetail_controller_userdetail_renderchildtabs", "callee": "destroyItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L563"}, {"caller_nid": "userdetail_controller_userdetail_renderchildtabs", "callee": "addItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L569"}, {"caller_nid": "userdetail_controller_userdetail_renderchildtabs", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L573"}, {"caller_nid": "userdetail_controller_userdetail_renderchildtabs", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L573"}, {"caller_nid": "userdetail_controller_userdetail_renderchildtabs", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L574"}, {"caller_nid": "userdetail_controller_userdetail_renderchildtabs", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L577"}, {"caller_nid": "userdetail_controller_userdetail_renderchildtabs", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L587"}, {"caller_nid": "userdetail_controller_userdetail_oncreatechildrecord", "callee": "getSource", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L724"}, {"caller_nid": "userdetail_controller_userdetail_oncreatechildrecord", "callee": "data", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L725"}, {"caller_nid": "userdetail_controller_userdetail_oncreatechildrecord", "callee": "data", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L726"}, {"caller_nid": "userdetail_controller_userdetail_oncreatechildrecord", "callee": "data", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L727"}, {"caller_nid": "userdetail_controller_userdetail_oncreatechildrecord", "callee": "data", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L728"}, {"caller_nid": "userdetail_controller_userdetail_oncreatechildrecord", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L730"}, {"caller_nid": "userdetail_controller_userdetail_oncreatechildrecord", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L730"}, {"caller_nid": "userdetail_controller_userdetail_oncreatechildrecord", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L731"}, {"caller_nid": "userdetail_controller_userdetail_oncreatechildrecord", "callee": "find", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L732"}, {"caller_nid": "userdetail_controller_userdetail_oncreatechildrecord", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L735"}, {"caller_nid": "userdetail_controller_userdetail_oneditchildrecord", "callee": "showInfo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L753"}, {"caller_nid": "userdetail_controller_userdetail_ondeletechildrecord", "callee": "showInfo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L761"}, {"caller_nid": "userdetail_controller_userdetail_openchildrecorddialog", "callee": "open", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L790"}, {"caller_nid": "userdetail_controller_userdetail_createchildrecordform", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L808"}, {"caller_nid": "userdetail_controller_userdetail_createchildrecordform", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L810"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "getContent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L869"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "getContent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L870"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L873"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L873"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "getServiceUrl", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L874"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "data", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L881"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "data", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L882"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "getSelected", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L888"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "getValue", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L890"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "getValue", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L892"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L905"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L906"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L917"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L917"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L917"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "fetch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L917"}, {"caller_nid": "userdetail_controller_userdetail_savechildrecord", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts", "source_location": "L923"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts",
+      "label": "UserDetail.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "userdetail_controller_userdetail",
+      "label": "UserDetail",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L103"
+    },
+    {
+      "id": "userdetail_controller_userdetail_getrouter",
+      "label": "._getRouter()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L105"
+    },
+    {
+      "id": "userdetail_controller_userdetail_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L109"
+    },
+    {
+      "id": "userdetail_controller_userdetail_onroutematched",
+      "label": "._onRouteMatched()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L130"
+    },
+    {
+      "id": "userdetail_controller_userdetail_loadrecord",
+      "label": "._loadRecord()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L149"
+    },
+    {
+      "id": "userdetail_controller_userdetail_loadfieldmetadata",
+      "label": "._loadFieldMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L219"
+    },
+    {
+      "id": "userdetail_controller_userdetail_oneditpress",
+      "label": ".onEditPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L279"
+    },
+    {
+      "id": "userdetail_controller_userdetail_onsavepress",
+      "label": ".onSavePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L283"
+    },
+    {
+      "id": "userdetail_controller_userdetail_oncancelpress",
+      "label": ".onCancelPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L306"
+    },
+    {
+      "id": "userdetail_controller_userdetail_ondeletepress",
+      "label": ".onDeletePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L312"
+    },
+    {
+      "id": "userdetail_controller_userdetail_deleterecord",
+      "label": "._deleteRecord()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L323"
+    },
+    {
+      "id": "userdetail_controller_userdetail_onnavback",
+      "label": ".onNavBack()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L348"
+    },
+    {
+      "id": "userdetail_controller_userdetail_formatdate",
+      "label": ".formatDate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L355"
+    },
+    {
+      "id": "userdetail_controller_userdetail_loadtabhierarchy",
+      "label": "._loadTabHierarchy()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L366"
+    },
+    {
+      "id": "userdetail_controller_userdetail_loadchilddata",
+      "label": "._loadChildData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L418"
+    },
+    {
+      "id": "userdetail_controller_userdetail_ontabexpand",
+      "label": ".onTabExpand()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L477"
+    },
+    {
+      "id": "userdetail_controller_userdetail_renderchildtabs",
+      "label": "._renderChildTabs()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L552"
+    },
+    {
+      "id": "userdetail_controller_userdetail_oncreatechildrecord",
+      "label": ".onCreateChildRecord()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L723"
+    },
+    {
+      "id": "userdetail_controller_userdetail_oneditchildrecord",
+      "label": ".onEditChildRecord()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L751"
+    },
+    {
+      "id": "userdetail_controller_userdetail_ondeletechildrecord",
+      "label": ".onDeleteChildRecord()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L759"
+    },
+    {
+      "id": "userdetail_controller_userdetail_openchildrecorddialog",
+      "label": "._openChildRecordDialog()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L767"
+    },
+    {
+      "id": "userdetail_controller_userdetail_createchildrecordform",
+      "label": "._createChildRecordForm()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L796"
+    },
+    {
+      "id": "userdetail_controller_userdetail_savechildrecord",
+      "label": "._saveChildRecord()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L868"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts",
+      "target": "jsonmodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts",
+      "target": "filter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts",
+      "target": "filteroperator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts",
+      "target": "sorter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts",
+      "target": "messagebox",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts",
+      "target": "dateformat",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts",
+      "target": "odatamodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts",
+      "target": "messagehelper",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_entity_userdetail_controller_ts",
+      "target": "userdetail_controller_userdetail",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_getrouter",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L105",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_onroutematched",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L130",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_loadrecord",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L149",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_loadfieldmetadata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L219",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_oneditpress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L279",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_onsavepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L283",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_oncancelpress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L306",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_ondeletepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L312",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_deleterecord",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L323",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_onnavback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L348",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_formatdate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L355",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_loadtabhierarchy",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L366",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_loadchilddata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L418",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_ontabexpand",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L477",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_renderchildtabs",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L552",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_oncreatechildrecord",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L723",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_oneditchildrecord",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L751",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_ondeletechildrecord",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L759",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_openchildrecorddialog",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L767",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_createchildrecordform",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L796",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail",
+      "target": "userdetail_controller_userdetail_savechildrecord",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L868",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail_oninit",
+      "target": "userdetail_controller_userdetail_getrouter",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L125",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail_onroutematched",
+      "target": "userdetail_controller_userdetail_loadrecord",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L146",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail_loadrecord",
+      "target": "userdetail_controller_userdetail_loadfieldmetadata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L195",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail_loadrecord",
+      "target": "userdetail_controller_userdetail_loadtabhierarchy",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L203",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail_onnavback",
+      "target": "userdetail_controller_userdetail_getrouter",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L349",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail_ontabexpand",
+      "target": "userdetail_controller_userdetail_loadchilddata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L495",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail_oncreatechildrecord",
+      "target": "userdetail_controller_userdetail_openchildrecorddialog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L737",
+      "weight": 1.0
+    },
+    {
+      "source": "userdetail_controller_userdetail_openchildrecorddialog",
+      "target": "userdetail_controller_userdetail_createchildrecordform",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L772",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "userdetail_controller_userdetail_getrouter",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_getrouter",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oninit",
+      "callee": "attachPatternMatched",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oninit",
+      "callee": "getRoute",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oninit",
+      "callee": "bind",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onroutematched",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onroutematched",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L132"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onroutematched",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L132"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onroutematched",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onroutematched",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L137"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onroutematched",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L139"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onroutematched",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onroutematched",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onroutematched",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L157"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L157"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L162"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "bindElement",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_loadrecord",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oneditpress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L280"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oneditpress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L280"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oneditpress",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L280"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onsavepress",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L284"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onsavepress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L285"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onsavepress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L285"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onsavepress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L286"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onsavepress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L288"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onsavepress",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onsavepress",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onsavepress",
+      "callee": "submitBatch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onsavepress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L300"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onsavepress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L301"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onsavepress",
+      "callee": "showSuccess",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L302"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncancelpress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L307"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncancelpress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L307"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncancelpress",
+      "callee": "resetChanges",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L308"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncancelpress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncancelpress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncancelpress",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ondeletepress",
+      "callee": "confirm",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L313"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_deleterecord",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L324"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_deleterecord",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L325"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_deleterecord",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L326"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_deleterecord",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L326"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_deleterecord",
+      "callee": "getBindingContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L327"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_deleterecord",
+      "callee": "showError",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L330"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_deleterecord",
+      "callee": "getPath",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L334"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_deleterecord",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L336"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_deleterecord",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L338"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_deleterecord",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L338"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_deleterecord",
+      "callee": "requestOption",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L338"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_onnavback",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L351"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_formatdate",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L358"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_formatdate",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L358"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_formatdate",
+      "callee": "getDateInstance",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L359"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_formatdate",
+      "callee": "format",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L360"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ontabexpand",
+      "callee": "getSource",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L478"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ontabexpand",
+      "callee": "data",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L479"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ontabexpand",
+      "callee": "data",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L480"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ontabexpand",
+      "callee": "data",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L481"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ontabexpand",
+      "callee": "data",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L482"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ontabexpand",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L485"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ontabexpand",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L489"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ontabexpand",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L489"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ontabexpand",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L490"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ontabexpand",
+      "callee": "find",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L491"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ontabexpand",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L493"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ontabexpand",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L495"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ontabexpand",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L495"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_renderchildtabs",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L553"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_renderchildtabs",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L555"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_renderchildtabs",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L556"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_renderchildtabs",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L559"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_renderchildtabs",
+      "callee": "destroyItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L563"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_renderchildtabs",
+      "callee": "addItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L569"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_renderchildtabs",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L573"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_renderchildtabs",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L573"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_renderchildtabs",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L574"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_renderchildtabs",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L577"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_renderchildtabs",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L587"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncreatechildrecord",
+      "callee": "getSource",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L724"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncreatechildrecord",
+      "callee": "data",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L725"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncreatechildrecord",
+      "callee": "data",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L726"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncreatechildrecord",
+      "callee": "data",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L727"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncreatechildrecord",
+      "callee": "data",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L728"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncreatechildrecord",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L730"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncreatechildrecord",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L730"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncreatechildrecord",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L731"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncreatechildrecord",
+      "callee": "find",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L732"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oncreatechildrecord",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L735"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_oneditchildrecord",
+      "callee": "showInfo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L753"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_ondeletechildrecord",
+      "callee": "showInfo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L761"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_openchildrecorddialog",
+      "callee": "open",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L790"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_createchildrecordform",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L808"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_createchildrecordform",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L810"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "getContent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L869"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "getContent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L870"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L873"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L873"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "getServiceUrl",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L874"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "data",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L881"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "data",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L882"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "getSelected",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L888"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "getValue",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L890"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "getValue",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L892"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L905"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L906"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L917"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L917"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L917"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "fetch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L917"
+    },
+    {
+      "caller_nid": "userdetail_controller_userdetail_savechildrecord",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/entity/UserDetail.controller.ts",
+      "source_location": "L923"
+    }
+  ]
+}

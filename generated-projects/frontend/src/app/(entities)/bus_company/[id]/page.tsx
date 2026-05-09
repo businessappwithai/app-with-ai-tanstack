@@ -19,28 +19,28 @@
  * Project: crm-app
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api-client';
-import { useFormFields } from '@/hooks/use-entities';
-import { DynamicForm } from '@/components/forms/dynamic-form';
-import { Button } from '@/components/ui/button';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft,
-  Trash2,
-  Pencil,
-  Eye,
-  Loader2,
   AlertCircle,
+  ArrowLeft,
   ChevronLeft,
-  Info,
+  Eye,
   FileText,
-} from 'lucide-react';
-import { toast } from 'sonner';
+  Info,
+  Loader2,
+  Pencil,
+  Trash2,
+} from "lucide-react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { DynamicForm } from "@/components/forms/dynamic-form";
+import { Button } from "@/components/ui/button";
+import { useFormFields } from "@/hooks/use-entities";
+import { apiClient } from "@/lib/api-client";
 
 interface Company {
   id: string;
@@ -64,10 +64,10 @@ export default function CompanyDetailPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const id = params.id as string;
-  const isNew = id === 'new';
+  const isNew = id === "new";
 
   // Mode: 'view' for read-only display, 'edit' for editing, 'create' for new records
-  const [mode, setMode] = useState<'view' | 'edit' | 'create'>(isNew ? 'create' : 'view');
+  const [mode, setMode] = useState<"view" | "edit" | "create">(isNew ? "create" : "view");
 
   // Delete confirmation state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -76,11 +76,11 @@ export default function CompanyDetailPage() {
   const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
 
   // Fetch field metadata from sys_field for this entity
-  const { data: formFields, isLoading: isLoadingFields } = useFormFields('bus_company');
+  const { data: formFields, isLoading: isLoadingFields } = useFormFields("bus_company");
 
   // Fetch the record data
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['company', id],
+    queryKey: ["company", id],
     queryFn: () => apiClient.get<Company>(`/api/bus/bus_company/${id}`),
     enabled: !isNew && !!id,
   });
@@ -89,69 +89,65 @@ export default function CompanyDetailPage() {
   const saveMutation = useMutation({
     mutationFn: async (formData: Partial<Company>) => {
       if (isNew) {
-        return apiClient.post<Company>('/api/bus/bus_company', formData);
+        return apiClient.post<Company>("/api/bus/bus_company", formData);
       } else {
-        return apiClient.patch<Company>(
-          `/api/bus/bus_company/${id}`,
-          formData,
-          {
-            headers: data?.version ? { 'If-Match': `"${data.version}"` } : {},
-          }
-        );
+        return apiClient.patch<Company>(`/api/bus/bus_company/${id}`, formData, {
+          headers: data?.version ? { "If-Match": `"${data.version}"` } : {},
+        });
       }
     },
     onSuccess: (savedData) => {
-      queryClient.invalidateQueries({ queryKey: ['company'] });
+      queryClient.invalidateQueries({ queryKey: ["company"] });
       setServerErrors({}); // Clear errors on success
-      toast.success('Company ' + (isNew ? 'created' : 'updated') + ' successfully');
+      toast.success("Company " + (isNew ? "created" : "updated") + " successfully");
       if (isNew) {
-        router.push('/bus_company/' + savedData.id);
+        router.push("/bus_company/" + savedData.id);
       } else {
         // Switch back to view mode after successful save
-        setMode('view');
+        setMode("view");
         refetch();
       }
     },
     onError: async (error: any) => {
-      console.error('Save error:', error);
+      console.error("Save error:", error);
       // Clear previous errors
       setServerErrors({});
       // Note: apiClient throws the response directly, not wrapped in error.response
       // Handle 412 Conflict - record modified by another user
       if (error.statusCode === 412) {
-        toast.error('Record was modified by another user. Please refresh and try again.');
+        toast.error("Record was modified by another user. Please refresh and try again.");
         return;
       }
       // Handle 400 Validation errors with field-level details
-      if (error.errors && typeof error.errors === 'object') {
+      if (error.errors && typeof error.errors === "object") {
         const fieldErrors: Record<string, string> = {};
         for (const [field, messages] of Object.entries(error.errors)) {
           if (Array.isArray(messages)) {
-            fieldErrors[field] = messages.join(', ');
-          } else if (typeof messages === 'string') {
+            fieldErrors[field] = messages.join(", ");
+          } else if (typeof messages === "string") {
             fieldErrors[field] = messages;
           }
         }
         setServerErrors(fieldErrors);
         const errorMessages = Object.entries(fieldErrors)
           .map(([field, msg]) => `${field}: ${msg}`)
-          .join('; ');
-        toast.error('Validation failed', {
-          description: errorMessages || 'Please check the form for errors',
+          .join("; ");
+        toast.error("Validation failed", {
+          description: errorMessages || "Please check the form for errors",
         });
         return;
       }
       // Generic error handler
       // Handle both string and array message formats
-      let message = 'Failed to save Company';
-      if (typeof error.message === 'string') {
+      let message = "Failed to save Company";
+      if (typeof error.message === "string") {
         message = error.message;
       } else if (Array.isArray(error.message) && error.message.length > 0) {
-        message = error.message.join(', ');
+        message = error.message.join(", ");
       } else if (error.error) {
         message = error.error;
       }
-      toast.error('Save failed', {
+      toast.error("Save failed", {
         description: message,
       });
     },
@@ -163,9 +159,9 @@ export default function CompanyDetailPage() {
       return apiClient.delete(`/api/bus/bus_company/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['company'] });
+      queryClient.invalidateQueries({ queryKey: ["company"] });
       // Toast is shown by dynamic-table
-      router.push('/bus_company');
+      router.push("/bus_company");
     },
     onError: () => {
       // Toast is shown by dynamic-table
@@ -232,15 +228,11 @@ export default function CompanyDetailPage() {
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-foreground" data-testid="entity-heading">
-                    {isNew
-                      ? 'Create Company'
-                      : mode === 'edit'
-                        ? 'Edit Company'
-                        : 'Company Detail'}
+                    {isNew ? "Create Company" : mode === "edit" ? "Edit Company" : "Company Detail"}
                   </h1>
                   {!isNew && data && (
                     <p className="text-muted-foreground text-sm">
-                      ID: {data['id']}
+                      ID: {data["id"]}
                       {data.version !== undefined && (
                         <span className="ml-3">Version: {data.version}</span>
                       )}
@@ -252,12 +244,12 @@ export default function CompanyDetailPage() {
 
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
-              {!isNew && mode === 'view' && (
+              {!isNew && mode === "view" && (
                 <>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setMode('edit')}
+                    onClick={() => setMode("edit")}
                     className="shadow-sm"
                   >
                     <Pencil className="mr-2 h-4 w-4" />
@@ -275,11 +267,11 @@ export default function CompanyDetailPage() {
                   </Button>
                 </>
               )}
-              {!isNew && mode === 'edit' && (
+              {!isNew && mode === "edit" && (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setMode('view')}
+                  onClick={() => setMode("view")}
                   className="shadow-sm"
                 >
                   <Eye className="mr-2 h-4 w-4" />
@@ -301,8 +293,7 @@ export default function CompanyDetailPage() {
                 <div>
                   <p className="font-semibold text-destructive text-lg">Confirm Deletion</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    This action cannot be undone. This will permanently delete the
-                    Company record.
+                    This action cannot be undone. This will permanently delete the Company record.
                   </p>
                 </div>
               </div>
@@ -356,10 +347,12 @@ export default function CompanyDetailPage() {
                 <DynamicForm
                   tableName="bus_company"
                   initialData={data}
-                  onSubmit={async (formData) => { await saveMutation.mutateAsync(formData); }}
+                  onSubmit={async (formData) => {
+                    await saveMutation.mutateAsync(formData);
+                  }}
                   isSaving={saveMutation.isPending}
-                  mode={isNew ? 'create' : mode === 'edit' ? 'edit' : 'view'}
-                  readOnly={mode === 'view' && !isNew}
+                  mode={isNew ? "create" : mode === "edit" ? "edit" : "view"}
+                  readOnly={mode === "view" && !isNew}
                   serverErrors={serverErrors}
                 />
               )}
@@ -378,7 +371,10 @@ export default function CompanyDetailPage() {
                   <h3 className="text-sm font-semibold text-foreground">Field Metadata</h3>
                 </div>
                 <p className="text-xs text-muted-foreground mb-4">
-                  Fields loaded from <code className="text-xs bg-muted/60 px-1.5 py-0.5 rounded border border-border/40">sys_field</code>
+                  Fields loaded from{" "}
+                  <code className="text-xs bg-muted/60 px-1.5 py-0.5 rounded border border-border/40">
+                    sys_field
+                  </code>
                 </p>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between items-center pb-2 border-b border-border/40">
@@ -413,32 +409,36 @@ export default function CompanyDetailPage() {
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between items-center pb-2 border-b border-border/40">
                     <span className="text-muted-foreground">Status</span>
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                      mode === 'edit'
-                        ? 'bg-gradient-to-r from-yellow-100 to-yellow-50 text-yellow-800 border border-yellow-200'
-                        : 'bg-gradient-to-r from-green-100 to-green-50 text-green-800 border border-green-200'
-                    }`}>
-                      {mode === 'edit' ? 'Editing' : 'Saved'}
+                    <span
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+                        mode === "edit"
+                          ? "bg-gradient-to-r from-yellow-100 to-yellow-50 text-yellow-800 border border-yellow-200"
+                          : "bg-gradient-to-r from-green-100 to-green-50 text-green-800 border border-green-200"
+                      }`}
+                    >
+                      {mode === "edit" ? "Editing" : "Saved"}
                     </span>
                   </div>
                   {data.version !== undefined && (
                     <div className="flex justify-between items-center pb-2 border-b border-border/40">
                       <span className="text-muted-foreground">Version</span>
-                      <span className="font-mono text-xs bg-muted/60 px-2 py-1 rounded border border-border/40">{data.version}</span>
+                      <span className="font-mono text-xs bg-muted/60 px-2 py-1 rounded border border-border/40">
+                        {data.version}
+                      </span>
                     </div>
                   )}
                   {data.created_at && (
                     <div className="flex justify-between items-center pb-2 border-b border-border/40">
                       <span className="text-muted-foreground">Created</span>
                       <span className="text-xs font-mono">
-                        {new Date(data.created_at as string).toLocaleString('en-GB', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          second: '2-digit',
-                          hour12: false
+                        {new Date(data.created_at as string).toLocaleString("en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: false,
                         })}
                       </span>
                     </div>
@@ -447,14 +447,14 @@ export default function CompanyDetailPage() {
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground">Updated</span>
                       <span className="text-xs font-mono">
-                        {new Date(data.updated_at as string).toLocaleString('en-GB', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          second: '2-digit',
-                          hour12: false
+                        {new Date(data.updated_at as string).toLocaleString("en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: false,
                         })}
                       </span>
                     </div>
@@ -473,17 +473,29 @@ export default function CompanyDetailPage() {
               </div>
               <div className="flex flex-col gap-2">
                 <Link href="/bus_company/new">
-                  <Button variant="outline" size="sm" className="w-full justify-start shadow-sm hover:shadow-md transition-shadow">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start shadow-sm hover:shadow-md transition-shadow"
+                  >
                     Create New Company
                   </Button>
                 </Link>
                 <Link href="/bus_company">
-                  <Button variant="outline" size="sm" className="w-full justify-start shadow-sm hover:shadow-md transition-shadow">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start shadow-sm hover:shadow-md transition-shadow"
+                  >
                     View All Company Records
                   </Button>
                 </Link>
                 <Link href="/dashboard">
-                  <Button variant="outline" size="sm" className="w-full justify-start shadow-sm hover:shadow-md transition-shadow">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start shadow-sm hover:shadow-md transition-shadow"
+                  >
                     Back to Dashboard
                   </Button>
                 </Link>

@@ -5,43 +5,49 @@
  * Aggregates all test journeys including CRUD operations
  */
 
-sap.ui.define([
+sap.ui.define(
+  [
     "sap/ui/test/Opa5",
     "./NavigationJourney",
     "./USERSCRUDJourney",
     "./POSTSCRUDJourney",
     "./COMMENTSCRUDJourney",
     "./TAGSCRUDJourney",
-    "./POSTTAGSCRUDJourney"
-], function (Opa5, NavigationJourney, USERSCRUDJourney, POSTSCRUDJourney, COMMENTSCRUDJourney, TAGSCRUDJourney, POSTTAGSCRUDJourney) {
-    "use strict";
+    "./POSTTAGSCRUDJourney",
+  ],
+  (
+    Opa5,
+    NavigationJourney,
+    USERSCRUDJourney,
+    POSTSCRUDJourney,
+    COMMENTSCRUDJourney,
+    TAGSCRUDJourney,
+    POSTTAGSCRUDJourney
+  ) => ({
+    run: () => {
+      // Run navigation tests
+      QUnit.module("Navigation Journey");
+      NavigationJourney.run();
 
-    return {
-        run: function () {
-            // Run navigation tests
-            QUnit.module("Navigation Journey");
-            NavigationJourney.run();
+      // Run USERS CRUD tests
+      QUnit.module("USERS CRUD Journey");
+      USERSCRUDJourney.run();
 
-            // Run USERS CRUD tests
-            QUnit.module("USERS CRUD Journey");
-            USERSCRUDJourney.run();
+      // Run POSTS CRUD tests
+      QUnit.module("POSTS CRUD Journey");
+      POSTSCRUDJourney.run();
 
-            // Run POSTS CRUD tests
-            QUnit.module("POSTS CRUD Journey");
-            POSTSCRUDJourney.run();
+      // Run COMMENTS CRUD tests
+      QUnit.module("COMMENTS CRUD Journey");
+      COMMENTSCRUDJourney.run();
 
-            // Run COMMENTS CRUD tests
-            QUnit.module("COMMENTS CRUD Journey");
-            COMMENTSCRUDJourney.run();
+      // Run TAGS CRUD tests
+      QUnit.module("TAGS CRUD Journey");
+      TAGSCRUDJourney.run();
 
-            // Run TAGS CRUD tests
-            QUnit.module("TAGS CRUD Journey");
-            TAGSCRUDJourney.run();
-
-            // Run POST_TAGS CRUD tests
-            QUnit.module("POSTTAGS CRUD Journey");
-            POSTTAGSCRUDJourney.run();
-
-        }
-    };
-});
+      // Run POST_TAGS CRUD tests
+      QUnit.module("POSTTAGS CRUD Journey");
+      POSTTAGSCRUDJourney.run();
+    },
+  })
+);

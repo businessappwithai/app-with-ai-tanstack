@@ -9,27 +9,33 @@
 
 // Parser
 export { HookSyntaxParser, hookParser } from "./parser";
-
+// Types
+export type {
+  BaseHookVisitor,
+  GeneratedHook,
+  HookDefinitionNode,
+  HookType,
+  HookVisitor,
+  Parameter,
+  ParameterNode,
+  ParsedHook,
+  ParseError,
+  ParseResult,
+} from "./types";
+// Utility functions
+export {
+  fromHookDefinition,
+  generateFlowchartFromHooks,
+  generateHookCodeFile,
+  generateHookComment,
+  parseHookDefinition,
+  parseHooksFromFlowchart,
+  toHookDefinition,
+  validateHookDefinition,
+} from "./utils";
 // Visitor
 export {
-  HookCodeGenerationVisitor,
   createVisitor,
+  HookCodeGenerationVisitor,
   type VisitorOptions,
 } from "./visitor";
-
-// Types
-export {
-  type HookType,
-  type Parameter,
-  type ParsedHook,
-  type GeneratedHook,
-  type ParseResult,
-  type ParseError,
-  type HookDefinitionNode,
-  type ParameterNode,
-  type HookVisitor,
-  type BaseHookVisitor,
-} from "./types";
-
-// Utility functions
-export { parseHookDefinition, parseHooksFromFlowchart, generateFlowchartFromHooks, generateHookComment, validateHookDefinition, generateHookCodeFile, toHookDefinition, fromHookDefinition } from "./utils";

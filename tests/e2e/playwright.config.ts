@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Playwright Configuration for Complete E2E Tests
@@ -16,86 +16,85 @@ import { defineConfig, devices } from '@playwright/test';
  * - crm-nextjs-nestjs: CRM System (Next.js + NestJS) E2E tests
  */
 export default defineConfig({
-  testDir: './complete-tests',
-  testMatch: [
-    '**/*.e2e-test.ts',
-  ],
+  testDir: "./complete-tests",
+  testMatch: ["**/*.e2e-test.ts"],
   fullyParallel: false, // Run tests sequentially for state management
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: 1,
   reporter: [
-    ['list'],
-    ['html', { outputFolder: 'test-results/html' }],
-    ['json', { outputFile: 'test-results/results.json' }],
-    ['junit', { outputFile: 'test-results/results.xml' }],
+    ["list"],
+    ["html", { outputFolder: "test-results/html" }],
+    ["json", { outputFile: "test-results/results.json" }],
+    ["junit", { outputFile: "test-results/results.xml" }],
   ],
 
   use: {
-    baseURL: process.env.FRONTEND_URL || 'http://localhost:3001',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    baseURL: process.env.FRONTEND_URL || "http://localhost:3001",
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
     actionTimeout: 10000,
     navigationTimeout: 30000,
   },
 
   projects: [
     {
-      name: 'nextjs-nestjs',
-      use: { ...devices['Desktop Chrome'] },
-      testMatch: ['nextjs-nestjs.e2e-test.ts'],
+      name: "nextjs-nestjs",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: ["nextjs-nestjs.e2e-test.ts"],
       dependencies: [],
     },
     {
-      name: 'odata-ui5',
-      use: { ...devices['Desktop Chrome'] },
-      testMatch: ['odata-ui5.e2e-test.ts'],
+      name: "odata-ui5",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: ["odata-ui5.e2e-test.ts"],
       dependencies: [],
     },
     {
-      name: 'dictionary-nextjs',
-      use: { ...devices['Desktop Chrome'] },
-      testMatch: ['nextjs-nestjs-dictionary.e2e-test.ts'],
+      name: "dictionary-nextjs",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: ["nextjs-nestjs-dictionary.e2e-test.ts"],
       dependencies: [],
     },
     {
-      name: 'dictionary-odata',
-      use: { ...devices['Desktop Chrome'] },
-      testMatch: ['odata-ui5-dictionary.e2e-test.ts'],
+      name: "dictionary-odata",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: ["odata-ui5-dictionary.e2e-test.ts"],
       dependencies: [],
     },
     {
-      name: 'dictionary-generator',
-      use: { ...devices['Desktop Chrome'] },
-      testMatch: ['dictionary-generator.e2e-test.ts'],
+      name: "dictionary-generator",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: ["dictionary-generator.e2e-test.ts"],
       dependencies: [],
     },
     {
-      name: 'hospital-nextjs-nestjs',
+      name: "hospital-nextjs-nestjs",
       use: {
-        ...devices['Desktop Chrome'],
-        baseURL: process.env.HOSPITAL_FRONTEND_URL || 'http://localhost:3000',
+        ...devices["Desktop Chrome"],
+        baseURL: process.env.HOSPITAL_FRONTEND_URL || "http://localhost:3000",
       },
-      testMatch: ['hospital-nextjs-nestjs.e2e-test.ts'],
+      testMatch: ["hospital-nextjs-nestjs.e2e-test.ts"],
       dependencies: [],
     },
     {
-      name: 'hospital-odata-ui5',
+      name: "hospital-odata-ui5",
       use: {
-        ...devices['Desktop Chrome'],
-        baseURL: process.env.HOSPITAL_UI5_URL || 'http://localhost:3004',
+        ...devices["Desktop Chrome"],
+        baseURL: process.env.HOSPITAL_UI5_URL || "http://localhost:3004",
       },
-      testMatch: ['hospital-odata-ui5.e2e-test.ts'],
+      testMatch: ["hospital-odata-ui5.e2e-test.ts"],
       dependencies: [],
     },
     {
-      name: 'crm-nextjs-nestjs',
+      name: "crm-nextjs-nestjs",
       use: {
-        ...devices['Desktop Chrome'],
-        baseURL: process.env.CRM_FRONTEND_URL || process.env.FRONTEND_URL || 'http://localhost:3000',
+        ...devices["Desktop Chrome"],
+        baseURL:
+          process.env.CRM_FRONTEND_URL || process.env.FRONTEND_URL || "http://localhost:3000",
       },
-      testMatch: ['crm-nextjs-nestjs.e2e-test.ts'],
+      testMatch: ["crm-nextjs-nestjs.e2e-test.ts"],
       dependencies: [],
     },
   ],

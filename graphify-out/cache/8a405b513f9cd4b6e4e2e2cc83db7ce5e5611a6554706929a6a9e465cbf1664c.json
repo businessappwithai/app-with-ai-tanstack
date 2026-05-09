@@ -1,1 +1,427 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_backend_src_modules_bus_bus_controller_ts", "label": "bus.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L1"}, {"id": "bus_controller_buscontroller", "label": "BusController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L31"}, {"id": "bus_controller_buscontroller_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L32"}, {"id": "bus_controller_buscontroller_findall", "label": ".findAll()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L42"}, {"id": "bus_controller_buscontroller_findone", "label": ".findOne()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L66"}, {"id": "bus_controller_buscontroller_getfieldgroups", "label": ".getFieldGroups()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L81"}, {"id": "bus_controller_buscontroller_createfieldgroup", "label": ".createFieldGroup()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L92"}, {"id": "bus_controller_buscontroller_updatefieldgroup", "label": ".updateFieldGroup()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L104"}, {"id": "bus_controller_buscontroller_deletefieldgroup", "label": ".deleteFieldGroup()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L121"}, {"id": "bus_controller_buscontroller_assignfieldtogroup", "label": ".assignFieldToGroup()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L133"}, {"id": "bus_controller_buscontroller_updatefieldstyle", "label": ".updateFieldStyle()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L150"}, {"id": "bus_controller_buscontroller_create", "label": ".create()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L168"}, {"id": "bus_controller_buscontroller_update", "label": ".update()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L188"}, {"id": "bus_controller_buscontroller_patch", "label": ".patch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L215"}, {"id": "bus_controller_buscontroller_delete", "label": ".delete()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L241"}, {"id": "bus_controller_buscontroller_getmetadata", "label": ".getMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L257"}, {"id": "bus_controller_buscontroller_getformfields", "label": ".getFormFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L268"}, {"id": "bus_controller_buscontroller_getgridfields", "label": ".getGridFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L279"}, {"id": "bus_controller_buscontroller_getallformfields", "label": ".getAllFormFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L290"}, {"id": "bus_controller_buscontroller_getallgridfields", "label": ".getAllGridFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L301"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_backend_src_modules_bus_bus_controller_ts", "target": "common", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_backend_src_modules_bus_bus_controller_ts", "target": "swagger", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L25", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_backend_src_modules_bus_bus_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_backend_src_modules_bus_bus_service", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L26", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_backend_src_modules_bus_bus_controller_ts", "target": "bus_controller_buscontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L31", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L32", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_findall", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L42", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_findone", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L66", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_getfieldgroups", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L81", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_createfieldgroup", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L92", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_updatefieldgroup", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L104", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_deletefieldgroup", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L121", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_assignfieldtogroup", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L133", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_updatefieldstyle", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L150", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_create", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L168", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_update", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L188", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_patch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L215", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_delete", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L241", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_getmetadata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L257", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_getformfields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L268", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_getgridfields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L279", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_getallformfields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L290", "weight": 1.0}, {"source": "bus_controller_buscontroller", "target": "bus_controller_buscontroller_getallgridfields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L301", "weight": 1.0}, {"source": "bus_controller_buscontroller_patch", "target": "bus_controller_buscontroller_update", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L227", "weight": 1.0}], "raw_calls": [{"caller_nid": "bus_controller_buscontroller_findone", "callee": "findById", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L70"}, {"caller_nid": "bus_controller_buscontroller_create", "callee": "validateData", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L173"}, {"caller_nid": "bus_controller_buscontroller_update", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L196"}, {"caller_nid": "bus_controller_buscontroller_update", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L196"}, {"caller_nid": "bus_controller_buscontroller_update", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L196"}, {"caller_nid": "bus_controller_buscontroller_update", "callee": "validateData", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L200"}, {"caller_nid": "bus_controller_buscontroller_patch", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L222"}, {"caller_nid": "bus_controller_buscontroller_patch", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L222"}, {"caller_nid": "bus_controller_buscontroller_patch", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L222"}, {"caller_nid": "bus_controller_buscontroller_patch", "callee": "validateData", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L226"}, {"caller_nid": "bus_controller_buscontroller_delete", "callee": "softDelete", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L245"}, {"caller_nid": "bus_controller_buscontroller_getmetadata", "callee": "getEntityMetadata", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts", "source_location": "L258"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_backend_src_modules_bus_bus_controller_ts",
+      "label": "bus.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "bus_controller_buscontroller",
+      "label": "BusController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L31"
+    },
+    {
+      "id": "bus_controller_buscontroller_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L32"
+    },
+    {
+      "id": "bus_controller_buscontroller_findall",
+      "label": ".findAll()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L42"
+    },
+    {
+      "id": "bus_controller_buscontroller_findone",
+      "label": ".findOne()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L66"
+    },
+    {
+      "id": "bus_controller_buscontroller_getfieldgroups",
+      "label": ".getFieldGroups()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L81"
+    },
+    {
+      "id": "bus_controller_buscontroller_createfieldgroup",
+      "label": ".createFieldGroup()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L92"
+    },
+    {
+      "id": "bus_controller_buscontroller_updatefieldgroup",
+      "label": ".updateFieldGroup()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L104"
+    },
+    {
+      "id": "bus_controller_buscontroller_deletefieldgroup",
+      "label": ".deleteFieldGroup()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L121"
+    },
+    {
+      "id": "bus_controller_buscontroller_assignfieldtogroup",
+      "label": ".assignFieldToGroup()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L133"
+    },
+    {
+      "id": "bus_controller_buscontroller_updatefieldstyle",
+      "label": ".updateFieldStyle()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L150"
+    },
+    {
+      "id": "bus_controller_buscontroller_create",
+      "label": ".create()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L168"
+    },
+    {
+      "id": "bus_controller_buscontroller_update",
+      "label": ".update()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L188"
+    },
+    {
+      "id": "bus_controller_buscontroller_patch",
+      "label": ".patch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L215"
+    },
+    {
+      "id": "bus_controller_buscontroller_delete",
+      "label": ".delete()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L241"
+    },
+    {
+      "id": "bus_controller_buscontroller_getmetadata",
+      "label": ".getMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L257"
+    },
+    {
+      "id": "bus_controller_buscontroller_getformfields",
+      "label": ".getFormFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L268"
+    },
+    {
+      "id": "bus_controller_buscontroller_getgridfields",
+      "label": ".getGridFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L279"
+    },
+    {
+      "id": "bus_controller_buscontroller_getallformfields",
+      "label": ".getAllFormFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L290"
+    },
+    {
+      "id": "bus_controller_buscontroller_getallgridfields",
+      "label": ".getAllGridFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L301"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_backend_src_modules_bus_bus_controller_ts",
+      "target": "common",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_backend_src_modules_bus_bus_controller_ts",
+      "target": "swagger",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_backend_src_modules_bus_bus_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_backend_src_modules_bus_bus_service",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_backend_src_modules_bus_bus_controller_ts",
+      "target": "bus_controller_buscontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_findall",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_findone",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_getfieldgroups",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L81",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_createfieldgroup",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_updatefieldgroup",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L104",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_deletefieldgroup",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_assignfieldtogroup",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L133",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_updatefieldstyle",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L150",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_create",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L168",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_update",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L188",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_patch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L215",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_delete",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L241",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_getmetadata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L257",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_getformfields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L268",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_getgridfields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L279",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_getallformfields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L290",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller",
+      "target": "bus_controller_buscontroller_getallgridfields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L301",
+      "weight": 1.0
+    },
+    {
+      "source": "bus_controller_buscontroller_patch",
+      "target": "bus_controller_buscontroller_update",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L227",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "bus_controller_buscontroller_findone",
+      "callee": "findById",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_create",
+      "callee": "validateData",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_update",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L196"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_update",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L196"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_update",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L196"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_update",
+      "callee": "validateData",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L200"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_patch",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L222"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_patch",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L222"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_patch",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L222"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_patch",
+      "callee": "validateData",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L226"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_delete",
+      "callee": "softDelete",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L245"
+    },
+    {
+      "caller_nid": "bus_controller_buscontroller_getmetadata",
+      "callee": "getEntityMetadata",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/backend/src/modules/bus/bus.controller.ts",
+      "source_location": "L258"
+    }
+  ]
+}

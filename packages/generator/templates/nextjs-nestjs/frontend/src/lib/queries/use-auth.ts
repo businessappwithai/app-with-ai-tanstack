@@ -6,8 +6,8 @@
  * Generated: {{now}}
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiClient, type ApiError } from '@/lib/api-client';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { type ApiError, apiClient } from "@/lib/api-client";
 
 // ============================================================================
 // Types
@@ -54,8 +54,8 @@ export interface UserProfile {
 // ============================================================================
 
 export const authKeys = {
-  all: ['auth'] as const,
-  profile: () => [...authKeys.all, 'profile'] as const,
+  all: ["auth"] as const,
+  profile: () => [...authKeys.all, "profile"] as const,
 };
 
 // ============================================================================
@@ -66,11 +66,11 @@ export function useLogin() {
   const queryClient = useQueryClient();
 
   return useMutation<AuthResponse, ApiError, LoginCredentials>({
-    mutationFn: (credentials) => apiClient.post<AuthResponse>('/auth/login', credentials),
+    mutationFn: (credentials) => apiClient.post<AuthResponse>("/auth/login", credentials),
     onSuccess: (data) => {
       // Store token
-      localStorage.setItem('auth_token', data.access_token);
-      localStorage.setItem('auth_user', JSON.stringify(data.user));
+      localStorage.setItem("auth_token", data.access_token);
+      localStorage.setItem("auth_user", JSON.stringify(data.user));
 
       // Update API client
       apiClient.setAuthToken(data.access_token);
@@ -87,11 +87,11 @@ export function useLogin() {
 
 export function useRegister() {
   return useMutation<AuthResponse, ApiError, RegisterData>({
-    mutationFn: (data) => apiClient.post<AuthResponse>('/auth/register', data),
+    mutationFn: (data) => apiClient.post<AuthResponse>("/auth/register", data),
     onSuccess: (data) => {
       // Store token
-      localStorage.setItem('auth_token', data.access_token);
-      localStorage.setItem('auth_user', JSON.stringify(data.user));
+      localStorage.setItem("auth_token", data.access_token);
+      localStorage.setItem("auth_user", JSON.stringify(data.user));
 
       // Update API client
       apiClient.setAuthToken(data.access_token);
@@ -106,7 +106,7 @@ export function useRegister() {
 export function useCurrentUser() {
   return useQuery<UserProfile, ApiError>({
     queryKey: authKeys.profile(),
-    queryFn: () => apiClient.get<UserProfile>('/auth/me'),
+    queryFn: () => apiClient.get<UserProfile>("/auth/me"),
     retry: false,
   });
 }
@@ -119,11 +119,11 @@ export function useLogout() {
   const queryClient = useQueryClient();
 
   return useMutation<void, ApiError>({
-    mutationFn: () => apiClient.post<void>('/auth/logout'),
+    mutationFn: () => apiClient.post<void>("/auth/logout"),
     onSuccess: () => {
       // Clear storage
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_user');
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("auth_user");
 
       // Update API client
       apiClient.setAuthToken(null);
@@ -139,11 +139,9 @@ export function useLogout() {
 // ============================================================================
 
 export function useChangePassword() {
-  return useMutation<
-    { message: string },
-    ApiError,
-    { old_password: string; new_password: string }
-  >({
-    mutationFn: (data) => apiClient.post<{ message: string }>('/auth/change-password', data),
-  });
+  return useMutation<{ message: string }, ApiError, { old_password: string; new_password: string }>(
+    {
+      mutationFn: (data) => apiClient.post<{ message: string }>("/auth/change-password", data),
+    }
+  );
 }

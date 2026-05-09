@@ -1,1 +1,816 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "label": "BusPrescriptionList.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L1"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller", "label": "BusPrescriptionListController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L22"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L26"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable", "label": "._initializeTable()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L38"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller_getfieldsfrommetadata", "label": "._getFieldsFromMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L57"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller_formatcellvalue", "label": "._formatCellValue()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L72"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller_formatstatusstate", "label": "._formatStatusState()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L78"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller_oncreatepress", "label": ".onCreatePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L87"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress", "label": ".onItemPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L89"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch", "label": ".onSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L94"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller_onquicksearch", "label": ".onQuickSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L103"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller_onsort", "label": ".onSort()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L104"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller_onrefresh", "label": ".onRefresh()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L105"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller_ontoggleadvancedsearch", "label": ".onToggleAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L106"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch", "label": ".onAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L107"}, {"id": "busprescriptionlist_controller_busprescriptionlistcontroller_onclearadvancedsearch", "label": ".onClearAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L111"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L5", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "jsonmodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "odatamodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "filter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "filteroperator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "sorter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "messagetoast", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "router", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "event", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "column", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "columnlistitem", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "text", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "label", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "objectstatus", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L18", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts", "target": "busprescriptionlist_controller_busprescriptionlistcontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L22", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L26", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L38", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_getfieldsfrommetadata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L57", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_formatcellvalue", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L72", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_formatstatusstate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L78", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_oncreatepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L87", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L89", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L94", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onquicksearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L103", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onsort", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L104", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onrefresh", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L105", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_ontoggleadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L106", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L107", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onclearadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L111", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_getfieldsfrommetadata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L32", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L35", "weight": 1.0}, {"source": "busprescriptionlist_controller_busprescriptionlistcontroller_onquicksearch", "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L103", "weight": 1.0}], "raw_calls": [{"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L27"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L27"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L34"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L34"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L39"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L41"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L41"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable", "callee": "removeAllColumns", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L42"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable", "callee": "removeAllItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L42"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L43"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L45"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable", "callee": "bindItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L53"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L53"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L54"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatcellvalue", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L74"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatcellvalue", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L74"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatcellvalue", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L74"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatcellvalue", "callee": "toLocaleDateString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L74"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatcellvalue", "callee": "String", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L75"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatstatusstate", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L80"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatstatusstate", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L81"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatstatusstate", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L82"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatstatusstate", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L83"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_oncreatepress", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L87"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_oncreatepress", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L87"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_oncreatepress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L87"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress", "callee": "getPath", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L90"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress", "callee": "getBindingContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L90"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress", "callee": "getSource", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L90"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L91"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress", "callee": "substring", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L91"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress", "callee": "lastIndexOf", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L91"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L91"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L91"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L91"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L95"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L96"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L96"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L98"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L99"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsort", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L104"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsort", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L104"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsort", "callee": "getSorters", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L104"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsort", "callee": "sort", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L104"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsort", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L104"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onrefresh", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L105"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onrefresh", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L105"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onrefresh", "callee": "refresh", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L105"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onrefresh", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L105"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_ontoggleadvancedsearch", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L106"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_ontoggleadvancedsearch", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L106"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch", "callee": "getSelectedKey", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L108"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L108"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch", "callee": "getSelectedKey", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L108"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L108"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch", "callee": "getValue", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L108"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L108"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L109"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L109"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L109"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L109"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L109"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L109"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onclearadvancedsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L111"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onclearadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L111"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onclearadvancedsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L111"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onclearadvancedsearch", "callee": "setValue", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L111"}, {"caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onclearadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts", "source_location": "L111"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "label": "BusPrescriptionList.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "label": "BusPrescriptionListController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L22"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L26"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable",
+      "label": "._initializeTable()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L38"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller_getfieldsfrommetadata",
+      "label": "._getFieldsFromMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L57"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller_formatcellvalue",
+      "label": "._formatCellValue()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller_formatstatusstate",
+      "label": "._formatStatusState()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L78"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller_oncreatepress",
+      "label": ".onCreatePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L87"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress",
+      "label": ".onItemPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L89"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch",
+      "label": ".onSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L94"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller_onquicksearch",
+      "label": ".onQuickSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L103"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller_onsort",
+      "label": ".onSort()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L104"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller_onrefresh",
+      "label": ".onRefresh()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L105"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller_ontoggleadvancedsearch",
+      "label": ".onToggleAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L106"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch",
+      "label": ".onAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L107"
+    },
+    {
+      "id": "busprescriptionlist_controller_busprescriptionlistcontroller_onclearadvancedsearch",
+      "label": ".onClearAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L111"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "jsonmodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "odatamodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "filter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "filteroperator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "sorter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "messagetoast",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "router",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "event",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "column",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "columnlistitem",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "text",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "label",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "objectstatus",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busprescriptionlist_controller_ts",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_getfieldsfrommetadata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_formatcellvalue",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_formatstatusstate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_oncreatepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L87",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onquicksearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onsort",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L104",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onrefresh",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L105",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_ontoggleadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L106",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onclearadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L111",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_getfieldsfrommetadata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "busprescriptionlist_controller_busprescriptionlistcontroller_onquicksearch",
+      "target": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L103",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable",
+      "callee": "removeAllColumns",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable",
+      "callee": "removeAllItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable",
+      "callee": "bindItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_initializetable",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatcellvalue",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatcellvalue",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatcellvalue",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatcellvalue",
+      "callee": "toLocaleDateString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatcellvalue",
+      "callee": "String",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatstatusstate",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatstatusstate",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatstatusstate",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_formatstatusstate",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_oncreatepress",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_oncreatepress",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_oncreatepress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress",
+      "callee": "getPath",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress",
+      "callee": "getBindingContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress",
+      "callee": "getSource",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress",
+      "callee": "substring",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress",
+      "callee": "lastIndexOf",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onitempress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsort",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L104"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsort",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L104"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsort",
+      "callee": "getSorters",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L104"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsort",
+      "callee": "sort",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L104"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onsort",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L104"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onrefresh",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onrefresh",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onrefresh",
+      "callee": "refresh",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onrefresh",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_ontoggleadvancedsearch",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_ontoggleadvancedsearch",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch",
+      "callee": "getSelectedKey",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch",
+      "callee": "getSelectedKey",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch",
+      "callee": "getValue",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onadvancedsearch",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onclearadvancedsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onclearadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onclearadvancedsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onclearadvancedsearch",
+      "callee": "setValue",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "busprescriptionlist_controller_busprescriptionlistcontroller_onclearadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPrescriptionList.controller.ts",
+      "source_location": "L111"
+    }
+  ]
+}

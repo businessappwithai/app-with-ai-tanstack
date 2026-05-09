@@ -1,12 +1,12 @@
 export type HookLifecycle =
-  | 'beforeCreate'
-  | 'afterCreate'
-  | 'beforeUpdate'
-  | 'afterUpdate'
-  | 'beforeDelete'
-  | 'afterDelete'
-  | 'beforeQuery'
-  | 'afterQuery';
+  | "beforeCreate"
+  | "afterCreate"
+  | "beforeUpdate"
+  | "afterUpdate"
+  | "beforeDelete"
+  | "afterDelete"
+  | "beforeQuery"
+  | "afterQuery";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface HookContext<T = any> {

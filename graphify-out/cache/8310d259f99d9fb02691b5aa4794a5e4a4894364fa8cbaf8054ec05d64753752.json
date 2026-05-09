@@ -1,1 +1,469 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_common_filters_http_exception_filter_ts", "label": "http-exception.filter.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L1"}, {"id": "http_exception_filter_httpexceptionfilter", "label": "HttpExceptionFilter", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L28"}, {"id": "http_exception_filter_httpexceptionfilter_catch", "label": ".catch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L31"}, {"id": "http_exception_filter_httpexceptionfilter_sanitizeheaders", "label": ".sanitizeHeaders()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L167"}, {"id": "http_exception_filter_httpexceptionfilter_geterrorname", "label": ".getErrorName()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L181"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_common_filters_http_exception_filter_ts", "target": "common", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_common_filters_http_exception_filter_ts", "target": "fastify", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_common_filters_http_exception_filter_ts", "target": "http_exception_filter_httpexceptionfilter", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L28", "weight": 1.0}, {"source": "http_exception_filter_httpexceptionfilter", "target": "http_exception_filter_httpexceptionfilter_catch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L31", "weight": 1.0}, {"source": "http_exception_filter_httpexceptionfilter", "target": "http_exception_filter_httpexceptionfilter_sanitizeheaders", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L167", "weight": 1.0}, {"source": "http_exception_filter_httpexceptionfilter", "target": "http_exception_filter_httpexceptionfilter_geterrorname", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L181", "weight": 1.0}, {"source": "http_exception_filter_httpexceptionfilter_catch", "target": "http_exception_filter_httpexceptionfilter_sanitizeheaders", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L44", "weight": 1.0}, {"source": "http_exception_filter_httpexceptionfilter_catch", "target": "http_exception_filter_httpexceptionfilter_geterrorname", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L80", "weight": 1.0}], "raw_calls": [{"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "switchToHttp", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L33"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "getResponse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L34"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "getRequest", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L35"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L38"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L39"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L40"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L41"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L42"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L42"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L43"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L43"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L44"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L44"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L45"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L46"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L49"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L51"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L53"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L55"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "substring", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L55"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L58"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "getStatus", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L68"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "getResponse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L69"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L71"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L72"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L73"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L84"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L84"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L84"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "isArray", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L87"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L88"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L89"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L96"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L97"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L98"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L99"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L102"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L103"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L109"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L109"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L110"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L110"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L116"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L117"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L123"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L124"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L131"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L137"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L138"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L139"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L141"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L141"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L143"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L147"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L152"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L156"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "send", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L161"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_catch", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L161"}, {"caller_nid": "http_exception_filter_httpexceptionfilter_sanitizeheaders", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts", "source_location": "L172"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_common_filters_http_exception_filter_ts",
+      "label": "http-exception.filter.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "http_exception_filter_httpexceptionfilter",
+      "label": "HttpExceptionFilter",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L28"
+    },
+    {
+      "id": "http_exception_filter_httpexceptionfilter_catch",
+      "label": ".catch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L31"
+    },
+    {
+      "id": "http_exception_filter_httpexceptionfilter_sanitizeheaders",
+      "label": ".sanitizeHeaders()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L167"
+    },
+    {
+      "id": "http_exception_filter_httpexceptionfilter_geterrorname",
+      "label": ".getErrorName()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L181"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_common_filters_http_exception_filter_ts",
+      "target": "common",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_common_filters_http_exception_filter_ts",
+      "target": "fastify",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_common_filters_http_exception_filter_ts",
+      "target": "http_exception_filter_httpexceptionfilter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "http_exception_filter_httpexceptionfilter",
+      "target": "http_exception_filter_httpexceptionfilter_catch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "http_exception_filter_httpexceptionfilter",
+      "target": "http_exception_filter_httpexceptionfilter_sanitizeheaders",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L167",
+      "weight": 1.0
+    },
+    {
+      "source": "http_exception_filter_httpexceptionfilter",
+      "target": "http_exception_filter_httpexceptionfilter_geterrorname",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L181",
+      "weight": 1.0
+    },
+    {
+      "source": "http_exception_filter_httpexceptionfilter_catch",
+      "target": "http_exception_filter_httpexceptionfilter_sanitizeheaders",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "http_exception_filter_httpexceptionfilter_catch",
+      "target": "http_exception_filter_httpexceptionfilter_geterrorname",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L80",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "switchToHttp",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "getResponse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "getRequest",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L49"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "substring",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "getStatus",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "getResponse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "isArray",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L117"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L137"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L139"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L156"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "send",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_catch",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "http_exception_filter_httpexceptionfilter_sanitizeheaders",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/common/filters/http-exception.filter.ts",
+      "source_location": "L172"
+    }
+  ]
+}

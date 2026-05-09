@@ -8,16 +8,16 @@
  * Project: crm-app
  */
 
-import { task } from '@trigger.dev/sdk/v3';
+import { task } from "@trigger.dev/sdk/v3";
 
 export interface SyncTaskPayload {
   entityType: string;
   entityId: string;
-  action: 'create' | 'update' | 'delete';
+  action: "create" | "update" | "delete";
 }
 
 export const syncEntityTask = task({
-  id: 'sync-entity',
+  id: "sync-entity",
   maxDuration: 120,
   retry: {
     maxAttempts: 5,

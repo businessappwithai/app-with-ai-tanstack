@@ -5,15 +5,15 @@
  * Generated: 2026-05-07T09:31:28.387Z
  */
 
-import { HookContext, HookLifecycle } from './hook.types';
-import { globalHookRegistry } from './hook-registry';
+import type { HookContext, HookLifecycle } from "./hook.types";
+import { globalHookRegistry } from "./hook-registry";
 
 export class HookExecutor {
   async execute<T>(
     entityName: string,
     lifecycle: HookLifecycle,
     data: T,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, any>
   ): Promise<T> {
     const hooks = globalHookRegistry.getHooks(entityName, lifecycle);
 

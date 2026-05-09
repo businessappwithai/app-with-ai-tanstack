@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Browser Router Provider
@@ -9,7 +9,7 @@
  * Generated: {{now}}
  */
 
-import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
 
 interface RouterContextValue {
   pathname: string;
@@ -27,8 +27,8 @@ interface BrowserRouterProps {
 }
 
 export function BrowserRouter({ children }: BrowserRouterProps) {
-  const [pathname, setPathname] = useState('/');
-  const [search, setSearch] = useState('');
+  const [pathname, setPathname] = useState("/");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     // Update state on mount and when URL changes
@@ -40,39 +40,39 @@ export function BrowserRouter({ children }: BrowserRouterProps) {
     updateState();
 
     // Listen for popstate events (back/forward buttons)
-    window.addEventListener('popstate', updateState);
+    window.addEventListener("popstate", updateState);
 
     // Intercept pushState and replaceState
     const originalPushState = history.pushState;
     const originalReplaceState = history.replaceState;
 
-    history.pushState = function (...args) {
+    history.pushState = (...args) => {
       originalPushState.apply(history, args);
       updateState();
     };
 
-    history.replaceState = function (...args) {
+    history.replaceState = (...args) => {
       originalReplaceState.apply(history, args);
       updateState();
     };
 
     return () => {
-      window.removeEventListener('popstate', updateState);
+      window.removeEventListener("popstate", updateState);
       history.pushState = originalPushState;
       history.replaceState = originalReplaceState;
     };
   }, []);
 
   const push = (path: string) => {
-    window.history.pushState(null, '', path);
+    window.history.pushState(null, "", path);
     setPathname(path);
-    setSearch('');
+    setSearch("");
   };
 
   const replace = (path: string) => {
-    window.history.replaceState(null, '', path);
+    window.history.replaceState(null, "", path);
     setPathname(path);
-    setSearch('');
+    setSearch("");
   };
 
   const back = () => {
@@ -93,7 +93,7 @@ export function BrowserRouter({ children }: BrowserRouterProps) {
 export function useRouter() {
   const context = useContext(RouterContext);
   if (!context) {
-    throw new Error('useRouter must be used within BrowserRouter');
+    throw new Error("useRouter must be used within BrowserRouter");
   }
   return context;
 }

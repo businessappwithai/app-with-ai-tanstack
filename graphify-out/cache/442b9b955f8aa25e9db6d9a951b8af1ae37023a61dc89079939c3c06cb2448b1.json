@@ -1,1 +1,104 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260329000001_create_betterauth_tables_ts", "label": "20260329000001_create_betterauth_tables.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts", "source_location": "L1"}, {"id": "20260329000001_create_betterauth_tables_up", "label": "up()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts", "source_location": "L13"}, {"id": "20260329000001_create_betterauth_tables_down", "label": "down()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts", "source_location": "L63"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260329000001_create_betterauth_tables_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260329000001_create_betterauth_tables_ts", "target": "20260329000001_create_betterauth_tables_up", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260329000001_create_betterauth_tables_ts", "target": "20260329000001_create_betterauth_tables_down", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts", "source_location": "L63", "weight": 1.0}], "raw_calls": [{"caller_nid": "20260329000001_create_betterauth_tables_up", "callee": "createTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts", "source_location": "L15"}, {"caller_nid": "20260329000001_create_betterauth_tables_up", "callee": "createTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts", "source_location": "L28"}, {"caller_nid": "20260329000001_create_betterauth_tables_up", "callee": "createTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts", "source_location": "L41"}, {"caller_nid": "20260329000001_create_betterauth_tables_up", "callee": "createTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts", "source_location": "L53"}, {"caller_nid": "20260329000001_create_betterauth_tables_down", "callee": "dropTableIfExists", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts", "source_location": "L64"}, {"caller_nid": "20260329000001_create_betterauth_tables_down", "callee": "dropTableIfExists", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts", "source_location": "L65"}, {"caller_nid": "20260329000001_create_betterauth_tables_down", "callee": "dropTableIfExists", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts", "source_location": "L66"}, {"caller_nid": "20260329000001_create_betterauth_tables_down", "callee": "dropTableIfExists", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts", "source_location": "L67"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260329000001_create_betterauth_tables_ts",
+      "label": "20260329000001_create_betterauth_tables.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "20260329000001_create_betterauth_tables_up",
+      "label": "up()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts",
+      "source_location": "L13"
+    },
+    {
+      "id": "20260329000001_create_betterauth_tables_down",
+      "label": "down()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts",
+      "source_location": "L63"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260329000001_create_betterauth_tables_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260329000001_create_betterauth_tables_ts",
+      "target": "20260329000001_create_betterauth_tables_up",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260329000001_create_betterauth_tables_ts",
+      "target": "20260329000001_create_betterauth_tables_down",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts",
+      "source_location": "L63",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "20260329000001_create_betterauth_tables_up",
+      "callee": "createTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts",
+      "source_location": "L15"
+    },
+    {
+      "caller_nid": "20260329000001_create_betterauth_tables_up",
+      "callee": "createTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "20260329000001_create_betterauth_tables_up",
+      "callee": "createTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "20260329000001_create_betterauth_tables_up",
+      "callee": "createTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "20260329000001_create_betterauth_tables_down",
+      "callee": "dropTableIfExists",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts",
+      "source_location": "L64"
+    },
+    {
+      "caller_nid": "20260329000001_create_betterauth_tables_down",
+      "callee": "dropTableIfExists",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "20260329000001_create_betterauth_tables_down",
+      "callee": "dropTableIfExists",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "20260329000001_create_betterauth_tables_down",
+      "callee": "dropTableIfExists",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260329000001_create_betterauth_tables.ts",
+      "source_location": "L67"
+    }
+  ]
+}

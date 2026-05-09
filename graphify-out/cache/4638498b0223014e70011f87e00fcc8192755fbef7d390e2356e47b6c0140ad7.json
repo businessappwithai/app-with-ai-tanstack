@@ -1,1 +1,1209 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts", "label": "BususerController.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L1"}, {"id": "bususercontroller_controller_usercontroller", "label": "UserController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L48"}, {"id": "bususercontroller_controller_usercontroller_getall", "label": ".getAll()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L61"}, {"id": "bususercontroller_controller_usercontroller_getone", "label": ".getOne()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L129"}, {"id": "bususercontroller_controller_usercontroller_create", "label": ".create()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L175"}, {"id": "bususercontroller_controller_usercontroller_fullupdate", "label": ".fullUpdate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L216"}, {"id": "bususercontroller_controller_usercontroller_partialupdate", "label": ".partialUpdate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L277"}, {"id": "bususercontroller_controller_usercontroller_remove", "label": ".remove()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L338"}, {"id": "bususercontroller_controller_usercontroller_checketag", "label": ".checkETag()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L368"}, {"id": "bususercontroller_controller_usercontroller_applyorderby", "label": ".applyOrderBy()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L383"}, {"id": "bususercontroller_controller_usercontroller_applyfilter", "label": ".applyFilter()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L405"}, {"id": "bususercontroller_controller_usercontroller_applyexpand", "label": ".applyExpand()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L440"}, {"id": "bususercontroller_controller_applycondition", "label": "applyCondition()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L508"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts", "target": "odata_v4_server", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L23", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L24", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts", "target": "uuid", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L25", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_database_connection", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L26", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L27", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts", "target": "bususercontroller_controller_usercontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L48", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller", "target": "bususercontroller_controller_usercontroller_getall", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L61", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller", "target": "bususercontroller_controller_usercontroller_getone", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L129", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller", "target": "bususercontroller_controller_usercontroller_create", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L175", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller", "target": "bususercontroller_controller_usercontroller_fullupdate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L216", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller", "target": "bususercontroller_controller_usercontroller_partialupdate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L277", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller", "target": "bususercontroller_controller_usercontroller_remove", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L338", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller", "target": "bususercontroller_controller_usercontroller_checketag", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L368", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller", "target": "bususercontroller_controller_usercontroller_applyorderby", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L383", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller", "target": "bususercontroller_controller_usercontroller_applyfilter", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L405", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller", "target": "bususercontroller_controller_usercontroller_applyexpand", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L440", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts", "target": "bususercontroller_controller_applycondition", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L508", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller_getall", "target": "bususercontroller_controller_usercontroller_applyfilter", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L73", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller_getall", "target": "bususercontroller_controller_usercontroller_applyorderby", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L85", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller_getall", "target": "bususercontroller_controller_usercontroller_applyexpand", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L108", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller_getone", "target": "bususercontroller_controller_usercontroller_applyexpand", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L159", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller_fullupdate", "target": "bususercontroller_controller_usercontroller_checketag", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L234", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller_partialupdate", "target": "bususercontroller_controller_usercontroller_checketag", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L295", "weight": 1.0}, {"source": "bususercontroller_controller_usercontroller_applyfilter", "target": "bususercontroller_controller_applycondition", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L429", "weight": 1.0}], "raw_calls": [{"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L68"}, {"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L68"}, {"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L68"}, {"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "count", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L79"}, {"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "clone", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L79"}, {"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L80"}, {"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "orderBy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L87"}, {"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "offset", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L92"}, {"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L92"}, {"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "limit", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L95"}, {"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L95"}, {"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L100"}, {"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L100"}, {"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "select", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L101"}, {"caller_nid": "bususercontroller_controller_usercontroller_getall", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L112"}, {"caller_nid": "bususercontroller_controller_usercontroller_getone", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L136"}, {"caller_nid": "bususercontroller_controller_usercontroller_getone", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L136"}, {"caller_nid": "bususercontroller_controller_usercontroller_getone", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L136"}, {"caller_nid": "bususercontroller_controller_usercontroller_getone", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L136"}, {"caller_nid": "bususercontroller_controller_usercontroller_getone", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L142"}, {"caller_nid": "bususercontroller_controller_usercontroller_getone", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L142"}, {"caller_nid": "bususercontroller_controller_usercontroller_getone", "callee": "select", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L143"}, {"caller_nid": "bususercontroller_controller_usercontroller_getone", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L146"}, {"caller_nid": "bususercontroller_controller_usercontroller_getone", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L149"}, {"caller_nid": "bususercontroller_controller_usercontroller_getone", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L154"}, {"caller_nid": "bususercontroller_controller_usercontroller_getone", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L155"}, {"caller_nid": "bususercontroller_controller_usercontroller_create", "callee": "uuidv4", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L182"}, {"caller_nid": "bususercontroller_controller_usercontroller_create", "callee": "insert", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L193"}, {"caller_nid": "bususercontroller_controller_usercontroller_create", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L193"}, {"caller_nid": "bususercontroller_controller_usercontroller_create", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L193"}, {"caller_nid": "bususercontroller_controller_usercontroller_create", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L197"}, {"caller_nid": "bususercontroller_controller_usercontroller_create", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L197"}, {"caller_nid": "bususercontroller_controller_usercontroller_create", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L197"}, {"caller_nid": "bususercontroller_controller_usercontroller_create", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L197"}, {"caller_nid": "bususercontroller_controller_usercontroller_create", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L201"}, {"caller_nid": "bususercontroller_controller_usercontroller_create", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L202"}, {"caller_nid": "bususercontroller_controller_usercontroller_create", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L203"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L221"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L221"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L221"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L221"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L221"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L227"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L236"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L237"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L255"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L255"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L255"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L255"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L259"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L259"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L259"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L259"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L263"}, {"caller_nid": "bususercontroller_controller_usercontroller_fullupdate", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L264"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L282"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L282"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L282"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L282"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L282"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L288"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L297"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L298"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L316"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L316"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L316"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L316"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L320"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L320"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L320"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L320"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L324"}, {"caller_nid": "bususercontroller_controller_usercontroller_partialupdate", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L325"}, {"caller_nid": "bususercontroller_controller_usercontroller_remove", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L339"}, {"caller_nid": "bususercontroller_controller_usercontroller_remove", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L339"}, {"caller_nid": "bususercontroller_controller_usercontroller_remove", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L339"}, {"caller_nid": "bususercontroller_controller_usercontroller_remove", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L339"}, {"caller_nid": "bususercontroller_controller_usercontroller_remove", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L339"}, {"caller_nid": "bususercontroller_controller_usercontroller_remove", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L345"}, {"caller_nid": "bususercontroller_controller_usercontroller_remove", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L349"}, {"caller_nid": "bususercontroller_controller_usercontroller_remove", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L349"}, {"caller_nid": "bususercontroller_controller_usercontroller_remove", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L349"}, {"caller_nid": "bususercontroller_controller_usercontroller_remove", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L349"}, {"caller_nid": "bususercontroller_controller_usercontroller_remove", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L357"}, {"caller_nid": "bususercontroller_controller_usercontroller_checketag", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L369"}, {"caller_nid": "bususercontroller_controller_usercontroller_checketag", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L369"}, {"caller_nid": "bususercontroller_controller_usercontroller_checketag", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L370"}, {"caller_nid": "bususercontroller_controller_usercontroller_checketag", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L372"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyorderby", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L384"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyorderby", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L386"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyorderby", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L386"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyorderby", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L388"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyorderby", "callee": "orderBy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L389"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyfilter", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L407"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyfilter", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L410"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyfilter", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L419"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyfilter", "callee": "orWhere", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L421"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyfilter", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L427"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyfilter", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L429"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L446"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L446"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "some", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L453"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L458"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L458"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L469"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "whereIn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L469"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L469"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L469"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "whereIn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L477"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L477"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L477"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "set", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L488"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "has", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L494"}, {"caller_nid": "bususercontroller_controller_usercontroller_applyexpand", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L495"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L510"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L512"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L516"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L518"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "parseFloat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L518"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L522"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L524"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L524"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L528"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "whereNot", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L530"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L534"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "whereNot", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L536"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "parseFloat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L536"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L540"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L542"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "parseFloat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L542"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L546"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L548"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "parseFloat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L548"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L552"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L554"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "parseFloat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L554"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L558"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L560"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "parseFloat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L560"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L564"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L566"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L570"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L572"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L576"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L578"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L582"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L584"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L588"}, {"caller_nid": "bususercontroller_controller_applycondition", "callee": "whereNotNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts", "source_location": "L590"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts",
+      "label": "BususerController.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "bususercontroller_controller_usercontroller",
+      "label": "UserController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L48"
+    },
+    {
+      "id": "bususercontroller_controller_usercontroller_getall",
+      "label": ".getAll()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L61"
+    },
+    {
+      "id": "bususercontroller_controller_usercontroller_getone",
+      "label": ".getOne()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L129"
+    },
+    {
+      "id": "bususercontroller_controller_usercontroller_create",
+      "label": ".create()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L175"
+    },
+    {
+      "id": "bususercontroller_controller_usercontroller_fullupdate",
+      "label": ".fullUpdate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L216"
+    },
+    {
+      "id": "bususercontroller_controller_usercontroller_partialupdate",
+      "label": ".partialUpdate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L277"
+    },
+    {
+      "id": "bususercontroller_controller_usercontroller_remove",
+      "label": ".remove()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L338"
+    },
+    {
+      "id": "bususercontroller_controller_usercontroller_checketag",
+      "label": ".checkETag()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L368"
+    },
+    {
+      "id": "bususercontroller_controller_usercontroller_applyorderby",
+      "label": ".applyOrderBy()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L383"
+    },
+    {
+      "id": "bususercontroller_controller_usercontroller_applyfilter",
+      "label": ".applyFilter()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L405"
+    },
+    {
+      "id": "bususercontroller_controller_usercontroller_applyexpand",
+      "label": ".applyExpand()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L440"
+    },
+    {
+      "id": "bususercontroller_controller_applycondition",
+      "label": "applyCondition()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L508"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts",
+      "target": "odata_v4_server",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts",
+      "target": "uuid",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_database_connection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts",
+      "target": "bususercontroller_controller_usercontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller",
+      "target": "bususercontroller_controller_usercontroller_getall",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller",
+      "target": "bususercontroller_controller_usercontroller_getone",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L129",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller",
+      "target": "bususercontroller_controller_usercontroller_create",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L175",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller",
+      "target": "bususercontroller_controller_usercontroller_fullupdate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L216",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller",
+      "target": "bususercontroller_controller_usercontroller_partialupdate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L277",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller",
+      "target": "bususercontroller_controller_usercontroller_remove",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L338",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller",
+      "target": "bususercontroller_controller_usercontroller_checketag",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L368",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller",
+      "target": "bususercontroller_controller_usercontroller_applyorderby",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L383",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller",
+      "target": "bususercontroller_controller_usercontroller_applyfilter",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L405",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller",
+      "target": "bususercontroller_controller_usercontroller_applyexpand",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L440",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_bus_bususercontroller_controller_ts",
+      "target": "bususercontroller_controller_applycondition",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L508",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller_getall",
+      "target": "bususercontroller_controller_usercontroller_applyfilter",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L73",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller_getall",
+      "target": "bususercontroller_controller_usercontroller_applyorderby",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L85",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller_getall",
+      "target": "bususercontroller_controller_usercontroller_applyexpand",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller_getone",
+      "target": "bususercontroller_controller_usercontroller_applyexpand",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L159",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller_fullupdate",
+      "target": "bususercontroller_controller_usercontroller_checketag",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L234",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller_partialupdate",
+      "target": "bususercontroller_controller_usercontroller_checketag",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L295",
+      "weight": 1.0
+    },
+    {
+      "source": "bususercontroller_controller_usercontroller_applyfilter",
+      "target": "bususercontroller_controller_applycondition",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L429",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "count",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "clone",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "orderBy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "offset",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "limit",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "select",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getall",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getone",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getone",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getone",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getone",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getone",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getone",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getone",
+      "callee": "select",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getone",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L146"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getone",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L149"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getone",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_getone",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_create",
+      "callee": "uuidv4",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_create",
+      "callee": "insert",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L193"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_create",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L193"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_create",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L193"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_create",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L197"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_create",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L197"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_create",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L197"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_create",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L197"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_create",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L201"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_create",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L202"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_create",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L221"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L221"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L221"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L221"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L221"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L237"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L263"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_fullupdate",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L264"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L288"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L297"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L298"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L316"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L316"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L316"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L316"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L320"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L320"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L320"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L320"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L324"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_partialupdate",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L325"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_remove",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L339"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_remove",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L339"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_remove",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L339"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_remove",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L339"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_remove",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L339"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_remove",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L345"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_remove",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L349"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_remove",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L349"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_remove",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L349"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_remove",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L349"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_remove",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L357"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_checketag",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L369"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_checketag",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L369"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_checketag",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L370"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_checketag",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L372"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyorderby",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L384"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyorderby",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L386"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyorderby",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L386"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyorderby",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L388"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyorderby",
+      "callee": "orderBy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L389"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyfilter",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L407"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyfilter",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L410"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyfilter",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L419"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyfilter",
+      "callee": "orWhere",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L421"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyfilter",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L427"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyfilter",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L429"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L446"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L446"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "some",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L453"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L458"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L458"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L469"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "whereIn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L469"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L469"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L469"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "whereIn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L477"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L477"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L477"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "set",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L488"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "has",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L494"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_usercontroller_applyexpand",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L495"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L510"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L512"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L516"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L518"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "parseFloat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L518"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L522"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L524"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L524"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L528"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "whereNot",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L530"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L534"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "whereNot",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L536"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "parseFloat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L536"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L540"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L542"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "parseFloat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L542"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L546"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L548"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "parseFloat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L548"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L552"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L554"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "parseFloat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L554"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L558"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L560"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "parseFloat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L560"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L564"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L566"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L570"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L572"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L576"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L578"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L582"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L584"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L588"
+    },
+    {
+      "caller_nid": "bususercontroller_controller_applycondition",
+      "callee": "whereNotNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/bus/BususerController.controller.ts",
+      "source_location": "L590"
+    }
+  ]
+}

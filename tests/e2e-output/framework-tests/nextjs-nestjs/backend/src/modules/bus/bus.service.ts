@@ -7,11 +7,26 @@
  * Generated: 2026-03-20T16:41:26.576Z
  */
 
-import { Injectable, NotFoundException, BadRequestException, Inject, Logger } from '@nestjs/common';
-import { Knex } from 'knex';
-import { KNEX_CONNECTION } from '../../database/database.constants';
-import { DatabaseService, PaginationOptions, PaginatedResult } from '../../database/database.service';
-import { executeBeforeCreateHooks, executeAfterCreateHooks, executeBeforeUpdateHooks, executeAfterUpdateHooks, executeBeforeDeleteHooks, executeAfterDeleteHooks, executeBeforeReadHooks, executeAfterReadHooks, executeBeforeListHooks, executeAfterListHooks } from '../hooks/hooks';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import type { Knex } from "knex";
+import { KNEX_CONNECTION } from "../../database/database.constants";
+import type {
+  DatabaseService,
+  PaginatedResult,
+  PaginationOptions,
+} from "../../database/database.service";
+import {
+  executeAfterCreateHooks,
+  executeAfterDeleteHooks,
+  executeAfterListHooks,
+  executeAfterReadHooks,
+  executeAfterUpdateHooks,
+  executeBeforeCreateHooks,
+  executeBeforeDeleteHooks,
+  executeBeforeListHooks,
+  executeBeforeReadHooks,
+  executeBeforeUpdateHooks,
+} from "../hooks/hooks";
 
 export interface FieldMetadata {
   sys_field_id: string;
@@ -60,8 +75,8 @@ export class BusService {
    * Get the bus_ prefixed table name for an entity
    */
   private getTableName(entity: string): string {
-    const normalized = entity.toLowerCase().replace(/-/g, '_');
-    return normalized.startsWith('bus_') ? normalized : `bus_${normalized}`;
+    const normalized = entity.toLowerCase().replace(/-/g, "_");
+    return normalized.startsWith("bus_") ? normalized : `bus_${normalized}`;
   }
 
   /**
@@ -70,10 +85,12 @@ export class BusService {
   async findAll(
     entity: string,
     options: PaginationOptions = {},
-    filters: Record<string, any> = {},
+    filters: Record<string, any> = {}
   ): Promise<PaginatedResult<any>> {
-    const methodName = 'findAll';
-    this.logger.debug(`[${methodName}] Started - entity: ${entity}, options: ${JSON.stringify(options)}, filters: ${JSON.stringify(filters)}`);
+    const methodName = "findAll";
+    this.logger.debug(
+      `[${methodName}] Started - entity: ${entity}, options: ${JSON.stringify(options)}, filters: ${JSON.stringify(filters)}`
+    );
 
     const tableName = this.getTableName(entity);
     this.logger.debug(`[${methodName}] Resolved table name: ${tableName}`);
@@ -87,12 +104,18 @@ export class BusService {
       this.logger.debug(`[${methodName}] Hooks modified options/filters`);
     }
 
-    const result = await this.db.findAll(tableName, processedOptions.options, processedOptions.filters);
+    const result = await this.db.findAll(
+      tableName,
+      processedOptions.options,
+      processedOptions.filters
+    );
 
     // Execute afterList hooks
     await executeAfterListHooks(entity, result.data);
 
-    this.logger.log(`[${methodName}] Completed - entity: ${entity}, returned ${result.data.length} records (total: ${result.meta.total})`);
+    this.logger.log(
+      `[${methodName}] Completed - entity: ${entity}, returned ${result.data.length} records (total: ${result.meta.total})`
+    );
     return result;
   }
 
@@ -100,7 +123,7 @@ export class BusService {
    * Find a single record by ID
    */
   async findById(entity: string, id: string): Promise<any> {
-    const methodName = 'findById';
+    const methodName = "findById";
     this.logger.debug(`[${methodName}] Started - entity: ${entity}, id: ${id}`);
 
     const tableName = this.getTableName(entity);
@@ -125,7 +148,7 @@ export class BusService {
    * Create a new record
    */
   async create(entity: string, data: Record<string, any>): Promise<any> {
-    const methodName = 'create';
+    const methodName = "create";
     this.logger.log(`[${methodName}] Started - entity: ${entity}, data: ${JSON.stringify(data)}`);
 
     const tableName = this.getTableName(entity);
@@ -139,7 +162,9 @@ export class BusService {
       if (column.default_value && dataWithDefaults[column.column_name] === undefined) {
         const parsedValue = this.parseDefaultValue(column.default_value, column.sys_reference_id);
         dataWithDefaults[column.column_name] = parsedValue;
-        this.logger.debug(`[${methodName}] Applied default value for ${column.column_name}: ${JSON.stringify(parsedValue)}`);
+        this.logger.debug(
+          `[${methodName}] Applied default value for ${column.column_name}: ${JSON.stringify(parsedValue)}`
+        );
       }
     }
 
@@ -149,12 +174,14 @@ export class BusService {
       this.logger.debug(`[${methodName}] Hooks modified data`);
     }
 
-    const result = await this.db.create(tableName, processedData) as any;
+    const result = (await this.db.create(tableName, processedData)) as any;
 
     // Execute afterCreate hooks
     await executeAfterCreateHooks(entity, result);
 
-    this.logger.log(`[${methodName}] Completed - entity: ${entity}, created record with id: ${result?.id || result?.ID || 'unknown'}`);
+    this.logger.log(
+      `[${methodName}] Completed - entity: ${entity}, created record with id: ${result?.id || result?.ID || "unknown"}`
+    );
     return result;
   }
 
@@ -165,10 +192,12 @@ export class BusService {
     entity: string,
     id: string,
     data: Record<string, any>,
-    expectedVersion?: number,
+    expectedVersion?: number
   ): Promise<any> {
-    const methodName = 'update';
-    this.logger.log(`[${methodName}] Started - entity: ${entity}, id: ${id}, expectedVersion: ${expectedVersion}, data: ${JSON.stringify(data)}`);
+    const methodName = "update";
+    this.logger.log(
+      `[${methodName}] Started - entity: ${entity}, id: ${id}, expectedVersion: ${expectedVersion}, data: ${JSON.stringify(data)}`
+    );
 
     const tableName = this.getTableName(entity);
     await this.verifyEntity(entity);
@@ -179,12 +208,14 @@ export class BusService {
       this.logger.debug(`[${methodName}] Hooks modified data`);
     }
 
-    const result = await this.db.update(tableName, id, processedData, expectedVersion) as any;
+    const result = (await this.db.update(tableName, id, processedData, expectedVersion)) as any;
 
     // Execute afterUpdate hooks
     await executeAfterUpdateHooks(entity, result);
 
-    this.logger.log(`[${methodName}] Completed - entity: ${entity}, id: ${id}, version: ${result?.version || result?.VERSION || 'unknown'}`);
+    this.logger.log(
+      `[${methodName}] Completed - entity: ${entity}, id: ${id}, version: ${result?.version || result?.VERSION || "unknown"}`
+    );
     return result;
   }
 
@@ -192,7 +223,7 @@ export class BusService {
    * Soft delete a record
    */
   async softDelete(entity: string, id: string): Promise<boolean> {
-    const methodName = 'softDelete';
+    const methodName = "softDelete";
     this.logger.log(`[${methodName}] Started - entity: ${entity}, id: ${id}`);
 
     const tableName = this.getTableName(entity);
@@ -201,7 +232,9 @@ export class BusService {
     // Execute beforeDelete hooks (can prevent deletion)
     const canDelete = await executeBeforeDeleteHooks(entity, id);
     if (!canDelete) {
-      this.logger.warn(`[${methodName}] Deletion prevented by hooks - entity: ${entity}, id: ${id}`);
+      this.logger.warn(
+        `[${methodName}] Deletion prevented by hooks - entity: ${entity}, id: ${id}`
+      );
       throw new BadRequestException(`Cannot delete ${entity}: still referenced`);
     }
 
@@ -218,29 +251,35 @@ export class BusService {
    * Verify entity exists in the Application Dictionary
    */
   private async verifyEntity(entity: string): Promise<void> {
-    const methodName = 'verifyEntity';
+    const methodName = "verifyEntity";
     const tableName = this.getTableName(entity);
 
-    this.logger.debug(`[${methodName}] Checking if entity exists - entity: ${entity}, tableName: ${tableName}`);
+    this.logger.debug(
+      `[${methodName}] Checking if entity exists - entity: ${entity}, tableName: ${tableName}`
+    );
 
-    const tableRecord = await this.knex('sys_table')
-      .where('table_name', tableName)
-      .where('is_active', true)
+    const tableRecord = await this.knex("sys_table")
+      .where("table_name", tableName)
+      .where("is_active", true)
       .first();
 
     if (!tableRecord) {
-      this.logger.error(`[${methodName}] Entity not found in Application Dictionary - entity: ${entity}, tableName: ${tableName}`);
+      this.logger.error(
+        `[${methodName}] Entity not found in Application Dictionary - entity: ${entity}, tableName: ${tableName}`
+      );
       throw new NotFoundException(`Entity '${entity}' not found in Application Dictionary`);
     }
 
-    this.logger.debug(`[${methodName}] Entity verified - entity: ${entity}, tableId: ${tableRecord.sys_table_id}`);
+    this.logger.debug(
+      `[${methodName}] Entity verified - entity: ${entity}, tableId: ${tableRecord.sys_table_id}`
+    );
   }
 
   /**
    * Get entity metadata from Application Dictionary
    */
   async getEntityMetadata(entity: string): Promise<EntityMetadata> {
-    const methodName = 'getEntityMetadata';
+    const methodName = "getEntityMetadata";
     const tableName = this.getTableName(entity);
 
     this.logger.debug(`[${methodName}] Started - entity: ${entity}, tableName: ${tableName}`);
@@ -251,51 +290,62 @@ export class BusService {
       return this.metadataCache.get(tableName)!;
     }
 
-    this.logger.debug(`[${methodName}] Cache miss for tableName: ${tableName}, fetching from database`);
+    this.logger.debug(
+      `[${methodName}] Cache miss for tableName: ${tableName}, fetching from database`
+    );
 
     // Get table info
-    const table = await this.knex('sys_table')
-      .where('table_name', tableName)
-      .where('is_active', true)
+    const table = await this.knex("sys_table")
+      .where("table_name", tableName)
+      .where("is_active", true)
       .first();
 
     if (!table) {
-      this.logger.error(`[${methodName}] Table not found in sys_table - entity: ${entity}, tableName: ${tableName}`);
+      this.logger.error(
+        `[${methodName}] Table not found in sys_table - entity: ${entity}, tableName: ${tableName}`
+      );
       throw new NotFoundException(`Entity '${entity}' not found`);
     }
 
-    this.logger.debug(`[${methodName}] Found table - tableId: ${table.sys_table_id}, name: ${table.name}, hasWindow: ${!!table.sys_window_id}`);
+    this.logger.debug(
+      `[${methodName}] Found table - tableId: ${table.sys_table_id}, name: ${table.name}, hasWindow: ${!!table.sys_window_id}`
+    );
 
     // Get window info
     const window = table.sys_window_id
-      ? await this.knex('sys_window').where('sys_window_id', table.sys_window_id).first()
+      ? await this.knex("sys_window").where("sys_window_id", table.sys_window_id).first()
       : undefined;
 
     if (window) {
-      this.logger.debug(`[${methodName}] Found window - windowId: ${window.sys_window_id}, name: ${window.name}`);
+      this.logger.debug(
+        `[${methodName}] Found window - windowId: ${window.sys_window_id}, name: ${window.name}`
+      );
     }
 
     // Get columns with field metadata
-    const columns = await this.knex('sys_column')
+    const columns = await this.knex("sys_column")
       .select(
-        'sys_column.*',
-        'sys_field.sys_field_id',
-        'sys_field.seq_no',
-        'sys_field.seq_no_grid',
-        'sys_field.is_displayed',
-        'sys_field.is_displayed_grid',
-        'sys_field.is_read_only as field_is_read_only',
-        'sys_field.display_logic',
-        'sys_field.name as field_name',
+        "sys_column.*",
+        "sys_field.sys_field_id",
+        "sys_field.seq_no",
+        "sys_field.seq_no_grid",
+        "sys_field.is_displayed",
+        "sys_field.is_displayed_grid",
+        "sys_field.is_read_only as field_is_read_only",
+        "sys_field.display_logic",
+        "sys_field.name as field_name"
       )
-      .leftJoin('sys_tab', 'sys_column.sys_table_id', 'sys_tab.sys_table_id')
-      .leftJoin('sys_field', function () {
-        this.on('sys_field.sys_column_id', '=', 'sys_column.sys_column_id')
-          .andOn('sys_field.sys_tab_id', '=', 'sys_tab.sys_tab_id');
+      .leftJoin("sys_tab", "sys_column.sys_table_id", "sys_tab.sys_table_id")
+      .leftJoin("sys_field", function () {
+        this.on("sys_field.sys_column_id", "=", "sys_column.sys_column_id").andOn(
+          "sys_field.sys_tab_id",
+          "=",
+          "sys_tab.sys_tab_id"
+        );
       })
-      .where('sys_column.sys_table_id', table.sys_table_id)
-      .where('sys_column.is_active', true)
-      .orderBy('sys_column.seq_no', 'asc');
+      .where("sys_column.sys_table_id", table.sys_table_id)
+      .where("sys_column.is_active", true)
+      .orderBy("sys_column.seq_no", "asc");
 
     this.logger.debug(`[${methodName}] Found ${columns.length} columns for entity: ${entity}`);
 
@@ -334,7 +384,9 @@ export class BusService {
     this.metadataCache.set(tableName, metadata);
     this.logger.debug(`[${methodName}] Cached metadata for tableName: ${tableName}`);
 
-    this.logger.log(`[${methodName}] Completed - entity: ${entity}, loaded ${metadata.columns.length} columns`);
+    this.logger.log(
+      `[${methodName}] Completed - entity: ${entity}, loaded ${metadata.columns.length} columns`
+    );
     return metadata;
   }
 
@@ -342,7 +394,7 @@ export class BusService {
    * Get fields for form display (ordered by seq_no)
    */
   async getFormFields(entity: string): Promise<FieldMetadata[]> {
-    const methodName = 'getFormFields';
+    const methodName = "getFormFields";
     this.logger.debug(`[${methodName}] Started - entity: ${entity}`);
 
     const metadata = await this.getEntityMetadata(entity);
@@ -350,7 +402,9 @@ export class BusService {
       .filter((col) => col.is_displayed)
       .sort((a, b) => a.seq_no - b.seq_no);
 
-    this.logger.debug(`[${methodName}] Completed - entity: ${entity}, returned ${formFields.length} form fields`);
+    this.logger.debug(
+      `[${methodName}] Completed - entity: ${entity}, returned ${formFields.length} form fields`
+    );
     return formFields;
   }
 
@@ -358,7 +412,7 @@ export class BusService {
    * Get fields for grid display (ordered by seq_no_grid)
    */
   async getGridFields(entity: string): Promise<FieldMetadata[]> {
-    const methodName = 'getGridFields';
+    const methodName = "getGridFields";
     this.logger.debug(`[${methodName}] Started - entity: ${entity}`);
 
     const metadata = await this.getEntityMetadata(entity);
@@ -366,7 +420,9 @@ export class BusService {
       .filter((col) => col.is_displayed_grid)
       .sort((a, b) => a.seq_no_grid - b.seq_no_grid);
 
-    this.logger.debug(`[${methodName}] Completed - entity: ${entity}, returned ${gridFields.length} grid fields`);
+    this.logger.debug(
+      `[${methodName}] Completed - entity: ${entity}, returned ${gridFields.length} grid fields`
+    );
     return gridFields;
   }
 
@@ -376,23 +432,25 @@ export class BusService {
   async validateData(
     entity: string,
     data: Record<string, any>,
-    mode: 'create' | 'update' | 'patch',
+    mode: "create" | "update" | "patch"
   ): Promise<void> {
-    const methodName = 'validateData';
+    const methodName = "validateData";
     this.logger.log(`[${methodName}] Started - entity: ${entity}, mode: ${mode}`);
     this.logger.debug(`[${methodName}] Input data: ${JSON.stringify(data)}`);
 
     const metadata = await this.getEntityMetadata(entity);
     const errors: string[] = [];
 
-    this.logger.debug(`[${methodName}] Validating ${metadata.columns.length} columns for entity: ${entity}`);
+    this.logger.debug(
+      `[${methodName}] Validating ${metadata.columns.length} columns for entity: ${entity}`
+    );
 
     for (const column of metadata.columns) {
       const value = data[column.column_name];
 
       // Check mandatory fields (only for create and full update)
-      if (mode !== 'patch' && column.is_mandatory && !column.default_value) {
-        if (value === undefined || value === null || value === '') {
+      if (mode !== "patch" && column.is_mandatory && !column.default_value) {
+        if (value === undefined || value === null || value === "") {
           const error = `Field '${column.name}' (${column.column_name}) is required`;
           this.logger.debug(`[${methodName}] Validation error: ${error}`);
           errors.push(error);
@@ -400,7 +458,7 @@ export class BusService {
       }
 
       // Check field length
-      if (value && column.field_length && typeof value === 'string') {
+      if (value && column.field_length && typeof value === "string") {
         if (value.length > column.field_length) {
           const error = `Field '${column.name}' exceeds maximum length of ${column.field_length}`;
           this.logger.debug(`[${methodName}] Validation error: ${error}`);
@@ -409,7 +467,7 @@ export class BusService {
       }
 
       // Check updateability (for update/patch)
-      if ((mode === 'update' || mode === 'patch') && !column.is_updateable) {
+      if ((mode === "update" || mode === "patch") && !column.is_updateable) {
         if (value !== undefined && column.column_name !== `${this.getTableName(entity)}_id`) {
           const error = `Field '${column.name}' is not updateable`;
           this.logger.debug(`[${methodName}] Validation error: ${error}`);
@@ -428,10 +486,12 @@ export class BusService {
     }
 
     if (errors.length > 0) {
-      this.logger.warn(`[${methodName}] Validation failed for entity: ${entity} - ${errors.length} errors`);
+      this.logger.warn(
+        `[${methodName}] Validation failed for entity: ${entity} - ${errors.length} errors`
+      );
       this.logger.debug(`[${methodName}] Validation errors: ${JSON.stringify(errors)}`);
       throw new BadRequestException({
-        message: 'Validation failed',
+        message: "Validation failed",
         errors,
       });
     }
@@ -449,25 +509,25 @@ export class BusService {
       case 24: // URL
       case 30: // Email
       case 31: // Phone
-        if (typeof value !== 'string') {
+        if (typeof value !== "string") {
           return `Field '${fieldName}' must be a string`;
         }
         break;
 
       case 11: // Integer
-        if (typeof value !== 'number' || !Number.isInteger(value)) {
+        if (typeof value !== "number" || !Number.isInteger(value)) {
           return `Field '${fieldName}' must be an integer`;
         }
         break;
 
       case 12: // Amount/Decimal
-        if (typeof value !== 'number') {
+        if (typeof value !== "number") {
           return `Field '${fieldName}' must be a number`;
         }
         break;
 
       case 20: // Boolean
-        if (typeof value !== 'boolean') {
+        if (typeof value !== "boolean") {
           return `Field '${fieldName}' must be a boolean`;
         }
         break;
@@ -481,15 +541,17 @@ export class BusService {
 
       case 13: // UUID
       case 18: // Table reference
-      case 19: // Table direct
+      case 19: {
+        // Table direct
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-        if (typeof value !== 'string' || !uuidRegex.test(value)) {
+        if (typeof value !== "string" || !uuidRegex.test(value)) {
           return `Field '${fieldName}' must be a valid UUID`;
         }
         break;
+      }
 
       case 28: // JSON
-        if (typeof value !== 'object') {
+        if (typeof value !== "object") {
           return `Field '${fieldName}' must be a JSON object`;
         }
         break;
@@ -508,7 +570,7 @@ export class BusService {
       case 12: // Decimal
         return parseFloat(defaultValue);
       case 20: // Boolean
-        return defaultValue.toLowerCase() === 'true' || defaultValue === 'Y';
+        return defaultValue.toLowerCase() === "true" || defaultValue === "Y";
       case 28: // JSON
         try {
           return JSON.parse(defaultValue);
@@ -524,7 +586,7 @@ export class BusService {
    * Clear metadata cache (useful after dictionary changes)
    */
   clearMetadataCache(): void {
-    const methodName = 'clearMetadataCache';
+    const methodName = "clearMetadataCache";
     const cacheSize = this.metadataCache.size;
     this.metadataCache.clear();
     this.logger.log(`[${methodName}] Cleared metadata cache - removed ${cacheSize} cached entries`);

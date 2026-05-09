@@ -8,20 +8,20 @@
  * - Integration with existing sys_user table
  */
 
-import { betterAuth } from 'better-auth';
-import { kyselyAdapter } from '@better-auth/kysely-adapter';
-import { Kysely, PostgresDialect } from 'kysely';
-import * as pg from 'pg';
+import { kyselyAdapter } from "@better-auth/kysely-adapter";
+import { betterAuth } from "better-auth";
+import { Kysely, PostgresDialect } from "kysely";
+import * as pg from "pg";
 
 // Create PostgreSQL connection using kysely
 const authDb = new Kysely<unknown>({
   dialect: new PostgresDialect({
     pool: new pg.Pool({
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432', 10),
-      database: '_auth',
-      user: process.env.DB_USER || process.env.USER || 'postgres',
-      password: process.env.DB_PASSWORD || '',
+      host: process.env.DB_HOST || "localhost",
+      port: parseInt(process.env.DB_PORT || "5432", 10),
+      database: "_auth",
+      user: process.env.DB_USER || process.env.USER || "postgres",
+      password: process.env.DB_PASSWORD || "",
     }),
   }),
 });
@@ -39,7 +39,7 @@ export const auth = betterAuth({
       url: string;
       token: string;
     }) => {
-      console.log('Password reset requested for:', user.email || user.id);
+      console.log("Password reset requested for:", user.email || user.id);
       // TODO: Integrate email service
     },
     sendVerificationEmail: async ({
@@ -50,7 +50,7 @@ export const auth = betterAuth({
       url: string;
       token: string;
     }) => {
-      console.log('Verification email sent to:', user.email || user.id);
+      console.log("Verification email sent to:", user.email || user.id);
       // TODO: Integrate email service
     },
   },
@@ -70,18 +70,18 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: {
-        type: 'string',
+        type: "string",
         required: false,
-        defaultValue: 'user',
+        defaultValue: "user",
       },
       sysUserId: {
-        type: 'string',
+        type: "string",
         required: false,
       },
     },
   },
   advanced: {
-    cookiePrefix: '_app',
+    cookiePrefix: "_app",
     crossSubDomainCookies: {
       enabled: false,
     },

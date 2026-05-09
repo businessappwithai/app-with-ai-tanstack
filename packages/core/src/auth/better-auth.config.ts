@@ -70,9 +70,7 @@ export const DEFAULT_ROLES = [
   {
     name: "readonly",
     description: "Read-only access",
-    permissions: [
-      "*:read",
-    ],
+    permissions: ["*:read"],
   },
 ] as const;
 
@@ -81,8 +79,18 @@ export const DEFAULT_ROLES = [
  */
 export const ENTITY_PERMISSIONS: Record<string, string[]> = {
   patient: ["patient:read", "patient:create", "patient:update", "patient:delete"],
-  appointment: ["appointment:read", "appointment:create", "appointment:update", "appointment:delete"],
-  prescription: ["prescription:read", "prescription:create", "prescription:update", "prescription:delete"],
+  appointment: [
+    "appointment:read",
+    "appointment:create",
+    "appointment:update",
+    "appointment:delete",
+  ],
+  prescription: [
+    "prescription:read",
+    "prescription:create",
+    "prescription:update",
+    "prescription:delete",
+  ],
   invoice: ["invoice:read", "invoice:create", "invoice:update", "invoice:delete"],
   payment: ["payment:read", "payment:create", "payment:update", "payment:delete"],
 };
@@ -117,14 +125,17 @@ export function createBetterAuth(options: AuthOptions) {
     },
 
     // Social login providers (optional)
-    socialProviders: options.socialProviders?.reduce((acc, provider) => {
-      acc[provider] = {
-        enabled: true,
-        clientId: process.env[`${provider.toUpperCase()}_CLIENT_ID`] ?? "",
-        clientSecret: process.env[`${provider.toUpperCase()}_CLIENT_SECRET`] ?? "",
-      };
-      return acc;
-    }, {} as Record<string, { enabled: boolean; clientId: string; clientSecret: string }>),
+    socialProviders: options.socialProviders?.reduce(
+      (acc, provider) => {
+        acc[provider] = {
+          enabled: true,
+          clientId: process.env[`${provider.toUpperCase()}_CLIENT_ID`] ?? "",
+          clientSecret: process.env[`${provider.toUpperCase()}_CLIENT_SECRET`] ?? "",
+        };
+        return acc;
+      },
+      {} as Record<string, { enabled: boolean; clientId: string; clientSecret: string }>
+    ),
 
     // Session configuration
     session: {

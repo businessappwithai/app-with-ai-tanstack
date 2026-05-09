@@ -13,10 +13,7 @@
     "metadata": {},
     "preserveOutput": "always",
     "reporter": [
-      [
-        "html",
-        null
-      ],
+      ["html", null],
       [
         "json",
         {
@@ -45,11 +42,7 @@
         "name": "chromium",
         "testDir": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/tests/config/test",
         "testIgnore": [],
-        "testMatch": [
-          "**/*.e2e-test.ts",
-          "**/full-app-test.ts",
-          "**/comprehensive-e2e-test.ts"
-        ],
+        "testMatch": ["**/*.e2e-test.ts", "**/full-app-test.ts", "**/comprehensive-e2e-test.ts"],
         "timeout": 30000
       },
       {
@@ -61,11 +54,7 @@
         "name": "firefox",
         "testDir": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/tests/config/test",
         "testIgnore": [],
-        "testMatch": [
-          "**/*.e2e-test.ts",
-          "**/full-app-test.ts",
-          "**/comprehensive-e2e-test.ts"
-        ],
+        "testMatch": ["**/*.e2e-test.ts", "**/full-app-test.ts", "**/comprehensive-e2e-test.ts"],
         "timeout": 30000
       },
       {
@@ -77,11 +66,7 @@
         "name": "webkit",
         "testDir": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/tests/config/test",
         "testIgnore": [],
-        "testMatch": [
-          "**/*.e2e-test.ts",
-          "**/full-app-test.ts",
-          "**/comprehensive-e2e-test.ts"
-        ],
+        "testMatch": ["**/*.e2e-test.ts", "**/full-app-test.ts", "**/comprehensive-e2e-test.ts"],
         "timeout": 30000
       },
       {
@@ -93,11 +78,7 @@
         "name": "Mobile Chrome",
         "testDir": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/tests/config/test",
         "testIgnore": [],
-        "testMatch": [
-          "**/*.e2e-test.ts",
-          "**/full-app-test.ts",
-          "**/comprehensive-e2e-test.ts"
-        ],
+        "testMatch": ["**/*.e2e-test.ts", "**/full-app-test.ts", "**/comprehensive-e2e-test.ts"],
         "timeout": 30000
       },
       {
@@ -109,11 +90,7 @@
         "name": "Mobile Safari",
         "testDir": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/tests/config/test",
         "testIgnore": [],
-        "testMatch": [
-          "**/*.e2e-test.ts",
-          "**/full-app-test.ts",
-          "**/comprehensive-e2e-test.ts"
-        ],
+        "testMatch": ["**/*.e2e-test.ts", "**/full-app-test.ts", "**/comprehensive-e2e-test.ts"],
         "timeout": 30000
       }
     ],

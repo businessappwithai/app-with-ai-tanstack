@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Entity List Page
@@ -12,24 +12,30 @@
  * Generated: {{now}}
  */
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { AppLayout } from '@/components/layout/app-layout';
-import { DynamicTable } from '@/components/tables/dynamic-table';
-import { DynamicForm } from '@/components/forms/dynamic-form';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit, Trash2, Eye } from 'lucide-react';
+import { Edit, Eye, Plus, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { DynamicForm } from "@/components/forms/dynamic-form";
+import { AppLayout } from "@/components/layout/app-layout";
+import { DynamicTable } from "@/components/tables/dynamic-table";
+import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  type EntityRecord,
+  useCreateEntity,
+  useDeleteEntity,
   useEntities,
   useEntity,
-  useCreateEntity,
   useUpdateEntity,
-  useDeleteEntity,
-  type EntityRecord,
-} from '@/hooks/use-entities';
-import { toast } from 'sonner';
+} from "@/hooks/use-entities";
 
 interface EntityListPageProps {
   params: Promise<{ entity: string }>;
@@ -37,12 +43,12 @@ interface EntityListPageProps {
 
 export default function EntityListPage({ params }: EntityListPageProps) {
   // In Next.js 15, params is a Promise
-  const [entityName, setEntityName] = useState<string>('');
+  const [entityName, setEntityName] = useState<string>("");
 
   // We'll need to handle the Promise params properly
   // For now, this is a placeholder that will be resolved when the page renders
   useState(() => {
-    params.then(p => setEntityName(p.entity));
+    params.then((p) => setEntityName(p.entity));
   });
 
   if (!entityName) {
@@ -71,7 +77,7 @@ function EntityListContent({ entityName }: { entityName: string }) {
   const { data, isLoading, error } = useEntities(entityName, { page, limit: pageSize });
   const { data: selectedRecord, isLoading: isLoadingRecord } = useEntity(
     entityName,
-    selectedId || ''
+    selectedId || ""
   );
 
   // Mutations
@@ -84,9 +90,9 @@ function EntityListContent({ entityName }: { entityName: string }) {
     try {
       await createMutation.mutateAsync(data);
       setIsCreateModalOpen(false);
-      toast.success('Record created successfully');
+      toast.success("Record created successfully");
     } catch (error) {
-      toast.error('Failed to create record');
+      toast.error("Failed to create record");
       console.error(error);
     }
   };
@@ -102,24 +108,24 @@ function EntityListContent({ entityName }: { entityName: string }) {
       });
       setIsEditModalOpen(false);
       setSelectedId(null);
-      toast.success('Record updated successfully');
+      toast.success("Record updated successfully");
     } catch (error) {
-      toast.error('Failed to update record');
+      toast.error("Failed to update record");
       console.error(error);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this record?')) return;
+    if (!confirm("Are you sure you want to delete this record?")) return;
 
     try {
       await deleteMutation.mutateAsync(id);
       if (selectedId === id) {
         setSelectedId(null);
       }
-      toast.success('Record deleted successfully');
+      toast.success("Record deleted successfully");
     } catch (error) {
-      toast.error('Failed to delete record');
+      toast.error("Failed to delete record");
       console.error(error);
     }
   };
@@ -144,9 +150,9 @@ function EntityListContent({ entityName }: { entityName: string }) {
 
   // Format entity name for display
   const displayEntityName = entityName
-    .split('-')
+    .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .join(" ");
 
   return (
     <AppLayout>
@@ -200,10 +206,13 @@ function EntityListContent({ entityName }: { entityName: string }) {
         </Dialog>
 
         {/* Edit Modal */}
-        <Dialog open={isEditModalOpen} onOpenChange={(open) => {
-          setIsEditModalOpen(open);
-          if (!open) setSelectedId(null);
-        }}>
+        <Dialog
+          open={isEditModalOpen}
+          onOpenChange={(open) => {
+            setIsEditModalOpen(open);
+            if (!open) setSelectedId(null);
+          }}
+        >
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edit Record</DialogTitle>
@@ -224,16 +233,17 @@ function EntityListContent({ entityName }: { entityName: string }) {
         </Dialog>
 
         {/* View Modal */}
-        <Dialog open={isViewModalOpen} onOpenChange={(open) => {
-          setIsViewModalOpen(open);
-          if (!open) setSelectedId(null);
-        }}>
+        <Dialog
+          open={isViewModalOpen}
+          onOpenChange={(open) => {
+            setIsViewModalOpen(open);
+            if (!open) setSelectedId(null);
+          }}
+        >
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>View Record</DialogTitle>
-              <DialogDescription>
-                {displayEntityName} record details.
-              </DialogDescription>
+              <DialogDescription>{displayEntityName} record details.</DialogDescription>
             </DialogHeader>
             {!isLoadingRecord && selectedRecord && (
               <Tabs defaultValue="details" className="w-full">
@@ -254,10 +264,12 @@ function EntityListContent({ entityName }: { entityName: string }) {
                     <p className="text-sm text-muted-foreground">
                       Switch to Edit mode to modify this record.
                     </p>
-                    <Button onClick={() => {
-                      setIsViewModalOpen(false);
-                      setIsEditModalOpen(true);
-                    }}>
+                    <Button
+                      onClick={() => {
+                        setIsViewModalOpen(false);
+                        setIsEditModalOpen(true);
+                      }}
+                    >
                       <Edit className="mr-2 h-4 w-4" />
                       Edit Record
                     </Button>

@@ -5,7 +5,7 @@
  * Generated: 2026-05-06T11:42:08.721Z
  */
 
-import { Hook, HookLifecycle } from './hook.types';
+import type { Hook, HookLifecycle } from "./hook.types";
 
 export class HookRegistry {
   private hooks: Map<string, Hook[]> = new Map();
@@ -27,10 +27,10 @@ export class HookRegistry {
 
   clear(entityName?: string): void {
     if (entityName) {
-      const keysToDelete = Array.from(this.hooks.keys()).filter(key =>
+      const keysToDelete = Array.from(this.hooks.keys()).filter((key) =>
         key.startsWith(`${entityName}:`)
       );
-      keysToDelete.forEach(key => this.hooks.delete(key));
+      keysToDelete.forEach((key) => this.hooks.delete(key));
     } else {
       this.hooks.clear();
     }

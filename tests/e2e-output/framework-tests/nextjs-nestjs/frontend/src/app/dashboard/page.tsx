@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Dashboard Page - Swiss Clean Design
@@ -12,27 +12,27 @@
  * Project: nextjs-nestjs-test-app
  */
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api-client';
+import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
-  ArrowRight,
-  FileText,
-  Search,
-  Settings,
-  Loader2,
   AlertCircle,
-  User,
+  ArrowRight,
   Database,
   Eye,
   FileJson,
+  FileText,
+  Loader2,
+  Search,
+  Settings,
   TrendingUp,
+  User,
   X,
-} from 'lucide-react';
-import { Icon } from '@/components/ui/icon';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { Icon } from "@/components/ui/icon";
+import { apiClient } from "@/lib/api-client";
+import { cn } from "@/lib/utils";
 
 interface TableMetadata {
   sys_table_id: string;
@@ -61,9 +61,9 @@ interface TablesResponse {
  */
 function useBusTables() {
   return useQuery({
-    queryKey: ['sys-tables', 'bus_'],
+    queryKey: ["sys-tables", "bus_"],
     queryFn: async () => {
-      const response = await apiClient.get<TablesResponse>('/api/sys/tables?prefix=bus_');
+      const response = await apiClient.get<TablesResponse>("/api/sys/tables?prefix=bus_");
       return response;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes - table metadata rarely changes
@@ -76,19 +76,19 @@ function useBusTables() {
 function AttributeBadge({
   icon: Icon,
   label,
-  variant = 'default',
+  variant = "default",
 }: {
   icon: any;
   label: string;
-  variant?: 'default' | 'outline';
+  variant?: "default" | "outline";
 }) {
   return (
     <div
       className={cn(
-        'flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium',
-        variant === 'default'
-          ? 'bg-primary/10 text-primary border border-primary/20'
-          : 'bg-muted/50 text-muted-foreground border border-border/50'
+        "flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium",
+        variant === "default"
+          ? "bg-primary/10 text-primary border border-primary/20"
+          : "bg-muted/50 text-muted-foreground border border-border/50"
       )}
       title={label}
     >
@@ -105,13 +105,13 @@ function AttributeBadge({
 function QuickAccessCard({ table }: { table: TableMetadata }) {
   const attributes = [];
   if (table.is_view) {
-    attributes.push({ icon: Eye, label: 'View' });
+    attributes.push({ icon: Eye, label: "View" });
   }
   if (table.is_document) {
-    attributes.push({ icon: FileJson, label: 'Document' });
+    attributes.push({ icon: FileJson, label: "Document" });
   }
   if (table.is_high_volume) {
-    attributes.push({ icon: TrendingUp, label: 'High Volume' });
+    attributes.push({ icon: TrendingUp, label: "High Volume" });
   }
 
   return (
@@ -135,9 +135,7 @@ function QuickAccessCard({ table }: { table: TableMetadata }) {
               <h3 className="font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
                 {table.name}
               </h3>
-              <p className="text-xs text-muted-foreground font-mono mt-0.5">
-                {table.table_name}
-              </p>
+              <p className="text-xs text-muted-foreground font-mono mt-0.5">{table.table_name}</p>
             </div>
           </div>
           <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
@@ -145,20 +143,13 @@ function QuickAccessCard({ table }: { table: TableMetadata }) {
 
         {/* Description from sys_table */}
         {table.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {table.description}
-          </p>
+          <p className="text-sm text-muted-foreground line-clamp-2">{table.description}</p>
         )}
 
         {/* Metadata badges */}
         <div className="flex flex-wrap gap-2">
           {attributes.map((attr, idx) => (
-            <AttributeBadge
-              key={idx}
-              icon={attr.icon}
-              label={attr.label}
-              variant="outline"
-            />
+            <AttributeBadge key={idx} icon={attr.icon} label={attr.label} variant="outline" />
           ))}
           {table.entity_type && (
             <AttributeBadge
@@ -172,9 +163,7 @@ function QuickAccessCard({ table }: { table: TableMetadata }) {
         {/* Footer action */}
         <div className="flex items-center justify-between pt-2 border-t border-border/50">
           <span className="text-xs text-muted-foreground">Manage records</span>
-          <span className="text-xs text-primary font-medium group-hover:underline">
-            Open →
-          </span>
+          <span className="text-xs text-primary font-medium group-hover:underline">Open →</span>
         </div>
       </div>
     </Link>
@@ -183,7 +172,7 @@ function QuickAccessCard({ table }: { table: TableMetadata }) {
 
 export default function DashboardPage() {
   const { data: tablesData, isLoading: tablesLoading, error: tablesError } = useBusTables();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const tables = tablesData?.data ?? [];
   const totalEntities = tablesData?.meta?.total ?? 0;
@@ -201,7 +190,7 @@ export default function DashboardPage() {
     : tables;
 
   const handleClearSearch = () => {
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   return (
@@ -214,9 +203,7 @@ export default function DashboardPage() {
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                 <Activity className="w-4 h-4 text-primary-foreground" />
               </div>
-              <h1 className="text-xl font-semibold text-foreground">
-                nextjs-nestjs-test-app
-              </h1>
+              <h1 className="text-xl font-semibold text-foreground">nextjs-nestjs-test-app</h1>
             </div>
             <div className="flex items-center gap-4">
               <div className="relative">
@@ -286,12 +273,12 @@ export default function DashboardPage() {
               <div className="swiss-card p-12 text-center">
                 <Search className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
                 <p className="font-medium text-foreground">
-                  {searchQuery ? 'No entities match your search' : 'No entities registered'}
+                  {searchQuery ? "No entities match your search" : "No entities registered"}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
                   {searchQuery
-                    ? 'Try a different search term or clear the search'
-                    : 'Configure entities in the Application Dictionary to get started'}
+                    ? "Try a different search term or clear the search"
+                    : "Configure entities in the Application Dictionary to get started"}
                 </p>
               </div>
             ) : (
@@ -309,16 +296,12 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-display text-sm font-medium text-foreground mb-1">
-                {totalEntities} registered {totalEntities === 1 ? 'entity' : 'entities'}
+                {totalEntities} registered {totalEntities === 1 ? "entity" : "entities"}
               </h3>
-              <p className="text-xs text-muted-foreground">
-                Generated: 2026-03-20T16:41:26.606Z
-              </p>
+              <p className="text-xs text-muted-foreground">Generated: 2026-03-20T16:41:26.606Z</p>
             </div>
             <Link href="/admin">
-              <button className="text-sm text-primary hover:underline">
-                Configure fields →
-              </button>
+              <button className="text-sm text-primary hover:underline">Configure fields →</button>
             </Link>
           </div>
         </div>

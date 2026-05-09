@@ -1,1 +1,145 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_run_migration_ts", "label": "run-migration.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L1"}, {"id": "run_migration_runmigrations", "label": "runMigrations()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L4"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_run_migration_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L1", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_run_migration_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_knexfile_ts", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L2", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_run_migration_ts", "target": "run_migration_runmigrations", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L4", "weight": 1.0}], "raw_calls": [{"caller_nid": "run_migration_runmigrations", "callee": "knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L5"}, {"caller_nid": "run_migration_runmigrations", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L8"}, {"caller_nid": "run_migration_runmigrations", "callee": "latest", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L11"}, {"caller_nid": "run_migration_runmigrations", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L12"}, {"caller_nid": "run_migration_runmigrations", "callee": "raw", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L15"}, {"caller_nid": "run_migration_runmigrations", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L17"}, {"caller_nid": "run_migration_runmigrations", "callee": "select", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L20"}, {"caller_nid": "run_migration_runmigrations", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L20"}, {"caller_nid": "run_migration_runmigrations", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L21"}, {"caller_nid": "run_migration_runmigrations", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L22"}, {"caller_nid": "run_migration_runmigrations", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L22"}, {"caller_nid": "run_migration_runmigrations", "callee": "destroy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L25"}, {"caller_nid": "run_migration_runmigrations", "callee": "exit", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L26"}, {"caller_nid": "run_migration_runmigrations", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L28"}, {"caller_nid": "run_migration_runmigrations", "callee": "destroy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L29"}, {"caller_nid": "run_migration_runmigrations", "callee": "exit", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts", "source_location": "L30"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_run_migration_ts",
+      "label": "run-migration.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "run_migration_runmigrations",
+      "label": "runMigrations()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L4"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_run_migration_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_run_migration_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_knexfile_ts",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_run_migration_ts",
+      "target": "run_migration_runmigrations",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L5"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L8"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "latest",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L11"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L12"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "raw",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L15"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L17"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "select",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L22"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L22"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "destroy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L25"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "exit",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "destroy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "run_migration_runmigrations",
+      "callee": "exit",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/run-migration.ts",
+      "source_location": "L30"
+    }
+  ]
+}

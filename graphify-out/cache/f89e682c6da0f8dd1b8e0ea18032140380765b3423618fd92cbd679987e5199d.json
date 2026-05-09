@@ -1,1 +1,155 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts", "label": "use-field-metadata.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L1"}, {"id": "use_field_metadata_usefieldmetadata", "label": "useFieldMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L57"}, {"id": "use_field_metadata_usetablecolumns", "label": "useTableColumns()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L83"}, {"id": "use_field_metadata_useupdatefieldorder", "label": "useUpdateFieldOrder()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L100"}, {"id": "use_field_metadata_usetogglefieldvisibility", "label": "useToggleFieldVisibility()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L119"}, {"id": "use_field_metadata_usereferencetypes", "label": "useReferenceTypes()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L137"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts", "target": "react_query", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts", "target": "api_client", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts", "target": "use_field_metadata_usefieldmetadata", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L57", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts", "target": "use_field_metadata_usetablecolumns", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L83", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts", "target": "use_field_metadata_useupdatefieldorder", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L100", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts", "target": "use_field_metadata_usetogglefieldvisibility", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L119", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts", "target": "use_field_metadata_usereferencetypes", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L137", "weight": 1.0}], "raw_calls": [{"caller_nid": "use_field_metadata_usefieldmetadata", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L58"}, {"caller_nid": "use_field_metadata_usetablecolumns", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L84"}, {"caller_nid": "use_field_metadata_useupdatefieldorder", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L101"}, {"caller_nid": "use_field_metadata_useupdatefieldorder", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L103"}, {"caller_nid": "use_field_metadata_usetogglefieldvisibility", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L120"}, {"caller_nid": "use_field_metadata_usetogglefieldvisibility", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L122"}, {"caller_nid": "use_field_metadata_usereferencetypes", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts", "source_location": "L138"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts",
+      "label": "use-field-metadata.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "use_field_metadata_usefieldmetadata",
+      "label": "useFieldMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L57"
+    },
+    {
+      "id": "use_field_metadata_usetablecolumns",
+      "label": "useTableColumns()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L83"
+    },
+    {
+      "id": "use_field_metadata_useupdatefieldorder",
+      "label": "useUpdateFieldOrder()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L100"
+    },
+    {
+      "id": "use_field_metadata_usetogglefieldvisibility",
+      "label": "useToggleFieldVisibility()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L119"
+    },
+    {
+      "id": "use_field_metadata_usereferencetypes",
+      "label": "useReferenceTypes()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L137"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts",
+      "target": "react_query",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts",
+      "target": "api_client",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts",
+      "target": "use_field_metadata_usefieldmetadata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts",
+      "target": "use_field_metadata_usetablecolumns",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts",
+      "target": "use_field_metadata_useupdatefieldorder",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L100",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts",
+      "target": "use_field_metadata_usetogglefieldvisibility",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L119",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_field_metadata_ts",
+      "target": "use_field_metadata_usereferencetypes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L137",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "use_field_metadata_usefieldmetadata",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "use_field_metadata_usetablecolumns",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "use_field_metadata_useupdatefieldorder",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "use_field_metadata_useupdatefieldorder",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "use_field_metadata_usetogglefieldvisibility",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L120"
+    },
+    {
+      "caller_nid": "use_field_metadata_usetogglefieldvisibility",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "use_field_metadata_usereferencetypes",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-field-metadata.ts",
+      "source_location": "L138"
+    }
+  ]
+}

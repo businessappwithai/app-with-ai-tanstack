@@ -5,11 +5,11 @@
  * Provides test utilities, fixtures, and database setup
  */
 
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-import Knex from 'knex';
-import knexConfig from '../knexfile';
+import { INestApplication } from "@nestjs/common";
+import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/platform-fastify";
+import { Test, type TestingModule } from "@nestjs/testing";
+import Knex from "knex";
+import knexConfig from "../knexfile";
 
 // Test database instance
 let testDb: Knex.Knex;
@@ -23,16 +23,16 @@ let testApp: NestFastifyApplication;
 export async function initTestDatabase(): Promise<Knex.Knex> {
   if (!testDb) {
     testDb = Knex({
-      client: 'better-sqlite3',
+      client: "better-sqlite3",
       connection: {
-        filename: ':memory:',
+        filename: ":memory:",
       },
       useNullAsDefault: true,
       migrations: {
-        directory: './migrations',
+        directory: "./migrations",
       },
       seeds: {
-        directory: './seeds',
+        directory: "./seeds",
       },
     });
 
@@ -66,9 +66,7 @@ export async function createTestApp(module: any): Promise<NestFastifyApplication
     imports: [module],
   }).compile();
 
-  const app = moduleFixture.createNestApplication<NestFastifyApplication>(
-    new FastifyAdapter()
-  );
+  const app = moduleFixture.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
 
   await app.init();
   await app.getHttpAdapter().getInstance().ready();
@@ -89,9 +87,9 @@ export async function closeTestApp(app: NestFastifyApplication): Promise<void> {
  * Generate test UUID
  */
 export function generateTestId(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
@@ -106,12 +104,12 @@ export const TestDataFactory = {
   createCUSTOMER(overrides: Partial<any> = {}): any {
     return {
       id: generateTestId(),
-      name: 'Test Name',
-      email: 'Test Email',
-      phone: 'Test Phone',
-      city: 'Test City',
-      status: 'Test Status',
-      created_at: '2024-01-15',
+      name: "Test Name",
+      email: "Test Email",
+      phone: "Test Phone",
+      city: "Test City",
+      status: "Test Status",
+      created_at: "2024-01-15",
       ...overrides,
     };
   },
@@ -122,10 +120,10 @@ export const TestDataFactory = {
   createORDER(overrides: Partial<any> = {}): any {
     return {
       id: generateTestId(),
-      customer_id: 'Test Customer Id',
-      order_date: '2024-01-15',
+      customer_id: "Test Customer Id",
+      order_date: "2024-01-15",
       total_amount: 10.99,
-      status: 'Test Status',
+      status: "Test Status",
       created_at: new Date().toISOString(),
       ...overrides,
     };
@@ -137,8 +135,8 @@ export const TestDataFactory = {
   createORDERITEM(overrides: Partial<any> = {}): any {
     return {
       id: generateTestId(),
-      order_id: 'Test Order Id',
-      product_id: 'Test Product Id',
+      order_id: "Test Order Id",
+      product_id: "Test Product Id",
       quantity: 1,
       unit_price: 10.99,
       line_total: 10.99,
@@ -152,16 +150,15 @@ export const TestDataFactory = {
   createPRODUCT(overrides: Partial<any> = {}): any {
     return {
       id: generateTestId(),
-      name: 'Test Name',
-      description: 'Test Description',
+      name: "Test Name",
+      description: "Test Description",
       price: 10.99,
       stock_quantity: 1,
-      category: 'Test Category',
+      category: "Test Category",
       is_active: true,
       ...overrides,
     };
   },
-
 };
 
 /**
@@ -171,10 +168,10 @@ export async function cleanupTestData(): Promise<void> {
   const db = await initTestDatabase();
 
   // Delete in reverse order of dependencies
-  await db('bus_customer').del();
-  await db('bus_order').del();
-  await db('bus_order_item').del();
-  await db('bus_product').del();
+  await db("bus_customer").del();
+  await db("bus_order").del();
+  await db("bus_order_item").del();
+  await db("bus_product").del();
 }
 
 /**

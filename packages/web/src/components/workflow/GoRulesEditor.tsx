@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "@gorules/jdm-editor/dist/style.css";
 import { DecisionGraph, JdmConfigProvider } from "@gorules/jdm-editor";
 
@@ -41,17 +41,14 @@ export function GoRulesEditor({
   return (
     <div className={`w-full h-full ${className}`}>
       <JdmConfigProvider>
-        <DecisionGraph
-          value={value}
-          onChange={handleChange}
-          disabled={readOnly}
-        />
+        <DecisionGraph value={value} onChange={handleChange} disabled={readOnly} />
       </JdmConfigProvider>
     </div>
   );
 }
 
 import { parseEntityAttribute } from "./parseEntityAttribute";
+
 export { parseEntityAttribute };
 
 function createInputNode(fields: Array<{ name: string; type: string; entity: string }>) {
@@ -131,11 +128,7 @@ function createDefaultModel(entities: Array<{ name: string; attributes: string[]
 
   return {
     name: "Business Rules",
-    nodes: [
-      createInputNode(inputFields),
-      createDecisionNode(),
-      createOutputNode(inputFields),
-    ],
+    nodes: [createInputNode(inputFields), createDecisionNode(), createOutputNode(inputFields)],
     edges: [
       createEdge("input-decision", "input", "decision"),
       createEdge("decision-output", "decision", "output"),

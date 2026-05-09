@@ -1,1 +1,129 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_contexts_auth_context_tsx", "label": "auth-context.tsx", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L1"}, {"id": "auth_context_authprovider", "label": "AuthProvider()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L64"}, {"id": "auth_context_useauth", "label": "useAuth()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L167"}, {"id": "auth_context_withauth", "label": "withAuth()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L185"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_contexts_auth_context_tsx", "target": "react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_contexts_auth_context_tsx", "target": "auth_context_authprovider", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L64", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_contexts_auth_context_tsx", "target": "auth_context_useauth", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L167", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_contexts_auth_context_tsx", "target": "auth_context_withauth", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L185", "weight": 1.0}, {"source": "auth_context_withauth", "target": "auth_context_useauth", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L190", "weight": 1.0}], "raw_calls": [{"caller_nid": "auth_context_authprovider", "callee": "useState", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L65"}, {"caller_nid": "auth_context_authprovider", "callee": "useState", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L66"}, {"caller_nid": "auth_context_authprovider", "callee": "useState", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L67"}, {"caller_nid": "auth_context_authprovider", "callee": "useEffect", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L70"}, {"caller_nid": "auth_context_authprovider", "callee": "useEffect", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L90"}, {"caller_nid": "auth_context_useauth", "callee": "useContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L168"}, {"caller_nid": "auth_context_withauth", "callee": "isAdmin", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L208"}, {"caller_nid": "auth_context_withauth", "callee": "hasAnyRole", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx", "source_location": "L219"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_contexts_auth_context_tsx",
+      "label": "auth-context.tsx",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "auth_context_authprovider",
+      "label": "AuthProvider()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L64"
+    },
+    {
+      "id": "auth_context_useauth",
+      "label": "useAuth()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L167"
+    },
+    {
+      "id": "auth_context_withauth",
+      "label": "withAuth()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L185"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_contexts_auth_context_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_contexts_auth_context_tsx",
+      "target": "auth_context_authprovider",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L64",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_contexts_auth_context_tsx",
+      "target": "auth_context_useauth",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L167",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_contexts_auth_context_tsx",
+      "target": "auth_context_withauth",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L185",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_context_withauth",
+      "target": "auth_context_useauth",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L190",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "auth_context_authprovider",
+      "callee": "useState",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "auth_context_authprovider",
+      "callee": "useState",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "auth_context_authprovider",
+      "callee": "useState",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "auth_context_authprovider",
+      "callee": "useEffect",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "auth_context_authprovider",
+      "callee": "useEffect",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "auth_context_useauth",
+      "callee": "useContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L168"
+    },
+    {
+      "caller_nid": "auth_context_withauth",
+      "callee": "isAdmin",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L208"
+    },
+    {
+      "caller_nid": "auth_context_withauth",
+      "callee": "hasAnyRole",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L219"
+    }
+  ]
+}

@@ -1,1 +1,270 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_generate_route_ts", "label": "route.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L1"}, {"id": "route_generatehookcode", "label": "generateHookCode()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L13"}, {"id": "route_post", "label": "POST()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L92"}, {"id": "route_get", "label": "GET()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L186"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_generate_route_ts", "target": "server", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L1", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_generate_route_ts", "target": "path", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L2", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_generate_route_ts", "target": "promises", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L3", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_generate_route_ts", "target": "route_generatehookcode", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_generate_route_ts", "target": "route_post", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L92", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_generate_route_ts", "target": "route_get", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L186", "weight": 1.0}], "raw_calls": [{"caller_nid": "route_generatehookcode", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L23"}, {"caller_nid": "route_generatehookcode", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L23"}, {"caller_nid": "route_generatehookcode", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L31"}, {"caller_nid": "route_generatehookcode", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L33"}, {"caller_nid": "route_generatehookcode", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L40"}, {"caller_nid": "route_generatehookcode", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L57"}, {"caller_nid": "route_generatehookcode", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L59"}, {"caller_nid": "route_generatehookcode", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L59"}, {"caller_nid": "route_generatehookcode", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L59"}, {"caller_nid": "route_generatehookcode", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L72"}, {"caller_nid": "route_post", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L100"}, {"caller_nid": "route_post", "callee": "isArray", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L103"}, {"caller_nid": "route_post", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L104"}, {"caller_nid": "route_post", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L113"}, {"caller_nid": "route_post", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L114"}, {"caller_nid": "route_post", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L119"}, {"caller_nid": "route_post", "callee": "mkdir", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L124"}, {"caller_nid": "route_post", "callee": "all", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L127"}, {"caller_nid": "route_post", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L128"}, {"caller_nid": "route_post", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L156"}, {"caller_nid": "route_post", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L160"}, {"caller_nid": "route_post", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L161"}, {"caller_nid": "route_post", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L163"}, {"caller_nid": "route_post", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L170"}, {"caller_nid": "route_post", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L171"}, {"caller_nid": "route_get", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L192"}, {"caller_nid": "route_get", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L194"}, {"caller_nid": "route_get", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L214"}, {"caller_nid": "route_get", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L217"}, {"caller_nid": "route_get", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts", "source_location": "L218"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_generate_route_ts",
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "route_generatehookcode",
+      "label": "generateHookCode()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L13"
+    },
+    {
+      "id": "route_post",
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L92"
+    },
+    {
+      "id": "route_get",
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L186"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_generate_route_ts",
+      "target": "server",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_generate_route_ts",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_generate_route_ts",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_generate_route_ts",
+      "target": "route_generatehookcode",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_generate_route_ts",
+      "target": "route_post",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_generate_route_ts",
+      "target": "route_get",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L186",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "route_generatehookcode",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "route_generatehookcode",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "route_generatehookcode",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "route_generatehookcode",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "route_generatehookcode",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "route_generatehookcode",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "route_generatehookcode",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "route_generatehookcode",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "route_generatehookcode",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "route_generatehookcode",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "isArray",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L104"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "mkdir",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "all",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L156"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L160"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L163"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L170"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L192"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L194"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L214"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L217"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/generate/route.ts",
+      "source_location": "L218"
+    }
+  ]
+}

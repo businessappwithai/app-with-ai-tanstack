@@ -16,7 +16,7 @@
         "inputs": [
           { "id": "i1", "name": "Deal Id", "field": "deal_id" },
           { "id": "i2", "name": "Quote Number", "field": "quote_number" },
-          { "id": "i3", "name": "Status", "field": "status" },
+          { "id": "i3", "name": "Status", "field": "status" }
         ],
         "outputs": [
           { "id": "o1", "name": "Action", "field": "action" },
@@ -72,7 +72,7 @@
             "o1": "prevent",
             "o2": "Total Amount is required",
             "o3": "bus_quote-total_amount-required"
-          },
+          }
         ]
       }
     },

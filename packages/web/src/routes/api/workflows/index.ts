@@ -1,0 +1,36 @@
+import { createAPIFileRoute } from "@tanstack/start/api";
+import { getDatabase } from "@erdwithai/core/services";
+
+export const Route = createAPIFileRoute("/api/workflows")({
+  GET: async ({ request }) => {
+    try {
+      const url = new URL(request.url);
+      const status = url.searchParams.get("status");
+      const entity = url.searchParams.get("entity");
+
+      const db = getDatabase();
+      let query = db.selectFrom("workflows").selectAll();
+
+      if (status) {
+        query = query.where("status", "=", status);
+      }
+
+      if (entity) {
+        // Note: 'entity' filter may need adjustment based on actual schema
+        // The original used entity_name field which doesn't exist in current schema
+      }
+
+      const workflows = await query.orderBy("created_at", "desc").limit(100).execute();
+
+      return new Response(JSON.stringify({ workflows }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      console.error("Error fetching workflows:", error);
+      return new Response(JSON.stringify({ error: "Failed to fetch workflows" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  },
+});

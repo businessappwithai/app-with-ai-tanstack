@@ -10,7 +10,7 @@
  * Project: crm-app
  */
 
-import { task } from '@trigger.dev/sdk/v3';
+import { task } from "@trigger.dev/sdk/v3";
 
 export interface EmailTaskPayload {
   to: string;
@@ -20,7 +20,7 @@ export interface EmailTaskPayload {
 }
 
 export const sendEmailTask = task({
-  id: 'send-email',
+  id: "send-email",
   maxDuration: 60,
   retry: {
     maxAttempts: 3,

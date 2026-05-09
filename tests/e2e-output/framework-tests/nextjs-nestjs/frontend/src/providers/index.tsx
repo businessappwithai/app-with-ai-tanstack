@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Application Providers
@@ -15,11 +15,11 @@
  * Generated: 2026-03-20T16:41:26.606Z
  */
 
-import { type ReactNode } from 'react';
-import { QueryProvider } from './query-provider';
-import { AuthProvider } from '@/contexts/auth-context';
-import { TranslationProvider } from '@/lib/translations';
-import { Toaster } from 'sonner';
+import type { ReactNode } from "react";
+import { Toaster } from "sonner";
+import { AuthProvider } from "@/contexts/auth-context";
+import { TranslationProvider } from "@/lib/translations";
+import { QueryProvider } from "./query-provider";
 
 interface ProvidersProps {
   children: ReactNode;

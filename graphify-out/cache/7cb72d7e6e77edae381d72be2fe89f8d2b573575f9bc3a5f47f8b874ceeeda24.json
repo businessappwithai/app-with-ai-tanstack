@@ -1,1 +1,304 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_orchestrator_ts", "label": "orchestrator.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L1"}, {"id": "orchestrator_generatororchestrator", "label": "GeneratorOrchestrator", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L48"}, {"id": "orchestrator_generatororchestrator_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L52"}, {"id": "orchestrator_generatororchestrator_generate", "label": ".generate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L64"}, {"id": "orchestrator_generatororchestrator_generatedictionary", "label": ".generateDictionary()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L122"}, {"id": "orchestrator_generatororchestrator_getavailablestacks", "label": ".getAvailableStacks()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L132"}, {"id": "orchestrator_generatororchestrator_getstackdescription", "label": ".getStackDescription()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L147"}, {"id": "orchestrator_generatororchestrator_collectgeneratedfiles", "label": ".collectGeneratedFiles()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L158"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_orchestrator_ts", "target": "promises", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_orchestrator_ts", "target": "path", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_orchestrator_ts", "target": "types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_orchestrator_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_dictionary_generator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_orchestrator_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_full_stack_generator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_orchestrator_ts", "target": "orchestrator_generatororchestrator", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L48", "weight": 1.0}, {"source": "orchestrator_generatororchestrator", "target": "orchestrator_generatororchestrator_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L52", "weight": 1.0}, {"source": "orchestrator_generatororchestrator", "target": "orchestrator_generatororchestrator_generate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L64", "weight": 1.0}, {"source": "orchestrator_generatororchestrator", "target": "orchestrator_generatororchestrator_generatedictionary", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L122", "weight": 1.0}, {"source": "orchestrator_generatororchestrator", "target": "orchestrator_generatororchestrator_getavailablestacks", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L132", "weight": 1.0}, {"source": "orchestrator_generatororchestrator", "target": "orchestrator_generatororchestrator_getstackdescription", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L147", "weight": 1.0}, {"source": "orchestrator_generatororchestrator", "target": "orchestrator_generatororchestrator_collectgeneratedfiles", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L158", "weight": 1.0}, {"source": "orchestrator_generatororchestrator_generate", "target": "orchestrator_generatororchestrator_getstackdescription", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L68", "weight": 1.0}, {"source": "orchestrator_generatororchestrator_generate", "target": "orchestrator_generatororchestrator_collectgeneratedfiles", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L102", "weight": 1.0}], "raw_calls": [{"caller_nid": "orchestrator_generatororchestrator_generate", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L68"}, {"caller_nid": "orchestrator_generatororchestrator_generate", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L69"}, {"caller_nid": "orchestrator_generatororchestrator_generate", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L70"}, {"caller_nid": "orchestrator_generatororchestrator_generate", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L71"}, {"caller_nid": "orchestrator_generatororchestrator_generate", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L72"}, {"caller_nid": "orchestrator_generatororchestrator_generate", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L75"}, {"caller_nid": "orchestrator_generatororchestrator_generate", "callee": "generateDictionaryContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L76"}, {"caller_nid": "orchestrator_generatororchestrator_generate", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L80"}, {"caller_nid": "orchestrator_generatororchestrator_generate", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L81"}, {"caller_nid": "orchestrator_generatororchestrator_generate", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L82"}, {"caller_nid": "orchestrator_generatororchestrator_generate", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L83"}, {"caller_nid": "orchestrator_generatororchestrator_generate", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L113"}, {"caller_nid": "orchestrator_generatororchestrator_generate", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L114"}, {"caller_nid": "orchestrator_generatororchestrator_generatedictionary", "callee": "generateDictionaryContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L126"}, {"caller_nid": "orchestrator_generatororchestrator_collectgeneratedfiles", "callee": "readdir", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L161"}, {"caller_nid": "orchestrator_generatororchestrator_collectgeneratedfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L163"}, {"caller_nid": "orchestrator_generatororchestrator_collectgeneratedfiles", "callee": "isDirectory", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L164"}, {"caller_nid": "orchestrator_generatororchestrator_collectgeneratedfiles", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L166"}, {"caller_nid": "orchestrator_generatororchestrator_collectgeneratedfiles", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts", "source_location": "L168"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_orchestrator_ts",
+      "label": "orchestrator.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "orchestrator_generatororchestrator",
+      "label": "GeneratorOrchestrator",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L48"
+    },
+    {
+      "id": "orchestrator_generatororchestrator_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L52"
+    },
+    {
+      "id": "orchestrator_generatororchestrator_generate",
+      "label": ".generate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L64"
+    },
+    {
+      "id": "orchestrator_generatororchestrator_generatedictionary",
+      "label": ".generateDictionary()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L122"
+    },
+    {
+      "id": "orchestrator_generatororchestrator_getavailablestacks",
+      "label": ".getAvailableStacks()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L132"
+    },
+    {
+      "id": "orchestrator_generatororchestrator_getstackdescription",
+      "label": ".getStackDescription()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L147"
+    },
+    {
+      "id": "orchestrator_generatororchestrator_collectgeneratedfiles",
+      "label": ".collectGeneratedFiles()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L158"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_orchestrator_ts",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_orchestrator_ts",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_orchestrator_ts",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_orchestrator_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_dictionary_generator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_orchestrator_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_full_stack_generator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_orchestrator_ts",
+      "target": "orchestrator_generatororchestrator",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "orchestrator_generatororchestrator",
+      "target": "orchestrator_generatororchestrator_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "orchestrator_generatororchestrator",
+      "target": "orchestrator_generatororchestrator_generate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L64",
+      "weight": 1.0
+    },
+    {
+      "source": "orchestrator_generatororchestrator",
+      "target": "orchestrator_generatororchestrator_generatedictionary",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L122",
+      "weight": 1.0
+    },
+    {
+      "source": "orchestrator_generatororchestrator",
+      "target": "orchestrator_generatororchestrator_getavailablestacks",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L132",
+      "weight": 1.0
+    },
+    {
+      "source": "orchestrator_generatororchestrator",
+      "target": "orchestrator_generatororchestrator_getstackdescription",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "orchestrator_generatororchestrator",
+      "target": "orchestrator_generatororchestrator_collectgeneratedfiles",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L158",
+      "weight": 1.0
+    },
+    {
+      "source": "orchestrator_generatororchestrator_generate",
+      "target": "orchestrator_generatororchestrator_getstackdescription",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "orchestrator_generatororchestrator_generate",
+      "target": "orchestrator_generatororchestrator_collectgeneratedfiles",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L102",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "orchestrator_generatororchestrator_generate",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_generate",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_generate",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_generate",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_generate",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_generate",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_generate",
+      "callee": "generateDictionaryContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_generate",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_generate",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_generate",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_generate",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_generate",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_generate",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_generatedictionary",
+      "callee": "generateDictionaryContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_collectgeneratedfiles",
+      "callee": "readdir",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_collectgeneratedfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L163"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_collectgeneratedfiles",
+      "callee": "isDirectory",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_collectgeneratedfiles",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L166"
+    },
+    {
+      "caller_nid": "orchestrator_generatororchestrator_collectgeneratedfiles",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/orchestrator.ts",
+      "source_location": "L168"
+    }
+  ]
+}

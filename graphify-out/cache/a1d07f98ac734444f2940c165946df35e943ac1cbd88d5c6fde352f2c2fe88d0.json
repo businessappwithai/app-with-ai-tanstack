@@ -1,1 +1,417 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts", "label": "base-e2e.generator.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L1"}, {"id": "base_e2e_generator_constructor", "label": "constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L19"}, {"id": "base_e2e_generator_generatetestdata", "label": "generateTestData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L31"}, {"id": "base_e2e_generator_getsampledataforentity", "label": "getSampleDataForEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L54"}, {"id": "base_e2e_generator_getmockvaluefortype", "label": "getMockValueForType()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L70"}, {"id": "base_e2e_generator_generateuniquedata", "label": "generateUniqueData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L108"}, {"id": "base_e2e_generator_getuniquemockvalue", "label": "getUniqueMockValue()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L121"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts", "target": "types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts", "target": "base_e2e_generator_constructor", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L19", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts", "target": "base_e2e_generator_generatetestdata", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L31", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts", "target": "base_e2e_generator_getsampledataforentity", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L54", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts", "target": "base_e2e_generator_getmockvaluefortype", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L70", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts", "target": "base_e2e_generator_generateuniquedata", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L108", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts", "target": "base_e2e_generator_getuniquemockvalue", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L121", "weight": 1.0}, {"source": "base_e2e_generator_generatetestdata", "target": "base_e2e_generator_getsampledataforentity", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L41", "weight": 1.0}, {"source": "base_e2e_generator_getsampledataforentity", "target": "base_e2e_generator_getmockvaluefortype", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L60", "weight": 1.0}, {"source": "base_e2e_generator_generateuniquedata", "target": "base_e2e_generator_getuniquemockvalue", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L114", "weight": 1.0}], "raw_calls": [{"caller_nid": "base_e2e_generator_generatetestdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L33"}, {"caller_nid": "base_e2e_generator_generatetestdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L34"}, {"caller_nid": "base_e2e_generator_generatetestdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L37"}, {"caller_nid": "base_e2e_generator_generatetestdata", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L37"}, {"caller_nid": "base_e2e_generator_generatetestdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L38"}, {"caller_nid": "base_e2e_generator_generatetestdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L42"}, {"caller_nid": "base_e2e_generator_generatetestdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L43"}, {"caller_nid": "base_e2e_generator_generatetestdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L44"}, {"caller_nid": "base_e2e_generator_generatetestdata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L47"}, {"caller_nid": "base_e2e_generator_generatetestdata", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L48"}, {"caller_nid": "base_e2e_generator_getsampledataforentity", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L58"}, {"caller_nid": "base_e2e_generator_getsampledataforentity", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L61"}, {"caller_nid": "base_e2e_generator_getsampledataforentity", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L64"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L71"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L73"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L73"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L73"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L74"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L77"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L80"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L86"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L86"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L86"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L90"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L90"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L90"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L94"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L94"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L98"}, {"caller_nid": "base_e2e_generator_getmockvaluefortype", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L98"}, {"caller_nid": "base_e2e_generator_generateuniquedata", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L112"}, {"caller_nid": "base_e2e_generator_generateuniquedata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L115"}, {"caller_nid": "base_e2e_generator_generateuniquedata", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L118"}, {"caller_nid": "base_e2e_generator_getuniquemockvalue", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L122"}, {"caller_nid": "base_e2e_generator_getuniquemockvalue", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L124"}, {"caller_nid": "base_e2e_generator_getuniquemockvalue", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L124"}, {"caller_nid": "base_e2e_generator_getuniquemockvalue", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L124"}, {"caller_nid": "base_e2e_generator_getuniquemockvalue", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L125"}, {"caller_nid": "base_e2e_generator_getuniquemockvalue", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L128"}, {"caller_nid": "base_e2e_generator_getuniquemockvalue", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L134"}, {"caller_nid": "base_e2e_generator_getuniquemockvalue", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L134"}, {"caller_nid": "base_e2e_generator_getuniquemockvalue", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L134"}, {"caller_nid": "base_e2e_generator_getuniquemockvalue", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L138"}, {"caller_nid": "base_e2e_generator_getuniquemockvalue", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L138"}, {"caller_nid": "base_e2e_generator_getuniquemockvalue", "callee": "toFixed", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts", "source_location": "L139"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts",
+      "label": "base-e2e.generator.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "base_e2e_generator_constructor",
+      "label": "constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L19"
+    },
+    {
+      "id": "base_e2e_generator_generatetestdata",
+      "label": "generateTestData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L31"
+    },
+    {
+      "id": "base_e2e_generator_getsampledataforentity",
+      "label": "getSampleDataForEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L54"
+    },
+    {
+      "id": "base_e2e_generator_getmockvaluefortype",
+      "label": "getMockValueForType()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L70"
+    },
+    {
+      "id": "base_e2e_generator_generateuniquedata",
+      "label": "generateUniqueData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L108"
+    },
+    {
+      "id": "base_e2e_generator_getuniquemockvalue",
+      "label": "getUniqueMockValue()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L121"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts",
+      "target": "base_e2e_generator_constructor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts",
+      "target": "base_e2e_generator_generatetestdata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts",
+      "target": "base_e2e_generator_getsampledataforentity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts",
+      "target": "base_e2e_generator_getmockvaluefortype",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts",
+      "target": "base_e2e_generator_generateuniquedata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_tests_base_e2e_generator_ts",
+      "target": "base_e2e_generator_getuniquemockvalue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "base_e2e_generator_generatetestdata",
+      "target": "base_e2e_generator_getsampledataforentity",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "base_e2e_generator_getsampledataforentity",
+      "target": "base_e2e_generator_getmockvaluefortype",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "base_e2e_generator_generateuniquedata",
+      "target": "base_e2e_generator_getuniquemockvalue",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L114",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "base_e2e_generator_generatetestdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "base_e2e_generator_generatetestdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "base_e2e_generator_generatetestdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "base_e2e_generator_generatetestdata",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "base_e2e_generator_generatetestdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "base_e2e_generator_generatetestdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "base_e2e_generator_generatetestdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "base_e2e_generator_generatetestdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "base_e2e_generator_generatetestdata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "base_e2e_generator_generatetestdata",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getsampledataforentity",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getsampledataforentity",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getsampledataforentity",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L64"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getmockvaluefortype",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "base_e2e_generator_generateuniquedata",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "base_e2e_generator_generateuniquedata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "base_e2e_generator_generateuniquedata",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getuniquemockvalue",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getuniquemockvalue",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getuniquemockvalue",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getuniquemockvalue",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getuniquemockvalue",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getuniquemockvalue",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getuniquemockvalue",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getuniquemockvalue",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getuniquemockvalue",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getuniquemockvalue",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getuniquemockvalue",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "base_e2e_generator_getuniquemockvalue",
+      "callee": "toFixed",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/tests/base-e2e.generator.ts",
+      "source_location": "L139"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Dynamic Table Component
@@ -9,18 +9,33 @@
  * Auto-generated component
  */
 
-import { useMemo, useState } from 'react';
 import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getFilteredRowModel,
-  flexRender,
   type ColumnDef,
-  type SortingState,
   type ColumnFiltersState,
-} from '@tanstack/react-table';
-import { useGridFields, type FieldMetadata } from '@/hooks/use-entities';
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  type SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
+import { format } from "date-fns";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Search,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { DeleteConfirmDialog } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -28,24 +43,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
-import { DeleteConfirmDialog } from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
-import { useTranslations } from '@/lib/translations';
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  Search,
-} from 'lucide-react';
-import { format } from 'date-fns';
+} from "@/components/ui/table";
+import { type FieldMetadata, useGridFields } from "@/hooks/use-entities";
+import { useTranslations } from "@/lib/translations";
 
 // ============================================================================
 // Types
@@ -94,29 +94,29 @@ const REFERENCE_TYPE = {
 
 function formatCellValue(value: unknown, referenceId: number): string {
   if (value === null || value === undefined) {
-    return '-';
+    return "-";
   }
 
   switch (referenceId) {
     case REFERENCE_TYPE.YES_NO:
-      return value ? 'Yes' : 'No';
+      return value ? "Yes" : "No";
 
     case REFERENCE_TYPE.DATE:
       try {
-        return format(new Date(value as string), 'dd/MM/yyyy');
+        return format(new Date(value as string), "dd/MM/yyyy");
       } catch {
         return String(value);
       }
 
     case REFERENCE_TYPE.DATETIME:
       try {
-        return format(new Date(value as string), 'dd/MM/yyyy HH:mm:ss');
+        return format(new Date(value as string), "dd/MM/yyyy HH:mm:ss");
       } catch {
         return String(value);
       }
 
     case REFERENCE_TYPE.AMOUNT:
-      return typeof value === 'number'
+      return typeof value === "number"
         ? value.toLocaleString(undefined, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
@@ -124,12 +124,13 @@ function formatCellValue(value: unknown, referenceId: number): string {
         : String(value);
 
     case REFERENCE_TYPE.INTEGER:
-      return typeof value === 'number' ? value.toLocaleString() : String(value);
+      return typeof value === "number" ? value.toLocaleString() : String(value);
 
-    case REFERENCE_TYPE.TEXT:
+    case REFERENCE_TYPE.TEXT: {
       // Truncate long text
       const text = String(value);
-      return text.length > 100 ? text.slice(0, 100) + '...' : text;
+      return text.length > 100 ? text.slice(0, 100) + "..." : text;
+    }
 
     case REFERENCE_TYPE.URL:
       return String(value);
@@ -154,13 +155,13 @@ function generateColumns(fields: FieldMetadata[]): ColumnDef<Record<string, unkn
       return (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="-ml-4 h-8"
         >
           {field.name}
-          {column.getIsSorted() === 'asc' ? (
+          {column.getIsSorted() === "asc" ? (
             <ArrowUp className="ml-2 h-4 w-4" />
-          ) : column.getIsSorted() === 'desc' ? (
+          ) : column.getIsSorted() === "desc" ? (
             <ArrowDown className="ml-2 h-4 w-4" />
           ) : (
             <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
@@ -239,23 +240,21 @@ export function DynamicTable({
   selectedId,
 }: DynamicTableProps) {
   const { t } = useTranslations();
-  const {
-    data: fields,
-    isLoading: fieldsLoading,
-    error,
-  } = useGridFields(tableName);
+  const { data: fields, isLoading: fieldsLoading, error } = useGridFields(tableName);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState('');
+  const [globalFilter, setGlobalFilter] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [rowToDelete, setRowToDelete] = useState<{ id: string; name?: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Handle delete with confirmation
   const handleDeleteClick = (rowId: string) => {
-    const row = data.find(r => (r as any).id === rowId);
-    const rowName = row ? (row as any).name || (row as any).title || (row as any).patient_name || `Record #${rowId}` : undefined;
+    const row = data.find((r) => (r as any).id === rowId);
+    const rowName = row
+      ? (row as any).name || (row as any).title || (row as any).patient_name || `Record #${rowId}`
+      : undefined;
     setRowToDelete({ id: rowId, name: rowName });
     setDeleteDialogOpen(true);
   };
@@ -272,8 +271,9 @@ export function DynamicTable({
       // Show success toast (handled by the parent component's mutation)
     } catch (error) {
       // Show error toast
-      const errorMessage = error instanceof Error ? error.message : t('common.unexpectedError' as any);
-      toast.error(t('table.deleteFailed' as any), {
+      const errorMessage =
+        error instanceof Error ? error.message : t("common.unexpectedError" as any);
+      toast.error(t("table.deleteFailed" as any), {
         description: errorMessage,
       });
     } finally {
@@ -288,8 +288,8 @@ export function DynamicTable({
     // Add actions column FIRST if callbacks are provided
     if (onView || onEdit || _onDelete) {
       baseColumns.unshift({
-        id: 'actions',
-        header: t('common.actions' as any),
+        id: "actions",
+        header: t("common.actions" as any),
         cell: ({ row }) => {
           // The primary key column is always 'id' in the database schema
           const rowId = row.original.id as string;
@@ -396,8 +396,8 @@ export function DynamicTable({
         {/* Record Count - Moved above table */}
         {totalCount > 0 && (
           <div className="text-sm text-muted-foreground">
-            Showing {(page - 1) * pageSize + 1} to{' '}
-            {Math.min(page * pageSize, totalCount)} of {totalCount} entries
+            Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of{" "}
+            {totalCount} entries
           </div>
         )}
       </div>
@@ -412,10 +412,7 @@ export function DynamicTable({
                   <TableHead key={header.id}>
                     {header.isPlaceholder
                       ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                      : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
               </TableRow>
@@ -431,16 +428,13 @@ export function DynamicTable({
                 return (
                   <TableRow
                     key={row.id}
-                    data-state={isSelected && 'selected'}
-                    className={onRowClick ? 'cursor-pointer' : ''}
+                    data-state={isSelected && "selected"}
+                    className={onRowClick ? "cursor-pointer" : ""}
                     onClick={() => onRowClick?.(row.original)}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -448,10 +442,7 @@ export function DynamicTable({
               })
             ) : (
               <TableRow data-testid="no-results-row">
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>

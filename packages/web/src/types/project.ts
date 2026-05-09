@@ -11,8 +11,8 @@ export interface Project {
 
   // Configuration (Step 1)
   stackType:
-    | "nestjs-nextjs"  // Option 1
-    | "odata-ui5";     // Option 2
+    | "nestjs-nextjs" // Option 1
+    | "odata-ui5"; // Option 2
   port: number;
   databaseUrl?: string;
 
@@ -22,7 +22,14 @@ export interface Project {
 
   // Generation (Step 3)
   generatedPath?: string;
-  deploymentStatus?: "pending" | "generating" | "completed" | "failed" | "running" | "stopped" | "error";
+  deploymentStatus?:
+    | "pending"
+    | "generating"
+    | "completed"
+    | "failed"
+    | "running"
+    | "stopped"
+    | "error";
 
   // Workflow Enhancement (Step 4)
   workflows?: WorkflowDefinition[];
@@ -48,13 +55,7 @@ export interface WorkflowDefinition {
 
 export type ProjectStep = "init" | "design" | "generate" | "enhance" | "deploy";
 
-export const STEP_ORDER: ProjectStep[] = [
-  "init",
-  "design",
-  "generate",
-  "enhance",
-  "deploy",
-];
+export const STEP_ORDER: ProjectStep[] = ["init", "design", "generate", "enhance", "deploy"];
 
 export const STEP_LABELS: Record<ProjectStep, string> = {
   init: "Init",

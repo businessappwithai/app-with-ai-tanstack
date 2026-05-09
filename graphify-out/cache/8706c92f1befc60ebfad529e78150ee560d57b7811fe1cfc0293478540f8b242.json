@@ -1,1 +1,1140 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "label": "List.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L1"}, {"id": "list_controller_listcontroller", "label": "ListController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L63"}, {"id": "list_controller_listcontroller_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L70"}, {"id": "list_controller_listcontroller_onroutematched", "label": "._onRouteMatched()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L102"}, {"id": "list_controller_listcontroller_ondetailroutematched", "label": "._onDetailRouteMatched()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L112"}, {"id": "list_controller_listcontroller_loadentitydata", "label": "._loadEntityData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L125"}, {"id": "list_controller_listcontroller_loadfieldmetadata", "label": "._loadFieldMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L155"}, {"id": "list_controller_listcontroller_getfieldsfrommetadata", "label": "._getFieldsFromMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L187"}, {"id": "list_controller_listcontroller_mapodatatype", "label": "._mapODataType()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L227"}, {"id": "list_controller_listcontroller_buildtablecolumns", "label": "._buildTableColumns()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L247"}, {"id": "list_controller_listcontroller_builddefaultcolumns", "label": "._buildDefaultColumns()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L275"}, {"id": "list_controller_listcontroller_bindtableitems", "label": "._bindTableItems()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L290"}, {"id": "list_controller_listcontroller_createcelltemplate", "label": "._createCellTemplate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L316"}, {"id": "list_controller_listcontroller_createcellcontrol", "label": "._createCellControl()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L337"}, {"id": "list_controller_listcontroller_formatstatusstate", "label": "._formatStatusState()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L423"}, {"id": "list_controller_listcontroller_getcolumnwidth", "label": "._getColumnWidth()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L443"}, {"id": "list_controller_listcontroller_getminscreenwidth", "label": "._getMinScreenWidth()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L473"}, {"id": "list_controller_listcontroller_formatentityname", "label": "._formatEntityName()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L492"}, {"id": "list_controller_listcontroller_formatcolumnname", "label": "._formatColumnName()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L505"}, {"id": "list_controller_listcontroller_ondatareceived", "label": ".onDataReceived()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L515"}, {"id": "list_controller_listcontroller_onitempress", "label": ".onItemPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L525"}, {"id": "list_controller_listcontroller_onsearch", "label": ".onSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L541"}, {"id": "list_controller_listcontroller_onfilterpress", "label": ".onFilterPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L571"}, {"id": "list_controller_listcontroller_onsortpress", "label": ".onSortPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L578"}, {"id": "list_controller_listcontroller_onrefresh", "label": ".onRefresh()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L585"}, {"id": "list_controller_listcontroller_oncreatepress", "label": ".onCreatePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L596"}, {"id": "list_controller_listcontroller_onnavback", "label": ".onNavBack()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L606"}, {"id": "list_controller_listcontroller_getrouter", "label": "._getRouter()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L615"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "jsonmodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "filter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "filteroperator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "sorter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "date", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "datetime", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "float", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L18", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "column", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L19", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "columnlistitem", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L20", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "text", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L21", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "link", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L22", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "objectnumber", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L23", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "objectstatus", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L24", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "checkbox", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L25", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "messagetoast", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L26", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "event", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L27", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts", "target": "list_controller_listcontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L63", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L70", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_onroutematched", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L102", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_ondetailroutematched", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L112", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_loadentitydata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L125", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_loadfieldmetadata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L155", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_getfieldsfrommetadata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L187", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_mapodatatype", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L227", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_buildtablecolumns", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L247", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_builddefaultcolumns", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L275", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_bindtableitems", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L290", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_createcelltemplate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L316", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_createcellcontrol", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L337", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_formatstatusstate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L423", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_getcolumnwidth", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L443", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_getminscreenwidth", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L473", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_formatentityname", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L492", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_formatcolumnname", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L505", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_ondatareceived", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L515", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_onitempress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L525", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_onsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L541", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_onfilterpress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L571", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_onsortpress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L578", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_onrefresh", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L585", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_oncreatepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L596", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_onnavback", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L606", "weight": 1.0}, {"source": "list_controller_listcontroller", "target": "list_controller_listcontroller_getrouter", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L615", "weight": 1.0}, {"source": "list_controller_listcontroller_oninit", "target": "list_controller_listcontroller_getrouter", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L84", "weight": 1.0}, {"source": "list_controller_listcontroller_onroutematched", "target": "list_controller_listcontroller_loadentitydata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L104", "weight": 1.0}, {"source": "list_controller_listcontroller_ondetailroutematched", "target": "list_controller_listcontroller_loadentitydata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L116", "weight": 1.0}, {"source": "list_controller_listcontroller_loadentitydata", "target": "list_controller_listcontroller_formatentityname", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L131", "weight": 1.0}, {"source": "list_controller_listcontroller_loadentitydata", "target": "list_controller_listcontroller_loadfieldmetadata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L135", "weight": 1.0}, {"source": "list_controller_listcontroller_builddefaultcolumns", "target": "list_controller_listcontroller_buildtablecolumns", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L282", "weight": 1.0}, {"source": "list_controller_listcontroller_bindtableitems", "target": "list_controller_listcontroller_createcelltemplate", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L295", "weight": 1.0}, {"source": "list_controller_listcontroller_onitempress", "target": "list_controller_listcontroller_getrouter", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L531", "weight": 1.0}, {"source": "list_controller_listcontroller_oncreatepress", "target": "list_controller_listcontroller_getrouter", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L598", "weight": 1.0}, {"source": "list_controller_listcontroller_onnavback", "target": "list_controller_listcontroller_getrouter", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L607", "weight": 1.0}], "raw_calls": [{"caller_nid": "list_controller_listcontroller_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L81"}, {"caller_nid": "list_controller_listcontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L81"}, {"caller_nid": "list_controller_listcontroller_oninit", "callee": "attachPatternMatched", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L84"}, {"caller_nid": "list_controller_listcontroller_oninit", "callee": "getRoute", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L84"}, {"caller_nid": "list_controller_listcontroller_oninit", "callee": "attachPatternMatched", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L88"}, {"caller_nid": "list_controller_listcontroller_oninit", "callee": "getRoute", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L88"}, {"caller_nid": "list_controller_listcontroller_oninit", "callee": "attachPatternMatched", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L92"}, {"caller_nid": "list_controller_listcontroller_oninit", "callee": "getRoute", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L92"}, {"caller_nid": "list_controller_listcontroller_onroutematched", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L103"}, {"caller_nid": "list_controller_listcontroller_ondetailroutematched", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L113"}, {"caller_nid": "list_controller_listcontroller_ondetailroutematched", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L114"}, {"caller_nid": "list_controller_listcontroller_ondetailroutematched", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L114"}, {"caller_nid": "list_controller_listcontroller_ondetailroutematched", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L115"}, {"caller_nid": "list_controller_listcontroller_loadentitydata", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L126"}, {"caller_nid": "list_controller_listcontroller_loadentitydata", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L127"}, {"caller_nid": "list_controller_listcontroller_loadentitydata", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L129"}, {"caller_nid": "list_controller_listcontroller_loadentitydata", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L130"}, {"caller_nid": "list_controller_listcontroller_loadentitydata", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L131"}, {"caller_nid": "list_controller_listcontroller_loadentitydata", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L132"}, {"caller_nid": "list_controller_listcontroller_loadentitydata", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L135"}, {"caller_nid": "list_controller_listcontroller_loadentitydata", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L135"}, {"caller_nid": "list_controller_listcontroller_getfieldsfrommetadata", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L188"}, {"caller_nid": "list_controller_listcontroller_getfieldsfrommetadata", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L188"}, {"caller_nid": "list_controller_listcontroller_getfieldsfrommetadata", "callee": "getMetaModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L189"}, {"caller_nid": "list_controller_listcontroller_getfieldsfrommetadata", "callee": "getObject", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L194"}, {"caller_nid": "list_controller_listcontroller_getfieldsfrommetadata", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L198"}, {"caller_nid": "list_controller_listcontroller_getfieldsfrommetadata", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L198"}, {"caller_nid": "list_controller_listcontroller_getfieldsfrommetadata", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L215"}, {"caller_nid": "list_controller_listcontroller_buildtablecolumns", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L248"}, {"caller_nid": "list_controller_listcontroller_buildtablecolumns", "callee": "destroyColumns", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L251"}, {"caller_nid": "list_controller_listcontroller_buildtablecolumns", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L254"}, {"caller_nid": "list_controller_listcontroller_bindtableitems", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L291"}, {"caller_nid": "list_controller_listcontroller_bindtableitems", "callee": "bindItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L297"}, {"caller_nid": "list_controller_listcontroller_bindtableitems", "callee": "bind", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L305"}, {"caller_nid": "list_controller_listcontroller_createcelltemplate", "callee": "bind", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L319"}, {"caller_nid": "list_controller_listcontroller_createcelltemplate", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L323"}, {"caller_nid": "list_controller_listcontroller_createcellcontrol", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L398"}, {"caller_nid": "list_controller_listcontroller_createcellcontrol", "callee": "bind", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L403"}, {"caller_nid": "list_controller_listcontroller_formatstatusstate", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L426"}, {"caller_nid": "list_controller_listcontroller_formatentityname", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L493"}, {"caller_nid": "list_controller_listcontroller_formatentityname", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L493"}, {"caller_nid": "list_controller_listcontroller_formatentityname", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L493"}, {"caller_nid": "list_controller_listcontroller_formatcolumnname", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L506"}, {"caller_nid": "list_controller_listcontroller_formatcolumnname", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L506"}, {"caller_nid": "list_controller_listcontroller_ondatareceived", "callee": "getSource", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L516"}, {"caller_nid": "list_controller_listcontroller_ondatareceived", "callee": "getLength", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L517"}, {"caller_nid": "list_controller_listcontroller_ondatareceived", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L518"}, {"caller_nid": "list_controller_listcontroller_ondatareceived", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L518"}, {"caller_nid": "list_controller_listcontroller_ondatareceived", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L518"}, {"caller_nid": "list_controller_listcontroller_onitempress", "callee": "getSource", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L526"}, {"caller_nid": "list_controller_listcontroller_onitempress", "callee": "getBindingContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L527"}, {"caller_nid": "list_controller_listcontroller_onitempress", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L528"}, {"caller_nid": "list_controller_listcontroller_onitempress", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L529"}, {"caller_nid": "list_controller_listcontroller_onitempress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L529"}, {"caller_nid": "list_controller_listcontroller_onitempress", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L529"}, {"caller_nid": "list_controller_listcontroller_onitempress", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L531"}, {"caller_nid": "list_controller_listcontroller_onsearch", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L542"}, {"caller_nid": "list_controller_listcontroller_onsearch", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L542"}, {"caller_nid": "list_controller_listcontroller_onsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L543"}, {"caller_nid": "list_controller_listcontroller_onsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L544"}, {"caller_nid": "list_controller_listcontroller_onsearch", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L551"}, {"caller_nid": "list_controller_listcontroller_onsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L558"}, {"caller_nid": "list_controller_listcontroller_onsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L564"}, {"caller_nid": "list_controller_listcontroller_onfilterpress", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L572"}, {"caller_nid": "list_controller_listcontroller_onsortpress", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L579"}, {"caller_nid": "list_controller_listcontroller_onrefresh", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L586"}, {"caller_nid": "list_controller_listcontroller_onrefresh", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L587"}, {"caller_nid": "list_controller_listcontroller_onrefresh", "callee": "refresh", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L589"}, {"caller_nid": "list_controller_listcontroller_oncreatepress", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L597"}, {"caller_nid": "list_controller_listcontroller_oncreatepress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L597"}, {"caller_nid": "list_controller_listcontroller_oncreatepress", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L597"}, {"caller_nid": "list_controller_listcontroller_oncreatepress", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L598"}, {"caller_nid": "list_controller_listcontroller_onnavback", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L607"}, {"caller_nid": "list_controller_listcontroller_getrouter", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L616"}, {"caller_nid": "list_controller_listcontroller_getrouter", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts", "source_location": "L616"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "label": "List.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "list_controller_listcontroller",
+      "label": "ListController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L63"
+    },
+    {
+      "id": "list_controller_listcontroller_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L70"
+    },
+    {
+      "id": "list_controller_listcontroller_onroutematched",
+      "label": "._onRouteMatched()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L102"
+    },
+    {
+      "id": "list_controller_listcontroller_ondetailroutematched",
+      "label": "._onDetailRouteMatched()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L112"
+    },
+    {
+      "id": "list_controller_listcontroller_loadentitydata",
+      "label": "._loadEntityData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L125"
+    },
+    {
+      "id": "list_controller_listcontroller_loadfieldmetadata",
+      "label": "._loadFieldMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L155"
+    },
+    {
+      "id": "list_controller_listcontroller_getfieldsfrommetadata",
+      "label": "._getFieldsFromMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L187"
+    },
+    {
+      "id": "list_controller_listcontroller_mapodatatype",
+      "label": "._mapODataType()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L227"
+    },
+    {
+      "id": "list_controller_listcontroller_buildtablecolumns",
+      "label": "._buildTableColumns()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L247"
+    },
+    {
+      "id": "list_controller_listcontroller_builddefaultcolumns",
+      "label": "._buildDefaultColumns()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L275"
+    },
+    {
+      "id": "list_controller_listcontroller_bindtableitems",
+      "label": "._bindTableItems()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L290"
+    },
+    {
+      "id": "list_controller_listcontroller_createcelltemplate",
+      "label": "._createCellTemplate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L316"
+    },
+    {
+      "id": "list_controller_listcontroller_createcellcontrol",
+      "label": "._createCellControl()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L337"
+    },
+    {
+      "id": "list_controller_listcontroller_formatstatusstate",
+      "label": "._formatStatusState()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L423"
+    },
+    {
+      "id": "list_controller_listcontroller_getcolumnwidth",
+      "label": "._getColumnWidth()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L443"
+    },
+    {
+      "id": "list_controller_listcontroller_getminscreenwidth",
+      "label": "._getMinScreenWidth()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L473"
+    },
+    {
+      "id": "list_controller_listcontroller_formatentityname",
+      "label": "._formatEntityName()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L492"
+    },
+    {
+      "id": "list_controller_listcontroller_formatcolumnname",
+      "label": "._formatColumnName()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L505"
+    },
+    {
+      "id": "list_controller_listcontroller_ondatareceived",
+      "label": ".onDataReceived()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L515"
+    },
+    {
+      "id": "list_controller_listcontroller_onitempress",
+      "label": ".onItemPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L525"
+    },
+    {
+      "id": "list_controller_listcontroller_onsearch",
+      "label": ".onSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L541"
+    },
+    {
+      "id": "list_controller_listcontroller_onfilterpress",
+      "label": ".onFilterPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L571"
+    },
+    {
+      "id": "list_controller_listcontroller_onsortpress",
+      "label": ".onSortPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L578"
+    },
+    {
+      "id": "list_controller_listcontroller_onrefresh",
+      "label": ".onRefresh()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L585"
+    },
+    {
+      "id": "list_controller_listcontroller_oncreatepress",
+      "label": ".onCreatePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L596"
+    },
+    {
+      "id": "list_controller_listcontroller_onnavback",
+      "label": ".onNavBack()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L606"
+    },
+    {
+      "id": "list_controller_listcontroller_getrouter",
+      "label": "._getRouter()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L615"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "jsonmodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "filter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "filteroperator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "sorter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "date",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "datetime",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "float",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "column",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "columnlistitem",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "text",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "link",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "objectnumber",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "objectstatus",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "checkbox",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "messagetoast",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "event",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_list_controller_ts",
+      "target": "list_controller_listcontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_onroutematched",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_ondetailroutematched",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_loadentitydata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L125",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_loadfieldmetadata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L155",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_getfieldsfrommetadata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L187",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_mapodatatype",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L227",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_buildtablecolumns",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L247",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_builddefaultcolumns",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L275",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_bindtableitems",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L290",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_createcelltemplate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L316",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_createcellcontrol",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L337",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_formatstatusstate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L423",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_getcolumnwidth",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L443",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_getminscreenwidth",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L473",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_formatentityname",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L492",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_formatcolumnname",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L505",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_ondatareceived",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L515",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_onitempress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L525",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_onsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L541",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_onfilterpress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L571",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_onsortpress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L578",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_onrefresh",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L585",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_oncreatepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L596",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_onnavback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L606",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller",
+      "target": "list_controller_listcontroller_getrouter",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L615",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller_oninit",
+      "target": "list_controller_listcontroller_getrouter",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller_onroutematched",
+      "target": "list_controller_listcontroller_loadentitydata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L104",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller_ondetailroutematched",
+      "target": "list_controller_listcontroller_loadentitydata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L116",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller_loadentitydata",
+      "target": "list_controller_listcontroller_formatentityname",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L131",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller_loadentitydata",
+      "target": "list_controller_listcontroller_loadfieldmetadata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L135",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller_builddefaultcolumns",
+      "target": "list_controller_listcontroller_buildtablecolumns",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L282",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller_bindtableitems",
+      "target": "list_controller_listcontroller_createcelltemplate",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L295",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller_onitempress",
+      "target": "list_controller_listcontroller_getrouter",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L531",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller_oncreatepress",
+      "target": "list_controller_listcontroller_getrouter",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L598",
+      "weight": 1.0
+    },
+    {
+      "source": "list_controller_listcontroller_onnavback",
+      "target": "list_controller_listcontroller_getrouter",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L607",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "list_controller_listcontroller_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_oninit",
+      "callee": "attachPatternMatched",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_oninit",
+      "callee": "getRoute",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_oninit",
+      "callee": "attachPatternMatched",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_oninit",
+      "callee": "getRoute",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_oninit",
+      "callee": "attachPatternMatched",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_oninit",
+      "callee": "getRoute",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onroutematched",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_ondetailroutematched",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_ondetailroutematched",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_ondetailroutematched",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_ondetailroutematched",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_loadentitydata",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_loadentitydata",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_loadentitydata",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_loadentitydata",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_loadentitydata",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_loadentitydata",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L132"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_loadentitydata",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_loadentitydata",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_getfieldsfrommetadata",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L188"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_getfieldsfrommetadata",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L188"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_getfieldsfrommetadata",
+      "callee": "getMetaModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L189"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_getfieldsfrommetadata",
+      "callee": "getObject",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L194"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_getfieldsfrommetadata",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_getfieldsfrommetadata",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_getfieldsfrommetadata",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L215"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_buildtablecolumns",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L248"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_buildtablecolumns",
+      "callee": "destroyColumns",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_buildtablecolumns",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L254"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_bindtableitems",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_bindtableitems",
+      "callee": "bindItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L297"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_bindtableitems",
+      "callee": "bind",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L305"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_createcelltemplate",
+      "callee": "bind",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L319"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_createcelltemplate",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L323"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_createcellcontrol",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L398"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_createcellcontrol",
+      "callee": "bind",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L403"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_formatstatusstate",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L426"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_formatentityname",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L493"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_formatentityname",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L493"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_formatentityname",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L493"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_formatcolumnname",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L506"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_formatcolumnname",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L506"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_ondatareceived",
+      "callee": "getSource",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L516"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_ondatareceived",
+      "callee": "getLength",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L517"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_ondatareceived",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L518"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_ondatareceived",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L518"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_ondatareceived",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L518"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onitempress",
+      "callee": "getSource",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L526"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onitempress",
+      "callee": "getBindingContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L527"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onitempress",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L528"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onitempress",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L529"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onitempress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L529"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onitempress",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L529"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onitempress",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L531"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onsearch",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L542"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onsearch",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L542"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L543"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L544"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onsearch",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L551"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L558"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L564"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onfilterpress",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L572"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onsortpress",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L579"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onrefresh",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L586"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onrefresh",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L587"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onrefresh",
+      "callee": "refresh",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L589"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_oncreatepress",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L597"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_oncreatepress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L597"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_oncreatepress",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L597"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_oncreatepress",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L598"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_onnavback",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L607"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_getrouter",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L616"
+    },
+    {
+      "caller_nid": "list_controller_listcontroller_getrouter",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/List.controller.ts",
+      "source_location": "L616"
+    }
+  ]
+}

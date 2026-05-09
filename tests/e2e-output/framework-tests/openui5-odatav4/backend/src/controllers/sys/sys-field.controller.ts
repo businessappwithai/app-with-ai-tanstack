@@ -8,10 +8,10 @@
  * Generated: 2026-02-09T13:00:26.930Z
  */
 
-import { ODataController, odata } from 'odata-v4-server';
-import type { Knex } from 'knex';
-import { getKnex } from '../../database/connection';
-import { v4 as uuidv4 } from 'uuid';
+import type { Knex } from "knex";
+import { ODataController, odata } from "odata-v4-server";
+import { v4 as uuidv4 } from "uuid";
+import { getKnex } from "../../database/connection";
 
 interface SysField {
   id: string;
@@ -164,9 +164,9 @@ export class SysFieldController extends ODataController {
     @odata.key key: string,
     @odata.body body: Partial<SysField>
   ): Promise<SysField | null> {
-    const existing = await getKnex()('sys_field')
-      .where('id', key)
-      .where('is_deleted', false)
+    const existing = await getKnex()("sys_field")
+      .where("id", key)
+      .where("is_deleted", false)
       .first();
 
     if (!existing) {
@@ -175,21 +175,19 @@ export class SysFieldController extends ODataController {
 
     // Check ETag for concurrency
     if (body.version !== undefined && body.version !== existing.version) {
-      throw new Error('Concurrency conflict: record has been modified');
+      throw new Error("Concurrency conflict: record has been modified");
     }
 
     const updates = {
       ...body,
       version: existing.version + 1,
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     delete updates.id;
     delete updates.created_at;
 
-    await getKnex()('sys_field')
-      .where('id', key)
-      .update(updates);
+    await getKnex()("sys_field").where("id", key).update(updates);
 
     return { ...existing, ...updates };
   }
@@ -222,7 +220,7 @@ export class SysFieldController extends ODataController {
     try {
       for (const update of updates) {
         const setClause: any = {
-          updated_at: new Date()
+          updated_at: new Date(),
         };
 
         if (update.seq_no !== undefined) {
@@ -232,9 +230,7 @@ export class SysFieldController extends ODataController {
           setClause.seq_no_grid = update.seq_no_grid;
         }
 
-        await trx('sys_field')
-          .where('id', update.id)
-          .update(setClause);
+        await trx("sys_field").where("id", update.id).update(setClause);
       }
 
       await trx.commit();
@@ -266,14 +262,13 @@ export class SysFieldController extends ODataController {
 
       const containsMatch = condition.match(/contains\((\w+),\s*'([^']+)'\)/);
       if (containsMatch) {
-        qb = qb.where(containsMatch[1], 'like', `%${containsMatch[2]}%`);
+        qb = qb.where(containsMatch[1], "like", `%${containsMatch[2]}%`);
         continue;
       }
 
       const boolMatch = condition.match(/(\w+)\s+eq\s+(true|false)/);
       if (boolMatch) {
-        qb = qb.where(boolMatch[1], boolMatch[2] === 'true');
-        continue;
+        qb = qb.where(boolMatch[1], boolMatch[2] === "true");
       }
     }
 
@@ -284,10 +279,10 @@ export class SysFieldController extends ODataController {
    * Apply OData $orderby to query builder
    */
   private applyOrderBy(qb: Knex.QueryBuilder, orderby: string): Knex.QueryBuilder {
-    const parts = orderby.split(',');
+    const parts = orderby.split(",");
     for (const part of parts) {
       const [column, direction] = part.trim().split(/\s+/);
-      qb = qb.orderBy(column, direction?.toLowerCase() === 'desc' ? 'desc' : 'asc');
+      qb = qb.orderBy(column, direction?.toLowerCase() === "desc" ? "desc" : "asc");
     }
     return qb;
   }

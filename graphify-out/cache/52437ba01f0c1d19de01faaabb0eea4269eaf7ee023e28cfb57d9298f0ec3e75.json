@@ -1,1 +1,446 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts", "label": "logs.service.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L1"}, {"id": "logs_service_getalllogs", "label": "getAllLogs()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L30"}, {"id": "logs_service_savelogs", "label": "saveLogs()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L43"}, {"id": "logs_service_getprojectlogs", "label": "getProjectLogs()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L57"}, {"id": "logs_service_getactionlogs", "label": "getActionLogs()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L65"}, {"id": "logs_service_startactionlog", "label": "startActionLog()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L73"}, {"id": "logs_service_addlogentry", "label": "addLogEntry()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L108"}, {"id": "logs_service_completeactionlog", "label": "completeActionLog()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L142"}, {"id": "logs_service_clearprojectlogs", "label": "clearProjectLogs()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L153"}, {"id": "logs_service_deleteactionlog", "label": "deleteActionLog()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L162"}, {"id": "logs_service_formatlogtime", "label": "formatLogTime()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L171"}, {"id": "logs_service_getrelativetime", "label": "getRelativeTime()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L184"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts", "target": "logs_service_getalllogs", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L30", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts", "target": "logs_service_savelogs", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L43", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts", "target": "logs_service_getprojectlogs", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L57", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts", "target": "logs_service_getactionlogs", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L65", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts", "target": "logs_service_startactionlog", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L73", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts", "target": "logs_service_addlogentry", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L108", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts", "target": "logs_service_completeactionlog", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L142", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts", "target": "logs_service_clearprojectlogs", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L153", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts", "target": "logs_service_deleteactionlog", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L162", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts", "target": "logs_service_formatlogtime", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L171", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts", "target": "logs_service_getrelativetime", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L184", "weight": 1.0}, {"source": "logs_service_getprojectlogs", "target": "logs_service_getalllogs", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L58", "weight": 1.0}, {"source": "logs_service_getactionlogs", "target": "logs_service_getalllogs", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L66", "weight": 1.0}, {"source": "logs_service_startactionlog", "target": "logs_service_getalllogs", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L98", "weight": 1.0}, {"source": "logs_service_startactionlog", "target": "logs_service_savelogs", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L100", "weight": 1.0}, {"source": "logs_service_addlogentry", "target": "logs_service_getalllogs", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L114", "weight": 1.0}, {"source": "logs_service_addlogentry", "target": "logs_service_savelogs", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L135", "weight": 1.0}, {"source": "logs_service_completeactionlog", "target": "logs_service_addlogentry", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L147", "weight": 1.0}, {"source": "logs_service_clearprojectlogs", "target": "logs_service_getalllogs", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L154", "weight": 1.0}, {"source": "logs_service_clearprojectlogs", "target": "logs_service_savelogs", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L156", "weight": 1.0}, {"source": "logs_service_deleteactionlog", "target": "logs_service_getalllogs", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L163", "weight": 1.0}, {"source": "logs_service_deleteactionlog", "target": "logs_service_savelogs", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L165", "weight": 1.0}], "raw_calls": [{"caller_nid": "logs_service_getalllogs", "callee": "getItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L33"}, {"caller_nid": "logs_service_getalllogs", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L34"}, {"caller_nid": "logs_service_savelogs", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L47"}, {"caller_nid": "logs_service_savelogs", "callee": "setItem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L48"}, {"caller_nid": "logs_service_savelogs", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L48"}, {"caller_nid": "logs_service_savelogs", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L50"}, {"caller_nid": "logs_service_getprojectlogs", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L59"}, {"caller_nid": "logs_service_getactionlogs", "callee": "find", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L67"}, {"caller_nid": "logs_service_startactionlog", "callee": "now", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L78"}, {"caller_nid": "logs_service_startactionlog", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L84"}, {"caller_nid": "logs_service_startactionlog", "callee": "now", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L88"}, {"caller_nid": "logs_service_startactionlog", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L91"}, {"caller_nid": "logs_service_startactionlog", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L99"}, {"caller_nid": "logs_service_addlogentry", "callee": "find", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L115"}, {"caller_nid": "logs_service_addlogentry", "callee": "now", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L119"}, {"caller_nid": "logs_service_addlogentry", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L122"}, {"caller_nid": "logs_service_addlogentry", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L128"}, {"caller_nid": "logs_service_clearprojectlogs", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L155"}, {"caller_nid": "logs_service_deleteactionlog", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L164"}, {"caller_nid": "logs_service_formatlogtime", "callee": "toLocaleTimeString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L173"}, {"caller_nid": "logs_service_getrelativetime", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L187"}, {"caller_nid": "logs_service_getrelativetime", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L187"}, {"caller_nid": "logs_service_getrelativetime", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L188"}, {"caller_nid": "logs_service_getrelativetime", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L189"}, {"caller_nid": "logs_service_getrelativetime", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L193"}, {"caller_nid": "logs_service_getrelativetime", "callee": "floor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts", "source_location": "L195"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts",
+      "label": "logs.service.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "logs_service_getalllogs",
+      "label": "getAllLogs()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L30"
+    },
+    {
+      "id": "logs_service_savelogs",
+      "label": "saveLogs()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L43"
+    },
+    {
+      "id": "logs_service_getprojectlogs",
+      "label": "getProjectLogs()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L57"
+    },
+    {
+      "id": "logs_service_getactionlogs",
+      "label": "getActionLogs()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L65"
+    },
+    {
+      "id": "logs_service_startactionlog",
+      "label": "startActionLog()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L73"
+    },
+    {
+      "id": "logs_service_addlogentry",
+      "label": "addLogEntry()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L108"
+    },
+    {
+      "id": "logs_service_completeactionlog",
+      "label": "completeActionLog()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L142"
+    },
+    {
+      "id": "logs_service_clearprojectlogs",
+      "label": "clearProjectLogs()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L153"
+    },
+    {
+      "id": "logs_service_deleteactionlog",
+      "label": "deleteActionLog()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L162"
+    },
+    {
+      "id": "logs_service_formatlogtime",
+      "label": "formatLogTime()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L171"
+    },
+    {
+      "id": "logs_service_getrelativetime",
+      "label": "getRelativeTime()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L184"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts",
+      "target": "logs_service_getalllogs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts",
+      "target": "logs_service_savelogs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts",
+      "target": "logs_service_getprojectlogs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts",
+      "target": "logs_service_getactionlogs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts",
+      "target": "logs_service_startactionlog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L73",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts",
+      "target": "logs_service_addlogentry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts",
+      "target": "logs_service_completeactionlog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts",
+      "target": "logs_service_clearprojectlogs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L153",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts",
+      "target": "logs_service_deleteactionlog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L162",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts",
+      "target": "logs_service_formatlogtime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L171",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_logs_logs_service_ts",
+      "target": "logs_service_getrelativetime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L184",
+      "weight": 1.0
+    },
+    {
+      "source": "logs_service_getprojectlogs",
+      "target": "logs_service_getalllogs",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "logs_service_getactionlogs",
+      "target": "logs_service_getalllogs",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "logs_service_startactionlog",
+      "target": "logs_service_getalllogs",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L98",
+      "weight": 1.0
+    },
+    {
+      "source": "logs_service_startactionlog",
+      "target": "logs_service_savelogs",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L100",
+      "weight": 1.0
+    },
+    {
+      "source": "logs_service_addlogentry",
+      "target": "logs_service_getalllogs",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "logs_service_addlogentry",
+      "target": "logs_service_savelogs",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L135",
+      "weight": 1.0
+    },
+    {
+      "source": "logs_service_completeactionlog",
+      "target": "logs_service_addlogentry",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "logs_service_clearprojectlogs",
+      "target": "logs_service_getalllogs",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L154",
+      "weight": 1.0
+    },
+    {
+      "source": "logs_service_clearprojectlogs",
+      "target": "logs_service_savelogs",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L156",
+      "weight": 1.0
+    },
+    {
+      "source": "logs_service_deleteactionlog",
+      "target": "logs_service_getalllogs",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L163",
+      "weight": 1.0
+    },
+    {
+      "source": "logs_service_deleteactionlog",
+      "target": "logs_service_savelogs",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L165",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "logs_service_getalllogs",
+      "callee": "getItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "logs_service_getalllogs",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "logs_service_savelogs",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "logs_service_savelogs",
+      "callee": "setItem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "logs_service_savelogs",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "logs_service_savelogs",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "logs_service_getprojectlogs",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "logs_service_getactionlogs",
+      "callee": "find",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "logs_service_startactionlog",
+      "callee": "now",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "logs_service_startactionlog",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "logs_service_startactionlog",
+      "callee": "now",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "logs_service_startactionlog",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "logs_service_startactionlog",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "logs_service_addlogentry",
+      "callee": "find",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "logs_service_addlogentry",
+      "callee": "now",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "logs_service_addlogentry",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "logs_service_addlogentry",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "logs_service_clearprojectlogs",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "logs_service_deleteactionlog",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "logs_service_formatlogtime",
+      "callee": "toLocaleTimeString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "logs_service_getrelativetime",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L187"
+    },
+    {
+      "caller_nid": "logs_service_getrelativetime",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L187"
+    },
+    {
+      "caller_nid": "logs_service_getrelativetime",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L188"
+    },
+    {
+      "caller_nid": "logs_service_getrelativetime",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L189"
+    },
+    {
+      "caller_nid": "logs_service_getrelativetime",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L193"
+    },
+    {
+      "caller_nid": "logs_service_getrelativetime",
+      "callee": "floor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/logs/logs.service.ts",
+      "source_location": "L195"
+    }
+  ]
+}

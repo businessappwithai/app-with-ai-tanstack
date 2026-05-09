@@ -1,1 +1,855 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts", "label": "base.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L1"}, {"id": "base_controller_getknex", "label": "getKnex()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L42"}, {"id": "base_controller_get", "label": "get()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L51"}, {"id": "base_controller_getbyid", "label": "getById()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L110"}, {"id": "base_controller_post", "label": "post()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L140"}, {"id": "base_controller_put", "label": "put()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L170"}, {"id": "base_controller_patch", "label": "patch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L210"}, {"id": "base_controller_delete", "label": "delete()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L250"}, {"id": "base_controller_checkconcurrency", "label": "checkConcurrency()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L275"}, {"id": "base_controller_applyfilter", "label": "applyFilter()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L298"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts", "target": "server", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts", "target": "uuid", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_database_connection", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts", "target": "base_controller_getknex", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L42", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts", "target": "base_controller_get", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L51", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts", "target": "base_controller_getbyid", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L110", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts", "target": "base_controller_post", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L140", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts", "target": "base_controller_put", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L170", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts", "target": "base_controller_patch", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L210", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts", "target": "base_controller_delete", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L250", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts", "target": "base_controller_checkconcurrency", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L275", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts", "target": "base_controller_applyfilter", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L298", "weight": 1.0}, {"source": "base_controller_get", "target": "base_controller_getknex", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L52", "weight": 1.0}, {"source": "base_controller_get", "target": "base_controller_applyfilter", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L57", "weight": 1.0}, {"source": "base_controller_getbyid", "target": "base_controller_getknex", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L111", "weight": 1.0}, {"source": "base_controller_post", "target": "base_controller_getknex", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L152", "weight": 1.0}, {"source": "base_controller_put", "target": "base_controller_checkconcurrency", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L174", "weight": 1.0}, {"source": "base_controller_put", "target": "base_controller_getknex", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L177", "weight": 1.0}, {"source": "base_controller_patch", "target": "base_controller_checkconcurrency", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L214", "weight": 1.0}, {"source": "base_controller_patch", "target": "base_controller_getknex", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L217", "weight": 1.0}, {"source": "base_controller_delete", "target": "base_controller_getknex", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L251", "weight": 1.0}, {"source": "base_controller_checkconcurrency", "target": "base_controller_getknex", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L283", "weight": 1.0}], "raw_calls": [{"caller_nid": "base_controller_get", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L52"}, {"caller_nid": "base_controller_get", "callee": "this.getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L52"}, {"caller_nid": "base_controller_get", "callee": "count", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L63"}, {"caller_nid": "base_controller_get", "callee": "clone", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L63"}, {"caller_nid": "base_controller_get", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L64"}, {"caller_nid": "base_controller_get", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L69"}, {"caller_nid": "base_controller_get", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L69"}, {"caller_nid": "base_controller_get", "callee": "orderBy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L74"}, {"caller_nid": "base_controller_get", "callee": "orderBy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L77"}, {"caller_nid": "base_controller_get", "callee": "offset", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L82"}, {"caller_nid": "base_controller_get", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L82"}, {"caller_nid": "base_controller_get", "callee": "limit", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L85"}, {"caller_nid": "base_controller_get", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L85"}, {"caller_nid": "base_controller_get", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L90"}, {"caller_nid": "base_controller_get", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L90"}, {"caller_nid": "base_controller_get", "callee": "select", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L91"}, {"caller_nid": "base_controller_get", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L97"}, {"caller_nid": "base_controller_getbyid", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L111"}, {"caller_nid": "base_controller_getbyid", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L111"}, {"caller_nid": "base_controller_getbyid", "callee": "this.getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L111"}, {"caller_nid": "base_controller_getbyid", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L117"}, {"caller_nid": "base_controller_getbyid", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L117"}, {"caller_nid": "base_controller_getbyid", "callee": "select", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L118"}, {"caller_nid": "base_controller_getbyid", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L121"}, {"caller_nid": "base_controller_getbyid", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L124"}, {"caller_nid": "base_controller_getbyid", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L129"}, {"caller_nid": "base_controller_getbyid", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L130"}, {"caller_nid": "base_controller_post", "callee": "uuidv4", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L141"}, {"caller_nid": "base_controller_post", "callee": "insert", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L152"}, {"caller_nid": "base_controller_post", "callee": "this.getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L152"}, {"caller_nid": "base_controller_post", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L154"}, {"caller_nid": "base_controller_post", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L154"}, {"caller_nid": "base_controller_post", "callee": "this.getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L154"}, {"caller_nid": "base_controller_post", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L158"}, {"caller_nid": "base_controller_post", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L159"}, {"caller_nid": "base_controller_post", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L160"}, {"caller_nid": "base_controller_put", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L177"}, {"caller_nid": "base_controller_put", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L177"}, {"caller_nid": "base_controller_put", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L177"}, {"caller_nid": "base_controller_put", "callee": "this.getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L177"}, {"caller_nid": "base_controller_put", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L183"}, {"caller_nid": "base_controller_put", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L187"}, {"caller_nid": "base_controller_put", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L187"}, {"caller_nid": "base_controller_put", "callee": "this.getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L187"}, {"caller_nid": "base_controller_put", "callee": "raw", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L191"}, {"caller_nid": "base_controller_put", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L195"}, {"caller_nid": "base_controller_put", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L195"}, {"caller_nid": "base_controller_put", "callee": "this.getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L195"}, {"caller_nid": "base_controller_put", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L199"}, {"caller_nid": "base_controller_put", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L200"}, {"caller_nid": "base_controller_patch", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L217"}, {"caller_nid": "base_controller_patch", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L217"}, {"caller_nid": "base_controller_patch", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L217"}, {"caller_nid": "base_controller_patch", "callee": "this.getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L217"}, {"caller_nid": "base_controller_patch", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L223"}, {"caller_nid": "base_controller_patch", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L227"}, {"caller_nid": "base_controller_patch", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L227"}, {"caller_nid": "base_controller_patch", "callee": "this.getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L227"}, {"caller_nid": "base_controller_patch", "callee": "raw", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L231"}, {"caller_nid": "base_controller_patch", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L235"}, {"caller_nid": "base_controller_patch", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L235"}, {"caller_nid": "base_controller_patch", "callee": "this.getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L235"}, {"caller_nid": "base_controller_patch", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L239"}, {"caller_nid": "base_controller_patch", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L240"}, {"caller_nid": "base_controller_delete", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L251"}, {"caller_nid": "base_controller_delete", "callee": "whereNull", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L251"}, {"caller_nid": "base_controller_delete", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L251"}, {"caller_nid": "base_controller_delete", "callee": "this.getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L251"}, {"caller_nid": "base_controller_delete", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L257"}, {"caller_nid": "base_controller_delete", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L261"}, {"caller_nid": "base_controller_delete", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L261"}, {"caller_nid": "base_controller_delete", "callee": "this.getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L261"}, {"caller_nid": "base_controller_delete", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L268"}, {"caller_nid": "base_controller_checkconcurrency", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L276"}, {"caller_nid": "base_controller_checkconcurrency", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L276"}, {"caller_nid": "base_controller_checkconcurrency", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L277"}, {"caller_nid": "base_controller_checkconcurrency", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L279"}, {"caller_nid": "base_controller_checkconcurrency", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L283"}, {"caller_nid": "base_controller_checkconcurrency", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L283"}, {"caller_nid": "base_controller_checkconcurrency", "callee": "this.getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L283"}, {"caller_nid": "base_controller_applyfilter", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L300"}, {"caller_nid": "base_controller_applyfilter", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L303"}, {"caller_nid": "base_controller_applyfilter", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L305"}, {"caller_nid": "base_controller_applyfilter", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L309"}, {"caller_nid": "base_controller_applyfilter", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L311"}, {"caller_nid": "base_controller_applyfilter", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L315"}, {"caller_nid": "base_controller_applyfilter", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L317"}, {"caller_nid": "base_controller_applyfilter", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L317"}, {"caller_nid": "base_controller_applyfilter", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L321"}, {"caller_nid": "base_controller_applyfilter", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L323"}, {"caller_nid": "base_controller_applyfilter", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L323"}, {"caller_nid": "base_controller_applyfilter", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L327"}, {"caller_nid": "base_controller_applyfilter", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L329"}, {"caller_nid": "base_controller_applyfilter", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L333"}, {"caller_nid": "base_controller_applyfilter", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts", "source_location": "L335"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts",
+      "label": "base.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "base_controller_getknex",
+      "label": "getKnex()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L42"
+    },
+    {
+      "id": "base_controller_get",
+      "label": "get()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L51"
+    },
+    {
+      "id": "base_controller_getbyid",
+      "label": "getById()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L110"
+    },
+    {
+      "id": "base_controller_post",
+      "label": "post()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L140"
+    },
+    {
+      "id": "base_controller_put",
+      "label": "put()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L170"
+    },
+    {
+      "id": "base_controller_patch",
+      "label": "patch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L210"
+    },
+    {
+      "id": "base_controller_delete",
+      "label": "delete()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L250"
+    },
+    {
+      "id": "base_controller_checkconcurrency",
+      "label": "checkConcurrency()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L275"
+    },
+    {
+      "id": "base_controller_applyfilter",
+      "label": "applyFilter()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L298"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts",
+      "target": "server",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts",
+      "target": "uuid",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_database_connection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts",
+      "target": "base_controller_getknex",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts",
+      "target": "base_controller_get",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts",
+      "target": "base_controller_getbyid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L110",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts",
+      "target": "base_controller_post",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts",
+      "target": "base_controller_put",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L170",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts",
+      "target": "base_controller_patch",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L210",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts",
+      "target": "base_controller_delete",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L250",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts",
+      "target": "base_controller_checkconcurrency",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L275",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_base_controller_ts",
+      "target": "base_controller_applyfilter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L298",
+      "weight": 1.0
+    },
+    {
+      "source": "base_controller_get",
+      "target": "base_controller_getknex",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "base_controller_get",
+      "target": "base_controller_applyfilter",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "base_controller_getbyid",
+      "target": "base_controller_getknex",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L111",
+      "weight": 1.0
+    },
+    {
+      "source": "base_controller_post",
+      "target": "base_controller_getknex",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L152",
+      "weight": 1.0
+    },
+    {
+      "source": "base_controller_put",
+      "target": "base_controller_checkconcurrency",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L174",
+      "weight": 1.0
+    },
+    {
+      "source": "base_controller_put",
+      "target": "base_controller_getknex",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L177",
+      "weight": 1.0
+    },
+    {
+      "source": "base_controller_patch",
+      "target": "base_controller_checkconcurrency",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L214",
+      "weight": 1.0
+    },
+    {
+      "source": "base_controller_patch",
+      "target": "base_controller_getknex",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L217",
+      "weight": 1.0
+    },
+    {
+      "source": "base_controller_delete",
+      "target": "base_controller_getknex",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L251",
+      "weight": 1.0
+    },
+    {
+      "source": "base_controller_checkconcurrency",
+      "target": "base_controller_getknex",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L283",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "this.getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "count",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "clone",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L64"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "orderBy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "orderBy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "offset",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "limit",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "select",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "base_controller_get",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "base_controller_getbyid",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "base_controller_getbyid",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "base_controller_getbyid",
+      "callee": "this.getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "base_controller_getbyid",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L117"
+    },
+    {
+      "caller_nid": "base_controller_getbyid",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L117"
+    },
+    {
+      "caller_nid": "base_controller_getbyid",
+      "callee": "select",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "base_controller_getbyid",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L121"
+    },
+    {
+      "caller_nid": "base_controller_getbyid",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "base_controller_getbyid",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "base_controller_getbyid",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "base_controller_post",
+      "callee": "uuidv4",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "base_controller_post",
+      "callee": "insert",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "base_controller_post",
+      "callee": "this.getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "base_controller_post",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "base_controller_post",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "base_controller_post",
+      "callee": "this.getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "base_controller_post",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "base_controller_post",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L159"
+    },
+    {
+      "caller_nid": "base_controller_post",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L160"
+    },
+    {
+      "caller_nid": "base_controller_put",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "base_controller_put",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "base_controller_put",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "base_controller_put",
+      "callee": "this.getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "base_controller_put",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L183"
+    },
+    {
+      "caller_nid": "base_controller_put",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L187"
+    },
+    {
+      "caller_nid": "base_controller_put",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L187"
+    },
+    {
+      "caller_nid": "base_controller_put",
+      "callee": "this.getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L187"
+    },
+    {
+      "caller_nid": "base_controller_put",
+      "callee": "raw",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "base_controller_put",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "base_controller_put",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "base_controller_put",
+      "callee": "this.getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "base_controller_put",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L199"
+    },
+    {
+      "caller_nid": "base_controller_put",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L200"
+    },
+    {
+      "caller_nid": "base_controller_patch",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L217"
+    },
+    {
+      "caller_nid": "base_controller_patch",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L217"
+    },
+    {
+      "caller_nid": "base_controller_patch",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L217"
+    },
+    {
+      "caller_nid": "base_controller_patch",
+      "callee": "this.getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L217"
+    },
+    {
+      "caller_nid": "base_controller_patch",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L223"
+    },
+    {
+      "caller_nid": "base_controller_patch",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "base_controller_patch",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "base_controller_patch",
+      "callee": "this.getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "base_controller_patch",
+      "callee": "raw",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L231"
+    },
+    {
+      "caller_nid": "base_controller_patch",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "base_controller_patch",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "base_controller_patch",
+      "callee": "this.getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "base_controller_patch",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L239"
+    },
+    {
+      "caller_nid": "base_controller_patch",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L240"
+    },
+    {
+      "caller_nid": "base_controller_delete",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "base_controller_delete",
+      "callee": "whereNull",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "base_controller_delete",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "base_controller_delete",
+      "callee": "this.getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "base_controller_delete",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L257"
+    },
+    {
+      "caller_nid": "base_controller_delete",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L261"
+    },
+    {
+      "caller_nid": "base_controller_delete",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L261"
+    },
+    {
+      "caller_nid": "base_controller_delete",
+      "callee": "this.getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L261"
+    },
+    {
+      "caller_nid": "base_controller_delete",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L268"
+    },
+    {
+      "caller_nid": "base_controller_checkconcurrency",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "base_controller_checkconcurrency",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "base_controller_checkconcurrency",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L277"
+    },
+    {
+      "caller_nid": "base_controller_checkconcurrency",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L279"
+    },
+    {
+      "caller_nid": "base_controller_checkconcurrency",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L283"
+    },
+    {
+      "caller_nid": "base_controller_checkconcurrency",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L283"
+    },
+    {
+      "caller_nid": "base_controller_checkconcurrency",
+      "callee": "this.getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L283"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L300"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L303"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L305"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L311"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L315"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L317"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L317"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L321"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L323"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L323"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L327"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L329"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L333"
+    },
+    {
+      "caller_nid": "base_controller_applyfilter",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/base.controller.ts",
+      "source_location": "L335"
+    }
+  ]
+}

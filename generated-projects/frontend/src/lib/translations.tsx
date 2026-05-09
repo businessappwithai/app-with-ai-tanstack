@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { Locale } from '@/i18n/config';
-import enMessages from '@/messages/en.json';
-import deMessages from '@/messages/de.json';
+import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
+import type { Locale } from "@/i18n/config";
+import deMessages from "@/messages/de.json";
+import enMessages from "@/messages/en.json";
 
 const messages = {
   en: enMessages,
@@ -25,13 +25,16 @@ interface TranslationProviderProps {
   defaultLocale?: Locale;
 }
 
-export function TranslationProvider({ children, defaultLocale: initialLocale = 'en' }: TranslationProviderProps) {
+export function TranslationProvider({
+  children,
+  defaultLocale: initialLocale = "en",
+}: TranslationProviderProps) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
   // Load locale from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem('locale');
-    if (stored && (stored === 'en' || stored === 'de')) {
+    const stored = localStorage.getItem("locale");
+    if (stored && (stored === "en" || stored === "de")) {
       setLocaleState(stored as Locale);
     }
   }, []);
@@ -39,19 +42,19 @@ export function TranslationProvider({ children, defaultLocale: initialLocale = '
   // Save locale to localStorage when it changes
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
-    localStorage.setItem('locale', newLocale);
+    localStorage.setItem("locale", newLocale);
   };
 
   // Translation function
   const t = (key: string, params?: Record<string, string | number>): string => {
-    const keys = key.split('.');
+    const keys = key.split(".");
     let message: any = messages[locale];
 
     for (const k of keys) {
       message = message?.[k];
     }
 
-    if (typeof message !== 'string') {
+    if (typeof message !== "string") {
       console.warn(`Translation missing for key: ${key}`);
       return key;
     }
@@ -76,7 +79,7 @@ export function TranslationProvider({ children, defaultLocale: initialLocale = '
 export function useTranslations() {
   const context = useContext(TranslationContext);
   if (!context) {
-    throw new Error('useTranslations must be used within a TranslationProvider');
+    throw new Error("useTranslations must be used within a TranslationProvider");
   }
   return context;
 }
@@ -90,24 +93,24 @@ export function translate(
   localeOverride?: Locale
 ): string {
   // Get locale from override, localStorage, or default to 'en'
-  let locale: Locale = 'en';
+  let locale: Locale = "en";
   if (localeOverride) {
     locale = localeOverride;
-  } else if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem('locale');
-    if (stored && (stored === 'en' || stored === 'de')) {
+  } else if (typeof window !== "undefined") {
+    const stored = localStorage.getItem("locale");
+    if (stored && (stored === "en" || stored === "de")) {
       locale = stored as Locale;
     }
   }
 
-  const keys = key.split('.');
+  const keys = key.split(".");
   let message: any = messages[locale];
 
   for (const k of keys) {
     message = message?.[k];
   }
 
-  if (typeof message !== 'string') {
+  if (typeof message !== "string") {
     console.warn(`Translation missing for key: ${key}`);
     return key;
   }

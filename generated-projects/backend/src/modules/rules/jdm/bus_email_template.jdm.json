@@ -16,7 +16,7 @@
         "inputs": [
           { "id": "i1", "name": "Name", "field": "name" },
           { "id": "i2", "name": "Subject", "field": "subject" },
-          { "id": "i5", "name": "Category", "field": "category" },
+          { "id": "i5", "name": "Category", "field": "category" }
         ],
         "outputs": [
           { "id": "o1", "name": "Action", "field": "action" },

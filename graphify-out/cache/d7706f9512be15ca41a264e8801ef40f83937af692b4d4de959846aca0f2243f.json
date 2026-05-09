@@ -1,1 +1,74 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260401000001_create_sys_rule_definitions_ts", "label": "20260401000001_create_sys_rule_definitions.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts", "source_location": "L1"}, {"id": "20260401000001_create_sys_rule_definitions_up", "label": "up()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts", "source_location": "L10"}, {"id": "20260401000001_create_sys_rule_definitions_down", "label": "down()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts", "source_location": "L47"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260401000001_create_sys_rule_definitions_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260401000001_create_sys_rule_definitions_ts", "target": "20260401000001_create_sys_rule_definitions_up", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260401000001_create_sys_rule_definitions_ts", "target": "20260401000001_create_sys_rule_definitions_down", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts", "source_location": "L47", "weight": 1.0}], "raw_calls": [{"caller_nid": "20260401000001_create_sys_rule_definitions_up", "callee": "createTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts", "source_location": "L11"}, {"caller_nid": "20260401000001_create_sys_rule_definitions_up", "callee": "raw", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts", "source_location": "L41"}, {"caller_nid": "20260401000001_create_sys_rule_definitions_down", "callee": "dropTableIfExists", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts", "source_location": "L48"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260401000001_create_sys_rule_definitions_ts",
+      "label": "20260401000001_create_sys_rule_definitions.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "20260401000001_create_sys_rule_definitions_up",
+      "label": "up()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts",
+      "source_location": "L10"
+    },
+    {
+      "id": "20260401000001_create_sys_rule_definitions_down",
+      "label": "down()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts",
+      "source_location": "L47"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260401000001_create_sys_rule_definitions_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260401000001_create_sys_rule_definitions_ts",
+      "target": "20260401000001_create_sys_rule_definitions_up",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_20260401000001_create_sys_rule_definitions_ts",
+      "target": "20260401000001_create_sys_rule_definitions_down",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts",
+      "source_location": "L47",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "20260401000001_create_sys_rule_definitions_up",
+      "callee": "createTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts",
+      "source_location": "L11"
+    },
+    {
+      "caller_nid": "20260401000001_create_sys_rule_definitions_up",
+      "callee": "raw",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "20260401000001_create_sys_rule_definitions_down",
+      "callee": "dropTableIfExists",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/20260401000001_create_sys_rule_definitions.ts",
+      "source_location": "L48"
+    }
+  ]
+}

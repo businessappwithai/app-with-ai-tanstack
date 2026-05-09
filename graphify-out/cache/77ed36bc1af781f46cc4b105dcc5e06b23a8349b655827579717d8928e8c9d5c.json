@@ -1,1 +1,626 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts", "label": "App.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L1"}, {"id": "app_controller_appcontroller", "label": "AppController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L36"}, {"id": "app_controller_appcontroller_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L41"}, {"id": "app_controller_appcontroller_initodataerrorhandler", "label": "._initODataErrorHandler()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L71"}, {"id": "app_controller_appcontroller_showserviceerror", "label": "._showServiceError()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L86"}, {"id": "app_controller_appcontroller_onroutematched", "label": "._onRouteMatched()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L103"}, {"id": "app_controller_appcontroller_getlayoutforroute", "label": "._getLayoutForRoute()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L121"}, {"id": "app_controller_appcontroller_onstatechange", "label": ".onStateChange()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L142"}, {"id": "app_controller_appcontroller_navigatetolayout", "label": "._navigateToLayout()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L160"}, {"id": "app_controller_appcontroller_getcurrententity", "label": "._getCurrentEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L183"}, {"id": "app_controller_appcontroller_getfclhelper", "label": ".getFCLHelper()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L197"}, {"id": "app_controller_appcontroller_onmidcolumnfullscreen", "label": ".onMidColumnFullScreen()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L210"}, {"id": "app_controller_appcontroller_onendcolumnfullscreen", "label": ".onEndColumnFullScreen()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L220"}, {"id": "app_controller_appcontroller_onexitfullscreen", "label": ".onExitFullScreen()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L230"}, {"id": "app_controller_appcontroller_onclosedetailcolumn", "label": ".onCloseDetailColumn()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L239"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts", "target": "jsonmodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts", "target": "library", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts", "target": "flexiblecolumnlayoutsemantichelper", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts", "target": "messagebox", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts", "target": "event", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts", "target": "app_controller_appcontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L36", "weight": 1.0}, {"source": "app_controller_appcontroller", "target": "app_controller_appcontroller_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L41", "weight": 1.0}, {"source": "app_controller_appcontroller", "target": "app_controller_appcontroller_initodataerrorhandler", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L71", "weight": 1.0}, {"source": "app_controller_appcontroller", "target": "app_controller_appcontroller_showserviceerror", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L86", "weight": 1.0}, {"source": "app_controller_appcontroller", "target": "app_controller_appcontroller_onroutematched", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L103", "weight": 1.0}, {"source": "app_controller_appcontroller", "target": "app_controller_appcontroller_getlayoutforroute", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L121", "weight": 1.0}, {"source": "app_controller_appcontroller", "target": "app_controller_appcontroller_onstatechange", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L142", "weight": 1.0}, {"source": "app_controller_appcontroller", "target": "app_controller_appcontroller_navigatetolayout", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L160", "weight": 1.0}, {"source": "app_controller_appcontroller", "target": "app_controller_appcontroller_getcurrententity", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L183", "weight": 1.0}, {"source": "app_controller_appcontroller", "target": "app_controller_appcontroller_getfclhelper", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L197", "weight": 1.0}, {"source": "app_controller_appcontroller", "target": "app_controller_appcontroller_onmidcolumnfullscreen", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L210", "weight": 1.0}, {"source": "app_controller_appcontroller", "target": "app_controller_appcontroller_onendcolumnfullscreen", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L220", "weight": 1.0}, {"source": "app_controller_appcontroller", "target": "app_controller_appcontroller_onexitfullscreen", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L230", "weight": 1.0}, {"source": "app_controller_appcontroller", "target": "app_controller_appcontroller_onclosedetailcolumn", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L239", "weight": 1.0}, {"source": "app_controller_appcontroller_oninit", "target": "app_controller_appcontroller_initodataerrorhandler", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L64", "weight": 1.0}, {"source": "app_controller_appcontroller_onroutematched", "target": "app_controller_appcontroller_getlayoutforroute", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L108", "weight": 1.0}, {"source": "app_controller_appcontroller_onstatechange", "target": "app_controller_appcontroller_navigatetolayout", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L151", "weight": 1.0}, {"source": "app_controller_appcontroller_navigatetolayout", "target": "app_controller_appcontroller_getcurrententity", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L170", "weight": 1.0}, {"source": "app_controller_appcontroller_onclosedetailcolumn", "target": "app_controller_appcontroller_getcurrententity", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L241", "weight": 1.0}], "raw_calls": [{"caller_nid": "app_controller_appcontroller_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L57"}, {"caller_nid": "app_controller_appcontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L57"}, {"caller_nid": "app_controller_appcontroller_oninit", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L60"}, {"caller_nid": "app_controller_appcontroller_oninit", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L60"}, {"caller_nid": "app_controller_appcontroller_oninit", "callee": "attachRouteMatched", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L61"}, {"caller_nid": "app_controller_appcontroller_initodataerrorhandler", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L72"}, {"caller_nid": "app_controller_appcontroller_initodataerrorhandler", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L72"}, {"caller_nid": "app_controller_appcontroller_initodataerrorhandler", "callee": "attachRequestFailed", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L74"}, {"caller_nid": "app_controller_appcontroller_showserviceerror", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L88"}, {"caller_nid": "app_controller_appcontroller_onroutematched", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L104"}, {"caller_nid": "app_controller_appcontroller_onroutematched", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L105"}, {"caller_nid": "app_controller_appcontroller_onroutematched", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L111"}, {"caller_nid": "app_controller_appcontroller_onroutematched", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L111"}, {"caller_nid": "app_controller_appcontroller_onroutematched", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L111"}, {"caller_nid": "app_controller_appcontroller_onstatechange", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L143"}, {"caller_nid": "app_controller_appcontroller_onstatechange", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L144"}, {"caller_nid": "app_controller_appcontroller_onstatechange", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L147"}, {"caller_nid": "app_controller_appcontroller_onstatechange", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L147"}, {"caller_nid": "app_controller_appcontroller_onstatechange", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L147"}, {"caller_nid": "app_controller_appcontroller_navigatetolayout", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L161"}, {"caller_nid": "app_controller_appcontroller_navigatetolayout", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L161"}, {"caller_nid": "app_controller_appcontroller_navigatetolayout", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L165"}, {"caller_nid": "app_controller_appcontroller_navigatetolayout", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L172"}, {"caller_nid": "app_controller_appcontroller_getcurrententity", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L184"}, {"caller_nid": "app_controller_appcontroller_getcurrententity", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L184"}, {"caller_nid": "app_controller_appcontroller_getcurrententity", "callee": "getHashChanger", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L185"}, {"caller_nid": "app_controller_appcontroller_getcurrententity", "callee": "getHash", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L186"}, {"caller_nid": "app_controller_appcontroller_getcurrententity", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L189"}, {"caller_nid": "app_controller_appcontroller_getfclhelper", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L198"}, {"caller_nid": "app_controller_appcontroller_getfclhelper", "callee": "getInstanceFor", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L204"}, {"caller_nid": "app_controller_appcontroller_onmidcolumnfullscreen", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L211"}, {"caller_nid": "app_controller_appcontroller_onmidcolumnfullscreen", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L211"}, {"caller_nid": "app_controller_appcontroller_onmidcolumnfullscreen", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L212"}, {"caller_nid": "app_controller_appcontroller_onmidcolumnfullscreen", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L213"}, {"caller_nid": "app_controller_appcontroller_onmidcolumnfullscreen", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L214"}, {"caller_nid": "app_controller_appcontroller_onendcolumnfullscreen", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L221"}, {"caller_nid": "app_controller_appcontroller_onendcolumnfullscreen", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L221"}, {"caller_nid": "app_controller_appcontroller_onendcolumnfullscreen", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L222"}, {"caller_nid": "app_controller_appcontroller_onendcolumnfullscreen", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L223"}, {"caller_nid": "app_controller_appcontroller_onendcolumnfullscreen", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L224"}, {"caller_nid": "app_controller_appcontroller_onexitfullscreen", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L231"}, {"caller_nid": "app_controller_appcontroller_onexitfullscreen", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L231"}, {"caller_nid": "app_controller_appcontroller_onexitfullscreen", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L232"}, {"caller_nid": "app_controller_appcontroller_onexitfullscreen", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L233"}, {"caller_nid": "app_controller_appcontroller_onclosedetailcolumn", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L240"}, {"caller_nid": "app_controller_appcontroller_onclosedetailcolumn", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L240"}, {"caller_nid": "app_controller_appcontroller_onclosedetailcolumn", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L244"}, {"caller_nid": "app_controller_appcontroller_onclosedetailcolumn", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts", "source_location": "L246"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts",
+      "label": "App.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_controller_appcontroller",
+      "label": "AppController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L36"
+    },
+    {
+      "id": "app_controller_appcontroller_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L41"
+    },
+    {
+      "id": "app_controller_appcontroller_initodataerrorhandler",
+      "label": "._initODataErrorHandler()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L71"
+    },
+    {
+      "id": "app_controller_appcontroller_showserviceerror",
+      "label": "._showServiceError()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L86"
+    },
+    {
+      "id": "app_controller_appcontroller_onroutematched",
+      "label": "._onRouteMatched()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L103"
+    },
+    {
+      "id": "app_controller_appcontroller_getlayoutforroute",
+      "label": "._getLayoutForRoute()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L121"
+    },
+    {
+      "id": "app_controller_appcontroller_onstatechange",
+      "label": ".onStateChange()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L142"
+    },
+    {
+      "id": "app_controller_appcontroller_navigatetolayout",
+      "label": "._navigateToLayout()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L160"
+    },
+    {
+      "id": "app_controller_appcontroller_getcurrententity",
+      "label": "._getCurrentEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L183"
+    },
+    {
+      "id": "app_controller_appcontroller_getfclhelper",
+      "label": ".getFCLHelper()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L197"
+    },
+    {
+      "id": "app_controller_appcontroller_onmidcolumnfullscreen",
+      "label": ".onMidColumnFullScreen()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L210"
+    },
+    {
+      "id": "app_controller_appcontroller_onendcolumnfullscreen",
+      "label": ".onEndColumnFullScreen()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L220"
+    },
+    {
+      "id": "app_controller_appcontroller_onexitfullscreen",
+      "label": ".onExitFullScreen()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L230"
+    },
+    {
+      "id": "app_controller_appcontroller_onclosedetailcolumn",
+      "label": ".onCloseDetailColumn()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L239"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts",
+      "target": "jsonmodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts",
+      "target": "library",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts",
+      "target": "flexiblecolumnlayoutsemantichelper",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts",
+      "target": "messagebox",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts",
+      "target": "event",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_frontend_webapp_controller_app_controller_ts",
+      "target": "app_controller_appcontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller",
+      "target": "app_controller_appcontroller_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller",
+      "target": "app_controller_appcontroller_initodataerrorhandler",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller",
+      "target": "app_controller_appcontroller_showserviceerror",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller",
+      "target": "app_controller_appcontroller_onroutematched",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller",
+      "target": "app_controller_appcontroller_getlayoutforroute",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller",
+      "target": "app_controller_appcontroller_onstatechange",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller",
+      "target": "app_controller_appcontroller_navigatetolayout",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L160",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller",
+      "target": "app_controller_appcontroller_getcurrententity",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L183",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller",
+      "target": "app_controller_appcontroller_getfclhelper",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L197",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller",
+      "target": "app_controller_appcontroller_onmidcolumnfullscreen",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L210",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller",
+      "target": "app_controller_appcontroller_onendcolumnfullscreen",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L220",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller",
+      "target": "app_controller_appcontroller_onexitfullscreen",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L230",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller",
+      "target": "app_controller_appcontroller_onclosedetailcolumn",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L239",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller_oninit",
+      "target": "app_controller_appcontroller_initodataerrorhandler",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L64",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller_onroutematched",
+      "target": "app_controller_appcontroller_getlayoutforroute",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller_onstatechange",
+      "target": "app_controller_appcontroller_navigatetolayout",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L151",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller_navigatetolayout",
+      "target": "app_controller_appcontroller_getcurrententity",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L170",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controller_appcontroller_onclosedetailcolumn",
+      "target": "app_controller_appcontroller_getcurrententity",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L241",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "app_controller_appcontroller_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_oninit",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_oninit",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_oninit",
+      "callee": "attachRouteMatched",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_initodataerrorhandler",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_initodataerrorhandler",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_initodataerrorhandler",
+      "callee": "attachRequestFailed",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_showserviceerror",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onroutematched",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L104"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onroutematched",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onroutematched",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onroutematched",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onroutematched",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onstatechange",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onstatechange",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L144"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onstatechange",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onstatechange",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onstatechange",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_navigatetolayout",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_navigatetolayout",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_navigatetolayout",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L165"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_navigatetolayout",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L172"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_getcurrententity",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L184"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_getcurrententity",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L184"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_getcurrententity",
+      "callee": "getHashChanger",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L185"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_getcurrententity",
+      "callee": "getHash",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L186"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_getcurrententity",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L189"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_getfclhelper",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_getfclhelper",
+      "callee": "getInstanceFor",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L204"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onmidcolumnfullscreen",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L211"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onmidcolumnfullscreen",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L211"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onmidcolumnfullscreen",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onmidcolumnfullscreen",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L213"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onmidcolumnfullscreen",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L214"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onendcolumnfullscreen",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L221"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onendcolumnfullscreen",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L221"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onendcolumnfullscreen",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L222"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onendcolumnfullscreen",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L223"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onendcolumnfullscreen",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onexitfullscreen",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L231"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onexitfullscreen",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L231"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onexitfullscreen",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L232"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onexitfullscreen",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L233"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onclosedetailcolumn",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L240"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onclosedetailcolumn",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L240"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onclosedetailcolumn",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L244"
+    },
+    {
+      "caller_nid": "app_controller_appcontroller_onclosedetailcolumn",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/frontend/webapp/controller/App.controller.ts",
+      "source_location": "L246"
+    }
+  ]
+}

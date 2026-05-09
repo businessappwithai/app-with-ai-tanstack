@@ -1,1 +1,472 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_sys_sys_controller_ts", "label": "sys.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L1"}, {"id": "sys_controller_syscontroller", "label": "SysController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L28"}, {"id": "sys_controller_syscontroller_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L29"}, {"id": "sys_controller_syscontroller_findalltables", "label": ".findAllTables()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L37"}, {"id": "sys_controller_syscontroller_findalldatabasetables", "label": ".findAllDatabaseTables()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L48"}, {"id": "sys_controller_syscontroller_findtablebyid", "label": ".findTableById()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L64"}, {"id": "sys_controller_syscontroller_createtable", "label": ".createTable()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L70"}, {"id": "sys_controller_syscontroller_updatetable", "label": ".updateTable()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L76"}, {"id": "sys_controller_syscontroller_findallcolumns", "label": ".findAllColumns()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L89"}, {"id": "sys_controller_syscontroller_findcolumnbyid", "label": ".findColumnById()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L99"}, {"id": "sys_controller_syscontroller_findcolumnsdirect", "label": ".findColumnsDirect()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L105"}, {"id": "sys_controller_syscontroller_updatecolumn", "label": ".updateColumn()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L111"}, {"id": "sys_controller_syscontroller_findallfields", "label": ".findAllFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L124"}, {"id": "sys_controller_syscontroller_findfieldbyid", "label": ".findFieldById()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L136"}, {"id": "sys_controller_syscontroller_updatefield", "label": ".updateField()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L142"}, {"id": "sys_controller_syscontroller_batchreorderfields", "label": ".batchReorderFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L153"}, {"id": "sys_controller_syscontroller_getformfields", "label": ".getFormFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L161"}, {"id": "sys_controller_syscontroller_getgridfields", "label": ".getGridFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L167"}, {"id": "sys_controller_syscontroller_findallfieldgroups", "label": ".findAllFieldGroups()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L177"}, {"id": "sys_controller_syscontroller_findfieldgroupbyid", "label": ".findFieldGroupById()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L183"}, {"id": "sys_controller_syscontroller_createfieldgroup", "label": ".createFieldGroup()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L189"}, {"id": "sys_controller_syscontroller_updatefieldgroup", "label": ".updateFieldGroup()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L195"}, {"id": "sys_controller_syscontroller_findallreferences", "label": ".findAllReferences()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L208"}, {"id": "sys_controller_syscontroller_findreferencebyid", "label": ".findReferenceById()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L214"}, {"id": "sys_controller_syscontroller_findallwindows", "label": ".findAllWindows()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L224"}, {"id": "sys_controller_syscontroller_findwindowbyid", "label": ".findWindowById()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L230"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_sys_sys_controller_ts", "target": "common", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_sys_sys_controller_ts", "target": "swagger", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L22", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_sys_sys_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_sys_sys_service", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L23", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_sys_sys_controller_ts", "target": "sys_controller_syscontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L28", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L29", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_findalltables", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L37", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_findalldatabasetables", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L48", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_findtablebyid", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L64", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_createtable", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L70", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_updatetable", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L76", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_findallcolumns", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L89", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_findcolumnbyid", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L99", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_findcolumnsdirect", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L105", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_updatecolumn", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L111", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_findallfields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L124", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_findfieldbyid", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L136", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_updatefield", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L142", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_batchreorderfields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L153", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_getformfields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L161", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_getgridfields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L167", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_findallfieldgroups", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L177", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_findfieldgroupbyid", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L183", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_createfieldgroup", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L189", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_updatefieldgroup", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L195", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_findallreferences", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L208", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_findreferencebyid", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L214", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_findallwindows", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L224", "weight": 1.0}, {"source": "sys_controller_syscontroller", "target": "sys_controller_syscontroller_findwindowbyid", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L230", "weight": 1.0}], "raw_calls": [{"caller_nid": "sys_controller_syscontroller_findalldatabasetables", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L55"}, {"caller_nid": "sys_controller_syscontroller_findalldatabasetables", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L56"}, {"caller_nid": "sys_controller_syscontroller_findcolumnsdirect", "callee": "findColumnsFromSchema", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L106"}, {"caller_nid": "sys_controller_syscontroller_updatefield", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L147"}, {"caller_nid": "sys_controller_syscontroller_updatefield", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts", "source_location": "L147"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_sys_sys_controller_ts",
+      "label": "sys.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "sys_controller_syscontroller",
+      "label": "SysController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L28"
+    },
+    {
+      "id": "sys_controller_syscontroller_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L29"
+    },
+    {
+      "id": "sys_controller_syscontroller_findalltables",
+      "label": ".findAllTables()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L37"
+    },
+    {
+      "id": "sys_controller_syscontroller_findalldatabasetables",
+      "label": ".findAllDatabaseTables()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L48"
+    },
+    {
+      "id": "sys_controller_syscontroller_findtablebyid",
+      "label": ".findTableById()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L64"
+    },
+    {
+      "id": "sys_controller_syscontroller_createtable",
+      "label": ".createTable()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L70"
+    },
+    {
+      "id": "sys_controller_syscontroller_updatetable",
+      "label": ".updateTable()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L76"
+    },
+    {
+      "id": "sys_controller_syscontroller_findallcolumns",
+      "label": ".findAllColumns()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L89"
+    },
+    {
+      "id": "sys_controller_syscontroller_findcolumnbyid",
+      "label": ".findColumnById()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L99"
+    },
+    {
+      "id": "sys_controller_syscontroller_findcolumnsdirect",
+      "label": ".findColumnsDirect()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L105"
+    },
+    {
+      "id": "sys_controller_syscontroller_updatecolumn",
+      "label": ".updateColumn()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "id": "sys_controller_syscontroller_findallfields",
+      "label": ".findAllFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L124"
+    },
+    {
+      "id": "sys_controller_syscontroller_findfieldbyid",
+      "label": ".findFieldById()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L136"
+    },
+    {
+      "id": "sys_controller_syscontroller_updatefield",
+      "label": ".updateField()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L142"
+    },
+    {
+      "id": "sys_controller_syscontroller_batchreorderfields",
+      "label": ".batchReorderFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L153"
+    },
+    {
+      "id": "sys_controller_syscontroller_getformfields",
+      "label": ".getFormFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L161"
+    },
+    {
+      "id": "sys_controller_syscontroller_getgridfields",
+      "label": ".getGridFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L167"
+    },
+    {
+      "id": "sys_controller_syscontroller_findallfieldgroups",
+      "label": ".findAllFieldGroups()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L177"
+    },
+    {
+      "id": "sys_controller_syscontroller_findfieldgroupbyid",
+      "label": ".findFieldGroupById()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L183"
+    },
+    {
+      "id": "sys_controller_syscontroller_createfieldgroup",
+      "label": ".createFieldGroup()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L189"
+    },
+    {
+      "id": "sys_controller_syscontroller_updatefieldgroup",
+      "label": ".updateFieldGroup()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L195"
+    },
+    {
+      "id": "sys_controller_syscontroller_findallreferences",
+      "label": ".findAllReferences()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L208"
+    },
+    {
+      "id": "sys_controller_syscontroller_findreferencebyid",
+      "label": ".findReferenceById()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L214"
+    },
+    {
+      "id": "sys_controller_syscontroller_findallwindows",
+      "label": ".findAllWindows()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L224"
+    },
+    {
+      "id": "sys_controller_syscontroller_findwindowbyid",
+      "label": ".findWindowById()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L230"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_sys_sys_controller_ts",
+      "target": "common",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_sys_sys_controller_ts",
+      "target": "swagger",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_sys_sys_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_sys_sys_service",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_sys_sys_controller_ts",
+      "target": "sys_controller_syscontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_findalltables",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_findalldatabasetables",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_findtablebyid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L64",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_createtable",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_updatetable",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_findallcolumns",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_findcolumnbyid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L99",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_findcolumnsdirect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L105",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_updatecolumn",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L111",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_findallfields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L124",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_findfieldbyid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L136",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_updatefield",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_batchreorderfields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L153",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_getformfields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L161",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_getgridfields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L167",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_findallfieldgroups",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L177",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_findfieldgroupbyid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L183",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_createfieldgroup",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L189",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_updatefieldgroup",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L195",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_findallreferences",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L208",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_findreferencebyid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L214",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_findallwindows",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L224",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_controller_syscontroller",
+      "target": "sys_controller_syscontroller_findwindowbyid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L230",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "sys_controller_syscontroller_findalldatabasetables",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "sys_controller_syscontroller_findalldatabasetables",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "sys_controller_syscontroller_findcolumnsdirect",
+      "callee": "findColumnsFromSchema",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "sys_controller_syscontroller_updatefield",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "sys_controller_syscontroller_updatefield",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/sys/sys.controller.ts",
+      "source_location": "L147"
+    }
+  ]
+}

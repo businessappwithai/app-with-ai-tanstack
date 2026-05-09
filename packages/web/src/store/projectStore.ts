@@ -4,20 +4,16 @@
  */
 
 import { create } from "zustand";
-import type {
-  Project,
-  ProjectStep,
-  WorkflowDefinition,
-} from "../types/project";
 import {
-  projectsApi,
-  erdVersionsApi,
-  workflowsApi,
-  deploymentApi,
   type CreateProjectInput,
-  type UpdateProjectInput,
   type CreateWorkflowInput,
+  deploymentApi,
+  erdVersionsApi,
+  projectsApi,
+  type UpdateProjectInput,
+  workflowsApi,
 } from "@/lib/api/projects";
+import type { Project, ProjectStep, WorkflowDefinition } from "../types/project";
 
 interface ProjectStore {
   // State
@@ -52,7 +48,7 @@ interface ProjectStore {
   updateWorkflow: (
     projectId: string,
     workflowId: string,
-    updates: Partial<WorkflowDefinition>,
+    updates: Partial<WorkflowDefinition>
   ) => Promise<void>;
 
   // Deployment
@@ -129,13 +125,8 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     try {
       const updatedProject = await projectsApi.update(id, updates);
       set((state) => ({
-        projects: state.projects.map((p) =>
-          p.id === id ? updatedProject : p,
-        ),
-        currentProject:
-          state.currentProject?.id === id
-            ? updatedProject
-            : state.currentProject,
+        projects: state.projects.map((p) => (p.id === id ? updatedProject : p)),
+        currentProject: state.currentProject?.id === id ? updatedProject : state.currentProject,
         isLoading: false,
       }));
     } catch (error) {
@@ -154,8 +145,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       await projectsApi.delete(id);
       set((state) => ({
         projects: state.projects.filter((p) => p.id !== id),
-        currentProject:
-          state.currentProject?.id === id ? null : state.currentProject,
+        currentProject: state.currentProject?.id === id ? null : state.currentProject,
         isLoading: false,
       }));
     } catch (error) {
@@ -186,13 +176,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   // Go to next step
   goToNextStep: () => {
-    const steps: ProjectStep[] = [
-      "init",
-      "design",
-      "generate",
-      "enhance",
-      "deploy",
-    ];
+    const steps: ProjectStep[] = ["init", "design", "generate", "enhance", "deploy"];
     const currentIndex = steps.indexOf(get().currentStep);
     if (currentIndex < steps.length - 1) {
       set({ currentStep: steps[currentIndex + 1] });
@@ -201,13 +185,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   // Go to previous step
   goToPreviousStep: () => {
-    const steps: ProjectStep[] = [
-      "init",
-      "design",
-      "generate",
-      "enhance",
-      "deploy",
-    ];
+    const steps: ProjectStep[] = ["init", "design", "generate", "enhance", "deploy"];
     const currentIndex = steps.indexOf(get().currentStep);
     if (currentIndex > 0) {
       set({ currentStep: steps[currentIndex - 1] });
@@ -293,7 +271,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   updateWorkflow: async (
     projectId: string,
     workflowId: string,
-    updates: Partial<WorkflowDefinition>,
+    updates: Partial<WorkflowDefinition>
   ) => {
     set({ isLoading: true, error: null });
     try {
@@ -331,9 +309,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
       // Update both currentProject and the projects array
       set((state) => ({
-        projects: state.projects.map((p) =>
-          p.id === id ? updatedProject : p,
-        ),
+        projects: state.projects.map((p) => (p.id === id ? updatedProject : p)),
         currentProject: updatedProject,
         isLoading: false,
       }));
@@ -369,9 +345,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
       // Update both currentProject and the projects array
       set((state) => ({
-        projects: state.projects.map((p) =>
-          p.id === id ? updatedProject : p,
-        ),
+        projects: state.projects.map((p) => (p.id === id ? updatedProject : p)),
         currentProject: updatedProject,
         isLoading: false,
       }));

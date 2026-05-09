@@ -1,1 +1,103 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_logs_route_ts", "label": "route.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts", "source_location": "L1"}, {"id": "route_get", "label": "GET()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts", "source_location": "L17"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_logs_route_ts", "target": "server", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_logs_route_ts", "target": "services", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_logs_route_ts", "target": "route_get", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts", "source_location": "L17", "weight": 1.0}], "raw_calls": [{"caller_nid": "route_get", "callee": "findById", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts", "source_location": "L20"}, {"caller_nid": "route_get", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts", "source_location": "L23"}, {"caller_nid": "route_get", "callee": "isRunning", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts", "source_location": "L30"}, {"caller_nid": "route_get", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts", "source_location": "L33"}, {"caller_nid": "route_get", "callee": "getRunningProcesses", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts", "source_location": "L41"}, {"caller_nid": "route_get", "callee": "find", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts", "source_location": "L42"}, {"caller_nid": "route_get", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts", "source_location": "L44"}, {"caller_nid": "route_get", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts", "source_location": "L53"}, {"caller_nid": "route_get", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts", "source_location": "L54"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_logs_route_ts",
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "route_get",
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts",
+      "source_location": "L17"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_logs_route_ts",
+      "target": "server",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_logs_route_ts",
+      "target": "services",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_logs_route_ts",
+      "target": "route_get",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "route_get",
+      "callee": "findById",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "isRunning",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "getRunningProcesses",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "find",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/logs/route.ts",
+      "source_location": "L54"
+    }
+  ]
+}

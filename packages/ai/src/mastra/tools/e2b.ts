@@ -1,18 +1,24 @@
-import { createTool } from '@mastra/core/tools';
-import z from 'zod';
-import { FilesystemEventType, FileType, Sandbox } from '@e2b/code-interpreter';
+import { FilesystemEventType, FileType, Sandbox } from "@e2b/code-interpreter";
+import { createTool } from "@mastra/core/tools";
+import z from "zod";
 
 export const createSandbox = createTool({
-  id: 'createSandbox',
-  description: 'Create an e2b sandbox',
+  id: "createSandbox",
+  description: "Create an e2b sandbox",
   inputSchema: z.object({
-    metadata: z.record(z.string()).optional().describe('Custom metadata for the sandbox'),
-    envs: z.record(z.string()).optional().describe(`
+    metadata: z.record(z.string()).optional().describe("Custom metadata for the sandbox"),
+    envs: z
+      .record(z.string())
+      .optional()
+      .describe(`
       Custom environment variables for the sandbox.
       Used when executing commands and code in the sandbox.
       Can be overridden with the \`envs\` argument when executing commands or code.
     `),
-    timeoutMS: z.number().optional().describe(`
+    timeoutMS: z
+      .number()
+      .optional()
+      .describe(`
       Timeout for the sandbox in **milliseconds**.
       Maximum time a sandbox can be kept alive is 24 hours (86_400_000 milliseconds) for Pro users and 1 hour (3_600_000 milliseconds) for Hobby users.
       @default 300_000 // 5 minutes
@@ -25,7 +31,7 @@ export const createSandbox = createTool({
     .or(
       z.object({
         error: z.string(),
-      }),
+      })
     ),
   execute: async (sandboxOptions) => {
     try {
@@ -43,38 +49,49 @@ export const createSandbox = createTool({
 });
 
 export const runCode = createTool({
-  id: 'runCode',
-  description: 'Run code in an e2b sandbox',
+  id: "runCode",
+  description: "Run code in an e2b sandbox",
   inputSchema: z.object({
-    sandboxId: z.string().describe('The sandboxId for the sandbox to run the code'),
-    code: z.string().describe('The code to run in the sandbox'),
+    sandboxId: z.string().describe("The sandboxId for the sandbox to run the code"),
+    code: z.string().describe("The code to run in the sandbox"),
     runCodeOpts: z
       .object({
         language: z
-          .enum(['ts', 'js', 'python'])
-          .default('python')
-          .describe('language used for code execution. If not provided, default python context is used'),
-        envs: z.record(z.string()).optional().describe('Custom environment variables for code execution.'),
-        timeoutMS: z.number().optional().describe(`
+          .enum(["ts", "js", "python"])
+          .default("python")
+          .describe(
+            "language used for code execution. If not provided, default python context is used"
+          ),
+        envs: z
+          .record(z.string())
+          .optional()
+          .describe("Custom environment variables for code execution."),
+        timeoutMS: z
+          .number()
+          .optional()
+          .describe(`
         Timeout for the code execution in **milliseconds**.
         @default 60_000 // 60 seconds
       `),
-        requestTimeoutMs: z.number().optional().describe(`
+        requestTimeoutMs: z
+          .number()
+          .optional()
+          .describe(`
         Timeout for the request in **milliseconds**.
         @default 30_000 // 30 seconds
       `),
       })
       .optional()
-      .describe('Run code options'),
+      .describe("Run code options"),
   }),
   outputSchema: z
     .object({
-      execution: z.string().describe('Serialized representation of the execution results'),
+      execution: z.string().describe("Serialized representation of the execution results"),
     })
     .or(
       z.object({
-        error: z.string().describe('The error from a failed execution'),
-      }),
+        error: z.string().describe("The error from a failed execution"),
+      })
     ),
   execute: async (context) => {
     try {
@@ -94,21 +111,21 @@ export const runCode = createTool({
 });
 
 export const readFile = createTool({
-  id: 'readFile',
-  description: 'Read a file from the e2b sandbox',
+  id: "readFile",
+  description: "Read a file from the e2b sandbox",
   inputSchema: z.object({
-    sandboxId: z.string().describe('The sandboxId for the sandbox to read the file from'),
-    path: z.string().describe('The path to the file to read'),
+    sandboxId: z.string().describe("The sandboxId for the sandbox to read the file from"),
+    path: z.string().describe("The path to the file to read"),
   }),
   outputSchema: z
     .object({
-      content: z.string().describe('The content of the file'),
-      path: z.string().describe('The path of the file that was read'),
+      content: z.string().describe("The content of the file"),
+      path: z.string().describe("The path of the file that was read"),
     })
     .or(
       z.object({
-        error: z.string().describe('The error from a failed file read'),
-      }),
+        error: z.string().describe("The error from a failed file read"),
+      })
     ),
   execute: async (context) => {
     try {
@@ -128,22 +145,22 @@ export const readFile = createTool({
 });
 
 export const writeFile = createTool({
-  id: 'writeFile',
-  description: 'Write a single file to the e2b sandbox',
+  id: "writeFile",
+  description: "Write a single file to the e2b sandbox",
   inputSchema: z.object({
-    sandboxId: z.string().describe('The sandboxId for the sandbox to write the file to'),
-    path: z.string().describe('The path where the file should be written'),
-    content: z.string().describe('The content to write to the file'),
+    sandboxId: z.string().describe("The sandboxId for the sandbox to write the file to"),
+    path: z.string().describe("The path where the file should be written"),
+    content: z.string().describe("The content to write to the file"),
   }),
   outputSchema: z
     .object({
-      success: z.boolean().describe('Whether the file was written successfully'),
-      path: z.string().describe('The path where the file was written'),
+      success: z.boolean().describe("Whether the file was written successfully"),
+      path: z.string().describe("The path where the file was written"),
     })
     .or(
       z.object({
-        error: z.string().describe('The error from a failed file write'),
-      }),
+        error: z.string().describe("The error from a failed file write"),
+      })
     ),
   execute: async (context) => {
     try {
@@ -163,28 +180,28 @@ export const writeFile = createTool({
 });
 
 export const writeFiles = createTool({
-  id: 'writeFiles',
-  description: 'Write multiple files to the e2b sandbox',
+  id: "writeFiles",
+  description: "Write multiple files to the e2b sandbox",
   inputSchema: z.object({
-    sandboxId: z.string().describe('The sandboxId for the sandbox to write the files to'),
+    sandboxId: z.string().describe("The sandboxId for the sandbox to write the files to"),
     files: z
       .array(
         z.object({
-          path: z.string().describe('The path where the file should be written'),
-          data: z.string().describe('The content to write to the file'),
-        }),
+          path: z.string().describe("The path where the file should be written"),
+          data: z.string().describe("The content to write to the file"),
+        })
       )
-      .describe('Array of files to write, each with path and data'),
+      .describe("Array of files to write, each with path and data"),
   }),
   outputSchema: z
     .object({
-      success: z.boolean().describe('Whether all files were written successfully'),
-      filesWritten: z.array(z.string()).describe('Array of file paths that were written'),
+      success: z.boolean().describe("Whether all files were written successfully"),
+      filesWritten: z.array(z.string()).describe("Array of file paths that were written"),
     })
     .or(
       z.object({
-        error: z.string().describe('The error from a failed files write'),
-      }),
+        error: z.string().describe("The error from a failed files write"),
+      })
     ),
   execute: async (context) => {
     try {
@@ -193,7 +210,7 @@ export const writeFiles = createTool({
 
       return {
         success: true,
-        filesWritten: context.files.map(file => file.path),
+        filesWritten: context.files.map((file) => file.path),
       };
     } catch (e) {
       return {
@@ -204,40 +221,40 @@ export const writeFiles = createTool({
 });
 
 export const listFiles = createTool({
-  id: 'listFiles',
-  description: 'List files and directories in a path within the e2b sandbox',
+  id: "listFiles",
+  description: "List files and directories in a path within the e2b sandbox",
   inputSchema: z.object({
-    sandboxId: z.string().describe('The sandboxId for the sandbox to list files from'),
-    path: z.string().default('/').describe('The directory path to list files from'),
+    sandboxId: z.string().describe("The sandboxId for the sandbox to list files from"),
+    path: z.string().default("/").describe("The directory path to list files from"),
   }),
   outputSchema: z
     .object({
       files: z
         .array(
           z.object({
-            name: z.string().describe('The name of the file or directory'),
-            path: z.string().describe('The full path of the file or directory'),
-            isDirectory: z.boolean().describe('Whether this is a directory'),
-          }),
+            name: z.string().describe("The name of the file or directory"),
+            path: z.string().describe("The full path of the file or directory"),
+            isDirectory: z.boolean().describe("Whether this is a directory"),
+          })
         )
-        .describe('Array of files and directories'),
-      path: z.string().describe('The path that was listed'),
+        .describe("Array of files and directories"),
+      path: z.string().describe("The path that was listed"),
     })
     .or(
       z.object({
-        error: z.string().describe('The error from a failed file listing'),
-      }),
+        error: z.string().describe("The error from a failed file listing"),
+      })
     ),
   execute: async (context) => {
     try {
       const sandbox = await Sandbox.connect(context.sandboxId);
-      const listPath = context.path ?? '/';
+      const listPath = context.path ?? "/";
       const fileList = await sandbox.files.list(listPath);
 
-      fileList.map(f => f.type);
+      fileList.map((f) => f.type);
 
       return {
-        files: fileList.map(file => ({
+        files: fileList.map((file) => ({
           name: file.name,
           path: file.path,
           isDirectory: file.type === FileType.DIR,
@@ -253,21 +270,21 @@ export const listFiles = createTool({
 });
 
 export const deleteFile = createTool({
-  id: 'deleteFile',
-  description: 'Delete a file or directory from the e2b sandbox',
+  id: "deleteFile",
+  description: "Delete a file or directory from the e2b sandbox",
   inputSchema: z.object({
-    sandboxId: z.string().describe('The sandboxId for the sandbox to delete the file from'),
-    path: z.string().describe('The path to the file or directory to delete'),
+    sandboxId: z.string().describe("The sandboxId for the sandbox to delete the file from"),
+    path: z.string().describe("The path to the file or directory to delete"),
   }),
   outputSchema: z
     .object({
-      success: z.boolean().describe('Whether the file was deleted successfully'),
-      path: z.string().describe('The path that was deleted'),
+      success: z.boolean().describe("Whether the file was deleted successfully"),
+      path: z.string().describe("The path that was deleted"),
     })
     .or(
       z.object({
-        error: z.string().describe('The error from a failed file deletion'),
-      }),
+        error: z.string().describe("The error from a failed file deletion"),
+      })
     ),
   execute: async (context) => {
     try {
@@ -287,21 +304,21 @@ export const deleteFile = createTool({
 });
 
 export const createDirectory = createTool({
-  id: 'createDirectory',
-  description: 'Create a directory in the e2b sandbox',
+  id: "createDirectory",
+  description: "Create a directory in the e2b sandbox",
   inputSchema: z.object({
-    sandboxId: z.string().describe('The sandboxId for the sandbox to create the directory in'),
-    path: z.string().describe('The path where the directory should be created'),
+    sandboxId: z.string().describe("The sandboxId for the sandbox to create the directory in"),
+    path: z.string().describe("The path where the directory should be created"),
   }),
   outputSchema: z
     .object({
-      success: z.boolean().describe('Whether the directory was created successfully'),
-      path: z.string().describe('The path where the directory was created'),
+      success: z.boolean().describe("Whether the directory was created successfully"),
+      path: z.string().describe("The path where the directory was created"),
     })
     .or(
       z.object({
-        error: z.string().describe('The error from a failed directory creation'),
-      }),
+        error: z.string().describe("The error from a failed directory creation"),
+      })
     ),
   execute: async (context) => {
     try {
@@ -321,29 +338,32 @@ export const createDirectory = createTool({
 });
 
 export const getFileInfo = createTool({
-  id: 'getFileInfo',
-  description: 'Get detailed information about a file or directory in the e2b sandbox',
+  id: "getFileInfo",
+  description: "Get detailed information about a file or directory in the e2b sandbox",
   inputSchema: z.object({
-    sandboxId: z.string().describe('The sandboxId for the sandbox to get file information from'),
-    path: z.string().describe('The path to the file or directory to get information about'),
+    sandboxId: z.string().describe("The sandboxId for the sandbox to get file information from"),
+    path: z.string().describe("The path to the file or directory to get information about"),
   }),
   outputSchema: z
     .object({
-      name: z.string().describe('The name of the file or directory'),
-      type: z.nativeEnum(FileType).optional().describe('Whether this is a file or directory'),
-      path: z.string().describe('The full path of the file or directory'),
-      size: z.number().describe('The size of the file or directory in bytes'),
-      mode: z.number().describe('The file mode (permissions as octal number)'),
-      permissions: z.string().describe('Human-readable permissions string'),
-      owner: z.string().describe('The owner of the file or directory'),
-      group: z.string().describe('The group of the file or directory'),
-      modifiedTime: z.date().optional().describe('The last modified time in ISO string format'),
-      symlinkTarget: z.string().optional().describe('The target path if this is a symlink, null otherwise'),
+      name: z.string().describe("The name of the file or directory"),
+      type: z.nativeEnum(FileType).optional().describe("Whether this is a file or directory"),
+      path: z.string().describe("The full path of the file or directory"),
+      size: z.number().describe("The size of the file or directory in bytes"),
+      mode: z.number().describe("The file mode (permissions as octal number)"),
+      permissions: z.string().describe("Human-readable permissions string"),
+      owner: z.string().describe("The owner of the file or directory"),
+      group: z.string().describe("The group of the file or directory"),
+      modifiedTime: z.date().optional().describe("The last modified time in ISO string format"),
+      symlinkTarget: z
+        .string()
+        .optional()
+        .describe("The target path if this is a symlink, null otherwise"),
     })
     .or(
       z.object({
-        error: z.string().describe('The error from a failed file info request'),
-      }),
+        error: z.string().describe("The error from a failed file info request"),
+      })
     ),
   execute: async (context) => {
     try {
@@ -371,22 +391,22 @@ export const getFileInfo = createTool({
 });
 
 export const checkFileExists = createTool({
-  id: 'checkFileExists',
-  description: 'Check if a file or directory exists in the e2b sandbox',
+  id: "checkFileExists",
+  description: "Check if a file or directory exists in the e2b sandbox",
   inputSchema: z.object({
-    sandboxId: z.string().describe('The sandboxId for the sandbox to check file existence in'),
-    path: z.string().describe('The path to check for existence'),
+    sandboxId: z.string().describe("The sandboxId for the sandbox to check file existence in"),
+    path: z.string().describe("The path to check for existence"),
   }),
   outputSchema: z
     .object({
-      exists: z.boolean().describe('Whether the file or directory exists'),
-      path: z.string().describe('The path that was checked'),
-      type: z.nativeEnum(FileType).optional().describe('The type if the path exists'),
+      exists: z.boolean().describe("Whether the file or directory exists"),
+      path: z.string().describe("The path that was checked"),
+      type: z.nativeEnum(FileType).optional().describe("The type if the path exists"),
     })
     .or(
       z.object({
-        error: z.string().describe('The error from a failed existence check'),
-      }),
+        error: z.string().describe("The error from a failed existence check"),
+      })
     ),
   execute: async (context) => {
     try {
@@ -415,11 +435,11 @@ export const checkFileExists = createTool({
 });
 
 export const getFileSize = createTool({
-  id: 'getFileSize',
-  description: 'Get the size of a file or directory in the e2b sandbox',
+  id: "getFileSize",
+  description: "Get the size of a file or directory in the e2b sandbox",
   inputSchema: z.object({
-    sandboxId: z.string().describe('The sandboxId for the sandbox to get file size from'),
-    path: z.string().describe('The path to the file or directory'),
+    sandboxId: z.string().describe("The sandboxId for the sandbox to get file size from"),
+    path: z.string().describe("The path to the file or directory"),
     humanReadable: z
       .boolean()
       .default(false)
@@ -427,15 +447,15 @@ export const getFileSize = createTool({
   }),
   outputSchema: z
     .object({
-      size: z.number().describe('The size in bytes'),
-      humanReadableSize: z.string().optional().describe('Human-readable size string if requested'),
-      path: z.string().describe('The path that was checked'),
-      type: z.nativeEnum(FileType).optional().describe('Whether this is a file or directory'),
+      size: z.number().describe("The size in bytes"),
+      humanReadableSize: z.string().optional().describe("Human-readable size string if requested"),
+      path: z.string().describe("The path that was checked"),
+      type: z.nativeEnum(FileType).optional().describe("Whether this is a file or directory"),
     })
     .or(
       z.object({
-        error: z.string().describe('The error from a failed size check'),
-      }),
+        error: z.string().describe("The error from a failed size check"),
+      })
     ),
   execute: async (context) => {
     try {
@@ -446,12 +466,12 @@ export const getFileSize = createTool({
 
       if (context.humanReadable) {
         const bytes = info.size;
-        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const sizes = ["B", "KB", "MB", "GB", "TB"];
         if (bytes === 0) {
-          humanReadableSize = '0 B';
+          humanReadableSize = "0 B";
         } else {
           const i = Math.floor(Math.log(bytes) / Math.log(1024));
-          const size = (bytes / Math.pow(1024, i)).toFixed(1);
+          const size = (bytes / 1024 ** i).toFixed(1);
           humanReadableSize = `${size} ${sizes[i]}`;
         }
       }
@@ -471,37 +491,37 @@ export const getFileSize = createTool({
 });
 
 export const watchDirectory = createTool({
-  id: 'watchDirectory',
-  description: 'Start watching a directory for file system changes in the e2b sandbox',
+  id: "watchDirectory",
+  description: "Start watching a directory for file system changes in the e2b sandbox",
   inputSchema: z.object({
-    sandboxId: z.string().describe('The sandboxId for the sandbox to watch directory in'),
-    path: z.string().describe('The directory path to watch for changes'),
-    recursive: z.boolean().default(false).describe('Whether to watch subdirectories recursively'),
+    sandboxId: z.string().describe("The sandboxId for the sandbox to watch directory in"),
+    path: z.string().describe("The directory path to watch for changes"),
+    recursive: z.boolean().default(false).describe("Whether to watch subdirectories recursively"),
     watchDuration: z
       .number()
       .default(30000)
-      .describe('How long to watch for changes in milliseconds (default 30 seconds)'),
+      .describe("How long to watch for changes in milliseconds (default 30 seconds)"),
   }),
   outputSchema: z
     .object({
-      watchStarted: z.boolean().describe('Whether the watch was started successfully'),
-      path: z.string().describe('The path that was watched'),
+      watchStarted: z.boolean().describe("Whether the watch was started successfully"),
+      path: z.string().describe("The path that was watched"),
       events: z
         .array(
           z.object({
             type: z
               .nativeEnum(FilesystemEventType)
-              .describe('The type of filesystem event (WRITE, CREATE, DELETE, etc.)'),
-            name: z.string().describe('The name of the file that changed'),
-            timestamp: z.string().describe('When the event occurred'),
-          }),
+              .describe("The type of filesystem event (WRITE, CREATE, DELETE, etc.)"),
+            name: z.string().describe("The name of the file that changed"),
+            timestamp: z.string().describe("When the event occurred"),
+          })
         )
-        .describe('Array of filesystem events that occurred during the watch period'),
+        .describe("Array of filesystem events that occurred during the watch period"),
     })
     .or(
       z.object({
-        error: z.string().describe('The error from a failed directory watch'),
-      }),
+        error: z.string().describe("The error from a failed directory watch"),
+      })
     ),
   execute: async (context) => {
     try {
@@ -511,7 +531,7 @@ export const watchDirectory = createTool({
       // Start watching the directory
       const handle = await sandbox.files.watchDir(
         context.path,
-        async event => {
+        async (event) => {
           events.push({
             type: event.type,
             name: event.name,
@@ -520,11 +540,11 @@ export const watchDirectory = createTool({
         },
         {
           recursive: context.recursive,
-        },
+        }
       );
 
       // Watch for the specified duration
-      await new Promise(resolve => setTimeout(resolve, context.watchDuration));
+      await new Promise((resolve) => setTimeout(resolve, context.watchDuration));
 
       // Stop watching
       await handle.stop();
@@ -543,28 +563,34 @@ export const watchDirectory = createTool({
 });
 
 export const runCommand = createTool({
-  id: 'runCommand',
-  description: 'Run a shell command in the e2b sandbox',
+  id: "runCommand",
+  description: "Run a shell command in the e2b sandbox",
   inputSchema: z.object({
-    sandboxId: z.string().describe('The sandboxId for the sandbox to run the command in'),
-    command: z.string().describe('The shell command to execute'),
-    workingDirectory: z.string().optional().describe('The working directory to run the command in'),
-    timeoutMs: z.number().default(30000).describe('Timeout for the command execution in milliseconds'),
-    captureOutput: z.boolean().default(true).describe('Whether to capture stdout and stderr output'),
+    sandboxId: z.string().describe("The sandboxId for the sandbox to run the command in"),
+    command: z.string().describe("The shell command to execute"),
+    workingDirectory: z.string().optional().describe("The working directory to run the command in"),
+    timeoutMs: z
+      .number()
+      .default(30000)
+      .describe("Timeout for the command execution in milliseconds"),
+    captureOutput: z
+      .boolean()
+      .default(true)
+      .describe("Whether to capture stdout and stderr output"),
   }),
   outputSchema: z
     .object({
-      success: z.boolean().describe('Whether the command executed successfully'),
-      exitCode: z.number().describe('The exit code of the command'),
-      stdout: z.string().describe('The standard output from the command'),
-      stderr: z.string().describe('The standard error from the command'),
-      command: z.string().describe('The command that was executed'),
-      executionTime: z.number().describe('How long the command took to execute in milliseconds'),
+      success: z.boolean().describe("Whether the command executed successfully"),
+      exitCode: z.number().describe("The exit code of the command"),
+      stdout: z.string().describe("The standard output from the command"),
+      stderr: z.string().describe("The standard error from the command"),
+      command: z.string().describe("The command that was executed"),
+      executionTime: z.number().describe("How long the command took to execute in milliseconds"),
     })
     .or(
       z.object({
-        error: z.string().describe('The error from a failed command execution'),
-      }),
+        error: z.string().describe("The error from a failed command execution"),
+      })
     ),
   execute: async (context) => {
     try {

@@ -8,39 +8,39 @@
  * Backend:  process.env.BACKEND_URL  (default: http://localhost:3001)
  */
 
-import { test, expect } from '@playwright/test';
+import { expect, test } from "@playwright/test";
 
 // ============================================================================
 // Configuration
 // ============================================================================
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
-const BACKEND_URL  = process.env.BACKEND_URL  || 'http://localhost:3001';
-const API_BASE     = `${BACKEND_URL}/api/bus`;
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3001";
+const API_BASE = `${BACKEND_URL}/api/bus`;
 
 // Entity paths
-const COMPANY_PATH = '/bus_company';
-const CONTACT_PATH = '/bus_contact';
-const DEAL_PATH = '/bus_deal';
-const DEAL_STAGE_PATH = '/bus_deal_stage';
-const PIPELINE_PATH = '/bus_pipeline';
-const ACTIVITY_PATH = '/bus_activity';
-const NOTE_PATH = '/bus_note';
-const TASK_PATH = '/bus_task';
-const EMAIL_MESSAGE_PATH = '/bus_email_message';
-const EMAIL_TEMPLATE_PATH = '/bus_email_template';
-const PRODUCT_PATH = '/bus_product';
-const QUOTE_PATH = '/bus_quote';
-const QUOTE_ITEM_PATH = '/bus_quote_item';
-const USER_PATH = '/bus_user';
-const TEAM_PATH = '/bus_team';
+const COMPANY_PATH = "/bus_company";
+const CONTACT_PATH = "/bus_contact";
+const DEAL_PATH = "/bus_deal";
+const DEAL_STAGE_PATH = "/bus_deal_stage";
+const PIPELINE_PATH = "/bus_pipeline";
+const ACTIVITY_PATH = "/bus_activity";
+const NOTE_PATH = "/bus_note";
+const TASK_PATH = "/bus_task";
+const EMAIL_MESSAGE_PATH = "/bus_email_message";
+const EMAIL_TEMPLATE_PATH = "/bus_email_template";
+const PRODUCT_PATH = "/bus_product";
+const QUOTE_PATH = "/bus_quote";
+const QUOTE_ITEM_PATH = "/bus_quote_item";
+const USER_PATH = "/bus_user";
+const TEAM_PATH = "/bus_team";
 
 // ============================================================================
 // Helpers
 // ============================================================================
 
 async function waitForPageReady(page: any) {
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState("networkidle");
   await page.waitForTimeout(500);
 }
 
@@ -48,160 +48,159 @@ async function waitForPageReady(page: any) {
 // API Health Checks
 // ============================================================================
 
-test.describe('crm-app — API Health', () => {
-  test('GET /api/bus/companies should respond 200', async ({ request }) => {
+test.describe("crm-app — API Health", () => {
+  test("GET /api/bus/companies should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/companies`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
 
-  test('GET /api/bus/contacts should respond 200', async ({ request }) => {
+  test("GET /api/bus/contacts should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/contacts`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
 
-  test('GET /api/bus/deals should respond 200', async ({ request }) => {
+  test("GET /api/bus/deals should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/deals`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
 
-  test('GET /api/bus/deal_stages should respond 200', async ({ request }) => {
+  test("GET /api/bus/deal_stages should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/deal_stages`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
 
-  test('GET /api/bus/pipelines should respond 200', async ({ request }) => {
+  test("GET /api/bus/pipelines should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/pipelines`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
 
-  test('GET /api/bus/activities should respond 200', async ({ request }) => {
+  test("GET /api/bus/activities should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/activities`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
 
-  test('GET /api/bus/notes should respond 200', async ({ request }) => {
+  test("GET /api/bus/notes should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/notes`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
 
-  test('GET /api/bus/tasks should respond 200', async ({ request }) => {
+  test("GET /api/bus/tasks should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/tasks`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
 
-  test('GET /api/bus/email_messages should respond 200', async ({ request }) => {
+  test("GET /api/bus/email_messages should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/email_messages`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
 
-  test('GET /api/bus/email_templates should respond 200', async ({ request }) => {
+  test("GET /api/bus/email_templates should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/email_templates`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
 
-  test('GET /api/bus/products should respond 200', async ({ request }) => {
+  test("GET /api/bus/products should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/products`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
 
-  test('GET /api/bus/quotes should respond 200', async ({ request }) => {
+  test("GET /api/bus/quotes should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/quotes`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
 
-  test('GET /api/bus/quote_items should respond 200', async ({ request }) => {
+  test("GET /api/bus/quote_items should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/quote_items`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
 
-  test('GET /api/bus/users should respond 200', async ({ request }) => {
+  test("GET /api/bus/users should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/users`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
 
-  test('GET /api/bus/teams should respond 200', async ({ request }) => {
+  test("GET /api/bus/teams should respond 200", async ({ request }) => {
     const res = await request.get(`${API_BASE}/teams`);
     expect(res.status()).toBe(200);
     const data = await res.json();
-    expect(data).toHaveProperty('data');
+    expect(data).toHaveProperty("data");
     expect(Array.isArray(data.data)).toBe(true);
   });
-
 });
 
 // ============================================================================
 // Entity CRUD Tests (via API)
 // ============================================================================
 
-test.describe('Company — CRUD', () => {
-  test('should create a Company via API', async ({ request }) => {
+test.describe("Company — CRUD", () => {
+  test("should create a Company via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      name: 'Test Name',
-      industry: 'test_value',
-      website: 'test_value',
-      phone: '+1234567890',
-      email: 'test@example.com',
+      name: "Test Name",
+      industry: "test_value",
+      website: "test_value",
+      phone: "+1234567890",
+      email: "test@example.com",
       employee_count: 123,
       annual_revenue: 123.45,
-      status: 'test_value',
+      status: "test_value",
     };
 
     const res = await request.post(`${API_BASE}/companies`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/companies/${created.id}`);
     }
   });
 
-  test('should read a Company via API', async ({ request }) => {
+  test("should read a Company via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       name: `Test Name 0`,
       industry: `test_value_0`,
@@ -209,13 +208,13 @@ test.describe('Company — CRUD', () => {
       phone: `test_value_0`,
       email: `test0@example.com`,
       employee_count: 100,
-      annual_revenue: 100.50,
+      annual_revenue: 100.5,
       status: `test_value_0`,
     };
 
     const createRes = await request.post(`${API_BASE}/companies`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -226,7 +225,7 @@ test.describe('Company — CRUD', () => {
     }
   });
 
-  test('should update a Company via API', async ({ request }) => {
+  test("should update a Company via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/companies`, {
       data: {
         name: `Test Name 1`,
@@ -235,10 +234,10 @@ test.describe('Company — CRUD', () => {
         phone: `test_value_1`,
         email: `test1@example.com`,
         employee_count: 101,
-        annual_revenue: 101.50,
+        annual_revenue: 101.5,
         status: `test_value_1`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -251,17 +250,17 @@ test.describe('Company — CRUD', () => {
           phone: `test_value_2`,
           email: `test2@example.com`,
           employee_count: 102,
-          annual_revenue: 102.50,
+          annual_revenue: 102.5,
           status: `test_value_2`,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/companies/${created.id}`);
     }
   });
 
-  test('should delete a Company via API', async ({ request }) => {
+  test("should delete a Company via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/companies`, {
       data: {
         name: `Test Name 3`,
@@ -270,10 +269,10 @@ test.describe('Company — CRUD', () => {
         phone: `test_value_3`,
         email: `test3@example.com`,
         employee_count: 103,
-        annual_revenue: 103.50,
+        annual_revenue: 103.5,
         status: `test_value_3`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -286,34 +285,34 @@ test.describe('Company — CRUD', () => {
   });
 });
 
-test.describe('Contact — CRUD', () => {
-  test('should create a Contact via API', async ({ request }) => {
+test.describe("Contact — CRUD", () => {
+  test("should create a Contact via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      first_name: 'Test Name',
-      last_name: 'Test Name',
-      email: 'test@example.com',
-      phone: '+1234567890',
-      mobile: 'test_value',
-      job_title: 'test_value',
-      department: 'test_value',
-      status: 'test_value',
-      lead_source: 'test_value',
+      first_name: "Test Name",
+      last_name: "Test Name",
+      email: "test@example.com",
+      phone: "+1234567890",
+      mobile: "test_value",
+      job_title: "test_value",
+      department: "test_value",
+      status: "test_value",
+      lead_source: "test_value",
     };
 
     const res = await request.post(`${API_BASE}/contacts`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/contacts/${created.id}`);
     }
   });
 
-  test('should read a Contact via API', async ({ request }) => {
+  test("should read a Contact via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       first_name: `Test Name 0`,
       last_name: `Test Name 0`,
@@ -328,7 +327,7 @@ test.describe('Contact — CRUD', () => {
 
     const createRes = await request.post(`${API_BASE}/contacts`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -339,7 +338,7 @@ test.describe('Contact — CRUD', () => {
     }
   });
 
-  test('should update a Contact via API', async ({ request }) => {
+  test("should update a Contact via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/contacts`, {
       data: {
         first_name: `Test Name 1`,
@@ -352,7 +351,7 @@ test.describe('Contact — CRUD', () => {
         status: `test_value_1`,
         lead_source: `test_value_1`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -369,14 +368,14 @@ test.describe('Contact — CRUD', () => {
           status: `test_value_2`,
           lead_source: `test_value_2`,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/contacts/${created.id}`);
     }
   });
 
-  test('should delete a Contact via API', async ({ request }) => {
+  test("should delete a Contact via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/contacts`, {
       data: {
         first_name: `Test Name 3`,
@@ -389,7 +388,7 @@ test.describe('Contact — CRUD', () => {
         status: `test_value_3`,
         lead_source: `test_value_3`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -402,37 +401,37 @@ test.describe('Contact — CRUD', () => {
   });
 });
 
-test.describe('Deal — CRUD', () => {
-  test('should create a Deal via API', async ({ request }) => {
+test.describe("Deal — CRUD", () => {
+  test("should create a Deal via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      name: 'Test Name',
+      name: "Test Name",
       amount: 123.45,
-      currency: 'test_value',
-      stage: 'test_value',
+      currency: "test_value",
+      stage: "test_value",
       probability: 123,
       expected_close_date: new Date().toISOString(),
       actual_close_date: new Date().toISOString(),
-      status: 'test_value',
-      description: 'test_value',
+      status: "test_value",
+      description: "test_value",
     };
 
     const res = await request.post(`${API_BASE}/deals`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/deals/${created.id}`);
     }
   });
 
-  test('should read a Deal via API', async ({ request }) => {
+  test("should read a Deal via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       name: `Test Name 0`,
-      amount: 100.50,
+      amount: 100.5,
       currency: `test_value_0`,
       stage: `test_value_0`,
       probability: 100,
@@ -444,7 +443,7 @@ test.describe('Deal — CRUD', () => {
 
     const createRes = await request.post(`${API_BASE}/deals`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -455,11 +454,11 @@ test.describe('Deal — CRUD', () => {
     }
   });
 
-  test('should update a Deal via API', async ({ request }) => {
+  test("should update a Deal via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/deals`, {
       data: {
         name: `Test Name 1`,
-        amount: 101.50,
+        amount: 101.5,
         currency: `test_value_1`,
         stage: `test_value_1`,
         probability: 101,
@@ -468,7 +467,7 @@ test.describe('Deal — CRUD', () => {
         status: `test_value_1`,
         description: `test_value_1`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -476,7 +475,7 @@ test.describe('Deal — CRUD', () => {
       const updateRes = await request.patch(`${API_BASE}/deals/${created.id}`, {
         data: {
           name: `Test Name 2`,
-          amount: 102.50,
+          amount: 102.5,
           currency: `test_value_2`,
           stage: `test_value_2`,
           probability: 102,
@@ -485,18 +484,18 @@ test.describe('Deal — CRUD', () => {
           status: `test_value_2`,
           description: `test_value_2`,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/deals/${created.id}`);
     }
   });
 
-  test('should delete a Deal via API', async ({ request }) => {
+  test("should delete a Deal via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/deals`, {
       data: {
         name: `Test Name 3`,
-        amount: 103.50,
+        amount: 103.5,
         currency: `test_value_3`,
         stage: `test_value_3`,
         probability: 103,
@@ -505,7 +504,7 @@ test.describe('Deal — CRUD', () => {
         status: `test_value_3`,
         description: `test_value_3`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -518,10 +517,10 @@ test.describe('Deal — CRUD', () => {
   });
 });
 
-test.describe('Deal Stage — CRUD', () => {
-  test('should create a Deal Stage via API', async ({ request }) => {
+test.describe("Deal Stage — CRUD", () => {
+  test("should create a Deal Stage via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      name: 'Test Name',
+      name: "Test Name",
       sort_order: 123,
       default_probability: 123,
       is_won: true,
@@ -530,18 +529,18 @@ test.describe('Deal Stage — CRUD', () => {
 
     const res = await request.post(`${API_BASE}/deal_stages`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/deal_stages/${created.id}`);
     }
   });
 
-  test('should read a Deal Stage via API', async ({ request }) => {
+  test("should read a Deal Stage via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       name: `Test Name 0`,
       sort_order: 100,
@@ -552,7 +551,7 @@ test.describe('Deal Stage — CRUD', () => {
 
     const createRes = await request.post(`${API_BASE}/deal_stages`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -563,7 +562,7 @@ test.describe('Deal Stage — CRUD', () => {
     }
   });
 
-  test('should update a Deal Stage via API', async ({ request }) => {
+  test("should update a Deal Stage via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/deal_stages`, {
       data: {
         name: `Test Name 1`,
@@ -572,7 +571,7 @@ test.describe('Deal Stage — CRUD', () => {
         is_won: `test_1`,
         is_lost: `test_1`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -585,14 +584,14 @@ test.describe('Deal Stage — CRUD', () => {
           is_won: `test_2`,
           is_lost: `test_2`,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/deal_stages/${created.id}`);
     }
   });
 
-  test('should delete a Deal Stage via API', async ({ request }) => {
+  test("should delete a Deal Stage via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/deal_stages`, {
       data: {
         name: `Test Name 3`,
@@ -601,7 +600,7 @@ test.describe('Deal Stage — CRUD', () => {
         is_won: `test_3`,
         is_lost: `test_3`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -614,28 +613,28 @@ test.describe('Deal Stage — CRUD', () => {
   });
 });
 
-test.describe('Pipeline — CRUD', () => {
-  test('should create a Pipeline via API', async ({ request }) => {
+test.describe("Pipeline — CRUD", () => {
+  test("should create a Pipeline via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      name: 'Test Name',
+      name: "Test Name",
       is_default: true,
       is_active: true,
     };
 
     const res = await request.post(`${API_BASE}/pipelines`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/pipelines/${created.id}`);
     }
   });
 
-  test('should read a Pipeline via API', async ({ request }) => {
+  test("should read a Pipeline via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       name: `Test Name 0`,
       is_default: `test_0`,
@@ -644,7 +643,7 @@ test.describe('Pipeline — CRUD', () => {
 
     const createRes = await request.post(`${API_BASE}/pipelines`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -655,14 +654,14 @@ test.describe('Pipeline — CRUD', () => {
     }
   });
 
-  test('should update a Pipeline via API', async ({ request }) => {
+  test("should update a Pipeline via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/pipelines`, {
       data: {
         name: `Test Name 1`,
         is_default: `test_1`,
         is_active: `test_1`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -673,21 +672,21 @@ test.describe('Pipeline — CRUD', () => {
           is_default: `test_2`,
           is_active: `test_2`,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/pipelines/${created.id}`);
     }
   });
 
-  test('should delete a Pipeline via API', async ({ request }) => {
+  test("should delete a Pipeline via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/pipelines`, {
       data: {
         name: `Test Name 3`,
         is_default: `test_3`,
         is_active: `test_3`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -700,32 +699,32 @@ test.describe('Pipeline — CRUD', () => {
   });
 });
 
-test.describe('Activity — CRUD', () => {
-  test('should create a Activity via API', async ({ request }) => {
+test.describe("Activity — CRUD", () => {
+  test("should create a Activity via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      activity_type: 'test_value',
-      subject: 'test_value',
-      description: 'test_value',
+      activity_type: "test_value",
+      subject: "test_value",
+      description: "test_value",
       scheduled_at: new Date().toISOString(),
       completed_at: new Date().toISOString(),
       duration_minutes: 123,
-      status: 'test_value',
+      status: "test_value",
     };
 
     const res = await request.post(`${API_BASE}/activities`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/activities/${created.id}`);
     }
   });
 
-  test('should read a Activity via API', async ({ request }) => {
+  test("should read a Activity via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       activity_type: `test_value_0`,
       subject: `test_value_0`,
@@ -738,7 +737,7 @@ test.describe('Activity — CRUD', () => {
 
     const createRes = await request.post(`${API_BASE}/activities`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -749,7 +748,7 @@ test.describe('Activity — CRUD', () => {
     }
   });
 
-  test('should update a Activity via API', async ({ request }) => {
+  test("should update a Activity via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/activities`, {
       data: {
         activity_type: `test_value_1`,
@@ -760,7 +759,7 @@ test.describe('Activity — CRUD', () => {
         duration_minutes: 101,
         status: `test_value_1`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -775,14 +774,14 @@ test.describe('Activity — CRUD', () => {
           duration_minutes: 102,
           status: `test_value_2`,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/activities/${created.id}`);
     }
   });
 
-  test('should delete a Activity via API', async ({ request }) => {
+  test("should delete a Activity via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/activities`, {
       data: {
         activity_type: `test_value_3`,
@@ -793,7 +792,7 @@ test.describe('Activity — CRUD', () => {
         duration_minutes: 103,
         status: `test_value_3`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -806,27 +805,27 @@ test.describe('Activity — CRUD', () => {
   });
 });
 
-test.describe('Note — CRUD', () => {
-  test('should create a Note via API', async ({ request }) => {
+test.describe("Note — CRUD", () => {
+  test("should create a Note via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      content: 'test_value',
+      content: "test_value",
       is_pinned: true,
     };
 
     const res = await request.post(`${API_BASE}/notes`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/notes/${created.id}`);
     }
   });
 
-  test('should read a Note via API', async ({ request }) => {
+  test("should read a Note via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       content: `test_value_0`,
       is_pinned: `test_0`,
@@ -834,7 +833,7 @@ test.describe('Note — CRUD', () => {
 
     const createRes = await request.post(`${API_BASE}/notes`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -845,13 +844,13 @@ test.describe('Note — CRUD', () => {
     }
   });
 
-  test('should update a Note via API', async ({ request }) => {
+  test("should update a Note via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/notes`, {
       data: {
         content: `test_value_1`,
         is_pinned: `test_1`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -861,20 +860,20 @@ test.describe('Note — CRUD', () => {
           content: `test_value_2`,
           is_pinned: `test_2`,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/notes/${created.id}`);
     }
   });
 
-  test('should delete a Note via API', async ({ request }) => {
+  test("should delete a Note via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/notes`, {
       data: {
         content: `test_value_3`,
         is_pinned: `test_3`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -887,33 +886,33 @@ test.describe('Note — CRUD', () => {
   });
 });
 
-test.describe('Task — CRUD', () => {
-  test('should create a Task via API', async ({ request }) => {
+test.describe("Task — CRUD", () => {
+  test("should create a Task via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      title: 'test_value',
-      description: 'test_value',
-      priority: 'test_value',
-      status: 'test_value',
+      title: "test_value",
+      description: "test_value",
+      priority: "test_value",
+      status: "test_value",
       due_date: new Date().toISOString(),
       completed_at: new Date().toISOString(),
-      assigned_to: 'test_value',
-      created_by: 'test_value',
+      assigned_to: "test_value",
+      created_by: "test_value",
     };
 
     const res = await request.post(`${API_BASE}/tasks`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/tasks/${created.id}`);
     }
   });
 
-  test('should read a Task via API', async ({ request }) => {
+  test("should read a Task via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       title: `test_value_0`,
       description: `test_value_0`,
@@ -927,7 +926,7 @@ test.describe('Task — CRUD', () => {
 
     const createRes = await request.post(`${API_BASE}/tasks`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -938,7 +937,7 @@ test.describe('Task — CRUD', () => {
     }
   });
 
-  test('should update a Task via API', async ({ request }) => {
+  test("should update a Task via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/tasks`, {
       data: {
         title: `test_value_1`,
@@ -950,7 +949,7 @@ test.describe('Task — CRUD', () => {
         assigned_to: `test_value_1`,
         created_by: `test_value_1`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -966,14 +965,14 @@ test.describe('Task — CRUD', () => {
           assigned_to: `test_value_2`,
           created_by: `test_value_2`,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/tasks/${created.id}`);
     }
   });
 
-  test('should delete a Task via API', async ({ request }) => {
+  test("should delete a Task via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/tasks`, {
       data: {
         title: `test_value_3`,
@@ -985,7 +984,7 @@ test.describe('Task — CRUD', () => {
         assigned_to: `test_value_3`,
         created_by: `test_value_3`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -998,13 +997,13 @@ test.describe('Task — CRUD', () => {
   });
 });
 
-test.describe('Email Message — CRUD', () => {
-  test('should create a Email Message via API', async ({ request }) => {
+test.describe("Email Message — CRUD", () => {
+  test("should create a Email Message via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      subject: 'test_value',
-      body_text: 'test_value',
-      body_html: 'test_value',
-      direction: 'test_value',
+      subject: "test_value",
+      body_text: "test_value",
+      body_html: "test_value",
+      direction: "test_value",
       sent_at: new Date().toISOString(),
       received_at: new Date().toISOString(),
       opened_at: new Date().toISOString(),
@@ -1013,18 +1012,18 @@ test.describe('Email Message — CRUD', () => {
 
     const res = await request.post(`${API_BASE}/email_messages`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/email_messages/${created.id}`);
     }
   });
 
-  test('should read a Email Message via API', async ({ request }) => {
+  test("should read a Email Message via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       subject: `test_value_0`,
       body_text: `test_value_0`,
@@ -1038,7 +1037,7 @@ test.describe('Email Message — CRUD', () => {
 
     const createRes = await request.post(`${API_BASE}/email_messages`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1049,7 +1048,7 @@ test.describe('Email Message — CRUD', () => {
     }
   });
 
-  test('should update a Email Message via API', async ({ request }) => {
+  test("should update a Email Message via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/email_messages`, {
       data: {
         subject: `test_value_1`,
@@ -1061,7 +1060,7 @@ test.describe('Email Message — CRUD', () => {
         opened_at: `test_1`,
         open_count: 101,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1077,14 +1076,14 @@ test.describe('Email Message — CRUD', () => {
           opened_at: `test_2`,
           open_count: 102,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/email_messages/${created.id}`);
     }
   });
 
-  test('should delete a Email Message via API', async ({ request }) => {
+  test("should delete a Email Message via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/email_messages`, {
       data: {
         subject: `test_value_3`,
@@ -1096,7 +1095,7 @@ test.describe('Email Message — CRUD', () => {
         opened_at: `test_3`,
         open_count: 103,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1109,31 +1108,31 @@ test.describe('Email Message — CRUD', () => {
   });
 });
 
-test.describe('Email Template — CRUD', () => {
-  test('should create a Email Template via API', async ({ request }) => {
+test.describe("Email Template — CRUD", () => {
+  test("should create a Email Template via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      name: 'Test Name',
-      subject: 'test_value',
-      body_html: 'test_value',
-      body_text: 'test_value',
-      category: 'test_value',
+      name: "Test Name",
+      subject: "test_value",
+      body_html: "test_value",
+      body_text: "test_value",
+      category: "test_value",
       is_active: true,
     };
 
     const res = await request.post(`${API_BASE}/email_templates`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/email_templates/${created.id}`);
     }
   });
 
-  test('should read a Email Template via API', async ({ request }) => {
+  test("should read a Email Template via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       name: `Test Name 0`,
       subject: `test_value_0`,
@@ -1145,7 +1144,7 @@ test.describe('Email Template — CRUD', () => {
 
     const createRes = await request.post(`${API_BASE}/email_templates`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1156,7 +1155,7 @@ test.describe('Email Template — CRUD', () => {
     }
   });
 
-  test('should update a Email Template via API', async ({ request }) => {
+  test("should update a Email Template via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/email_templates`, {
       data: {
         name: `Test Name 1`,
@@ -1166,7 +1165,7 @@ test.describe('Email Template — CRUD', () => {
         category: `test_value_1`,
         is_active: `test_1`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1180,14 +1179,14 @@ test.describe('Email Template — CRUD', () => {
           category: `test_value_2`,
           is_active: `test_2`,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/email_templates/${created.id}`);
     }
   });
 
-  test('should delete a Email Template via API', async ({ request }) => {
+  test("should delete a Email Template via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/email_templates`, {
       data: {
         name: `Test Name 3`,
@@ -1197,7 +1196,7 @@ test.describe('Email Template — CRUD', () => {
         category: `test_value_3`,
         is_active: `test_3`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1210,43 +1209,43 @@ test.describe('Email Template — CRUD', () => {
   });
 });
 
-test.describe('Product — CRUD', () => {
-  test('should create a Product via API', async ({ request }) => {
+test.describe("Product — CRUD", () => {
+  test("should create a Product via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      name: 'Test Name',
-      sku: 'test_value',
-      description: 'test_value',
+      name: "Test Name",
+      sku: "test_value",
+      description: "test_value",
       unit_price: 123.45,
-      currency: 'test_value',
+      currency: "test_value",
       is_active: true,
     };
 
     const res = await request.post(`${API_BASE}/products`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/products/${created.id}`);
     }
   });
 
-  test('should read a Product via API', async ({ request }) => {
+  test("should read a Product via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       name: `Test Name 0`,
       sku: `test_value_0`,
       description: `test_value_0`,
-      unit_price: 100.50,
+      unit_price: 100.5,
       currency: `test_value_0`,
       is_active: `test_0`,
     };
 
     const createRes = await request.post(`${API_BASE}/products`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1257,17 +1256,17 @@ test.describe('Product — CRUD', () => {
     }
   });
 
-  test('should update a Product via API', async ({ request }) => {
+  test("should update a Product via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/products`, {
       data: {
         name: `Test Name 1`,
         sku: `test_value_1`,
         description: `test_value_1`,
-        unit_price: 101.50,
+        unit_price: 101.5,
         currency: `test_value_1`,
         is_active: `test_1`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1277,28 +1276,28 @@ test.describe('Product — CRUD', () => {
           name: `Test Name 2`,
           sku: `test_value_2`,
           description: `test_value_2`,
-          unit_price: 102.50,
+          unit_price: 102.5,
           currency: `test_value_2`,
           is_active: `test_2`,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/products/${created.id}`);
     }
   });
 
-  test('should delete a Product via API', async ({ request }) => {
+  test("should delete a Product via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/products`, {
       data: {
         name: `Test Name 3`,
         sku: `test_value_3`,
         description: `test_value_3`,
-        unit_price: 103.50,
+        unit_price: 103.5,
         currency: `test_value_3`,
         is_active: `test_3`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1311,49 +1310,49 @@ test.describe('Product — CRUD', () => {
   });
 });
 
-test.describe('Quote — CRUD', () => {
-  test('should create a Quote via API', async ({ request }) => {
+test.describe("Quote — CRUD", () => {
+  test("should create a Quote via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      quote_number: 'test_value',
-      status: 'test_value',
+      quote_number: "test_value",
+      status: "test_value",
       valid_until: new Date().toISOString(),
       subtotal: 123.45,
       discount_amount: 123.45,
       tax_amount: 123.45,
       total_amount: 123.45,
-      terms: 'test_value',
-      notes: 'test_value',
+      terms: "test_value",
+      notes: "test_value",
     };
 
     const res = await request.post(`${API_BASE}/quotes`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/quotes/${created.id}`);
     }
   });
 
-  test('should read a Quote via API', async ({ request }) => {
+  test("should read a Quote via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       quote_number: `test_value_0`,
       status: `test_value_0`,
       valid_until: `test_0`,
-      subtotal: 100.50,
-      discount_amount: 100.50,
-      tax_amount: 100.50,
-      total_amount: 100.50,
+      subtotal: 100.5,
+      discount_amount: 100.5,
+      tax_amount: 100.5,
+      total_amount: 100.5,
       terms: `test_value_0`,
       notes: `test_value_0`,
     };
 
     const createRes = await request.post(`${API_BASE}/quotes`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1364,20 +1363,20 @@ test.describe('Quote — CRUD', () => {
     }
   });
 
-  test('should update a Quote via API', async ({ request }) => {
+  test("should update a Quote via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/quotes`, {
       data: {
         quote_number: `test_value_1`,
         status: `test_value_1`,
         valid_until: `test_1`,
-        subtotal: 101.50,
-        discount_amount: 101.50,
-        tax_amount: 101.50,
-        total_amount: 101.50,
+        subtotal: 101.5,
+        discount_amount: 101.5,
+        tax_amount: 101.5,
+        total_amount: 101.5,
         terms: `test_value_1`,
         notes: `test_value_1`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1387,34 +1386,34 @@ test.describe('Quote — CRUD', () => {
           quote_number: `test_value_2`,
           status: `test_value_2`,
           valid_until: `test_2`,
-          subtotal: 102.50,
-          discount_amount: 102.50,
-          tax_amount: 102.50,
-          total_amount: 102.50,
+          subtotal: 102.5,
+          discount_amount: 102.5,
+          tax_amount: 102.5,
+          total_amount: 102.5,
           terms: `test_value_2`,
           notes: `test_value_2`,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/quotes/${created.id}`);
     }
   });
 
-  test('should delete a Quote via API', async ({ request }) => {
+  test("should delete a Quote via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/quotes`, {
       data: {
         quote_number: `test_value_3`,
         status: `test_value_3`,
         valid_until: `test_3`,
-        subtotal: 103.50,
-        discount_amount: 103.50,
-        tax_amount: 103.50,
-        total_amount: 103.50,
+        subtotal: 103.5,
+        discount_amount: 103.5,
+        tax_amount: 103.5,
+        total_amount: 103.5,
         terms: `test_value_3`,
         notes: `test_value_3`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1427,10 +1426,10 @@ test.describe('Quote — CRUD', () => {
   });
 });
 
-test.describe('Quote Item — CRUD', () => {
-  test('should create a Quote Item via API', async ({ request }) => {
+test.describe("Quote Item — CRUD", () => {
+  test("should create a Quote Item via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      description: 'test_value',
+      description: "test_value",
       quantity: 123,
       unit_price: 123.45,
       discount_percent: 123.45,
@@ -1439,29 +1438,29 @@ test.describe('Quote Item — CRUD', () => {
 
     const res = await request.post(`${API_BASE}/quote_items`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/quote_items/${created.id}`);
     }
   });
 
-  test('should read a Quote Item via API', async ({ request }) => {
+  test("should read a Quote Item via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       description: `test_value_0`,
       quantity: 100,
-      unit_price: 100.50,
-      discount_percent: 100.50,
-      total_price: 100.50,
+      unit_price: 100.5,
+      discount_percent: 100.5,
+      total_price: 100.5,
     };
 
     const createRes = await request.post(`${API_BASE}/quote_items`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1472,16 +1471,16 @@ test.describe('Quote Item — CRUD', () => {
     }
   });
 
-  test('should update a Quote Item via API', async ({ request }) => {
+  test("should update a Quote Item via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/quote_items`, {
       data: {
         description: `test_value_1`,
         quantity: 101,
-        unit_price: 101.50,
-        discount_percent: 101.50,
-        total_price: 101.50,
+        unit_price: 101.5,
+        discount_percent: 101.5,
+        total_price: 101.5,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1490,27 +1489,27 @@ test.describe('Quote Item — CRUD', () => {
         data: {
           description: `test_value_2`,
           quantity: 102,
-          unit_price: 102.50,
-          discount_percent: 102.50,
-          total_price: 102.50,
+          unit_price: 102.5,
+          discount_percent: 102.5,
+          total_price: 102.5,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/quote_items/${created.id}`);
     }
   });
 
-  test('should delete a Quote Item via API', async ({ request }) => {
+  test("should delete a Quote Item via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/quote_items`, {
       data: {
         description: `test_value_3`,
         quantity: 103,
-        unit_price: 103.50,
-        discount_percent: 103.50,
-        total_price: 103.50,
+        unit_price: 103.5,
+        discount_percent: 103.5,
+        total_price: 103.5,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1523,31 +1522,31 @@ test.describe('Quote Item — CRUD', () => {
   });
 });
 
-test.describe('User — CRUD', () => {
-  test('should create a User via API', async ({ request }) => {
+test.describe("User — CRUD", () => {
+  test("should create a User via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      email: 'test@example.com',
-      first_name: 'Test Name',
-      last_name: 'Test Name',
-      role: 'test_value',
+      email: "test@example.com",
+      first_name: "Test Name",
+      last_name: "Test Name",
+      role: "test_value",
       is_active: true,
       last_login: new Date().toISOString(),
     };
 
     const res = await request.post(`${API_BASE}/users`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/users/${created.id}`);
     }
   });
 
-  test('should read a User via API', async ({ request }) => {
+  test("should read a User via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       email: `test0@example.com`,
       first_name: `Test Name 0`,
@@ -1559,7 +1558,7 @@ test.describe('User — CRUD', () => {
 
     const createRes = await request.post(`${API_BASE}/users`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1570,7 +1569,7 @@ test.describe('User — CRUD', () => {
     }
   });
 
-  test('should update a User via API', async ({ request }) => {
+  test("should update a User via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/users`, {
       data: {
         email: `test1@example.com`,
@@ -1580,7 +1579,7 @@ test.describe('User — CRUD', () => {
         is_active: `test_1`,
         last_login: `test_1`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1594,14 +1593,14 @@ test.describe('User — CRUD', () => {
           is_active: `test_2`,
           last_login: `test_2`,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/users/${created.id}`);
     }
   });
 
-  test('should delete a User via API', async ({ request }) => {
+  test("should delete a User via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/users`, {
       data: {
         email: `test3@example.com`,
@@ -1611,7 +1610,7 @@ test.describe('User — CRUD', () => {
         is_active: `test_3`,
         last_login: `test_3`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1624,33 +1623,33 @@ test.describe('User — CRUD', () => {
   });
 });
 
-test.describe('Team — CRUD', () => {
-  test('should create a Team via API', async ({ request }) => {
+test.describe("Team — CRUD", () => {
+  test("should create a Team via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
-      name: 'Test Name',
+      name: "Test Name",
     };
 
     const res = await request.post(`${API_BASE}/teams`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     expect([200, 201]).toContain(res.status());
     const created = await res.json();
-    expect(created).toHaveProperty('id');
+    expect(created).toHaveProperty("id");
 
     if (created.id) {
       await request.delete(`${API_BASE}/teams/${created.id}`);
     }
   });
 
-  test('should read a Team via API', async ({ request }) => {
+  test("should read a Team via API", async ({ request }) => {
     const payload: Record<string, unknown> = {
       name: `Test Name 0`,
     };
 
     const createRes = await request.post(`${API_BASE}/teams`, {
       data: payload,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1661,12 +1660,12 @@ test.describe('Team — CRUD', () => {
     }
   });
 
-  test('should update a Team via API', async ({ request }) => {
+  test("should update a Team via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/teams`, {
       data: {
         name: `Test Name 1`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1675,19 +1674,19 @@ test.describe('Team — CRUD', () => {
         data: {
           name: `Test Name 2`,
         },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
       expect([200, 201]).toContain(updateRes.status());
       await request.delete(`${API_BASE}/teams/${created.id}`);
     }
   });
 
-  test('should delete a Team via API', async ({ request }) => {
+  test("should delete a Team via API", async ({ request }) => {
     const createRes = await request.post(`${API_BASE}/teams`, {
       data: {
         name: `Test Name 3`,
       },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
     const created = await createRes.json();
 
@@ -1700,36 +1699,39 @@ test.describe('Team — CRUD', () => {
   });
 });
 
-
 // ============================================================================
 // Frontend Page Tests
 // ============================================================================
 
-test.describe('Company — Frontend', () => {
-  test('should display Company list page', async ({ page }) => {
+test.describe("Company — Frontend", () => {
+  test("should display Company list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_company`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create Company page', async ({ page }) => {
+  test("should show form fields on create Company page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_company/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create Company page', async ({ page }) => {
+  test("should have save and cancel buttons on create Company page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_company/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
@@ -1737,31 +1739,35 @@ test.describe('Company — Frontend', () => {
   });
 });
 
-test.describe('Contact — Frontend', () => {
-  test('should display Contact list page', async ({ page }) => {
+test.describe("Contact — Frontend", () => {
+  test("should display Contact list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_contact`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create Contact page', async ({ page }) => {
+  test("should show form fields on create Contact page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_contact/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create Contact page', async ({ page }) => {
+  test("should have save and cancel buttons on create Contact page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_contact/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
@@ -1769,31 +1775,35 @@ test.describe('Contact — Frontend', () => {
   });
 });
 
-test.describe('Deal — Frontend', () => {
-  test('should display Deal list page', async ({ page }) => {
+test.describe("Deal — Frontend", () => {
+  test("should display Deal list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_deal`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create Deal page', async ({ page }) => {
+  test("should show form fields on create Deal page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_deal/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create Deal page', async ({ page }) => {
+  test("should have save and cancel buttons on create Deal page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_deal/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
@@ -1801,31 +1811,35 @@ test.describe('Deal — Frontend', () => {
   });
 });
 
-test.describe('Deal Stage — Frontend', () => {
-  test('should display Deal Stage list page', async ({ page }) => {
+test.describe("Deal Stage — Frontend", () => {
+  test("should display Deal Stage list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_deal_stage`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create Deal Stage page', async ({ page }) => {
+  test("should show form fields on create Deal Stage page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_deal_stage/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create Deal Stage page', async ({ page }) => {
+  test("should have save and cancel buttons on create Deal Stage page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_deal_stage/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
@@ -1833,31 +1847,35 @@ test.describe('Deal Stage — Frontend', () => {
   });
 });
 
-test.describe('Pipeline — Frontend', () => {
-  test('should display Pipeline list page', async ({ page }) => {
+test.describe("Pipeline — Frontend", () => {
+  test("should display Pipeline list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_pipeline`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create Pipeline page', async ({ page }) => {
+  test("should show form fields on create Pipeline page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_pipeline/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create Pipeline page', async ({ page }) => {
+  test("should have save and cancel buttons on create Pipeline page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_pipeline/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
@@ -1865,31 +1883,35 @@ test.describe('Pipeline — Frontend', () => {
   });
 });
 
-test.describe('Activity — Frontend', () => {
-  test('should display Activity list page', async ({ page }) => {
+test.describe("Activity — Frontend", () => {
+  test("should display Activity list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_activity`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create Activity page', async ({ page }) => {
+  test("should show form fields on create Activity page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_activity/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create Activity page', async ({ page }) => {
+  test("should have save and cancel buttons on create Activity page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_activity/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
@@ -1897,31 +1919,35 @@ test.describe('Activity — Frontend', () => {
   });
 });
 
-test.describe('Note — Frontend', () => {
-  test('should display Note list page', async ({ page }) => {
+test.describe("Note — Frontend", () => {
+  test("should display Note list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_note`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create Note page', async ({ page }) => {
+  test("should show form fields on create Note page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_note/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create Note page', async ({ page }) => {
+  test("should have save and cancel buttons on create Note page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_note/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
@@ -1929,31 +1955,35 @@ test.describe('Note — Frontend', () => {
   });
 });
 
-test.describe('Task — Frontend', () => {
-  test('should display Task list page', async ({ page }) => {
+test.describe("Task — Frontend", () => {
+  test("should display Task list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_task`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create Task page', async ({ page }) => {
+  test("should show form fields on create Task page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_task/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create Task page', async ({ page }) => {
+  test("should have save and cancel buttons on create Task page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_task/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
@@ -1961,31 +1991,35 @@ test.describe('Task — Frontend', () => {
   });
 });
 
-test.describe('Email Message — Frontend', () => {
-  test('should display Email Message list page', async ({ page }) => {
+test.describe("Email Message — Frontend", () => {
+  test("should display Email Message list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_email_message`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create Email Message page', async ({ page }) => {
+  test("should show form fields on create Email Message page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_email_message/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create Email Message page', async ({ page }) => {
+  test("should have save and cancel buttons on create Email Message page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_email_message/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
@@ -1993,31 +2027,35 @@ test.describe('Email Message — Frontend', () => {
   });
 });
 
-test.describe('Email Template — Frontend', () => {
-  test('should display Email Template list page', async ({ page }) => {
+test.describe("Email Template — Frontend", () => {
+  test("should display Email Template list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_email_template`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create Email Template page', async ({ page }) => {
+  test("should show form fields on create Email Template page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_email_template/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create Email Template page', async ({ page }) => {
+  test("should have save and cancel buttons on create Email Template page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_email_template/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
@@ -2025,31 +2063,35 @@ test.describe('Email Template — Frontend', () => {
   });
 });
 
-test.describe('Product — Frontend', () => {
-  test('should display Product list page', async ({ page }) => {
+test.describe("Product — Frontend", () => {
+  test("should display Product list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_product`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create Product page', async ({ page }) => {
+  test("should show form fields on create Product page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_product/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create Product page', async ({ page }) => {
+  test("should have save and cancel buttons on create Product page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_product/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
@@ -2057,31 +2099,35 @@ test.describe('Product — Frontend', () => {
   });
 });
 
-test.describe('Quote — Frontend', () => {
-  test('should display Quote list page', async ({ page }) => {
+test.describe("Quote — Frontend", () => {
+  test("should display Quote list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_quote`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create Quote page', async ({ page }) => {
+  test("should show form fields on create Quote page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_quote/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create Quote page', async ({ page }) => {
+  test("should have save and cancel buttons on create Quote page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_quote/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
@@ -2089,31 +2135,35 @@ test.describe('Quote — Frontend', () => {
   });
 });
 
-test.describe('Quote Item — Frontend', () => {
-  test('should display Quote Item list page', async ({ page }) => {
+test.describe("Quote Item — Frontend", () => {
+  test("should display Quote Item list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_quote_item`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create Quote Item page', async ({ page }) => {
+  test("should show form fields on create Quote Item page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_quote_item/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create Quote Item page', async ({ page }) => {
+  test("should have save and cancel buttons on create Quote Item page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_quote_item/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
@@ -2121,31 +2171,35 @@ test.describe('Quote Item — Frontend', () => {
   });
 });
 
-test.describe('User — Frontend', () => {
-  test('should display User list page', async ({ page }) => {
+test.describe("User — Frontend", () => {
+  test("should display User list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_user`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create User page', async ({ page }) => {
+  test("should show form fields on create User page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_user/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create User page', async ({ page }) => {
+  test("should have save and cancel buttons on create User page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_user/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
@@ -2153,160 +2207,162 @@ test.describe('User — Frontend', () => {
   });
 });
 
-test.describe('Team — Frontend', () => {
-  test('should display Team list page', async ({ page }) => {
+test.describe("Team — Frontend", () => {
+  test("should display Team list page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_team`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
     await expect(
-      page.locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")').first()
+      page
+        .locator('button:has-text("Create"), button:has-text("New"), button:has-text("Add")')
+        .first()
     ).toBeVisible();
   });
 
-  test('should show form fields on create Team page', async ({ page }) => {
+  test("should show form fields on create Team page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_team/new`);
     await waitForPageReady(page);
-    const form = page.locator('form').first();
+    const form = page.locator("form").first();
     await expect(form).toBeVisible({ timeout: 10000 });
-    const inputs = page.locator('input, select, textarea');
+    const inputs = page.locator("input, select, textarea");
     expect(await inputs.count()).toBeGreaterThan(0);
   });
 
-  test('should have save and cancel buttons on create Team page', async ({ page }) => {
+  test("should have save and cancel buttons on create Team page", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_team/new`);
     await waitForPageReady(page);
     await expect(
-      page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first()
+      page
+        .locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")')
+        .first()
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('button:has-text("Cancel"), button:has-text("Back"), a:has-text("Back")').first()
     ).toBeVisible({ timeout: 10000 });
   });
 });
-
 
 // ============================================================================
 // Navigation Tests
 // ============================================================================
 
-test.describe('crm-app — Navigation', () => {
-  test('should load home/dashboard without error', async ({ page }) => {
+test.describe("crm-app — Navigation", () => {
+  test("should load home/dashboard without error", async ({ page }) => {
     await page.goto(FRONTEND_URL);
     await waitForPageReady(page);
     await expect(page).not.toHaveURL(/error/);
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.locator("body")).toBeVisible();
   });
 
-  test('should navigate to Company list', async ({ page }) => {
+  test("should navigate to Company list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_company`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to Contact list', async ({ page }) => {
+  test("should navigate to Contact list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_contact`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to Deal list', async ({ page }) => {
+  test("should navigate to Deal list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_deal`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to Deal Stage list', async ({ page }) => {
+  test("should navigate to Deal Stage list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_deal_stage`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to Pipeline list', async ({ page }) => {
+  test("should navigate to Pipeline list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_pipeline`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to Activity list', async ({ page }) => {
+  test("should navigate to Activity list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_activity`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to Note list', async ({ page }) => {
+  test("should navigate to Note list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_note`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to Task list', async ({ page }) => {
+  test("should navigate to Task list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_task`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to Email Message list', async ({ page }) => {
+  test("should navigate to Email Message list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_email_message`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to Email Template list', async ({ page }) => {
+  test("should navigate to Email Template list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_email_template`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to Product list', async ({ page }) => {
+  test("should navigate to Product list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_product`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to Quote list', async ({ page }) => {
+  test("should navigate to Quote list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_quote`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to Quote Item list', async ({ page }) => {
+  test("should navigate to Quote Item list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_quote_item`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to User list', async ({ page }) => {
+  test("should navigate to User list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_user`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should navigate to Team list', async ({ page }) => {
+  test("should navigate to Team list", async ({ page }) => {
     await page.goto(`${FRONTEND_URL}/bus_team`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
-
 });
 
 // ============================================================================
 // Responsive Design
 // ============================================================================
 
-test.describe('crm-app — Responsive Design', () => {
-  test('should be usable on tablet (768 × 1024)', async ({ page }) => {
+test.describe("crm-app — Responsive Design", () => {
+  test("should be usable on tablet (768 × 1024)", async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 1024 });
     await page.goto(`${FRONTEND_URL}/bus_company`);
     await waitForPageReady(page);
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should be usable on mobile (375 × 812)', async ({ page }) => {
+  test("should be usable on mobile (375 × 812)", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto(`${FRONTEND_URL}/bus_company`);
     await waitForPageReady(page);
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.locator("body")).toBeVisible();
   });
 });
 
@@ -2314,23 +2370,21 @@ test.describe('crm-app — Responsive Design', () => {
 // Error Handling
 // ============================================================================
 
-test.describe('crm-app — API Error Handling', () => {
-  test('should return 404 for non-existent record', async ({ request }) => {
-    const res = await request.get(
-      `${API_BASE}/companies/00000000-0000-0000-0000-000000000000`
-    );
+test.describe("crm-app — API Error Handling", () => {
+  test("should return 404 for non-existent record", async ({ request }) => {
+    const res = await request.get(`${API_BASE}/companies/00000000-0000-0000-0000-000000000000`);
     expect([400, 404]).toContain(res.status());
   });
 
-  test('should return error for non-existent entity endpoint', async ({ request }) => {
+  test("should return error for non-existent entity endpoint", async ({ request }) => {
     const res = await request.get(`${API_BASE}/nonexistententity`);
     expect([400, 404, 500]).toContain(res.status());
   });
 
-  test('should handle malformed request body gracefully', async ({ request }) => {
+  test("should handle malformed request body gracefully", async ({ request }) => {
     const res = await request.post(`${API_BASE}/companies`, {
-      data: 'not-valid-json-object',
-      headers: { 'Content-Type': 'application/json' },
+      data: "not-valid-json-object",
+      headers: { "Content-Type": "application/json" },
     });
     expect([400, 422]).toContain(res.status());
   });

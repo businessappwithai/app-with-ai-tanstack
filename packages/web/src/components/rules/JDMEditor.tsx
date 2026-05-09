@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { DecisionTableEditor, DecisionTableData } from "./DecisionTableEditor";
+import { type DecisionTableData, DecisionTableEditor } from "./DecisionTableEditor";
 
 export interface JDMNode {
   id: string;
@@ -33,15 +33,11 @@ export function JDMEditor({ value, onChange }: JDMEditorProps) {
   const updateNodeContent = (nodeId: string, content: any) => {
     onChange({
       ...value,
-      nodes: value.nodes.map((node) =>
-        node.id === nodeId ? { ...node, content } : node
-      ),
+      nodes: value.nodes.map((node) => (node.id === nodeId ? { ...node, content } : node)),
     });
   };
 
-  const decisionTableNode = value.nodes.find(
-    (node) => node.type === "decisionTable"
-  );
+  const decisionTableNode = value.nodes.find((node) => node.type === "decisionTable");
 
   const decisionTableData: DecisionTableData = decisionTableNode?.content || {
     inputs: ["entity"],
@@ -92,15 +88,11 @@ export function JDMEditor({ value, onChange }: JDMEditorProps) {
 
         <TabsContent value="visual">
           {decisionTableNode ? (
-            <DecisionTableEditor
-              data={decisionTableData}
-              onChange={handleDecisionTableChange}
-            />
+            <DecisionTableEditor data={decisionTableData} onChange={handleDecisionTableChange} />
           ) : (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
-                No decision table node found. Switch to JSON editor to create
-                one.
+                No decision table node found. Switch to JSON editor to create one.
               </CardContent>
             </Card>
           )}

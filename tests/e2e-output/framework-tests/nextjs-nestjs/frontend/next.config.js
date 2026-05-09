@@ -6,10 +6,10 @@ const nextConfig = {
   // Uses BACKEND_URL env var (localhost:3001 for dev, backend:3001 for Docker)
   // Falls back to config.baseUrl for backward compatibility
   async rewrites() {
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:3010';
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:3010";
     return [
       {
-        source: '/api/:path*',
+        source: "/api/:path*",
         destination: `${backendUrl}/api/:path*`,
       },
     ];

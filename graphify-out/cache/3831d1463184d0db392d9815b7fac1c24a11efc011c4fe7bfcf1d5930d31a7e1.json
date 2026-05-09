@@ -1,1 +1,322 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts", "label": "rules.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L1"}, {"id": "rules_controller_rulescontroller", "label": "RulesController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L27"}, {"id": "rules_controller_rulescontroller_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L30"}, {"id": "rules_controller_rulescontroller_list", "label": ".list()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L35"}, {"id": "rules_controller_rulescontroller_get", "label": ".get()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L52"}, {"id": "rules_controller_rulescontroller_create", "label": ".create()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L62"}, {"id": "rules_controller_rulescontroller_update", "label": ".update()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L87"}, {"id": "rules_controller_rulescontroller_delete", "label": ".delete()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L102"}, {"id": "rules_controller_rulescontroller_history", "label": ".history()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L110"}, {"id": "rules_controller_rulescontroller_validate", "label": ".validate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L118"}, {"id": "rules_controller_rulescontroller_dryrun", "label": ".dryRun()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L126"}, {"id": "rules_controller_rulescontroller_migrate", "label": ".migrate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L142"}, {"id": "rules_controller_rulescontroller_evaluaterules", "label": ".evaluateRules()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L155"}, {"id": "rules_controller_rulescontroller_getentitieswithrules", "label": ".getEntitiesWithRules()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L179"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts", "target": "common", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts", "target": "swagger", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_session_auth_guard", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_roles_guard", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L18", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_decorators_roles_decorator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L19", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_decorators_current_user_decorator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L20", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_service", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L21", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts", "target": "rules_controller_rulescontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L27", "weight": 1.0}, {"source": "rules_controller_rulescontroller", "target": "rules_controller_rulescontroller_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L30", "weight": 1.0}, {"source": "rules_controller_rulescontroller", "target": "rules_controller_rulescontroller_list", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L35", "weight": 1.0}, {"source": "rules_controller_rulescontroller", "target": "rules_controller_rulescontroller_get", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L52", "weight": 1.0}, {"source": "rules_controller_rulescontroller", "target": "rules_controller_rulescontroller_create", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L62", "weight": 1.0}, {"source": "rules_controller_rulescontroller", "target": "rules_controller_rulescontroller_update", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L87", "weight": 1.0}, {"source": "rules_controller_rulescontroller", "target": "rules_controller_rulescontroller_delete", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L102", "weight": 1.0}, {"source": "rules_controller_rulescontroller", "target": "rules_controller_rulescontroller_history", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L110", "weight": 1.0}, {"source": "rules_controller_rulescontroller", "target": "rules_controller_rulescontroller_validate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L118", "weight": 1.0}, {"source": "rules_controller_rulescontroller", "target": "rules_controller_rulescontroller_dryrun", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L126", "weight": 1.0}, {"source": "rules_controller_rulescontroller", "target": "rules_controller_rulescontroller_migrate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L142", "weight": 1.0}, {"source": "rules_controller_rulescontroller", "target": "rules_controller_rulescontroller_evaluaterules", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L155", "weight": 1.0}, {"source": "rules_controller_rulescontroller", "target": "rules_controller_rulescontroller_getentitieswithrules", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L179", "weight": 1.0}], "raw_calls": [{"caller_nid": "rules_controller_rulescontroller_list", "callee": "findAll", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L45"}, {"caller_nid": "rules_controller_rulescontroller_get", "callee": "findById", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L53"}, {"caller_nid": "rules_controller_rulescontroller_history", "callee": "getHistory", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L111"}, {"caller_nid": "rules_controller_rulescontroller_validate", "callee": "validateJDM", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L119"}, {"caller_nid": "rules_controller_rulescontroller_migrate", "callee": "migrateFromFileSystem", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L143"}, {"caller_nid": "rules_controller_rulescontroller_evaluaterules", "callee": "evaluate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts", "source_location": "L163"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts",
+      "label": "rules.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "rules_controller_rulescontroller",
+      "label": "RulesController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "rules_controller_rulescontroller_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L30"
+    },
+    {
+      "id": "rules_controller_rulescontroller_list",
+      "label": ".list()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L35"
+    },
+    {
+      "id": "rules_controller_rulescontroller_get",
+      "label": ".get()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L52"
+    },
+    {
+      "id": "rules_controller_rulescontroller_create",
+      "label": ".create()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L62"
+    },
+    {
+      "id": "rules_controller_rulescontroller_update",
+      "label": ".update()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L87"
+    },
+    {
+      "id": "rules_controller_rulescontroller_delete",
+      "label": ".delete()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L102"
+    },
+    {
+      "id": "rules_controller_rulescontroller_history",
+      "label": ".history()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L110"
+    },
+    {
+      "id": "rules_controller_rulescontroller_validate",
+      "label": ".validate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L118"
+    },
+    {
+      "id": "rules_controller_rulescontroller_dryrun",
+      "label": ".dryRun()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L126"
+    },
+    {
+      "id": "rules_controller_rulescontroller_migrate",
+      "label": ".migrate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L142"
+    },
+    {
+      "id": "rules_controller_rulescontroller_evaluaterules",
+      "label": ".evaluateRules()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L155"
+    },
+    {
+      "id": "rules_controller_rulescontroller_getentitieswithrules",
+      "label": ".getEntitiesWithRules()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L179"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts",
+      "target": "common",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts",
+      "target": "swagger",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_session_auth_guard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_guards_roles_guard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_decorators_roles_decorator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_auth_decorators_current_user_decorator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_service",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_rules_rules_controller_ts",
+      "target": "rules_controller_rulescontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "rules_controller_rulescontroller",
+      "target": "rules_controller_rulescontroller_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "rules_controller_rulescontroller",
+      "target": "rules_controller_rulescontroller_list",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "rules_controller_rulescontroller",
+      "target": "rules_controller_rulescontroller_get",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "rules_controller_rulescontroller",
+      "target": "rules_controller_rulescontroller_create",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "rules_controller_rulescontroller",
+      "target": "rules_controller_rulescontroller_update",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L87",
+      "weight": 1.0
+    },
+    {
+      "source": "rules_controller_rulescontroller",
+      "target": "rules_controller_rulescontroller_delete",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "rules_controller_rulescontroller",
+      "target": "rules_controller_rulescontroller_history",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L110",
+      "weight": 1.0
+    },
+    {
+      "source": "rules_controller_rulescontroller",
+      "target": "rules_controller_rulescontroller_validate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L118",
+      "weight": 1.0
+    },
+    {
+      "source": "rules_controller_rulescontroller",
+      "target": "rules_controller_rulescontroller_dryrun",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L126",
+      "weight": 1.0
+    },
+    {
+      "source": "rules_controller_rulescontroller",
+      "target": "rules_controller_rulescontroller_migrate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "rules_controller_rulescontroller",
+      "target": "rules_controller_rulescontroller_evaluaterules",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L155",
+      "weight": 1.0
+    },
+    {
+      "source": "rules_controller_rulescontroller",
+      "target": "rules_controller_rulescontroller_getentitieswithrules",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L179",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "rules_controller_rulescontroller_list",
+      "callee": "findAll",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "rules_controller_rulescontroller_get",
+      "callee": "findById",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "rules_controller_rulescontroller_history",
+      "callee": "getHistory",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "rules_controller_rulescontroller_validate",
+      "callee": "validateJDM",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "rules_controller_rulescontroller_migrate",
+      "callee": "migrateFromFileSystem",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "rules_controller_rulescontroller_evaluaterules",
+      "callee": "evaluate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/rules/rules.controller.ts",
+      "source_location": "L163"
+    }
+  ]
+}

@@ -6,5 +6,5 @@
  * - Frontend: Next.js + Shadcn + TanStack
  */
 
-export * from './nestjs-backend.generator';
-export * from './nextjs-frontend.generator';
+export * from "./nestjs-backend.generator";
+export * from "./nextjs-frontend.generator";

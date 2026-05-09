@@ -5,77 +5,77 @@
  * Project: crm-app
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from "vitest";
 
-vi.mock('@trigger.dev/sdk/v3', () => ({
+vi.mock("@trigger.dev/sdk/v3", () => ({
   task: vi.fn().mockImplementation((config: any) => config),
 }));
 
-import { syncEntityTask, type SyncTaskPayload } from '../../src/trigger/sync.task';
+import { type SyncTaskPayload, syncEntityTask } from "../../src/trigger/sync.task";
 
-describe('syncEntityTask', () => {
-  it('has the correct task id', () => {
-    expect((syncEntityTask as any).id).toBe('sync-entity');
+describe("syncEntityTask", () => {
+  it("has the correct task id", () => {
+    expect((syncEntityTask as any).id).toBe("sync-entity");
   });
 
-  it('has maxDuration of 120 seconds', () => {
+  it("has maxDuration of 120 seconds", () => {
     expect((syncEntityTask as any).maxDuration).toBe(120);
   });
 
-  it('has retry config with 5 max attempts', () => {
+  it("has retry config with 5 max attempts", () => {
     expect((syncEntityTask as any).retry.maxAttempts).toBe(5);
   });
 
-  describe('run()', () => {
-    it('handles create action successfully', async () => {
+  describe("run()", () => {
+    it("handles create action successfully", async () => {
       const payload: SyncTaskPayload = {
-        entityType: 'bus_company',
-        entityId: 'entity-001',
-        action: 'create',
+        entityType: "bus_company",
+        entityId: "entity-001",
+        action: "create",
       };
 
       const result = await (syncEntityTask as any).run(payload);
 
       expect(result.success).toBe(true);
-      expect(result.action).toBe('create');
+      expect(result.action).toBe("create");
     });
 
-    it('handles update action successfully', async () => {
+    it("handles update action successfully", async () => {
       const payload: SyncTaskPayload = {
-        entityType: 'bus_entity',
-        entityId: 'entity-456',
-        action: 'update',
+        entityType: "bus_entity",
+        entityId: "entity-456",
+        action: "update",
       };
 
       const result = await (syncEntityTask as any).run(payload);
 
       expect(result.success).toBe(true);
-      expect(result.action).toBe('update');
+      expect(result.action).toBe("update");
     });
 
-    it('handles delete action successfully', async () => {
+    it("handles delete action successfully", async () => {
       const payload: SyncTaskPayload = {
-        entityType: 'bus_entity',
-        entityId: 'entity-789',
-        action: 'delete',
+        entityType: "bus_entity",
+        entityId: "entity-789",
+        action: "delete",
       };
 
       const result = await (syncEntityTask as any).run(payload);
 
       expect(result.success).toBe(true);
-      expect(result.action).toBe('delete');
+      expect(result.action).toBe("delete");
     });
 
-    it('returns the entityType in the result', async () => {
+    it("returns the entityType in the result", async () => {
       const payload: SyncTaskPayload = {
-        entityType: 'bus_custom',
-        entityId: 'item-100',
-        action: 'create',
+        entityType: "bus_custom",
+        entityId: "item-100",
+        action: "create",
       };
 
       const result = await (syncEntityTask as any).run(payload);
 
-      expect(result.entityType).toBe('bus_custom');
+      expect(result.entityType).toBe("bus_custom");
     });
   });
 });

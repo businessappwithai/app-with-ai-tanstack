@@ -1,1 +1,373 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_scripts_test_workflow_direct_ts", "label": "test-workflow-direct.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L1"}, {"id": "test_workflow_direct_testworkflow", "label": "testWorkflow()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L19"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_scripts_test_workflow_direct_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L5", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_scripts_test_workflow_direct_ts", "target": "crypto", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_scripts_test_workflow_direct_ts", "target": "test_workflow_direct_testworkflow", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L19", "weight": 1.0}], "raw_calls": [{"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L20"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L23"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "now", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L25"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L35"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "returning", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L38"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "insert", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L38"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L38"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "randomUUID", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L40"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L49"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L50"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L51"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L52"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L53"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L54"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L57"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "limit", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L58"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "orderBy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L58"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L58"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L58"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L58"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L66"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L67"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L68"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L69"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L70"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L72"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L76"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L77"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L77"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L77"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L84"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "select", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L87"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L87"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L87"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L91"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L92"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L93"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L96"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "select", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L97"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L97"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L97"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L97"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L102"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L103"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L108"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "select", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L109"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L109"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L109"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L109"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L109"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L115"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L116"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "destroy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L120"}, {"caller_nid": "test_workflow_direct_testworkflow", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts", "source_location": "L121"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_scripts_test_workflow_direct_ts",
+      "label": "test-workflow-direct.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_workflow_direct_testworkflow",
+      "label": "testWorkflow()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L19"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_scripts_test_workflow_direct_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_scripts_test_workflow_direct_ts",
+      "target": "crypto",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_scripts_test_workflow_direct_ts",
+      "target": "test_workflow_direct_testworkflow",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "now",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L25"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "returning",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "insert",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "randomUUID",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L49"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "limit",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "orderBy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "select",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "select",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "select",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "destroy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L120"
+    },
+    {
+      "caller_nid": "test_workflow_direct_testworkflow",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/scripts/test-workflow-direct.ts",
+      "source_location": "L121"
+    }
+  ]
+}

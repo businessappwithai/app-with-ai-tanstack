@@ -1,1 +1,160 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_hooks_hook_builder_ts", "label": "hook-builder.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L1"}, {"id": "hook_builder_hookbuilder", "label": "HookBuilder", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L5"}, {"id": "hook_builder_hookbuilder_forentity", "label": ".forEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L10"}, {"id": "hook_builder_hookbuilder_on", "label": ".on()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L15"}, {"id": "hook_builder_hookbuilder_named", "label": ".named()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L20"}, {"id": "hook_builder_hookbuilder_withpriority", "label": ".withPriority()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L25"}, {"id": "hook_builder_hookbuilder_execute", "label": ".execute()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L30"}, {"id": "hook_builder_hookbuilder_register", "label": ".register()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L35"}, {"id": "hook_builder_createhook", "label": "createHook()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L47"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_hooks_hook_builder_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_types_hook_types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L1", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_hooks_hook_builder_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_hooks_hook_registry", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L2", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_hooks_hook_builder_ts", "target": "hook_builder_hookbuilder", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L5", "weight": 1.0}, {"source": "hook_builder_hookbuilder", "target": "hook_builder_hookbuilder_forentity", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L10", "weight": 1.0}, {"source": "hook_builder_hookbuilder", "target": "hook_builder_hookbuilder_on", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L15", "weight": 1.0}, {"source": "hook_builder_hookbuilder", "target": "hook_builder_hookbuilder_named", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L20", "weight": 1.0}, {"source": "hook_builder_hookbuilder", "target": "hook_builder_hookbuilder_withpriority", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L25", "weight": 1.0}, {"source": "hook_builder_hookbuilder", "target": "hook_builder_hookbuilder_execute", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L30", "weight": 1.0}, {"source": "hook_builder_hookbuilder", "target": "hook_builder_hookbuilder_register", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L35", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_hooks_hook_builder_ts", "target": "hook_builder_createhook", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts", "source_location": "L47", "weight": 1.0}], "raw_calls": []}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_hooks_hook_builder_ts",
+      "label": "hook-builder.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "hook_builder_hookbuilder",
+      "label": "HookBuilder",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L5"
+    },
+    {
+      "id": "hook_builder_hookbuilder_forentity",
+      "label": ".forEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L10"
+    },
+    {
+      "id": "hook_builder_hookbuilder_on",
+      "label": ".on()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L15"
+    },
+    {
+      "id": "hook_builder_hookbuilder_named",
+      "label": ".named()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L20"
+    },
+    {
+      "id": "hook_builder_hookbuilder_withpriority",
+      "label": ".withPriority()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L25"
+    },
+    {
+      "id": "hook_builder_hookbuilder_execute",
+      "label": ".execute()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L30"
+    },
+    {
+      "id": "hook_builder_hookbuilder_register",
+      "label": ".register()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L35"
+    },
+    {
+      "id": "hook_builder_createhook",
+      "label": "createHook()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L47"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_hooks_hook_builder_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_types_hook_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_hooks_hook_builder_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_hooks_hook_registry",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_hooks_hook_builder_ts",
+      "target": "hook_builder_hookbuilder",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "hook_builder_hookbuilder",
+      "target": "hook_builder_hookbuilder_forentity",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "hook_builder_hookbuilder",
+      "target": "hook_builder_hookbuilder_on",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "hook_builder_hookbuilder",
+      "target": "hook_builder_hookbuilder_named",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "hook_builder_hookbuilder",
+      "target": "hook_builder_hookbuilder_withpriority",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "hook_builder_hookbuilder",
+      "target": "hook_builder_hookbuilder_execute",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "hook_builder_hookbuilder",
+      "target": "hook_builder_hookbuilder_register",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_hooks_hook_builder_ts",
+      "target": "hook_builder_createhook",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/hooks/hook-builder.ts",
+      "source_location": "L47",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

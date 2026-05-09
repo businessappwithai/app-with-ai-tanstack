@@ -5,38 +5,43 @@
  * Aggregates all test journeys including CRUD operations
  */
 
-sap.ui.define([
+sap.ui.define(
+  [
     "sap/ui/test/Opa5",
     "./NavigationJourney",
     "./CUSTOMERCRUDJourney",
     "./ORDERCRUDJourney",
     "./ORDERITEMCRUDJourney",
-    "./PRODUCTCRUDJourney"
-], function (Opa5, NavigationJourney, CUSTOMERCRUDJourney, ORDERCRUDJourney, ORDERITEMCRUDJourney, PRODUCTCRUDJourney) {
-    "use strict";
+    "./PRODUCTCRUDJourney",
+  ],
+  (
+    Opa5,
+    NavigationJourney,
+    CUSTOMERCRUDJourney,
+    ORDERCRUDJourney,
+    ORDERITEMCRUDJourney,
+    PRODUCTCRUDJourney
+  ) => ({
+    run: () => {
+      // Run navigation tests
+      QUnit.module("Navigation Journey");
+      NavigationJourney.run();
 
-    return {
-        run: function () {
-            // Run navigation tests
-            QUnit.module("Navigation Journey");
-            NavigationJourney.run();
+      // Run CUSTOMER CRUD tests
+      QUnit.module("CUSTOMER CRUD Journey");
+      CUSTOMERCRUDJourney.run();
 
-            // Run CUSTOMER CRUD tests
-            QUnit.module("CUSTOMER CRUD Journey");
-            CUSTOMERCRUDJourney.run();
+      // Run ORDER CRUD tests
+      QUnit.module("ORDER CRUD Journey");
+      ORDERCRUDJourney.run();
 
-            // Run ORDER CRUD tests
-            QUnit.module("ORDER CRUD Journey");
-            ORDERCRUDJourney.run();
+      // Run ORDER_ITEM CRUD tests
+      QUnit.module("ORDERITEM CRUD Journey");
+      ORDERITEMCRUDJourney.run();
 
-            // Run ORDER_ITEM CRUD tests
-            QUnit.module("ORDERITEM CRUD Journey");
-            ORDERITEMCRUDJourney.run();
-
-            // Run PRODUCT CRUD tests
-            QUnit.module("PRODUCT CRUD Journey");
-            PRODUCTCRUDJourney.run();
-
-        }
-    };
-});
+      // Run PRODUCT CRUD tests
+      QUnit.module("PRODUCT CRUD Journey");
+      PRODUCTCRUDJourney.run();
+    },
+  })
+);

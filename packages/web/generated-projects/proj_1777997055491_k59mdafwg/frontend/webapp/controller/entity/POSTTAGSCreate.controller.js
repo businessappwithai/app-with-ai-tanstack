@@ -6,67 +6,71 @@
  *
  * Generated: 2026-05-06T11:42:08.786Z
  */
-sap.ui.define([
-  "sap/ui/core/mvc/Controller",
-  "sap/ui/model/json/JSONModel",
-  "sap/m/MessageToast",
-  "sap/m/MessageBox"
-], function(Controller, JSONModel, MessageToast, MessageBox) {
-  "use strict";
+sap.ui.define(
+  [
+    "sap/ui/core/mvc/Controller",
+    "sap/ui/model/json/JSONModel",
+    "sap/m/MessageToast",
+    "sap/m/MessageBox",
+  ],
+  (Controller, JSONModel, MessageToast, MessageBox) =>
+    Controller.extend("q-a-test-project.controller.entity.POSTTAGSCreate", {
+      onInit: function () {
+        var oViewModel = new JSONModel({
+          busy: false,
+          entityName: "bus_post_tags",
+          entityDisplayName: "Post Tags",
+          entitySetName: "Busposttagses",
+          formData: {},
+        });
+        this.getView().setModel(oViewModel, "view");
 
-  return Controller.extend("q-a-test-project.controller.entity.POSTTAGSCreate", {
+        this.getOwnerComponent()
+          .getRouter()
+          .getRoute("pOSTTAGSCreate")
+          .attachPatternMatched(this._onRouteMatched, this);
+      },
 
-    onInit: function() {
-      var oViewModel = new JSONModel({
-        busy: false,
-        entityName: "bus_post_tags",
-        entityDisplayName: "Post Tags",
-        entitySetName: "Busposttagses",
-        formData: {}
-      });
-      this.getView().setModel(oViewModel, "view");
+      _onRouteMatched: function () {
+        // Reset form data
+        this.getView().getModel("view").setProperty("/formData", {});
+      },
 
-      this.getOwnerComponent().getRouter()
-        .getRoute("pOSTTAGSCreate")
-        .attachPatternMatched(this._onRouteMatched, this);
-    },
+      onSavePress: function () {
+        var oView = this.getView();
+        var oViewModel = oView.getModel("view");
+        var oFormData = oViewModel.getProperty("/formData");
+        var sEntitySet = oViewModel.getProperty("/entitySetName");
 
-    _onRouteMatched: function() {
-      // Reset form data
-      this.getView().getModel("view").setProperty("/formData", {
-      });
-    },
+        // Basic validation
 
-    onSavePress: function() {
-      var oView = this.getView();
-      var oViewModel = oView.getModel("view");
-      var oFormData = oViewModel.getProperty("/formData");
-      var sEntitySet = oViewModel.getProperty("/entitySetName");
+        oViewModel.setProperty("/busy", true);
 
-      // Basic validation
+        var oModel = this.getOwnerComponent().getModel();
+        var oListBinding = oModel.bindList("/" + sEntitySet);
+        var oContext = oListBinding.create(oFormData);
 
-      oViewModel.setProperty("/busy", true);
+        oContext
+          .created()
+          .then(
+            function () {
+              oViewModel.setProperty("/busy", false);
+              MessageToast.show("Post Tags created successfully");
+              this.onNavBack();
+            }.bind(this)
+          )
+          .catch((oError) => {
+            oViewModel.setProperty("/busy", false);
+            MessageBox.error("Failed to create: " + (oError.message || "Unknown error"));
+          });
+      },
 
-      var oModel = this.getOwnerComponent().getModel();
-      var oListBinding = oModel.bindList("/" + sEntitySet);
-      var oContext = oListBinding.create(oFormData);
-
-      oContext.created().then(function() {
-        oViewModel.setProperty("/busy", false);
-        MessageToast.show("Post Tags created successfully");
+      onCancelPress: function () {
         this.onNavBack();
-      }.bind(this)).catch(function(oError) {
-        oViewModel.setProperty("/busy", false);
-        MessageBox.error("Failed to create: " + (oError.message || "Unknown error"));
-      });
-    },
+      },
 
-    onCancelPress: function() {
-      this.onNavBack();
-    },
-
-    onNavBack: function() {
-      this.getOwnerComponent().getRouter().navTo("pOSTTAGSList");
-    }
-  });
-});
+      onNavBack: function () {
+        this.getOwnerComponent().getRouter().navTo("pOSTTAGSList");
+      },
+    })
+);

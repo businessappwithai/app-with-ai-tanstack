@@ -1,1 +1,126 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_contexts_auth_context_tsx", "label": "auth-context.tsx", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L1"}, {"id": "auth_context_authprovider", "label": "AuthProvider()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L50"}, {"id": "auth_context_useauth", "label": "useAuth()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L145"}, {"id": "auth_context_withauth", "label": "withAuth()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L163"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_contexts_auth_context_tsx", "target": "react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_contexts_auth_context_tsx", "target": "auth_client", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_contexts_auth_context_tsx", "target": "auth_context_authprovider", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L50", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_contexts_auth_context_tsx", "target": "auth_context_useauth", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L145", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_contexts_auth_context_tsx", "target": "auth_context_withauth", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L163", "weight": 1.0}, {"source": "auth_context_withauth", "target": "auth_context_useauth", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L168", "weight": 1.0}], "raw_calls": [{"caller_nid": "auth_context_authprovider", "callee": "useState", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L51"}, {"caller_nid": "auth_context_authprovider", "callee": "useState", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L52"}, {"caller_nid": "auth_context_authprovider", "callee": "useEffect", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L55"}, {"caller_nid": "auth_context_useauth", "callee": "useContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L146"}, {"caller_nid": "auth_context_withauth", "callee": "isAdmin", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L186"}, {"caller_nid": "auth_context_withauth", "callee": "hasAnyRole", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx", "source_location": "L197"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_contexts_auth_context_tsx",
+      "label": "auth-context.tsx",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "auth_context_authprovider",
+      "label": "AuthProvider()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L50"
+    },
+    {
+      "id": "auth_context_useauth",
+      "label": "useAuth()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L145"
+    },
+    {
+      "id": "auth_context_withauth",
+      "label": "withAuth()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L163"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_contexts_auth_context_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_contexts_auth_context_tsx",
+      "target": "auth_client",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_contexts_auth_context_tsx",
+      "target": "auth_context_authprovider",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_contexts_auth_context_tsx",
+      "target": "auth_context_useauth",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L145",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_contexts_auth_context_tsx",
+      "target": "auth_context_withauth",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L163",
+      "weight": 1.0
+    },
+    {
+      "source": "auth_context_withauth",
+      "target": "auth_context_useauth",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L168",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "auth_context_authprovider",
+      "callee": "useState",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "auth_context_authprovider",
+      "callee": "useState",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "auth_context_authprovider",
+      "callee": "useEffect",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "auth_context_useauth",
+      "callee": "useContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L146"
+    },
+    {
+      "caller_nid": "auth_context_withauth",
+      "callee": "isAdmin",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L186"
+    },
+    {
+      "caller_nid": "auth_context_withauth",
+      "callee": "hasAnyRole",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/contexts/auth-context.tsx",
+      "source_location": "L197"
+    }
+  ]
+}

@@ -6,23 +6,23 @@
  * All API calls are mocked via the fetch mock in test/setup.tsx.
  */
 
-import React from 'react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { render, createMockFetch, mockApiResponses } from './setup';
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createMockFetch, mockApiResponses, render } from "./setup";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Sidebar / navigation
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Dynamic imports so vi.mock can be set up before the module is executed
-vi.mock('../src/components/layout/sidebar', async (importOriginal) => {
+vi.mock("../src/components/layout/sidebar", async (importOriginal) => {
   // Use the real implementation but with mocked next/navigation (already done in setup)
   return importOriginal();
 });
 
-describe('Sidebar', () => {
+describe("Sidebar", () => {
   let originalFetch: typeof globalThis.fetch;
 
   beforeEach(() => {
@@ -34,19 +34,19 @@ describe('Sidebar', () => {
     vi.clearAllMocks();
   });
 
-  it('renders without crashing', async () => {
-    const { Sidebar } = await import('../src/components/layout/sidebar');
+  it("renders without crashing", async () => {
+    const { Sidebar } = await import("../src/components/layout/sidebar");
     const { container } = render(<Sidebar />);
     expect(container).toBeTruthy();
   });
 
-  it('renders navigation links for all entities', async () => {
-    const { Sidebar } = await import('../src/components/layout/sidebar');
+  it("renders navigation links for all entities", async () => {
+    const { Sidebar } = await import("../src/components/layout/sidebar");
     render(<Sidebar />);
 
     // Nav items may render as links or buttons depending on implementation
-    const links = screen.queryAllByRole('link');
-    const buttons = screen.queryAllByRole('button');
+    const links = screen.queryAllByRole("link");
+    const buttons = screen.queryAllByRole("button");
     const navElements = links.length > 0 ? links : buttons;
     expect(navElements.length).toBeGreaterThan(0);
   });
@@ -56,7 +56,7 @@ describe('Sidebar', () => {
 // DynamicTable
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe('DynamicTable', () => {
+describe("DynamicTable", () => {
   let originalFetch: typeof globalThis.fetch;
 
   beforeEach(() => {
@@ -68,11 +68,11 @@ describe('DynamicTable', () => {
     vi.clearAllMocks();
   });
 
-  it('renders loading skeleton when isLoading is true', async () => {
-    const { DynamicTable } = await import('../src/components/tables/dynamic-table');
+  it("renders loading skeleton when isLoading is true", async () => {
+    const { DynamicTable } = await import("../src/components/tables/dynamic-table");
 
     globalThis.fetch = createMockFetch({
-      '/api/sys/fields': { data: [] },
+      "/api/sys/fields": { data: [] },
     });
 
     const { container } = render(
@@ -90,18 +90,29 @@ describe('DynamicTable', () => {
     expect(container).toBeTruthy();
   });
 
-  it('renders rows when data is provided', async () => {
-    const { DynamicTable } = await import('../src/components/tables/dynamic-table');
+  it("renders rows when data is provided", async () => {
+    const { DynamicTable } = await import("../src/components/tables/dynamic-table");
 
     // Mock sys/fields endpoint so column metadata is available
     const fieldMeta = [
-      { sys_field_id: 'f1', name: 'Name', column_name: 'name', seq_no_grid: 1, is_displayed_grid: true, sys_reference_id: 10, is_mandatory: true, is_read_only: false, is_displayed: true, seq_no: 1 },
+      {
+        sys_field_id: "f1",
+        name: "Name",
+        column_name: "name",
+        seq_no_grid: 1,
+        is_displayed_grid: true,
+        sys_reference_id: 10,
+        is_mandatory: true,
+        is_read_only: false,
+        is_displayed: true,
+        seq_no: 1,
+      },
     ];
     globalThis.fetch = createMockFetch({
-      '/api/sys/fields': { data: fieldMeta },
+      "/api/sys/fields": { data: fieldMeta },
     });
 
-    const sampleData = [{ id: 'row-1', name: 'Company One' }];
+    const sampleData = [{ id: "row-1", name: "Company One" }];
 
     const { container } = render(
       <DynamicTable
@@ -118,11 +129,11 @@ describe('DynamicTable', () => {
     expect(container).toBeTruthy();
   });
 
-  it('shows empty state when data array is empty and not loading', async () => {
-    const { DynamicTable } = await import('../src/components/tables/dynamic-table');
+  it("shows empty state when data array is empty and not loading", async () => {
+    const { DynamicTable } = await import("../src/components/tables/dynamic-table");
 
     globalThis.fetch = createMockFetch({
-      '/api/sys/fields': { data: [] },
+      "/api/sys/fields": { data: [] },
     });
 
     render(
@@ -150,387 +161,386 @@ describe('DynamicTable', () => {
 // Mock API response shape tests
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe('Mock API Responses', () => {
-  describe('Company', () => {
-    it('has list with at least 2 items', () => {
+describe("Mock API Responses", () => {
+  describe("Company", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.company.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.company.single.id).toBeDefined();
     });
 
-    it('single item has required field: name', () => {
+    it("single item has required field: name", () => {
       expect(mockApiResponses.company.single.name).toBeDefined();
     });
-    it('single item has required field: status', () => {
+    it("single item has required field: status", () => {
       expect(mockApiResponses.company.single.status).toBeDefined();
     });
-    it('single item has required field: owner_id', () => {
+    it("single item has required field: owner_id", () => {
       expect(mockApiResponses.company.single.owner_id).toBeDefined();
     });
   });
 
-  describe('Contact', () => {
-    it('has list with at least 2 items', () => {
+  describe("Contact", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.contact.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.contact.single.id).toBeDefined();
     });
 
-    it('single item has required field: first_name', () => {
+    it("single item has required field: first_name", () => {
       expect(mockApiResponses.contact.single.first_name).toBeDefined();
     });
-    it('single item has required field: last_name', () => {
+    it("single item has required field: last_name", () => {
       expect(mockApiResponses.contact.single.last_name).toBeDefined();
     });
-    it('single item has required field: email', () => {
+    it("single item has required field: email", () => {
       expect(mockApiResponses.contact.single.email).toBeDefined();
     });
-    it('single item has required field: status', () => {
+    it("single item has required field: status", () => {
       expect(mockApiResponses.contact.single.status).toBeDefined();
     });
-    it('single item has required field: owner_id', () => {
+    it("single item has required field: owner_id", () => {
       expect(mockApiResponses.contact.single.owner_id).toBeDefined();
     });
   });
 
-  describe('Deal', () => {
-    it('has list with at least 2 items', () => {
+  describe("Deal", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.deal.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.deal.single.id).toBeDefined();
     });
 
-    it('single item has required field: name', () => {
+    it("single item has required field: name", () => {
       expect(mockApiResponses.deal.single.name).toBeDefined();
     });
-    it('single item has required field: currency', () => {
+    it("single item has required field: currency", () => {
       expect(mockApiResponses.deal.single.currency).toBeDefined();
     });
-    it('single item has required field: stage', () => {
+    it("single item has required field: stage", () => {
       expect(mockApiResponses.deal.single.stage).toBeDefined();
     });
-    it('single item has required field: status', () => {
+    it("single item has required field: status", () => {
       expect(mockApiResponses.deal.single.status).toBeDefined();
     });
-    it('single item has required field: owner_id', () => {
+    it("single item has required field: owner_id", () => {
       expect(mockApiResponses.deal.single.owner_id).toBeDefined();
     });
   });
 
-  describe('DealStage', () => {
-    it('has list with at least 2 items', () => {
+  describe("DealStage", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.dealStage.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.dealStage.single.id).toBeDefined();
     });
 
-    it('single item has required field: pipeline_id', () => {
+    it("single item has required field: pipeline_id", () => {
       expect(mockApiResponses.dealStage.single.pipeline_id).toBeDefined();
     });
-    it('single item has required field: name', () => {
+    it("single item has required field: name", () => {
       expect(mockApiResponses.dealStage.single.name).toBeDefined();
     });
-    it('single item has required field: sort_order', () => {
+    it("single item has required field: sort_order", () => {
       expect(mockApiResponses.dealStage.single.sort_order).toBeDefined();
     });
-    it('single item has required field: default_probability', () => {
+    it("single item has required field: default_probability", () => {
       expect(mockApiResponses.dealStage.single.default_probability).toBeDefined();
     });
-    it('single item has required field: is_won', () => {
+    it("single item has required field: is_won", () => {
       expect(mockApiResponses.dealStage.single.is_won).toBeDefined();
     });
-    it('single item has required field: is_lost', () => {
+    it("single item has required field: is_lost", () => {
       expect(mockApiResponses.dealStage.single.is_lost).toBeDefined();
     });
   });
 
-  describe('Pipeline', () => {
-    it('has list with at least 2 items', () => {
+  describe("Pipeline", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.pipeline.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.pipeline.single.id).toBeDefined();
     });
 
-    it('single item has required field: name', () => {
+    it("single item has required field: name", () => {
       expect(mockApiResponses.pipeline.single.name).toBeDefined();
     });
-    it('single item has required field: is_default', () => {
+    it("single item has required field: is_default", () => {
       expect(mockApiResponses.pipeline.single.is_default).toBeDefined();
     });
-    it('single item has required field: is_active', () => {
+    it("single item has required field: is_active", () => {
       expect(mockApiResponses.pipeline.single.is_active).toBeDefined();
     });
   });
 
-  describe('Activity', () => {
-    it('has list with at least 2 items', () => {
+  describe("Activity", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.activity.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.activity.single.id).toBeDefined();
     });
 
-    it('single item has required field: activity_type', () => {
+    it("single item has required field: activity_type", () => {
       expect(mockApiResponses.activity.single.activity_type).toBeDefined();
     });
-    it('single item has required field: subject', () => {
+    it("single item has required field: subject", () => {
       expect(mockApiResponses.activity.single.subject).toBeDefined();
     });
-    it('single item has required field: status', () => {
+    it("single item has required field: status", () => {
       expect(mockApiResponses.activity.single.status).toBeDefined();
     });
-    it('single item has required field: owner_id', () => {
+    it("single item has required field: owner_id", () => {
       expect(mockApiResponses.activity.single.owner_id).toBeDefined();
     });
   });
 
-  describe('Note', () => {
-    it('has list with at least 2 items', () => {
+  describe("Note", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.note.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.note.single.id).toBeDefined();
     });
 
-    it('single item has required field: content', () => {
+    it("single item has required field: content", () => {
       expect(mockApiResponses.note.single.content).toBeDefined();
     });
-    it('single item has required field: is_pinned', () => {
+    it("single item has required field: is_pinned", () => {
       expect(mockApiResponses.note.single.is_pinned).toBeDefined();
     });
-    it('single item has required field: author_id', () => {
+    it("single item has required field: author_id", () => {
       expect(mockApiResponses.note.single.author_id).toBeDefined();
     });
   });
 
-  describe('Task', () => {
-    it('has list with at least 2 items', () => {
+  describe("Task", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.task.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.task.single.id).toBeDefined();
     });
 
-    it('single item has required field: title', () => {
+    it("single item has required field: title", () => {
       expect(mockApiResponses.task.single.title).toBeDefined();
     });
-    it('single item has required field: priority', () => {
+    it("single item has required field: priority", () => {
       expect(mockApiResponses.task.single.priority).toBeDefined();
     });
-    it('single item has required field: status', () => {
+    it("single item has required field: status", () => {
       expect(mockApiResponses.task.single.status).toBeDefined();
     });
-    it('single item has required field: assigned_to', () => {
+    it("single item has required field: assigned_to", () => {
       expect(mockApiResponses.task.single.assigned_to).toBeDefined();
     });
-    it('single item has required field: created_by', () => {
+    it("single item has required field: created_by", () => {
       expect(mockApiResponses.task.single.created_by).toBeDefined();
     });
   });
 
-  describe('EmailMessage', () => {
-    it('has list with at least 2 items', () => {
+  describe("EmailMessage", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.emailMessage.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.emailMessage.single.id).toBeDefined();
     });
 
-    it('single item has required field: subject', () => {
+    it("single item has required field: subject", () => {
       expect(mockApiResponses.emailMessage.single.subject).toBeDefined();
     });
-    it('single item has required field: direction', () => {
+    it("single item has required field: direction", () => {
       expect(mockApiResponses.emailMessage.single.direction).toBeDefined();
     });
-    it('single item has required field: open_count', () => {
+    it("single item has required field: open_count", () => {
       expect(mockApiResponses.emailMessage.single.open_count).toBeDefined();
     });
   });
 
-  describe('EmailTemplate', () => {
-    it('has list with at least 2 items', () => {
+  describe("EmailTemplate", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.emailTemplate.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.emailTemplate.single.id).toBeDefined();
     });
 
-    it('single item has required field: name', () => {
+    it("single item has required field: name", () => {
       expect(mockApiResponses.emailTemplate.single.name).toBeDefined();
     });
-    it('single item has required field: subject', () => {
+    it("single item has required field: subject", () => {
       expect(mockApiResponses.emailTemplate.single.subject).toBeDefined();
     });
-    it('single item has required field: body_html', () => {
+    it("single item has required field: body_html", () => {
       expect(mockApiResponses.emailTemplate.single.body_html).toBeDefined();
     });
-    it('single item has required field: is_active', () => {
+    it("single item has required field: is_active", () => {
       expect(mockApiResponses.emailTemplate.single.is_active).toBeDefined();
     });
   });
 
-  describe('Product', () => {
-    it('has list with at least 2 items', () => {
+  describe("Product", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.product.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.product.single.id).toBeDefined();
     });
 
-    it('single item has required field: name', () => {
+    it("single item has required field: name", () => {
       expect(mockApiResponses.product.single.name).toBeDefined();
     });
-    it('single item has required field: sku', () => {
+    it("single item has required field: sku", () => {
       expect(mockApiResponses.product.single.sku).toBeDefined();
     });
-    it('single item has required field: unit_price', () => {
+    it("single item has required field: unit_price", () => {
       expect(mockApiResponses.product.single.unit_price).toBeDefined();
     });
-    it('single item has required field: currency', () => {
+    it("single item has required field: currency", () => {
       expect(mockApiResponses.product.single.currency).toBeDefined();
     });
-    it('single item has required field: is_active', () => {
+    it("single item has required field: is_active", () => {
       expect(mockApiResponses.product.single.is_active).toBeDefined();
     });
   });
 
-  describe('Quote', () => {
-    it('has list with at least 2 items', () => {
+  describe("Quote", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.quote.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.quote.single.id).toBeDefined();
     });
 
-    it('single item has required field: deal_id', () => {
+    it("single item has required field: deal_id", () => {
       expect(mockApiResponses.quote.single.deal_id).toBeDefined();
     });
-    it('single item has required field: quote_number', () => {
+    it("single item has required field: quote_number", () => {
       expect(mockApiResponses.quote.single.quote_number).toBeDefined();
     });
-    it('single item has required field: status', () => {
+    it("single item has required field: status", () => {
       expect(mockApiResponses.quote.single.status).toBeDefined();
     });
-    it('single item has required field: subtotal', () => {
+    it("single item has required field: subtotal", () => {
       expect(mockApiResponses.quote.single.subtotal).toBeDefined();
     });
-    it('single item has required field: discount_amount', () => {
+    it("single item has required field: discount_amount", () => {
       expect(mockApiResponses.quote.single.discount_amount).toBeDefined();
     });
-    it('single item has required field: tax_amount', () => {
+    it("single item has required field: tax_amount", () => {
       expect(mockApiResponses.quote.single.tax_amount).toBeDefined();
     });
-    it('single item has required field: total_amount', () => {
+    it("single item has required field: total_amount", () => {
       expect(mockApiResponses.quote.single.total_amount).toBeDefined();
     });
   });
 
-  describe('QuoteItem', () => {
-    it('has list with at least 2 items', () => {
+  describe("QuoteItem", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.quoteItem.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.quoteItem.single.id).toBeDefined();
     });
 
-    it('single item has required field: quote_id', () => {
+    it("single item has required field: quote_id", () => {
       expect(mockApiResponses.quoteItem.single.quote_id).toBeDefined();
     });
-    it('single item has required field: product_id', () => {
+    it("single item has required field: product_id", () => {
       expect(mockApiResponses.quoteItem.single.product_id).toBeDefined();
     });
-    it('single item has required field: quantity', () => {
+    it("single item has required field: quantity", () => {
       expect(mockApiResponses.quoteItem.single.quantity).toBeDefined();
     });
-    it('single item has required field: unit_price', () => {
+    it("single item has required field: unit_price", () => {
       expect(mockApiResponses.quoteItem.single.unit_price).toBeDefined();
     });
-    it('single item has required field: discount_percent', () => {
+    it("single item has required field: discount_percent", () => {
       expect(mockApiResponses.quoteItem.single.discount_percent).toBeDefined();
     });
-    it('single item has required field: total_price', () => {
+    it("single item has required field: total_price", () => {
       expect(mockApiResponses.quoteItem.single.total_price).toBeDefined();
     });
   });
 
-  describe('User', () => {
-    it('has list with at least 2 items', () => {
+  describe("User", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.user.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.user.single.id).toBeDefined();
     });
 
-    it('single item has required field: email', () => {
+    it("single item has required field: email", () => {
       expect(mockApiResponses.user.single.email).toBeDefined();
     });
-    it('single item has required field: first_name', () => {
+    it("single item has required field: first_name", () => {
       expect(mockApiResponses.user.single.first_name).toBeDefined();
     });
-    it('single item has required field: last_name', () => {
+    it("single item has required field: last_name", () => {
       expect(mockApiResponses.user.single.last_name).toBeDefined();
     });
-    it('single item has required field: role', () => {
+    it("single item has required field: role", () => {
       expect(mockApiResponses.user.single.role).toBeDefined();
     });
-    it('single item has required field: is_active', () => {
+    it("single item has required field: is_active", () => {
       expect(mockApiResponses.user.single.is_active).toBeDefined();
     });
   });
 
-  describe('Team', () => {
-    it('has list with at least 2 items', () => {
+  describe("Team", () => {
+    it("has list with at least 2 items", () => {
       expect(mockApiResponses.team.list.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('has single item with an id', () => {
+    it("has single item with an id", () => {
       expect(mockApiResponses.team.single.id).toBeDefined();
     });
 
-    it('single item has required field: name', () => {
+    it("single item has required field: name", () => {
       expect(mockApiResponses.team.single.name).toBeDefined();
     });
   });
-
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // API client URL construction
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe('API path helpers', () => {
-  it('createMockFetch returns 200 for known paths', async () => {
+describe("API path helpers", () => {
+  it("createMockFetch returns 200 for known paths", async () => {
     const mockFetch = createMockFetch({
-      '/api/bus/bus_company': { data: [], meta: { total: 0 } },
+      "/api/bus/bus_company": { data: [], meta: { total: 0 } },
     });
 
-    const response = await mockFetch('/api/bus/bus_company');
+    const response = await mockFetch("/api/bus/bus_company");
     expect(response.ok).toBe(true);
     expect(response.status).toBe(200);
   });
 
-  it('createMockFetch returns 404 for unknown paths', async () => {
+  it("createMockFetch returns 404 for unknown paths", async () => {
     const mockFetch = createMockFetch({});
-    const response = await mockFetch('/api/unknown');
+    const response = await mockFetch("/api/unknown");
     expect(response.status).toBe(404);
   });
 });

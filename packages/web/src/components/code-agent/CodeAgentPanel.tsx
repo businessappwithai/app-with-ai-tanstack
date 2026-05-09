@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Loader2, Play, Settings } from 'lucide-react';
+import { Loader2, Play, Settings } from "lucide-react";
+import { useState } from "react";
 
 interface CodeAgentStatus {
   step: string;
@@ -26,8 +26,8 @@ interface CodeAgentPanelProps {
 }
 
 export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
-  const [task, setTask] = useState('');
-  const [stack, setStack] = useState<'nextjs-nestjs' | 'openui5-odata'>('nextjs-nestjs');
+  const [task, setTask] = useState("");
+  const [stack, setStack] = useState<"nextjs-nestjs" | "openui5-odata">("nextjs-nestjs");
   const [includeTests, setIncludeTests] = useState(true);
   const [includeMigrations, setIncludeMigrations] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -42,10 +42,10 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
     setResult(null);
 
     try {
-      const response = await fetch('/api/ai/code-agent-stream', {
-        method: 'POST',
+      const response = await fetch("/api/ai/code-agent-stream", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           task,
@@ -59,17 +59,17 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate code');
+        throw new Error("Failed to generate code");
       }
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
 
       if (!reader) {
-        throw new Error('No response body');
+        throw new Error("No response body");
       }
 
-      let buffer = '';
+      let buffer = "";
 
       // eslint-disable-next-line no-constant-condition
       while (true) {
@@ -78,16 +78,16 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
 
         for (const line of lines) {
-          if (line.startsWith('event:')) {
+          if (line.startsWith("event:")) {
             line.slice(6).trim();
             continue;
           }
 
-          if (line.startsWith('data:')) {
+          if (line.startsWith("data:")) {
             try {
               const data = JSON.parse(line.slice(5));
 
@@ -101,25 +101,25 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
               }
 
               if (data.error) {
-                console.error('[Code Agent] Error:', data.error);
+                console.error("[Code Agent] Error:", data.error);
                 setStatus({
-                  step: 'error',
+                  step: "error",
                   message: data.message,
                   progress: 0,
                 });
                 setIsProcessing(false);
               }
             } catch (e) {
-              console.error('[Code Agent] Parse error:', e);
+              console.error("[Code Agent] Parse error:", e);
             }
           }
         }
       }
     } catch (error) {
-      console.error('[Code Agent] Request error:', error);
+      console.error("[Code Agent] Request error:", error);
       setStatus({
-        step: 'error',
-        message: error instanceof Error ? error.message : 'Failed to generate code',
+        step: "error",
+        message: error instanceof Error ? error.message : "Failed to generate code",
         progress: 0,
       });
       setIsProcessing(false);
@@ -136,7 +136,7 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
         <textarea
           placeholder="e.g., Generate a complete Next.js application with user authentication, or Create database migrations for the ERD"
           value={task}
-          onChange={e => setTask(e.target.value)}
+          onChange={(e) => setTask(e.target.value)}
           rows={3}
           className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
         />
@@ -149,7 +149,7 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
         </label>
         <select
           value={stack}
-          onChange={e => setStack(e.target.value as 'nextjs-nestjs' | 'openui5-odata')}
+          onChange={(e) => setStack(e.target.value as "nextjs-nestjs" | "openui5-odata")}
           className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
         >
           <option value="nextjs-nestjs">Next.js + NestJS</option>
@@ -167,10 +167,13 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
             type="checkbox"
             id="include-tests"
             checked={includeTests}
-            onChange={e => setIncludeTests(e.target.checked)}
+            onChange={(e) => setIncludeTests(e.target.checked)}
             className="w-4 h-4 text-violet-600 border-slate-300 rounded focus:ring-violet-500"
           />
-          <label htmlFor="include-tests" className="text-sm cursor-pointer text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="include-tests"
+            className="text-sm cursor-pointer text-slate-700 dark:text-slate-300"
+          >
             Include unit tests
           </label>
         </div>
@@ -179,10 +182,13 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
             type="checkbox"
             id="include-migrations"
             checked={includeMigrations}
-            onChange={e => setIncludeMigrations(e.target.checked)}
+            onChange={(e) => setIncludeMigrations(e.target.checked)}
             className="w-4 h-4 text-violet-600 border-slate-300 rounded focus:ring-violet-500"
           />
-          <label htmlFor="include-migrations" className="text-sm cursor-pointer text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="include-migrations"
+            className="text-sm cursor-pointer text-slate-700 dark:text-slate-300"
+          >
             Include database migrations
           </label>
         </div>
@@ -249,7 +255,7 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
         </button>
         <button
           onClick={() => {
-            setTask('');
+            setTask("");
             setStatus(null);
             setResult(null);
           }}

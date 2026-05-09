@@ -2,17 +2,9 @@
  * API client with proper error handling and token management
  */
 
-import type {
-  AxiosInstance,
-  AxiosRequestConfig,
-  InternalAxiosRequestConfig,
-} from "axios";
+import type { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
 import axios from "axios";
-import {
-  APIError,
-  NetworkError,
-  UnauthorizedError,
-} from "./errors";
+import { APIError, NetworkError, UnauthorizedError } from "./errors";
 
 interface TokenData {
   access_token: string;
@@ -91,11 +83,7 @@ export class ApiClient {
           error.message ||
           "An unexpected error occurred";
 
-        throw new APIError(
-          message,
-          error.response?.status || 500,
-          error.response?.data
-        );
+        throw new APIError(message, error.response?.status || 500, error.response?.data);
       }
     );
   }
@@ -229,9 +217,7 @@ export class ApiClient {
       },
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {
-          const progress = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          );
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           onProgress(progress);
         }
       },
@@ -274,23 +260,17 @@ export function getApiClient(): ApiClient {
 
 // Export convenience functions
 export const api = {
-  get: <T>(url: string, config?: AxiosRequestConfig) =>
-    getApiClient().get<T>(url, config),
+  get: <T>(url: string, config?: AxiosRequestConfig) => getApiClient().get<T>(url, config),
   post: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
     getApiClient().post<T>(url, data, config),
   put: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
     getApiClient().put<T>(url, data, config),
   patch: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
     getApiClient().patch<T>(url, data, config),
-  delete: <T>(url: string, config?: AxiosRequestConfig) =>
-    getApiClient().delete<T>(url, config),
-  uploadFile: <T>(
-    url: string,
-    file: File,
-    onProgress?: (progress: number) => void
-  ) => getApiClient().uploadFile<T>(url, file, onProgress),
-  authenticate: (tokenData: TokenData) =>
-    getApiClient().authenticate(tokenData),
+  delete: <T>(url: string, config?: AxiosRequestConfig) => getApiClient().delete<T>(url, config),
+  uploadFile: <T>(url: string, file: File, onProgress?: (progress: number) => void) =>
+    getApiClient().uploadFile<T>(url, file, onProgress),
+  authenticate: (tokenData: TokenData) => getApiClient().authenticate(tokenData),
   logout: () => getApiClient().logout(),
   isAuthenticated: () => getApiClient().isAuthenticated(),
 };

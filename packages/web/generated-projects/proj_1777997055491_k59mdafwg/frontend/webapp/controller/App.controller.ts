@@ -7,12 +7,12 @@
  * Generated: 2026-05-06T11:42:08.765Z
  */
 
+import FlexibleColumnLayoutSemanticHelper from "sap/f/FlexibleColumnLayoutSemanticHelper";
+import { LayoutType } from "sap/f/library";
+import MessageBox from "sap/m/MessageBox";
+import type UI5Event from "sap/ui/base/Event";
 import Controller from "sap/ui/core/mvc/Controller";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { LayoutType } from "sap/f/library";
-import FlexibleColumnLayoutSemanticHelper from "sap/f/FlexibleColumnLayoutSemanticHelper";
-import MessageBox from "sap/m/MessageBox";
-import UI5Event from "sap/ui/base/Event";
 
 /**
  * App View Model Interface
@@ -34,7 +34,6 @@ interface AppViewModel {
  * App Controller
  */
 export default class AppController extends Controller {
-
   /**
    * Controller initialization
    */
@@ -45,12 +44,12 @@ export default class AppController extends Controller {
       previousLayout: null,
       actionButtonsInfo: {
         midColumn: {
-          fullScreen: false
+          fullScreen: false,
         },
         endColumn: {
-          fullScreen: false
-        }
-      }
+          fullScreen: false,
+        },
+      },
     };
 
     const oModel = new JSONModel(oAppViewModel);
@@ -85,13 +84,10 @@ export default class AppController extends Controller {
    */
   private _showServiceError(oResponse: any): void {
     if (oResponse && oResponse.statusCode !== 404) {
-      MessageBox.error(
-        oResponse.message || "An error occurred while loading data",
-        {
-          title: "Service Error",
-          details: oResponse.responseText || ""
-        }
-      );
+      MessageBox.error(oResponse.message || "An error occurred while loading data", {
+        title: "Service Error",
+        details: oResponse.responseText || "",
+      });
     }
   }
 
@@ -165,13 +161,14 @@ export default class AppController extends Controller {
         oRouter.navTo("master");
         break;
 
-      case LayoutType.TwoColumnsMidExpanded:
+      case LayoutType.TwoColumnsMidExpanded: {
         // Navigate to list, preserving entity
         const sEntity = this._getCurrentEntity();
         if (sEntity) {
           oRouter.navTo("list", { entity: sEntity });
         }
         break;
+      }
     }
   }
 
@@ -186,7 +183,7 @@ export default class AppController extends Controller {
     const sHash = oHashChanger.getHash() as string;
 
     // Extract entity from hash
-    const aMatch = sHash.match(/^([^\/]+)/);
+    const aMatch = sHash.match(/^([^/]+)/);
     return aMatch ? aMatch[1] : null;
   }
 
@@ -198,7 +195,7 @@ export default class AppController extends Controller {
     const oFCL = this.byId("fcl") as any;
     const oSettings = {
       defaultTwoColumnLayoutType: LayoutType.TwoColumnsMidExpanded,
-      defaultThreeColumnLayoutType: LayoutType.ThreeColumnsMidExpanded
+      defaultThreeColumnLayoutType: LayoutType.ThreeColumnsMidExpanded,
     };
 
     return FlexibleColumnLayoutSemanticHelper.getInstanceFor(oFCL, oSettings);

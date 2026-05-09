@@ -3,13 +3,13 @@
  * Generates the ODataServer class with all controller decorators applied
  */
 
-import { initializeDatabase, getKnex, closeDatabase } from './database/connection';
-import { getBusinessTables } from './utils/dynamic-schema';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
+import { closeDatabase, getKnex, initializeDatabase } from "./database/connection";
+import { getBusinessTables } from "./utils/dynamic-schema";
 
 async function generateServerClass() {
-  console.log('🔧 Generating ODataServer class with controller decorators...\n');
+  console.log("🔧 Generating ODataServer class with controller decorators...\n");
 
   // Initialize database
   await initializeDatabase();
@@ -21,13 +21,16 @@ async function generateServerClass() {
 
   // Generate import statements for all controllers
   const imports = tables
-    .map((t) => `import { ${t.entityName}Controller } from './controllers/generated/${t.entityName.toLowerCase()}.controller';`)
-    .join('\n');
+    .map(
+      (t) =>
+        `import { ${t.entityName}Controller } from './controllers/generated/${t.entityName.toLowerCase()}.controller';`
+    )
+    .join("\n");
 
   // Generate @odata.controller decorators
   const decorators = tables
     .map((t) => `@odata.controller(${t.entityName}Controller, true)`)
-    .join('\n');
+    .join("\n");
 
   // Generate the server class file
   const serverCode = `/**
@@ -103,8 +106,8 @@ bootstrap().catch((err) => {
 `;
 
   // Write the server file
-  const serverPath = path.join(__dirname, 'server.ts');
-  fs.writeFileSync(serverPath, serverCode, 'utf-8');
+  const serverPath = path.join(__dirname, "server.ts");
+  fs.writeFileSync(serverPath, serverCode, "utf-8");
   console.log(`✅ Generated: server.ts`);
   console.log(`📁 Output: ${serverPath}\n`);
 
@@ -112,7 +115,7 @@ bootstrap().catch((err) => {
   process.exit(0);
 }
 
-generateServerClass().catch(err => {
-  console.error('❌ Generation failed:', err);
+generateServerClass().catch((err) => {
+  console.error("❌ Generation failed:", err);
   process.exit(1);
 });

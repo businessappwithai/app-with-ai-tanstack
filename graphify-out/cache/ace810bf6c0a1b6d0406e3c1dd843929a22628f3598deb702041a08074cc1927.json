@@ -1,1 +1,567 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_sys_sys_field_controller_ts", "label": "sys-field.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L1"}, {"id": "sys_field_controller_sysfieldcontroller", "label": "SysFieldController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L46"}, {"id": "sys_field_controller_sysfieldcontroller_getfields", "label": ".getFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L52"}, {"id": "sys_field_controller_sysfieldcontroller_getfield", "label": ".getField()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L92"}, {"id": "sys_field_controller_sysfieldcontroller_createfield", "label": ".createField()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L108"}, {"id": "sys_field_controller_sysfieldcontroller_updatefield", "label": ".updateField()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L163"}, {"id": "sys_field_controller_sysfieldcontroller_deletefield", "label": ".deleteField()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L202"}, {"id": "sys_field_controller_sysfieldcontroller_batchupdatesequence", "label": ".batchUpdateSequence()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L217"}, {"id": "sys_field_controller_sysfieldcontroller_applyfilter", "label": ".applyFilter()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L250"}, {"id": "sys_field_controller_sysfieldcontroller_applyorderby", "label": ".applyOrderBy()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L286"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_sys_sys_field_controller_ts", "target": "server", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_sys_sys_field_controller_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_sys_sys_field_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_database_connection", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_sys_sys_field_controller_ts", "target": "uuid", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_sys_sys_field_controller_ts", "target": "sys_field_controller_sysfieldcontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L46", "weight": 1.0}, {"source": "sys_field_controller_sysfieldcontroller", "target": "sys_field_controller_sysfieldcontroller_getfields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L52", "weight": 1.0}, {"source": "sys_field_controller_sysfieldcontroller", "target": "sys_field_controller_sysfieldcontroller_getfield", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L92", "weight": 1.0}, {"source": "sys_field_controller_sysfieldcontroller", "target": "sys_field_controller_sysfieldcontroller_createfield", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L108", "weight": 1.0}, {"source": "sys_field_controller_sysfieldcontroller", "target": "sys_field_controller_sysfieldcontroller_updatefield", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L163", "weight": 1.0}, {"source": "sys_field_controller_sysfieldcontroller", "target": "sys_field_controller_sysfieldcontroller_deletefield", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L202", "weight": 1.0}, {"source": "sys_field_controller_sysfieldcontroller", "target": "sys_field_controller_sysfieldcontroller_batchupdatesequence", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L217", "weight": 1.0}, {"source": "sys_field_controller_sysfieldcontroller", "target": "sys_field_controller_sysfieldcontroller_applyfilter", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L250", "weight": 1.0}, {"source": "sys_field_controller_sysfieldcontroller", "target": "sys_field_controller_sysfieldcontroller_applyorderby", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L286", "weight": 1.0}, {"source": "sys_field_controller_sysfieldcontroller_getfields", "target": "sys_field_controller_sysfieldcontroller_applyfilter", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L60", "weight": 1.0}, {"source": "sys_field_controller_sysfieldcontroller_getfields", "target": "sys_field_controller_sysfieldcontroller_applyorderby", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L65", "weight": 1.0}], "raw_calls": [{"caller_nid": "sys_field_controller_sysfieldcontroller_getfields", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L55"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfields", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L55"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfields", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L55"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfields", "callee": "orderBy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L67"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfields", "callee": "limit", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L72"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfields", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L72"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfields", "callee": "offset", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L75"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfields", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L75"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfields", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L80"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfields", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L80"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfields", "callee": "select", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L81"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfield", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L95"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfield", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L95"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfield", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L95"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfield", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L95"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_getfield", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L95"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_createfield", "callee": "uuidv4", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L111"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_createfield", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L115"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_createfield", "callee": "max", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L115"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_createfield", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L115"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_createfield", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L115"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_createfield", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L115"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_createfield", "callee": "insert", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L153"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_createfield", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L153"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_createfield", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L153"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_updatefield", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L167"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_updatefield", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L167"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_updatefield", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L167"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_updatefield", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L167"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_updatefield", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L167"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_updatefield", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L190"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_updatefield", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L190"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_updatefield", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L190"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_updatefield", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L190"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_deletefield", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L205"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_deletefield", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L205"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_deletefield", "callee": "getKnex()", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L205"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_deletefield", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L205"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_batchupdatesequence", "callee": "transaction", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L220"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_batchupdatesequence", "callee": "getKnex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L220"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_batchupdatesequence", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L235"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_batchupdatesequence", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L235"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_batchupdatesequence", "callee": "trx", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L235"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_batchupdatesequence", "callee": "commit", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L240"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_batchupdatesequence", "callee": "rollback", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L242"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L252"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L255"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L257"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L261"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter", "callee": "whereNot", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L263"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L267"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L269"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L273"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L275"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_applyorderby", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L287"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_applyorderby", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L289"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_applyorderby", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L289"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_applyorderby", "callee": "orderBy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L290"}, {"caller_nid": "sys_field_controller_sysfieldcontroller_applyorderby", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts", "source_location": "L290"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_sys_sys_field_controller_ts",
+      "label": "sys-field.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "sys_field_controller_sysfieldcontroller",
+      "label": "SysFieldController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L46"
+    },
+    {
+      "id": "sys_field_controller_sysfieldcontroller_getfields",
+      "label": ".getFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L52"
+    },
+    {
+      "id": "sys_field_controller_sysfieldcontroller_getfield",
+      "label": ".getField()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L92"
+    },
+    {
+      "id": "sys_field_controller_sysfieldcontroller_createfield",
+      "label": ".createField()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L108"
+    },
+    {
+      "id": "sys_field_controller_sysfieldcontroller_updatefield",
+      "label": ".updateField()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L163"
+    },
+    {
+      "id": "sys_field_controller_sysfieldcontroller_deletefield",
+      "label": ".deleteField()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L202"
+    },
+    {
+      "id": "sys_field_controller_sysfieldcontroller_batchupdatesequence",
+      "label": ".batchUpdateSequence()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L217"
+    },
+    {
+      "id": "sys_field_controller_sysfieldcontroller_applyfilter",
+      "label": ".applyFilter()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L250"
+    },
+    {
+      "id": "sys_field_controller_sysfieldcontroller_applyorderby",
+      "label": ".applyOrderBy()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L286"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_sys_sys_field_controller_ts",
+      "target": "server",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_sys_sys_field_controller_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_sys_sys_field_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_database_connection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_sys_sys_field_controller_ts",
+      "target": "uuid",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_controllers_sys_sys_field_controller_ts",
+      "target": "sys_field_controller_sysfieldcontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_field_controller_sysfieldcontroller",
+      "target": "sys_field_controller_sysfieldcontroller_getfields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_field_controller_sysfieldcontroller",
+      "target": "sys_field_controller_sysfieldcontroller_getfield",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_field_controller_sysfieldcontroller",
+      "target": "sys_field_controller_sysfieldcontroller_createfield",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_field_controller_sysfieldcontroller",
+      "target": "sys_field_controller_sysfieldcontroller_updatefield",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L163",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_field_controller_sysfieldcontroller",
+      "target": "sys_field_controller_sysfieldcontroller_deletefield",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L202",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_field_controller_sysfieldcontroller",
+      "target": "sys_field_controller_sysfieldcontroller_batchupdatesequence",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L217",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_field_controller_sysfieldcontroller",
+      "target": "sys_field_controller_sysfieldcontroller_applyfilter",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L250",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_field_controller_sysfieldcontroller",
+      "target": "sys_field_controller_sysfieldcontroller_applyorderby",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L286",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_field_controller_sysfieldcontroller_getfields",
+      "target": "sys_field_controller_sysfieldcontroller_applyfilter",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "sys_field_controller_sysfieldcontroller_getfields",
+      "target": "sys_field_controller_sysfieldcontroller_applyorderby",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L65",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfields",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfields",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfields",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfields",
+      "callee": "orderBy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfields",
+      "callee": "limit",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfields",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfields",
+      "callee": "offset",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfields",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfields",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfields",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfields",
+      "callee": "select",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfield",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfield",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfield",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfield",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_getfield",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_createfield",
+      "callee": "uuidv4",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_createfield",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_createfield",
+      "callee": "max",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_createfield",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_createfield",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_createfield",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_createfield",
+      "callee": "insert",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_createfield",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_createfield",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_updatefield",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_updatefield",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_updatefield",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_updatefield",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_updatefield",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_updatefield",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_updatefield",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_updatefield",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_updatefield",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_deletefield",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_deletefield",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_deletefield",
+      "callee": "getKnex()",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_deletefield",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_batchupdatesequence",
+      "callee": "transaction",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L220"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_batchupdatesequence",
+      "callee": "getKnex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L220"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_batchupdatesequence",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_batchupdatesequence",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_batchupdatesequence",
+      "callee": "trx",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_batchupdatesequence",
+      "callee": "commit",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L240"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_batchupdatesequence",
+      "callee": "rollback",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L252"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L257"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L261"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter",
+      "callee": "whereNot",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L263"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L267"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L269"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_applyfilter",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L275"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_applyorderby",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L287"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_applyorderby",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L289"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_applyorderby",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L289"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_applyorderby",
+      "callee": "orderBy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L290"
+    },
+    {
+      "caller_nid": "sys_field_controller_sysfieldcontroller_applyorderby",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/controllers/sys/sys-field.controller.ts",
+      "source_location": "L290"
+    }
+  ]
+}

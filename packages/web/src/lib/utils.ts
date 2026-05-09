@@ -22,9 +22,7 @@ export function formatDate(
   if (!date) return "N/A";
 
   try {
-    const dateObj = typeof date === "string" || typeof date === "number"
-      ? new Date(date)
-      : date;
+    const dateObj = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
 
     if (isNaN(dateObj.getTime())) return "Invalid Date";
 
@@ -42,9 +40,7 @@ export function formatDate(
 /**
  * Format a date with time
  */
-export function formatDateTime(
-  date: Date | string | number | null | undefined
-): string {
+export function formatDateTime(date: Date | string | number | null | undefined): string {
   return formatDate(date, {
     year: "numeric",
     month: "short",
@@ -57,15 +53,11 @@ export function formatDateTime(
 /**
  * Format a relative time (e.g., "2 hours ago")
  */
-export function formatRelativeTime(
-  date: Date | string | number | null | undefined
-): string {
+export function formatRelativeTime(date: Date | string | number | null | undefined): string {
   if (!date) return "N/A";
 
   try {
-    const dateObj = typeof date === "string" || typeof date === "number"
-      ? new Date(date)
-      : date;
+    const dateObj = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
 
     if (isNaN(dateObj.getTime())) return "Invalid Date";
 
@@ -80,8 +72,10 @@ export function formatRelativeTime(
     if (diffMin < 60) return `${diffMin} minute${diffMin > 1 ? "s" : ""} ago`;
     if (diffHour < 24) return `${diffHour} hour${diffHour > 1 ? "s" : ""} ago`;
     if (diffDay < 7) return `${diffDay} day${diffDay > 1 ? "s" : ""} ago`;
-    if (diffDay < 30) return `${Math.floor(diffDay / 7)} week${Math.floor(diffDay / 7) > 1 ? "s" : ""} ago`;
-    if (diffDay < 365) return `${Math.floor(diffDay / 30)} month${Math.floor(diffDay / 30) > 1 ? "s" : ""} ago`;
+    if (diffDay < 30)
+      return `${Math.floor(diffDay / 7)} week${Math.floor(diffDay / 7) > 1 ? "s" : ""} ago`;
+    if (diffDay < 365)
+      return `${Math.floor(diffDay / 30)} month${Math.floor(diffDay / 30) > 1 ? "s" : ""} ago`;
     return `${Math.floor(diffDay / 365)} year${Math.floor(diffDay / 365) > 1 ? "s" : ""} ago`;
   } catch {
     return "Invalid Date";
@@ -158,7 +152,7 @@ export function formatFileSize(bytes: number): string {
   const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  return parseFloat((bytes / k ** i).toFixed(2)) + " " + sizes[i];
 }
 
 /**
@@ -171,7 +165,7 @@ export function deepClone<T>(obj: T): T {
   if (obj instanceof Object) {
     const clonedObj = {} as T;
     for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      if (Object.hasOwn(obj, key)) {
         (clonedObj as Record<string, unknown>)[key] = deepClone(obj[key]);
       }
     }
@@ -256,7 +250,7 @@ export async function retry<T>(
       return await fn();
     } catch (error) {
       if (i === maxRetries - 1) throw error;
-      await sleep(baseDelay * Math.pow(2, i));
+      await sleep(baseDelay * 2 ** i);
     }
   }
   throw new Error("Max retries exceeded");
@@ -294,11 +288,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 /**
  * Download a file
  */
-export function downloadFile(
-  data: string,
-  filename: string,
-  type: string = "text/plain"
-): void {
+export function downloadFile(data: string, filename: string, type: string = "text/plain"): void {
   const blob = new Blob([data], { type });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -327,10 +317,7 @@ export function formatCurrency(
 /**
  * Format number with commas
  */
-export function formatNumber(
-  value: number,
-  locale: string = "en-US"
-): string {
+export function formatNumber(value: number, locale: string = "en-US"): string {
   return new Intl.NumberFormat(locale).format(value);
 }
 

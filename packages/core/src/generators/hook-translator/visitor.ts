@@ -5,7 +5,12 @@
  * and generate TypeScript hook code
  */
 
-import { BaseHookVisitor, HookDefinitionNode, ParameterNode, HookType } from "./types";
+import {
+  BaseHookVisitor,
+  type HookDefinitionNode,
+  type HookType,
+  type ParameterNode,
+} from "./types";
 
 /**
  * Visitor configuration options
@@ -377,7 +382,10 @@ export class HookCodeGenerationVisitor extends BaseHookVisitor<string> {
    * Format hook name for display
    */
   private formatHookName(hookType: HookType): string {
-    const words = hookType.replace(/([A-Z])/g, " $1").trim().split(" ");
+    const words = hookType
+      .replace(/([A-Z])/g, " $1")
+      .trim()
+      .split(" ");
     return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
   }
 

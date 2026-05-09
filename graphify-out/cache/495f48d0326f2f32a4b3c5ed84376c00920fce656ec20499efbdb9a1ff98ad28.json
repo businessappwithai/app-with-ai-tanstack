@@ -1,1 +1,347 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts", "label": "hook-parser.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L1"}, {"id": "hook_parser_parsehookcomment", "label": "parseHookComment()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L57"}, {"id": "hook_parser_parseparameters", "label": "parseParameters()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L106"}, {"id": "hook_parser_parsehooksfromflowchart", "label": "parseHooksFromFlowchart()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L134"}, {"id": "hook_parser_generatehookcomment", "label": "generateHookComment()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L172"}, {"id": "hook_parser_generateflowchartfromhooks", "label": "generateFlowchartFromHooks()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L186"}, {"id": "hook_parser_validatehookdefinition", "label": "validateHookDefinition()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L254"}, {"id": "hook_parser_tohookdefinition", "label": "toHookDefinition()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L299"}, {"id": "hook_parser_fromhookdefinition", "label": "fromHookDefinition()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L315"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts", "target": "hook_parser_parsehookcomment", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L57", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts", "target": "hook_parser_parseparameters", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L106", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts", "target": "hook_parser_parsehooksfromflowchart", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L134", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts", "target": "hook_parser_generatehookcomment", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L172", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts", "target": "hook_parser_generateflowchartfromhooks", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L186", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts", "target": "hook_parser_validatehookdefinition", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L254", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts", "target": "hook_parser_tohookdefinition", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L299", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts", "target": "hook_parser_fromhookdefinition", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L315", "weight": 1.0}, {"source": "hook_parser_parsehookcomment", "target": "hook_parser_parseparameters", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L89", "weight": 1.0}, {"source": "hook_parser_parsehooksfromflowchart", "target": "hook_parser_parsehookcomment", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L151", "weight": 1.0}], "raw_calls": [{"caller_nid": "hook_parser_parsehookcomment", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L61"}, {"caller_nid": "hook_parser_parsehookcomment", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L63"}, {"caller_nid": "hook_parser_parsehookcomment", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L67"}, {"caller_nid": "hook_parser_parsehookcomment", "callee": "test", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L76"}, {"caller_nid": "hook_parser_parseparameters", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L110"}, {"caller_nid": "hook_parser_parseparameters", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L110"}, {"caller_nid": "hook_parser_parseparameters", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L116"}, {"caller_nid": "hook_parser_parseparameters", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L116"}, {"caller_nid": "hook_parser_parseparameters", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L120"}, {"caller_nid": "hook_parser_parseparameters", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L122"}, {"caller_nid": "hook_parser_parseparameters", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L123"}, {"caller_nid": "hook_parser_parseparameters", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L124"}, {"caller_nid": "hook_parser_parsehooksfromflowchart", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L139"}, {"caller_nid": "hook_parser_parsehooksfromflowchart", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L143"}, {"caller_nid": "hook_parser_parsehooksfromflowchart", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L146"}, {"caller_nid": "hook_parser_parsehooksfromflowchart", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L154"}, {"caller_nid": "hook_parser_parsehooksfromflowchart", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L156"}, {"caller_nid": "hook_parser_parsehooksfromflowchart", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L158"}, {"caller_nid": "hook_parser_generatehookcomment", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L176"}, {"caller_nid": "hook_parser_generatehookcomment", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L176"}, {"caller_nid": "hook_parser_generateflowchartfromhooks", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L194"}, {"caller_nid": "hook_parser_generateflowchartfromhooks", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L217"}, {"caller_nid": "hook_parser_generateflowchartfromhooks", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L242"}, {"caller_nid": "hook_parser_validatehookdefinition", "callee": "test", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L258"}, {"caller_nid": "hook_parser_validatehookdefinition", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L259"}, {"caller_nid": "hook_parser_validatehookdefinition", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L264"}, {"caller_nid": "hook_parser_validatehookdefinition", "callee": "test", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L267"}, {"caller_nid": "hook_parser_validatehookdefinition", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L268"}, {"caller_nid": "hook_parser_validatehookdefinition", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L275"}, {"caller_nid": "hook_parser_validatehookdefinition", "callee": "test", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L278"}, {"caller_nid": "hook_parser_validatehookdefinition", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts", "source_location": "L279"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts",
+      "label": "hook-parser.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "hook_parser_parsehookcomment",
+      "label": "parseHookComment()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L57"
+    },
+    {
+      "id": "hook_parser_parseparameters",
+      "label": "parseParameters()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L106"
+    },
+    {
+      "id": "hook_parser_parsehooksfromflowchart",
+      "label": "parseHooksFromFlowchart()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L134"
+    },
+    {
+      "id": "hook_parser_generatehookcomment",
+      "label": "generateHookComment()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L172"
+    },
+    {
+      "id": "hook_parser_generateflowchartfromhooks",
+      "label": "generateFlowchartFromHooks()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L186"
+    },
+    {
+      "id": "hook_parser_validatehookdefinition",
+      "label": "validateHookDefinition()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L254"
+    },
+    {
+      "id": "hook_parser_tohookdefinition",
+      "label": "toHookDefinition()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L299"
+    },
+    {
+      "id": "hook_parser_fromhookdefinition",
+      "label": "fromHookDefinition()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L315"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts",
+      "target": "hook_parser_parsehookcomment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts",
+      "target": "hook_parser_parseparameters",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L106",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts",
+      "target": "hook_parser_parsehooksfromflowchart",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L134",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts",
+      "target": "hook_parser_generatehookcomment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L172",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts",
+      "target": "hook_parser_generateflowchartfromhooks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L186",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts",
+      "target": "hook_parser_validatehookdefinition",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L254",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts",
+      "target": "hook_parser_tohookdefinition",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L299",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_workflow_hook_parser_ts",
+      "target": "hook_parser_fromhookdefinition",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L315",
+      "weight": 1.0
+    },
+    {
+      "source": "hook_parser_parsehookcomment",
+      "target": "hook_parser_parseparameters",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "hook_parser_parsehooksfromflowchart",
+      "target": "hook_parser_parsehookcomment",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L151",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "hook_parser_parsehookcomment",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "hook_parser_parsehookcomment",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "hook_parser_parsehookcomment",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "hook_parser_parsehookcomment",
+      "callee": "test",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "hook_parser_parseparameters",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "hook_parser_parseparameters",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "hook_parser_parseparameters",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "hook_parser_parseparameters",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "hook_parser_parseparameters",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L120"
+    },
+    {
+      "caller_nid": "hook_parser_parseparameters",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "hook_parser_parseparameters",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "hook_parser_parseparameters",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "hook_parser_parsehooksfromflowchart",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L139"
+    },
+    {
+      "caller_nid": "hook_parser_parsehooksfromflowchart",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "hook_parser_parsehooksfromflowchart",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L146"
+    },
+    {
+      "caller_nid": "hook_parser_parsehooksfromflowchart",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "hook_parser_parsehooksfromflowchart",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L156"
+    },
+    {
+      "caller_nid": "hook_parser_parsehooksfromflowchart",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "hook_parser_generatehookcomment",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L176"
+    },
+    {
+      "caller_nid": "hook_parser_generatehookcomment",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L176"
+    },
+    {
+      "caller_nid": "hook_parser_generateflowchartfromhooks",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L194"
+    },
+    {
+      "caller_nid": "hook_parser_generateflowchartfromhooks",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L217"
+    },
+    {
+      "caller_nid": "hook_parser_generateflowchartfromhooks",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "hook_parser_validatehookdefinition",
+      "callee": "test",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L258"
+    },
+    {
+      "caller_nid": "hook_parser_validatehookdefinition",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "hook_parser_validatehookdefinition",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L264"
+    },
+    {
+      "caller_nid": "hook_parser_validatehookdefinition",
+      "callee": "test",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L267"
+    },
+    {
+      "caller_nid": "hook_parser_validatehookdefinition",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L268"
+    },
+    {
+      "caller_nid": "hook_parser_validatehookdefinition",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L275"
+    },
+    {
+      "caller_nid": "hook_parser_validatehookdefinition",
+      "callee": "test",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L278"
+    },
+    {
+      "caller_nid": "hook_parser_validatehookdefinition",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/workflow/hook-parser.ts",
+      "source_location": "L279"
+    }
+  ]
+}

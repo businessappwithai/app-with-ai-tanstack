@@ -3,19 +3,19 @@
  * Generates comprehensive E2E tests for Option 1 applications
  */
 
-import { BaseE2ETestGenerator } from './base-e2e.generator';
-import { Entity } from '@erdwithai/core/types';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+import type { Entity } from "@erdwithai/core/types";
+import { mkdir, writeFile } from "fs/promises";
+import { join } from "path";
+import { BaseE2ETestGenerator } from "./base-e2e.generator";
 
 export class NextJSPlaywrightE2ETestGenerator extends BaseE2ETestGenerator {
   async generate(): Promise<void> {
-    const e2eDir = join(this.config.outputDir, 'frontend', 'e2e');
+    const e2eDir = join(this.config.outputDir, "frontend", "e2e");
     await mkdir(e2eDir, { recursive: true });
 
     // Create subdirectories
-    await mkdir(join(e2eDir, 'pages'), { recursive: true });
-    await mkdir(join(e2eDir, 'fixtures'), { recursive: true });
+    await mkdir(join(e2eDir, "pages"), { recursive: true });
+    await mkdir(join(e2eDir, "fixtures"), { recursive: true });
 
     // Generate playwright.config.ts
     await this.generatePlaywrightConfig();
@@ -65,10 +65,7 @@ export default defineConfig({
 });
 `;
 
-    await writeFile(
-      join(this.config.outputDir, 'frontend', 'playwright.config.ts'),
-      config
-    );
+    await writeFile(join(this.config.outputDir, "frontend", "playwright.config.ts"), config);
   }
 
   private async generateFixtures(): Promise<void> {
@@ -82,16 +79,17 @@ export const test = base.extend({
 export { expect } from test;
 `;
 
-    await writeFile(join(this.config.outputDir, 'frontend', 'e2e', 'fixtures.ts'), fixtures);
+    await writeFile(join(this.config.outputDir, "frontend", "e2e", "fixtures.ts"), fixtures);
 
     // Generate test data
     const testData = this.generateTestData();
-    await writeFile(join(this.config.outputDir, 'frontend', 'e2e', 'test-data.ts'), testData);
+    await writeFile(join(this.config.outputDir, "frontend", "e2e", "test-data.ts"), testData);
   }
 
   private async generateEntityTests(entity: Entity): Promise<void> {
     const entityName = entity.name;
-    const tableName = (entity as { tableName?: string }).tableName || `bus_${entity.name.toLowerCase()}`;
+    const tableName =
+      (entity as { tableName?: string }).tableName || `bus_${entity.name.toLowerCase()}`;
     const entityNamePlural = tableName; // Use tableName for routing
 
     const testFile = `import { test, expect } from '@playwright/test';
@@ -203,7 +201,7 @@ test.describe('${entityName} CRUD Tests', () => {
 `;
 
     await writeFile(
-      join(this.config.outputDir, 'frontend', 'e2e', 'pages', `${entityName}.spec.ts`),
+      join(this.config.outputDir, "frontend", "e2e", "pages", `${entityName}.spec.ts`),
       testFile
     );
   }
@@ -212,8 +210,8 @@ test.describe('${entityName} CRUD Tests', () => {
     const lines: string[] = [];
 
     for (const attr of entity.attributes) {
-      if (attr.name === 'id' || attr.name.includes('_id')) continue;
-      if (attr.name === 'created_at' || attr.name === 'updated_at') continue;
+      if (attr.name === "id" || attr.name.includes("_id")) continue;
+      if (attr.name === "created_at" || attr.name === "updated_at") continue;
 
       const selector = this.getFormFieldSelector(attr.name);
       const value = this.getMockValueForType(attr.type, attr.name);
@@ -221,15 +219,15 @@ test.describe('${entityName} CRUD Tests', () => {
       lines.push(`    await page.fill('${selector}', ${value});`);
     }
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   private generateUpdateCode(entity: Entity): string {
     const lines: string[] = [];
 
     for (const attr of entity.attributes) {
-      if (attr.name === 'id' || attr.name.includes('_id')) continue;
-      if (attr.name === 'created_at' || attr.name === 'updated_at') continue;
+      if (attr.name === "id" || attr.name.includes("_id")) continue;
+      if (attr.name === "created_at" || attr.name === "updated_at") continue;
 
       const selector = this.getFormFieldSelector(attr.name);
       const value = this.getUniqueMockValue(attr.type, attr.name, 1);
@@ -237,21 +235,21 @@ test.describe('${entityName} CRUD Tests', () => {
       lines.push(`    await page.fill('${selector}', ${value});`);
     }
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   private generateDetailChecks(entity: Entity): string {
     const lines: string[] = [];
 
     // Check for common fields
-    if (entity.attributes.some(a => a.name === 'name')) {
+    if (entity.attributes.some((a) => a.name === "name")) {
       lines.push(`    await expect(page.locator('text=/Test Name/i')).toBeVisible();`);
     }
-    if (entity.attributes.some(a => a.name === 'email')) {
+    if (entity.attributes.some((a) => a.name === "email")) {
       lines.push(`    await expect(page.locator('text=test@example.com')).toBeVisible();`);
     }
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   private getFormFieldSelector(name: string): string {
@@ -260,9 +258,14 @@ test.describe('${entityName} CRUD Tests', () => {
 
   private getSearchableFields(entity: Entity): string[] {
     return entity.attributes
-      .filter(a => a.type.toLowerCase().includes('string') || a.type.toLowerCase().includes('text'))
-      .filter(a => !a.name.includes('id') && !a.name.includes('created_at') && !a.name.includes('updated_at'))
-      .map(a => a.name);
+      .filter(
+        (a) => a.type.toLowerCase().includes("string") || a.type.toLowerCase().includes("text")
+      )
+      .filter(
+        (a) =>
+          !a.name.includes("id") && !a.name.includes("created_at") && !a.name.includes("updated_at")
+      )
+      .map((a) => a.name);
   }
 
   private async generateNavigationTests(): Promise<void> {
@@ -273,9 +276,11 @@ test.describe('Navigation Tests', () => {
     // Start at dashboard (home page redirects to dashboard)
     await page.goto('/');
 
-    ${this.config.entities.map((entity) => {
-      const tableName = (entity as { tableName?: string }).tableName || `${entity.name.toLowerCase()}s`;
-      return `
+    ${this.config.entities
+      .map((entity) => {
+        const tableName =
+          (entity as { tableName?: string }).tableName || `${entity.name.toLowerCase()}s`;
+        return `
     // Navigate to ${entity.name}
     await page.click('a[href="/${tableName}"]');
     await expect(page).toHaveURL(/\\/${tableName}/);
@@ -284,22 +289,26 @@ test.describe('Navigation Tests', () => {
     // Go back to dashboard
     await page.goto('/dashboard');
     `;
-    }).join('\n  ')}
+      })
+      .join("\n  ")}
   });
 
   test('should display all entities in dashboard', async ({ page }) => {
     await page.goto('/dashboard');
 
-    ${this.config.entities.map((entity) => {
-      const tableName = (entity as { tableName?: string }).tableName || `${entity.name.toLowerCase()}s`;
-      return `await expect(page.locator('a[href="/${tableName}"]')).toBeVisible();`;
-    }).join('\n    ')}
+    ${this.config.entities
+      .map((entity) => {
+        const tableName =
+          (entity as { tableName?: string }).tableName || `${entity.name.toLowerCase()}s`;
+        return `await expect(page.locator('a[href="/${tableName}"]')).toBeVisible();`;
+      })
+      .join("\n    ")}
   });
 });
 `;
 
     await writeFile(
-      join(this.config.outputDir, 'frontend', 'e2e', 'pages', 'navigation.spec.ts'),
+      join(this.config.outputDir, "frontend", "e2e", "pages", "navigation.spec.ts"),
       navTest
     );
   }

@@ -1,1 +1,802 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts", "label": "odata-backend.generator.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L1"}, {"id": "odata_backend_generator_odatabackendgenerator", "label": "ODataBackendGenerator", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L32"}, {"id": "odata_backend_generator_odatabackendgenerator_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L35"}, {"id": "odata_backend_generator_odatabackendgenerator_generate", "label": ".generate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L40"}, {"id": "odata_backend_generator_odatabackendgenerator_createdirectorystructure", "label": ".createDirectoryStructure()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L67"}, {"id": "odata_backend_generator_odatabackendgenerator_preparecontext", "label": ".prepareContext()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L91"}, {"id": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "label": ".generateCoreFiles()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L209"}, {"id": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators", "label": ".generateControllerGenerators()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L244"}, {"id": "odata_backend_generator_odatabackendgenerator_generatedatabase", "label": ".generateDatabase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L254"}, {"id": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "label": ".generateConfigFiles()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L283"}, {"id": "odata_backend_generator_odatabackendgenerator_generatetestfiles", "label": ".generateTestFiles()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L320"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts", "target": "promises", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts", "target": "path", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts", "target": "types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L18", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts", "target": "types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L19", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts", "target": "table_naming", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L20", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_base_generator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L21", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts", "target": "odata_backend_generator_odatabackendgenerator", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L32", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator", "target": "odata_backend_generator_odatabackendgenerator_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L35", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator", "target": "odata_backend_generator_odatabackendgenerator_generate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L40", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator", "target": "odata_backend_generator_odatabackendgenerator_createdirectorystructure", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L67", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator", "target": "odata_backend_generator_odatabackendgenerator_preparecontext", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L91", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator", "target": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L209", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator", "target": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L244", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator", "target": "odata_backend_generator_odatabackendgenerator_generatedatabase", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L254", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator", "target": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L283", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator", "target": "odata_backend_generator_odatabackendgenerator_generatetestfiles", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L320", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator_generate", "target": "odata_backend_generator_odatabackendgenerator_createdirectorystructure", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L46", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator_generate", "target": "odata_backend_generator_odatabackendgenerator_preparecontext", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L49", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator_generate", "target": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L52", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator_generate", "target": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L55", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator_generate", "target": "odata_backend_generator_odatabackendgenerator_generatedatabase", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L58", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator_generate", "target": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L61", "weight": 1.0}, {"source": "odata_backend_generator_odatabackendgenerator_generate", "target": "odata_backend_generator_odatabackendgenerator_generatetestfiles", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L64", "weight": 1.0}], "raw_calls": [{"caller_nid": "odata_backend_generator_odatabackendgenerator_constructor", "callee": "super", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L36"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_constructor", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L36"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_createdirectorystructure", "callee": "mkdir", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L84"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_createdirectorystructure", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L84"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_createdirectorystructure", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L88"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_createdirectorystructure", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L88"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L93"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L103"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L106"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext", "callee": "flat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L109"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L109"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext", "callee": "flat", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L127"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L127"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L157"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L205"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L211"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L212"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L212"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L215"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L216"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L216"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L219"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L220"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L220"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L223"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L224"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L224"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L236"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L237"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L237"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L239"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L246"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L247"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L247"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L250"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L251"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L251"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "now", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L255"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L258"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L259"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L260"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L265"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L266"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L267"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L272"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L273"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L273"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L275"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L276"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L276"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L279"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L280"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L280"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L285"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L286"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L286"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L289"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L290"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L290"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L293"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L294"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L294"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L297"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L298"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L298"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L301"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L301"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L305"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L306"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L306"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L308"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L313"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L314"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L314"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L316"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L323"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L324"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L324"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L327"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L328"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L328"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles", "callee": "renderTemplate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L331"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles", "callee": "writeFile", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L332"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L332"}, {"caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts", "source_location": "L335"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts",
+      "label": "odata-backend.generator.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "odata_backend_generator_odatabackendgenerator",
+      "label": "ODataBackendGenerator",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L32"
+    },
+    {
+      "id": "odata_backend_generator_odatabackendgenerator_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L35"
+    },
+    {
+      "id": "odata_backend_generator_odatabackendgenerator_generate",
+      "label": ".generate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L40"
+    },
+    {
+      "id": "odata_backend_generator_odatabackendgenerator_createdirectorystructure",
+      "label": ".createDirectoryStructure()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L67"
+    },
+    {
+      "id": "odata_backend_generator_odatabackendgenerator_preparecontext",
+      "label": ".prepareContext()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L91"
+    },
+    {
+      "id": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "label": ".generateCoreFiles()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L209"
+    },
+    {
+      "id": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators",
+      "label": ".generateControllerGenerators()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L244"
+    },
+    {
+      "id": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "label": ".generateDatabase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L254"
+    },
+    {
+      "id": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "label": ".generateConfigFiles()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L283"
+    },
+    {
+      "id": "odata_backend_generator_odatabackendgenerator_generatetestfiles",
+      "label": ".generateTestFiles()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L320"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts",
+      "target": "table_naming",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_base_generator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_src_generators_openui5_odatav4_odata_backend_generator_ts",
+      "target": "odata_backend_generator_odatabackendgenerator",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator",
+      "target": "odata_backend_generator_odatabackendgenerator_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator",
+      "target": "odata_backend_generator_odatabackendgenerator_generate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator",
+      "target": "odata_backend_generator_odatabackendgenerator_createdirectorystructure",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator",
+      "target": "odata_backend_generator_odatabackendgenerator_preparecontext",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator",
+      "target": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L209",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator",
+      "target": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L244",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator",
+      "target": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L254",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator",
+      "target": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L283",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator",
+      "target": "odata_backend_generator_odatabackendgenerator_generatetestfiles",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L320",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator_generate",
+      "target": "odata_backend_generator_odatabackendgenerator_createdirectorystructure",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator_generate",
+      "target": "odata_backend_generator_odatabackendgenerator_preparecontext",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator_generate",
+      "target": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator_generate",
+      "target": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator_generate",
+      "target": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator_generate",
+      "target": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "odata_backend_generator_odatabackendgenerator_generate",
+      "target": "odata_backend_generator_odatabackendgenerator_generatetestfiles",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L64",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_constructor",
+      "callee": "super",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_constructor",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_createdirectorystructure",
+      "callee": "mkdir",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_createdirectorystructure",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_createdirectorystructure",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_createdirectorystructure",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext",
+      "callee": "flat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext",
+      "callee": "flat",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L157"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_preparecontext",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L211"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L215"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L216"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L216"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L219"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L220"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L220"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L223"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L237"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L237"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecorefiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L239"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L246"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L247"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L247"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L250"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatecontrollergenerators",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "now",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L258"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L260"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L265"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L266"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L267"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L272"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L275"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L279"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L280"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatedatabase",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L280"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L285"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L286"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L286"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L289"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L290"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L290"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L293"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L294"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L294"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L297"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L298"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L298"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L301"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L301"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L305"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L306"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L306"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L308"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L313"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L314"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L314"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generateconfigfiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L316"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L323"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L324"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L324"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L327"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L328"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L328"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles",
+      "callee": "renderTemplate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L331"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles",
+      "callee": "writeFile",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L332"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L332"
+    },
+    {
+      "caller_nid": "odata_backend_generator_odatabackendgenerator_generatetestfiles",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/src/generators/openui5-odatav4/odata-backend.generator.ts",
+      "source_location": "L335"
+    }
+  ]
+}

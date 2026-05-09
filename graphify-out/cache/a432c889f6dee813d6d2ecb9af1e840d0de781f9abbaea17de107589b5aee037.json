@@ -1,1 +1,233 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_i18n_fields_ts", "label": "i18n-fields.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L1"}, {"id": "i18n_fields_tosnakecase", "label": "toSnakeCase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L17"}, {"id": "i18n_fields_generatefieldi18nkey", "label": "generateFieldI18nKey()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L31"}, {"id": "i18n_fields_getfieldlabel", "label": "getFieldLabel()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L53"}, {"id": "i18n_fields_getentitylabel", "label": "getEntityLabel()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L89"}, {"id": "i18n_fields_gettablabel", "label": "getTabLabel()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L111"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_i18n_fields_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_translations", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_i18n_fields_ts", "target": "i18n_fields_tosnakecase", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_i18n_fields_ts", "target": "i18n_fields_generatefieldi18nkey", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L31", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_i18n_fields_ts", "target": "i18n_fields_getfieldlabel", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L53", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_i18n_fields_ts", "target": "i18n_fields_getentitylabel", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L89", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_i18n_fields_ts", "target": "i18n_fields_gettablabel", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L111", "weight": 1.0}, {"source": "i18n_fields_generatefieldi18nkey", "target": "i18n_fields_tosnakecase", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L38", "weight": 1.0}, {"source": "i18n_fields_getfieldlabel", "target": "i18n_fields_generatefieldi18nkey", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L61", "weight": 1.0}, {"source": "i18n_fields_getfieldlabel", "target": "i18n_fields_tosnakecase", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L71", "weight": 1.0}, {"source": "i18n_fields_getentitylabel", "target": "i18n_fields_tosnakecase", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L91", "weight": 1.0}, {"source": "i18n_fields_gettablabel", "target": "i18n_fields_tosnakecase", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L113", "weight": 1.0}], "raw_calls": [{"caller_nid": "i18n_fields_tosnakecase", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L18"}, {"caller_nid": "i18n_fields_tosnakecase", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L18"}, {"caller_nid": "i18n_fields_tosnakecase", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L18"}, {"caller_nid": "i18n_fields_generatefieldi18nkey", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L37"}, {"caller_nid": "i18n_fields_getfieldlabel", "callee": "translate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L62"}, {"caller_nid": "i18n_fields_getfieldlabel", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L70"}, {"caller_nid": "i18n_fields_getfieldlabel", "callee": "translate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L75"}, {"caller_nid": "i18n_fields_getentitylabel", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L90"}, {"caller_nid": "i18n_fields_getentitylabel", "callee": "translate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L92"}, {"caller_nid": "i18n_fields_getentitylabel", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L96"}, {"caller_nid": "i18n_fields_getentitylabel", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L96"}, {"caller_nid": "i18n_fields_getentitylabel", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L96"}, {"caller_nid": "i18n_fields_gettablabel", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L112"}, {"caller_nid": "i18n_fields_gettablabel", "callee": "translate", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts", "source_location": "L114"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_i18n_fields_ts",
+      "label": "i18n-fields.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "i18n_fields_tosnakecase",
+      "label": "toSnakeCase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L17"
+    },
+    {
+      "id": "i18n_fields_generatefieldi18nkey",
+      "label": "generateFieldI18nKey()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L31"
+    },
+    {
+      "id": "i18n_fields_getfieldlabel",
+      "label": "getFieldLabel()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L53"
+    },
+    {
+      "id": "i18n_fields_getentitylabel",
+      "label": "getEntityLabel()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L89"
+    },
+    {
+      "id": "i18n_fields_gettablabel",
+      "label": "getTabLabel()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L111"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_i18n_fields_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_translations",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_i18n_fields_ts",
+      "target": "i18n_fields_tosnakecase",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_i18n_fields_ts",
+      "target": "i18n_fields_generatefieldi18nkey",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_i18n_fields_ts",
+      "target": "i18n_fields_getfieldlabel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_i18n_fields_ts",
+      "target": "i18n_fields_getentitylabel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_lib_i18n_fields_ts",
+      "target": "i18n_fields_gettablabel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L111",
+      "weight": 1.0
+    },
+    {
+      "source": "i18n_fields_generatefieldi18nkey",
+      "target": "i18n_fields_tosnakecase",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "i18n_fields_getfieldlabel",
+      "target": "i18n_fields_generatefieldi18nkey",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "i18n_fields_getfieldlabel",
+      "target": "i18n_fields_tosnakecase",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "i18n_fields_getentitylabel",
+      "target": "i18n_fields_tosnakecase",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "i18n_fields_gettablabel",
+      "target": "i18n_fields_tosnakecase",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L113",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "i18n_fields_tosnakecase",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L18"
+    },
+    {
+      "caller_nid": "i18n_fields_tosnakecase",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L18"
+    },
+    {
+      "caller_nid": "i18n_fields_tosnakecase",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L18"
+    },
+    {
+      "caller_nid": "i18n_fields_generatefieldi18nkey",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "i18n_fields_getfieldlabel",
+      "callee": "translate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "i18n_fields_getfieldlabel",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "i18n_fields_getfieldlabel",
+      "callee": "translate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "i18n_fields_getentitylabel",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "i18n_fields_getentitylabel",
+      "callee": "translate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "i18n_fields_getentitylabel",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "i18n_fields_getentitylabel",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "i18n_fields_getentitylabel",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "i18n_fields_gettablabel",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "i18n_fields_gettablabel",
+      "callee": "translate",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/lib/i18n-fields.ts",
+      "source_location": "L114"
+    }
+  ]
+}

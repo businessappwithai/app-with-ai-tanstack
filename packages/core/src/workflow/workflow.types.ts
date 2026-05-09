@@ -67,11 +67,7 @@ export interface IWorkflowService {
   /**
    * Set workflow status on entity
    */
-  setEntityStatus(
-    entityName: string,
-    entityId: string,
-    status: WorkflowStatus
-  ): Promise<void>;
+  setEntityStatus(entityName: string, entityId: string, status: WorkflowStatus): Promise<void>;
 }
 
 /**

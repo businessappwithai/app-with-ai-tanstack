@@ -1,1 +1,92 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_1771663411961_add_icon_to_sys_table_ts", "label": "1771663411961_add_icon_to_sys_table.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts", "source_location": "L1"}, {"id": "1771663411961_add_icon_to_sys_table_up", "label": "up()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts", "source_location": "L11"}, {"id": "1771663411961_add_icon_to_sys_table_down", "label": "down()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts", "source_location": "L87"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_1771663411961_add_icon_to_sys_table_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_1771663411961_add_icon_to_sys_table_ts", "target": "1771663411961_add_icon_to_sys_table_up", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_1771663411961_add_icon_to_sys_table_ts", "target": "1771663411961_add_icon_to_sys_table_down", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts", "source_location": "L87", "weight": 1.0}], "raw_calls": [{"caller_nid": "1771663411961_add_icon_to_sys_table_up", "callee": "alterTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts", "source_location": "L13"}, {"caller_nid": "1771663411961_add_icon_to_sys_table_up", "callee": "entries", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts", "source_location": "L80"}, {"caller_nid": "1771663411961_add_icon_to_sys_table_up", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts", "source_location": "L81"}, {"caller_nid": "1771663411961_add_icon_to_sys_table_up", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts", "source_location": "L81"}, {"caller_nid": "1771663411961_add_icon_to_sys_table_up", "callee": "knex", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts", "source_location": "L81"}, {"caller_nid": "1771663411961_add_icon_to_sys_table_down", "callee": "alterTable", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts", "source_location": "L89"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_1771663411961_add_icon_to_sys_table_ts",
+      "label": "1771663411961_add_icon_to_sys_table.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "1771663411961_add_icon_to_sys_table_up",
+      "label": "up()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "1771663411961_add_icon_to_sys_table_down",
+      "label": "down()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts",
+      "source_location": "L87"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_1771663411961_add_icon_to_sys_table_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_1771663411961_add_icon_to_sys_table_ts",
+      "target": "1771663411961_add_icon_to_sys_table_up",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_migrations_1771663411961_add_icon_to_sys_table_ts",
+      "target": "1771663411961_add_icon_to_sys_table_down",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts",
+      "source_location": "L87",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "1771663411961_add_icon_to_sys_table_up",
+      "callee": "alterTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts",
+      "source_location": "L13"
+    },
+    {
+      "caller_nid": "1771663411961_add_icon_to_sys_table_up",
+      "callee": "entries",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "1771663411961_add_icon_to_sys_table_up",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "1771663411961_add_icon_to_sys_table_up",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "1771663411961_add_icon_to_sys_table_up",
+      "callee": "knex",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "1771663411961_add_icon_to_sys_table_down",
+      "callee": "alterTable",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/migrations/1771663411961_add_icon_to_sys_table.ts",
+      "source_location": "L89"
+    }
+  ]
+}

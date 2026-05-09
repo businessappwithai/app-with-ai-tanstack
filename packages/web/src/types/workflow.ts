@@ -4,7 +4,7 @@
  * Type definitions for hook-based workflow system
  */
 
-import type { HookType, HookParameter } from "../lib/workflow/hook-parser";
+import type { HookParameter, HookType } from "../lib/workflow/hook-parser";
 
 /**
  * Hook definition as stored in the database

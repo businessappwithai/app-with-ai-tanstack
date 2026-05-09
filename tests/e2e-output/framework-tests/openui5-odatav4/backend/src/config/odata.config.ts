@@ -6,19 +6,19 @@
 
 export const config = {
   project: {
-    name: 'openui5-odatav4-test-app',
-    version: '1.0.0',
-    description: 'Generated application',
+    name: "openui5-odatav4-test-app",
+    version: "1.0.0",
+    description: "Generated application",
   },
   server: {
-    port: parseInt(process.env.PORT || '3020', 10),
-    odataPath: '/odata',
+    port: parseInt(process.env.PORT || "3020", 10),
+    odataPath: "/odata",
   },
   database: {
-    type: 'sqlite' as 'sqlite' | 'postgresql',
+    type: "sqlite" as "sqlite" | "postgresql",
   },
   cors: {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
+    origin: process.env.CORS_ORIGIN || "http://localhost:8080",
     credentials: true,
   },
 };

@@ -1,1 +1,470 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts", "label": "guards.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L1"}, {"id": "guards_authguard", "label": "AuthGuard", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L20"}, {"id": "guards_authguard_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L21"}, {"id": "guards_authguard_canproceed", "label": ".canProceed()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L26"}, {"id": "guards_roleguard", "label": "RoleGuard", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L77"}, {"id": "guards_roleguard_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L78"}, {"id": "guards_roleguard_canproceed", "label": ".canProceed()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L83"}, {"id": "guards_permissionguard", "label": "PermissionGuard", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L127"}, {"id": "guards_permissionguard_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L128"}, {"id": "guards_permissionguard_canproceed", "label": ".canProceed()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L133"}, {"id": "guards_combinedguard", "label": "CombinedGuard", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L182"}, {"id": "guards_combinedguard_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L183"}, {"id": "guards_combinedguard_canproceed", "label": ".canProceed()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L185"}, {"id": "guards_publicguard", "label": "PublicGuard", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L205"}, {"id": "guards_publicguard_canproceed", "label": ".canProceed()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L206"}, {"id": "guards_guardfactory", "label": "GuardFactory", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L215"}, {"id": "guards_guardfactory_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L216"}, {"id": "guards_guardfactory_auth", "label": ".auth()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L221"}, {"id": "guards_guardfactory_role", "label": ".role()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L228"}, {"id": "guards_guardfactory_permission", "label": ".permission()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L235"}, {"id": "guards_guardfactory_combined", "label": ".combined()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L242"}, {"id": "guards_guardfactory_public", "label": ".public()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L249"}, {"id": "guards_guardfactory_authandrole", "label": ".authAndRole()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L256"}, {"id": "guards_guardfactory_authandpermission", "label": ".authAndPermission()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L266"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_types_ts", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_service_ts", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts", "target": "guards_authguard", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L20", "weight": 1.0}, {"source": "guards_authguard", "target": "guards_authguard_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L21", "weight": 1.0}, {"source": "guards_authguard", "target": "guards_authguard_canproceed", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L26", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts", "target": "guards_roleguard", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L77", "weight": 1.0}, {"source": "guards_roleguard", "target": "guards_roleguard_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L78", "weight": 1.0}, {"source": "guards_roleguard", "target": "guards_roleguard_canproceed", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L83", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts", "target": "guards_permissionguard", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L127", "weight": 1.0}, {"source": "guards_permissionguard", "target": "guards_permissionguard_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L128", "weight": 1.0}, {"source": "guards_permissionguard", "target": "guards_permissionguard_canproceed", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L133", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts", "target": "guards_combinedguard", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L182", "weight": 1.0}, {"source": "guards_combinedguard", "target": "guards_combinedguard_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L183", "weight": 1.0}, {"source": "guards_combinedguard", "target": "guards_combinedguard_canproceed", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L185", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts", "target": "guards_publicguard", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L205", "weight": 1.0}, {"source": "guards_publicguard", "target": "guards_publicguard_canproceed", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L206", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts", "target": "guards_guardfactory", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L215", "weight": 1.0}, {"source": "guards_guardfactory", "target": "guards_guardfactory_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L216", "weight": 1.0}, {"source": "guards_guardfactory", "target": "guards_guardfactory_auth", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L221", "weight": 1.0}, {"source": "guards_guardfactory", "target": "guards_guardfactory_role", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L228", "weight": 1.0}, {"source": "guards_guardfactory", "target": "guards_guardfactory_permission", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L235", "weight": 1.0}, {"source": "guards_guardfactory", "target": "guards_guardfactory_combined", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L242", "weight": 1.0}, {"source": "guards_guardfactory", "target": "guards_guardfactory_public", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L249", "weight": 1.0}, {"source": "guards_guardfactory", "target": "guards_guardfactory_authandrole", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L256", "weight": 1.0}, {"source": "guards_guardfactory", "target": "guards_guardfactory_authandpermission", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L266", "weight": 1.0}, {"source": "guards_roleguard_canproceed", "target": "guards_publicguard_canproceed", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L86", "weight": 1.0}, {"source": "guards_permissionguard_canproceed", "target": "guards_publicguard_canproceed", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L136", "weight": 1.0}, {"source": "guards_combinedguard_canproceed", "target": "guards_publicguard_canproceed", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L187", "weight": 1.0}], "raw_calls": [{"caller_nid": "guards_authguard_canproceed", "callee": "getSession", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L41"}, {"caller_nid": "guards_roleguard_canproceed", "callee": "getUserRoles", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L97"}, {"caller_nid": "guards_roleguard_canproceed", "callee": "isArray", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L100"}, {"caller_nid": "guards_roleguard_canproceed", "callee": "every", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L105"}, {"caller_nid": "guards_roleguard_canproceed", "callee": "some", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L106"}, {"caller_nid": "guards_permissionguard_canproceed", "callee": "hasRole", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L147"}, {"caller_nid": "guards_permissionguard_canproceed", "callee": "hasPermission", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts", "source_location": "L157"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts",
+      "label": "guards.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "guards_authguard",
+      "label": "AuthGuard",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L20"
+    },
+    {
+      "id": "guards_authguard_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L21"
+    },
+    {
+      "id": "guards_authguard_canproceed",
+      "label": ".canProceed()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L26"
+    },
+    {
+      "id": "guards_roleguard",
+      "label": "RoleGuard",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L77"
+    },
+    {
+      "id": "guards_roleguard_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L78"
+    },
+    {
+      "id": "guards_roleguard_canproceed",
+      "label": ".canProceed()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L83"
+    },
+    {
+      "id": "guards_permissionguard",
+      "label": "PermissionGuard",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L127"
+    },
+    {
+      "id": "guards_permissionguard_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L128"
+    },
+    {
+      "id": "guards_permissionguard_canproceed",
+      "label": ".canProceed()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L133"
+    },
+    {
+      "id": "guards_combinedguard",
+      "label": "CombinedGuard",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L182"
+    },
+    {
+      "id": "guards_combinedguard_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L183"
+    },
+    {
+      "id": "guards_combinedguard_canproceed",
+      "label": ".canProceed()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L185"
+    },
+    {
+      "id": "guards_publicguard",
+      "label": "PublicGuard",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L205"
+    },
+    {
+      "id": "guards_publicguard_canproceed",
+      "label": ".canProceed()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L206"
+    },
+    {
+      "id": "guards_guardfactory",
+      "label": "GuardFactory",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L215"
+    },
+    {
+      "id": "guards_guardfactory_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L216"
+    },
+    {
+      "id": "guards_guardfactory_auth",
+      "label": ".auth()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L221"
+    },
+    {
+      "id": "guards_guardfactory_role",
+      "label": ".role()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L228"
+    },
+    {
+      "id": "guards_guardfactory_permission",
+      "label": ".permission()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L235"
+    },
+    {
+      "id": "guards_guardfactory_combined",
+      "label": ".combined()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L242"
+    },
+    {
+      "id": "guards_guardfactory_public",
+      "label": ".public()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L249"
+    },
+    {
+      "id": "guards_guardfactory_authandrole",
+      "label": ".authAndRole()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L256"
+    },
+    {
+      "id": "guards_guardfactory_authandpermission",
+      "label": ".authAndPermission()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L266"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_types_ts",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_auth_service_ts",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts",
+      "target": "guards_authguard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_authguard",
+      "target": "guards_authguard_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_authguard",
+      "target": "guards_authguard_canproceed",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts",
+      "target": "guards_roleguard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_roleguard",
+      "target": "guards_roleguard_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_roleguard",
+      "target": "guards_roleguard_canproceed",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts",
+      "target": "guards_permissionguard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L127",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_permissionguard",
+      "target": "guards_permissionguard_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L128",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_permissionguard",
+      "target": "guards_permissionguard_canproceed",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L133",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts",
+      "target": "guards_combinedguard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L182",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_combinedguard",
+      "target": "guards_combinedguard_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L183",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_combinedguard",
+      "target": "guards_combinedguard_canproceed",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L185",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts",
+      "target": "guards_publicguard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L205",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_publicguard",
+      "target": "guards_publicguard_canproceed",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L206",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_auth_guards_ts",
+      "target": "guards_guardfactory",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L215",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_guardfactory",
+      "target": "guards_guardfactory_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L216",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_guardfactory",
+      "target": "guards_guardfactory_auth",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L221",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_guardfactory",
+      "target": "guards_guardfactory_role",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L228",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_guardfactory",
+      "target": "guards_guardfactory_permission",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L235",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_guardfactory",
+      "target": "guards_guardfactory_combined",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L242",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_guardfactory",
+      "target": "guards_guardfactory_public",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L249",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_guardfactory",
+      "target": "guards_guardfactory_authandrole",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L256",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_guardfactory",
+      "target": "guards_guardfactory_authandpermission",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L266",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_roleguard_canproceed",
+      "target": "guards_publicguard_canproceed",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_permissionguard_canproceed",
+      "target": "guards_publicguard_canproceed",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L136",
+      "weight": 1.0
+    },
+    {
+      "source": "guards_combinedguard_canproceed",
+      "target": "guards_publicguard_canproceed",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L187",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "guards_authguard_canproceed",
+      "callee": "getSession",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "guards_roleguard_canproceed",
+      "callee": "getUserRoles",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "guards_roleguard_canproceed",
+      "callee": "isArray",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "guards_roleguard_canproceed",
+      "callee": "every",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "guards_roleguard_canproceed",
+      "callee": "some",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "guards_permissionguard_canproceed",
+      "callee": "hasRole",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "guards_permissionguard_canproceed",
+      "callee": "hasPermission",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/auth/guards.ts",
+      "source_location": "L157"
+    }
+  ]
+}

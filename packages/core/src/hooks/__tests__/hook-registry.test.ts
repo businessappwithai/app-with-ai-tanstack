@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { HookRegistry } from "../hook-registry";
+import { beforeEach, describe, expect, it } from "vitest";
 import type { Hook } from "../../types/hook.types";
+import { HookRegistry } from "../hook-registry";
 
 describe("HookRegistry", () => {
   let registry: HookRegistry;
@@ -25,8 +25,18 @@ describe("HookRegistry", () => {
     });
 
     it("registers multiple hooks for same entity+lifecycle", () => {
-      const hook1: Hook = { name: "h1", lifecycle: "beforeCreate", priority: 100, execute: async () => {} };
-      const hook2: Hook = { name: "h2", lifecycle: "beforeCreate", priority: 200, execute: async () => {} };
+      const hook1: Hook = {
+        name: "h1",
+        lifecycle: "beforeCreate",
+        priority: 100,
+        execute: async () => {},
+      };
+      const hook2: Hook = {
+        name: "h2",
+        lifecycle: "beforeCreate",
+        priority: 200,
+        execute: async () => {},
+      };
 
       registry.register("Patient", hook1);
       registry.register("Patient", hook2);
@@ -36,9 +46,24 @@ describe("HookRegistry", () => {
     });
 
     it("sorts hooks by priority (ascending)", () => {
-      const low: Hook = { name: "low", lifecycle: "beforeCreate", priority: 300, execute: async () => {} };
-      const high: Hook = { name: "high", lifecycle: "beforeCreate", priority: 10, execute: async () => {} };
-      const mid: Hook = { name: "mid", lifecycle: "beforeCreate", priority: 100, execute: async () => {} };
+      const low: Hook = {
+        name: "low",
+        lifecycle: "beforeCreate",
+        priority: 300,
+        execute: async () => {},
+      };
+      const high: Hook = {
+        name: "high",
+        lifecycle: "beforeCreate",
+        priority: 10,
+        execute: async () => {},
+      };
+      const mid: Hook = {
+        name: "mid",
+        lifecycle: "beforeCreate",
+        priority: 100,
+        execute: async () => {},
+      };
 
       registry.register("Patient", low);
       registry.register("Patient", high);
@@ -51,7 +76,12 @@ describe("HookRegistry", () => {
     });
 
     it("keeps hooks for different entities separate", () => {
-      const hook: Hook = { name: "h", lifecycle: "beforeCreate", priority: 100, execute: async () => {} };
+      const hook: Hook = {
+        name: "h",
+        lifecycle: "beforeCreate",
+        priority: 100,
+        execute: async () => {},
+      };
       registry.register("Patient", hook);
 
       const patientHooks = registry.getHooks("Patient", "beforeCreate");
@@ -61,7 +91,12 @@ describe("HookRegistry", () => {
     });
 
     it("keeps hooks for different lifecycles separate", () => {
-      const hook: Hook = { name: "h", lifecycle: "beforeCreate", priority: 100, execute: async () => {} };
+      const hook: Hook = {
+        name: "h",
+        lifecycle: "beforeCreate",
+        priority: 100,
+        execute: async () => {},
+      };
       registry.register("Patient", hook);
 
       expect(registry.getHooks("Patient", "beforeCreate")).toHaveLength(1);
@@ -78,7 +113,12 @@ describe("HookRegistry", () => {
 
   describe("clear", () => {
     it("clears all hooks when called without entity", () => {
-      const hook: Hook = { name: "h", lifecycle: "beforeCreate", priority: 100, execute: async () => {} };
+      const hook: Hook = {
+        name: "h",
+        lifecycle: "beforeCreate",
+        priority: 100,
+        execute: async () => {},
+      };
       registry.register("Patient", hook);
       registry.register("Doctor", hook);
 
@@ -89,7 +129,12 @@ describe("HookRegistry", () => {
     });
 
     it("clears only hooks for specified entity", () => {
-      const hook: Hook = { name: "h", lifecycle: "beforeCreate", priority: 100, execute: async () => {} };
+      const hook: Hook = {
+        name: "h",
+        lifecycle: "beforeCreate",
+        priority: 100,
+        execute: async () => {},
+      };
       registry.register("Patient", hook);
       registry.register("Doctor", hook);
 
@@ -100,8 +145,18 @@ describe("HookRegistry", () => {
     });
 
     it("clears all lifecycles for the given entity", () => {
-      const h1: Hook = { name: "h1", lifecycle: "beforeCreate", priority: 100, execute: async () => {} };
-      const h2: Hook = { name: "h2", lifecycle: "afterCreate", priority: 100, execute: async () => {} };
+      const h1: Hook = {
+        name: "h1",
+        lifecycle: "beforeCreate",
+        priority: 100,
+        execute: async () => {},
+      };
+      const h2: Hook = {
+        name: "h2",
+        lifecycle: "afterCreate",
+        priority: 100,
+        execute: async () => {},
+      };
       registry.register("Patient", h1);
       registry.register("Patient", h2);
 

@@ -1,11 +1,19 @@
-import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { GoRulesEditor } from "../GoRulesEditor";
 
 // Mock the GoRules library
 vi.mock("@gorules/jdm-editor", () => ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- mock component doesn't need strict types
-  DecisionGraph: ({ value, onChange, disabled }: { value?: any; onChange?: (v: any) => void; disabled?: boolean }) => (
+  DecisionGraph: ({
+    value,
+    onChange,
+    disabled,
+  }: {
+    value?: any;
+    onChange?: (v: any) => void;
+    disabled?: boolean;
+  }) => (
     <div data-testid="decision-graph">
       <div data-testid="disabled">{String(disabled)}</div>
       <div data-testid="value">{JSON.stringify(value)}</div>

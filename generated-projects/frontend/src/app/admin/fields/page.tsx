@@ -19,47 +19,46 @@
  * Project: crm-app
  */
 
-'use client';
+"use client";
 
-import { Suspense } from 'react';
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import Link from 'next/link';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  LayoutGrid,
-  Layers,
-  GripVertical,
+  ArrowDown,
+  ArrowUp,
+  Check,
+  ChevronLeft,
   Eye,
   EyeOff,
-  Save,
-  RotateCcw,
-  ChevronLeft,
-  Table2,
+  GripVertical,
+  Layers,
+  LayoutGrid,
   RefreshCw,
-  ArrowUp,
-  ArrowDown,
-  Check,
-} from 'lucide-react';
-import { FieldLayoutEditor } from '@/components/admin/field-layout-editor';
-import { FieldGroupManager } from '@/components/admin/field-group-manager';
+  RotateCcw,
+  Save,
+  Table2,
+} from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { FieldGroupManager } from "@/components/admin/field-group-manager";
+import { FieldLayoutEditor } from "@/components/admin/field-layout-editor";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { apiClient, PaginatedResponse } from '@/lib/api-client';
-import { toast } from 'sonner';
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { apiClient, type PaginatedResponse } from "@/lib/api-client";
 
-type TabValue = 'layout' | 'groups' | 'inline';
-type LayoutMode = 'form' | 'grid';
+type TabValue = "layout" | "groups" | "inline";
+type LayoutMode = "form" | "grid";
 
 interface SysTable {
   sys_table_id: string;
@@ -114,13 +113,14 @@ function DraggableFieldItem({
   isFirst: boolean;
   isLast: boolean;
 }) {
-  const isVisible = mode === 'form' ? field.is_displayed : field.is_displayed_grid;
-  const seqNo = mode === 'form' ? field.tempSeqNo : field.tempSeqNoGrid;
-  const originalSeqNo = mode === 'form' ? field.seq_no : field.seq_no_grid;
+  const isVisible = mode === "form" ? field.is_displayed : field.is_displayed_grid;
+  const seqNo = mode === "form" ? field.tempSeqNo : field.tempSeqNoGrid;
+  const originalSeqNo = mode === "form" ? field.seq_no : field.seq_no_grid;
   const isDragging = dragIndex === index;
-  const hasChanged = seqNo !== originalSeqNo ||
-    (mode === 'form' ? field.is_displayed : field.is_displayed_grid) !==
-    (mode === 'form' ? field.is_displayed : field.is_displayed_grid);
+  const hasChanged =
+    seqNo !== originalSeqNo ||
+    (mode === "form" ? field.is_displayed : field.is_displayed_grid) !==
+      (mode === "form" ? field.is_displayed : field.is_displayed_grid);
 
   return (
     <div
@@ -130,8 +130,8 @@ function DraggableFieldItem({
       onDragEnd={onDragEnd}
       onDragOver={(e) => e.preventDefault()}
       className={`flex items-center gap-3 p-3 border rounded-lg transition-all ${
-        isDragging ? 'opacity-50 bg-accent shadow-lg' : 'bg-background'
-      } ${!isVisible ? 'opacity-60' : ''}`}
+        isDragging ? "opacity-50 bg-accent shadow-lg" : "bg-background"
+      } ${!isVisible ? "opacity-60" : ""}`}
     >
       {/* Drag handle */}
       <div className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground">
@@ -158,7 +158,9 @@ function DraggableFieldItem({
         <div className="flex items-center gap-2">
           <span className="font-medium truncate">{field.name}</span>
           {!isVisible && (
-            <Badge variant="outline" className="text-xs">hidden</Badge>
+            <Badge variant="outline" className="text-xs">
+              hidden
+            </Badge>
           )}
         </div>
         <div className="text-xs text-muted-foreground truncate">
@@ -194,7 +196,7 @@ function DraggableFieldItem({
         size="sm"
         className="h-8 w-8 p-0"
         onClick={() => onToggleVisibility(field.sys_field_id)}
-        title={isVisible ? 'Hide field' : 'Show field'}
+        title={isVisible ? "Hide field" : "Show field"}
       >
         {isVisible ? (
           <Eye className="h-4 w-4 text-green-600" />
@@ -209,20 +211,22 @@ function DraggableFieldItem({
 function FieldLayoutPageContent() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const initialEntity = searchParams.get('entity') || '';
+  const initialEntity = searchParams.get("entity") || "";
 
   const [selectedTable, setSelectedTable] = useState<string>(initialEntity);
-  const [activeTab, setActiveTab] = useState<TabValue>('inline');
-  const [layoutMode, setLayoutMode] = useState<LayoutMode>('form');
-  const [fields, setFields] = useState<(SysField & { tempSeqNo: number; tempSeqNoGrid: number })[]>([]);
+  const [activeTab, setActiveTab] = useState<TabValue>("inline");
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>("form");
+  const [fields, setFields] = useState<(SysField & { tempSeqNo: number; tempSeqNoGrid: number })[]>(
+    []
+  );
   const [hasChanges, setHasChanges] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const dragOverIndex = useRef<number | null>(null);
 
   // Fetch sys_table entries for the entity selector
   const { data: tablesResponse, isLoading: tablesLoading } = useQuery({
-    queryKey: ['admin', 'sys-tables'],
-    queryFn: () => apiClient.get<PaginatedResponse<SysTable>>('/api/sys/tables', { limit: 200 }),
+    queryKey: ["admin", "sys-tables"],
+    queryFn: () => apiClient.get<PaginatedResponse<SysTable>>("/api/sys/tables", { limit: 200 }),
   });
 
   // Fetch sys_field entries for the selected table
@@ -231,13 +235,13 @@ function FieldLayoutPageContent() {
     isLoading: fieldsLoading,
     refetch: refetchFields,
   } = useQuery({
-    queryKey: ['admin', 'fields', selectedTable],
+    queryKey: ["admin", "fields", selectedTable],
     queryFn: () =>
-      apiClient.get<PaginatedResponse<SysField>>('/api/sys/fields', {
+      apiClient.get<PaginatedResponse<SysField>>("/api/sys/fields", {
         table_name: selectedTable,
         limit: 200,
-        sort: layoutMode === 'form' ? 'seq_no' : 'seq_no_grid',
-        order: 'ASC',
+        sort: layoutMode === "form" ? "seq_no" : "seq_no_grid",
+        order: "ASC",
       }),
     enabled: !!selectedTable,
   });
@@ -248,15 +252,15 @@ function FieldLayoutPageContent() {
   useEffect(() => {
     if (fieldsResponse?.data) {
       const sortedFields = [...fieldsResponse.data].sort((a, b) => {
-        const aSeq = layoutMode === 'form' ? a.seq_no : a.seq_no_grid;
-        const bSeq = layoutMode === 'form' ? b.seq_no : b.seq_no_grid;
+        const aSeq = layoutMode === "form" ? a.seq_no : a.seq_no_grid;
+        const bSeq = layoutMode === "form" ? b.seq_no : b.seq_no_grid;
         return (aSeq || 0) - (bSeq || 0);
       });
       setFields(
         sortedFields.map((f, i) => ({
           ...f,
-          tempSeqNo: layoutMode === 'form' ? f.seq_no : (i + 1) * 10,
-          tempSeqNoGrid: layoutMode === 'grid' ? f.seq_no_grid : (i + 1) * 10,
+          tempSeqNo: layoutMode === "form" ? f.seq_no : (i + 1) * 10,
+          tempSeqNoGrid: layoutMode === "grid" ? f.seq_no_grid : (i + 1) * 10,
         }))
       );
       setHasChanges(false);
@@ -280,7 +284,11 @@ function FieldLayoutPageContent() {
   }, []);
 
   const handleDragEnd = useCallback(() => {
-    if (dragIndex === null || dragOverIndex.current === null || dragIndex === dragOverIndex.current) {
+    if (
+      dragIndex === null ||
+      dragOverIndex.current === null ||
+      dragIndex === dragOverIndex.current
+    ) {
       setDragIndex(null);
       return;
     }
@@ -293,8 +301,8 @@ function FieldLayoutPageContent() {
       // Recalculate sequence numbers
       return newFields.map((f, i) => ({
         ...f,
-        tempSeqNo: layoutMode === 'form' ? (i + 1) * 10 : f.tempSeqNo,
-        tempSeqNoGrid: layoutMode === 'grid' ? (i + 1) * 10 : f.tempSeqNoGrid,
+        tempSeqNo: layoutMode === "form" ? (i + 1) * 10 : f.tempSeqNo,
+        tempSeqNoGrid: layoutMode === "grid" ? (i + 1) * 10 : f.tempSeqNoGrid,
       }));
     });
 
@@ -309,7 +317,7 @@ function FieldLayoutPageContent() {
       setFields((prev) =>
         prev.map((f) => {
           if (f.sys_field_id !== fieldId) return f;
-          return layoutMode === 'form'
+          return layoutMode === "form"
             ? { ...f, is_displayed: !f.is_displayed }
             : { ...f, is_displayed_grid: !f.is_displayed_grid };
         })
@@ -325,7 +333,7 @@ function FieldLayoutPageContent() {
       setFields((prev) =>
         prev.map((f) => {
           if (f.sys_field_id !== fieldId) return f;
-          return layoutMode === 'form'
+          return layoutMode === "form"
             ? { ...f, tempSeqNo: value }
             : { ...f, tempSeqNoGrid: value };
         })
@@ -344,8 +352,8 @@ function FieldLayoutPageContent() {
         [newFields[index - 1], newFields[index]] = [newFields[index], newFields[index - 1]];
         return newFields.map((f, i) => ({
           ...f,
-          tempSeqNo: layoutMode === 'form' ? (i + 1) * 10 : f.tempSeqNo,
-          tempSeqNoGrid: layoutMode === 'grid' ? (i + 1) * 10 : f.tempSeqNoGrid,
+          tempSeqNo: layoutMode === "form" ? (i + 1) * 10 : f.tempSeqNo,
+          tempSeqNoGrid: layoutMode === "grid" ? (i + 1) * 10 : f.tempSeqNoGrid,
         }));
       });
       setHasChanges(true);
@@ -362,8 +370,8 @@ function FieldLayoutPageContent() {
         [newFields[index], newFields[index + 1]] = [newFields[index + 1], newFields[index]];
         return newFields.map((f, i) => ({
           ...f,
-          tempSeqNo: layoutMode === 'form' ? (i + 1) * 10 : f.tempSeqNo,
-          tempSeqNoGrid: layoutMode === 'grid' ? (i + 1) * 10 : f.tempSeqNoGrid,
+          tempSeqNo: layoutMode === "form" ? (i + 1) * 10 : f.tempSeqNo,
+          tempSeqNoGrid: layoutMode === "grid" ? (i + 1) * 10 : f.tempSeqNoGrid,
         }));
       });
       setHasChanges(true);
@@ -375,8 +383,8 @@ function FieldLayoutPageContent() {
   const handleReset = useCallback(() => {
     if (fieldsResponse?.data) {
       const sortedFields = [...fieldsResponse.data].sort((a, b) => {
-        const aSeq = layoutMode === 'form' ? a.seq_no : a.seq_no_grid;
-        const bSeq = layoutMode === 'form' ? b.seq_no : b.seq_no_grid;
+        const aSeq = layoutMode === "form" ? a.seq_no : a.seq_no_grid;
+        const bSeq = layoutMode === "form" ? b.seq_no : b.seq_no_grid;
         return (aSeq || 0) - (bSeq || 0);
       });
       setFields(
@@ -414,11 +422,11 @@ function FieldLayoutPageContent() {
     },
     onSuccess: () => {
       setHasChanges(false);
-      queryClient.invalidateQueries({ queryKey: ['admin', 'fields', selectedTable] });
-      toast.success('Field layout saved successfully');
+      queryClient.invalidateQueries({ queryKey: ["admin", "fields", selectedTable] });
+      toast.success("Field layout saved successfully");
     },
     onError: () => {
-      toast.error('Failed to save field layout. Please try again.');
+      toast.error("Failed to save field layout. Please try again.");
     },
   });
 
@@ -472,80 +480,54 @@ function FieldLayoutPageContent() {
                   </SelectItem>
                 ))}
                 {/* Static entities from generator template */}
-                {!sysTables.find((t) => t.table_name === 'bus_company') && (
-                  <SelectItem value="bus_company">
-                    Company (bus_company)
-                  </SelectItem>
+                {!sysTables.find((t) => t.table_name === "bus_company") && (
+                  <SelectItem value="bus_company">Company (bus_company)</SelectItem>
                 )}
-                {!sysTables.find((t) => t.table_name === 'bus_contact') && (
-                  <SelectItem value="bus_contact">
-                    Contact (bus_contact)
-                  </SelectItem>
+                {!sysTables.find((t) => t.table_name === "bus_contact") && (
+                  <SelectItem value="bus_contact">Contact (bus_contact)</SelectItem>
                 )}
-                {!sysTables.find((t) => t.table_name === 'bus_deal') && (
-                  <SelectItem value="bus_deal">
-                    Deal (bus_deal)
-                  </SelectItem>
+                {!sysTables.find((t) => t.table_name === "bus_deal") && (
+                  <SelectItem value="bus_deal">Deal (bus_deal)</SelectItem>
                 )}
-                {!sysTables.find((t) => t.table_name === 'bus_deal_stage') && (
-                  <SelectItem value="bus_deal_stage">
-                    DealStage (bus_deal_stage)
-                  </SelectItem>
+                {!sysTables.find((t) => t.table_name === "bus_deal_stage") && (
+                  <SelectItem value="bus_deal_stage">DealStage (bus_deal_stage)</SelectItem>
                 )}
-                {!sysTables.find((t) => t.table_name === 'bus_pipeline') && (
-                  <SelectItem value="bus_pipeline">
-                    Pipeline (bus_pipeline)
-                  </SelectItem>
+                {!sysTables.find((t) => t.table_name === "bus_pipeline") && (
+                  <SelectItem value="bus_pipeline">Pipeline (bus_pipeline)</SelectItem>
                 )}
-                {!sysTables.find((t) => t.table_name === 'bus_activity') && (
-                  <SelectItem value="bus_activity">
-                    Activity (bus_activity)
-                  </SelectItem>
+                {!sysTables.find((t) => t.table_name === "bus_activity") && (
+                  <SelectItem value="bus_activity">Activity (bus_activity)</SelectItem>
                 )}
-                {!sysTables.find((t) => t.table_name === 'bus_note') && (
-                  <SelectItem value="bus_note">
-                    Note (bus_note)
-                  </SelectItem>
+                {!sysTables.find((t) => t.table_name === "bus_note") && (
+                  <SelectItem value="bus_note">Note (bus_note)</SelectItem>
                 )}
-                {!sysTables.find((t) => t.table_name === 'bus_task') && (
-                  <SelectItem value="bus_task">
-                    Task (bus_task)
-                  </SelectItem>
+                {!sysTables.find((t) => t.table_name === "bus_task") && (
+                  <SelectItem value="bus_task">Task (bus_task)</SelectItem>
                 )}
-                {!sysTables.find((t) => t.table_name === 'bus_email_message') && (
+                {!sysTables.find((t) => t.table_name === "bus_email_message") && (
                   <SelectItem value="bus_email_message">
                     EmailMessage (bus_email_message)
                   </SelectItem>
                 )}
-                {!sysTables.find((t) => t.table_name === 'bus_email_template') && (
+                {!sysTables.find((t) => t.table_name === "bus_email_template") && (
                   <SelectItem value="bus_email_template">
                     EmailTemplate (bus_email_template)
                   </SelectItem>
                 )}
-                {!sysTables.find((t) => t.table_name === 'bus_product') && (
-                  <SelectItem value="bus_product">
-                    Product (bus_product)
-                  </SelectItem>
+                {!sysTables.find((t) => t.table_name === "bus_product") && (
+                  <SelectItem value="bus_product">Product (bus_product)</SelectItem>
                 )}
-                {!sysTables.find((t) => t.table_name === 'bus_quote') && (
-                  <SelectItem value="bus_quote">
-                    Quote (bus_quote)
-                  </SelectItem>
+                {!sysTables.find((t) => t.table_name === "bus_quote") && (
+                  <SelectItem value="bus_quote">Quote (bus_quote)</SelectItem>
                 )}
-                {!sysTables.find((t) => t.table_name === 'bus_quote_item') && (
-                  <SelectItem value="bus_quote_item">
-                    QuoteItem (bus_quote_item)
-                  </SelectItem>
+                {!sysTables.find((t) => t.table_name === "bus_quote_item") && (
+                  <SelectItem value="bus_quote_item">QuoteItem (bus_quote_item)</SelectItem>
                 )}
-                {!sysTables.find((t) => t.table_name === 'bus_user') && (
-                  <SelectItem value="bus_user">
-                    User (bus_user)
-                  </SelectItem>
+                {!sysTables.find((t) => t.table_name === "bus_user") && (
+                  <SelectItem value="bus_user">User (bus_user)</SelectItem>
                 )}
-                {!sysTables.find((t) => t.table_name === 'bus_team') && (
-                  <SelectItem value="bus_team">
-                    Team (bus_team)
-                  </SelectItem>
+                {!sysTables.find((t) => t.table_name === "bus_team") && (
+                  <SelectItem value="bus_team">Team (bus_team)</SelectItem>
                 )}
               </SelectContent>
             </Select>
@@ -559,7 +541,11 @@ function FieldLayoutPageContent() {
       </Card>
 
       {selectedTable && (
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as TabValue)}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full max-w-lg grid-cols-3">
             <TabsTrigger value="inline" className="flex items-center gap-2">
               <LayoutGrid className="h-4 w-4" />
@@ -583,13 +569,18 @@ function FieldLayoutPageContent() {
                   <div>
                     <CardTitle>Field Order &amp; Visibility</CardTitle>
                     <CardDescription>
-                      Drag fields to reorder, edit sequence numbers, and toggle visibility.
-                      Changes apply to {layoutMode === 'form' ? 'form layout (seq_no)' : 'grid layout (seq_no_grid)'}.
+                      Drag fields to reorder, edit sequence numbers, and toggle visibility. Changes
+                      apply to{" "}
+                      {layoutMode === "form" ? "form layout (seq_no)" : "grid layout (seq_no_grid)"}
+                      .
                     </CardDescription>
                   </div>
                   <div className="flex items-center gap-2">
                     {/* Layout mode toggle */}
-                    <Select value={layoutMode} onValueChange={(v) => setLayoutMode(v as LayoutMode)}>
+                    <Select
+                      value={layoutMode}
+                      onValueChange={(v) => setLayoutMode(v as LayoutMode)}
+                    >
                       <SelectTrigger className="w-[160px]">
                         <SelectValue />
                       </SelectTrigger>
@@ -599,7 +590,12 @@ function FieldLayoutPageContent() {
                       </SelectContent>
                     </Select>
                     {/* Reset */}
-                    <Button variant="outline" size="sm" onClick={handleReset} disabled={!hasChanges}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleReset}
+                      disabled={!hasChanges}
+                    >
                       <RotateCcw className="h-4 w-4 mr-1" />
                       Reset
                     </Button>
@@ -626,7 +622,8 @@ function FieldLayoutPageContent() {
                   </div>
                 ) : fields.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
-                    No fields found for this entity. Check that sys_field entries exist for table "{selectedTable}".
+                    No fields found for this entity. Check that sys_field entries exist for table "
+                    {selectedTable}".
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -634,7 +631,7 @@ function FieldLayoutPageContent() {
                     <div className="flex items-center gap-3 px-3 py-2 text-xs font-medium text-muted-foreground border-b">
                       <div className="w-5" />
                       <div className="w-20 text-center">
-                        {layoutMode === 'form' ? 'seq_no' : 'seq_no_grid'}
+                        {layoutMode === "form" ? "seq_no" : "seq_no_grid"}
                       </div>
                       <div className="flex-1">Field</div>
                       <div className="w-[52px] text-center">Move</div>
@@ -665,23 +662,23 @@ function FieldLayoutPageContent() {
                 {fields.length > 0 && (
                   <div className="mt-8">
                     <h4 className="font-medium mb-3 text-sm">
-                      Preview: {layoutMode === 'form' ? 'Form Field Order' : 'Grid Column Order'}
+                      Preview: {layoutMode === "form" ? "Form Field Order" : "Grid Column Order"}
                     </h4>
-                    <div className={layoutMode === 'form' ? 'space-y-1' : 'flex flex-wrap gap-1'}>
+                    <div className={layoutMode === "form" ? "space-y-1" : "flex flex-wrap gap-1"}>
                       {fields
                         .filter((f) =>
-                          layoutMode === 'form' ? f.is_displayed : f.is_displayed_grid
+                          layoutMode === "form" ? f.is_displayed : f.is_displayed_grid
                         )
                         .map((field, i) => (
                           <div
                             key={field.sys_field_id}
                             className={
-                              layoutMode === 'form'
-                                ? 'flex items-center gap-2 p-2 bg-muted/50 rounded text-sm'
-                                : 'px-3 py-1.5 bg-muted/50 rounded text-xs font-medium'
+                              layoutMode === "form"
+                                ? "flex items-center gap-2 p-2 bg-muted/50 rounded text-sm"
+                                : "px-3 py-1.5 bg-muted/50 rounded text-xs font-medium"
                             }
                           >
-                            {layoutMode === 'form' && (
+                            {layoutMode === "form" && (
                               <span className="text-xs text-muted-foreground w-6">{i + 1}.</span>
                             )}
                             <span>{field.name}</span>
@@ -689,12 +686,14 @@ function FieldLayoutPageContent() {
                         ))}
                     </div>
                     {fields.filter((f) =>
-                      layoutMode === 'form' ? !f.is_displayed : !f.is_displayed_grid
+                      layoutMode === "form" ? !f.is_displayed : !f.is_displayed_grid
                     ).length > 0 && (
                       <div className="mt-2 text-xs text-muted-foreground">
-                        {fields.filter((f) =>
-                          layoutMode === 'form' ? !f.is_displayed : !f.is_displayed_grid
-                        ).length}{' '}
+                        {
+                          fields.filter((f) =>
+                            layoutMode === "form" ? !f.is_displayed : !f.is_displayed_grid
+                          ).length
+                        }{" "}
                         hidden field(s) not shown in preview
                       </div>
                     )}

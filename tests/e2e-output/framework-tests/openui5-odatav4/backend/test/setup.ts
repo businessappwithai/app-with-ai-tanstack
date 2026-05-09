@@ -5,10 +5,10 @@
  * Provides test utilities and fixtures for OData V4 server testing
  */
 
-import { vi } from 'vitest';
-import express, { Express } from 'express';
-import Knex from 'knex';
-import knexConfig from '../knexfile';
+import express, { type Express } from "express";
+import Knex from "knex";
+import { vi } from "vitest";
+import knexConfig from "../knexfile";
 
 // Test database instance
 let testDb: Knex.Knex;
@@ -22,16 +22,16 @@ let testApp: Express;
 export async function initTestDatabase(): Promise<Knex.Knex> {
   if (!testDb) {
     testDb = Knex({
-      client: 'better-sqlite3',
+      client: "better-sqlite3",
       connection: {
-        filename: ':memory:',
+        filename: ":memory:",
       },
       useNullAsDefault: true,
       migrations: {
-        directory: './migrations',
+        directory: "./migrations",
       },
       seeds: {
-        directory: './seeds',
+        directory: "./seeds",
       },
     });
 
@@ -62,7 +62,7 @@ export async function closeTestDatabase(): Promise<void> {
  */
 export function getTestDatabase(): Knex.Knex {
   if (!testDb) {
-    throw new Error('Test database not initialized');
+    throw new Error("Test database not initialized");
   }
   return testDb;
 }
@@ -84,9 +84,9 @@ export async function createTestApp(): Promise<Express> {
  * Generate test UUID
  */
 export function generateTestId(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
@@ -101,12 +101,12 @@ export const TestDataFactory = {
   createCUSTOMER(overrides: Partial<any> = {}): any {
     return {
       id: generateTestId(),
-      name: 'Test ',
-      email: 'Test ',
-      phone: 'Test ',
-      city: 'Test ',
-      status: 'Test ',
-      created_at: '2024-01-15',
+      name: "Test ",
+      email: "Test ",
+      phone: "Test ",
+      city: "Test ",
+      status: "Test ",
+      created_at: "2024-01-15",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       ...overrides,
@@ -119,10 +119,10 @@ export const TestDataFactory = {
   createORDER(overrides: Partial<any> = {}): any {
     return {
       id: generateTestId(),
-      customer_id: 'Test ',
-      order_date: '2024-01-15',
+      customer_id: "Test ",
+      order_date: "2024-01-15",
       total_amount: 10.99,
-      status: 'Test ',
+      status: "Test ",
       created_at: new Date().toISOString(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -136,8 +136,8 @@ export const TestDataFactory = {
   createORDERITEM(overrides: Partial<any> = {}): any {
     return {
       id: generateTestId(),
-      order_id: 'Test ',
-      product_id: 'Test ',
+      order_id: "Test ",
+      product_id: "Test ",
       quantity: 1,
       unit_price: 10.99,
       line_total: 10.99,
@@ -153,18 +153,17 @@ export const TestDataFactory = {
   createPRODUCT(overrides: Partial<any> = {}): any {
     return {
       id: generateTestId(),
-      name: 'Test ',
-      description: 'Test ',
+      name: "Test ",
+      description: "Test ",
       price: 10.99,
       stock_quantity: 1,
-      category: 'Test ',
+      category: "Test ",
       is_active: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       ...overrides,
     };
   },
-
 };
 
 /**
@@ -174,10 +173,10 @@ export async function cleanupTestData(): Promise<void> {
   const db = await initTestDatabase();
 
   // Delete in reverse order of dependencies
-  await db('bus_customer').del();
-  await db('bus_order').del();
-  await db('bus_order_item').del();
-  await db('bus_product').del();
+  await db("bus_customer").del();
+  await db("bus_order").del();
+  await db("bus_order_item").del();
+  await db("bus_product").del();
 }
 
 /**
@@ -198,23 +197,23 @@ export const ODataTestHelpers = {
    */
   buildFilter(field: string, operator: string, value: any): string {
     switch (operator) {
-      case 'eq':
+      case "eq":
         return `${field} eq '${value}'`;
-      case 'ne':
+      case "ne":
         return `${field} ne '${value}'`;
-      case 'gt':
+      case "gt":
         return `${field} gt ${value}`;
-      case 'ge':
+      case "ge":
         return `${field} ge ${value}`;
-      case 'lt':
+      case "lt":
         return `${field} lt ${value}`;
-      case 'le':
+      case "le":
         return `${field} le ${value}`;
-      case 'contains':
+      case "contains":
         return `contains(${field}, '${value}')`;
-      case 'startswith':
+      case "startswith":
         return `startswith(${field}, '${value}')`;
-      case 'endswith':
+      case "endswith":
         return `endswith(${field}, '${value}')`;
       default:
         return `${field} eq '${value}'`;
@@ -224,7 +223,7 @@ export const ODataTestHelpers = {
   /**
    * Build OData orderby query string
    */
-  buildOrderBy(field: string, direction: 'asc' | 'desc' = 'asc'): string {
+  buildOrderBy(field: string, direction: "asc" | "desc" = "asc"): string {
     return `${field} ${direction}`;
   },
 
@@ -232,14 +231,14 @@ export const ODataTestHelpers = {
    * Build OData select query string
    */
   buildSelect(fields: string[]): string {
-    return fields.join(',');
+    return fields.join(",");
   },
 
   /**
    * Build OData expand query string
    */
   buildExpand(associations: string[]): string {
-    return associations.join(',');
+    return associations.join(",");
   },
 
   /**
@@ -256,7 +255,7 @@ export const ODataTestHelpers = {
    * Verify OData metadata response
    */
   verifyMetadata(metadata: string): boolean {
-    return metadata.includes('$metadata') && metadata.includes('EntityType');
+    return metadata.includes("$metadata") && metadata.includes("EntityType");
   },
 };
 
@@ -267,10 +266,10 @@ export function assertODataResponse(response: any) {
   expect(response).toBeDefined();
   if (Array.isArray(response.value)) {
     // Collection response
-    expect(response['@odata.context']).toBeDefined();
-  } else if (response['@odata.context']) {
+    expect(response["@odata.context"]).toBeDefined();
+  } else if (response["@odata.context"]) {
     // Single entity response
-    expect(response['@odata.context']).toBeDefined();
+    expect(response["@odata.context"]).toBeDefined();
   }
 }
 

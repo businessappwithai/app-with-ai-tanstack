@@ -1,1 +1,80 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_providers_browser_router_provider_tsx", "label": "browser-router-provider.tsx", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx", "source_location": "L1"}, {"id": "browser_router_provider_browserrouter", "label": "BrowserRouter()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx", "source_location": "L29"}, {"id": "browser_router_provider_userouter", "label": "useRouter()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx", "source_location": "L93"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_providers_browser_router_provider_tsx", "target": "react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_providers_browser_router_provider_tsx", "target": "browser_router_provider_browserrouter", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx", "source_location": "L29", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_providers_browser_router_provider_tsx", "target": "browser_router_provider_userouter", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx", "source_location": "L93", "weight": 1.0}], "raw_calls": [{"caller_nid": "browser_router_provider_browserrouter", "callee": "useState", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx", "source_location": "L30"}, {"caller_nid": "browser_router_provider_browserrouter", "callee": "useState", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx", "source_location": "L31"}, {"caller_nid": "browser_router_provider_browserrouter", "callee": "useEffect", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx", "source_location": "L33"}, {"caller_nid": "browser_router_provider_userouter", "callee": "useContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx", "source_location": "L94"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_providers_browser_router_provider_tsx",
+      "label": "browser-router-provider.tsx",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "browser_router_provider_browserrouter",
+      "label": "BrowserRouter()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx",
+      "source_location": "L29"
+    },
+    {
+      "id": "browser_router_provider_userouter",
+      "label": "useRouter()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx",
+      "source_location": "L93"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_providers_browser_router_provider_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_providers_browser_router_provider_tsx",
+      "target": "browser_router_provider_browserrouter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_providers_browser_router_provider_tsx",
+      "target": "browser_router_provider_userouter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx",
+      "source_location": "L93",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "browser_router_provider_browserrouter",
+      "callee": "useState",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "browser_router_provider_browserrouter",
+      "callee": "useState",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "browser_router_provider_browserrouter",
+      "callee": "useEffect",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "browser_router_provider_userouter",
+      "callee": "useContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/providers/browser-router-provider.tsx",
+      "source_location": "L94"
+    }
+  ]
+}

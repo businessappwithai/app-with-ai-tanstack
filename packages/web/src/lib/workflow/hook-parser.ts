@@ -54,10 +54,7 @@ const HOOK_COMMENT_PATTERN =
 /**
  * Parse a single hook comment line
  */
-export function parseHookComment(
-  comment: string,
-  order: number
-): ParsedHookDefinition | null {
+export function parseHookComment(comment: string, order: number): ParsedHookDefinition | null {
   const trimmedComment = comment.trim();
 
   if (!trimmedComment.startsWith("%%hook")) {

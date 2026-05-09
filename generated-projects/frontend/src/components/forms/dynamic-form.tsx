@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Dynamic Form Component
@@ -15,20 +15,20 @@
  * Auto-generated component
  */
 
-import { useEffect, useMemo, useState } from 'react';
-import { useForm } from '@tanstack/react-form';
-import { useFormFields, type FieldMetadata, useRefList, useEntities } from '@/hooks/use-entities';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
-import { apiClient } from '@/lib/api-client';
-import { useTranslations } from '@/lib/translations';
-import { getFieldLabel } from '@/lib/i18n-fields';
+import { useForm } from "@tanstack/react-form";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { type FieldMetadata, useEntities, useFormFields, useRefList } from "@/hooks/use-entities";
+import { apiClient } from "@/lib/api-client";
+import { getFieldLabel } from "@/lib/i18n-fields";
+import { useTranslations } from "@/lib/translations";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
@@ -40,7 +40,7 @@ interface DynamicFormProps {
   onSubmit?: (data: Record<string, unknown>) => void | Promise<void>;
   isLoading?: boolean;
   isSaving?: boolean;
-  mode?: 'create' | 'edit' | 'view';
+  mode?: "create" | "edit" | "view";
   readOnly?: boolean;
   serverErrors?: Record<string, string>;
   parentField?: string; // Field name that links to parent (e.g., 'patient_id') - will be hidden from form
@@ -96,11 +96,9 @@ function TableReferenceField({ field, fieldApi, isDisabled, error }: TableRefere
   const referencedTableName = field.ref_table_name || null;
 
   // Fetch records from the referenced table
-  const { data: records, isLoading } = useEntities<any>(
-    referencedTableName || '',
-    undefined,
-    { enabled: !!referencedTableName }
-  );
+  const { data: records, isLoading } = useEntities<any>(referencedTableName || "", undefined, {
+    enabled: !!referencedTableName,
+  });
 
   // Get the actual data array from paginated response
   const tableRecords = records?.data || [];
@@ -116,11 +114,11 @@ function TableReferenceField({ field, fieldApi, isDisabled, error }: TableRefere
         <Input
           id={field.column_name}
           name={field.column_name}
-          value={(fieldApi.state.value as string) || ''}
+          value={(fieldApi.state.value as string) || ""}
           onChange={(e) => fieldApi.handleChange(e.target.value)}
           onBlur={fieldApi.handleBlur}
           disabled={isDisabled}
-          className={cn(error && 'border-destructive')}
+          className={cn(error && "border-destructive")}
         />
         {error && <p className="text-sm text-destructive">{error}</p>}
       </div>
@@ -139,19 +137,21 @@ function TableReferenceField({ field, fieldApi, isDisabled, error }: TableRefere
         <select
           id={field.column_name}
           name={field.column_name}
-          value={(fieldApi.state.value as string) || ''}
+          value={(fieldApi.state.value as string) || ""}
           onChange={(e) => fieldApi.handleChange(e.target.value)}
           onBlur={fieldApi.handleBlur}
           disabled={isDisabled}
           className={cn(
             "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-            error && 'border-destructive'
+            error && "border-destructive"
           )}
         >
           <option value="">Select {field.name}...</option>
           {tableRecords.map((record: any) => (
             <option key={record.id} value={record.id}>
-              {record.name || `${record.first_name || ''} ${record.last_name || ''}`.trim() || record.id}
+              {record.name ||
+                `${record.first_name || ""} ${record.last_name || ""}`.trim() ||
+                record.id}
             </option>
           ))}
         </select>
@@ -169,9 +169,15 @@ interface FieldRendererProps {
   readOnlyFields?: string[]; // Additional read-only field names
 }
 
-function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFields = [] }: FieldRendererProps) {
+function FieldRenderer({
+  field,
+  form,
+  serverErrors = {},
+  tableName,
+  readOnlyFields = [],
+}: FieldRendererProps) {
   const isFormReadOnly = (form as any).readOnly || false;
-  const formMode = (form as any).mode || 'edit';
+  const formMode = (form as any).mode || "edit";
 
   // Get translated field label (tab_name not yet available from API, using undefined)
   const fieldLabel = getFieldLabel(tableName, (field as any).tab_name, field.name, field.name);
@@ -179,7 +185,8 @@ function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFiel
   // For new record creation, ignore is_read_only to allow filling required fields
   // Otherwise respect the is_read_only flag from database
   // Also check if field is in readOnlyFields (for child edits where parent_id should be read-only)
-  const isDisabled = field.is_read_only && formMode !== 'create' || readOnlyFields.includes(field.column_name);
+  const isDisabled =
+    (field.is_read_only && formMode !== "create") || readOnlyFields.includes(field.column_name);
 
   // Fetch reference list values for dropdown fields (sys_reference_id >= 1000)
   const { data: refListValues, isLoading: isLoadingRefList } = useRefList(
@@ -188,7 +195,7 @@ function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFiel
 
   // Determine field color style
   const getFieldColorStyle = () => {
-    if (!field.color || field.color === 'contrast') return {};
+    if (!field.color || field.color === "contrast") return {};
     return {
       color: field.color,
     };
@@ -204,7 +211,11 @@ function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFiel
           if (field.is_mandatory && !value) {
             return `${fieldLabel} is required`;
           }
-          if (field.field_length && typeof value === 'string' && value.length > field.field_length) {
+          if (
+            field.field_length &&
+            typeof value === "string" &&
+            value.length > field.field_length
+          ) {
             return `${fieldLabel} must be at most ${field.field_length} characters`;
           }
           return undefined;
@@ -231,13 +242,13 @@ function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFiel
                 <select
                   id={field.column_name}
                   name={field.column_name}
-                  value={(fieldApi.state.value as string) || ''}
+                  value={(fieldApi.state.value as string) || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
                   disabled={isDisabled || isFormReadOnly}
                   className={cn(
                     "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                    error && 'border-destructive'
+                    error && "border-destructive"
                   )}
                 >
                   <option value="">Select {fieldLabel}...</option>
@@ -255,7 +266,14 @@ function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFiel
 
         // Dropdown/Select for table references (sys_reference_id === 18)
         if (field.sys_reference_id === REFERENCE_TYPE.TABLE) {
-          return <TableReferenceField field={field} fieldApi={fieldApi} isDisabled={isDisabled || isFormReadOnly} error={error} />;
+          return (
+            <TableReferenceField
+              field={field}
+              fieldApi={fieldApi}
+              isDisabled={isDisabled || isFormReadOnly}
+              error={error}
+            />
+          );
         }
 
         // Render different input types based on sys_reference_id
@@ -270,11 +288,11 @@ function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFiel
                 <Textarea
                   id={field.column_name}
                   name={field.column_name}
-                  value={(fieldApi.state.value as string) || ''}
+                  value={(fieldApi.state.value as string) || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
                   disabled={isDisabled || isFormReadOnly}
-                  className={cn(error && 'border-destructive')}
+                  className={cn(error && "border-destructive")}
                   rows={4}
                 />
                 {error && <p className="text-sm text-destructive">{error}</p>}
@@ -305,11 +323,11 @@ function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFiel
                   id={field.column_name}
                   name={field.column_name}
                   type="date"
-                  value={(fieldApi.state.value as string)?.split('T')[0] || ''}
+                  value={(fieldApi.state.value as string)?.split("T")[0] || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
                   disabled={isDisabled || isFormReadOnly}
-                  className={cn(error && 'border-destructive')}
+                  className={cn(error && "border-destructive")}
                 />
                 {error && <p className="text-sm text-destructive">{error}</p>}
               </div>
@@ -326,11 +344,11 @@ function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFiel
                   id={field.column_name}
                   name={field.column_name}
                   type="datetime-local"
-                  value={(fieldApi.state.value as string)?.slice(0, 16) || ''}
+                  value={(fieldApi.state.value as string)?.slice(0, 16) || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
                   disabled={isDisabled || isFormReadOnly}
-                  className={cn(error && 'border-destructive')}
+                  className={cn(error && "border-destructive")}
                 />
                 {error && <p className="text-sm text-destructive">{error}</p>}
               </div>
@@ -348,12 +366,12 @@ function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFiel
                   id={field.column_name}
                   name={field.column_name}
                   type="number"
-                  step={field.sys_reference_id === REFERENCE_TYPE.AMOUNT ? '0.01' : '1'}
-                  value={(fieldApi.state.value as number) ?? ''}
+                  step={field.sys_reference_id === REFERENCE_TYPE.AMOUNT ? "0.01" : "1"}
+                  value={(fieldApi.state.value as number) ?? ""}
                   onChange={(e) => fieldApi.handleChange(e.target.valueAsNumber || null)}
                   onBlur={fieldApi.handleBlur}
                   disabled={isDisabled || isFormReadOnly}
-                  className={cn(error && 'border-destructive')}
+                  className={cn(error && "border-destructive")}
                 />
                 {error && <p className="text-sm text-destructive">{error}</p>}
               </div>
@@ -370,11 +388,11 @@ function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFiel
                   id={field.column_name}
                   name={field.column_name}
                   type="email"
-                  value={(fieldApi.state.value as string) || ''}
+                  value={(fieldApi.state.value as string) || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
                   disabled={isDisabled || isFormReadOnly}
-                  className={cn(error && 'border-destructive')}
+                  className={cn(error && "border-destructive")}
                 />
                 {error && <p className="text-sm text-destructive">{error}</p>}
               </div>
@@ -391,11 +409,11 @@ function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFiel
                   id={field.column_name}
                   name={field.column_name}
                   type="url"
-                  value={(fieldApi.state.value as string) || ''}
+                  value={(fieldApi.state.value as string) || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
                   disabled={isDisabled || isFormReadOnly}
-                  className={cn(error && 'border-destructive')}
+                  className={cn(error && "border-destructive")}
                 />
                 {error && <p className="text-sm text-destructive">{error}</p>}
               </div>
@@ -412,11 +430,11 @@ function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFiel
                   id={field.column_name}
                   name={field.column_name}
                   type="password"
-                  value={(fieldApi.state.value as string) || ''}
+                  value={(fieldApi.state.value as string) || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
                   disabled={isDisabled || isFormReadOnly}
-                  className={cn(error && 'border-destructive')}
+                  className={cn(error && "border-destructive")}
                 />
                 {error && <p className="text-sm text-destructive">{error}</p>}
               </div>
@@ -434,12 +452,12 @@ function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFiel
                   id={field.column_name}
                   name={field.column_name}
                   type="text"
-                  value={(fieldApi.state.value as string) || ''}
+                  value={(fieldApi.state.value as string) || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
                   disabled={isDisabled || isFormReadOnly}
                   maxLength={field.field_length}
-                  className={cn(error && 'border-destructive')}
+                  className={cn(error && "border-destructive")}
                 />
                 {error && <p className="text-sm text-destructive">{error}</p>}
               </div>
@@ -460,7 +478,7 @@ export function DynamicForm({
   onSubmit,
   isLoading: externalLoading = false,
   isSaving = false,
-  mode = 'create',
+  mode = "create",
   readOnly = false,
   serverErrors = {},
   parentField,
@@ -477,25 +495,34 @@ export function DynamicForm({
       // Filter out non-updateable fields for update mode
       // Only send updateable fields to the backend
       // Never send: id, created_at, updated_at, deleted_at (backend handles these)
-      const filteredValues = mode === 'edit' && fields
-        ? Object.entries(value).reduce((acc, [key, val]) => {
-            // Skip system fields that backend manages
-            if (key === 'id' || key === 'created_at' || key === 'updated_at' || key === 'deleted_at') {
-              return acc;
-            }
+      const filteredValues =
+        mode === "edit" && fields
+          ? Object.entries(value).reduce(
+              (acc, [key, val]) => {
+                // Skip system fields that backend manages
+                if (
+                  key === "id" ||
+                  key === "created_at" ||
+                  key === "updated_at" ||
+                  key === "deleted_at"
+                ) {
+                  return acc;
+                }
 
-            // For all other fields, check if they're updateable (not read-only)
-            // version field is allowed for optimistic locking
-            const field = fields.find((f: FieldMetadata) => f.column_name === key);
-            const isUpdateable = field?.is_updateable !== false;
-            const isVersionField = key === 'version';
+                // For all other fields, check if they're updateable (not read-only)
+                // version field is allowed for optimistic locking
+                const field = fields.find((f: FieldMetadata) => f.column_name === key);
+                const isUpdateable = field?.is_updateable !== false;
+                const isVersionField = key === "version";
 
-            if (isUpdateable || isVersionField) {
-              acc[key] = val;
-            }
-            return acc;
-          }, {} as Record<string, unknown>)
-        : value;
+                if (isUpdateable || isVersionField) {
+                  acc[key] = val;
+                }
+                return acc;
+              },
+              {} as Record<string, unknown>
+            )
+          : value;
 
       // Call the onSubmit handler with filtered form values
       // Toast notifications are handled by the caller (page component)
@@ -527,9 +554,7 @@ export function DynamicForm({
 
     // Show all displayed fields except the parent reference field (e.g., patient_id when creating from patient)
     // But DO show other reference fields like department_id, provider_id, etc.
-    const displayFields = fields.filter(
-      (f) => f.is_displayed && f.column_name !== parentField
-    );
+    const displayFields = fields.filter((f) => f.is_displayed && f.column_name !== parentField);
 
     const groups: Map<string | null, FieldMetadata[]> = new Map();
 
@@ -584,49 +609,53 @@ export function DynamicForm({
     const value = currentValues as Record<string, unknown>;
 
     // Filter out non-updateable fields for update mode
-    const filteredValues = mode === 'edit' && fields
-      ? Object.entries(value).reduce((acc, [key, val]) => {
-          // Skip system fields that backend manages
-          if (key === 'id' || key === 'created_at' || key === 'updated_at' || key === 'deleted_at') {
-            return acc;
-          }
+    const filteredValues =
+      mode === "edit" && fields
+        ? Object.entries(value).reduce(
+            (acc, [key, val]) => {
+              // Skip system fields that backend manages
+              if (
+                key === "id" ||
+                key === "created_at" ||
+                key === "updated_at" ||
+                key === "deleted_at"
+              ) {
+                return acc;
+              }
 
-          // For all other fields, check if they're updateable (not read-only)
-          // version field is allowed for optimistic locking
-          const field = fields.find((f: FieldMetadata) => f.column_name === key);
-          const isUpdateable = !field?.is_read_only;
-          const isVersionField = key === 'version';
+              // For all other fields, check if they're updateable (not read-only)
+              // version field is allowed for optimistic locking
+              const field = fields.find((f: FieldMetadata) => f.column_name === key);
+              const isUpdateable = !field?.is_read_only;
+              const isVersionField = key === "version";
 
-          if (isUpdateable || isVersionField) {
-            acc[key] = val;
-          }
-          return acc;
-        }, {} as Record<string, unknown>)
-      : value;
+              if (isUpdateable || isVersionField) {
+                acc[key] = val;
+              }
+              return acc;
+            },
+            {} as Record<string, unknown>
+          )
+        : value;
 
     await onSubmit(filteredValues);
   };
 
   return (
     <form.Provider>
-      <form
-        role="form"
-        onSubmit={handleFormSubmit}
-        className="space-y-6"
-      >
+      <form role="form" onSubmit={handleFormSubmit} className="space-y-6">
         {/* Submit button - top (hide in view mode) */}
         {!readOnly && onSubmit && (
           <div className="flex justify-end gap-4">
-            <form.Subscribe
-              selector={(state: any) => [state.isSubmitting]}
-            >
+            <form.Subscribe selector={(state: any) => [state.isSubmitting]}>
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {([isFormSubmitting]: any) => (
-                <Button
-                  type="submit"
-                  disabled={isSaving || isFormSubmitting}
-                >
-                  {isSaving || isFormSubmitting ? 'Saving...' : mode === 'create' ? 'Create' : 'Save'}
+                <Button type="submit" disabled={isSaving || isFormSubmitting}>
+                  {isSaving || isFormSubmitting
+                    ? "Saving..."
+                    : mode === "create"
+                      ? "Create"
+                      : "Save"}
                 </Button>
               )}
             </form.Subscribe>
@@ -639,11 +668,11 @@ export function DynamicForm({
           const groupColumns = fieldsInGroup[0]?.group_columns || 1;
 
           return (
-            <div key={groupName || 'ungrouped'} className="space-y-4">
+            <div key={groupName || "ungrouped"} className="space-y-4">
               {/* Group header if fields are in a group */}
               {groupName && (
                 <div className="border-b pb-2">
-                  <h3 className="text-lg font-semibold" style={{ color: '#6366f1' }}>
+                  <h3 className="text-lg font-semibold" style={{ color: "#6366f1" }}>
                     {groupName}
                   </h3>
                   {fieldsInGroup[0]?.group_description && (
@@ -657,11 +686,11 @@ export function DynamicForm({
               {/* Render fields in multi-column grid using FieldRenderer for proper type handling */}
               <div
                 className={cn(
-                  'grid gap-4',
-                  groupColumns === 1 && 'grid-cols-1',
-                  groupColumns === 2 && 'grid-cols-1 md:grid-cols-2',
-                  groupColumns === 3 && 'grid-cols-1 md:grid-cols-3',
-                  groupColumns === 4 && 'grid-cols-1 md:grid-cols-4'
+                  "grid gap-4",
+                  groupColumns === 1 && "grid-cols-1",
+                  groupColumns === 2 && "grid-cols-1 md:grid-cols-2",
+                  groupColumns === 3 && "grid-cols-1 md:grid-cols-3",
+                  groupColumns === 4 && "grid-cols-1 md:grid-cols-4"
                 )}
               >
                 {fieldsInGroup.map((field: FieldMetadata) => {
@@ -670,10 +699,18 @@ export function DynamicForm({
                       key={field.sys_field_id}
                       className={cn(
                         // Apply custom column span if specified (max span is groupColumns)
-                        field.col_span && field.col_span > 1 && `md:col-span-${Math.min(groupColumns, field.col_span)}`
+                        field.col_span &&
+                          field.col_span > 1 &&
+                          `md:col-span-${Math.min(groupColumns, field.col_span)}`
                       )}
                     >
-                      <FieldRenderer field={field} form={form} serverErrors={serverErrors} tableName={tableName} readOnlyFields={readOnlyFields} />
+                      <FieldRenderer
+                        field={field}
+                        form={form}
+                        serverErrors={serverErrors}
+                        tableName={tableName}
+                        readOnlyFields={readOnlyFields}
+                      />
                     </div>
                   );
                 })}
@@ -685,16 +722,15 @@ export function DynamicForm({
         {/* Submit button - hide in view mode */}
         {!readOnly && onSubmit && (
           <div className="flex justify-end gap-4">
-            <form.Subscribe
-              selector={(state: any) => [state.isSubmitting]}
-            >
+            <form.Subscribe selector={(state: any) => [state.isSubmitting]}>
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {([isFormSubmitting]: any) => (
-                <Button
-                  type="submit"
-                  disabled={isSaving || isFormSubmitting}
-                >
-                  {isSaving || isFormSubmitting ? 'Saving...' : mode === 'create' ? 'Create' : 'Save'}
+                <Button type="submit" disabled={isSaving || isFormSubmitting}>
+                  {isSaving || isFormSubmitting
+                    ? "Saving..."
+                    : mode === "create"
+                      ? "Create"
+                      : "Save"}
                 </Button>
               )}
             </form.Subscribe>

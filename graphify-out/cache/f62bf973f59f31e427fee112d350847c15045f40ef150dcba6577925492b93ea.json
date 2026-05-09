@@ -1,1 +1,767 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "label": "BusVitalSignList.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L1"}, {"id": "busvitalsignlist_controller_busvitalsignlistcontroller", "label": "BusVitalSignListController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L21"}, {"id": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L25"}, {"id": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable", "label": "._initializeTable()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L37"}, {"id": "busvitalsignlist_controller_busvitalsignlistcontroller_getfieldsfrommetadata", "label": "._getFieldsFromMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L51"}, {"id": "busvitalsignlist_controller_busvitalsignlistcontroller_formatcellvalue", "label": "._formatCellValue()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L70"}, {"id": "busvitalsignlist_controller_busvitalsignlistcontroller_oncreatepress", "label": ".onCreatePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L76"}, {"id": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress", "label": ".onItemPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L78"}, {"id": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch", "label": ".onSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L83"}, {"id": "busvitalsignlist_controller_busvitalsignlistcontroller_onquicksearch", "label": ".onQuickSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L92"}, {"id": "busvitalsignlist_controller_busvitalsignlistcontroller_onsort", "label": ".onSort()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L93"}, {"id": "busvitalsignlist_controller_busvitalsignlistcontroller_onrefresh", "label": ".onRefresh()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L94"}, {"id": "busvitalsignlist_controller_busvitalsignlistcontroller_ontoggleadvancedsearch", "label": ".onToggleAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L95"}, {"id": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch", "label": ".onAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L96"}, {"id": "busvitalsignlist_controller_busvitalsignlistcontroller_onclearadvancedsearch", "label": ".onClearAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L100"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L5", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "target": "jsonmodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "target": "odatamodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "target": "filter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "target": "filteroperator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "target": "sorter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "target": "messagetoast", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "target": "router", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "target": "event", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "target": "column", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "target": "columnlistitem", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "target": "text", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "target": "label", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts", "target": "busvitalsignlist_controller_busvitalsignlistcontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L21", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L25", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L37", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_getfieldsfrommetadata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L51", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_formatcellvalue", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L70", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_oncreatepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L76", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L78", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L83", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onquicksearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L92", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onsort", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L93", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onrefresh", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L94", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_ontoggleadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L95", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L96", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onclearadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L100", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_getfieldsfrommetadata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L31", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L34", "weight": 1.0}, {"source": "busvitalsignlist_controller_busvitalsignlistcontroller_onquicksearch", "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L92", "weight": 1.0}], "raw_calls": [{"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L26"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L26"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L33"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L33"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L38"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L40"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L40"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable", "callee": "removeAllColumns", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L41"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable", "callee": "removeAllItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L41"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L42"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L44"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable", "callee": "bindItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L47"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L47"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L48"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_formatcellvalue", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L72"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_formatcellvalue", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L72"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_formatcellvalue", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L72"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_formatcellvalue", "callee": "toLocaleDateString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L72"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_formatcellvalue", "callee": "String", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L73"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_oncreatepress", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L76"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_oncreatepress", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L76"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_oncreatepress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L76"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress", "callee": "getPath", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L79"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress", "callee": "getBindingContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L79"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress", "callee": "getSource", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L79"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L80"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress", "callee": "substring", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L80"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress", "callee": "lastIndexOf", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L80"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L80"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L80"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L80"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L84"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L85"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L85"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L87"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L88"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsort", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L93"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsort", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L93"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsort", "callee": "getSorters", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L93"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsort", "callee": "sort", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L93"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsort", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L93"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onrefresh", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L94"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onrefresh", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L94"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onrefresh", "callee": "refresh", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L94"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onrefresh", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L94"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_ontoggleadvancedsearch", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L95"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_ontoggleadvancedsearch", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L95"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch", "callee": "getSelectedKey", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L97"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L97"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch", "callee": "getSelectedKey", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L97"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L97"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch", "callee": "getValue", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L97"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L97"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L98"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L98"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L98"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L98"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L98"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L98"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onclearadvancedsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L100"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onclearadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L100"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onclearadvancedsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L100"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onclearadvancedsearch", "callee": "setValue", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L100"}, {"caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onclearadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts", "source_location": "L100"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "label": "BusVitalSignList.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "label": "BusVitalSignListController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L21"
+    },
+    {
+      "id": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L25"
+    },
+    {
+      "id": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable",
+      "label": "._initializeTable()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L37"
+    },
+    {
+      "id": "busvitalsignlist_controller_busvitalsignlistcontroller_getfieldsfrommetadata",
+      "label": "._getFieldsFromMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L51"
+    },
+    {
+      "id": "busvitalsignlist_controller_busvitalsignlistcontroller_formatcellvalue",
+      "label": "._formatCellValue()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L70"
+    },
+    {
+      "id": "busvitalsignlist_controller_busvitalsignlistcontroller_oncreatepress",
+      "label": ".onCreatePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L76"
+    },
+    {
+      "id": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress",
+      "label": ".onItemPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L78"
+    },
+    {
+      "id": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch",
+      "label": ".onSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L83"
+    },
+    {
+      "id": "busvitalsignlist_controller_busvitalsignlistcontroller_onquicksearch",
+      "label": ".onQuickSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L92"
+    },
+    {
+      "id": "busvitalsignlist_controller_busvitalsignlistcontroller_onsort",
+      "label": ".onSort()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L93"
+    },
+    {
+      "id": "busvitalsignlist_controller_busvitalsignlistcontroller_onrefresh",
+      "label": ".onRefresh()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L94"
+    },
+    {
+      "id": "busvitalsignlist_controller_busvitalsignlistcontroller_ontoggleadvancedsearch",
+      "label": ".onToggleAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "id": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch",
+      "label": ".onAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L96"
+    },
+    {
+      "id": "busvitalsignlist_controller_busvitalsignlistcontroller_onclearadvancedsearch",
+      "label": ".onClearAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L100"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "target": "jsonmodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "target": "odatamodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "target": "filter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "target": "filteroperator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "target": "sorter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "target": "messagetoast",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "target": "router",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "target": "event",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "target": "column",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "target": "columnlistitem",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "target": "text",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "target": "label",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busvitalsignlist_controller_ts",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_getfieldsfrommetadata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_formatcellvalue",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_oncreatepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onquicksearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onsort",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onrefresh",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_ontoggleadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L95",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L96",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onclearadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L100",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_getfieldsfrommetadata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "busvitalsignlist_controller_busvitalsignlistcontroller_onquicksearch",
+      "target": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L92",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable",
+      "callee": "removeAllColumns",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable",
+      "callee": "removeAllItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable",
+      "callee": "bindItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_initializetable",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_formatcellvalue",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_formatcellvalue",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_formatcellvalue",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_formatcellvalue",
+      "callee": "toLocaleDateString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_formatcellvalue",
+      "callee": "String",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_oncreatepress",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_oncreatepress",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_oncreatepress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress",
+      "callee": "getPath",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress",
+      "callee": "getBindingContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress",
+      "callee": "getSource",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress",
+      "callee": "substring",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress",
+      "callee": "lastIndexOf",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onitempress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsort",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsort",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsort",
+      "callee": "getSorters",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsort",
+      "callee": "sort",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onsort",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onrefresh",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onrefresh",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onrefresh",
+      "callee": "refresh",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onrefresh",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_ontoggleadvancedsearch",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_ontoggleadvancedsearch",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch",
+      "callee": "getSelectedKey",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch",
+      "callee": "getSelectedKey",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch",
+      "callee": "getValue",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onadvancedsearch",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onclearadvancedsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onclearadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onclearadvancedsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onclearadvancedsearch",
+      "callee": "setValue",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "busvitalsignlist_controller_busvitalsignlistcontroller_onclearadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusVitalSignList.controller.ts",
+      "source_location": "L100"
+    }
+  ]
+}

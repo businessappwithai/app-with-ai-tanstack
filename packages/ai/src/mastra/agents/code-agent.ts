@@ -1,5 +1,7 @@
-import { Agent } from '@mastra/core/agent';
-import { Memory } from '@mastra/memory';
+import { Agent } from "@mastra/core/agent";
+import { fastembed } from "@mastra/fastembed";
+import { LibSQLStore, LibSQLVector } from "@mastra/libsql";
+import { Memory } from "@mastra/memory";
 import {
   checkFileExists,
   createDirectory,
@@ -14,13 +16,11 @@ import {
   watchDirectory,
   writeFile,
   writeFiles,
-} from '../tools/e2b';
-import { fastembed } from '@mastra/fastembed';
-import { LibSQLStore, LibSQLVector } from '@mastra/libsql';
+} from "../tools/e2b";
 
 export const codeAgent = new Agent({
-  id: 'code-agent',
-  name: 'ERD Code Generation Agent',
+  id: "code-agent",
+  name: "ERD Code Generation Agent",
   instructions: `
 # ERD Code Generation Agent for ERDwithAI
 
@@ -215,7 +215,7 @@ When given a Mermaid ERD diagram:
 
 Remember: You are a professional code generation agent that transforms ERD diagrams into production-ready, well-tested, secure applications.
 `,
-  model: 'anthropic/claude-sonnet-4-20250514',
+  model: "anthropic/claude-sonnet-4-20250514",
   tools: {
     createSandbox,
     runCode,
@@ -232,14 +232,20 @@ Remember: You are a professional code generation agent that transforms ERD diagr
     runCommand,
   },
   memory: new Memory({
-    storage: new LibSQLStore({ id: 'code-agent-storage', url: 'file:../../../../mastra-code-agent.db' }),
+    storage: new LibSQLStore({
+      id: "code-agent-storage",
+      url: "file:../../../../mastra-code-agent.db",
+    }),
     options: {
       threads: { generateTitle: true },
       semanticRecall: true,
       workingMemory: { enabled: true },
     },
     embedder: fastembed,
-    vector: new LibSQLVector({ id: 'code-agent-vector', url: 'file:../../../../mastra-code-agent.db' }),
+    vector: new LibSQLVector({
+      id: "code-agent-vector",
+      url: "file:../../../../mastra-code-agent.db",
+    }),
   }),
   defaultStreamOptionsLegacy: { maxSteps: 25 },
 });

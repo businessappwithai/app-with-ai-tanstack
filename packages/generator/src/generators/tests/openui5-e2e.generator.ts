@@ -3,14 +3,14 @@
  * Generates comprehensive OPA5 tests for Option 2 applications
  */
 
-import { BaseE2ETestGenerator } from './base-e2e.generator';
-import { Entity } from '@erdwithai/core/types';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+import type { Entity } from "@erdwithai/core/types";
+import { mkdir, writeFile } from "fs/promises";
+import { join } from "path";
+import { BaseE2ETestGenerator } from "./base-e2e.generator";
 
 export class OpenUI5OPA5E2ETestGenerator extends BaseE2ETestGenerator {
   async generate(): Promise<void> {
-    const testDir = join(this.config.outputDir, 'frontend', 'test', 'e2e');
+    const testDir = join(this.config.outputDir, "frontend", "test", "e2e");
     await mkdir(testDir, { recursive: true });
 
     // Generate OPA5 configuration
@@ -52,10 +52,7 @@ sap.ui.require([
 });
 `;
 
-    await writeFile(
-      join(this.config.outputDir, 'frontend', 'test', 'opa5.cfg.js'),
-      config
-    );
+    await writeFile(join(this.config.outputDir, "frontend", "test", "opa5.cfg.js"), config);
   }
 
   private async generateFixtures(): Promise<void> {
@@ -99,14 +96,14 @@ sap.ui.define('test/journeys/common', [], function() {
 });
 `;
 
-    await writeFile(
-      join(this.config.outputDir, 'frontend', 'test', 'e2e', 'common.js'),
-      utils
-    );
+    await writeFile(join(this.config.outputDir, "frontend", "test", "e2e", "common.js"), utils);
 
     // Generate test data
     const testData = this.generateOPA5TestData();
-    await writeFile(join(this.config.outputDir, 'frontend', 'test', 'e2e', 'test-data.js'), testData);
+    await writeFile(
+      join(this.config.outputDir, "frontend", "test", "e2e", "test-data.js"),
+      testData
+    );
   }
 
   private async generateEntityJourneyTests(entity: Entity): Promise<void> {
@@ -190,7 +187,7 @@ sap.ui.define('test/journeys/common', [], function() {
 `;
 
     await writeFile(
-      join(this.config.outputDir, 'frontend', 'test', 'e2e', `${entityName}.journey.js`),
+      join(this.config.outputDir, "frontend", "test", "e2e", `${entityName}.journey.js`),
       testFile
     );
 
@@ -202,28 +199,32 @@ sap.ui.define('test/journeys/common', [], function() {
     const lines: string[] = [];
 
     for (const attr of entity.attributes) {
-      if (attr.name === 'id' || attr.name.includes('_id')) continue;
-      if (attr.name === 'created_at' || attr.name === 'updated_at') continue;
+      if (attr.name === "id" || attr.name.includes("_id")) continue;
+      if (attr.name === "created_at" || attr.name === "updated_at") continue;
 
       const value = this.getMockValueForType(attr.type, attr.name);
-      lines.push(`      When(onThe${entity.name}Page.iFill${this.capitalize(attr.name)}With('${value}'));`);
+      lines.push(
+        `      When(onThe${entity.name}Page.iFill${this.capitalize(attr.name)}With('${value}'));`
+      );
     }
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   private generateUpdateJourneyCode(entity: Entity): string {
     const lines: string[] = [];
 
     for (const attr of entity.attributes) {
-      if (attr.name === 'id' || attr.name.includes('_id')) continue;
-      if (attr.name === 'created_at' || attr.name === 'updated_at') continue;
+      if (attr.name === "id" || attr.name.includes("_id")) continue;
+      if (attr.name === "created_at" || attr.name === "updated_at") continue;
 
       const value = this.getUniqueMockValue(attr.type, attr.name, 2);
-      lines.push(`      When(onThe${entity.name}Page.iFill${this.capitalize(attr.name)}With('${value}'));`);
+      lines.push(
+        `      When(onThe${entity.name}Page.iFill${this.capitalize(attr.name)}With('${value}'));`
+      );
     }
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   private async generatePageObject(entity: Entity): Promise<void> {
@@ -345,7 +346,7 @@ sap.ui.define('test/journeys/common', [], function() {
 `;
 
     await writeFile(
-      join(this.config.outputDir, 'frontend', 'test', 'e2e', `${entity.name}Page.js`),
+      join(this.config.outputDir, "frontend", "test", "e2e", `${entity.name}Page.js`),
       pageObject
     );
   }
@@ -363,27 +364,31 @@ sap.ui.define('test/journeys/common', [], function() {
       Opa5.iTeaMyApp.destroy();
     });
 
-    ${this.config.entities.map(entity => `
+    ${this.config.entities
+      .map(
+        (entity) => `
     Opa5.it('should navigate to ${entity.name}', function(Given, When, Then) {
       When(onTheDashboardPage.iClickOn${entity.name}Link);
       Then(assertion.iShouldSee${entity.name}List());
     });
-    `).join('')}
+    `
+      )
+      .join("")}
   });
 });
 `;
 
     await writeFile(
-      join(this.config.outputDir, 'frontend', 'test', 'e2e', 'navigation.journey.js'),
+      join(this.config.outputDir, "frontend", "test", "e2e", "navigation.journey.js"),
       navTest
     );
   }
 
   private generateOPA5TestData(): string {
     const lines: string[] = [];
-    lines.push('// Test data for OPA5 tests');
+    lines.push("// Test data for OPA5 tests");
     lines.push('sap.ui.define("test/testData", [], function() {');
-    lines.push('  return {');
+    lines.push("  return {");
 
     for (const entity of this.config.entities) {
       lines.push(`    ${entity.name}: {`);
@@ -391,10 +396,10 @@ sap.ui.define('test/journeys/common', [], function() {
       lines.push(`    },`);
     }
 
-    lines.push('  };');
-    lines.push('});');
+    lines.push("  };");
+    lines.push("});");
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   private capitalize(s: string): string {

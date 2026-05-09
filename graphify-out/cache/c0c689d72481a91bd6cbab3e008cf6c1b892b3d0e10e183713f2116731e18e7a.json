@@ -1,1 +1,50 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_components_ui_dropdown_menu_tsx", "label": "dropdown-menu.tsx", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/components/ui/dropdown-menu.tsx", "source_location": "L1"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_components_ui_dropdown_menu_tsx", "target": "react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/components/ui/dropdown-menu.tsx", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_components_ui_dropdown_menu_tsx", "target": "react_dropdown_menu", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/components/ui/dropdown-menu.tsx", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_components_ui_dropdown_menu_tsx", "target": "lucide_react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/components/ui/dropdown-menu.tsx", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_components_ui_dropdown_menu_tsx", "target": "utils", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/components/ui/dropdown-menu.tsx", "source_location": "L13", "weight": 1.0}], "raw_calls": []}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_components_ui_dropdown_menu_tsx",
+      "label": "dropdown-menu.tsx",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/components/ui/dropdown-menu.tsx",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_components_ui_dropdown_menu_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/components/ui/dropdown-menu.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_components_ui_dropdown_menu_tsx",
+      "target": "react_dropdown_menu",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/components/ui/dropdown-menu.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_components_ui_dropdown_menu_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/components/ui/dropdown-menu.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_generator_templates_nextjs_nestjs_frontend_src_components_ui_dropdown_menu_tsx",
+      "target": "utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/generator/templates/nextjs-nestjs/frontend/src/components/ui/dropdown-menu.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

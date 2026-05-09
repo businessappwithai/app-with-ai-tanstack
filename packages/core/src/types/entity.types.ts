@@ -1,6 +1,6 @@
 export interface EntityAttribute {
   name: string;
-  type: 'string' | 'integer' | 'decimal' | 'boolean' | 'date' | 'datetime' | 'text' | 'json';
+  type: "string" | "integer" | "decimal" | "boolean" | "date" | "datetime" | "text" | "json";
   required: boolean;
   unique?: boolean;
   default?: unknown;
@@ -22,22 +22,22 @@ export interface Relationship {
   name: string;
   sourceEntity: string;
   targetEntity: string;
-  cardinality: 'oneToOne' | 'oneToMany' | 'manyToOne' | 'manyToMany';
+  cardinality: "oneToOne" | "oneToMany" | "manyToOne" | "manyToMany";
   foreignKey?: string;
   inverseForeignKey?: string;
-  onDelete?: 'CASCADE' | 'SET NULL' | 'RESTRICT';
-  onUpdate?: 'CASCADE' | 'SET NULL' | 'RESTRICT';
+  onDelete?: "CASCADE" | "SET NULL" | "RESTRICT";
+  onUpdate?: "CASCADE" | "SET NULL" | "RESTRICT";
 }
 
 // EntityDefinition is an alias for Entity for service layer compatibility
 export type EntityDefinition = Entity;
 
 // Zod schema for entity validation
-import { z } from 'zod';
+import { z } from "zod";
 
 export const EntityAttributeSchema = z.object({
   name: z.string(),
-  type: z.enum(['string', 'integer', 'decimal', 'boolean', 'date', 'datetime', 'text', 'json']),
+  type: z.enum(["string", "integer", "decimal", "boolean", "date", "datetime", "text", "json"]),
   required: z.boolean(),
   unique: z.boolean().optional(),
   default: z.any().optional(),

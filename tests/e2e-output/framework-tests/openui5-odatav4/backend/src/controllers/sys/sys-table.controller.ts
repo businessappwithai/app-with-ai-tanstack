@@ -7,9 +7,9 @@
  * Generated: 2026-02-09T13:00:26.930Z
  */
 
-import { ODataController, odata } from 'odata-v4-server';
-import { getKnex } from '../../database/connection';
-import { v4 as uuidv4 } from 'uuid';
+import { ODataController, odata } from "odata-v4-server";
+import { v4 as uuidv4 } from "uuid";
+import { getKnex } from "../../database/connection";
 
 interface SysTable {
   id: string;
@@ -32,9 +32,7 @@ export class SysTableController extends ODataController {
    */
   @odata.GET
   async findAll() {
-    return await getKnex()('sys_table')
-      .where('deleted_at', null)
-      .select('*');
+    return await getKnex()("sys_table").where("deleted_at", null).select("*");
   }
 
   /**
@@ -84,21 +82,19 @@ export class SysTableController extends ODataController {
     const updated = {
       ...delta,
       updated_at: now,
-      version: getKnex().raw('version + 1'),
+      version: getKnex().raw("version + 1"),
     };
 
-    const count = await getKnex()('sys_table')
-      .where('id', key)
-      .where('deleted_at', null)
+    const count = await getKnex()("sys_table")
+      .where("id", key)
+      .where("deleted_at", null)
       .update(updated);
 
     if (count === 0) {
       throw new Error(`SysTable with id ${key} not found`);
     }
 
-    return await getKnex()('sys_table')
-      .where('id', key)
-      .first();
+    return await getKnex()("sys_table").where("id", key).first();
   }
 
   /**

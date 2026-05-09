@@ -1,1 +1,156 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_jobs_job_queue_controller_ts", "label": "job-queue.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L1"}, {"id": "job_queue_controller_jobqueuecontroller", "label": "JobQueueController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L13"}, {"id": "job_queue_controller_jobqueuecontroller_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L14"}, {"id": "job_queue_controller_jobqueuecontroller_queueemail", "label": ".queueEmail()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L20"}, {"id": "job_queue_controller_jobqueuecontroller_queuereport", "label": ".queueReport()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L32"}, {"id": "job_queue_controller_jobqueuecontroller_queuesync", "label": ".queueSync()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L44"}, {"id": "job_queue_controller_jobqueuecontroller_getjobstatus", "label": ".getJobStatus()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L56"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_jobs_job_queue_controller_ts", "target": "common", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_jobs_job_queue_controller_ts", "target": "swagger", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_jobs_job_queue_controller_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_jobs_job_queue_service", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_jobs_job_queue_controller_ts", "target": "job_queue_controller_jobqueuecontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "job_queue_controller_jobqueuecontroller", "target": "job_queue_controller_jobqueuecontroller_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L14", "weight": 1.0}, {"source": "job_queue_controller_jobqueuecontroller", "target": "job_queue_controller_jobqueuecontroller_queueemail", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L20", "weight": 1.0}, {"source": "job_queue_controller_jobqueuecontroller", "target": "job_queue_controller_jobqueuecontroller_queuereport", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L32", "weight": 1.0}, {"source": "job_queue_controller_jobqueuecontroller", "target": "job_queue_controller_jobqueuecontroller_queuesync", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L44", "weight": 1.0}, {"source": "job_queue_controller_jobqueuecontroller", "target": "job_queue_controller_jobqueuecontroller_getjobstatus", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L56", "weight": 1.0}], "raw_calls": [{"caller_nid": "job_queue_controller_jobqueuecontroller_queueemail", "callee": "addEmailJob", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L21"}, {"caller_nid": "job_queue_controller_jobqueuecontroller_queuereport", "callee": "addReportJob", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L33"}, {"caller_nid": "job_queue_controller_jobqueuecontroller_queuesync", "callee": "addSyncJob", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts", "source_location": "L45"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_jobs_job_queue_controller_ts",
+      "label": "job-queue.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "job_queue_controller_jobqueuecontroller",
+      "label": "JobQueueController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L13"
+    },
+    {
+      "id": "job_queue_controller_jobqueuecontroller_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L14"
+    },
+    {
+      "id": "job_queue_controller_jobqueuecontroller_queueemail",
+      "label": ".queueEmail()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L20"
+    },
+    {
+      "id": "job_queue_controller_jobqueuecontroller_queuereport",
+      "label": ".queueReport()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L32"
+    },
+    {
+      "id": "job_queue_controller_jobqueuecontroller_queuesync",
+      "label": ".queueSync()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L44"
+    },
+    {
+      "id": "job_queue_controller_jobqueuecontroller_getjobstatus",
+      "label": ".getJobStatus()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L56"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_jobs_job_queue_controller_ts",
+      "target": "common",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_jobs_job_queue_controller_ts",
+      "target": "swagger",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_jobs_job_queue_controller_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_jobs_job_queue_service",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_modules_jobs_job_queue_controller_ts",
+      "target": "job_queue_controller_jobqueuecontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "job_queue_controller_jobqueuecontroller",
+      "target": "job_queue_controller_jobqueuecontroller_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "job_queue_controller_jobqueuecontroller",
+      "target": "job_queue_controller_jobqueuecontroller_queueemail",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "job_queue_controller_jobqueuecontroller",
+      "target": "job_queue_controller_jobqueuecontroller_queuereport",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "job_queue_controller_jobqueuecontroller",
+      "target": "job_queue_controller_jobqueuecontroller_queuesync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "job_queue_controller_jobqueuecontroller",
+      "target": "job_queue_controller_jobqueuecontroller_getjobstatus",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L56",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "job_queue_controller_jobqueuecontroller_queueemail",
+      "callee": "addEmailJob",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "job_queue_controller_jobqueuecontroller_queuereport",
+      "callee": "addReportJob",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "job_queue_controller_jobqueuecontroller_queuesync",
+      "callee": "addSyncJob",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/modules/jobs/job-queue.controller.ts",
+      "source_location": "L45"
+    }
+  ]
+}

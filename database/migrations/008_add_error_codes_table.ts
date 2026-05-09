@@ -40,7 +40,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "validation",
       description: "Generic validation error for field validation failures",
-      metadata: { hint: "Check field constraints and data types" }
+      metadata: { hint: "Check field constraints and data types" },
     },
     {
       code: "REQUIRED_FIELD_MISSING",
@@ -48,7 +48,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "validation",
       description: "Required field not provided in request",
-      metadata: { hint: "Provide all required fields" }
+      metadata: { hint: "Provide all required fields" },
     },
     {
       code: "INVALID_DATA_TYPE",
@@ -56,7 +56,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "validation",
       description: "Field value doesn't match expected data type",
-      metadata: { hint: "Ensure correct data type for field" }
+      metadata: { hint: "Ensure correct data type for field" },
     },
     {
       code: "VALUE_OUT_OF_RANGE",
@@ -64,7 +64,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "validation",
       description: "Numeric value outside allowed range",
-      metadata: { hint: "Provide value within allowed range" }
+      metadata: { hint: "Provide value within allowed range" },
     },
     {
       code: "INVALID_FORMAT",
@@ -72,7 +72,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "validation",
       description: "String value doesn't match required format (e.g., email, UUID)",
-      metadata: { hint: "Ensure value matches expected format" }
+      metadata: { hint: "Ensure value matches expected format" },
     },
 
     // Rule execution errors (200-299)
@@ -82,7 +82,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "warning",
       category: "execution",
       description: "No rule defined for this entity/operation combination",
-      metadata: { hint: "Define a rule or check entity/operation names" }
+      metadata: { hint: "Define a rule or check entity/operation names" },
     },
     {
       code: "RULE_EVALUATION_FAILED",
@@ -90,7 +90,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "execution",
       description: "Zen engine failed to evaluate rule (syntax error, missing nodes, etc.)",
-      metadata: { hint: "Check JDM structure in GoRules editor" }
+      metadata: { hint: "Check JDM structure in GoRules editor" },
     },
     {
       code: "ENGINE_COMPILATION_ERROR",
@@ -98,7 +98,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "critical",
       category: "execution",
       description: "Zen engine failed to compile JDM to Rust",
-      metadata: { hint: "Validate JDM structure before saving" }
+      metadata: { hint: "Validate JDM structure before saving" },
     },
     {
       code: "RULE_TIMEOUT",
@@ -106,7 +106,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "execution",
       description: "Rule execution exceeded maximum allowed time",
-      metadata: { hint: "Optimize rule complexity or increase timeout" }
+      metadata: { hint: "Optimize rule complexity or increase timeout" },
     },
 
     // Workflow errors (300-399)
@@ -116,7 +116,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "execution",
       description: "Trigger.dev failed to accept workflow job",
-      metadata: { hint: "Check Trigger.dev connection and configuration" }
+      metadata: { hint: "Check Trigger.dev connection and configuration" },
     },
     {
       code: "WORKFLOW_STATUS_POLL_TIMEOUT",
@@ -124,7 +124,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "warning",
       category: "execution",
       description: "Workflow execution exceeded timeout while polling for status",
-      metadata: { hint: "Increase timeout or check workflow logs" }
+      metadata: { hint: "Increase timeout or check workflow logs" },
     },
     {
       code: "WORKFLOW_TRANSACTION_FAILED",
@@ -132,7 +132,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "execution",
       description: "Failed to commit workflow results in database",
-      metadata: { hint: "Check database connection and transaction locks" }
+      metadata: { hint: "Check database connection and transaction locks" },
     },
 
     // Authorization errors (400-499)
@@ -142,7 +142,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "authorization",
       description: "User not authenticated",
-      metadata: { hint: "Log in to access this resource" }
+      metadata: { hint: "Log in to access this resource" },
     },
     {
       code: "PERMISSION_DENIED",
@@ -150,7 +150,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "authorization",
       description: "User lacks required permission for operation",
-      metadata: { hint: "Contact administrator for access" }
+      metadata: { hint: "Contact administrator for access" },
     },
     {
       code: "FORBIDDEN_OPERATION",
@@ -158,7 +158,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "authorization",
       description: "User attempted operation outside their permissions",
-      metadata: { hint: "Check user roles and permissions" }
+      metadata: { hint: "Check user roles and permissions" },
     },
 
     // System errors (500-599)
@@ -168,7 +168,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "critical",
       category: "system",
       description: "Cannot establish database connection",
-      metadata: { hint: "Check database is running and connection string is correct" }
+      metadata: { hint: "Check database is running and connection string is correct" },
     },
     {
       code: "DATABASE_QUERY_ERROR",
@@ -176,7 +176,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "system",
       description: "SQL query execution failed",
-      metadata: { hint: "Check query syntax and table existence" }
+      metadata: { hint: "Check query syntax and table existence" },
     },
     {
       code: "CACHE_ERROR",
@@ -184,7 +184,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "warning",
       category: "system",
       description: "Redis or in-memory cache operation failed",
-      metadata: { hint: "Cache may be stale, retry with fresh data" }
+      metadata: { hint: "Cache may be stale, retry with fresh data" },
     },
     {
       code: "SERVICE_UNAVAILABLE",
@@ -192,7 +192,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "critical",
       category: "system",
       description: "Required service is down or unreachable",
-      metadata: { hint: "Check service status and retry later" }
+      metadata: { hint: "Check service status and retry later" },
     },
 
     // Entity errors (600-699)
@@ -202,7 +202,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "validation",
       description: "Requested entity record doesn't exist in database",
-      metadata: { hint: "Verify entity ID and check if entity was deleted" }
+      metadata: { hint: "Verify entity ID and check if entity was deleted" },
     },
     {
       code: "ENTITY_ALREADY_EXISTS",
@@ -210,7 +210,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "validation",
       description: "Cannot create duplicate entity (unique constraint violation)",
-      metadata: { hint: "Use update operation instead or provide different key value" }
+      metadata: { hint: "Use update operation instead or provide different key value" },
     },
     {
       code: "ENTITY_STALE_DATA",
@@ -218,7 +218,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "warning",
       category: "execution",
       description: "Optimistic lock failure: entity changed since read",
-      metadata: { hint: "Refresh entity data and retry operation" }
+      metadata: { hint: "Refresh entity data and retry operation" },
     },
 
     // Configuration errors (700-799)
@@ -228,7 +228,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "info",
       category: "system",
       description: "Feature is disabled via environment variable",
-      metadata: { hint: "Enable feature flag to use this functionality" }
+      metadata: { hint: "Enable feature flag to use this functionality" },
     },
     {
       code: "CONFIGURATION_INVALID",
@@ -236,7 +236,7 @@ export async function up(knex: Knex): Promise<void> {
       severity: "error",
       category: "system",
       description: "Configuration value is invalid or out of range",
-      metadata: { hint: "Check environment variables and configuration file" }
+      metadata: { hint: "Check environment variables and configuration file" },
     },
     {
       code: "DEPENDENCY_MISSING",
@@ -244,8 +244,8 @@ export async function up(knex: Knex): Promise<void> {
       severity: "critical",
       category: "system",
       description: "Required service or library is not available",
-      metadata: { hint: "Install dependency or configure connection" }
-    }
+      metadata: { hint: "Install dependency or configure connection" },
+    },
   ];
 
   // Insert error codes

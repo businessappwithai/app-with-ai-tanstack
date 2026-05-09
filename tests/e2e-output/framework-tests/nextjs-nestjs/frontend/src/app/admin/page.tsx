@@ -12,23 +12,23 @@
  * Project: nextjs-nestjs-test-app
  */
 
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
-import { apiClient, PaginatedResponse } from '@/lib/api-client';
+import { useQuery } from "@tanstack/react-query";
 import {
-  Settings,
-  Table2,
-  Columns,
-  Hash,
-  LayoutList,
   AppWindow,
   ArrowRight,
+  Columns,
   Database,
+  Hash,
+  LayoutList,
   RefreshCw,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
+  Settings,
+  Table2,
+} from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { apiClient, type PaginatedResponse } from "@/lib/api-client";
 
 interface SysTable {
   sys_table_id: string;
@@ -64,35 +64,40 @@ interface SysReference {
 }
 
 export default function AdminDashboardPage() {
-  const { data: tablesResponse, isLoading: tablesLoading, refetch: refetchTables } = useQuery({
-    queryKey: ['admin', 'tables'],
-    queryFn: () => apiClient.get<PaginatedResponse<SysTable>>('/api/sys/tables', { limit: 200 }),
+  const {
+    data: tablesResponse,
+    isLoading: tablesLoading,
+    refetch: refetchTables,
+  } = useQuery({
+    queryKey: ["admin", "tables"],
+    queryFn: () => apiClient.get<PaginatedResponse<SysTable>>("/api/sys/tables", { limit: 200 }),
   });
 
   const { data: columnsResponse, isLoading: columnsLoading } = useQuery({
-    queryKey: ['admin', 'columns-count'],
-    queryFn: () => apiClient.get<PaginatedResponse<SysColumn>>('/api/sys/columns', { limit: 1 }),
+    queryKey: ["admin", "columns-count"],
+    queryFn: () => apiClient.get<PaginatedResponse<SysColumn>>("/api/sys/columns", { limit: 1 }),
   });
 
   const { data: fieldsResponse, isLoading: fieldsLoading } = useQuery({
-    queryKey: ['admin', 'fields-count'],
-    queryFn: () => apiClient.get<PaginatedResponse<SysField>>('/api/sys/fields', { limit: 1 }),
+    queryKey: ["admin", "fields-count"],
+    queryFn: () => apiClient.get<PaginatedResponse<SysField>>("/api/sys/fields", { limit: 1 }),
   });
 
   const { data: windowsResponse, isLoading: windowsLoading } = useQuery({
-    queryKey: ['admin', 'windows-count'],
-    queryFn: () => apiClient.get<PaginatedResponse<SysWindow>>('/api/sys/windows', { limit: 1 }),
+    queryKey: ["admin", "windows-count"],
+    queryFn: () => apiClient.get<PaginatedResponse<SysWindow>>("/api/sys/windows", { limit: 1 }),
   });
 
   const { data: referencesResponse } = useQuery({
-    queryKey: ['admin', 'references-count'],
-    queryFn: () => apiClient.get<PaginatedResponse<SysReference>>('/api/sys/references', { limit: 1 }),
+    queryKey: ["admin", "references-count"],
+    queryFn: () =>
+      apiClient.get<PaginatedResponse<SysReference>>("/api/sys/references", { limit: 1 }),
   });
 
   // Fetch all fields to compute per-entity field counts
   const { data: allFieldsResponse } = useQuery({
-    queryKey: ['admin', 'all-fields'],
-    queryFn: () => apiClient.get<PaginatedResponse<SysField>>('/api/sys/fields', { limit: 500 }),
+    queryKey: ["admin", "all-fields"],
+    queryFn: () => apiClient.get<PaginatedResponse<SysField>>("/api/sys/fields", { limit: 500 }),
   });
 
   const tables = tablesResponse?.data || [];
@@ -119,7 +124,8 @@ export default function AdminDashboardPage() {
                 Application Dictionary
               </h1>
               <p className="text-xl text-gray-600 font-light max-w-2xl leading-relaxed">
-                Manage entities, field layouts, and application configuration for nextjs-nestjs-test-app
+                Manage entities, field layouts, and application configuration for
+                nextjs-nestjs-test-app
               </p>
             </div>
             <Button
@@ -129,7 +135,7 @@ export default function AdminDashboardPage() {
               disabled={isLoading}
               className="border-2 border-black hover:bg-black hover:text-white transition-colors rounded-none"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
               Refresh
             </Button>
           </div>
@@ -145,7 +151,9 @@ export default function AdminDashboardPage() {
               <div>
                 <Table2 className="h-8 w-8 mb-6 text-black" />
                 <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-2">Tables</h2>
-                <p className="text-5xl font-bold text-black mb-2">{tablesResponse?.meta?.total || 0}</p>
+                <p className="text-5xl font-bold text-black mb-2">
+                  {tablesResponse?.meta?.total || 0}
+                </p>
               </div>
               <p className="text-xs text-gray-600 mt-4">Registered in sys_table</p>
             </div>
@@ -155,7 +163,9 @@ export default function AdminDashboardPage() {
               <div>
                 <Columns className="h-8 w-8 mb-6 text-black" />
                 <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-2">Columns</h2>
-                <p className="text-5xl font-bold text-black mb-2">{columnsResponse?.meta?.total || 0}</p>
+                <p className="text-5xl font-bold text-black mb-2">
+                  {columnsResponse?.meta?.total || 0}
+                </p>
               </div>
               <p className="text-xs text-gray-600 mt-4">Defined in sys_column</p>
             </div>
@@ -165,7 +175,9 @@ export default function AdminDashboardPage() {
               <div>
                 <LayoutList className="h-8 w-8 mb-6 text-black" />
                 <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-2">Fields</h2>
-                <p className="text-5xl font-bold text-black mb-2">{fieldsResponse?.meta?.total || 0}</p>
+                <p className="text-5xl font-bold text-black mb-2">
+                  {fieldsResponse?.meta?.total || 0}
+                </p>
               </div>
               <p className="text-xs text-gray-600 mt-4">Layout entries in sys_field</p>
             </div>
@@ -175,7 +187,9 @@ export default function AdminDashboardPage() {
               <div>
                 <AppWindow className="h-8 w-8 mb-6 text-black" />
                 <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-2">Windows</h2>
-                <p className="text-5xl font-bold text-black mb-2">{windowsResponse?.meta?.total || 0}</p>
+                <p className="text-5xl font-bold text-black mb-2">
+                  {windowsResponse?.meta?.total || 0}
+                </p>
               </div>
               <p className="text-xs text-gray-600 mt-4">Defined in sys_window</p>
             </div>
@@ -205,7 +219,8 @@ export default function AdminDashboardPage() {
                 </div>
                 <h3 className="text-2xl font-bold mb-3 font-newsreader">Field Layout Manager</h3>
                 <p className="text-sm leading-relaxed opacity-80">
-                  Customize the order and visibility of fields in forms and grid views. Drag-and-drop reordering with seq_no and seq_no_grid editing.
+                  Customize the order and visibility of fields in forms and grid views.
+                  Drag-and-drop reordering with seq_no and seq_no_grid editing.
                 </p>
               </div>
             </Link>
@@ -244,11 +259,19 @@ export default function AdminDashboardPage() {
         <section>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-1">Registered Entities</h2>
-              <p className="text-sm text-gray-600">All entities from sys_table with their field counts and configuration status</p>
+              <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-1">
+                Registered Entities
+              </h2>
+              <p className="text-sm text-gray-600">
+                All entities from sys_table with their field counts and configuration status
+              </p>
             </div>
             <Link href="/admin/fields">
-              <Button variant="outline" size="default" className="border-2 border-black hover:bg-black hover:text-white transition-colors rounded-none">
+              <Button
+                variant="outline"
+                size="default"
+                className="border-2 border-black hover:bg-black hover:text-white transition-colors rounded-none"
+              >
                 <LayoutList className="h-4 w-4 mr-2" />
                 Edit Field Layouts
               </Button>
@@ -264,24 +287,34 @@ export default function AdminDashboardPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b-2 border-black bg-gray-50">
-                    <th className="text-left py-4 px-6 font-bold uppercase tracking-wider text-xs">Entity Name</th>
-                    <th className="text-left py-4 px-6 font-bold uppercase tracking-wider text-xs">Table Name</th>
-                    <th className="text-center py-4 px-6 font-bold uppercase tracking-wider text-xs">Fields</th>
-                    <th className="text-center py-4 px-6 font-bold uppercase tracking-wider text-xs">Status</th>
-                    <th className="text-right py-4 px-6 font-bold uppercase tracking-wider text-xs">Actions</th>
+                    <th className="text-left py-4 px-6 font-bold uppercase tracking-wider text-xs">
+                      Entity Name
+                    </th>
+                    <th className="text-left py-4 px-6 font-bold uppercase tracking-wider text-xs">
+                      Table Name
+                    </th>
+                    <th className="text-center py-4 px-6 font-bold uppercase tracking-wider text-xs">
+                      Fields
+                    </th>
+                    <th className="text-center py-4 px-6 font-bold uppercase tracking-wider text-xs">
+                      Status
+                    </th>
+                    <th className="text-right py-4 px-6 font-bold uppercase tracking-wider text-xs">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
-                </tbody>
+                <tbody></tbody>
               </table>
             </div>
           )}
 
           {/* Quick Entity Links */}
           <div className="mt-8 p-8 bg-gray-50 border-2 border-black">
-            <h3 className="text-sm uppercase tracking-widest text-gray-500 mb-4">Generated Entity Quick Links</h3>
-            <div className="flex flex-wrap gap-2">
-            </div>
+            <h3 className="text-sm uppercase tracking-widest text-gray-500 mb-4">
+              Generated Entity Quick Links
+            </h3>
+            <div className="flex flex-wrap gap-2"></div>
           </div>
         </section>
       </main>

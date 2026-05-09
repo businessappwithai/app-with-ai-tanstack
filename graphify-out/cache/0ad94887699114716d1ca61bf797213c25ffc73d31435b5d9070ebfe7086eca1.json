@@ -1,1 +1,542 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts", "label": "migrate-sqlite-to-postgres.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L1"}, {"id": "migrate_sqlite_to_postgres_setuppostgresql", "label": "setupPostgreSQL()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L40"}, {"id": "migrate_sqlite_to_postgres_getsqlitetables", "label": "getSQLiteTables()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L53"}, {"id": "migrate_sqlite_to_postgres_exporttabledata", "label": "exportTableData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L65"}, {"id": "migrate_sqlite_to_postgres_transformvalue", "label": "transformValue()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L75"}, {"id": "migrate_sqlite_to_postgres_importtabledata", "label": "importTableData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L111"}, {"id": "migrate_sqlite_to_postgres_getprimarykey", "label": "getPrimaryKey()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L149"}, {"id": "migrate_sqlite_to_postgres_verifymigration", "label": "verifyMigration()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L168"}, {"id": "migrate_sqlite_to_postgres_migrateall", "label": "migrateAll()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L198"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts", "target": "pg", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts", "target": "better_sqlite3", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts", "target": "fs", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts", "target": "path", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts", "target": "migrate_sqlite_to_postgres_setuppostgresql", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L40", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts", "target": "migrate_sqlite_to_postgres_getsqlitetables", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L53", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts", "target": "migrate_sqlite_to_postgres_exporttabledata", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L65", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts", "target": "migrate_sqlite_to_postgres_transformvalue", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L75", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts", "target": "migrate_sqlite_to_postgres_importtabledata", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L111", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts", "target": "migrate_sqlite_to_postgres_getprimarykey", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L149", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts", "target": "migrate_sqlite_to_postgres_verifymigration", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L168", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts", "target": "migrate_sqlite_to_postgres_migrateall", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L198", "weight": 1.0}, {"source": "migrate_sqlite_to_postgres_importtabledata", "target": "migrate_sqlite_to_postgres_getprimarykey", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L125", "weight": 1.0}, {"source": "migrate_sqlite_to_postgres_importtabledata", "target": "migrate_sqlite_to_postgres_transformvalue", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L137", "weight": 1.0}, {"source": "migrate_sqlite_to_postgres_migrateall", "target": "migrate_sqlite_to_postgres_setuppostgresql", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L201", "weight": 1.0}, {"source": "migrate_sqlite_to_postgres_migrateall", "target": "migrate_sqlite_to_postgres_getsqlitetables", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L218", "weight": 1.0}, {"source": "migrate_sqlite_to_postgres_migrateall", "target": "migrate_sqlite_to_postgres_exporttabledata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L224", "weight": 1.0}, {"source": "migrate_sqlite_to_postgres_migrateall", "target": "migrate_sqlite_to_postgres_importtabledata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L225", "weight": 1.0}, {"source": "migrate_sqlite_to_postgres_migrateall", "target": "migrate_sqlite_to_postgres_verifymigration", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L229", "weight": 1.0}], "raw_calls": [{"caller_nid": "migrate_sqlite_to_postgres_setuppostgresql", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L41"}, {"caller_nid": "migrate_sqlite_to_postgres_setuppostgresql", "callee": "query", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L44"}, {"caller_nid": "migrate_sqlite_to_postgres_setuppostgresql", "callee": "query", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L45"}, {"caller_nid": "migrate_sqlite_to_postgres_setuppostgresql", "callee": "query", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L46"}, {"caller_nid": "migrate_sqlite_to_postgres_setuppostgresql", "callee": "query", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L47"}, {"caller_nid": "migrate_sqlite_to_postgres_setuppostgresql", "callee": "end", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L48"}, {"caller_nid": "migrate_sqlite_to_postgres_setuppostgresql", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L50"}, {"caller_nid": "migrate_sqlite_to_postgres_getsqlitetables", "callee": "all", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L54"}, {"caller_nid": "migrate_sqlite_to_postgres_getsqlitetables", "callee": "prepare", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L54"}, {"caller_nid": "migrate_sqlite_to_postgres_getsqlitetables", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L62"}, {"caller_nid": "migrate_sqlite_to_postgres_exporttabledata", "callee": "all", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L67"}, {"caller_nid": "migrate_sqlite_to_postgres_exporttabledata", "callee": "prepare", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L67"}, {"caller_nid": "migrate_sqlite_to_postgres_exporttabledata", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L70"}, {"caller_nid": "migrate_sqlite_to_postgres_transformvalue", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L82"}, {"caller_nid": "migrate_sqlite_to_postgres_transformvalue", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L84"}, {"caller_nid": "migrate_sqlite_to_postgres_transformvalue", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L95"}, {"caller_nid": "migrate_sqlite_to_postgres_transformvalue", "callee": "endsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L96"}, {"caller_nid": "migrate_sqlite_to_postgres_transformvalue", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L100"}, {"caller_nid": "migrate_sqlite_to_postgres_transformvalue", "callee": "toISOString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L104"}, {"caller_nid": "migrate_sqlite_to_postgres_importtabledata", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L113"}, {"caller_nid": "migrate_sqlite_to_postgres_importtabledata", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L118"}, {"caller_nid": "migrate_sqlite_to_postgres_importtabledata", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L119"}, {"caller_nid": "migrate_sqlite_to_postgres_importtabledata", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L119"}, {"caller_nid": "migrate_sqlite_to_postgres_importtabledata", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L120"}, {"caller_nid": "migrate_sqlite_to_postgres_importtabledata", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L129"}, {"caller_nid": "migrate_sqlite_to_postgres_importtabledata", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L131"}, {"caller_nid": "migrate_sqlite_to_postgres_importtabledata", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L137"}, {"caller_nid": "migrate_sqlite_to_postgres_importtabledata", "callee": "query", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L141"}, {"caller_nid": "migrate_sqlite_to_postgres_importtabledata", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L142"}, {"caller_nid": "migrate_sqlite_to_postgres_importtabledata", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L145"}, {"caller_nid": "migrate_sqlite_to_postgres_importtabledata", "callee": "substring", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L145"}, {"caller_nid": "migrate_sqlite_to_postgres_getprimarykey", "callee": "query", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L151"}, {"caller_nid": "migrate_sqlite_to_postgres_verifymigration", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L169"}, {"caller_nid": "migrate_sqlite_to_postgres_verifymigration", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L187"}, {"caller_nid": "migrate_sqlite_to_postgres_verifymigration", "callee": "query", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L190"}, {"caller_nid": "migrate_sqlite_to_postgres_verifymigration", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L191"}, {"caller_nid": "migrate_sqlite_to_postgres_verifymigration", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L193"}, {"caller_nid": "migrate_sqlite_to_postgres_migrateall", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L204"}, {"caller_nid": "migrate_sqlite_to_postgres_migrateall", "callee": "require", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L205"}, {"caller_nid": "migrate_sqlite_to_postgres_migrateall", "callee": "execSync", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L207"}, {"caller_nid": "migrate_sqlite_to_postgres_migrateall", "callee": "cwd", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L209"}, {"caller_nid": "migrate_sqlite_to_postgres_migrateall", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L211"}, {"caller_nid": "migrate_sqlite_to_postgres_migrateall", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L213"}, {"caller_nid": "migrate_sqlite_to_postgres_migrateall", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L217"}, {"caller_nid": "migrate_sqlite_to_postgres_migrateall", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L219"}, {"caller_nid": "migrate_sqlite_to_postgres_migrateall", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L222"}, {"caller_nid": "migrate_sqlite_to_postgres_migrateall", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L231"}, {"caller_nid": "migrate_sqlite_to_postgres_migrateall", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L234"}, {"caller_nid": "migrate_sqlite_to_postgres_migrateall", "callee": "end", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L237"}, {"caller_nid": "migrate_sqlite_to_postgres_migrateall", "callee": "close", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts", "source_location": "L238"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts",
+      "label": "migrate-sqlite-to-postgres.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "migrate_sqlite_to_postgres_setuppostgresql",
+      "label": "setupPostgreSQL()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L40"
+    },
+    {
+      "id": "migrate_sqlite_to_postgres_getsqlitetables",
+      "label": "getSQLiteTables()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L53"
+    },
+    {
+      "id": "migrate_sqlite_to_postgres_exporttabledata",
+      "label": "exportTableData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L65"
+    },
+    {
+      "id": "migrate_sqlite_to_postgres_transformvalue",
+      "label": "transformValue()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L75"
+    },
+    {
+      "id": "migrate_sqlite_to_postgres_importtabledata",
+      "label": "importTableData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L111"
+    },
+    {
+      "id": "migrate_sqlite_to_postgres_getprimarykey",
+      "label": "getPrimaryKey()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L149"
+    },
+    {
+      "id": "migrate_sqlite_to_postgres_verifymigration",
+      "label": "verifyMigration()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L168"
+    },
+    {
+      "id": "migrate_sqlite_to_postgres_migrateall",
+      "label": "migrateAll()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L198"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts",
+      "target": "pg",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts",
+      "target": "better_sqlite3",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts",
+      "target": "migrate_sqlite_to_postgres_setuppostgresql",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts",
+      "target": "migrate_sqlite_to_postgres_getsqlitetables",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts",
+      "target": "migrate_sqlite_to_postgres_exporttabledata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts",
+      "target": "migrate_sqlite_to_postgres_transformvalue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts",
+      "target": "migrate_sqlite_to_postgres_importtabledata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L111",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts",
+      "target": "migrate_sqlite_to_postgres_getprimarykey",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L149",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts",
+      "target": "migrate_sqlite_to_postgres_verifymigration",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L168",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_backend_src_scripts_migrate_sqlite_to_postgres_ts",
+      "target": "migrate_sqlite_to_postgres_migrateall",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L198",
+      "weight": 1.0
+    },
+    {
+      "source": "migrate_sqlite_to_postgres_importtabledata",
+      "target": "migrate_sqlite_to_postgres_getprimarykey",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L125",
+      "weight": 1.0
+    },
+    {
+      "source": "migrate_sqlite_to_postgres_importtabledata",
+      "target": "migrate_sqlite_to_postgres_transformvalue",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L137",
+      "weight": 1.0
+    },
+    {
+      "source": "migrate_sqlite_to_postgres_migrateall",
+      "target": "migrate_sqlite_to_postgres_setuppostgresql",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L201",
+      "weight": 1.0
+    },
+    {
+      "source": "migrate_sqlite_to_postgres_migrateall",
+      "target": "migrate_sqlite_to_postgres_getsqlitetables",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L218",
+      "weight": 1.0
+    },
+    {
+      "source": "migrate_sqlite_to_postgres_migrateall",
+      "target": "migrate_sqlite_to_postgres_exporttabledata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L224",
+      "weight": 1.0
+    },
+    {
+      "source": "migrate_sqlite_to_postgres_migrateall",
+      "target": "migrate_sqlite_to_postgres_importtabledata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L225",
+      "weight": 1.0
+    },
+    {
+      "source": "migrate_sqlite_to_postgres_migrateall",
+      "target": "migrate_sqlite_to_postgres_verifymigration",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L229",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_setuppostgresql",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_setuppostgresql",
+      "callee": "query",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_setuppostgresql",
+      "callee": "query",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_setuppostgresql",
+      "callee": "query",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_setuppostgresql",
+      "callee": "query",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_setuppostgresql",
+      "callee": "end",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_setuppostgresql",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_getsqlitetables",
+      "callee": "all",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_getsqlitetables",
+      "callee": "prepare",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_getsqlitetables",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_exporttabledata",
+      "callee": "all",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_exporttabledata",
+      "callee": "prepare",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_exporttabledata",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_transformvalue",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_transformvalue",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_transformvalue",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_transformvalue",
+      "callee": "endsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_transformvalue",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_transformvalue",
+      "callee": "toISOString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L104"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_importtabledata",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_importtabledata",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_importtabledata",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_importtabledata",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_importtabledata",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L120"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_importtabledata",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_importtabledata",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_importtabledata",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L137"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_importtabledata",
+      "callee": "query",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_importtabledata",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_importtabledata",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_importtabledata",
+      "callee": "substring",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_getprimarykey",
+      "callee": "query",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_verifymigration",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L169"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_verifymigration",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L187"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_verifymigration",
+      "callee": "query",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_verifymigration",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_verifymigration",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L193"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_migrateall",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L204"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_migrateall",
+      "callee": "require",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_migrateall",
+      "callee": "execSync",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L207"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_migrateall",
+      "callee": "cwd",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_migrateall",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L211"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_migrateall",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L213"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_migrateall",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L217"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_migrateall",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L219"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_migrateall",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L222"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_migrateall",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L231"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_migrateall",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L234"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_migrateall",
+      "callee": "end",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L237"
+    },
+    {
+      "caller_nid": "migrate_sqlite_to_postgres_migrateall",
+      "callee": "close",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/backend/src/scripts/migrate-sqlite-to-postgres.ts",
+      "source_location": "L238"
+    }
+  ]
+}

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
+import type React from "react";
+import { useState } from "react";
 
 interface NewProjectModalProps {
   isOpen: boolean;
@@ -76,9 +77,7 @@ export function NewProjectModal({
               id="project-name"
               type="text"
               value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="e.g. Hospital Management System"
               className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               required
@@ -97,9 +96,7 @@ export function NewProjectModal({
             <textarea
               id="description"
               value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Describe your project in detail. What does it do? What are the main features and entities?"
               rows={6}
               className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors resize-none"
@@ -117,11 +114,13 @@ export function NewProjectModal({
               Stack Type <span className="text-red-500">*</span>
             </label>
             <div className="space-y-2">
-              <label className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-colors ${
-                formData.stackType === "nestjs-nextjs"
-                  ? "border-primary bg-primary/5"
-                  : "border-border hover:border-primary/50"
-              }`}>
+              <label
+                className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-colors ${
+                  formData.stackType === "nestjs-nextjs"
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50"
+                }`}
+              >
                 <input
                   type="radio"
                   name="stack-type"
@@ -145,17 +144,23 @@ export function NewProjectModal({
                 {formData.stackType === "nestjs-nextjs" && (
                   <div className="w-5 h-5 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
                     <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   </div>
                 )}
               </label>
 
-              <label className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-colors ${
-                formData.stackType === "odata-ui5"
-                  ? "border-primary bg-primary/5"
-                  : "border-border hover:border-primary/50"
-              }`}>
+              <label
+                className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-colors ${
+                  formData.stackType === "odata-ui5"
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50"
+                }`}
+              >
                 <input
                   type="radio"
                   name="stack-type"
@@ -179,7 +184,11 @@ export function NewProjectModal({
                 {formData.stackType === "odata-ui5" && (
                   <div className="w-5 h-5 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
                     <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   </div>
                 )}

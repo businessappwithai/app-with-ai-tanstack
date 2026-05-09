@@ -1,7 +1,7 @@
 "use client";
 
+import { Code, Eye, FileText, Rocket, Wand2 } from "lucide-react";
 import React from "react";
-import { FileText, Eye, Code, Wand2, Rocket } from "lucide-react";
 
 interface JourneyArcProps {
   currentStep: "init" | "design" | "generate" | "enhance" | "deploy";
@@ -76,9 +76,7 @@ export function JourneyArc({ currentStep }: JourneyArcProps) {
                   {step.icon}
                 </div>
                 <div className="text-center">
-                  <div className="text-xs font-semibold text-foreground">
-                    {step.label}
-                  </div>
+                  <div className="text-xs font-semibold text-foreground">{step.label}</div>
                   <div className="text-xs text-muted-foreground">{step.description}</div>
                 </div>
               </div>
@@ -88,11 +86,7 @@ export function JourneyArc({ currentStep }: JourneyArcProps) {
                 <div className="flex-shrink-0 mb-8">
                   <div
                     className={`w-8 h-1 rounded-full transition-all ${
-                      isCompleted
-                        ? "bg-emerald-500"
-                        : isCurrent
-                          ? "bg-primary"
-                          : "bg-muted"
+                      isCompleted ? "bg-emerald-500" : isCurrent ? "bg-primary" : "bg-muted"
                     }`}
                   />
                 </div>

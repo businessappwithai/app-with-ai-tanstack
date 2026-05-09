@@ -16,7 +16,7 @@
         "inputs": [
           { "id": "i1", "name": "Quote Id", "field": "quote_id" },
           { "id": "i2", "name": "Product Id", "field": "product_id" },
-          { "id": "i3", "name": "Description", "field": "description" },
+          { "id": "i3", "name": "Description", "field": "description" }
         ],
         "outputs": [
           { "id": "o1", "name": "Action", "field": "action" },

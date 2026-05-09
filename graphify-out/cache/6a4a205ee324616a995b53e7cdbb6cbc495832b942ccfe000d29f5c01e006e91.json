@@ -1,1 +1,336 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts", "label": "utils.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L1"}, {"id": "utils_parsehookdefinition", "label": "parseHookDefinition()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L20"}, {"id": "utils_parsehooksfromflowchart", "label": "parseHooksFromFlowchart()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L54"}, {"id": "utils_generatehookcomment", "label": "generateHookComment()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L90"}, {"id": "utils_generateflowchartfromhooks", "label": "generateFlowchartFromHooks()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L104"}, {"id": "utils_validatehookdefinition", "label": "validateHookDefinition()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L172"}, {"id": "utils_tohookdefinition", "label": "toHookDefinition()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L230"}, {"id": "utils_fromhookdefinition", "label": "fromHookDefinition()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L246"}, {"id": "utils_generatehookcode", "label": "generateHookCode()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L261"}, {"id": "utils_generatehookcodefile", "label": "generateHookCodeFile()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L296"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_parser", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_visitor", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts", "target": "utils_parsehookdefinition", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L20", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts", "target": "utils_parsehooksfromflowchart", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L54", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts", "target": "utils_generatehookcomment", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L90", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts", "target": "utils_generateflowchartfromhooks", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L104", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts", "target": "utils_validatehookdefinition", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L172", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts", "target": "utils_tohookdefinition", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L230", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts", "target": "utils_fromhookdefinition", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L246", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts", "target": "utils_generatehookcode", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L261", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts", "target": "utils_generatehookcodefile", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L296", "weight": 1.0}], "raw_calls": [{"caller_nid": "utils_parsehookdefinition", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L24"}, {"caller_nid": "utils_parsehookdefinition", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L26"}, {"caller_nid": "utils_parsehookdefinition", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L30"}, {"caller_nid": "utils_parsehookdefinition", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L42"}, {"caller_nid": "utils_parsehooksfromflowchart", "callee": "parseMultiple", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L59"}, {"caller_nid": "utils_parsehooksfromflowchart", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L65"}, {"caller_nid": "utils_generatehookcomment", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L94"}, {"caller_nid": "utils_generatehookcomment", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L94"}, {"caller_nid": "utils_generateflowchartfromhooks", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L112"}, {"caller_nid": "utils_generateflowchartfromhooks", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L135"}, {"caller_nid": "utils_generateflowchartfromhooks", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L160"}, {"caller_nid": "utils_validatehookdefinition", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L191"}, {"caller_nid": "utils_validatehookdefinition", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L192"}, {"caller_nid": "utils_validatehookdefinition", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L196"}, {"caller_nid": "utils_validatehookdefinition", "callee": "test", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L199"}, {"caller_nid": "utils_validatehookdefinition", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L200"}, {"caller_nid": "utils_validatehookdefinition", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L206"}, {"caller_nid": "utils_validatehookdefinition", "callee": "test", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L209"}, {"caller_nid": "utils_validatehookdefinition", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L210"}, {"caller_nid": "utils_generatehookcode", "callee": "visitHookDefinition", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L270"}, {"caller_nid": "utils_generatehookcode", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L275"}, {"caller_nid": "utils_generatehookcode", "callee": "from", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L288"}, {"caller_nid": "utils_generatehookcodefile", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L307"}, {"caller_nid": "utils_generatehookcodefile", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L313"}, {"caller_nid": "utils_generatehookcodefile", "callee": "from", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts", "source_location": "L317"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts",
+      "label": "utils.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "utils_parsehookdefinition",
+      "label": "parseHookDefinition()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L20"
+    },
+    {
+      "id": "utils_parsehooksfromflowchart",
+      "label": "parseHooksFromFlowchart()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L54"
+    },
+    {
+      "id": "utils_generatehookcomment",
+      "label": "generateHookComment()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L90"
+    },
+    {
+      "id": "utils_generateflowchartfromhooks",
+      "label": "generateFlowchartFromHooks()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L104"
+    },
+    {
+      "id": "utils_validatehookdefinition",
+      "label": "validateHookDefinition()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L172"
+    },
+    {
+      "id": "utils_tohookdefinition",
+      "label": "toHookDefinition()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L230"
+    },
+    {
+      "id": "utils_fromhookdefinition",
+      "label": "fromHookDefinition()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L246"
+    },
+    {
+      "id": "utils_generatehookcode",
+      "label": "generateHookCode()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L261"
+    },
+    {
+      "id": "utils_generatehookcodefile",
+      "label": "generateHookCodeFile()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L296"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_parser",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_visitor",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts",
+      "target": "utils_parsehookdefinition",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts",
+      "target": "utils_parsehooksfromflowchart",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts",
+      "target": "utils_generatehookcomment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L90",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts",
+      "target": "utils_generateflowchartfromhooks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L104",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts",
+      "target": "utils_validatehookdefinition",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L172",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts",
+      "target": "utils_tohookdefinition",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L230",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts",
+      "target": "utils_fromhookdefinition",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L246",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts",
+      "target": "utils_generatehookcode",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L261",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_utils_ts",
+      "target": "utils_generatehookcodefile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L296",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "utils_parsehookdefinition",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "utils_parsehookdefinition",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "utils_parsehookdefinition",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "utils_parsehookdefinition",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "utils_parsehooksfromflowchart",
+      "callee": "parseMultiple",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "utils_parsehooksfromflowchart",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "utils_generatehookcomment",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "utils_generatehookcomment",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "utils_generateflowchartfromhooks",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "utils_generateflowchartfromhooks",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "utils_generateflowchartfromhooks",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L160"
+    },
+    {
+      "caller_nid": "utils_validatehookdefinition",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "utils_validatehookdefinition",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L192"
+    },
+    {
+      "caller_nid": "utils_validatehookdefinition",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L196"
+    },
+    {
+      "caller_nid": "utils_validatehookdefinition",
+      "callee": "test",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L199"
+    },
+    {
+      "caller_nid": "utils_validatehookdefinition",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L200"
+    },
+    {
+      "caller_nid": "utils_validatehookdefinition",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L206"
+    },
+    {
+      "caller_nid": "utils_validatehookdefinition",
+      "callee": "test",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "utils_validatehookdefinition",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L210"
+    },
+    {
+      "caller_nid": "utils_generatehookcode",
+      "callee": "visitHookDefinition",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L270"
+    },
+    {
+      "caller_nid": "utils_generatehookcode",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L275"
+    },
+    {
+      "caller_nid": "utils_generatehookcode",
+      "callee": "from",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L288"
+    },
+    {
+      "caller_nid": "utils_generatehookcodefile",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L307"
+    },
+    {
+      "caller_nid": "utils_generatehookcodefile",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L313"
+    },
+    {
+      "caller_nid": "utils_generatehookcodefile",
+      "callee": "from",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/utils.ts",
+      "source_location": "L317"
+    }
+  ]
+}

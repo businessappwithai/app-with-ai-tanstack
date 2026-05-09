@@ -1,1 +1,392 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts", "label": "BusInsuranceProviderCreate.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L1"}, {"id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller", "label": "BusInsuranceProviderCreateController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L19"}, {"id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L22"}, {"id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata", "label": "._collectFormData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L27"}, {"id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_validateformdata", "label": "._validateFormData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L40"}, {"id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_cleanformdata", "label": "._cleanFormData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L52"}, {"id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "label": ".onSavePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L58"}, {"id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_oncancelpress", "label": ".onCancelPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L82"}, {"id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onnavback", "label": ".onNavBack()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L93"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts", "target": "jsonmodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts", "target": "odatamodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts", "target": "messagebox", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts", "target": "messagetoast", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts", "target": "router", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts", "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L19", "weight": 1.0}, {"source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller", "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L22", "weight": 1.0}, {"source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller", "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L27", "weight": 1.0}, {"source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller", "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_validateformdata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L40", "weight": 1.0}, {"source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller", "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_cleanformdata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L52", "weight": 1.0}, {"source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller", "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L58", "weight": 1.0}, {"source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller", "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_oncancelpress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L82", "weight": 1.0}, {"source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller", "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onnavback", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L93", "weight": 1.0}, {"source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L59", "weight": 1.0}, {"source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_validateformdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L60", "weight": 1.0}, {"source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_cleanformdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L67", "weight": 1.0}], "raw_calls": [{"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L24"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L24"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L30"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L31"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L32"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L33"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L34"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L35"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L36"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_validateformdata", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L47"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_validateformdata", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L48"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_validateformdata", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L48"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_cleanformdata", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L54"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_cleanformdata", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L54"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L62"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L63"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L63"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "callee": "bindList", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L64"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "callee": "create", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L67"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L68"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L68"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "callee": "created", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L68"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L77"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L78"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_oncancelpress", "callee": "confirm", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L83"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onnavback", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L94"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onnavback", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L94"}, {"caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onnavback", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts", "source_location": "L94"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts",
+      "label": "BusInsuranceProviderCreate.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller",
+      "label": "BusInsuranceProviderCreateController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L19"
+    },
+    {
+      "id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L22"
+    },
+    {
+      "id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata",
+      "label": "._collectFormData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_validateformdata",
+      "label": "._validateFormData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L40"
+    },
+    {
+      "id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_cleanformdata",
+      "label": "._cleanFormData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L52"
+    },
+    {
+      "id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "label": ".onSavePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L58"
+    },
+    {
+      "id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_oncancelpress",
+      "label": ".onCancelPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L82"
+    },
+    {
+      "id": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onnavback",
+      "label": ".onNavBack()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L93"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts",
+      "target": "jsonmodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts",
+      "target": "odatamodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts",
+      "target": "messagebox",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts",
+      "target": "messagetoast",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts",
+      "target": "router",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_businsuranceprovidercreate_controller_ts",
+      "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller",
+      "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller",
+      "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller",
+      "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_validateformdata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller",
+      "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_cleanformdata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller",
+      "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller",
+      "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_oncancelpress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L82",
+      "weight": 1.0
+    },
+    {
+      "source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller",
+      "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onnavback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_validateformdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "target": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_cleanformdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L67",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_validateformdata",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_validateformdata",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_validateformdata",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_cleanformdata",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_cleanformdata",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "callee": "bindList",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L64"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "callee": "create",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "callee": "created",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onsavepress",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_oncancelpress",
+      "callee": "confirm",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onnavback",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onnavback",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "businsuranceprovidercreate_controller_businsuranceprovidercreatecontroller_onnavback",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusInsuranceProviderCreate.controller.ts",
+      "source_location": "L94"
+    }
+  ]
+}

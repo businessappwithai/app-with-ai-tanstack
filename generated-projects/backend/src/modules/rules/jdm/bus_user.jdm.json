@@ -18,7 +18,7 @@
           { "id": "i2", "name": "First Name", "field": "first_name" },
           { "id": "i3", "name": "Last Name", "field": "last_name" },
           { "id": "i4", "name": "Role", "field": "role" },
-          { "id": "i5", "name": "Team Id", "field": "team_id" },
+          { "id": "i5", "name": "Team Id", "field": "team_id" }
         ],
         "outputs": [
           { "id": "o1", "name": "Action", "field": "action" },
@@ -60,7 +60,7 @@
             "o1": "prevent",
             "o2": "Is Active is required",
             "o3": "bus_user-is_active-required"
-          },
+          }
         ]
       }
     },

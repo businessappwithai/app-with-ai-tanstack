@@ -5,14 +5,14 @@
  */
 
 import {
-  ExceptionFilter,
+  type ArgumentsHost,
   Catch,
-  ArgumentsHost,
+  type ExceptionFilter,
   HttpException,
   HttpStatus,
   Logger,
-} from '@nestjs/common';
-import { FastifyReply, FastifyRequest } from 'fastify';
+} from "@nestjs/common";
+import type { FastifyReply, FastifyRequest } from "fastify";
 
 export interface ErrorResponse {
   statusCode: number;
@@ -26,10 +26,10 @@ export interface ErrorResponse {
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger('ExceptionFilter');
+  private readonly logger = new Logger("ExceptionFilter");
 
   catch(exception: unknown, host: ArgumentsHost) {
-    const methodName = 'catch';
+    const methodName = "catch";
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<FastifyReply>();
     const request = ctx.getRequest<FastifyRequest>();
@@ -42,24 +42,24 @@ export class HttpExceptionFilter implements ExceptionFilter {
     this.logger.error(`[${methodName}] Query Params: ${JSON.stringify(request.query)}`);
     this.logger.error(`[${methodName}] Route Params: ${JSON.stringify(request.params)}`);
     this.logger.error(
-      `[${methodName}] Headers: ${JSON.stringify(this.sanitizeHeaders(request.headers))}`,
+      `[${methodName}] Headers: ${JSON.stringify(this.sanitizeHeaders(request.headers))}`
     );
     this.logger.error(
-      `[${methodName}] User Agent: ${(request.headers as any)['user-agent'] || 'Unknown'}`,
+      `[${methodName}] User Agent: ${(request.headers as any)["user-agent"] || "Unknown"}`
     );
     this.logger.error(
-      `[${methodName}] Client IP: ${(request.headers as any)['x-forwarded-for'] || (request.headers as any)['x-real-ip'] || request.ip || 'Unknown'}`,
+      `[${methodName}] Client IP: ${(request.headers as any)["x-forwarded-for"] || (request.headers as any)["x-real-ip"] || request.ip || "Unknown"}`
     );
 
     // Log request body if present (excluding file uploads)
-    if ((request as any).body && !request.url.includes('/upload') && request.method !== 'GET') {
+    if ((request as any).body && !request.url.includes("/upload") && request.method !== "GET") {
       try {
         const bodyStr = JSON.stringify((request as any).body);
         if (bodyStr.length < 2000) {
           this.logger.error(`[${methodName}] Request Body: ${bodyStr}`);
         } else {
           this.logger.error(
-            `[${methodName}] Request Body: ${bodyStr.substring(0, 2000)}... (truncated)`,
+            `[${methodName}] Request Body: ${bodyStr.substring(0, 2000)}... (truncated)`
           );
         }
       } catch (e) {
@@ -68,9 +68,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'Internal server error';
-    let error = 'Internal Server Error';
-    let details: any = undefined;
+    let message = "Internal server error";
+    let error = "Internal Server Error";
+    let details: any;
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -80,9 +80,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
       this.logger.error(`[${methodName}] HTTP Status: ${status}`);
       this.logger.error(`[${methodName}] Exception Response:`, exceptionResponse);
 
-      if (typeof exceptionResponse === 'string') {
+      if (typeof exceptionResponse === "string") {
         message = exceptionResponse;
-      } else if (typeof exceptionResponse === 'object') {
+      } else if (typeof exceptionResponse === "object") {
         const responseObj = exceptionResponse as any;
         message = responseObj.message || message;
         error = responseObj.error || this.getErrorName(status);
@@ -90,7 +90,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
         // Log all keys from response object for debugging
         this.logger.error(
-          `[${methodName}] Response Object Keys: ${Object.keys(responseObj).join(', ')}`,
+          `[${methodName}] Response Object Keys: ${Object.keys(responseObj).join(", ")}`
         );
 
         // If message is an array (validation errors), log each error
@@ -134,15 +134,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (status >= 500) {
       this.logger.error(
         `[${methodName}] Server Error - ${request.method} ${request.url} - ${status}: ${message}`,
-        exception instanceof Error ? exception.stack : undefined,
+        exception instanceof Error ? exception.stack : undefined
       );
     } else if (status >= 400) {
       this.logger.warn(
-        `[${methodName}] Client Error - ${request.method} ${request.url} - ${status}: ${message}`,
+        `[${methodName}] Client Error - ${request.method} ${request.url} - ${status}: ${message}`
       );
     } else {
       this.logger.log(
-        `[${methodName}] Other Error - ${request.method} ${request.url} - ${status}: ${message}`,
+        `[${methodName}] Other Error - ${request.method} ${request.url} - ${status}: ${message}`
       );
     }
 
@@ -156,10 +156,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const sanitized = { ...headers };
 
     // Remove sensitive headers from logs
-    const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key'];
+    const sensitiveHeaders = ["authorization", "cookie", "x-api-key"];
     sensitiveHeaders.forEach((header) => {
       if (sanitized[header]) {
-        sanitized[header] = '[REDACTED]';
+        sanitized[header] = "[REDACTED]";
       }
     });
 
@@ -168,20 +168,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   private getErrorName(status: number): string {
     const errorNames: Record<number, string> = {
-      400: 'Bad Request',
-      401: 'Unauthorized',
-      403: 'Forbidden',
-      404: 'Not Found',
-      405: 'Method Not Allowed',
-      409: 'Conflict',
-      412: 'Precondition Failed',
-      422: 'Unprocessable Entity',
-      429: 'Too Many Requests',
-      500: 'Internal Server Error',
-      502: 'Bad Gateway',
-      503: 'Service Unavailable',
+      400: "Bad Request",
+      401: "Unauthorized",
+      403: "Forbidden",
+      404: "Not Found",
+      405: "Method Not Allowed",
+      409: "Conflict",
+      412: "Precondition Failed",
+      422: "Unprocessable Entity",
+      429: "Too Many Requests",
+      500: "Internal Server Error",
+      502: "Bad Gateway",
+      503: "Service Unavailable",
     };
 
-    return errorNames[status] || 'Unknown Error';
+    return errorNames[status] || "Unknown Error";
   }
 }

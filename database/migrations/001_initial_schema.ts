@@ -35,7 +35,12 @@ export async function up(knex: Knex): Promise<void> {
   // ERD Versions table - for history/versions feature
   await knex.schema.createTable("erd_versions", (table) => {
     table.string("id").primary();
-    table.string("project_id").notNullable().references("id").inTable("projects").onDelete("CASCADE");
+    table
+      .string("project_id")
+      .notNullable()
+      .references("id")
+      .inTable("projects")
+      .onDelete("CASCADE");
     table.integer("version_number").notNullable();
     table.text("mermaid_code").notNullable();
     table.text("description").nullable();
@@ -57,7 +62,12 @@ export async function up(knex: Knex): Promise<void> {
   // Workflows table - for workflow enhancement
   await knex.schema.createTable("workflows", (table) => {
     table.string("id").primary();
-    table.string("project_id").notNullable().references("id").inTable("projects").onDelete("CASCADE");
+    table
+      .string("project_id")
+      .notNullable()
+      .references("id")
+      .inTable("projects")
+      .onDelete("CASCADE");
     table.string("name").notNullable();
     table.string("service_name").notNullable();
     table.text("mermaid_code").notNullable();
@@ -79,7 +89,12 @@ export async function up(knex: Knex): Promise<void> {
   // Generation history table
   await knex.schema.createTable("generation_history", (table) => {
     table.string("id").primary();
-    table.string("project_id").notNullable().references("id").inTable("projects").onDelete("CASCADE");
+    table
+      .string("project_id")
+      .notNullable()
+      .references("id")
+      .inTable("projects")
+      .onDelete("CASCADE");
     table.string("stack_type").notNullable();
     table.string("status", 20).notNullable(); // pending, generating, completed, failed
 
@@ -103,7 +118,12 @@ export async function up(knex: Knex): Promise<void> {
   // Deployment table
   await knex.schema.createTable("deployments", (table) => {
     table.string("id").primary();
-    table.string("project_id").notNullable().references("id").inTable("projects").onDelete("CASCADE");
+    table
+      .string("project_id")
+      .notNullable()
+      .references("id")
+      .inTable("projects")
+      .onDelete("CASCADE");
     table.string("status", 20).defaultTo("stopped"); // running, stopped, error
 
     // Deployment info

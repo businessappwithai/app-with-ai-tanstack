@@ -15,34 +15,34 @@
  * Project: crm-app
  */
 
-'use client';
+"use client";
 
-import { useState, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient, PaginatedResponse } from '@/lib/api-client';
-import { useGridFields, type FieldMetadata } from '@/hooks/use-entities';
-import { DynamicTable } from '@/components/tables/dynamic-table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ChevronLeft,
+  FileText,
+  Plus,
+  RefreshCw,
+  Search,
+  SlidersHorizontal,
+  Trash2,
+  X,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
+import { DynamicTable } from "@/components/tables/dynamic-table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import {
-  Plus,
-  RefreshCw,
-  Search,
-  SlidersHorizontal,
-  X,
-  ChevronLeft,
-  Trash2,
-  FileText,
-} from 'lucide-react';
+} from "@/components/ui/select";
+import { type FieldMetadata, useGridFields } from "@/hooks/use-entities";
+import { apiClient, type PaginatedResponse } from "@/lib/api-client";
 
 interface EmailMessage {
   id: string;
@@ -63,25 +63,23 @@ interface EmailMessage {
 
 // Operators available for advanced search based on field type
 const TEXT_OPERATORS = [
-  { value: 'contains', label: 'Contains' },
-  { value: 'equals', label: 'Equals' },
-  { value: 'starts_with', label: 'Starts with' },
-  { value: 'ends_with', label: 'Ends with' },
-  { value: 'not_equals', label: 'Not equals' },
+  { value: "contains", label: "Contains" },
+  { value: "equals", label: "Equals" },
+  { value: "starts_with", label: "Starts with" },
+  { value: "ends_with", label: "Ends with" },
+  { value: "not_equals", label: "Not equals" },
 ];
 
 const NUMERIC_OPERATORS = [
-  { value: 'equals', label: '=' },
-  { value: 'not_equals', label: '!=' },
-  { value: 'gt', label: '>' },
-  { value: 'gte', label: '>=' },
-  { value: 'lt', label: '<' },
-  { value: 'lte', label: '<=' },
+  { value: "equals", label: "=" },
+  { value: "not_equals", label: "!=" },
+  { value: "gt", label: ">" },
+  { value: "gte", label: ">=" },
+  { value: "lt", label: "<" },
+  { value: "lte", label: "<=" },
 ];
 
-const BOOLEAN_OPERATORS = [
-  { value: 'equals', label: 'Is' },
-];
+const BOOLEAN_OPERATORS = [{ value: "equals", label: "Is" }];
 
 interface AdvancedFilter {
   id: string;
@@ -143,18 +141,18 @@ export default function EmailMessageListPage() {
   const [pageSize] = useState(20);
 
   // Quick Search (client-side)
-  const [quickSearch, setQuickSearch] = useState('');
+  const [quickSearch, setQuickSearch] = useState("");
 
   // Advanced Search
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilter[]>([]);
 
   // Fetch field metadata from sys_field for dynamic column rendering
-  const { data: gridFields } = useGridFields('bus_email_message');
+  const { data: gridFields } = useGridFields("bus_email_message");
 
   // Visible column names (from sys_field metadata) for quick search matching
   const visibleColumns = useMemo(() => {
-    if (!gridFields || gridFields.length === 0) return ['id', 'name'];
+    if (!gridFields || gridFields.length === 0) return ["id", "name"];
     return gridFields
       .filter((f) => f.is_displayed_grid)
       .sort((a, b) => a.seq_no_grid - b.seq_no_grid)
@@ -165,8 +163,13 @@ export default function EmailMessageListPage() {
   const filterParams = useMemo(() => buildFilterParams(advancedFilters), [advancedFilters]);
 
   // Fetch entity data with pagination and advanced filters
-  const { data: response, isLoading, error, refetch } = useQuery({
-    queryKey: ['email-message', 'list', page, pageSize, filterParams],
+  const {
+    data: response,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["email-message", "list", page, pageSize, filterParams],
     queryFn: () => {
       const params = new URLSearchParams({
         page: String(page),
@@ -193,13 +196,13 @@ export default function EmailMessageListPage() {
       await apiClient.delete(`/api/bus/bus_email_message/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['email-message'] });
+      queryClient.invalidateQueries({ queryKey: ["email-message"] });
     },
   });
 
   // Advanced filter management
   const addFilter = useCallback(() => {
-    const defaultField = visibleColumns[0] || '';
+    const defaultField = visibleColumns[0] || "";
     const defaultOps = gridFields
       ? getOperatorsForField(gridFields.find((f) => f.column_name === defaultField))
       : TEXT_OPERATORS;
@@ -208,16 +211,14 @@ export default function EmailMessageListPage() {
       {
         id: crypto.randomUUID(),
         field: defaultField,
-        operator: defaultOps[0]?.value || 'contains',
-        value: '',
+        operator: defaultOps[0]?.value || "contains",
+        value: "",
       },
     ]);
   }, [visibleColumns, gridFields]);
 
   const updateFilter = useCallback((id: string, updates: Partial<AdvancedFilter>) => {
-    setAdvancedFilters((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, ...updates } : f))
-    );
+    setAdvancedFilters((prev) => prev.map((f) => (f.id === id ? { ...f, ...updates } : f)));
   }, []);
 
   const removeFilter = useCallback((id: string) => {
@@ -226,7 +227,7 @@ export default function EmailMessageListPage() {
 
   const clearAllFilters = useCallback(() => {
     setAdvancedFilters([]);
-    setQuickSearch('');
+    setQuickSearch("");
     setPage(1);
   }, []);
 
@@ -243,7 +244,9 @@ export default function EmailMessageListPage() {
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/20 mb-4">
               <RefreshCw className="h-8 w-8 text-destructive" />
             </div>
-            <p className="text-destructive text-lg font-semibold">Error loading EmailMessage records</p>
+            <p className="text-destructive text-lg font-semibold">
+              Error loading EmailMessage records
+            </p>
             <p className="text-sm text-muted-foreground mt-2">
               Please check your connection and try again.
             </p>
@@ -277,10 +280,10 @@ export default function EmailMessageListPage() {
                   <FileText className="h-6 w-6" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground" data-testid="entity-heading">EmailMessage</h1>
-                  <p className="text-muted-foreground">
-                    EmailMessage entity
-                  </p>
+                  <h1 className="text-3xl font-bold text-foreground" data-testid="entity-heading">
+                    EmailMessage
+                  </h1>
+                  <p className="text-muted-foreground">EmailMessage entity</p>
                 </div>
               </div>
             </div>
@@ -290,7 +293,11 @@ export default function EmailMessageListPage() {
                 Refresh
               </Button>
               <Link href="/bus_email_message/new">
-                <Button size="sm" data-testid="create-new-button" className="shadow-md shadow-primary/20">
+                <Button
+                  size="sm"
+                  data-testid="create-new-button"
+                  className="shadow-md shadow-primary/20"
+                >
                   <Plus className="mr-2 h-4 w-4" />
                   Create New
                 </Button>
@@ -299,199 +306,202 @@ export default function EmailMessageListPage() {
           </div>
         </div>
 
-      {/* Search Bar - Enhanced Design */}
-      <div className="space-y-4">
-        {/* Quick Search + Advanced Toggle */}
-        <div className="flex items-center gap-3">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground/70" />
-            <Input
-              placeholder="Quick search across all columns..."
-              value={quickSearch}
-              onChange={(e) => setQuickSearch(e.target.value)}
-              className="pl-10 h-10 bg-background/80 backdrop-blur-sm border-border/60 focus:border-primary/50 focus:ring-primary/20 shadow-sm"
-            />
-            {quickSearch && (
-              <button
-                onClick={() => setQuickSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground transition-colors"
+        {/* Search Bar - Enhanced Design */}
+        <div className="space-y-4">
+          {/* Quick Search + Advanced Toggle */}
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground/70" />
+              <Input
+                placeholder="Quick search across all columns..."
+                value={quickSearch}
+                onChange={(e) => setQuickSearch(e.target.value)}
+                className="pl-10 h-10 bg-background/80 backdrop-blur-sm border-border/60 focus:border-primary/50 focus:ring-primary/20 shadow-sm"
+              />
+              {quickSearch && (
+                <button
+                  onClick={() => setQuickSearch("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            <Button
+              variant={showAdvanced ? "default" : "outline"}
+              size="default"
+              onClick={() => {
+                setShowAdvanced(!showAdvanced);
+                if (!showAdvanced && advancedFilters.length === 0) {
+                  addFilter();
+                }
+              }}
+              className={
+                showAdvanced
+                  ? "shadow-md shadow-primary/20"
+                  : "shadow-sm hover:shadow-md transition-shadow"
+              }
+            >
+              <SlidersHorizontal className="mr-2 h-4 w-4" />
+              Advanced
+              {activeFilterCount > 0 && (
+                <span className="ml-1.5 flex h-5.5 w-5.5 items-center justify-center rounded-full bg-primary-foreground text-primary text-xs font-semibold shadow-sm">
+                  {activeFilterCount}
+                </span>
+              )}
+            </Button>
+            {(quickSearch || activeFilterCount > 0) && (
+              <Button
+                variant="ghost"
+                size="default"
+                onClick={clearAllFilters}
+                className="hover:bg-muted/50"
               >
-                <X className="h-4 w-4" />
-              </button>
+                Clear all
+              </Button>
             )}
           </div>
-          <Button
-            variant={showAdvanced ? 'default' : 'outline'}
-            size="default"
-            onClick={() => {
-              setShowAdvanced(!showAdvanced);
-              if (!showAdvanced && advancedFilters.length === 0) {
-                addFilter();
-              }
-            }}
-            className={showAdvanced ? 'shadow-md shadow-primary/20' : 'shadow-sm hover:shadow-md transition-shadow'}
-          >
-            <SlidersHorizontal className="mr-2 h-4 w-4" />
-            Advanced
-            {activeFilterCount > 0 && (
-              <span className="ml-1.5 flex h-5.5 w-5.5 items-center justify-center rounded-full bg-primary-foreground text-primary text-xs font-semibold shadow-sm">
-                {activeFilterCount}
-              </span>
-            )}
-          </Button>
-          {(quickSearch || activeFilterCount > 0) && (
-            <Button variant="ghost" size="default" onClick={clearAllFilters} className="hover:bg-muted/50">
-              Clear all
-            </Button>
+
+          {/* Advanced Search Panel - Enhanced Design */}
+          {showAdvanced && (
+            <div className="rounded-xl border border-border/60 bg-gradient-to-br from-muted/40 to-muted/20 backdrop-blur-sm p-5 shadow-sm space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-border/40">
+                <div className="flex items-center gap-2">
+                  <SlidersHorizontal className="h-4.5 w-4.5 text-primary/70" />
+                  <h3 className="text-sm font-semibold text-foreground">Advanced Search</h3>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={addFilter} className="shadow-sm">
+                    <Plus className="mr-1.5 h-3.5 w-3.5" />
+                    Add Filter
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={applyAdvancedSearch}
+                    className="shadow-md shadow-primary/20"
+                  >
+                    <Search className="mr-1.5 h-3.5 w-3.5" />
+                    Apply
+                  </Button>
+                </div>
+              </div>
+
+              {advancedFilters.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted/50 mb-3">
+                    <Search className="h-6 w-6 text-muted-foreground/50" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    No filters added. Click &quot;Add Filter&quot; to build a search query.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {advancedFilters.map((filter) => {
+                    const selectedField = gridFields?.find((f) => f.column_name === filter.field);
+                    const operators = getOperatorsForField(selectedField);
+
+                    return (
+                      <div key={filter.id} className="flex items-center gap-2.5">
+                        {/* Field Selector */}
+                        <Select
+                          value={filter.field}
+                          onValueChange={(value) => {
+                            const newField = gridFields?.find((f) => f.column_name === value);
+                            const newOps = getOperatorsForField(newField);
+                            updateFilter(filter.id, {
+                              field: value,
+                              operator: newOps[0]?.value || "contains",
+                              value: "",
+                            });
+                          }}
+                        >
+                          <SelectTrigger className="w-[200px] bg-background/80 backdrop-blur-sm border-border/60 shadow-sm">
+                            <SelectValue placeholder="Select field" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {gridFields
+                              ?.filter((f) => f.is_displayed_grid)
+                              .sort((a, b) => a.seq_no_grid - b.seq_no_grid)
+                              .map((f) => (
+                                <SelectItem key={f.column_name} value={f.column_name}>
+                                  {f.name || f.column_name}
+                                </SelectItem>
+                              )) ||
+                              visibleColumns.map((col) => (
+                                <SelectItem key={col} value={col}>
+                                  {col}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+
+                        {/* Operator Selector */}
+                        <Select
+                          value={filter.operator}
+                          onValueChange={(value) => updateFilter(filter.id, { operator: value })}
+                        >
+                          <SelectTrigger className="w-[140px] bg-background/80 backdrop-blur-sm border-border/60 shadow-sm">
+                            <SelectValue placeholder="Operator" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {operators.map((op) => (
+                              <SelectItem key={op.value} value={op.value}>
+                                {op.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        {/* Value Input */}
+                        <Input
+                          placeholder="Value..."
+                          value={filter.value}
+                          onChange={(e) => updateFilter(filter.id, { value: e.target.value })}
+                          className="flex-1 bg-background/80 backdrop-blur-sm border-border/60 shadow-sm"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              applyAdvancedSearch();
+                            }
+                          }}
+                        />
+
+                        {/* Remove Filter */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeFilter(filter.id)}
+                          className="shrink-0 hover:bg-muted/50"
+                        >
+                          <Trash2 className="h-4 w-4 text-muted-foreground/70" />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           )}
         </div>
 
-        {/* Advanced Search Panel - Enhanced Design */}
-        {showAdvanced && (
-          <div className="rounded-xl border border-border/60 bg-gradient-to-br from-muted/40 to-muted/20 backdrop-blur-sm p-5 shadow-sm space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-border/40">
-              <div className="flex items-center gap-2">
-                <SlidersHorizontal className="h-4.5 w-4.5 text-primary/70" />
-                <h3 className="text-sm font-semibold text-foreground">Advanced Search</h3>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={addFilter} className="shadow-sm">
-                  <Plus className="mr-1.5 h-3.5 w-3.5" />
-                  Add Filter
-                </Button>
-                <Button size="sm" onClick={applyAdvancedSearch} className="shadow-md shadow-primary/20">
-                  <Search className="mr-1.5 h-3.5 w-3.5" />
-                  Apply
-                </Button>
-              </div>
-            </div>
-
-            {advancedFilters.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted/50 mb-3">
-                  <Search className="h-6 w-6 text-muted-foreground/50" />
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  No filters added. Click &quot;Add Filter&quot; to build a search query.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {advancedFilters.map((filter) => {
-                  const selectedField = gridFields?.find(
-                    (f) => f.column_name === filter.field
-                  );
-                  const operators = getOperatorsForField(selectedField);
-
-                  return (
-                    <div key={filter.id} className="flex items-center gap-2.5">
-                      {/* Field Selector */}
-                      <Select
-                        value={filter.field}
-                        onValueChange={(value) => {
-                          const newField = gridFields?.find((f) => f.column_name === value);
-                          const newOps = getOperatorsForField(newField);
-                          updateFilter(filter.id, {
-                            field: value,
-                            operator: newOps[0]?.value || 'contains',
-                            value: '',
-                          });
-                        }}
-                      >
-                        <SelectTrigger className="w-[200px] bg-background/80 backdrop-blur-sm border-border/60 shadow-sm">
-                          <SelectValue placeholder="Select field" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {gridFields
-                            ?.filter((f) => f.is_displayed_grid)
-                            .sort((a, b) => a.seq_no_grid - b.seq_no_grid)
-                            .map((f) => (
-                              <SelectItem key={f.column_name} value={f.column_name}>
-                                {f.name || f.column_name}
-                              </SelectItem>
-                            )) ||
-                            visibleColumns.map((col) => (
-                              <SelectItem key={col} value={col}>
-                                {col}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-
-                      {/* Operator Selector */}
-                      <Select
-                        value={filter.operator}
-                        onValueChange={(value) =>
-                          updateFilter(filter.id, { operator: value })
-                        }
-                      >
-                        <SelectTrigger className="w-[140px] bg-background/80 backdrop-blur-sm border-border/60 shadow-sm">
-                          <SelectValue placeholder="Operator" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {operators.map((op) => (
-                            <SelectItem key={op.value} value={op.value}>
-                              {op.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-
-                      {/* Value Input */}
-                      <Input
-                        placeholder="Value..."
-                        value={filter.value}
-                        onChange={(e) =>
-                          updateFilter(filter.id, { value: e.target.value })
-                        }
-                        className="flex-1 bg-background/80 backdrop-blur-sm border-border/60 shadow-sm"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            applyAdvancedSearch();
-                          }
-                        }}
-                      />
-
-                      {/* Remove Filter */}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeFilter(filter.id)}
-                        className="shrink-0 hover:bg-muted/50"
-                      >
-                        <Trash2 className="h-4 w-4 text-muted-foreground/70" />
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
+        {/* Data Table (columns dynamically rendered from sys_field via DynamicTable) */}
+        <DynamicTable
+          tableName="bus_email_message"
+          data={filteredData}
+          isLoading={isLoading}
+          totalCount={quickSearch ? filteredData.length : response?.meta?.total || 0}
+          onView={(id) => router.push(`/bus_email_message/${id}`)}
+          onEdit={(id) => router.push(`/bus_email_message/${id}`)}
+          onDelete={(id) => {
+            if (confirm("Are you sure you want to delete this record?")) {
+              deleteMutation.mutate(id);
+            }
+          }}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+        />
       </div>
-
-      {/* Data Table (columns dynamically rendered from sys_field via DynamicTable) */}
-      <DynamicTable
-        tableName="bus_email_message"
-        data={filteredData}
-        isLoading={isLoading}
-        totalCount={
-          quickSearch
-            ? filteredData.length
-            : response?.meta?.total || 0
-        }
-        onView={(id) => router.push(`/bus_email_message/${id}`)}
-        onEdit={(id) => router.push(`/bus_email_message/${id}`)}
-        onDelete={(id) => {
-          if (confirm('Are you sure you want to delete this record?')) {
-            deleteMutation.mutate(id);
-          }
-        }}
-        page={page}
-        pageSize={pageSize}
-        onPageChange={setPage}
-      />
-    </div>
     </div>
   );
 }

@@ -1,6 +1,5 @@
-import { globalHookExecutor } from '../hooks/hook-executor';
-import type { IWorkflowService } from '../workflow/workflow.types.js';
-import type { TriggerWorkflowPayload } from '../workflow/workflow.types.js';
+import { globalHookExecutor } from "../hooks/hook-executor";
+import type { IWorkflowService, TriggerWorkflowPayload } from "../workflow/workflow.types.js";
 
 export abstract class BaseService<T> {
   protected abstract entityName: string;
@@ -9,72 +8,48 @@ export abstract class BaseService<T> {
 
   async create(data: Partial<T>): Promise<T> {
     // Before hooks
-    const processed = await globalHookExecutor.execute(
-      this.entityName,
-      'beforeCreate',
-      data
-    );
+    const processed = await globalHookExecutor.execute(this.entityName, "beforeCreate", data);
 
     // Perform DB operation
     const result = await this.performCreate(processed);
 
     // Trigger workflow (non-blocking)
-    await this.triggerWorkflow('CREATE', (result as Record<string, unknown>)['id'] as string);
+    await this.triggerWorkflow("CREATE", (result as Record<string, unknown>)["id"] as string);
 
     // After hooks
-    await globalHookExecutor.execute(
-      this.entityName,
-      'afterCreate',
-      result
-    );
+    await globalHookExecutor.execute(this.entityName, "afterCreate", result);
 
     return result;
   }
 
   async update(id: string, data: Partial<T>): Promise<T> {
     // Before hooks
-    const processed = await globalHookExecutor.execute(
-      this.entityName,
-      'beforeUpdate',
-      data
-    );
+    const processed = await globalHookExecutor.execute(this.entityName, "beforeUpdate", data);
 
     // Perform DB operation
     const result = await this.performUpdate(id, processed);
 
     // Trigger workflow (non-blocking)
-    await this.triggerWorkflow('UPDATE', id);
+    await this.triggerWorkflow("UPDATE", id);
 
     // After hooks
-    await globalHookExecutor.execute(
-      this.entityName,
-      'afterUpdate',
-      result
-    );
+    await globalHookExecutor.execute(this.entityName, "afterUpdate", result);
 
     return result;
   }
 
   async delete(id: string): Promise<void> {
     // Before hooks
-    await globalHookExecutor.execute(
-      this.entityName,
-      'beforeDelete',
-      { id }
-    );
+    await globalHookExecutor.execute(this.entityName, "beforeDelete", { id });
 
     // Trigger workflow before delete (non-blocking)
-    await this.triggerWorkflow('DELETE', id);
+    await this.triggerWorkflow("DELETE", id);
 
     // Perform DB operation
     await this.performDelete(id);
 
     // After hooks
-    await globalHookExecutor.execute(
-      this.entityName,
-      'afterDelete',
-      { id }
-    );
+    await globalHookExecutor.execute(this.entityName, "afterDelete", { id });
   }
 
   /**
@@ -95,7 +70,7 @@ export abstract class BaseService<T> {
    * Trigger workflow for entity operation
    */
   protected async triggerWorkflow(
-    operation: 'CREATE' | 'UPDATE' | 'DELETE',
+    operation: "CREATE" | "UPDATE" | "DELETE",
     entityId: string
   ): Promise<void> {
     if (!this.workflowService) {
@@ -115,7 +90,7 @@ export abstract class BaseService<T> {
       await this.workflowService.trigger(payload);
     } catch (error) {
       // Log error but don't block the operation
-      console.error('Failed to trigger workflow:', error);
+      console.error("Failed to trigger workflow:", error);
     }
   }
 

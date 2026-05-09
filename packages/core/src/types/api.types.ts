@@ -2,7 +2,7 @@ export interface PaginationParams {
   page: number;
   pageSize: number;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 export interface PaginatedResponse<T> {
@@ -24,6 +24,6 @@ export interface ApiResponse<T> {
 
 export interface FilterParams {
   field: string;
-  operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'in';
+  operator: "eq" | "ne" | "gt" | "gte" | "lt" | "lte" | "like" | "in";
   value: unknown;
 }

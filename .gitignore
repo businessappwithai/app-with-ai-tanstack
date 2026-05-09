@@ -73,3 +73,4 @@ test-output/
 *.mermaid
 *.generated.*
 .gstack/
+.playwright-mcp/

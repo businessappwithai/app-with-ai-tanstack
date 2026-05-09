@@ -9,7 +9,7 @@
  * Auto-generated file
  */
 
-import { translate } from './translations';
+import { translate } from "./translations";
 
 /**
  * Convert a string to snake_case for i18n keys
@@ -17,8 +17,8 @@ import { translate } from './translations';
 function toSnakeCase(str: string): string {
   return str
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '');
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
 }
 
 /**
@@ -34,7 +34,7 @@ export function generateFieldI18nKey(
   fieldName: string
 ): string {
   // Remove 'bus_' prefix from table name
-  const entity = tableName.replace(/^bus_/, '');
+  const entity = tableName.replace(/^bus_/, "");
   const entityKey = toSnakeCase(entity);
   const tabKey = toSnakeCase(tabName);
   const fieldKey = toSnakeCase(fieldName);
@@ -67,7 +67,7 @@ export function getFieldLabel(
   }
 
   // Fallback to entity_field format (less specific)
-  const entity = tableName.replace(/^bus_/, '');
+  const entity = tableName.replace(/^bus_/, "");
   const entityKey = toSnakeCase(entity);
   const fieldKey = toSnakeCase(fieldName);
   const simpleKey = `fields.${entityKey}_${fieldKey}`;
@@ -87,16 +87,16 @@ export function getFieldLabel(
  * @returns Translated entity name
  */
 export function getEntityLabel(tableName: string): string {
-  const entity = tableName.replace(/^bus_/, '');
+  const entity = tableName.replace(/^bus_/, "");
   const key = `entities.${toSnakeCase(entity)}`;
   const translated = translate(key);
 
   // If translation not found, return formatted entity name
   if (translated === key) {
     return entity
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   }
 
   return translated;
@@ -109,7 +109,7 @@ export function getEntityLabel(tableName: string): string {
  * @returns Translated tab name
  */
 export function getTabLabel(tableName: string, tabName: string): string {
-  const entity = tableName.replace(/^bus_/, '');
+  const entity = tableName.replace(/^bus_/, "");
   const key = `tabs.${toSnakeCase(entity)}.${toSnakeCase(tabName)}`;
   const translated = translate(key);
 

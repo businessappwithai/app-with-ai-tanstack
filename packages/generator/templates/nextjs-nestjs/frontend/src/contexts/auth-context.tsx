@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Authentication Context
@@ -7,8 +7,8 @@
  * Uses HTTP-only cookies managed by the backend.
  */
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getSession, signIn, signOut } from '@/lib/auth';
+import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
+import { getSession, signIn, signOut } from "@/lib/auth";
 
 // ============================================================================
 // Types
@@ -67,7 +67,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setUser(userData);
         }
       } catch (error) {
-        console.error('Failed to load session:', error);
+        console.error("Failed to load session:", error);
       } finally {
         if (mounted) {
           setIsLoading(false);
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const { data, error } = await signIn(email, password);
 
     if (error || !data) {
-      throw new Error(error || 'Login failed');
+      throw new Error(error || "Login failed");
     }
 
     // Extract user from response
@@ -130,7 +130,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const isAdmin = (): boolean => {
-    return hasAnyRole(['System Administrator', 'Administrator', 'admin']);
+    return hasAnyRole(["System Administrator", "Administrator", "admin"]);
   };
 
   const value: AuthContextValue = {
@@ -155,7 +155,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 }
@@ -186,8 +186,8 @@ export function withAuth<P extends object>(
     }
 
     if (!isAuthenticated) {
-      if (typeof window !== 'undefined') {
-        window.location.href = '/auth/login';
+      if (typeof window !== "undefined") {
+        window.location.href = "/auth/login";
       }
       return fallback;
     }
@@ -197,7 +197,9 @@ export function withAuth<P extends object>(
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
-            <p className="text-muted-foreground mt-2">You need administrator privileges to access this page.</p>
+            <p className="text-muted-foreground mt-2">
+              You need administrator privileges to access this page.
+            </p>
           </div>
         </div>
       );
@@ -208,7 +210,9 @@ export function withAuth<P extends object>(
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
-            <p className="text-muted-foreground mt-2">You do not have permission to access this page.</p>
+            <p className="text-muted-foreground mt-2">
+              You do not have permission to access this page.
+            </p>
           </div>
         </div>
       );

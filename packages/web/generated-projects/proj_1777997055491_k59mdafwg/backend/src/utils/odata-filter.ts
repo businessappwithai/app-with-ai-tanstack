@@ -4,7 +4,7 @@
  */
 
 interface FilterNode {
-  type: 'binary' | 'unary' | 'literal' | 'property';
+  type: "binary" | "unary" | "literal" | "property";
   operator?: string;
   left?: FilterNode;
   right?: FilterNode;
@@ -16,10 +16,10 @@ interface FilterNode {
  */
 function parseODataFilter(filter: string): FilterNode {
   // Remove whitespace
-  filter = filter.replace(/\s+/g, ' ').trim();
+  filter = filter.replace(/\s+/g, " ").trim();
 
   // Handle parentheses
-  if (filter.startsWith('(') && filter.endsWith(')')) {
+  if (filter.startsWith("(") && filter.endsWith(")")) {
     return parseODataFilter(filter.slice(1, -1));
   }
 
@@ -27,20 +27,20 @@ function parseODataFilter(filter: string): FilterNode {
   const orMatch = filter.match(/(.+?)\s+or\s+(.+)/i);
   if (orMatch) {
     return {
-      type: 'binary',
-      operator: 'or',
+      type: "binary",
+      operator: "or",
       left: parseODataFilter(orMatch[1]),
-      right: parseODataFilter(orMatch[2])
+      right: parseODataFilter(orMatch[2]),
     };
   }
 
   const andMatch = filter.match(/(.+?)\s+and\s+(.+)/i);
   if (andMatch) {
     return {
-      type: 'binary',
-      operator: 'and',
+      type: "binary",
+      operator: "and",
       left: parseODataFilter(andMatch[1]),
-      right: parseODataFilter(andMatch[2])
+      right: parseODataFilter(andMatch[2]),
     };
   }
 
@@ -52,54 +52,57 @@ function parseODataFilter(filter: string): FilterNode {
     const value = functionMatch[3].trim();
 
     return {
-      type: 'binary',
+      type: "binary",
       operator: functionName,
-      left: { type: 'property', value: field },
-      right: { type: 'literal', value: parseLiteral(value) }
+      left: { type: "property", value: field },
+      right: { type: "literal", value: parseLiteral(value) },
     };
   }
 
   // Handle binary comparison operators
   const binaryOperators = [
-    { regex: /(.+?)\s+(eq|ne|gt|ge|lt|le)\s+(.+)/i, types: ['string', 'number', 'boolean', 'date'] }
+    {
+      regex: /(.+?)\s+(eq|ne|gt|ge|lt|le)\s+(.+)/i,
+      types: ["string", "number", "boolean", "date"],
+    },
   ];
 
   for (const op of binaryOperators) {
     const match = filter.match(op.regex);
     if (match) {
       return {
-        type: 'binary',
+        type: "binary",
         operator: match[2].toLowerCase(),
-        left: { type: 'property', value: match[1] },
-        right: { type: 'literal', value: parseLiteral(match[3]) }
+        left: { type: "property", value: match[1] },
+        right: { type: "literal", value: parseLiteral(match[3]) },
       };
     }
   }
 
   // Handle unary not operator
-  if (filter.toLowerCase().startsWith('not ')) {
+  if (filter.toLowerCase().startsWith("not ")) {
     return {
-      type: 'unary',
-      operator: 'not',
-      right: parseODataFilter(filter.slice(4))
+      type: "unary",
+      operator: "not",
+      right: parseODataFilter(filter.slice(4)),
     };
   }
 
   // Handle simple property or literal
   if (filter.startsWith("'") && filter.endsWith("'")) {
-    return { type: 'literal', value: filter.slice(1, -1) };
+    return { type: "literal", value: filter.slice(1, -1) };
   }
 
-  if (filter === 'true' || filter === 'false') {
-    return { type: 'literal', value: filter === 'true' };
+  if (filter === "true" || filter === "false") {
+    return { type: "literal", value: filter === "true" };
   }
 
   if (!isNaN(Number(filter))) {
-    return { type: 'literal', value: Number(filter) };
+    return { type: "literal", value: Number(filter) };
   }
 
   // Default: property
-  return { type: 'property', value: filter };
+  return { type: "property", value: filter };
 }
 
 /**
@@ -114,8 +117,8 @@ function parseLiteral(value: string): any {
   }
 
   // Boolean
-  if (value === 'true') return true;
-  if (value === 'false') return false;
+  if (value === "true") return true;
+  if (value === "false") return false;
 
   // Number
   if (!isNaN(Number(value))) return Number(value);
@@ -132,37 +135,61 @@ function parseLiteral(value: string): any {
  * Convert OData type to simple type for SQL operator mapping
  */
 function getSimpleType(odataType: string): string {
-  if (odataType.startsWith('Edm.String') || odataType === 'string') return 'string';
-  if (odataType.startsWith('Edm.Int') || odataType.startsWith('Edm.') && odataType.includes('Int')) return 'number';
-  if (odataType === 'Edm.Boolean' || odataType === 'boolean') return 'boolean';
-  if (odataType.startsWith('Edm.DateTime') || odataType.startsWith('Edm.Date')) return 'date';
-  if (odataType.startsWith('Edm.Decimal') || odataType.startsWith('Edm.Double') || odataType.startsWith('Edm.Single')) return 'number';
-  return 'string'; // Default to string
+  if (odataType.startsWith("Edm.String") || odataType === "string") return "string";
+  if (
+    odataType.startsWith("Edm.Int") ||
+    (odataType.startsWith("Edm.") && odataType.includes("Int"))
+  )
+    return "number";
+  if (odataType === "Edm.Boolean" || odataType === "boolean") return "boolean";
+  if (odataType.startsWith("Edm.DateTime") || odataType.startsWith("Edm.Date")) return "date";
+  if (
+    odataType.startsWith("Edm.Decimal") ||
+    odataType.startsWith("Edm.Double") ||
+    odataType.startsWith("Edm.Single")
+  )
+    return "number";
+  return "string"; // Default to string
 }
 
 /**
  * Get SQL LIKE operator compatible with the current database type.
  * PostgreSQL supports ILIKE (case-insensitive), SQLite uses LIKE (case-insensitive for ASCII).
  */
-const likeOperator = (process.env.DB_TYPE || 'sqlite') === 'postgresql' ? 'ILIKE' : 'LIKE';
+const likeOperator = (process.env.DB_TYPE || "sqlite") === "postgresql" ? "ILIKE" : "LIKE";
 
 /**
  * Get SQL operator from OData operator
  */
 function getSQLOperator(odataOperator: string, valueType: string): string {
   const operators: Record<string, Record<string, string>> = {
-    eq: { string: '=', number: '=', boolean: '=', date: '=' },
-    ne: { string: '!=', number: '!=', boolean: '!=', date: '!=' },
-    gt: { string: '>', number: '>', date: '>' },
-    ge: { string: '>=', number: '>=', date: '>=' },
-    lt: { string: '<', number: '<', date: '<' },
-    le: { string: '<=', number: '<=', date: '<=' },
-    contains: { string: likeOperator, number: likeOperator, boolean: likeOperator, date: likeOperator },
-    startswith: { string: likeOperator, number: likeOperator, boolean: likeOperator, date: likeOperator },
-    endswith: { string: likeOperator, number: likeOperator, boolean: likeOperator, date: likeOperator }
+    eq: { string: "=", number: "=", boolean: "=", date: "=" },
+    ne: { string: "!=", number: "!=", boolean: "!=", date: "!=" },
+    gt: { string: ">", number: ">", date: ">" },
+    ge: { string: ">=", number: ">=", date: ">=" },
+    lt: { string: "<", number: "<", date: "<" },
+    le: { string: "<=", number: "<=", date: "<=" },
+    contains: {
+      string: likeOperator,
+      number: likeOperator,
+      boolean: likeOperator,
+      date: likeOperator,
+    },
+    startswith: {
+      string: likeOperator,
+      number: likeOperator,
+      boolean: likeOperator,
+      date: likeOperator,
+    },
+    endswith: {
+      string: likeOperator,
+      number: likeOperator,
+      boolean: likeOperator,
+      date: likeOperator,
+    },
   };
 
-  return operators[odataOperator]?.[valueType] || '=';
+  return operators[odataOperator]?.[valueType] || "=";
 }
 
 /**
@@ -174,23 +201,23 @@ export function buildWhereClause(
   paramOffset: number = 0
 ): { sql: string; params: any[] } {
   if (!ast) {
-    return { sql: '', params: [] };
+    return { sql: "", params: [] };
   }
 
   switch (ast.type) {
-    case 'binary': {
-      if (ast.operator === 'and' || ast.operator === 'or') {
+    case "binary": {
+      if (ast.operator === "and" || ast.operator === "or") {
         const left = buildWhereClause(ast.left!, columnInfo, paramOffset);
         const right = buildWhereClause(ast.right!, columnInfo, paramOffset + left.params.length);
 
         return {
-          sql: '(' + left.sql + ' ' + ast.operator.toUpperCase() + ' ' + right.sql + ')',
-          params: [...left.params, ...right.params]
+          sql: "(" + left.sql + " " + ast.operator.toUpperCase() + " " + right.sql + ")",
+          params: [...left.params, ...right.params],
         };
       }
 
       // Comparison operators
-      if (ast.left?.type === 'property' && ast.right?.type === 'literal') {
+      if (ast.left?.type === "property" && ast.right?.type === "literal") {
         const column = ast.left.value;
         const info = columnInfo.get(column);
 
@@ -203,41 +230,41 @@ export function buildWhereClause(
         let value = ast.right.value;
 
         // Handle contains, startswith, endswith with wildcards
-        if (ast.operator === 'contains') {
-          value = '%' + value + '%';
-        } else if (ast.operator === 'startswith') {
-          value = value + '%';
-        } else if (ast.operator === 'endswith') {
-          value = '%' + value;
+        if (ast.operator === "contains") {
+          value = "%" + value + "%";
+        } else if (ast.operator === "startswith") {
+          value = value + "%";
+        } else if (ast.operator === "endswith") {
+          value = "%" + value;
         }
 
         // Use ? placeholder for Knex
         return {
           sql: `${info.columnName} ${sqlOp} ?`,
-          params: [value]
+          params: [value],
         };
       }
 
-      throw new Error('Invalid binary expression: ' + JSON.stringify(ast));
+      throw new Error("Invalid binary expression: " + JSON.stringify(ast));
     }
 
-    case 'unary': {
-      if (ast.operator === 'not') {
+    case "unary": {
+      if (ast.operator === "not") {
         const operand = buildWhereClause(ast.right!, columnInfo, paramOffset);
         return {
-          sql: 'NOT (' + operand.sql + ')',
-          params: operand.params
+          sql: "NOT (" + operand.sql + ")",
+          params: operand.params,
         };
       }
-      throw new Error('Unknown unary operator: ' + ast.operator);
+      throw new Error("Unknown unary operator: " + ast.operator);
     }
 
-    case 'literal':
-    case 'property':
-      throw new Error('Unexpected ' + ast.type + ' in filter expression');
+    case "literal":
+    case "property":
+      throw new Error("Unexpected " + ast.type + " in filter expression");
 
     default:
-      throw new Error('Unknown node type: ' + (ast as any).type);
+      throw new Error("Unknown node type: " + (ast as any).type);
   }
 }
 
@@ -250,16 +277,16 @@ export function parseFilter(
   propertyNameMap?: Map<string, string>
 ): { sql: string; params: any[] } {
   if (!filter) {
-    return { sql: '', params: [] };
+    return { sql: "", params: [] };
   }
 
   // Build column info map with property name mapping support
   const columnInfo = new Map();
-  columns.forEach(col => {
+  columns.forEach((col) => {
     // Map actual column name
     columnInfo.set(col.columnName, {
       type: col.dataType,
-      columnName: col.columnName
+      columnName: col.columnName,
     });
 
     // Also map PascalCase variant if mapping provided
@@ -268,7 +295,7 @@ export function parseFilter(
         if (dbColName === col.columnName && odataName !== col.columnName) {
           columnInfo.set(odataName, {
             type: col.dataType,
-            columnName: col.columnName
+            columnName: col.columnName,
           });
         }
       }

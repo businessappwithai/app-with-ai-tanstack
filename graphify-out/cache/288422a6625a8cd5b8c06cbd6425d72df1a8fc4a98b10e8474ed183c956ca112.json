@@ -1,1 +1,167 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_gorules_route_ts", "label": "route.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L1"}, {"id": "route_post", "label": "POST()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L4"}, {"id": "route_get", "label": "GET()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L63"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_gorules_route_ts", "target": "server", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L1", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_gorules_route_ts", "target": "services", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L2", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_gorules_route_ts", "target": "route_post", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L4", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_gorules_route_ts", "target": "route_get", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L63", "weight": 1.0}], "raw_calls": [{"caller_nid": "route_post", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L12"}, {"caller_nid": "route_post", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L17"}, {"caller_nid": "route_post", "callee": "isArray", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L27"}, {"caller_nid": "route_post", "callee": "isArray", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L27"}, {"caller_nid": "route_post", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L28"}, {"caller_nid": "route_post", "callee": "saveGoRules", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L38"}, {"caller_nid": "route_post", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L43"}, {"caller_nid": "route_post", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L46"}, {"caller_nid": "route_post", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L51"}, {"caller_nid": "route_post", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L52"}, {"caller_nid": "route_get", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L76"}, {"caller_nid": "route_get", "callee": "getGoRules", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L86"}, {"caller_nid": "route_get", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L94"}, {"caller_nid": "route_get", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L103"}, {"caller_nid": "route_get", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L105"}, {"caller_nid": "route_get", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L108"}, {"caller_nid": "route_get", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts", "source_location": "L109"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_gorules_route_ts",
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "route_post",
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L4"
+    },
+    {
+      "id": "route_get",
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L63"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_gorules_route_ts",
+      "target": "server",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_gorules_route_ts",
+      "target": "services",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_gorules_route_ts",
+      "target": "route_post",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_workflows_servicename_gorules_route_ts",
+      "target": "route_get",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L63",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "route_post",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L12"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L17"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "isArray",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "isArray",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "saveGoRules",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "route_post",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "getGoRules",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/workflows/[serviceName]/gorules/route.ts",
+      "source_location": "L109"
+    }
+  ]
+}

@@ -1,1 +1,553 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "label": "use-entities.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L1"}, {"id": "use_entities_useentities", "label": "useEntities()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L98"}, {"id": "use_entities_useentity", "label": "useEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L117"}, {"id": "use_entities_useentitymetadata", "label": "useEntityMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L134"}, {"id": "use_entities_usetablemetadata", "label": "useTableMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L148"}, {"id": "use_entities_useformfields", "label": "useFormFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L162"}, {"id": "use_entities_usegridfields", "label": "useGridFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L173"}, {"id": "use_entities_usereflist", "label": "useRefList()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L197"}, {"id": "use_entities_useallformfields", "label": "useAllFormFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L214"}, {"id": "use_entities_useallgridfields", "label": "useAllGridFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L228"}, {"id": "use_entities_useupdatefieldstyle", "label": "useUpdateFieldStyle()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L242"}, {"id": "use_entities_usecreateentity", "label": "useCreateEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L261"}, {"id": "use_entities_useupdateentity", "label": "useUpdateEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L303"}, {"id": "use_entities_usedeleteentity", "label": "useDeleteEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L365"}, {"id": "use_entities_useprefetchentity", "label": "usePrefetchEntity()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L414"}, {"id": "use_entities_useprefetchentitylist", "label": "usePrefetchEntityList()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L425"}, {"id": "use_entities_usefieldgroups", "label": "useFieldGroups()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L457"}, {"id": "use_entities_usecreatefieldgroup", "label": "useCreateFieldGroup()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L470"}, {"id": "use_entities_useupdatefieldgroup", "label": "useUpdateFieldGroup()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L483"}, {"id": "use_entities_usedeletefieldgroup", "label": "useDeleteFieldGroup()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L503"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "react_query", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "api_client", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "sonner", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "translations", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_useentities", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L98", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_useentity", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L117", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_useentitymetadata", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L134", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_usetablemetadata", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L148", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_useformfields", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L162", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_usegridfields", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L173", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_usereflist", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L197", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_useallformfields", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L214", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_useallgridfields", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L228", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_useupdatefieldstyle", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L242", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_usecreateentity", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L261", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_useupdateentity", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L303", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_usedeleteentity", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L365", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_useprefetchentity", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L414", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_useprefetchentitylist", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L425", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_usefieldgroups", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L457", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_usecreatefieldgroup", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L470", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_useupdatefieldgroup", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L483", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts", "target": "use_entities_usedeletefieldgroup", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L503", "weight": 1.0}], "raw_calls": [{"caller_nid": "use_entities_useentities", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L106"}, {"caller_nid": "use_entities_useentities", "callee": "list", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L107"}, {"caller_nid": "use_entities_useentity", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L122"}, {"caller_nid": "use_entities_useentity", "callee": "detail", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L123"}, {"caller_nid": "use_entities_useentitymetadata", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L135"}, {"caller_nid": "use_entities_useentitymetadata", "callee": "metadata", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L136"}, {"caller_nid": "use_entities_usetablemetadata", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L149"}, {"caller_nid": "use_entities_usetablemetadata", "callee": "table", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L150"}, {"caller_nid": "use_entities_useformfields", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L163"}, {"caller_nid": "use_entities_useformfields", "callee": "fields", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L164"}, {"caller_nid": "use_entities_usegridfields", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L174"}, {"caller_nid": "use_entities_usegridfields", "callee": "fields", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L175"}, {"caller_nid": "use_entities_usereflist", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L198"}, {"caller_nid": "use_entities_useallformfields", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L215"}, {"caller_nid": "use_entities_useallgridfields", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L229"}, {"caller_nid": "use_entities_useupdatefieldstyle", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L243"}, {"caller_nid": "use_entities_useupdatefieldstyle", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L244"}, {"caller_nid": "use_entities_usecreateentity", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L264"}, {"caller_nid": "use_entities_usecreateentity", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L270"}, {"caller_nid": "use_entities_useupdateentity", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L306"}, {"caller_nid": "use_entities_useupdateentity", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L314"}, {"caller_nid": "use_entities_usedeleteentity", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L366"}, {"caller_nid": "use_entities_usedeleteentity", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L373"}, {"caller_nid": "use_entities_useprefetchentity", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L415"}, {"caller_nid": "use_entities_useprefetchentitylist", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L426"}, {"caller_nid": "use_entities_usefieldgroups", "callee": "useQuery", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L458"}, {"caller_nid": "use_entities_usefieldgroups", "callee": "list", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L459"}, {"caller_nid": "use_entities_usecreatefieldgroup", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L471"}, {"caller_nid": "use_entities_usecreatefieldgroup", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L473"}, {"caller_nid": "use_entities_useupdatefieldgroup", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L484"}, {"caller_nid": "use_entities_useupdatefieldgroup", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L486"}, {"caller_nid": "use_entities_usedeletefieldgroup", "callee": "useQueryClient", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L504"}, {"caller_nid": "use_entities_usedeletefieldgroup", "callee": "useMutation", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts", "source_location": "L506"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "label": "use-entities.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "use_entities_useentities",
+      "label": "useEntities()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L98"
+    },
+    {
+      "id": "use_entities_useentity",
+      "label": "useEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L117"
+    },
+    {
+      "id": "use_entities_useentitymetadata",
+      "label": "useEntityMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L134"
+    },
+    {
+      "id": "use_entities_usetablemetadata",
+      "label": "useTableMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L148"
+    },
+    {
+      "id": "use_entities_useformfields",
+      "label": "useFormFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L162"
+    },
+    {
+      "id": "use_entities_usegridfields",
+      "label": "useGridFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L173"
+    },
+    {
+      "id": "use_entities_usereflist",
+      "label": "useRefList()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L197"
+    },
+    {
+      "id": "use_entities_useallformfields",
+      "label": "useAllFormFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L214"
+    },
+    {
+      "id": "use_entities_useallgridfields",
+      "label": "useAllGridFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L228"
+    },
+    {
+      "id": "use_entities_useupdatefieldstyle",
+      "label": "useUpdateFieldStyle()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L242"
+    },
+    {
+      "id": "use_entities_usecreateentity",
+      "label": "useCreateEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L261"
+    },
+    {
+      "id": "use_entities_useupdateentity",
+      "label": "useUpdateEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L303"
+    },
+    {
+      "id": "use_entities_usedeleteentity",
+      "label": "useDeleteEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L365"
+    },
+    {
+      "id": "use_entities_useprefetchentity",
+      "label": "usePrefetchEntity()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L414"
+    },
+    {
+      "id": "use_entities_useprefetchentitylist",
+      "label": "usePrefetchEntityList()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L425"
+    },
+    {
+      "id": "use_entities_usefieldgroups",
+      "label": "useFieldGroups()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L457"
+    },
+    {
+      "id": "use_entities_usecreatefieldgroup",
+      "label": "useCreateFieldGroup()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L470"
+    },
+    {
+      "id": "use_entities_useupdatefieldgroup",
+      "label": "useUpdateFieldGroup()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L483"
+    },
+    {
+      "id": "use_entities_usedeletefieldgroup",
+      "label": "useDeleteFieldGroup()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L503"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "react_query",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "api_client",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "sonner",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "translations",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useentities",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L98",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useentity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L117",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useentitymetadata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L134",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usetablemetadata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L148",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useformfields",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L162",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usegridfields",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L173",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usereflist",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L197",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useallformfields",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L214",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useallgridfields",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L228",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useupdatefieldstyle",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L242",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usecreateentity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L261",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useupdateentity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L303",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usedeleteentity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L365",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useprefetchentity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L414",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useprefetchentitylist",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L425",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usefieldgroups",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L457",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usecreatefieldgroup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L470",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_useupdatefieldgroup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L483",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_hooks_use_entities_ts",
+      "target": "use_entities_usedeletefieldgroup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L503",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "use_entities_useentities",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "use_entities_useentities",
+      "callee": "list",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "use_entities_useentity",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "use_entities_useentity",
+      "callee": "detail",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "use_entities_useentitymetadata",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "use_entities_useentitymetadata",
+      "callee": "metadata",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "use_entities_usetablemetadata",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L149"
+    },
+    {
+      "caller_nid": "use_entities_usetablemetadata",
+      "callee": "table",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "use_entities_useformfields",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L163"
+    },
+    {
+      "caller_nid": "use_entities_useformfields",
+      "callee": "fields",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "use_entities_usegridfields",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "use_entities_usegridfields",
+      "callee": "fields",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L175"
+    },
+    {
+      "caller_nid": "use_entities_usereflist",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "use_entities_useallformfields",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L215"
+    },
+    {
+      "caller_nid": "use_entities_useallgridfields",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L229"
+    },
+    {
+      "caller_nid": "use_entities_useupdatefieldstyle",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L243"
+    },
+    {
+      "caller_nid": "use_entities_useupdatefieldstyle",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L244"
+    },
+    {
+      "caller_nid": "use_entities_usecreateentity",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L264"
+    },
+    {
+      "caller_nid": "use_entities_usecreateentity",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L270"
+    },
+    {
+      "caller_nid": "use_entities_useupdateentity",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L306"
+    },
+    {
+      "caller_nid": "use_entities_useupdateentity",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L314"
+    },
+    {
+      "caller_nid": "use_entities_usedeleteentity",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L366"
+    },
+    {
+      "caller_nid": "use_entities_usedeleteentity",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L373"
+    },
+    {
+      "caller_nid": "use_entities_useprefetchentity",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L415"
+    },
+    {
+      "caller_nid": "use_entities_useprefetchentitylist",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L426"
+    },
+    {
+      "caller_nid": "use_entities_usefieldgroups",
+      "callee": "useQuery",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L458"
+    },
+    {
+      "caller_nid": "use_entities_usefieldgroups",
+      "callee": "list",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L459"
+    },
+    {
+      "caller_nid": "use_entities_usecreatefieldgroup",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L471"
+    },
+    {
+      "caller_nid": "use_entities_usecreatefieldgroup",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L473"
+    },
+    {
+      "caller_nid": "use_entities_useupdatefieldgroup",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L484"
+    },
+    {
+      "caller_nid": "use_entities_useupdatefieldgroup",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L486"
+    },
+    {
+      "caller_nid": "use_entities_usedeletefieldgroup",
+      "callee": "useQueryClient",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L504"
+    },
+    {
+      "caller_nid": "use_entities_usedeletefieldgroup",
+      "callee": "useMutation",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/hooks/use-entities.ts",
+      "source_location": "L506"
+    }
+  ]
+}

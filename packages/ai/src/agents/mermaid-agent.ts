@@ -1,16 +1,16 @@
-import { Agent } from '@mastra/core/agent';
-import { z } from 'zod';
-import type { EntityCandidate, RelationshipCandidate } from '../types';
+import { Agent } from "@mastra/core/agent";
+import { z } from "zod";
+import type { EntityCandidate, RelationshipCandidate } from "../types";
 
 const mermaidOutputSchema = z.object({
   syntax: z.string(),
   entityCount: z.number(),
-  relationshipCount: z.number()
+  relationshipCount: z.number(),
 });
 
 export const mermaidAgent = new Agent({
-  id: 'mermaid-agent',
-  name: 'Mermaid Generator',
+  id: "mermaid-agent",
+  name: "Mermaid Generator",
   instructions: `Generate valid Mermaid ERD syntax.
 
 Format:
@@ -31,44 +31,50 @@ Cardinality symbols:
 - ||--o{ : oneToMany
 - }o--|| : manyToOne
 - }o--o{ : manyToMany`,
-  model: 'openai/gpt-4-turbo'
+  model: "openai/gpt-4-turbo",
 });
 
-export async function generateMermaid(entities: EntityCandidate[], relationships: RelationshipCandidate[]) {
+export async function generateMermaid(
+  entities: EntityCandidate[],
+  relationships: RelationshipCandidate[]
+) {
   const response = await mermaidAgent.generate(JSON.stringify({ entities, relationships }), {
     structuredOutput: {
-      schema: mermaidOutputSchema
-    }
+      schema: mermaidOutputSchema,
+    },
   });
 
   return response.object;
 }
 
 // Programmatic generator (fast, no AI)
-export function generateMermaidProgrammatic(entities: EntityCandidate[], relationships: RelationshipCandidate[]) {
-  let syntax = 'erDiagram\n';
+export function generateMermaidProgrammatic(
+  entities: EntityCandidate[],
+  relationships: RelationshipCandidate[]
+) {
+  let syntax = "erDiagram\n";
 
   // Relationships
   for (const rel of relationships) {
     const symbols: Record<string, string> = {
-      oneToOne: '||--||',
-      oneToMany: '||--o{',
-      manyToOne: '}o--||',
-      manyToMany: '}o--o{'
+      oneToOne: "||--||",
+      oneToMany: "||--o{",
+      manyToOne: "}o--||",
+      manyToMany: "}o--o{",
     };
     syntax += `    ${rel.source} ${symbols[rel.cardinality]} ${rel.target} : ${rel.name}\n`;
   }
 
-  syntax += '\n';
+  syntax += "\n";
 
   // Entities
   for (const entity of entities) {
     syntax += `    ${entity.name} {\n`;
     for (const attr of entity.suggestedAttributes) {
       const modifiers = [];
-      if (attr.name === 'id') modifiers.push('PK');
-      if (attr.unique) modifiers.push('UK');
-      syntax += `        ${attr.type} ${attr.name}${modifiers.length ? ' ' + modifiers.join(' ') : ''}\n`;
+      if (attr.name === "id") modifiers.push("PK");
+      if (attr.unique) modifiers.push("UK");
+      syntax += `        ${attr.type} ${attr.name}${modifiers.length ? " " + modifiers.join(" ") : ""}\n`;
     }
     syntax += `    }\n\n`;
   }
@@ -76,6 +82,6 @@ export function generateMermaidProgrammatic(entities: EntityCandidate[], relatio
   return {
     mermaidSyntax: syntax,
     entityCount: entities.length,
-    relationshipCount: relationships.length
+    relationshipCount: relationships.length,
   };
 }

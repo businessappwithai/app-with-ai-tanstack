@@ -15,10 +15,7 @@
     },
     "preserveOutput": "always",
     "reporter": [
-      [
-        "list",
-        null
-      ],
+      ["list", null],
       [
         "html",
         {
@@ -55,9 +52,7 @@
         "name": "nextjs-nestjs",
         "testDir": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/tests/e2e/complete-tests",
         "testIgnore": [],
-        "testMatch": [
-          "nextjs-nestjs.e2e-test.ts"
-        ],
+        "testMatch": ["nextjs-nestjs.e2e-test.ts"],
         "timeout": 30000
       },
       {
@@ -71,9 +66,7 @@
         "name": "odata-ui5",
         "testDir": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/tests/e2e/complete-tests",
         "testIgnore": [],
-        "testMatch": [
-          "odata-ui5.e2e-test.ts"
-        ],
+        "testMatch": ["odata-ui5.e2e-test.ts"],
         "timeout": 30000
       },
       {
@@ -87,9 +80,7 @@
         "name": "dictionary-nextjs",
         "testDir": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/tests/e2e/complete-tests",
         "testIgnore": [],
-        "testMatch": [
-          "nextjs-nestjs-dictionary.e2e-test.ts"
-        ],
+        "testMatch": ["nextjs-nestjs-dictionary.e2e-test.ts"],
         "timeout": 30000
       },
       {
@@ -103,9 +94,7 @@
         "name": "dictionary-odata",
         "testDir": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/tests/e2e/complete-tests",
         "testIgnore": [],
-        "testMatch": [
-          "odata-ui5-dictionary.e2e-test.ts"
-        ],
+        "testMatch": ["odata-ui5-dictionary.e2e-test.ts"],
         "timeout": 30000
       },
       {
@@ -119,9 +108,7 @@
         "name": "dictionary-generator",
         "testDir": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/tests/e2e/complete-tests",
         "testIgnore": [],
-        "testMatch": [
-          "dictionary-generator.e2e-test.ts"
-        ],
+        "testMatch": ["dictionary-generator.e2e-test.ts"],
         "timeout": 30000
       },
       {
@@ -135,9 +122,7 @@
         "name": "hospital-nextjs-nestjs",
         "testDir": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/tests/e2e/complete-tests",
         "testIgnore": [],
-        "testMatch": [
-          "hospital-nextjs-nestjs.e2e-test.ts"
-        ],
+        "testMatch": ["hospital-nextjs-nestjs.e2e-test.ts"],
         "timeout": 30000
       },
       {
@@ -151,9 +136,7 @@
         "name": "hospital-odata-ui5",
         "testDir": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/tests/e2e/complete-tests",
         "testIgnore": [],
-        "testMatch": [
-          "hospital-odata-ui5.e2e-test.ts"
-        ],
+        "testMatch": ["hospital-odata-ui5.e2e-test.ts"],
         "timeout": 30000
       }
     ],

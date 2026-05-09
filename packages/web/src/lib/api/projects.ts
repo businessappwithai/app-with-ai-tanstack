@@ -3,11 +3,7 @@
  * Handles all project-related API calls
  */
 
-import type {
-  Project,
-  WorkflowDefinition,
-  ValidationError,
-} from "@/types/project";
+import type { Project, ValidationError, WorkflowDefinition } from "@/types/project";
 import { ApiClient } from "../api-client";
 
 const apiClient = new ApiClient("/api");
@@ -141,10 +137,7 @@ export const projectsApi = {
    * Create a new project
    */
   async create(input: CreateProjectInput): Promise<Project> {
-    const response = await apiClient.post<ProjectResponse, CreateProjectInput>(
-      "/projects",
-      input
-    );
+    const response = await apiClient.post<ProjectResponse, CreateProjectInput>("/projects", input);
     return response.project;
   },
 
@@ -218,9 +211,7 @@ export const workflowsApi = {
    * Get all workflows for a project
    */
   async getAll(projectId: string): Promise<WorkflowDefinition[]> {
-    const response = await apiClient.get<WorkflowsResponse>(
-      `/projects/${projectId}/workflows`
-    );
+    const response = await apiClient.get<WorkflowsResponse>(`/projects/${projectId}/workflows`);
     return response.workflows;
   },
 
@@ -238,7 +229,11 @@ export const workflowsApi = {
   /**
    * Update a workflow
    */
-  async update(projectId: string, workflowId: string, input: Partial<CreateWorkflowInput>): Promise<WorkflowDefinition> {
+  async update(
+    projectId: string,
+    workflowId: string,
+    input: Partial<CreateWorkflowInput>
+  ): Promise<WorkflowDefinition> {
     const response = await apiClient.patch<WorkflowResponse, Partial<CreateWorkflowInput>>(
       `/projects/${projectId}/workflows/${workflowId}`,
       input
@@ -262,9 +257,7 @@ export const deploymentApi = {
    * Get deployment status for a project
    */
   async get(projectId: string): Promise<DeploymentResponse["deployment"]> {
-    const response = await apiClient.get<DeploymentResponse>(
-      `/projects/${projectId}/deployment`
-    );
+    const response = await apiClient.get<DeploymentResponse>(`/projects/${projectId}/deployment`);
     return response.deployment;
   },
 

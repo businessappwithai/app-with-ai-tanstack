@@ -1,1 +1,404 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts", "label": "BusLabResultCreate.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L1"}, {"id": "buslabresultcreate_controller_buslabresultcreatecontroller", "label": "BusLabResultCreateController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L19"}, {"id": "buslabresultcreate_controller_buslabresultcreatecontroller_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L22"}, {"id": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata", "label": "._collectFormData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L27"}, {"id": "buslabresultcreate_controller_buslabresultcreatecontroller_validateformdata", "label": "._validateFormData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L42"}, {"id": "buslabresultcreate_controller_buslabresultcreatecontroller_cleanformdata", "label": "._cleanFormData()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L55"}, {"id": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "label": ".onSavePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L61"}, {"id": "buslabresultcreate_controller_buslabresultcreatecontroller_oncancelpress", "label": ".onCancelPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L85"}, {"id": "buslabresultcreate_controller_buslabresultcreatecontroller_onnavback", "label": ".onNavBack()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L96"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts", "target": "jsonmodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts", "target": "odatamodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts", "target": "messagebox", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts", "target": "messagetoast", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts", "target": "router", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts", "target": "buslabresultcreate_controller_buslabresultcreatecontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L19", "weight": 1.0}, {"source": "buslabresultcreate_controller_buslabresultcreatecontroller", "target": "buslabresultcreate_controller_buslabresultcreatecontroller_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L22", "weight": 1.0}, {"source": "buslabresultcreate_controller_buslabresultcreatecontroller", "target": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L27", "weight": 1.0}, {"source": "buslabresultcreate_controller_buslabresultcreatecontroller", "target": "buslabresultcreate_controller_buslabresultcreatecontroller_validateformdata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L42", "weight": 1.0}, {"source": "buslabresultcreate_controller_buslabresultcreatecontroller", "target": "buslabresultcreate_controller_buslabresultcreatecontroller_cleanformdata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L55", "weight": 1.0}, {"source": "buslabresultcreate_controller_buslabresultcreatecontroller", "target": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L61", "weight": 1.0}, {"source": "buslabresultcreate_controller_buslabresultcreatecontroller", "target": "buslabresultcreate_controller_buslabresultcreatecontroller_oncancelpress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L85", "weight": 1.0}, {"source": "buslabresultcreate_controller_buslabresultcreatecontroller", "target": "buslabresultcreate_controller_buslabresultcreatecontroller_onnavback", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L96", "weight": 1.0}, {"source": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "target": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L62", "weight": 1.0}, {"source": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "target": "buslabresultcreate_controller_buslabresultcreatecontroller_validateformdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L63", "weight": 1.0}, {"source": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "target": "buslabresultcreate_controller_buslabresultcreatecontroller_cleanformdata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L70", "weight": 1.0}], "raw_calls": [{"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L24"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L24"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L30"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L31"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L32"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L33"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L34"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L35"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L36"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L37"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata", "callee": "get", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L38"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_validateformdata", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L50"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_validateformdata", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L51"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_validateformdata", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L51"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_cleanformdata", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L57"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_cleanformdata", "callee": "keys", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L57"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L65"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L66"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L66"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "callee": "bindList", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L67"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "callee": "create", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L70"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L71"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L71"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "callee": "created", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L71"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L80"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L81"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_oncancelpress", "callee": "confirm", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L86"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onnavback", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L97"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onnavback", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L97"}, {"caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onnavback", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts", "source_location": "L97"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts",
+      "label": "BusLabResultCreate.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "buslabresultcreate_controller_buslabresultcreatecontroller",
+      "label": "BusLabResultCreateController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L19"
+    },
+    {
+      "id": "buslabresultcreate_controller_buslabresultcreatecontroller_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L22"
+    },
+    {
+      "id": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata",
+      "label": "._collectFormData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "buslabresultcreate_controller_buslabresultcreatecontroller_validateformdata",
+      "label": "._validateFormData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L42"
+    },
+    {
+      "id": "buslabresultcreate_controller_buslabresultcreatecontroller_cleanformdata",
+      "label": "._cleanFormData()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L55"
+    },
+    {
+      "id": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "label": ".onSavePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L61"
+    },
+    {
+      "id": "buslabresultcreate_controller_buslabresultcreatecontroller_oncancelpress",
+      "label": ".onCancelPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L85"
+    },
+    {
+      "id": "buslabresultcreate_controller_buslabresultcreatecontroller_onnavback",
+      "label": ".onNavBack()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L96"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts",
+      "target": "jsonmodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts",
+      "target": "odatamodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts",
+      "target": "messagebox",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts",
+      "target": "messagetoast",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts",
+      "target": "router",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buslabresultcreate_controller_ts",
+      "target": "buslabresultcreate_controller_buslabresultcreatecontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultcreate_controller_buslabresultcreatecontroller",
+      "target": "buslabresultcreate_controller_buslabresultcreatecontroller_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultcreate_controller_buslabresultcreatecontroller",
+      "target": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultcreate_controller_buslabresultcreatecontroller",
+      "target": "buslabresultcreate_controller_buslabresultcreatecontroller_validateformdata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultcreate_controller_buslabresultcreatecontroller",
+      "target": "buslabresultcreate_controller_buslabresultcreatecontroller_cleanformdata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultcreate_controller_buslabresultcreatecontroller",
+      "target": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultcreate_controller_buslabresultcreatecontroller",
+      "target": "buslabresultcreate_controller_buslabresultcreatecontroller_oncancelpress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L85",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultcreate_controller_buslabresultcreatecontroller",
+      "target": "buslabresultcreate_controller_buslabresultcreatecontroller_onnavback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L96",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "target": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "target": "buslabresultcreate_controller_buslabresultcreatecontroller_validateformdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "target": "buslabresultcreate_controller_buslabresultcreatecontroller_cleanformdata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L70",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_collectformdata",
+      "callee": "get",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_validateformdata",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_validateformdata",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_validateformdata",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_cleanformdata",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_cleanformdata",
+      "callee": "keys",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "callee": "bindList",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "callee": "create",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "callee": "created",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onsavepress",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_oncancelpress",
+      "callee": "confirm",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onnavback",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onnavback",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "buslabresultcreate_controller_buslabresultcreatecontroller_onnavback",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusLabResultCreate.controller.ts",
+      "source_location": "L97"
+    }
+  ]
+}

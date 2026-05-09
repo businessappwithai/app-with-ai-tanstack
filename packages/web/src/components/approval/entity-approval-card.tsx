@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useHumanInTheLoop } from '@/hooks/useHumanInTheLoop';
+import { useState } from "react";
+import { useHumanInTheLoop } from "@/hooks/useHumanInTheLoop";
 
 interface EntityApprovalCardProps {
   entity: {
@@ -21,7 +21,7 @@ interface EntityApprovalCardProps {
 
 export function EntityApprovalCard() {
   const { data, approve, reject } = useHumanInTheLoop({
-    action: 'approve_entity'
+    action: "approve_entity",
   });
 
   const [editing, setEditing] = useState(false);
@@ -55,10 +55,15 @@ export function EntityApprovalCard() {
       <div className="mb-4">
         <div className="flex items-center gap-2 mb-2">
           <span className="font-semibold">Confidence:</span>
-          <span className={`px-2 py-1 rounded ${entity.confidence > 0.8 ? 'bg-green-100 text-green-800' :
-            entity.confidence > 0.6 ? 'bg-yellow-100 text-yellow-800' :
-              'bg-red-100 text-red-800'
-            }`}>
+          <span
+            className={`px-2 py-1 rounded ${
+              entity.confidence > 0.8
+                ? "bg-green-100 text-green-800"
+                : entity.confidence > 0.6
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-red-100 text-red-800"
+            }`}
+          >
             {(entity.confidence * 100).toFixed(0)}%
           </span>
         </div>
@@ -72,9 +77,7 @@ export function EntityApprovalCard() {
               <code className="bg-gray-100 px-2 py-1 rounded">
                 {attr.name}: {attr.type}
               </code>
-              {attr.required && (
-                <span className="text-xs text-red-600">required</span>
-              )}
+              {attr.required && <span className="text-xs text-red-600">required</span>}
             </div>
           ))}
         </div>
@@ -112,7 +115,9 @@ export function EntityApprovalCard() {
 
       {editing && (
         <div className="mt-4 p-4 border-t">
-          <p className="text-sm text-gray-600">Edit entity properties and click Approve to save changes.</p>
+          <p className="text-sm text-gray-600">
+            Edit entity properties and click Approve to save changes.
+          </p>
         </div>
       )}
     </div>

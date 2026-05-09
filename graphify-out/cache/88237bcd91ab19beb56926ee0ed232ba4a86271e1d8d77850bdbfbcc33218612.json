@@ -1,1 +1,68 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_jdm_schema_ts", "label": "jdm.schema.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts", "source_location": "L1"}, {"id": "jdm_schema_validatejdm", "label": "validateJDM()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts", "source_location": "L109"}, {"id": "jdm_schema_assertvalidjdm", "label": "assertValidJDM()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts", "source_location": "L120"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_jdm_schema_ts", "target": "zod", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_jdm_schema_ts", "target": "jdm_schema_validatejdm", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts", "source_location": "L109", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_jdm_schema_ts", "target": "jdm_schema_assertvalidjdm", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts", "source_location": "L120", "weight": 1.0}], "raw_calls": [{"caller_nid": "jdm_schema_validatejdm", "callee": "safeParse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts", "source_location": "L110"}, {"caller_nid": "jdm_schema_assertvalidjdm", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts", "source_location": "L121"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_jdm_schema_ts",
+      "label": "jdm.schema.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "jdm_schema_validatejdm",
+      "label": "validateJDM()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts",
+      "source_location": "L109"
+    },
+    {
+      "id": "jdm_schema_assertvalidjdm",
+      "label": "assertValidJDM()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts",
+      "source_location": "L120"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_jdm_schema_ts",
+      "target": "zod",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_jdm_schema_ts",
+      "target": "jdm_schema_validatejdm",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_rules_jdm_schema_ts",
+      "target": "jdm_schema_assertvalidjdm",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts",
+      "source_location": "L120",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "jdm_schema_validatejdm",
+      "callee": "safeParse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "jdm_schema_assertvalidjdm",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/rules/jdm.schema.ts",
+      "source_location": "L121"
+    }
+  ]
+}

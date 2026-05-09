@@ -1,1 +1,315 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "label": "dynamic-table.tsx", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L1"}, {"id": "dynamic_table_formatcellvalue", "label": "formatCellValue()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L95"}, {"id": "dynamic_table_handledeleteclick", "label": "handleDeleteClick()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L256"}, {"id": "dynamic_table_confirmdelete", "label": "confirmDelete()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L263"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "react_table", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "use_entities", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L23", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "table", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L24", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "button", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L32", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "input", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L33", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "skeleton", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L34", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "alert_dialog", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L35", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "sonner", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L36", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "translations", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L37", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "lucide_react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L38", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "date_fns", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L48", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "dynamic_table_formatcellvalue", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L95", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "dynamic_table_handledeleteclick", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L256", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx", "target": "dynamic_table_confirmdelete", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L263", "weight": 1.0}], "raw_calls": [{"caller_nid": "dynamic_table_formatcellvalue", "callee": "format", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L106"}, {"caller_nid": "dynamic_table_formatcellvalue", "callee": "String", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L108"}, {"caller_nid": "dynamic_table_formatcellvalue", "callee": "format", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L113"}, {"caller_nid": "dynamic_table_formatcellvalue", "callee": "String", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L115"}, {"caller_nid": "dynamic_table_formatcellvalue", "callee": "toLocaleString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L120"}, {"caller_nid": "dynamic_table_formatcellvalue", "callee": "String", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L124"}, {"caller_nid": "dynamic_table_formatcellvalue", "callee": "toLocaleString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L127"}, {"caller_nid": "dynamic_table_formatcellvalue", "callee": "String", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L127"}, {"caller_nid": "dynamic_table_formatcellvalue", "callee": "String", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L131"}, {"caller_nid": "dynamic_table_formatcellvalue", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L132"}, {"caller_nid": "dynamic_table_formatcellvalue", "callee": "String", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L135"}, {"caller_nid": "dynamic_table_formatcellvalue", "callee": "String", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L138"}, {"caller_nid": "dynamic_table_formatcellvalue", "callee": "String", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L141"}, {"caller_nid": "dynamic_table_handledeleteclick", "callee": "find", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L257"}, {"caller_nid": "dynamic_table_handledeleteclick", "callee": "setRowToDelete", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L259"}, {"caller_nid": "dynamic_table_handledeleteclick", "callee": "setDeleteDialogOpen", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L260"}, {"caller_nid": "dynamic_table_confirmdelete", "callee": "setIsDeleting", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L266"}, {"caller_nid": "dynamic_table_confirmdelete", "callee": "_onDelete", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L268"}, {"caller_nid": "dynamic_table_confirmdelete", "callee": "setDeleteDialogOpen", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L269"}, {"caller_nid": "dynamic_table_confirmdelete", "callee": "setRowToDelete", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L270"}, {"caller_nid": "dynamic_table_confirmdelete", "callee": "t", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L275"}, {"caller_nid": "dynamic_table_confirmdelete", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L276"}, {"caller_nid": "dynamic_table_confirmdelete", "callee": "t", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L276"}, {"caller_nid": "dynamic_table_confirmdelete", "callee": "setIsDeleting", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx", "source_location": "L280"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "label": "dynamic-table.tsx",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "dynamic_table_formatcellvalue",
+      "label": "formatCellValue()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L95"
+    },
+    {
+      "id": "dynamic_table_handledeleteclick",
+      "label": "handleDeleteClick()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L256"
+    },
+    {
+      "id": "dynamic_table_confirmdelete",
+      "label": "confirmDelete()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L263"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "react_table",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "use_entities",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "table",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "button",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "input",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "skeleton",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "alert_dialog",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "sonner",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "translations",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "date_fns",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "dynamic_table_formatcellvalue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L95",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "dynamic_table_handledeleteclick",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L256",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hospital_swiss_clean_new_frontend_src_components_tables_dynamic_table_tsx",
+      "target": "dynamic_table_confirmdelete",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L263",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "dynamic_table_formatcellvalue",
+      "callee": "format",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "dynamic_table_formatcellvalue",
+      "callee": "String",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "dynamic_table_formatcellvalue",
+      "callee": "format",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "dynamic_table_formatcellvalue",
+      "callee": "String",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "dynamic_table_formatcellvalue",
+      "callee": "toLocaleString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L120"
+    },
+    {
+      "caller_nid": "dynamic_table_formatcellvalue",
+      "callee": "String",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "dynamic_table_formatcellvalue",
+      "callee": "toLocaleString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "dynamic_table_formatcellvalue",
+      "callee": "String",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "dynamic_table_formatcellvalue",
+      "callee": "String",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "dynamic_table_formatcellvalue",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L132"
+    },
+    {
+      "caller_nid": "dynamic_table_formatcellvalue",
+      "callee": "String",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "dynamic_table_formatcellvalue",
+      "callee": "String",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "dynamic_table_formatcellvalue",
+      "callee": "String",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "dynamic_table_handledeleteclick",
+      "callee": "find",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L257"
+    },
+    {
+      "caller_nid": "dynamic_table_handledeleteclick",
+      "callee": "setRowToDelete",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "dynamic_table_handledeleteclick",
+      "callee": "setDeleteDialogOpen",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L260"
+    },
+    {
+      "caller_nid": "dynamic_table_confirmdelete",
+      "callee": "setIsDeleting",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L266"
+    },
+    {
+      "caller_nid": "dynamic_table_confirmdelete",
+      "callee": "_onDelete",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L268"
+    },
+    {
+      "caller_nid": "dynamic_table_confirmdelete",
+      "callee": "setDeleteDialogOpen",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L269"
+    },
+    {
+      "caller_nid": "dynamic_table_confirmdelete",
+      "callee": "setRowToDelete",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L270"
+    },
+    {
+      "caller_nid": "dynamic_table_confirmdelete",
+      "callee": "t",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L275"
+    },
+    {
+      "caller_nid": "dynamic_table_confirmdelete",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "dynamic_table_confirmdelete",
+      "callee": "t",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "dynamic_table_confirmdelete",
+      "callee": "setIsDeleting",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hospital-swiss-clean-new/frontend/src/components/tables/dynamic-table.tsx",
+      "source_location": "L280"
+    }
+  ]
+}

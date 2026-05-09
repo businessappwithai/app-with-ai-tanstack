@@ -7,22 +7,22 @@
  * Project: crm-app
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api-client';
+import { useQuery } from "@tanstack/react-query";
 import {
-  Workflow,
+  AlertCircle,
+  CheckCircle,
+  Clock,
   RefreshCw,
   Search,
-  CheckCircle,
+  Workflow,
   XCircle,
-  Clock,
-  AlertCircle,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+} from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { apiClient } from "@/lib/api-client";
 
 interface WorkflowRun {
   id: string;
@@ -30,7 +30,7 @@ interface WorkflowRun {
   entity_name: string;
   entity_id: string;
   operation: string;
-  status: 'draft' | 'success' | 'error';
+  status: "draft" | "success" | "error";
   input_payload?: any;
   output_payload?: any;
   error_details?: string;
@@ -41,46 +41,53 @@ interface WorkflowRun {
 }
 
 export default function AdminWorkflowsPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [entityFilter, setEntityFilter] = useState<string>('');
-  const [operationFilter, setOperationFilter] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [entityFilter, setEntityFilter] = useState<string>("");
+  const [operationFilter, setOperationFilter] = useState<string>("");
 
-  const { data: workflows, isLoading, refetch } = useQuery({
-    queryKey: ['admin', 'workflows', { statusFilter, entityFilter, operationFilter }],
+  const {
+    data: workflows,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["admin", "workflows", { statusFilter, entityFilter, operationFilter }],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (statusFilter) params.append('status', statusFilter);
-      if (entityFilter) params.append('entityName', entityFilter);
-      if (operationFilter) params.append('operation', operationFilter);
-      params.append('limit', '100');
+      if (statusFilter) params.append("status", statusFilter);
+      if (entityFilter) params.append("entityName", entityFilter);
+      if (operationFilter) params.append("operation", operationFilter);
+      params.append("limit", "100");
 
-      const response = await apiClient.get<WorkflowRun[]>(`/api/workflow/runs?${params.toString()}`);
+      const response = await apiClient.get<WorkflowRun[]>(
+        `/api/workflow/runs?${params.toString()}`
+      );
       return response;
     },
     refetchInterval: 5000, // Refresh every 5 seconds
   });
 
-  const filteredWorkflows = workflows?.filter((wf) => {
-    const matchesSearch =
-      searchQuery === '' ||
-      wf.entity_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      wf.entity_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      wf.trigger_run_id?.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredWorkflows =
+    workflows?.filter((wf) => {
+      const matchesSearch =
+        searchQuery === "" ||
+        wf.entity_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        wf.entity_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        wf.trigger_run_id?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesSearch;
-  }) || [];
+      return matchesSearch;
+    }) || [];
 
   const entityNames = Array.from(new Set(workflows?.map((w) => w.entity_name) || []));
   const operations = Array.from(new Set(workflows?.map((w) => w.operation) || []));
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'success':
+      case "success":
         return <CheckCircle className="h-4 w-4 text-emerald-600" />;
-      case 'error':
+      case "error":
         return <XCircle className="h-4 w-4 text-red-600" />;
-      case 'draft':
+      case "draft":
         return <Clock className="h-4 w-4 text-blue-600" />;
       default:
         return <AlertCircle className="h-4 w-4 text-gray-400" />;
@@ -89,19 +96,19 @@ export default function AdminWorkflowsPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'success':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-      case 'error':
-        return 'bg-red-50 text-red-700 border-red-200';
-      case 'draft':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
+      case "success":
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+      case "error":
+        return "bg-red-50 text-red-700 border-red-200";
+      case "draft":
+        return "bg-blue-50 text-blue-700 border-blue-200";
       default:
-        return 'bg-gray-50 text-gray-700 border-gray-200';
+        return "bg-gray-50 text-gray-700 border-gray-200";
     }
   };
 
   const formatDuration = (ms?: number) => {
-    if (!ms) return '-';
+    if (!ms) return "-";
     if (ms < 1000) return `${ms}ms`;
     if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
     return `${(ms / 60000).toFixed(1)}m`;
@@ -116,9 +123,7 @@ export default function AdminWorkflowsPage() {
               <div className="flex items-center gap-4 mb-4">
                 <Workflow className="h-8 w-8 text-black" />
                 <div>
-                  <h1 className="text-6xl font-bold tracking-tight text-black">
-                    Workflow Monitor
-                  </h1>
+                  <h1 className="text-6xl font-bold tracking-tight text-black">Workflow Monitor</h1>
                   <p className="text-xl text-gray-600 font-light mt-2">
                     Real-time workflow execution and status tracking
                   </p>
@@ -132,7 +137,7 @@ export default function AdminWorkflowsPage() {
               disabled={isLoading}
               className="border-2 border-black hover:bg-black hover:text-white transition-colors rounded-none"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
               Refresh
             </Button>
           </div>
@@ -150,26 +155,28 @@ export default function AdminWorkflowsPage() {
             <div className="border-t border-b border-black border-r p-6 bg-gray-50">
               <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">Draft</p>
               <p className="text-4xl font-bold text-blue-700">
-                {workflows?.filter((w) => w.status === 'draft').length || 0}
+                {workflows?.filter((w) => w.status === "draft").length || 0}
               </p>
             </div>
             <div className="border-t border-b border-black border-r p-6 bg-gray-50">
               <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">Success</p>
               <p className="text-4xl font-bold text-emerald-700">
-                {workflows?.filter((w) => w.status === 'success').length || 0}
+                {workflows?.filter((w) => w.status === "success").length || 0}
               </p>
             </div>
             <div className="border-t border-b border-black border-r p-6 bg-gray-50">
               <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">Error</p>
               <p className="text-4xl font-bold text-red-700">
-                {workflows?.filter((w) => w.status === 'error').length || 0}
+                {workflows?.filter((w) => w.status === "error").length || 0}
               </p>
             </div>
             <div className="border-t border-b border-black p-6 bg-gray-50">
               <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">Avg Duration</p>
               <p className="text-4xl font-bold text-black">
                 {formatDuration(
-                  (workflows?.filter((w) => w.duration_ms).reduce((acc, w) => acc + (w.duration_ms || 0), 0) ?? 0) /
+                  (workflows
+                    ?.filter((w) => w.duration_ms)
+                    .reduce((acc, w) => acc + (w.duration_ms || 0), 0) ?? 0) /
                     (workflows?.filter((w) => w.duration_ms).length || 1)
                 )}
               </p>
@@ -237,7 +244,8 @@ export default function AdminWorkflowsPage() {
           </div>
 
           <div className="mb-6 text-sm">
-            <span className="font-bold">{filteredWorkflows.length}</span> of {workflows?.length || 0} workflows
+            <span className="font-bold">{filteredWorkflows.length}</span> of{" "}
+            {workflows?.length || 0} workflows
             {searchQuery && ` matching "${searchQuery}"`}
           </div>
         </section>
@@ -250,8 +258,8 @@ export default function AdminWorkflowsPage() {
         ) : filteredWorkflows.length === 0 ? (
           <div className="text-center py-16 text-gray-500 border-2 border-black">
             {searchQuery || statusFilter || entityFilter || operationFilter
-              ? 'No workflows match your search criteria.'
-              : 'No workflows found. Workflows will appear here after entity operations.'}
+              ? "No workflows match your search criteria."
+              : "No workflows found. Workflows will appear here after entity operations."}
           </div>
         ) : (
           <div className="border-2 border-black">
@@ -271,9 +279,7 @@ export default function AdminWorkflowsPage() {
                 className="grid grid-cols-12 gap-4 px-6 py-4 border-t border-gray-200 hover:bg-gray-50 items-center"
               >
                 <div className="col-span-2">
-                  <code className="text-sm bg-gray-100 px-2 py-1 font-mono">
-                    {wf.entity_name}
-                  </code>
+                  <code className="text-sm bg-gray-100 px-2 py-1 font-mono">{wf.entity_name}</code>
                 </div>
 
                 <div className="col-span-2">
@@ -287,7 +293,9 @@ export default function AdminWorkflowsPage() {
                 </div>
 
                 <div className="col-span-1">
-                  <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 border ${getStatusBadge(wf.status)}`}>
+                  <span
+                    className={`inline-flex items-center gap-1 text-xs px-2 py-1 border ${getStatusBadge(wf.status)}`}
+                  >
                     {getStatusIcon(wf.status)}
                     {wf.status}
                   </span>
@@ -295,9 +303,7 @@ export default function AdminWorkflowsPage() {
 
                 <div className="col-span-2">
                   <div className="text-sm font-medium">{formatDuration(wf.duration_ms)}</div>
-                  {wf.status === 'draft' && (
-                    <div className="text-xs text-blue-600">Running...</div>
-                  )}
+                  {wf.status === "draft" && <div className="text-xs text-blue-600">Running...</div>}
                 </div>
 
                 <div className="col-span-2">
@@ -313,9 +319,7 @@ export default function AdminWorkflowsPage() {
                   <div className="text-xs font-mono text-gray-500">
                     {wf.trigger_run_id?.slice(0, 12)}...
                   </div>
-                  {wf.error_details && (
-                    <div className="text-xs text-red-600 mt-1">Error</div>
-                  )}
+                  {wf.error_details && <div className="text-xs text-red-600 mt-1">Error</div>}
                 </div>
               </div>
             ))}

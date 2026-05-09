@@ -1,1 +1,250 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_parser_ts", "label": "parser.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L1"}, {"id": "parser_hooksyntaxparser", "label": "HookSyntaxParser", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L20"}, {"id": "parser_hooksyntaxparser_parse", "label": ".parse()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L35"}, {"id": "parser_hooksyntaxparser_parseparameters", "label": ".parseParameters()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L119"}, {"id": "parser_hooksyntaxparser_parsemultiple", "label": ".parseMultiple()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L163"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_parser_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_types", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_parser_ts", "target": "parser_hooksyntaxparser", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L20", "weight": 1.0}, {"source": "parser_hooksyntaxparser", "target": "parser_hooksyntaxparser_parse", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L35", "weight": 1.0}, {"source": "parser_hooksyntaxparser", "target": "parser_hooksyntaxparser_parseparameters", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L119", "weight": 1.0}, {"source": "parser_hooksyntaxparser", "target": "parser_hooksyntaxparser_parsemultiple", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L163", "weight": 1.0}, {"source": "parser_hooksyntaxparser_parse", "target": "parser_hooksyntaxparser_parseparameters", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L92", "weight": 1.0}, {"source": "parser_hooksyntaxparser_parsemultiple", "target": "parser_hooksyntaxparser_parse", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L170", "weight": 1.0}], "raw_calls": [{"caller_nid": "parser_hooksyntaxparser_parse", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L37"}, {"caller_nid": "parser_hooksyntaxparser_parse", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L40"}, {"caller_nid": "parser_hooksyntaxparser_parse", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L41"}, {"caller_nid": "parser_hooksyntaxparser_parse", "callee": "substring", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L43"}, {"caller_nid": "parser_hooksyntaxparser_parse", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L49"}, {"caller_nid": "parser_hooksyntaxparser_parse", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L51"}, {"caller_nid": "parser_hooksyntaxparser_parse", "callee": "test", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L61"}, {"caller_nid": "parser_hooksyntaxparser_parse", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L62"}, {"caller_nid": "parser_hooksyntaxparser_parse", "callee": "test", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L72"}, {"caller_nid": "parser_hooksyntaxparser_parse", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L73"}, {"caller_nid": "parser_hooksyntaxparser_parse", "callee": "test", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L81"}, {"caller_nid": "parser_hooksyntaxparser_parse", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L82"}, {"caller_nid": "parser_hooksyntaxparser_parse", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L94"}, {"caller_nid": "parser_hooksyntaxparser_parseparameters", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L124"}, {"caller_nid": "parser_hooksyntaxparser_parseparameters", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L124"}, {"caller_nid": "parser_hooksyntaxparser_parseparameters", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L129"}, {"caller_nid": "parser_hooksyntaxparser_parseparameters", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L131"}, {"caller_nid": "parser_hooksyntaxparser_parseparameters", "callee": "test", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L141"}, {"caller_nid": "parser_hooksyntaxparser_parseparameters", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L142"}, {"caller_nid": "parser_hooksyntaxparser_parseparameters", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L149"}, {"caller_nid": "parser_hooksyntaxparser_parsemultiple", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L164"}, {"caller_nid": "parser_hooksyntaxparser_parsemultiple", "callee": "trim", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L168"}, {"caller_nid": "parser_hooksyntaxparser_parsemultiple", "callee": "startsWith", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L169"}, {"caller_nid": "parser_hooksyntaxparser_parsemultiple", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts", "source_location": "L170"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_parser_ts",
+      "label": "parser.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "parser_hooksyntaxparser",
+      "label": "HookSyntaxParser",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L20"
+    },
+    {
+      "id": "parser_hooksyntaxparser_parse",
+      "label": ".parse()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L35"
+    },
+    {
+      "id": "parser_hooksyntaxparser_parseparameters",
+      "label": ".parseParameters()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L119"
+    },
+    {
+      "id": "parser_hooksyntaxparser_parsemultiple",
+      "label": ".parseMultiple()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L163"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_parser_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_generators_hook_translator_parser_ts",
+      "target": "parser_hooksyntaxparser",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "parser_hooksyntaxparser",
+      "target": "parser_hooksyntaxparser_parse",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "parser_hooksyntaxparser",
+      "target": "parser_hooksyntaxparser_parseparameters",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L119",
+      "weight": 1.0
+    },
+    {
+      "source": "parser_hooksyntaxparser",
+      "target": "parser_hooksyntaxparser_parsemultiple",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L163",
+      "weight": 1.0
+    },
+    {
+      "source": "parser_hooksyntaxparser_parse",
+      "target": "parser_hooksyntaxparser_parseparameters",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "parser_hooksyntaxparser_parsemultiple",
+      "target": "parser_hooksyntaxparser_parse",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L170",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "parser_hooksyntaxparser_parse",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parse",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parse",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parse",
+      "callee": "substring",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parse",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L49"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parse",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parse",
+      "callee": "test",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parse",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parse",
+      "callee": "test",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parse",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parse",
+      "callee": "test",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parse",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parse",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parseparameters",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parseparameters",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parseparameters",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parseparameters",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parseparameters",
+      "callee": "test",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parseparameters",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parseparameters",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L149"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parsemultiple",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parsemultiple",
+      "callee": "trim",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L168"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parsemultiple",
+      "callee": "startsWith",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L169"
+    },
+    {
+      "caller_nid": "parser_hooksyntaxparser_parsemultiple",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/generators/hook-translator/parser.ts",
+      "source_location": "L170"
+    }
+  ]
+}

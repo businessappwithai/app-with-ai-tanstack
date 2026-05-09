@@ -1,1 +1,1 @@
-export * from './hook-translator';
+export * from "./hook-translator";

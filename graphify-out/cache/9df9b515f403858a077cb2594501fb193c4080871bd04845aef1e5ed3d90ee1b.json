@@ -1,1 +1,159 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx", "label": "JDMEditor.tsx", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L1"}, {"id": "jdmeditor_updatenodecontent", "label": "updateNodeContent()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L33"}, {"id": "jdmeditor_handledecisiontablechange", "label": "handleDecisionTableChange()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L52"}, {"id": "jdmeditor_handlejsonchange", "label": "handleJsonChange()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L56"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx", "target": "react", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L3", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx", "target": "card", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L4", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx", "target": "tabs", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L5", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx", "target": "input", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx", "target": "label", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx", "target": "textarea", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_decisiontableeditor", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx", "target": "jdmeditor_updatenodecontent", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L33", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx", "target": "jdmeditor_handledecisiontablechange", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L52", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx", "target": "jdmeditor_handlejsonchange", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L56", "weight": 1.0}, {"source": "jdmeditor_handledecisiontablechange", "target": "jdmeditor_updatenodecontent", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L53", "weight": 1.0}], "raw_calls": [{"caller_nid": "jdmeditor_updatenodecontent", "callee": "onChange", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L34"}, {"caller_nid": "jdmeditor_updatenodecontent", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L36"}, {"caller_nid": "jdmeditor_handlejsonchange", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L58"}, {"caller_nid": "jdmeditor_handlejsonchange", "callee": "onChange", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx", "source_location": "L59"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx",
+      "label": "JDMEditor.tsx",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "jdmeditor_updatenodecontent",
+      "label": "updateNodeContent()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L33"
+    },
+    {
+      "id": "jdmeditor_handledecisiontablechange",
+      "label": "handleDecisionTableChange()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L52"
+    },
+    {
+      "id": "jdmeditor_handlejsonchange",
+      "label": "handleJsonChange()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L56"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx",
+      "target": "card",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx",
+      "target": "tabs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx",
+      "target": "input",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx",
+      "target": "label",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx",
+      "target": "textarea",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_decisiontableeditor",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx",
+      "target": "jdmeditor_updatenodecontent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx",
+      "target": "jdmeditor_handledecisiontablechange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_components_rules_jdmeditor_tsx",
+      "target": "jdmeditor_handlejsonchange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "jdmeditor_handledecisiontablechange",
+      "target": "jdmeditor_updatenodecontent",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L53",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "jdmeditor_updatenodecontent",
+      "callee": "onChange",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "jdmeditor_updatenodecontent",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "jdmeditor_handlejsonchange",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "jdmeditor_handlejsonchange",
+      "callee": "onChange",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/components/rules/JDMEditor.tsx",
+      "source_location": "L59"
+    }
+  ]
+}

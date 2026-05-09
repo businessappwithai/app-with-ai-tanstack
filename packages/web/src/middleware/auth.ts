@@ -3,12 +3,11 @@
  *
  * Provides authentication and authorization checks for API routes.
  * Integrates with better-auth for session management.
+ * Uses standard Web Request/Response APIs (compatible with Vinxi/TanStack Start).
  *
  * Created by: WEB-001 ticket
  * Week: 2
  */
-
-import { NextRequest, NextResponse } from "next/server";
 
 /**
  * Auth error types
@@ -31,12 +30,17 @@ export interface AuthErrorPayload {
 /**
  * Check if request is authenticated
  *
- * @param request - NextRequest object
+ * @param request - Standard Web Request object
  * @returns {Promise<boolean>} True if authenticated, false otherwise
  */
-export async function isAuthenticated(request: NextRequest): Promise<boolean> {
-  // Check for session cookie
-  const sessionToken = request.cookies.get("better-auth.session_token")?.value;
+export async function isAuthenticated(request: Request): Promise<boolean> {
+  // Check for session cookie from the Cookie header
+  const cookieHeader = request.headers.get("cookie") || "";
+  const sessionToken = cookieHeader
+    .split(";")
+    .map((c) => c.trim())
+    .find((c) => c.startsWith("better-auth.session_token="))
+    ?.split("=")[1];
 
   if (!sessionToken) {
     return false;
@@ -51,10 +55,10 @@ export async function isAuthenticated(request: NextRequest): Promise<boolean> {
 /**
  * Get current user from request
  *
- * @param request - NextRequest object
+ * @param request - Standard Web Request object
  * @returns {Promise<{ id: string; email?: string; role?: string } | null>} User object or null
  */
-export async function getCurrentUser(_request: NextRequest): Promise<{
+export async function getCurrentUser(_request: Request): Promise<{
   id: string;
   email?: string;
   role?: string;
@@ -73,18 +77,18 @@ export async function getCurrentUser(_request: NextRequest): Promise<{
  *
  * Use this at the start of any route handler that requires authentication.
  *
- * @param request - NextRequest object
- * @throws {NextResponse} Throws 401 response if not authenticated
+ * @param request - Standard Web Request object
+ * @throws {Response} Throws 401 response if not authenticated
  *
  * @example
  * ```typescript
- * export async function GET(request: NextRequest) {
+ * export async function GET(request: Request) {
  *   await requireAuth(request); // Throws 401 if not authenticated
  *   // ... rest of handler
  * }
  * ```
  */
-export async function requireAuth(request: NextRequest): Promise<void> {
+export async function requireAuth(request: Request): Promise<void> {
   const authenticated = await isAuthenticated(request);
 
   if (!authenticated) {
@@ -97,14 +101,11 @@ export async function requireAuth(request: NextRequest): Promise<void> {
  *
  * Checks if current user has required role.
  *
- * @param request - NextRequest object
+ * @param request - Standard Web Request object
  * @param allowedRoles - Array of allowed roles
- * @throws {NextResponse} Throws 401 or 403 response if not authorized
+ * @throws {Response} Throws 401 or 403 response if not authorized
  */
-export async function requireRole(
-  request: NextRequest,
-  allowedRoles: string[]
-): Promise<void> {
+export async function requireRole(request: Request, allowedRoles: string[]): Promise<void> {
   await requireAuth(request);
 
   const user = await getCurrentUser(request);
@@ -134,8 +135,8 @@ export class AuthError extends Error {
   /**
    * Create unauthorized error (401)
    */
-  static unauthorized(): NextResponse {
-    return NextResponse.json(
+  static unauthorized(): Response {
+    return Response.json(
       {
         error: "Authentication required",
         code: AuthErrorCode.UNAUTHORIZED,
@@ -148,8 +149,8 @@ export class AuthError extends Error {
   /**
    * Create permission denied error (403)
    */
-  static permissionDenied(resource?: string): NextResponse {
-    return NextResponse.json(
+  static permissionDenied(resource?: string): Response {
+    return Response.json(
       {
         error: "Permission denied",
         code: AuthErrorCode.PERMISSION_DENIED,
@@ -164,8 +165,8 @@ export class AuthError extends Error {
   /**
    * Create forbidden operation error (403)
    */
-  static forbiddenOperation(reason?: string): NextResponse {
-    return NextResponse.json(
+  static forbiddenOperation(reason?: string): Response {
+    return Response.json(
       {
         error: "Operation not allowed",
         code: AuthErrorCode.FORBIDDEN_OPERATION,
@@ -176,10 +177,10 @@ export class AuthError extends Error {
   }
 
   /**
-   * Convert to NextResponse
+   * Convert to Response
    */
-  toResponse(): NextResponse {
-    return NextResponse.json(
+  toResponse(): Response {
+    return Response.json(
       {
         error: this.message,
         code: this.code,
@@ -214,15 +215,14 @@ export class AuthError extends Error {
  * @example
  * ```typescript
  * export const GET = withAuth(async (request) => {
- *   // Handler code here - authentication already checked
- *   return NextResponse.json({ data: "protected" });
+ *   return Response.json({ data: "protected" });
  * });
  * ```
  */
 export function withAuth<T extends unknown[]>(
-  handler: (request: NextRequest, ...args: T) => Promise<NextResponse>
-): (request: NextRequest, ...args: T) => Promise<NextResponse> {
-  return async (request: NextRequest, ...args: T): Promise<NextResponse> => {
+  handler: (request: Request, ...args: T) => Promise<Response>
+): (request: Request, ...args: T) => Promise<Response> {
+  return async (request: Request, ...args: T): Promise<Response> => {
     try {
       await requireAuth(request);
       return await handler(request, ...args);
@@ -230,8 +230,8 @@ export function withAuth<T extends unknown[]>(
       if (error instanceof AuthError) {
         return error.toResponse();
       }
-      if (error instanceof NextResponse) {
-        return error; // Re-throw NextResponse (auth errors)
+      if (error instanceof Response) {
+        return error; // Re-throw Response (auth errors)
       }
       throw error; // Re-throw other errors
     }
@@ -248,16 +248,15 @@ export function withAuth<T extends unknown[]>(
  * @example
  * ```typescript
  * export const POST = withRole(["admin"], async (request) => {
- *   // Handler code here - admin role already checked
- *   return NextResponse.json({ data: "admin-only" });
+ *   return Response.json({ data: "admin-only" });
  * });
  * ```
  */
 export function withRole<T extends unknown[]>(
   allowedRoles: string[],
-  handler: (request: NextRequest, ...args: T) => Promise<NextResponse>
-): (request: NextRequest, ...args: T) => Promise<NextResponse> {
-  return async (request: NextRequest, ...args: T): Promise<NextResponse> => {
+  handler: (request: Request, ...args: T) => Promise<Response>
+): (request: Request, ...args: T) => Promise<Response> {
+  return async (request: Request, ...args: T): Promise<Response> => {
     try {
       await requireRole(request, allowedRoles);
       return await handler(request, ...args);
@@ -265,7 +264,7 @@ export function withRole<T extends unknown[]>(
       if (error instanceof AuthError) {
         return error.toResponse();
       }
-      if (error instanceof NextResponse) {
+      if (error instanceof Response) {
         return error;
       }
       throw error;

@@ -4,17 +4,17 @@
  * Provides test utilities, fixtures, and mocks for generator tests
  */
 
-import { vi } from 'vitest';
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import os from 'os';
-import type { Entity, Relationship } from '@erdwithai/core/types';
+import type { Entity, Relationship } from "@erdwithai/core/types";
+import * as fs from "fs/promises";
+import os from "os";
+import * as path from "path";
+import { vi } from "vitest";
 
 // Mock fs module for tests that don't need real file operations
 export const mockFs = {
   mkdir: vi.fn().mockResolvedValue(undefined),
   writeFile: vi.fn().mockResolvedValue(undefined),
-  readFile: vi.fn().mockResolvedValue(''),
+  readFile: vi.fn().mockResolvedValue(""),
   readdir: vi.fn().mockResolvedValue([]),
   stat: vi.fn().mockResolvedValue({ isDirectory: () => false }),
   rm: vi.fn().mockResolvedValue(undefined),
@@ -23,7 +23,7 @@ export const mockFs = {
 /**
  * Create a temporary directory for test outputs
  */
-export async function createTempDir(prefix: string = 'generator-test'): Promise<string> {
+export async function createTempDir(prefix: string = "generator-test"): Promise<string> {
   const tempDir = path.join(os.tmpdir(), `${prefix}-${Date.now()}`);
   await fs.mkdir(tempDir, { recursive: true });
   return tempDir;
@@ -45,18 +45,18 @@ export async function cleanupTempDir(tempDir: string): Promise<void> {
  */
 export function createTestEntity(overrides: Partial<Entity> = {}): Entity {
   return {
-    name: 'User',
-    tableName: 'user',
-    description: 'User entity for testing',
+    name: "User",
+    tableName: "user",
+    description: "User entity for testing",
     attributes: [
-      { name: 'id', type: 'string', required: true, unique: true },
-      { name: 'email', type: 'string', required: true, unique: true, maxLength: 255 },
-      { name: 'name', type: 'string', required: true, maxLength: 100 },
-      { name: 'age', type: 'integer', required: false },
-      { name: 'isActive', type: 'boolean', required: true, default: true },
-      { name: 'createdAt', type: 'datetime', required: true },
+      { name: "id", type: "string", required: true, unique: true },
+      { name: "email", type: "string", required: true, unique: true, maxLength: 255 },
+      { name: "name", type: "string", required: true, maxLength: 100 },
+      { name: "age", type: "integer", required: false },
+      { name: "isActive", type: "boolean", required: true, default: true },
+      { name: "createdAt", type: "datetime", required: true },
     ],
-    primaryKey: 'id',
+    primaryKey: "id",
     timestamps: true,
     ...overrides,
   };
@@ -67,21 +67,21 @@ export function createTestEntity(overrides: Partial<Entity> = {}): Entity {
  */
 export function createComplexEntity(): Entity {
   return {
-    name: 'Product',
-    tableName: 'product',
-    description: 'Product entity with all attribute types',
+    name: "Product",
+    tableName: "product",
+    description: "Product entity with all attribute types",
     attributes: [
-      { name: 'id', type: 'string', required: true, unique: true },
-      { name: 'name', type: 'string', required: true, maxLength: 200 },
-      { name: 'description', type: 'text', required: false },
-      { name: 'price', type: 'decimal', required: true },
-      { name: 'quantity', type: 'integer', required: true, default: 0 },
-      { name: 'isAvailable', type: 'boolean', required: true, default: true },
-      { name: 'releaseDate', type: 'date', required: false },
-      { name: 'lastUpdated', type: 'datetime', required: true },
-      { name: 'metadata', type: 'json', required: false },
+      { name: "id", type: "string", required: true, unique: true },
+      { name: "name", type: "string", required: true, maxLength: 200 },
+      { name: "description", type: "text", required: false },
+      { name: "price", type: "decimal", required: true },
+      { name: "quantity", type: "integer", required: true, default: 0 },
+      { name: "isAvailable", type: "boolean", required: true, default: true },
+      { name: "releaseDate", type: "date", required: false },
+      { name: "lastUpdated", type: "datetime", required: true },
+      { name: "metadata", type: "json", required: false },
     ],
-    primaryKey: 'id',
+    primaryKey: "id",
     timestamps: true,
   };
 }
@@ -91,11 +91,11 @@ export function createComplexEntity(): Entity {
  */
 export function createTestRelationship(overrides: Partial<Relationship> = {}): Relationship {
   return {
-    name: 'user_posts',
-    sourceEntity: 'User',
-    targetEntity: 'Post',
-    cardinality: 'oneToMany',
-    foreignKey: 'user_id',
+    name: "user_posts",
+    sourceEntity: "User",
+    targetEntity: "Post",
+    cardinality: "oneToMany",
+    foreignKey: "user_id",
     ...overrides,
   };
 }
@@ -106,88 +106,88 @@ export function createTestRelationship(overrides: Partial<Relationship> = {}): R
 export function createTestEntitySet(): { entities: Entity[]; relationships: Relationship[] } {
   const entities: Entity[] = [
     {
-      name: 'User',
-      tableName: 'user',
-      description: 'Application user',
+      name: "User",
+      tableName: "user",
+      description: "Application user",
       attributes: [
-        { name: 'id', type: 'string', required: true, unique: true },
-        { name: 'email', type: 'string', required: true, unique: true },
-        { name: 'name', type: 'string', required: true },
-        { name: 'role', type: 'string', required: true, default: 'user' },
+        { name: "id", type: "string", required: true, unique: true },
+        { name: "email", type: "string", required: true, unique: true },
+        { name: "name", type: "string", required: true },
+        { name: "role", type: "string", required: true, default: "user" },
       ],
-      primaryKey: 'id',
+      primaryKey: "id",
       timestamps: true,
     },
     {
-      name: 'Post',
-      tableName: 'post',
-      description: 'Blog post',
+      name: "Post",
+      tableName: "post",
+      description: "Blog post",
       attributes: [
-        { name: 'id', type: 'string', required: true, unique: true },
-        { name: 'title', type: 'string', required: true },
-        { name: 'content', type: 'text', required: true },
-        { name: 'published', type: 'boolean', required: true, default: false },
-        { name: 'authorId', type: 'string', required: true },
+        { name: "id", type: "string", required: true, unique: true },
+        { name: "title", type: "string", required: true },
+        { name: "content", type: "text", required: true },
+        { name: "published", type: "boolean", required: true, default: false },
+        { name: "authorId", type: "string", required: true },
       ],
-      primaryKey: 'id',
+      primaryKey: "id",
       timestamps: true,
     },
     {
-      name: 'Comment',
-      tableName: 'comment',
-      description: 'Post comment',
+      name: "Comment",
+      tableName: "comment",
+      description: "Post comment",
       attributes: [
-        { name: 'id', type: 'string', required: true, unique: true },
-        { name: 'content', type: 'text', required: true },
-        { name: 'postId', type: 'string', required: true },
-        { name: 'authorId', type: 'string', required: true },
+        { name: "id", type: "string", required: true, unique: true },
+        { name: "content", type: "text", required: true },
+        { name: "postId", type: "string", required: true },
+        { name: "authorId", type: "string", required: true },
       ],
-      primaryKey: 'id',
+      primaryKey: "id",
       timestamps: true,
     },
     {
-      name: 'Category',
-      tableName: 'category',
-      description: 'Post category',
+      name: "Category",
+      tableName: "category",
+      description: "Post category",
       attributes: [
-        { name: 'id', type: 'string', required: true, unique: true },
-        { name: 'name', type: 'string', required: true, unique: true },
-        { name: 'description', type: 'text', required: false },
+        { name: "id", type: "string", required: true, unique: true },
+        { name: "name", type: "string", required: true, unique: true },
+        { name: "description", type: "text", required: false },
       ],
-      primaryKey: 'id',
+      primaryKey: "id",
       timestamps: true,
     },
   ];
 
   const relationships: Relationship[] = [
     {
-      name: 'user_posts',
-      sourceEntity: 'User',
-      targetEntity: 'Post',
-      cardinality: 'oneToMany',
-      foreignKey: 'author_id',
+      name: "user_posts",
+      sourceEntity: "User",
+      targetEntity: "Post",
+      cardinality: "oneToMany",
+      foreignKey: "author_id",
     },
     {
-      name: 'post_comments',
-      sourceEntity: 'Post',
-      targetEntity: 'Comment',
-      cardinality: 'oneToMany',
-      foreignKey: 'post_id',
+      name: "post_comments",
+      sourceEntity: "Post",
+      targetEntity: "Comment",
+      cardinality: "oneToMany",
+      foreignKey: "post_id",
     },
     {
-      name: 'user_comments',
-      sourceEntity: 'User',
-      targetEntity: 'Comment',
-      cardinality: 'oneToMany',
-      foreignKey: 'author_id',
+      name: "user_comments",
+      sourceEntity: "User",
+      targetEntity: "Comment",
+      cardinality: "oneToMany",
+      foreignKey: "author_id",
     },
     {
-      name: 'post_categories',
-      sourceEntity: 'Post',
-      targetEntity: 'Category',
-      cardinality: 'manyToMany',
-      foreignKey: 'post_id',
-      inverseForeignKey: 'category_id',
+      name: "post_categories",
+      sourceEntity: "Post",
+      targetEntity: "Category",
+      cardinality: "manyToMany",
+      foreignKey: "post_id",
+      inverseForeignKey: "category_id",
     },
   ];
 
@@ -299,13 +299,16 @@ export async function assertDirExists(dirPath: string): Promise<boolean> {
  * Read and return file content
  */
 export async function readFileContent(filePath: string): Promise<string> {
-  return fs.readFile(filePath, 'utf-8');
+  return fs.readFile(filePath, "utf-8");
 }
 
 /**
  * List all files in a directory recursively
  */
-export async function listFilesRecursively(dir: string, fileList: string[] = []): Promise<string[]> {
+export async function listFilesRecursively(
+  dir: string,
+  fileList: string[] = []
+): Promise<string[]> {
   const files = await fs.readdir(dir);
 
   for (const file of files) {
@@ -329,7 +332,7 @@ export async function assertFileContains(
   filePath: string,
   expectedStrings: string[]
 ): Promise<{ success: boolean; missing: string[] }> {
-  const content = await fs.readFile(filePath, 'utf-8');
+  const content = await fs.readFile(filePath, "utf-8");
   const missing: string[] = [];
 
   for (const expected of expectedStrings) {

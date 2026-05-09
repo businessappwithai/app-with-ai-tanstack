@@ -7,8 +7,8 @@
  * Generated: 2026-05-06T11:42:08.716Z
  */
 
-import knex, { Knex } from 'knex';
-import path from 'path';
+import knex, { type Knex } from "knex";
+import path from "path";
 
 let db: Knex | null = null;
 
@@ -17,30 +17,33 @@ export async function initializeDatabase(): Promise<Knex> {
     return db;
   }
 
-  const dbType = process.env.DB_TYPE || 'sqlite';
+  const dbType = process.env.DB_TYPE || "sqlite";
 
   const config: Knex.Config = {
-    client: dbType === 'postgresql' ? 'pg' : 'sqlite3',
-    connection: dbType === 'postgresql' ? {
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432', 10),
-      database: process.env.DB_NAME || 'q-a-test-project',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
-    } : {
-      filename: process.env.DB_NAME || './data/q-a-test-project.db'
-    },
+    client: dbType === "postgresql" ? "pg" : "sqlite3",
+    connection:
+      dbType === "postgresql"
+        ? {
+            host: process.env.DB_HOST || "localhost",
+            port: parseInt(process.env.DB_PORT || "5432", 10),
+            database: process.env.DB_NAME || "q-a-test-project",
+            user: process.env.DB_USER || "postgres",
+            password: process.env.DB_PASSWORD || "postgres",
+          }
+        : {
+            filename: process.env.DB_NAME || "./data/q-a-test-project.db",
+          },
     useNullAsDefault: true, // Required for SQLite
     pool: {
       min: 2,
       max: 10,
     },
     migrations: {
-      directory: path.join(process.cwd(), 'migrations'),
-      tableName: 'knex_migrations',
+      directory: path.join(process.cwd(), "migrations"),
+      tableName: "knex_migrations",
     },
     seeds: {
-      directory: path.join(process.cwd(), 'seeds'),
+      directory: path.join(process.cwd(), "seeds"),
     },
   };
 
@@ -48,10 +51,10 @@ export async function initializeDatabase(): Promise<Knex> {
 
   // Test connection
   try {
-    await db.raw('SELECT 1');
+    await db.raw("SELECT 1");
     console.log(`Database connection established (${dbType})`);
   } catch (error) {
-    console.error('Failed to connect to database:', error);
+    console.error("Failed to connect to database:", error);
     throw error;
   }
 
@@ -60,7 +63,7 @@ export async function initializeDatabase(): Promise<Knex> {
 
 export function getKnex(): Knex {
   if (!db) {
-    throw new Error('Database not initialized. Call initializeDatabase() first.');
+    throw new Error("Database not initialized. Call initializeDatabase() first.");
   }
   return db;
 }
@@ -69,7 +72,7 @@ export async function closeDatabase(): Promise<void> {
   if (db) {
     await db.destroy();
     db = null;
-    console.log('Database connection closed');
+    console.log("Database connection closed");
   }
 }
 

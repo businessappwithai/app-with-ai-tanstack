@@ -5,19 +5,19 @@
  * Shows groups with their column layouts and field counts.
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Pencil, Trash2, GripVertical, LayoutGrid, Check, X, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Check, GripVertical, LayoutGrid, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import { useState } from "react";
 import {
-  useFieldGroups,
+  type FieldGroup,
   useCreateFieldGroup,
-  useUpdateFieldGroup,
   useDeleteFieldGroup,
-  type FieldGroup
-} from '@/hooks/use-entities';
+  useFieldGroups,
+  useUpdateFieldGroup,
+} from "@/hooks/use-entities";
+import { cn } from "@/lib/utils";
 
 interface FieldGroupManagerProps {
   entityName: string;
@@ -30,10 +30,10 @@ interface ColumnLayoutOption {
 }
 
 const COLUMN_LAYOUTS: ColumnLayoutOption[] = [
-  { value: 1, label: '1 Column', icon: '▯' },
-  { value: 2, label: '2 Columns', icon: '▯▯' },
-  { value: 3, label: '3 Columns', icon: '▯▯▯' },
-  { value: 4, label: '4 Columns', icon: '▯▯▯▯' },
+  { value: 1, label: "1 Column", icon: "▯" },
+  { value: 2, label: "2 Columns", icon: "▯▯" },
+  { value: 3, label: "3 Columns", icon: "▯▯▯" },
+  { value: 4, label: "4 Columns", icon: "▯▯▯▯" },
 ];
 
 export function FieldGroupManager({ entityName }: FieldGroupManagerProps) {
@@ -43,10 +43,10 @@ export function FieldGroupManager({ entityName }: FieldGroupManagerProps) {
 
   // Form state for new/edit group
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     columns: 1,
-    layout_type: 'single',
+    layout_type: "single",
   });
 
   // Mutations
@@ -56,7 +56,7 @@ export function FieldGroupManager({ entityName }: FieldGroupManagerProps) {
 
   // Reset form
   const resetForm = () => {
-    setFormData({ name: '', description: '', columns: 1, layout_type: 'single' });
+    setFormData({ name: "", description: "", columns: 1, layout_type: "single" });
     setEditingGroup(null);
     setNewGroupMode(false);
   };
@@ -65,7 +65,7 @@ export function FieldGroupManager({ entityName }: FieldGroupManagerProps) {
   const startEdit = (group: FieldGroup) => {
     setFormData({
       name: group.name,
-      description: group.description || '',
+      description: group.description || "",
       columns: group.columns,
       layout_type: group.layout_type,
     });
@@ -76,11 +76,16 @@ export function FieldGroupManager({ entityName }: FieldGroupManagerProps) {
   // Get layout type from columns
   const getLayoutType = (columns: number): string => {
     switch (columns) {
-      case 1: return 'single';
-      case 2: return 'two-column';
-      case 3: return 'three-column';
-      case 4: return 'four-column';
-      default: return 'single';
+      case 1:
+        return "single";
+      case 2:
+        return "two-column";
+      case 3:
+        return "three-column";
+      case 4:
+        return "four-column";
+      default:
+        return "single";
     }
   };
 
@@ -164,7 +169,11 @@ export function FieldGroupManager({ entityName }: FieldGroupManagerProps) {
                 );
               }}
               onDelete={() => {
-                if (confirm(`Are you sure you want to delete "${group.name}"? Fields in this group will become ungrouped.`)) {
+                if (
+                  confirm(
+                    `Are you sure you want to delete "${group.name}"? Fields in this group will become ungrouped.`
+                  )
+                ) {
                   deleteMutation.mutate(group.sys_field_group_id);
                 }
               }}
@@ -226,23 +235,21 @@ function GroupForm({ formData, setFormData, onCancel, onSave, isSaving = false }
             <button
               key={layout.value}
               type="button"
-              onClick={() => setFormData({
-                ...formData,
-                columns: layout.value,
-                layout_type: getLayoutType(layout.value),
-              })}
+              onClick={() =>
+                setFormData({
+                  ...formData,
+                  columns: layout.value,
+                  layout_type: getLayoutType(layout.value),
+                })
+              }
               className={cn(
-                'flex-1 p-3 border-2 rounded-lg transition-all',
-                'hover:border-primary/50',
-                formData.columns === layout.value
-                  ? 'border-primary bg-primary/10'
-                  : 'border-border'
+                "flex-1 p-3 border-2 rounded-lg transition-all",
+                "hover:border-primary/50",
+                formData.columns === layout.value ? "border-primary bg-primary/10" : "border-border"
               )}
             >
               <div className="flex flex-col items-center gap-2">
-                <div className="text-2xl tracking-widest opacity-70">
-                  {layout.icon}
-                </div>
+                <div className="text-2xl tracking-widest opacity-70">{layout.icon}</div>
                 <div className="text-xs font-medium">{layout.label}</div>
               </div>
             </button>
@@ -265,9 +272,9 @@ function GroupForm({ formData, setFormData, onCancel, onSave, isSaving = false }
           onClick={onSave}
           disabled={!formData.name.trim() || isSaving}
           className={cn(
-            'flex items-center gap-2 px-4 py-2 rounded-md transition-colors',
-            'bg-primary text-primary-foreground hover:bg-primary/90',
-            'disabled:opacity-50 disabled:cursor-not-allowed'
+            "flex items-center gap-2 px-4 py-2 rounded-md transition-colors",
+            "bg-primary text-primary-foreground hover:bg-primary/90",
+            "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
         >
           {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -310,10 +317,7 @@ function GroupCard({
 }: GroupCardProps) {
   return (
     <div
-      className={cn(
-        'border rounded-lg bg-card transition-all',
-        isEditing && 'ring-2 ring-primary'
-      )}
+      className={cn("border rounded-lg bg-card transition-all", isEditing && "ring-2 ring-primary")}
     >
       {isEditing ? (
         <div className="p-6">
@@ -340,14 +344,12 @@ function GroupCard({
                 <div className="flex items-center gap-3 mb-2">
                   <h4 className="text-md font-semibold">{group.name}</h4>
                   <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
-                    {group.columns} column{group.columns > 1 ? 's' : ''}
+                    {group.columns} column{group.columns > 1 ? "s" : ""}
                   </span>
                 </div>
 
                 {group.description && (
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {group.description}
-                  </p>
+                  <p className="text-sm text-muted-foreground mb-3">{group.description}</p>
                 )}
 
                 {/* Layout Preview */}
@@ -393,10 +395,15 @@ function GroupCard({
 // Helper function to get layout type from columns
 function getLayoutType(columns: number): string {
   switch (columns) {
-    case 1: return 'single';
-    case 2: return 'two-column';
-    case 3: return 'three-column';
-    case 4: return 'four-column';
-    default: return 'single';
+    case 1:
+      return "single";
+    case 2:
+      return "two-column";
+    case 3:
+      return "three-column";
+    case 4:
+      return "four-column";
+    default:
+      return "single";
   }
 }

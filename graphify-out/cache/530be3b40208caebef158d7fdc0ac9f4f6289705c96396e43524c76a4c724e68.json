@@ -1,1 +1,68 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_mastra_adapter_ts", "label": "mastra-adapter.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts", "source_location": "L1"}, {"id": "mastra_adapter_mastraagent", "label": "MastraAgent", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts", "source_location": "L7"}, {"id": "mastra_adapter_mastraagent_getremoteagents", "label": ".getRemoteAgents()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts", "source_location": "L13"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_mastra_adapter_ts", "target": "client_js", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts", "source_location": "L1", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_mastra_adapter_ts", "target": "mastra_adapter_mastraagent", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts", "source_location": "L7", "weight": 1.0}, {"source": "mastra_adapter_mastraagent", "target": "mastra_adapter_mastraagent_getremoteagents", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts", "source_location": "L13", "weight": 1.0}], "raw_calls": [{"caller_nid": "mastra_adapter_mastraagent_getremoteagents", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts", "source_location": "L17"}, {"caller_nid": "mastra_adapter_mastraagent_getremoteagents", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts", "source_location": "L20"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_mastra_adapter_ts",
+      "label": "mastra-adapter.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "mastra_adapter_mastraagent",
+      "label": "MastraAgent",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts",
+      "source_location": "L7"
+    },
+    {
+      "id": "mastra_adapter_mastraagent_getremoteagents",
+      "label": ".getRemoteAgents()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts",
+      "source_location": "L13"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_mastra_adapter_ts",
+      "target": "client_js",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_lib_mastra_adapter_ts",
+      "target": "mastra_adapter_mastraagent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "mastra_adapter_mastraagent",
+      "target": "mastra_adapter_mastraagent_getremoteagents",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "mastra_adapter_mastraagent_getremoteagents",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts",
+      "source_location": "L17"
+    },
+    {
+      "caller_nid": "mastra_adapter_mastraagent_getremoteagents",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/lib/mastra-adapter.ts",
+      "source_location": "L20"
+    }
+  ]
+}

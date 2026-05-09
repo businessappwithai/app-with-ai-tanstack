@@ -3,7 +3,7 @@
  * Uses jaystack/odata-v4-server test utilities
  */
 
-import { initializeDatabase, closeDatabase, getKnex } from '../src/database/connection';
+import { closeDatabase, getKnex, initializeDatabase } from "../src/database/connection";
 
 // Global test setup
 beforeAll(async () => {
@@ -33,10 +33,10 @@ beforeEach(async () => {
   const db = getKnex();
 
   // Clear all business tables
-  const tables = await db('information_schema.tables')
-    .where('table_schema', 'public')
-    .where('table_name', 'like', 'bus_%')
-    .pluck('table_name');
+  const tables = await db("information_schema.tables")
+    .where("table_schema", "public")
+    .where("table_name", "like", "bus_%")
+    .pluck("table_name");
 
   for (const table of tables) {
     await db.raw(`TRUNCATE TABLE "${table}" CASCADE`);
@@ -54,7 +54,7 @@ export function createTestEntity(overrides: any = {}) {
     id: crypto.randomUUID(),
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -62,5 +62,5 @@ export function createTestEntity(overrides: any = {}) {
  * Helper to wait for async operations
  */
 export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

@@ -1,1 +1,1682 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "label": "BusPatientDetail.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L1"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller", "label": "BusPatientDetailController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L45"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L53"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched", "label": "._onRouteMatched()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L72"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_buildchildtabs", "label": "._buildChildTabs()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L121"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_createchildpanel", "label": "._createChildPanel()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L241"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_formatcellvalue", "label": "._formatCellValue()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L360"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_formatfullname", "label": ".formatFullName()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L376"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_getinitials", "label": ".getInitials()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L386"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_formatdate", "label": ".formatDate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L394"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_formatdatetime", "label": ".formatDateTime()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L404"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress", "label": ".onEditPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L414"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress", "label": ".onSavePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L425"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_oncancelpress", "label": ".onCancelPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L446"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_ondeletepress", "label": ".onDeletePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L456"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord", "label": "._deleteRecord()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L472"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields", "label": "._validateRequiredFields()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L492"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_onfullscreen", "label": ".onFullScreen()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L516"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_onexitfullscreen", "label": ".onExitFullScreen()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L527"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_onnavback", "label": ".onNavBack()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L537"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_onchildcreate", "label": "._onChildCreate()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L546"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit", "label": "._onChildEdit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L565"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_onchilddelete", "label": "._onChildDelete()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L594"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_deletechildrecords", "label": "._deleteChildRecords()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L621"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog", "label": "._openAppointmentDialog()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L648"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "label": ".onSaveAppointment()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L694"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_oncancelappointment", "label": ".onCancelAppointment()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L774"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange", "label": ".onDoctorSelectChange()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L782"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog", "label": "._loadDoctorsForDialog()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L799"}, {"id": "buspatientdetail_controller_buspatientdetailcontroller_closeappointmentdialog", "label": "._closeAppointmentDialog()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L850"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "jsonmodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "odatamodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "filter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "filteroperator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "sorter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "dateformat", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "messagebox", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "messagetoast", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "router", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L18", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "event", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L19", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "column", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L20", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "columnlistitem", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L21", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "text", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L22", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "label", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L23", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "panel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L24", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "table", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L25", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "title", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L26", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "button", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L27", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "toolbar", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L28", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "toolbarspacer", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L29", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "vbox", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L30", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts", "target": "buspatientdetail_controller_buspatientdetailcontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L45", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L53", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L72", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_buildchildtabs", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L121", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_createchildpanel", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L241", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_formatcellvalue", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L360", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_formatfullname", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L376", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_getinitials", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L386", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_formatdate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L394", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_formatdatetime", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L404", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L414", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L425", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_oncancelpress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L446", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_ondeletepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L456", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L472", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L492", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_onfullscreen", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L516", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_onexitfullscreen", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L527", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_onnavback", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L537", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_onchildcreate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L546", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L565", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_onchilddelete", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L594", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_deletechildrecords", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L621", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L648", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L694", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_oncancelappointment", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L774", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L782", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L799", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller", "target": "buspatientdetail_controller_buspatientdetailcontroller_closeappointmentdialog", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L850", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress", "target": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L429", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller_onchildcreate", "target": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L549", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit", "target": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L577", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog", "target": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L674", "weight": 1.0}, {"source": "buspatientdetail_controller_buspatientdetailcontroller_oncancelappointment", "target": "buspatientdetail_controller_buspatientdetailcontroller_closeappointmentdialog", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L775", "weight": 1.0}], "raw_calls": [{"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L54"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L56"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L56"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L57"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L58"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "getServiceUrl", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L58"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L59"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L59"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L59"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L66"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L66"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L68"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L68"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "attachPatternMatched", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L69"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit", "callee": "getRoute", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L69"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L73"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L76"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L77"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L79"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L80"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L82"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L84"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched", "callee": "bindElement", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L87"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L87"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L114"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched", "callee": "getBindingContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L114"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L114"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_buildchildtabs", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L122"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_buildchildtabs", "callee": "destroyItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L125"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_buildchildtabs", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L230"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_createchildpanel", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L251"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_createchildpanel", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L261"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_createchildpanel", "callee": "attachSelectionChange", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L296"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_createchildpanel", "callee": "attachItemPress", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L306"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_createchildpanel", "callee": "attachExpand", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L324"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatcellvalue", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L363"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatcellvalue", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L365"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatcellvalue", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L365"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatcellvalue", "callee": "toLocaleDateString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L365"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatcellvalue", "callee": "String", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L367"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatfullname", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L378"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatfullname", "callee": "push", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L379"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatfullname", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L380"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_getinitials", "callee": "toUpperCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L388"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_getinitials", "callee": "charAt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L388"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdate", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L397"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdate", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L397"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdate", "callee": "format", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L398"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdate", "callee": "getDateInstance", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L398"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdatetime", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L407"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdatetime", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L407"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdatetime", "callee": "format", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L408"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdatetime", "callee": "getDateTimeInstance", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L408"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress", "callee": "getBindingContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L415"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L415"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L417"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L417"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress", "callee": "getObject", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L417"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L419"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L426"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L427"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L427"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L431"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L433"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L433"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress", "callee": "submitBatch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L433"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oncancelpress", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L447"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oncancelpress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L447"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oncancelpress", "callee": "resetChanges", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L448"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oncancelpress", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L449"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oncancelpress", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L450"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_ondeletepress", "callee": "confirm", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L457"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord", "callee": "getBindingContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L473"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L473"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L476"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L478"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L478"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord", "callee": "delete", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L478"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields", "callee": "getBindingContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L493"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L493"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L499"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L507"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L507"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onfullscreen", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L517"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onfullscreen", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L517"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onfullscreen", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L519"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onfullscreen", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L519"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onfullscreen", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L520"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onexitfullscreen", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L528"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onexitfullscreen", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L528"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onexitfullscreen", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L530"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onexitfullscreen", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L530"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onnavback", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L538"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onnavback", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L538"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onnavback", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L538"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildcreate", "callee": "information", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L551"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildcreate", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L552"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit", "callee": "getSelectedItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L566"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit", "callee": "warning", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L568"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit", "callee": "getBindingContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L572"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit", "callee": "getObject", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L573"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L579"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit", "callee": "information", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L580"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L581"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchilddelete", "callee": "getSelectedItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L595"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchilddelete", "callee": "warning", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L597"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchilddelete", "callee": "slice", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L603"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchilddelete", "callee": "confirm", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L606"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deletechildrecords", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L622"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deletechildrecords", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L622"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deletechildrecords", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L625"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L668"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L669"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L670"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog", "callee": "loadFragment", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L677"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L682"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L695"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L697"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L698"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L699"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L700"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L701"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L706"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L711"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L715"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L717"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L717"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L718"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L727"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L728"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L728"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L730"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L730"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L730"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "fetch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L730"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L736"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L760"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L761"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L762"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "information", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L766"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L767"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange", "callee": "getSource", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L783"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange", "callee": "getSelectedKey", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L784"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L785"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L788"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L791"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L792"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L800"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L800"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L803"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L804"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L805"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog", "callee": "catch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L808"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L808"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog", "callee": "then", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L808"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog", "callee": "fetch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L808"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_closeappointmentdialog", "callee": "close", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L852"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_closeappointmentdialog", "callee": "removeDependent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L853"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_closeappointmentdialog", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L853"}, {"caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_closeappointmentdialog", "callee": "destroy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts", "source_location": "L854"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "label": "BusPatientDetail.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller",
+      "label": "BusPatientDetailController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L45"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L53"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched",
+      "label": "._onRouteMatched()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_buildchildtabs",
+      "label": "._buildChildTabs()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L121"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_createchildpanel",
+      "label": "._createChildPanel()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L241"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_formatcellvalue",
+      "label": "._formatCellValue()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L360"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_formatfullname",
+      "label": ".formatFullName()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L376"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_getinitials",
+      "label": ".getInitials()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L386"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_formatdate",
+      "label": ".formatDate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L394"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_formatdatetime",
+      "label": ".formatDateTime()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L404"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress",
+      "label": ".onEditPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L414"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress",
+      "label": ".onSavePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L425"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_oncancelpress",
+      "label": ".onCancelPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L446"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_ondeletepress",
+      "label": ".onDeletePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L456"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord",
+      "label": "._deleteRecord()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L472"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields",
+      "label": "._validateRequiredFields()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L492"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_onfullscreen",
+      "label": ".onFullScreen()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L516"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_onexitfullscreen",
+      "label": ".onExitFullScreen()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L527"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_onnavback",
+      "label": ".onNavBack()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L537"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_onchildcreate",
+      "label": "._onChildCreate()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L546"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit",
+      "label": "._onChildEdit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L565"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_onchilddelete",
+      "label": "._onChildDelete()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L594"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_deletechildrecords",
+      "label": "._deleteChildRecords()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L621"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog",
+      "label": "._openAppointmentDialog()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L648"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "label": ".onSaveAppointment()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L694"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_oncancelappointment",
+      "label": ".onCancelAppointment()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L774"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange",
+      "label": ".onDoctorSelectChange()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L782"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog",
+      "label": "._loadDoctorsForDialog()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L799"
+    },
+    {
+      "id": "buspatientdetail_controller_buspatientdetailcontroller_closeappointmentdialog",
+      "label": "._closeAppointmentDialog()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L850"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "jsonmodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "odatamodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "filter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "filteroperator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "sorter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "dateformat",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "messagebox",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "messagetoast",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "router",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "event",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "column",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "columnlistitem",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "text",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "label",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "panel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "table",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "title",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "button",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "toolbar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "toolbarspacer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "vbox",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_buspatientdetail_controller_ts",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_buildchildtabs",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_createchildpanel",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L241",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_formatcellvalue",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L360",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_formatfullname",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L376",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_getinitials",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L386",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_formatdate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L394",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_formatdatetime",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L404",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L414",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L425",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_oncancelpress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L446",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_ondeletepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L456",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L472",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L492",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_onfullscreen",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L516",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_onexitfullscreen",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L527",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_onnavback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L537",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_onchildcreate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L546",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L565",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_onchilddelete",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L594",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_deletechildrecords",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L621",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L648",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L694",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_oncancelappointment",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L774",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L782",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L799",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_closeappointmentdialog",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L850",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L429",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller_onchildcreate",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L549",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L577",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L674",
+      "weight": 1.0
+    },
+    {
+      "source": "buspatientdetail_controller_buspatientdetailcontroller_oncancelappointment",
+      "target": "buspatientdetail_controller_buspatientdetailcontroller_closeappointmentdialog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L775",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "getServiceUrl",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "attachPatternMatched",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oninit",
+      "callee": "getRoute",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched",
+      "callee": "bindElement",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched",
+      "callee": "getBindingContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onroutematched",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_buildchildtabs",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_buildchildtabs",
+      "callee": "destroyItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_buildchildtabs",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L230"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_createchildpanel",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_createchildpanel",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L261"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_createchildpanel",
+      "callee": "attachSelectionChange",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_createchildpanel",
+      "callee": "attachItemPress",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L306"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_createchildpanel",
+      "callee": "attachExpand",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L324"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatcellvalue",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L363"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatcellvalue",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L365"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatcellvalue",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L365"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatcellvalue",
+      "callee": "toLocaleDateString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L365"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatcellvalue",
+      "callee": "String",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L367"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatfullname",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L378"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatfullname",
+      "callee": "push",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L379"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatfullname",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_getinitials",
+      "callee": "toUpperCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L388"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_getinitials",
+      "callee": "charAt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L388"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdate",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L397"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdate",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L397"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdate",
+      "callee": "format",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L398"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdate",
+      "callee": "getDateInstance",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L398"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdatetime",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L407"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdatetime",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L407"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdatetime",
+      "callee": "format",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L408"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_formatdatetime",
+      "callee": "getDateTimeInstance",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L408"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress",
+      "callee": "getBindingContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L415"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L415"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L417"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L417"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress",
+      "callee": "getObject",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L417"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oneditpress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L419"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L426"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L427"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L427"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L431"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L433"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L433"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsavepress",
+      "callee": "submitBatch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L433"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oncancelpress",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L447"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oncancelpress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L447"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oncancelpress",
+      "callee": "resetChanges",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L448"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oncancelpress",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L449"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_oncancelpress",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L450"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_ondeletepress",
+      "callee": "confirm",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L457"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord",
+      "callee": "getBindingContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L473"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L473"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L476"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L478"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L478"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deleterecord",
+      "callee": "delete",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L478"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields",
+      "callee": "getBindingContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L493"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L493"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L499"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L507"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_validaterequiredfields",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L507"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onfullscreen",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L517"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onfullscreen",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L517"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onfullscreen",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L519"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onfullscreen",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L519"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onfullscreen",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L520"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onexitfullscreen",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L528"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onexitfullscreen",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L528"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onexitfullscreen",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L530"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onexitfullscreen",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L530"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onnavback",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L538"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onnavback",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L538"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onnavback",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L538"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildcreate",
+      "callee": "information",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L551"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildcreate",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L552"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit",
+      "callee": "getSelectedItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L566"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit",
+      "callee": "warning",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L568"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit",
+      "callee": "getBindingContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L572"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit",
+      "callee": "getObject",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L573"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L579"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit",
+      "callee": "information",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L580"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchildedit",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L581"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchilddelete",
+      "callee": "getSelectedItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L595"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchilddelete",
+      "callee": "warning",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L597"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchilddelete",
+      "callee": "slice",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L603"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onchilddelete",
+      "callee": "confirm",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L606"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deletechildrecords",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L622"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deletechildrecords",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L622"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_deletechildrecords",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L625"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L668"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L669"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L670"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog",
+      "callee": "loadFragment",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L677"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_openappointmentdialog",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L682"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L695"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L697"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L698"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L699"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L700"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L701"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L706"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L711"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L715"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L717"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L717"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L718"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L727"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L728"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L728"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L730"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L730"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L730"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "fetch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L730"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L736"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L760"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L761"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L762"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "information",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L766"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_onsaveappointment",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L767"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange",
+      "callee": "getSource",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L783"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange",
+      "callee": "getSelectedKey",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L784"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L785"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L788"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L791"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_ondoctorselectchange",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L792"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L800"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L800"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L803"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L804"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L805"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog",
+      "callee": "catch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L808"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L808"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog",
+      "callee": "then",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L808"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_loaddoctorsfordialog",
+      "callee": "fetch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L808"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_closeappointmentdialog",
+      "callee": "close",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L852"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_closeappointmentdialog",
+      "callee": "removeDependent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L853"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_closeappointmentdialog",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L853"
+    },
+    {
+      "caller_nid": "buspatientdetail_controller_buspatientdetailcontroller_closeappointmentdialog",
+      "callee": "destroy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusPatientDetail.controller.ts",
+      "source_location": "L854"
+    }
+  ]
+}

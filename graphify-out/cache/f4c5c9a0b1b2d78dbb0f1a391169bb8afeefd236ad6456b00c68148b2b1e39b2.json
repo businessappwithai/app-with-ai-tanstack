@@ -1,1 +1,171 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_route_ts", "label": "route.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L1"}, {"id": "route_get", "label": "GET()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L17"}, {"id": "route_patch", "label": "PATCH()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L44"}, {"id": "route_delete", "label": "DELETE()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L72"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_route_ts", "target": "server", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_route_ts", "target": "services", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L7", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_route_ts", "target": "route_get", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_route_ts", "target": "route_patch", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L44", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_route_ts", "target": "route_delete", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L72", "weight": 1.0}], "raw_calls": [{"caller_nid": "route_get", "callee": "findById", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L21"}, {"caller_nid": "route_get", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L24"}, {"caller_nid": "route_get", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L30"}, {"caller_nid": "route_get", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L32"}, {"caller_nid": "route_get", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L33"}, {"caller_nid": "route_patch", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L47"}, {"caller_nid": "route_patch", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L49"}, {"caller_nid": "route_patch", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L52"}, {"caller_nid": "route_patch", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L58"}, {"caller_nid": "route_patch", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L60"}, {"caller_nid": "route_patch", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L61"}, {"caller_nid": "route_delete", "callee": "softDelete", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L76"}, {"caller_nid": "route_delete", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L78"}, {"caller_nid": "route_delete", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L80"}, {"caller_nid": "route_delete", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts", "source_location": "L81"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_route_ts",
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "route_get",
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L17"
+    },
+    {
+      "id": "route_patch",
+      "label": "PATCH()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L44"
+    },
+    {
+      "id": "route_delete",
+      "label": "DELETE()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L72"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_route_ts",
+      "target": "server",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_route_ts",
+      "target": "services",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_route_ts",
+      "target": "route_get",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_route_ts",
+      "target": "route_patch",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_src_app_api_projects_id_route_ts",
+      "target": "route_delete",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L72",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "route_get",
+      "callee": "findById",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "route_get",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "route_patch",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "route_patch",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L49"
+    },
+    {
+      "caller_nid": "route_patch",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "route_patch",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "route_patch",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "route_patch",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "route_delete",
+      "callee": "softDelete",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "route_delete",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "route_delete",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "route_delete",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/src/app/api/projects/[id]/route.ts",
+      "source_location": "L81"
+    }
+  ]
+}

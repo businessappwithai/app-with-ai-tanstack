@@ -5,346 +5,347 @@
  * Page object for Detail view testing - CRUD operations
  */
 
-sap.ui.define([
+sap.ui.define(
+  [
     "sap/ui/test/Opa5",
     "sap/ui/test/actions/Press",
     "sap/ui/test/actions/EnterText",
     "sap/ui/test/matchers/PropertyStrictEquals",
     "sap/ui/test/matchers/LabelFor",
-    "sap/ui/test/matchers/Ancestor"
-], function (Opa5, Press, EnterText, PropertyStrictEquals, LabelFor, Ancestor) {
-    "use strict";
-
+    "sap/ui/test/matchers/Ancestor",
+  ],
+  (Opa5, Press, EnterText, PropertyStrictEquals, LabelFor, Ancestor) => {
     var sViewName = "Detail";
 
     Opa5.createPageObjects({
-        onTheDetailPage: {
-            viewName: sViewName,
+      onTheDetailPage: {
+        viewName: sViewName,
 
-            actions: {
-                /**
-                 * Enter value in a field by label
-                 */
-                iEnterValueInField: function (sLabel, sValue) {
-                    return this.waitFor({
-                        controlType: "sap.m.Input",
-                        matchers: new LabelFor({ text: sLabel }),
-                        actions: new EnterText({ text: sValue, clearTextFirst: true }),
-                        errorMessage: "Could not find field: " + sLabel
-                    });
-                },
+        actions: {
+          /**
+           * Enter value in a field by label
+           */
+          iEnterValueInField: function (sLabel, sValue) {
+            return this.waitFor({
+              controlType: "sap.m.Input",
+              matchers: new LabelFor({ text: sLabel }),
+              actions: new EnterText({ text: sValue, clearTextFirst: true }),
+              errorMessage: "Could not find field: " + sLabel,
+            });
+          },
 
-                /**
-                 * Enter value in a text area
-                 */
-                iEnterTextInArea: function (sLabel, sValue) {
-                    return this.waitFor({
-                        controlType: "sap.m.TextArea",
-                        matchers: new LabelFor({ text: sLabel }),
-                        actions: new EnterText({ text: sValue, clearTextFirst: true }),
-                        errorMessage: "Could not find text area: " + sLabel
-                    });
-                },
+          /**
+           * Enter value in a text area
+           */
+          iEnterTextInArea: function (sLabel, sValue) {
+            return this.waitFor({
+              controlType: "sap.m.TextArea",
+              matchers: new LabelFor({ text: sLabel }),
+              actions: new EnterText({ text: sValue, clearTextFirst: true }),
+              errorMessage: "Could not find text area: " + sLabel,
+            });
+          },
 
-                /**
-                 * Select a date
-                 */
-                iSelectDate: function (sLabel, sDate) {
-                    return this.waitFor({
-                        controlType: "sap.m.DatePicker",
-                        matchers: new LabelFor({ text: sLabel }),
-                        actions: new EnterText({ text: sDate, clearTextFirst: true }),
-                        errorMessage: "Could not find date picker: " + sLabel
-                    });
-                },
+          /**
+           * Select a date
+           */
+          iSelectDate: function (sLabel, sDate) {
+            return this.waitFor({
+              controlType: "sap.m.DatePicker",
+              matchers: new LabelFor({ text: sLabel }),
+              actions: new EnterText({ text: sDate, clearTextFirst: true }),
+              errorMessage: "Could not find date picker: " + sLabel,
+            });
+          },
 
-                /**
-                 * Toggle a checkbox
-                 */
-                iToggleCheckbox: function (sLabel) {
-                    return this.waitFor({
-                        controlType: "sap.m.CheckBox",
-                        matchers: new LabelFor({ text: sLabel }),
-                        actions: new Press(),
-                        errorMessage: "Could not find checkbox: " + sLabel
-                    });
-                },
+          /**
+           * Toggle a checkbox
+           */
+          iToggleCheckbox: function (sLabel) {
+            return this.waitFor({
+              controlType: "sap.m.CheckBox",
+              matchers: new LabelFor({ text: sLabel }),
+              actions: new Press(),
+              errorMessage: "Could not find checkbox: " + sLabel,
+            });
+          },
 
-                /**
-                 * Select from dropdown
-                 */
-                iSelectFromDropdown: function (sLabel, sValue) {
-                    return this.waitFor({
-                        controlType: "sap.m.Select",
-                        matchers: new LabelFor({ text: sLabel }),
-                        actions: new Press(),
-                        success: function (aSelects) {
-                            this.waitFor({
-                                controlType: "sap.ui.core.Item",
-                                matchers: new PropertyStrictEquals({
-                                    name: "text",
-                                    value: sValue
-                                }),
-                                actions: new Press(),
-                                errorMessage: "Could not find option: " + sValue
-                            });
-                        }.bind(this),
-                        errorMessage: "Could not find dropdown: " + sLabel
-                    });
-                },
+          /**
+           * Select from dropdown
+           */
+          iSelectFromDropdown: function (sLabel, sValue) {
+            return this.waitFor({
+              controlType: "sap.m.Select",
+              matchers: new LabelFor({ text: sLabel }),
+              actions: new Press(),
+              success: function (aSelects) {
+                this.waitFor({
+                  controlType: "sap.ui.core.Item",
+                  matchers: new PropertyStrictEquals({
+                    name: "text",
+                    value: sValue,
+                  }),
+                  actions: new Press(),
+                  errorMessage: "Could not find option: " + sValue,
+                });
+              }.bind(this),
+              errorMessage: "Could not find dropdown: " + sLabel,
+            });
+          },
 
-                /**
-                 * Press the Save button
-                 */
-                iPressSave: function () {
-                    return this.waitFor({
-                        controlType: "sap.m.Button",
-                        matchers: new PropertyStrictEquals({
-                            name: "text",
-                            value: "Save"
-                        }),
-                        actions: new Press(),
-                        errorMessage: "Could not find Save button"
-                    });
-                },
+          /**
+           * Press the Save button
+           */
+          iPressSave: function () {
+            return this.waitFor({
+              controlType: "sap.m.Button",
+              matchers: new PropertyStrictEquals({
+                name: "text",
+                value: "Save",
+              }),
+              actions: new Press(),
+              errorMessage: "Could not find Save button",
+            });
+          },
 
-                /**
-                 * Press the Edit button
-                 */
-                iPressEdit: function () {
-                    return this.waitFor({
-                        controlType: "sap.m.Button",
-                        matchers: new PropertyStrictEquals({
-                            name: "text",
-                            value: "Edit"
-                        }),
-                        actions: new Press(),
-                        errorMessage: "Could not find Edit button"
-                    });
-                },
+          /**
+           * Press the Edit button
+           */
+          iPressEdit: function () {
+            return this.waitFor({
+              controlType: "sap.m.Button",
+              matchers: new PropertyStrictEquals({
+                name: "text",
+                value: "Edit",
+              }),
+              actions: new Press(),
+              errorMessage: "Could not find Edit button",
+            });
+          },
 
-                /**
-                 * Press the Delete button
-                 */
-                iPressDelete: function () {
-                    return this.waitFor({
-                        controlType: "sap.m.Button",
-                        matchers: new PropertyStrictEquals({
-                            name: "text",
-                            value: "Delete"
-                        }),
-                        actions: new Press(),
-                        errorMessage: "Could not find Delete button"
-                    });
-                },
+          /**
+           * Press the Delete button
+           */
+          iPressDelete: function () {
+            return this.waitFor({
+              controlType: "sap.m.Button",
+              matchers: new PropertyStrictEquals({
+                name: "text",
+                value: "Delete",
+              }),
+              actions: new Press(),
+              errorMessage: "Could not find Delete button",
+            });
+          },
 
-                /**
-                 * Confirm delete dialog
-                 */
-                iConfirmDelete: function () {
-                    return this.waitFor({
-                        controlType: "sap.m.Button",
-                        searchOpenDialogs: true,
-                        matchers: new PropertyStrictEquals({
-                            name: "text",
-                            value: "Delete"
-                        }),
-                        actions: new Press(),
-                        errorMessage: "Could not find confirm delete button"
-                    });
-                },
+          /**
+           * Confirm delete dialog
+           */
+          iConfirmDelete: function () {
+            return this.waitFor({
+              controlType: "sap.m.Button",
+              searchOpenDialogs: true,
+              matchers: new PropertyStrictEquals({
+                name: "text",
+                value: "Delete",
+              }),
+              actions: new Press(),
+              errorMessage: "Could not find confirm delete button",
+            });
+          },
 
-                /**
-                 * Cancel delete dialog
-                 */
-                iCancelDelete: function () {
-                    return this.waitFor({
-                        controlType: "sap.m.Button",
-                        searchOpenDialogs: true,
-                        matchers: new PropertyStrictEquals({
-                            name: "text",
-                            value: "Cancel"
-                        }),
-                        actions: new Press(),
-                        errorMessage: "Could not find cancel button"
-                    });
-                },
+          /**
+           * Cancel delete dialog
+           */
+          iCancelDelete: function () {
+            return this.waitFor({
+              controlType: "sap.m.Button",
+              searchOpenDialogs: true,
+              matchers: new PropertyStrictEquals({
+                name: "text",
+                value: "Cancel",
+              }),
+              actions: new Press(),
+              errorMessage: "Could not find cancel button",
+            });
+          },
 
-                /**
-                 * Press the Cancel button
-                 */
-                iPressCancel: function () {
-                    return this.waitFor({
-                        controlType: "sap.m.Button",
-                        matchers: new PropertyStrictEquals({
-                            name: "text",
-                            value: "Cancel"
-                        }),
-                        actions: new Press(),
-                        errorMessage: "Could not find Cancel button"
-                    });
-                },
+          /**
+           * Press the Cancel button
+           */
+          iPressCancel: function () {
+            return this.waitFor({
+              controlType: "sap.m.Button",
+              matchers: new PropertyStrictEquals({
+                name: "text",
+                value: "Cancel",
+              }),
+              actions: new Press(),
+              errorMessage: "Could not find Cancel button",
+            });
+          },
 
-                /**
-                 * Press the Back button
-                 */
-                iPressBack: function () {
-                    return this.waitFor({
-                        controlType: "sap.m.Button",
-                        matchers: new PropertyStrictEquals({
-                            name: "icon",
-                            value: "sap-icon://nav-back"
-                        }),
-                        actions: new Press(),
-                        errorMessage: "Could not find Back button"
-                    });
-                }
-            },
+          /**
+           * Press the Back button
+           */
+          iPressBack: function () {
+            return this.waitFor({
+              controlType: "sap.m.Button",
+              matchers: new PropertyStrictEquals({
+                name: "icon",
+                value: "sap-icon://nav-back",
+              }),
+              actions: new Press(),
+              errorMessage: "Could not find Back button",
+            });
+          },
+        },
 
-            assertions: {
-                /**
-                 * Verify the detail view is displayed
-                 */
-                iShouldSeeTheDetailView: function () {
-                    return this.waitFor({
-                        controlType: "sap.uxap.ObjectPageLayout",
-                        success: function () {
-                            Opa5.assert.ok(true, "The detail view is displayed");
-                        },
-                        errorMessage: "Could not find the detail view"
-                    });
-                },
+        assertions: {
+          /**
+           * Verify the detail view is displayed
+           */
+          iShouldSeeTheDetailView: function () {
+            return this.waitFor({
+              controlType: "sap.uxap.ObjectPageLayout",
+              success: () => {
+                Opa5.assert.ok(true, "The detail view is displayed");
+              },
+              errorMessage: "Could not find the detail view",
+            });
+          },
 
-                /**
-                 * Verify field value
-                 */
-                iShouldSeeFieldValue: function (sLabel, sValue) {
-                    return this.waitFor({
-                        controlType: "sap.m.Input",
-                        matchers: [
-                            new LabelFor({ text: sLabel }),
-                            new PropertyStrictEquals({
-                                name: "value",
-                                value: sValue
-                            })
-                        ],
-                        success: function () {
-                            Opa5.assert.ok(true, "Field " + sLabel + " has value: " + sValue);
-                        },
-                        errorMessage: "Field " + sLabel + " does not have value: " + sValue
-                    });
-                },
+          /**
+           * Verify field value
+           */
+          iShouldSeeFieldValue: function (sLabel, sValue) {
+            return this.waitFor({
+              controlType: "sap.m.Input",
+              matchers: [
+                new LabelFor({ text: sLabel }),
+                new PropertyStrictEquals({
+                  name: "value",
+                  value: sValue,
+                }),
+              ],
+              success: () => {
+                Opa5.assert.ok(true, "Field " + sLabel + " has value: " + sValue);
+              },
+              errorMessage: "Field " + sLabel + " does not have value: " + sValue,
+            });
+          },
 
-                /**
-                 * Verify field is editable
-                 */
-                iShouldSeeEditableField: function (sLabel) {
-                    return this.waitFor({
-                        controlType: "sap.m.Input",
-                        matchers: [
-                            new LabelFor({ text: sLabel }),
-                            new PropertyStrictEquals({
-                                name: "editable",
-                                value: true
-                            })
-                        ],
-                        success: function () {
-                            Opa5.assert.ok(true, "Field " + sLabel + " is editable");
-                        },
-                        errorMessage: "Field " + sLabel + " is not editable"
-                    });
-                },
+          /**
+           * Verify field is editable
+           */
+          iShouldSeeEditableField: function (sLabel) {
+            return this.waitFor({
+              controlType: "sap.m.Input",
+              matchers: [
+                new LabelFor({ text: sLabel }),
+                new PropertyStrictEquals({
+                  name: "editable",
+                  value: true,
+                }),
+              ],
+              success: () => {
+                Opa5.assert.ok(true, "Field " + sLabel + " is editable");
+              },
+              errorMessage: "Field " + sLabel + " is not editable",
+            });
+          },
 
-                /**
-                 * Verify field is read-only
-                 */
-                iShouldSeeReadOnlyField: function (sLabel) {
-                    return this.waitFor({
-                        controlType: "sap.m.Input",
-                        matchers: [
-                            new LabelFor({ text: sLabel }),
-                            new PropertyStrictEquals({
-                                name: "editable",
-                                value: false
-                            })
-                        ],
-                        success: function () {
-                            Opa5.assert.ok(true, "Field " + sLabel + " is read-only");
-                        },
-                        errorMessage: "Field " + sLabel + " is not read-only"
-                    });
-                },
+          /**
+           * Verify field is read-only
+           */
+          iShouldSeeReadOnlyField: function (sLabel) {
+            return this.waitFor({
+              controlType: "sap.m.Input",
+              matchers: [
+                new LabelFor({ text: sLabel }),
+                new PropertyStrictEquals({
+                  name: "editable",
+                  value: false,
+                }),
+              ],
+              success: () => {
+                Opa5.assert.ok(true, "Field " + sLabel + " is read-only");
+              },
+              errorMessage: "Field " + sLabel + " is not read-only",
+            });
+          },
 
-                /**
-                 * Verify validation error
-                 */
-                iShouldSeeValidationError: function (sLabel) {
-                    return this.waitFor({
-                        controlType: "sap.m.Input",
-                        matchers: [
-                            new LabelFor({ text: sLabel }),
-                            new PropertyStrictEquals({
-                                name: "valueState",
-                                value: "Error"
-                            })
-                        ],
-                        success: function () {
-                            Opa5.assert.ok(true, "Validation error shown for: " + sLabel);
-                        },
-                        errorMessage: "No validation error for: " + sLabel
-                    });
-                },
+          /**
+           * Verify validation error
+           */
+          iShouldSeeValidationError: function (sLabel) {
+            return this.waitFor({
+              controlType: "sap.m.Input",
+              matchers: [
+                new LabelFor({ text: sLabel }),
+                new PropertyStrictEquals({
+                  name: "valueState",
+                  value: "Error",
+                }),
+              ],
+              success: () => {
+                Opa5.assert.ok(true, "Validation error shown for: " + sLabel);
+              },
+              errorMessage: "No validation error for: " + sLabel,
+            });
+          },
 
-                /**
-                 * Verify success message
-                 */
-                iShouldSeeSuccessMessage: function () {
-                    return this.waitFor({
-                        controlType: "sap.m.MessageToast",
-                        success: function () {
-                            Opa5.assert.ok(true, "Success message is displayed");
-                        },
-                        errorMessage: "Could not find success message"
-                    });
-                },
+          /**
+           * Verify success message
+           */
+          iShouldSeeSuccessMessage: function () {
+            return this.waitFor({
+              controlType: "sap.m.MessageToast",
+              success: () => {
+                Opa5.assert.ok(true, "Success message is displayed");
+              },
+              errorMessage: "Could not find success message",
+            });
+          },
 
-                /**
-                 * Verify delete confirmation dialog
-                 */
-                iShouldSeeDeleteConfirmation: function () {
-                    return this.waitFor({
-                        controlType: "sap.m.Dialog",
-                        searchOpenDialogs: true,
-                        success: function () {
-                            Opa5.assert.ok(true, "Delete confirmation dialog is displayed");
-                        },
-                        errorMessage: "Could not find delete confirmation dialog"
-                    });
-                },
+          /**
+           * Verify delete confirmation dialog
+           */
+          iShouldSeeDeleteConfirmation: function () {
+            return this.waitFor({
+              controlType: "sap.m.Dialog",
+              searchOpenDialogs: true,
+              success: () => {
+                Opa5.assert.ok(true, "Delete confirmation dialog is displayed");
+              },
+              errorMessage: "Could not find delete confirmation dialog",
+            });
+          },
 
-                /**
-                 * Verify Save button is enabled
-                 */
-                iShouldSeeSaveButtonEnabled: function () {
-                    return this.waitFor({
-                        controlType: "sap.m.Button",
-                        matchers: [
-                            new PropertyStrictEquals({
-                                name: "text",
-                                value: "Save"
-                            }),
-                            new PropertyStrictEquals({
-                                name: "enabled",
-                                value: true
-                            })
-                        ],
-                        success: function () {
-                            Opa5.assert.ok(true, "Save button is enabled");
-                        },
-                        errorMessage: "Save button is not enabled"
-                    });
-                }
-            }
-        }
+          /**
+           * Verify Save button is enabled
+           */
+          iShouldSeeSaveButtonEnabled: function () {
+            return this.waitFor({
+              controlType: "sap.m.Button",
+              matchers: [
+                new PropertyStrictEquals({
+                  name: "text",
+                  value: "Save",
+                }),
+                new PropertyStrictEquals({
+                  name: "enabled",
+                  value: true,
+                }),
+              ],
+              success: () => {
+                Opa5.assert.ok(true, "Save button is enabled");
+              },
+              errorMessage: "Save button is not enabled",
+            });
+          },
+        },
+      },
     });
-});
+  }
+);

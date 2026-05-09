@@ -6,20 +6,20 @@
  * system/dictionary tables (sys_ prefix)
  */
 
-import { z } from 'zod';
-import { Entity, EntityAttribute, Relationship } from './entity.types';
+import { z } from "zod";
+import type { Entity, EntityAttribute, Relationship } from "./entity.types";
 import {
-  SysTable,
-  SysColumn,
-  SysWindow,
-  SysTab,
-  SysField,
-  SysFieldGroup,
-  ReferenceType,
-  BUS_TABLE_PREFIX,
   AccessLevel,
+  BUS_TABLE_PREFIX,
+  ReferenceType,
+  type SysColumn,
+  type SysField,
+  type SysFieldGroup,
+  type SysTab,
+  type SysTable,
+  type SysWindow,
   WindowType,
-} from './sys-dictionary.types';
+} from "./sys-dictionary.types";
 
 // ============================================================================
 // Business Entity Conversion Types
@@ -28,8 +28,8 @@ import {
 /**
  * Converts EntityAttribute type to sys_reference_id
  */
-export function attributeTypeToReferenceId(type: EntityAttribute['type']): number {
-  const typeMapping: Record<EntityAttribute['type'], number> = {
+export function attributeTypeToReferenceId(type: EntityAttribute["type"]): number {
+  const typeMapping: Record<EntityAttribute["type"], number> = {
     string: ReferenceType.STRING,
     integer: ReferenceType.INTEGER,
     decimal: ReferenceType.AMOUNT,
@@ -45,32 +45,32 @@ export function attributeTypeToReferenceId(type: EntityAttribute['type']): numbe
 /**
  * Converts sys_reference_id back to EntityAttribute type
  */
-export function referenceIdToAttributeType(refId: number): EntityAttribute['type'] {
-  const reverseMapping: Record<number, EntityAttribute['type']> = {
-    [ReferenceType.STRING]: 'string',
-    [ReferenceType.INTEGER]: 'integer',
-    [ReferenceType.AMOUNT]: 'decimal',
-    [ReferenceType.ID]: 'string',
-    [ReferenceType.TEXT]: 'text',
-    [ReferenceType.DATE]: 'date',
-    [ReferenceType.DATETIME]: 'datetime',
-    [ReferenceType.YES_NO]: 'boolean',
-    [ReferenceType.JSON]: 'json',
-    [ReferenceType.LIST]: 'string',
-    [ReferenceType.TABLE]: 'string',
-    [ReferenceType.TABLE_DIRECT]: 'string',
-    [ReferenceType.URL]: 'string',
-    [ReferenceType.IMAGE]: 'string',
-    [ReferenceType.FILE]: 'string',
-    [ReferenceType.EMAIL]: 'string',
-    [ReferenceType.PHONE]: 'string',
-    [ReferenceType.PASSWORD]: 'string',
-    [ReferenceType.COLOR]: 'string',
-    [ReferenceType.LOCATION]: 'string',
-    [ReferenceType.LOCATOR]: 'string',
-    [ReferenceType.ACCOUNT]: 'string',
+export function referenceIdToAttributeType(refId: number): EntityAttribute["type"] {
+  const reverseMapping: Record<number, EntityAttribute["type"]> = {
+    [ReferenceType.STRING]: "string",
+    [ReferenceType.INTEGER]: "integer",
+    [ReferenceType.AMOUNT]: "decimal",
+    [ReferenceType.ID]: "string",
+    [ReferenceType.TEXT]: "text",
+    [ReferenceType.DATE]: "date",
+    [ReferenceType.DATETIME]: "datetime",
+    [ReferenceType.YES_NO]: "boolean",
+    [ReferenceType.JSON]: "json",
+    [ReferenceType.LIST]: "string",
+    [ReferenceType.TABLE]: "string",
+    [ReferenceType.TABLE_DIRECT]: "string",
+    [ReferenceType.URL]: "string",
+    [ReferenceType.IMAGE]: "string",
+    [ReferenceType.FILE]: "string",
+    [ReferenceType.EMAIL]: "string",
+    [ReferenceType.PHONE]: "string",
+    [ReferenceType.PASSWORD]: "string",
+    [ReferenceType.COLOR]: "string",
+    [ReferenceType.LOCATION]: "string",
+    [ReferenceType.LOCATOR]: "string",
+    [ReferenceType.ACCOUNT]: "string",
   };
-  return reverseMapping[refId] || 'string';
+  return reverseMapping[refId] || "string";
 }
 
 // ============================================================================
@@ -80,28 +80,28 @@ export function referenceIdToAttributeType(refId: number): EntityAttribute['type
 /**
  * Business entity with bus_ prefix applied
  */
-export interface BusEntity extends Omit<Entity, 'tableName'> {
-  tableName: string;              // Will have bus_ prefix
-  originalName: string;           // Original entity name from ERD
-  displayName: string;            // Human-readable name
+export interface BusEntity extends Omit<Entity, "tableName"> {
+  tableName: string; // Will have bus_ prefix
+  originalName: string; // Original entity name from ERD
+  displayName: string; // Human-readable name
 }
 
 /**
  * Business entity attribute with additional metadata
  */
 export interface BusEntityAttribute extends EntityAttribute {
-  columnName: string;             // Physical column name
-  displayName: string;            // Human-readable name
-  referenceId: number;            // sys_reference_id
-  seqNo: number;                  // Column sequence
+  columnName: string; // Physical column name
+  displayName: string; // Human-readable name
+  referenceId: number; // sys_reference_id
+  seqNo: number; // Column sequence
 }
 
 /**
  * Business relationship with bus_ prefix awareness
  */
 export interface BusRelationship extends Relationship {
-  sourceTableName: string;        // bus_ prefixed
-  targetTableName: string;        // bus_ prefixed
+  sourceTableName: string; // bus_ prefixed
+  targetTableName: string; // bus_ prefixed
 }
 
 // ============================================================================
@@ -128,10 +128,7 @@ export function entityToBusEntity(entity: Entity): BusEntity {
 /**
  * Converts an EntityAttribute to BusEntityAttribute
  */
-export function attributeToBusAttribute(
-  attr: EntityAttribute,
-  index: number
-): BusEntityAttribute {
+export function attributeToBusAttribute(attr: EntityAttribute, index: number): BusEntityAttribute {
   return {
     ...attr,
     columnName: attr.name,
@@ -164,12 +161,12 @@ export interface DictionaryGenerationConfig {
   createdBy: string;
   randomizeFieldOrder: boolean;
   includeFieldGroups: boolean;
-  defaultAccessLevel: typeof AccessLevel[keyof typeof AccessLevel];
+  defaultAccessLevel: (typeof AccessLevel)[keyof typeof AccessLevel];
 }
 
 export const defaultDictionaryConfig: DictionaryGenerationConfig = {
-  defaultEntityType: 'U',
-  createdBy: 'System',
+  defaultEntityType: "U",
+  createdBy: "System",
   randomizeFieldOrder: true,
   includeFieldGroups: true,
   defaultAccessLevel: AccessLevel.ALL,
@@ -184,127 +181,159 @@ function getEntityIcon(name: string, tableName: string): string {
   const lowerTableName = tableName.toLowerCase();
 
   // Person/Human related
-  if (lowerName.includes('patient') || lowerName.includes('person') || lowerName.includes('customer')) {
-    return 'User';
+  if (
+    lowerName.includes("patient") ||
+    lowerName.includes("person") ||
+    lowerName.includes("customer")
+  ) {
+    return "User";
   }
-  if (lowerName.includes('staff') || lowerName.includes('employee') || lowerName.includes('provider')) {
-    return 'UserCircle';
+  if (
+    lowerName.includes("staff") ||
+    lowerName.includes("employee") ||
+    lowerName.includes("provider")
+  ) {
+    return "UserCircle";
   }
-  if (lowerName.includes('user') || lowerName.includes('admin')) {
-    return 'Users';
+  if (lowerName.includes("user") || lowerName.includes("admin")) {
+    return "Users";
   }
 
   // Health/Medical specific
-  if (lowerName.includes('appointment') || lowerName.includes('schedule')) {
-    return 'Calendar';
+  if (lowerName.includes("appointment") || lowerName.includes("schedule")) {
+    return "Calendar";
   }
-  if (lowerName.includes('allergy')) {
-    return 'ShieldAlert';
+  if (lowerName.includes("allergy")) {
+    return "ShieldAlert";
   }
-  if (lowerName.includes('encounter') || lowerName.includes('visit')) {
-    return 'Stethoscope';
+  if (lowerName.includes("encounter") || lowerName.includes("visit")) {
+    return "Stethoscope";
   }
-  if (lowerName.includes('insurance')) {
-    return 'Shield';
+  if (lowerName.includes("insurance")) {
+    return "Shield";
   }
-  if (lowerName.includes('department') || lowerName.includes('ward')) {
-    return 'Building2';
+  if (lowerName.includes("department") || lowerName.includes("ward")) {
+    return "Building2";
   }
-  if (lowerName.includes('bed') || lowerName.includes('room')) {
-    return 'BedDouble';
+  if (lowerName.includes("bed") || lowerName.includes("room")) {
+    return "BedDouble";
   }
-  if (lowerName.includes('prescription') || lowerName.includes('medication')) {
-    return 'Pill';
+  if (lowerName.includes("prescription") || lowerName.includes("medication")) {
+    return "Pill";
   }
-  if (lowerName.includes('diagnosis') || lowerName.includes('condition')) {
-    return 'Activity';
+  if (lowerName.includes("diagnosis") || lowerName.includes("condition")) {
+    return "Activity";
   }
 
   // Document/File related
-  if (lowerName.includes('document') || lowerName.includes('file') || lowerName.includes('attachment')) {
-    return 'FileText';
+  if (
+    lowerName.includes("document") ||
+    lowerName.includes("file") ||
+    lowerName.includes("attachment")
+  ) {
+    return "FileText";
   }
 
   // Time/Date related
-  if (lowerName.includes('date') || lowerName.includes('time') || lowerName.includes('shift')) {
-    return 'Clock';
+  if (lowerName.includes("date") || lowerName.includes("time") || lowerName.includes("shift")) {
+    return "Clock";
   }
 
   // Location/Place related
-  if (lowerName.includes('location') || lowerName.includes('address')) {
-    return 'MapPin';
+  if (lowerName.includes("location") || lowerName.includes("address")) {
+    return "MapPin";
   }
-  if (lowerName.includes('warehouse') || lowerName.includes('inventory')) {
-    return 'Package';
+  if (lowerName.includes("warehouse") || lowerName.includes("inventory")) {
+    return "Package";
   }
 
   // Order/Transaction related
-  if (lowerName.includes('order') || lowerName.includes('invoice') || lowerName.includes('receipt')) {
-    return 'Receipt';
+  if (
+    lowerName.includes("order") ||
+    lowerName.includes("invoice") ||
+    lowerName.includes("receipt")
+  ) {
+    return "Receipt";
   }
-  if (lowerName.includes('payment') || lowerName.includes('transaction')) {
-    return 'CreditCard';
+  if (lowerName.includes("payment") || lowerName.includes("transaction")) {
+    return "CreditCard";
   }
-  if (lowerName.includes('quote') || lowerName.includes('proposal')) {
-    return 'FileText';
+  if (lowerName.includes("quote") || lowerName.includes("proposal")) {
+    return "FileText";
   }
 
   // Product/Item related
-  if (lowerName.includes('product') || lowerName.includes('item')) {
-    return 'Package';
+  if (lowerName.includes("product") || lowerName.includes("item")) {
+    return "Package";
   }
-  if (lowerName.includes('category') || lowerName.includes('group')) {
-    return 'FolderTree';
+  if (lowerName.includes("category") || lowerName.includes("group")) {
+    return "FolderTree";
   }
-  if (lowerName.includes('price') || lowerName.includes('cost')) {
-    return 'DollarSign';
+  if (lowerName.includes("price") || lowerName.includes("cost")) {
+    return "DollarSign";
   }
 
   // Account/Finance related
-  if (lowerName.includes('account') || lowerName.includes('ledger')) {
-    return 'Wallet';
+  if (lowerName.includes("account") || lowerName.includes("ledger")) {
+    return "Wallet";
   }
-  if (lowerName.includes('budget')) {
-    return 'PieChart';
+  if (lowerName.includes("budget")) {
+    return "PieChart";
   }
 
   // Communication related
-  if (lowerName.includes('email') || lowerName.includes('message') || lowerName.includes('notification')) {
-    return 'Mail';
+  if (
+    lowerName.includes("email") ||
+    lowerName.includes("message") ||
+    lowerName.includes("notification")
+  ) {
+    return "Mail";
   }
-  if (lowerName.includes('phone') || lowerName.includes('call')) {
-    return 'Phone';
+  if (lowerName.includes("phone") || lowerName.includes("call")) {
+    return "Phone";
   }
 
   // Status/State related
-  if (lowerName.includes('status') || lowerName.includes('state')) {
-    return 'Status';
+  if (lowerName.includes("status") || lowerName.includes("state")) {
+    return "Status";
   }
 
   // Configuration/Settings related
-  if (lowerName.includes('config') || lowerName.includes('setting') || lowerName.includes('preference')) {
-    return 'Settings';
+  if (
+    lowerName.includes("config") ||
+    lowerName.includes("setting") ||
+    lowerName.includes("preference")
+  ) {
+    return "Settings";
   }
 
   // Security/Access related
-  if (lowerName.includes('role') || lowerName.includes('permission') || lowerName.includes('access')) {
-    return 'Lock';
+  if (
+    lowerName.includes("role") ||
+    lowerName.includes("permission") ||
+    lowerName.includes("access")
+  ) {
+    return "Lock";
   }
 
   // Data/Analytics related
-  if (lowerName.includes('report') || lowerName.includes('analytics') || lowerName.includes('chart')) {
-    return 'BarChart';
+  if (
+    lowerName.includes("report") ||
+    lowerName.includes("analytics") ||
+    lowerName.includes("chart")
+  ) {
+    return "BarChart";
   }
-  if (lowerName.includes('log') || lowerName.includes('audit') || lowerName.includes('history')) {
-    return 'History';
+  if (lowerName.includes("log") || lowerName.includes("audit") || lowerName.includes("history")) {
+    return "History";
   }
 
   // Default icon based on table type
-  if (lowerTableName.includes('sys_')) {
-    return 'Settings'; // System tables
+  if (lowerTableName.includes("sys_")) {
+    return "Settings"; // System tables
   }
 
-  return 'Table'; // Default generic table icon
+  return "Table"; // Default generic table icon
 }
 
 /**
@@ -313,7 +342,7 @@ function getEntityIcon(name: string, tableName: string): string {
 export function generateSysTable(
   entity: BusEntity,
   config: DictionaryGenerationConfig = defaultDictionaryConfig
-): Omit<SysTable, 'sys_table_id' | 'created_at' | 'updated_at'> {
+): Omit<SysTable, "sys_table_id" | "created_at" | "updated_at"> {
   return {
     table_name: entity.tableName,
     name: entity.displayName,
@@ -339,7 +368,7 @@ export function generateSysColumns(
   attributes: BusEntityAttribute[],
   primaryKey: string,
   config: DictionaryGenerationConfig = defaultDictionaryConfig
-): Array<Omit<SysColumn, 'sys_column_id' | 'created_at' | 'updated_at'>> {
+): Array<Omit<SysColumn, "sys_column_id" | "created_at" | "updated_at">> {
   return attributes.map((attr, _index) => ({
     sys_table_id: tableId,
     column_name: attr.columnName,
@@ -355,8 +384,8 @@ export function generateSysColumns(
     is_parent: false,
     is_mandatory: attr.required,
     is_updateable: attr.name !== primaryKey,
-    is_identifier: attr.name === primaryKey || attr.name === 'name',
-    is_selection_column: attr.name === 'name' || attr.unique === true,
+    is_identifier: attr.name === primaryKey || attr.name === "name",
+    is_selection_column: attr.name === "name" || attr.unique === true,
     is_translated: false,
     is_encrypted: false,
     is_allow_logging: true,
@@ -379,7 +408,7 @@ export function generateSysColumns(
 export function generateSysWindow(
   entity: BusEntity,
   config: DictionaryGenerationConfig = defaultDictionaryConfig
-): Omit<SysWindow, 'sys_window_id' | 'created_at' | 'updated_at'> {
+): Omit<SysWindow, "sys_window_id" | "created_at" | "updated_at"> {
   return {
     name: entity.displayName,
     description: `Maintain ${entity.displayName} records`,
@@ -403,7 +432,7 @@ export function generateSysTab(
   entity: BusEntity,
   tabLevel: number = 0,
   config: DictionaryGenerationConfig = defaultDictionaryConfig
-): Omit<SysTab, 'sys_tab_id' | 'created_at' | 'updated_at'> {
+): Omit<SysTab, "sys_tab_id" | "created_at" | "updated_at"> {
   return {
     sys_window_id: windowId,
     sys_table_id: tableId,
@@ -441,7 +470,7 @@ export function generateSysFields(
   tabId: string,
   columns: Array<{ sys_column_id: string; column_name: string; name: string }>,
   config: DictionaryGenerationConfig = defaultDictionaryConfig
-): Array<Omit<SysField, 'sys_field_id' | 'created_at' | 'updated_at'>> {
+): Array<Omit<SysField, "sys_field_id" | "created_at" | "updated_at">> {
   // Create base sequence numbers
   const seqNumbers = columns.map((_, index) => (index + 1) * 10);
 
@@ -491,16 +520,16 @@ export function generateSysFields(
 export function generateSysFieldGroups(
   entityName: string,
   config: DictionaryGenerationConfig = defaultDictionaryConfig
-): Array<Omit<SysFieldGroup, 'sys_field_group_id' | 'created_at' | 'updated_at'>> {
+): Array<Omit<SysFieldGroup, "sys_field_group_id" | "created_at" | "updated_at">> {
   if (!config.includeFieldGroups) {
     return [];
   }
 
   return [
     {
-      name: 'General',
+      name: "General",
       description: `General information for ${entityName}`,
-      field_group_type: 'C',
+      field_group_type: "C",
       is_collapsed_by_default: false,
       entity_type: config.defaultEntityType,
       is_active: true,
@@ -508,9 +537,9 @@ export function generateSysFieldGroups(
       updated_by: config.createdBy,
     },
     {
-      name: 'Details',
+      name: "Details",
       description: `Detailed information for ${entityName}`,
-      field_group_type: 'C',
+      field_group_type: "C",
       is_collapsed_by_default: true,
       entity_type: config.defaultEntityType,
       is_active: true,
@@ -531,19 +560,19 @@ export function formatDisplayName(name: string): string {
   // If the name is all caps or all lowercase, just capitalize it
   if (/^[A-Z_]+$|^[a-z_]+$/.test(name)) {
     return name
-      .replace(/_/g, ' ')
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
+      .replace(/_/g, " ")
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
   }
 
   // For camelCase or mixed case, add space before capital letters
   return name
-    .replace(/_/g, ' ')
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .replace(/_/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 /**
@@ -566,12 +595,12 @@ function shuffleArray<T>(array: T[]): void {
  * Complete dictionary metadata for a business entity
  */
 export interface EntityDictionaryMetadata {
-  table: Omit<SysTable, 'sys_table_id' | 'created_at' | 'updated_at'>;
-  columns: Array<Omit<SysColumn, 'sys_column_id' | 'created_at' | 'updated_at'>>;
-  window: Omit<SysWindow, 'sys_window_id' | 'created_at' | 'updated_at'>;
-  tab: Omit<SysTab, 'sys_tab_id' | 'created_at' | 'updated_at'>;
-  fields: Array<Omit<SysField, 'sys_field_id' | 'created_at' | 'updated_at'>>;
-  fieldGroups: Array<Omit<SysFieldGroup, 'sys_field_group_id' | 'created_at' | 'updated_at'>>;
+  table: Omit<SysTable, "sys_table_id" | "created_at" | "updated_at">;
+  columns: Array<Omit<SysColumn, "sys_column_id" | "created_at" | "updated_at">>;
+  window: Omit<SysWindow, "sys_window_id" | "created_at" | "updated_at">;
+  tab: Omit<SysTab, "sys_tab_id" | "created_at" | "updated_at">;
+  fields: Array<Omit<SysField, "sys_field_id" | "created_at" | "updated_at">>;
+  fieldGroups: Array<Omit<SysFieldGroup, "sys_field_group_id" | "created_at" | "updated_at">>;
 }
 
 /**
@@ -612,7 +641,7 @@ export function generateEntityDictionary(
 
 export const BusEntitySchema = z.object({
   name: z.string(),
-  tableName: z.string().regex(/^bus_/, 'Table name must start with bus_'),
+  tableName: z.string().regex(/^bus_/, "Table name must start with bus_"),
   originalName: z.string(),
   displayName: z.string(),
   description: z.string().optional(),
@@ -626,5 +655,5 @@ export const DictionaryGenerationConfigSchema = z.object({
   createdBy: z.string(),
   randomizeFieldOrder: z.boolean(),
   includeFieldGroups: z.boolean(),
-  defaultAccessLevel: z.enum(['S', 'C', 'O', 'CO', 'A']),
+  defaultAccessLevel: z.enum(["S", "C", "O", "CO", "A"]),
 });

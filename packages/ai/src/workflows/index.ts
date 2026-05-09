@@ -1,1 +1,1 @@
-export * from './erd-design-workflow';
+export * from "./erd-design-workflow";

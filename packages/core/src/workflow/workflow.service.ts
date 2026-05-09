@@ -6,11 +6,10 @@
 import type {
   IWorkflowService,
   TriggerWorkflowPayload,
-  WorkflowRunResult,
   WorkflowOptions,
+  WorkflowRunResult,
   WorkflowStatus,
 } from "./workflow.types.js";
-import type { Knex } from "knex";
 
 /**
  * Workflow service implementation
@@ -20,11 +19,10 @@ import type { Knex } from "knex";
  * - Managing workflow runs
  */
 export class WorkflowService implements IWorkflowService {
-  private db: Knex;
   private options: WorkflowOptions;
+  private runs: Map<string, WorkflowRunResult> = new Map();
 
-  constructor(db: Knex, options: WorkflowOptions) {
-    this.db = db;
+  constructor(options: WorkflowOptions) {
     this.options = {
       enabled: true,
       timeout: 300, // 5 minutes default
@@ -41,93 +39,62 @@ export class WorkflowService implements IWorkflowService {
       return "disabled";
     }
 
-    // Create workflow run record
-    const [workflowRun] = await this.db("sys_workflow_runs")
-      .insert({
-        entity_name: payload.entityName,
-        entity_id: payload.entityId,
-        operation: payload.operation,
-        status: "draft",
-        input_payload: JSON.stringify(payload),
-        created_by: payload.userId,
-        created_at: new Date(),
-      })
-      .returning("*");
+    // Create workflow run ID
+    const runId = `run_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    // Set entity workflow status to draft
-    await this.setEntityStatus(
-      payload.entityName,
-      payload.entityId,
-      "draft",
-      workflowRun.id
-    );
+    // Store run in memory (TODO: persist to database)
+    this.runs.set(runId, {
+      id: runId,
+      status: "draft",
+      inputPayload: payload,
+    });
 
     // TODO: Fire Trigger.dev webhook/task
     // For now, we'll simulate it
     // In production, this would call:
     // await triggerClient.emitEvent('entity-lifecycle-workflow', payload);
 
-    return workflowRun.id;
+    return runId;
   }
 
   /**
    * Get workflow status
    */
   async getStatus(runId: string): Promise<WorkflowRunResult> {
-    const run = await this.db("sys_workflow_runs")
-      .where("id", runId)
-      .first();
+    const run = this.runs.get(runId);
 
     if (!run) {
       throw new Error(`WORKFLOW_RUN_NOT_FOUND: ${runId}`);
     }
 
-    return {
-      id: run.id,
-      status: run.status as WorkflowStatus,
-      completedAt: run.completed_at ? new Date(run.completed_at) : undefined,
-      error: run.error_details,
-      durationMs: run.duration_ms,
-      inputPayload: run.input_payload ? JSON.parse(run.input_payload) : undefined,
-      outputPayload: run.output_payload ? JSON.parse(run.output_payload) : undefined,
-      mutationsApplied: run.mutations_applied
-        ? JSON.parse(run.mutations_applied)
-        : undefined,
-    };
+    return run;
   }
 
   /**
    * Retry a failed workflow
    */
   async retry(workflowRunId: string): Promise<string> {
-    const workflowRun = await this.db("sys_workflow_runs")
-      .where("id", workflowRunId)
-      .first();
+    const run = this.runs.get(workflowRunId);
 
-    if (!workflowRun) {
+    if (!run || !run.inputPayload) {
       throw new Error(`WORKFLOW_RUN_NOT_FOUND: ${workflowRunId}`);
     }
 
     // Trigger new workflow run with same payload
-    const payload: TriggerWorkflowPayload = JSON.parse(workflowRun.input_payload);
-    return await this.trigger(payload);
+    return await this.trigger(run.inputPayload as TriggerWorkflowPayload);
   }
 
   /**
    * Set workflow status on entity
    */
   async setEntityStatus(
-    entityName: string,
-    entityId: string,
-    status: WorkflowStatus,
-    workflowRunId?: string
+    _entityName: string,
+    _entityId: string,
+    _status: WorkflowStatus,
+    _workflowRunId?: string
   ): Promise<void> {
-    await this.db(entityName.toLowerCase())
-      .where("id", entityId)
-      .update({
-        workflow_status: status,
-        ...(workflowRunId && { workflow_run_id: workflowRunId }),
-      });
+    // TODO: Persist entity workflow status to database
+    // For now, this is a no-op
   }
 
   /**
@@ -141,65 +108,50 @@ export class WorkflowService implements IWorkflowService {
     errorDetails?: string;
     durationMs?: number;
   }): Promise<void> {
-    const { runId, status, outputPayload, mutationsApplied, errorDetails, durationMs } =
-      params;
+    const { runId, status, outputPayload, mutationsApplied, errorDetails, durationMs } = params;
 
-    // Get workflow run
-    const workflowRun = await this.db("sys_workflow_runs")
-      .where("id", runId)
-      .first();
+    const run = this.runs.get(runId);
 
-    if (!workflowRun) {
+    if (!run) {
       throw new Error(`WORKFLOW_RUN_NOT_FOUND: ${runId}`);
     }
 
     // Update workflow run record
-    await this.db("sys_workflow_runs")
-      .where("id", runId)
-      .update({
-        status,
-        output_payload: outputPayload ? JSON.stringify(outputPayload) : null,
-        mutations_applied: mutationsApplied
-          ? JSON.stringify(mutationsApplied)
-          : null,
-        error_details: errorDetails,
-        duration_ms: durationMs,
-        completed_at: new Date(),
-      });
-
-    // Update entity workflow status
-    await this.setEntityStatus(
-      workflowRun.entity_name,
-      workflowRun.entity_id,
-      status
-    );
+    run.status = status;
+    run.outputPayload = outputPayload;
+    run.mutationsApplied = mutationsApplied;
+    run.error = errorDetails;
+    run.durationMs = durationMs;
+    run.completedAt = new Date();
   }
 
   /**
    * Get pending workflows
    */
   async getPendingWorkflows(limit: number = 100): Promise<Record<string, unknown>[]> {
-    return await this.db("sys_workflow_runs")
-      .where("status", "draft")
-      .orderBy("created_at", "asc")
-      .limit(limit);
+    // TODO: Query pending workflows from database
+    // For now, return empty array
+    return Array.from(this.runs.values())
+      .filter((run) => run.status === "draft")
+      .slice(0, limit)
+      .map((run) => ({
+        id: run.id,
+        status: run.status,
+        inputPayload: run.inputPayload,
+      }));
   }
 
   /**
    * Get workflows by entity
    */
   async getEntityWorkflows(
-    entityName: string,
-    entityId: string,
-    limit: number = 10
+    _entityName: string,
+    _entityId: string,
+    _limit: number = 10
   ): Promise<Record<string, unknown>[]> {
-    return await this.db("sys_workflow_runs")
-      .where({
-        entity_name: entityName,
-        entity_id: entityId,
-      })
-      .orderBy("created_at", "desc")
-      .limit(limit);
+    // TODO: Query entity workflows from database
+    // For now, return empty array
+    return [];
   }
 
   /**
@@ -207,20 +159,21 @@ export class WorkflowService implements IWorkflowService {
    */
   async timeoutStuckWorkflows(timeoutSeconds: number = 300): Promise<number> {
     const timeoutDate = new Date(Date.now() - timeoutSeconds * 1000);
-
-    const stuckWorkflows = await this.db("sys_workflow_runs")
-      .where("status", "draft")
-      .where("created_at", "<", timeoutDate);
-
     let count = 0;
 
-    for (const workflow of stuckWorkflows) {
-      await this.completeWorkflow({
-        runId: workflow.id,
-        status: "error",
-        errorDetails: `Workflow timeout after ${timeoutSeconds} seconds`,
-      });
-      count++;
+    for (const [runId, run] of this.runs.entries()) {
+      if (
+        run.status === "draft" &&
+        run.createdAt &&
+        run.createdAt.getTime() < timeoutDate.getTime()
+      ) {
+        await this.completeWorkflow({
+          runId,
+          status: "error",
+          errorDetails: `Workflow timeout after ${timeoutSeconds} seconds`,
+        });
+        count++;
+      }
     }
 
     return count;
@@ -230,9 +183,6 @@ export class WorkflowService implements IWorkflowService {
 /**
  * Create workflow service
  */
-export function createWorkflowService(
-  db: Knex,
-  options: WorkflowOptions
-): WorkflowService {
-  return new WorkflowService(db, options);
+export function createWorkflowService(options: WorkflowOptions): WorkflowService {
+  return new WorkflowService(options);
 }

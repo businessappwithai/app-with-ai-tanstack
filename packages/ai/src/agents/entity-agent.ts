@@ -1,9 +1,9 @@
-import { Agent } from '@mastra/core/agent';
-import { entityCandidateSchema } from '../types';
+import { Agent } from "@mastra/core/agent";
+import { entityCandidateSchema } from "../types";
 
 export const entityAgent = new Agent({
-  id: 'entity-agent',
-  name: 'Entity Refiner',
+  id: "entity-agent",
+  name: "Entity Refiner",
   instructions: `Refine entity structures following best practices:
 
 1. Naming: PascalCase, singular form
@@ -13,14 +13,14 @@ export const entityAgent = new Agent({
 5. Defaults: timestamps, boolean flags
 
 Return refined entity with confidence score.`,
-  model: 'openai/gpt-4-turbo'
+  model: "openai/gpt-4-turbo",
 });
 
 export async function refineEntity(entity: unknown) {
   const response = await entityAgent.generate(JSON.stringify(entity), {
     structuredOutput: {
-      schema: entityCandidateSchema
-    }
+      schema: entityCandidateSchema,
+    },
   });
 
   return response.object;

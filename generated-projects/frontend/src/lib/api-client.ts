@@ -4,7 +4,7 @@
  * Generated: {{now}}
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '{{config.baseUrl}}';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "{{config.baseUrl}}";
 
 // ============================================================================
 // Logger Utility
@@ -21,10 +21,10 @@ class Logger {
   private level: LogLevel;
   private prefix: string;
 
-  constructor(prefix: string = '[ApiClient]') {
+  constructor(prefix: string = "[ApiClient]") {
     this.prefix = prefix;
     // Use INFO level in production, DEBUG level in development
-    this.level = process.env.NODE_ENV === 'production' ? LogLevel.INFO : LogLevel.DEBUG;
+    this.level = process.env.NODE_ENV === "production" ? LogLevel.INFO : LogLevel.DEBUG;
   }
 
   private shouldLog(level: LogLevel): boolean {
@@ -67,11 +67,12 @@ class Logger {
 
     if (options?.body) {
       try {
-        const bodyStr = typeof options.body === 'string' ? options.body : JSON.stringify(options.body);
+        const bodyStr =
+          typeof options.body === "string" ? options.body : JSON.stringify(options.body);
         if (bodyStr.length < 500) {
           this.debug(`  Body:`, bodyStr);
         } else {
-          this.debug(`  Body:`, bodyStr.substring(0, 500) + '... (truncated)');
+          this.debug(`  Body:`, bodyStr.substring(0, 500) + "... (truncated)");
         }
       } catch (e) {
         this.debug(`  Body: [Unable to stringify]`);
@@ -83,8 +84,10 @@ class Logger {
    * Log response details
    */
   logResponse(method: string, url: string, response: Response, duration: number) {
-    const statusEmoji = response.ok ? '✓' : '✗';
-    this.log(`${statusEmoji} ${method} ${url} - ${response.status} ${response.statusText} (${duration}ms)`);
+    const statusEmoji = response.ok ? "✓" : "✗";
+    this.log(
+      `${statusEmoji} ${method} ${url} - ${response.status} ${response.statusText} (${duration}ms)`
+    );
 
     if (!response.ok) {
       this.error(`  Response failed: ${response.status} ${response.statusText}`);
@@ -95,23 +98,23 @@ class Logger {
    * Log error details
    */
   logError(method: string, url: string, error: unknown, duration?: number) {
-    const durationStr = duration ? ` (${duration}ms)` : '';
+    const durationStr = duration ? ` (${duration}ms)` : "";
     this.error(`✗ ${method} ${url} - Failed${durationStr}`);
 
-    if (error && typeof error === 'object') {
-      if ('statusCode' in error) {
+    if (error && typeof error === "object") {
+      if ("statusCode" in error) {
         this.error(`  Status: ${(error as ApiError).statusCode}`);
       }
-      if ('message' in error) {
+      if ("message" in error) {
         this.error(`  Message: ${(error as ApiError).message}`);
       }
-      if ('error' in error) {
+      if ("error" in error) {
         this.error(`  Error: ${(error as ApiError).error}`);
       }
-      if ('errors' in error && (error as ApiError).errors) {
+      if ("errors" in error && (error as ApiError).errors) {
         this.error(`  Validation Errors:`, (error as ApiError).errors);
       }
-      if ('details' in error && (error as ApiError).details) {
+      if ("details" in error && (error as ApiError).details) {
         this.error(`  Details:`, (error as ApiError).details);
       }
     } else if (error instanceof Error) {
@@ -130,15 +133,15 @@ class Logger {
 
     if (headers instanceof Headers) {
       headers.forEach((value, key) => {
-        sanitized[key] = this.shouldSanitizeHeader(key) ? '[REDACTED]' : value;
+        sanitized[key] = this.shouldSanitizeHeader(key) ? "[REDACTED]" : value;
       });
     } else if (Array.isArray(headers)) {
       headers.forEach(([key, value]) => {
-        sanitized[key] = this.shouldSanitizeHeader(key) ? '[REDACTED]' : value;
+        sanitized[key] = this.shouldSanitizeHeader(key) ? "[REDACTED]" : value;
       });
     } else {
       Object.entries(headers).forEach(([key, value]) => {
-        sanitized[key] = this.shouldSanitizeHeader(key) ? '[REDACTED]' : value;
+        sanitized[key] = this.shouldSanitizeHeader(key) ? "[REDACTED]" : value;
       });
     }
 
@@ -146,7 +149,7 @@ class Logger {
   }
 
   private shouldSanitizeHeader(key: string): boolean {
-    const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key'];
+    const sensitiveHeaders = ["authorization", "cookie", "x-api-key"];
     return sensitiveHeaders.includes(key.toLowerCase());
   }
 }
@@ -198,17 +201,17 @@ class ApiClient {
 
   setAuthToken(token: string | null) {
     this.authToken = token;
-    this.logger.debug(`Auth token ${token ? 'set' : 'cleared'}`);
+    this.logger.debug(`Auth token ${token ? "set" : "cleared"}`);
   }
 
   private getHeaders(customHeaders?: Record<string, string>): HeadersInit {
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...customHeaders,
     };
 
     if (this.authToken) {
-      headers['Authorization'] = `Bearer ${this.authToken}`;
+      headers["Authorization"] = `Bearer ${this.authToken}`;
     }
 
     return headers;
@@ -219,7 +222,7 @@ class ApiClient {
 
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
+        if (value !== undefined && value !== null && value !== "") {
           url.searchParams.append(key, String(value));
         }
       });
@@ -228,9 +231,14 @@ class ApiClient {
     return url.toString();
   }
 
-  private async handleResponse<T>(response: Response, method: string, url: string, startTime: number): Promise<T> {
+  private async handleResponse<T>(
+    response: Response,
+    method: string,
+    url: string,
+    startTime: number
+  ): Promise<T> {
     const duration = Date.now() - startTime;
-    const contentType = response.headers.get('content-type');
+    const contentType = response.headers.get("content-type");
 
     // Log response
     this.logger.logResponse(method, url, response, duration);
@@ -239,7 +247,7 @@ class ApiClient {
       return undefined as T;
     }
 
-    if (contentType?.includes('application/json')) {
+    if (contentType?.includes("application/json")) {
       const data = await response.json();
 
       if (!response.ok) {
@@ -254,7 +262,7 @@ class ApiClient {
       const error = {
         statusCode: response.status,
         message: response.statusText,
-        error: 'Request Failed',
+        error: "Request Failed",
         timestamp: new Date().toISOString(),
         path: response.url,
       } as ApiError;
@@ -265,11 +273,15 @@ class ApiClient {
     return (await response.text()) as T;
   }
 
-  async get<T>(path: string, params?: Record<string, unknown>, options?: RequestOptions): Promise<T> {
+  async get<T>(
+    path: string,
+    params?: Record<string, unknown>,
+    options?: RequestOptions
+  ): Promise<T> {
     const startTime = Date.now();
     const url = this.buildUrl(path, params);
     const requestOptions = {
-      method: 'GET' as const,
+      method: "GET" as const,
       headers: this.getHeaders(options?.headers),
       signal: options?.signal,
     };
@@ -289,7 +301,7 @@ class ApiClient {
     const startTime = Date.now();
     const url = this.buildUrl(path);
     const requestOptions = {
-      method: 'POST' as const,
+      method: "POST" as const,
       headers: this.getHeaders(options?.headers),
       body: data ? JSON.stringify(data) : undefined,
       signal: options?.signal,
@@ -310,7 +322,7 @@ class ApiClient {
     const startTime = Date.now();
     const url = this.buildUrl(path);
     const requestOptions = {
-      method: 'PUT' as const,
+      method: "PUT" as const,
       headers: this.getHeaders(options?.headers),
       body: data ? JSON.stringify(data) : undefined,
       signal: options?.signal,
@@ -331,7 +343,7 @@ class ApiClient {
     const startTime = Date.now();
     const url = this.buildUrl(path);
     const requestOptions = {
-      method: 'PATCH' as const,
+      method: "PATCH" as const,
       headers: this.getHeaders(options?.headers),
       body: data ? JSON.stringify(data) : undefined,
       signal: options?.signal,
@@ -352,7 +364,7 @@ class ApiClient {
     const startTime = Date.now();
     const url = this.buildUrl(path);
     const requestOptions = {
-      method: 'DELETE' as const,
+      method: "DELETE" as const,
       headers: this.getHeaders(options?.headers),
       signal: options?.signal,
     };
@@ -377,26 +389,21 @@ export const apiClient = new ApiClient(API_BASE_URL);
 // ============================================================================
 
 export function isApiError(error: unknown): error is ApiError {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'statusCode' in error &&
-    'message' in error
-  );
+  return typeof error === "object" && error !== null && "statusCode" in error && "message" in error;
 }
 
 export function getErrorMessage(error: unknown): string {
   if (isApiError(error)) {
     // Handle array of validation errors
     if (Array.isArray(error.message)) {
-      return error.message.join(', ');
+      return error.message.join(", ");
     }
     return error.message;
   }
   if (error instanceof Error) {
     return error.message;
   }
-  return 'An unexpected error occurred';
+  return "An unexpected error occurred";
 }
 
 export function getErrorDetails(error: unknown): Record<string, unknown> | undefined {
@@ -435,12 +442,12 @@ export function formatApiError(error: unknown): {
       const fieldErrors: string[] = [];
       for (const [field, messages] of Object.entries(error.errors)) {
         const errorMessages = Array.isArray(messages) ? messages : [messages];
-        fieldErrors.push(`${field}: ${errorMessages.join(', ')}`);
+        fieldErrors.push(`${field}: ${errorMessages.join(", ")}`);
       }
 
       return {
-        title: error.error || 'Validation Error',
-        message: error.message as string || 'Please check the form for errors',
+        title: error.error || "Validation Error",
+        message: (error.message as string) || "Please check the form for errors",
         details: fieldErrors,
       };
     }
@@ -448,21 +455,21 @@ export function formatApiError(error: unknown): {
     const details = Array.isArray(error.message) ? error.message : [error.message];
 
     return {
-      title: error.error || 'Error',
-      message: details[0] || 'An error occurred',
+      title: error.error || "Error",
+      message: details[0] || "An error occurred",
       details: details.length > 1 ? details.slice(1) : undefined,
     };
   }
 
   if (error instanceof Error) {
     return {
-      title: error.name || 'Error',
-      message: error.message || 'An unexpected error occurred',
+      title: error.name || "Error",
+      message: error.message || "An unexpected error occurred",
     };
   }
 
   return {
-    title: 'Error',
-    message: 'An unexpected error occurred',
+    title: "Error",
+    message: "An unexpected error occurred",
   };
 }

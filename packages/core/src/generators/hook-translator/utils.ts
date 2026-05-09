@@ -5,22 +5,14 @@
  */
 
 import { hookParser } from "./parser";
+import type { GeneratedHook, HookDefinitionNode, HookType, ParsedHook } from "./types";
 import { HookCodeGenerationVisitor } from "./visitor";
-import {
-  HookType,
-  ParsedHook,
-  GeneratedHook,
-  HookDefinitionNode,
-} from "./types";
 
 /**
  * Parse a single hook definition string
  * Returns null if parsing fails
  */
-export function parseHookDefinition(
-  comment: string,
-  order: number
-): ParsedHook | null {
+export function parseHookDefinition(comment: string, order: number): ParsedHook | null {
   const trimmedComment = comment.trim();
 
   if (!trimmedComment.startsWith("%%hook")) {
@@ -101,10 +93,7 @@ export function generateHookComment(hook: ParsedHook): string {
 /**
  * Generate Mermaid flowchart from hook definitions
  */
-export function generateFlowchartFromHooks(
-  entityName: string,
-  hooks: ParsedHook[]
-): string {
+export function generateFlowchartFromHooks(entityName: string, hooks: ParsedHook[]): string {
   let flowchart = `flowchart TD\n`;
   flowchart += `    A[Client Request] --> B[Validate Request]\n`;
 
@@ -197,9 +186,7 @@ export function validateHookDefinition(hook: ParsedHook): string[] {
   }
 
   if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(hook.name)) {
-    errors.push(
-      `Invalid hook name: ${hook.name}. Must start with letter or underscore`
-    );
+    errors.push(`Invalid hook name: ${hook.name}. Must start with letter or underscore`);
   }
 
   if (!hook.entity || hook.entity.length === 0) {
@@ -207,9 +194,7 @@ export function validateHookDefinition(hook: ParsedHook): string[] {
   }
 
   if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(hook.entity)) {
-    errors.push(
-      `Invalid entity name: ${hook.entity}. Must start with letter or underscore`
-    );
+    errors.push(`Invalid entity name: ${hook.entity}. Must start with letter or underscore`);
   }
 
   return errors;
@@ -227,10 +212,7 @@ export interface HookDefinition {
   order: number;
 }
 
-export function toHookDefinition(
-  parsedHook: ParsedHook,
-  enabled: boolean = true
-): HookDefinition {
+export function toHookDefinition(parsedHook: ParsedHook, enabled: boolean = true): HookDefinition {
   return {
     type: parsedHook.type,
     name: parsedHook.name,

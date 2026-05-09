@@ -6,22 +6,21 @@
  * Project: openui5-odatav4-test-app
  */
 
-import 'reflect-metadata';
-import { ODataServer, odata } from 'odata-v4-server';
-import express from 'express';
-import cors from 'cors';
-import { createServer } from 'http';
+import "reflect-metadata";
+import cors from "cors";
+import express from "express";
+import { createServer } from "http";
+import { ODataServer, odata } from "odata-v4-server";
 
-import { config } from './config/odata.config';
-import { initializeDatabase, closeDatabase } from './database/connection';
-
+import { config } from "./config/odata.config";
 // Import controllers to register them via decorators
-import { CUSTOMERController } from './controllers/bus/BuscustomerController.controller';
-import { ORDERController } from './controllers/bus/BusorderController.controller';
-import { ORDERITEMController } from './controllers/bus/BusorderitemController.controller';
-import { PRODUCTController } from './controllers/bus/BusproductController.controller';
-import { SysTableController } from './controllers/sys/sys-table.controller';
-import { SysFieldController } from './controllers/sys/sys-field.controller';
+import { CUSTOMERController } from "./controllers/bus/BuscustomerController.controller";
+import { ORDERController } from "./controllers/bus/BusorderController.controller";
+import { ORDERITEMController } from "./controllers/bus/BusorderitemController.controller";
+import { PRODUCTController } from "./controllers/bus/BusproductController.controller";
+import { SysFieldController } from "./controllers/sys/sys-field.controller";
+import { SysTableController } from "./controllers/sys/sys-table.controller";
+import { closeDatabase, initializeDatabase } from "./database/connection";
 
 // Create OData Server class with controller decorators
 @odata.cors
@@ -34,7 +33,7 @@ import { SysFieldController } from './controllers/sys/sys-field.controller';
 class AppODataServer extends ODataServer {}
 
 async function bootstrap() {
-  console.log('Starting openui5-odatav4-test-app OData V4 Server...');
+  console.log("Starting openui5-odatav4-test-app OData V4 Server...");
 
   // Initialize database connection
   await initializeDatabase();
@@ -43,41 +42,57 @@ async function bootstrap() {
   const app = express();
 
   // CORS configuration
-  app.use(cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'OData-Version', 'OData-MaxVersion', 'If-Match', 'If-None-Match'],
-    exposedHeaders: ['OData-Version', 'ETag', 'Preference-Applied'],
-    credentials: true,
-  }));
+  app.use(
+    cors({
+      origin: process.env.CORS_ORIGIN || "http://localhost:8080",
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "OData-Version",
+        "OData-MaxVersion",
+        "If-Match",
+        "If-None-Match",
+      ],
+      exposedHeaders: ["OData-Version", "ETag", "Preference-Applied"],
+      credentials: true,
+    })
+  );
 
   // Body parsing
   app.use(express.json());
 
   // Health check endpoint
-  app.get('/health', (_req, res) => {
-    res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+  app.get("/health", (_req, res) => {
+    res.json({ status: "healthy", timestamp: new Date().toISOString() });
   });
 
   // Create OData router using the server class
   // The create() method returns an Express router configured with OData endpoints
-  const odataRouter = AppODataServer.create('/odata');
+  const odataRouter = AppODataServer.create("/odata");
 
   // Mount OData router at the same path
   // Note: We mount at root '/' since the router already has the path configured
-  app.use('/odata', odataRouter as unknown as express.RequestHandler);
+  app.use("/odata", odataRouter as unknown as express.RequestHandler);
 
   // Error handling middleware
-  app.use((err: Error & { statusCode?: number }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-    console.error('Server error:', err);
-    const statusCode = err.statusCode || 500;
-    res.status(statusCode).json({
-      error: {
-        code: statusCode === 500 ? 'InternalServerError' : 'BadRequest',
-        message: err.message || 'An unexpected error occurred',
-      },
-    });
-  });
+  app.use(
+    (
+      err: Error & { statusCode?: number },
+      _req: express.Request,
+      res: express.Response,
+      _next: express.NextFunction
+    ) => {
+      console.error("Server error:", err);
+      const statusCode = err.statusCode || 500;
+      res.status(statusCode).json({
+        error: {
+          code: statusCode === 500 ? "InternalServerError" : "BadRequest",
+          message: err.message || "An unexpected error occurred",
+        },
+      });
+    }
+  );
 
   // Start server
   const port = config.server.port;
@@ -86,14 +101,14 @@ async function bootstrap() {
   httpServer.listen(port, () => {
     console.log(`OData V4 Server running at http://localhost:${port}`);
     console.log(`$metadata available at http://localhost:${port}/odata/$metadata`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
   });
 
   // Graceful shutdown
-  process.on('SIGTERM', async () => {
-    console.log('SIGTERM received. Shutting down gracefully...');
+  process.on("SIGTERM", async () => {
+    console.log("SIGTERM received. Shutting down gracefully...");
     httpServer.close(async () => {
-      console.log('HTTP server closed');
+      console.log("HTTP server closed");
       await closeDatabase();
       process.exit(0);
     });
@@ -101,6 +116,6 @@ async function bootstrap() {
 }
 
 bootstrap().catch((err) => {
-  console.error('Failed to start server:', err);
+  console.error("Failed to start server:", err);
   process.exit(1);
 });

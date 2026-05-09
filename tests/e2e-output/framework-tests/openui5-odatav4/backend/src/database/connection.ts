@@ -7,8 +7,8 @@
  * Generated: 2026-02-09T13:00:26.927Z
  */
 
-import knex, { Knex } from 'knex';
-import path from 'path';
+import knex, { type Knex } from "knex";
+import path from "path";
 
 let db: Knex | null = null;
 
@@ -18,17 +18,19 @@ export async function initializeDatabase(): Promise<Knex> {
   }
 
   const config: Knex.Config = {
-    client: 'better-sqlite3',
+    client: "better-sqlite3",
     connection: {
-      filename: process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'openui5-odatav4-test-app.db'),
+      filename:
+        process.env.DATABASE_PATH ||
+        path.join(process.cwd(), "data", "openui5-odatav4-test-app.db"),
     },
     useNullAsDefault: true,
     migrations: {
-      directory: path.join(process.cwd(), 'migrations'),
-      tableName: 'knex_migrations',
+      directory: path.join(process.cwd(), "migrations"),
+      tableName: "knex_migrations",
     },
     seeds: {
-      directory: path.join(process.cwd(), 'seeds'),
+      directory: path.join(process.cwd(), "seeds"),
     },
   };
 
@@ -36,10 +38,10 @@ export async function initializeDatabase(): Promise<Knex> {
 
   // Test connection
   try {
-    await db.raw('SELECT 1');
-    console.log('Database connection established');
+    await db.raw("SELECT 1");
+    console.log("Database connection established");
   } catch (error) {
-    console.error('Failed to connect to database:', error);
+    console.error("Failed to connect to database:", error);
     throw error;
   }
 
@@ -48,7 +50,7 @@ export async function initializeDatabase(): Promise<Knex> {
 
 export function getKnex(): Knex {
   if (!db) {
-    throw new Error('Database not initialized. Call initializeDatabase() first.');
+    throw new Error("Database not initialized. Call initializeDatabase() first.");
   }
   return db;
 }
@@ -57,7 +59,7 @@ export async function closeDatabase(): Promise<void> {
   if (db) {
     await db.destroy();
     db = null;
-    console.log('Database connection closed');
+    console.log("Database connection closed");
   }
 }
 

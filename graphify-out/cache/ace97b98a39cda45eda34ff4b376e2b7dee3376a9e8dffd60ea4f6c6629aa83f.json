@@ -1,1 +1,55 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_migrations_js_backup_009_add_missing_sys_columns_js", "label": "009_add_missing_sys_columns.js", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/009_add_missing_sys_columns.js", "source_location": "L1"}, {"id": "009_add_missing_sys_columns_addcolumnifnotexists", "label": "addColumnIfNotExists()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/009_add_missing_sys_columns.js", "source_location": "L11"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_migrations_js_backup_009_add_missing_sys_columns_js", "target": "009_add_missing_sys_columns_addcolumnifnotexists", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/009_add_missing_sys_columns.js", "source_location": "L11", "weight": 1.0}], "raw_calls": [{"caller_nid": "009_add_missing_sys_columns_addcolumnifnotexists", "callee": "raw", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/009_add_missing_sys_columns.js", "source_location": "L18"}, {"caller_nid": "009_add_missing_sys_columns_addcolumnifnotexists", "callee": "table", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/009_add_missing_sys_columns.js", "source_location": "L31"}, {"caller_nid": "009_add_missing_sys_columns_addcolumnifnotexists", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/009_add_missing_sys_columns.js", "source_location": "L34"}, {"caller_nid": "009_add_missing_sys_columns_addcolumnifnotexists", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/009_add_missing_sys_columns.js", "source_location": "L36"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_migrations_js_backup_009_add_missing_sys_columns_js",
+      "label": "009_add_missing_sys_columns.js",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/009_add_missing_sys_columns.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "009_add_missing_sys_columns_addcolumnifnotexists",
+      "label": "addColumnIfNotExists()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/009_add_missing_sys_columns.js",
+      "source_location": "L11"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_backend_migrations_js_backup_009_add_missing_sys_columns_js",
+      "target": "009_add_missing_sys_columns_addcolumnifnotexists",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/009_add_missing_sys_columns.js",
+      "source_location": "L11",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "009_add_missing_sys_columns_addcolumnifnotexists",
+      "callee": "raw",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/009_add_missing_sys_columns.js",
+      "source_location": "L18"
+    },
+    {
+      "caller_nid": "009_add_missing_sys_columns_addcolumnifnotexists",
+      "callee": "table",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/009_add_missing_sys_columns.js",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "009_add_missing_sys_columns_addcolumnifnotexists",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/009_add_missing_sys_columns.js",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "009_add_missing_sys_columns_addcolumnifnotexists",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/backend/migrations/js_backup/009_add_missing_sys_columns.js",
+      "source_location": "L36"
+    }
+  ]
+}

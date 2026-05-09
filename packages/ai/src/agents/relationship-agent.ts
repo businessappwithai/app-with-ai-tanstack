@@ -1,9 +1,9 @@
-import { Agent } from '@mastra/core/agent';
-import { relationshipCandidateSchema } from '../types';
+import { Agent } from "@mastra/core/agent";
+import { relationshipCandidateSchema } from "../types";
 
 export const relationshipAgent = new Agent({
-  id: 'relationship-agent',
-  name: 'Relationship Analyzer',
+  id: "relationship-agent",
+  name: "Relationship Analyzer",
   instructions: `Analyze relationships and determine:
 
 1. Cardinality: oneToOne, oneToMany, manyToOne, manyToMany
@@ -15,14 +15,14 @@ Common patterns:
 - "users create posts" → User 1:N Post (FK: authorId in Post)
 - "post has comments" → Post 1:N Comment (FK: postId in Comment)
 - "posts tagged with tags" → Post M:N Tag (junction table)`,
-  model: 'openai/gpt-4-turbo'
+  model: "openai/gpt-4-turbo",
 });
 
 export async function refineRelationship(relationship: unknown) {
   const response = await relationshipAgent.generate(JSON.stringify(relationship), {
     structuredOutput: {
-      schema: relationshipCandidateSchema
-    }
+      schema: relationshipCandidateSchema,
+    },
   });
 
   return response.object;

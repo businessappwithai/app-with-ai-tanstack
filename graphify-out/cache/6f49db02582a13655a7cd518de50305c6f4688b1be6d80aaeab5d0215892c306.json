@@ -1,1 +1,437 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts", "label": "etag.middleware.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L1"}, {"id": "etag_middleware_generateetag", "label": "generateETag()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L16"}, {"id": "etag_middleware_parseetag", "label": "parseETag()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L27"}, {"id": "etag_middleware_extractversionfrometag", "label": "extractVersionFromETag()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L36"}, {"id": "etag_middleware_setetagheader", "label": "setETagHeader()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L49"}, {"id": "etag_middleware_validateetag", "label": "validateETag()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L78"}, {"id": "etag_middleware_etagsmatch", "label": "etagsMatch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L105"}, {"id": "etag_middleware_handleconcurrencyerror", "label": "handleConcurrencyError()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L119"}, {"id": "etag_middleware_sendodataresponse", "label": "sendODataResponse()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L144"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts", "target": "express", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts", "target": "crypto", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts", "target": "etag_middleware_generateetag", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts", "target": "etag_middleware_parseetag", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L27", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts", "target": "etag_middleware_extractversionfrometag", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L36", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts", "target": "etag_middleware_setetagheader", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L49", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts", "target": "etag_middleware_validateetag", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L78", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts", "target": "etag_middleware_etagsmatch", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L105", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts", "target": "etag_middleware_handleconcurrencyerror", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L119", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts", "target": "etag_middleware_sendodataresponse", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L144", "weight": 1.0}, {"source": "etag_middleware_extractversionfrometag", "target": "etag_middleware_parseetag", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L38", "weight": 1.0}, {"source": "etag_middleware_setetagheader", "target": "etag_middleware_generateetag", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L55", "weight": 1.0}, {"source": "etag_middleware_validateetag", "target": "etag_middleware_parseetag", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L95", "weight": 1.0}, {"source": "etag_middleware_validateetag", "target": "etag_middleware_extractversionfrometag", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L96", "weight": 1.0}, {"source": "etag_middleware_etagsmatch", "target": "etag_middleware_parseetag", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L106", "weight": 1.0}, {"source": "etag_middleware_sendodataresponse", "target": "etag_middleware_generateetag", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L156", "weight": 1.0}], "raw_calls": [{"caller_nid": "etag_middleware_generateetag", "callee": "digest", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L17"}, {"caller_nid": "etag_middleware_generateetag", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L17"}, {"caller_nid": "etag_middleware_generateetag", "callee": "createHash", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L17"}, {"caller_nid": "etag_middleware_parseetag", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L30"}, {"caller_nid": "etag_middleware_parseetag", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L30"}, {"caller_nid": "etag_middleware_parseetag", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L30"}, {"caller_nid": "etag_middleware_extractversionfrometag", "callee": "parseInt", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L41"}, {"caller_nid": "etag_middleware_extractversionfrometag", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L42"}, {"caller_nid": "etag_middleware_setetagheader", "callee": "bind", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L50"}, {"caller_nid": "etag_middleware_setetagheader", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L56"}, {"caller_nid": "etag_middleware_setetagheader", "callee": "isArray", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L60"}, {"caller_nid": "etag_middleware_setetagheader", "callee": "digest", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L61"}, {"caller_nid": "etag_middleware_setetagheader", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L61"}, {"caller_nid": "etag_middleware_setetagheader", "callee": "createHash", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L61"}, {"caller_nid": "etag_middleware_setetagheader", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L63"}, {"caller_nid": "etag_middleware_setetagheader", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L63"}, {"caller_nid": "etag_middleware_setetagheader", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L65"}, {"caller_nid": "etag_middleware_setetagheader", "callee": "originalJson", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L68"}, {"caller_nid": "etag_middleware_setetagheader", "callee": "next", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L71"}, {"caller_nid": "etag_middleware_validateetag", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L80"}, {"caller_nid": "etag_middleware_validateetag", "callee": "next", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L81"}, {"caller_nid": "etag_middleware_validateetag", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L87"}, {"caller_nid": "etag_middleware_validateetag", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L89"}, {"caller_nid": "etag_middleware_validateetag", "callee": "next", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L90"}, {"caller_nid": "etag_middleware_validateetag", "callee": "next", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L99"}, {"caller_nid": "etag_middleware_handleconcurrencyerror", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L125"}, {"caller_nid": "etag_middleware_handleconcurrencyerror", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L126"}, {"caller_nid": "etag_middleware_handleconcurrencyerror", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L127"}, {"caller_nid": "etag_middleware_handleconcurrencyerror", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L128"}, {"caller_nid": "etag_middleware_handleconcurrencyerror", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L128"}, {"caller_nid": "etag_middleware_handleconcurrencyerror", "callee": "next", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L138"}, {"caller_nid": "etag_middleware_sendodataresponse", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L150"}, {"caller_nid": "etag_middleware_sendodataresponse", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L151"}, {"caller_nid": "etag_middleware_sendodataresponse", "callee": "isArray", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L154"}, {"caller_nid": "etag_middleware_sendodataresponse", "callee": "setHeader", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L156"}, {"caller_nid": "etag_middleware_sendodataresponse", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L160"}, {"caller_nid": "etag_middleware_sendodataresponse", "callee": "status", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts", "source_location": "L160"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts",
+      "label": "etag.middleware.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "etag_middleware_generateetag",
+      "label": "generateETag()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L16"
+    },
+    {
+      "id": "etag_middleware_parseetag",
+      "label": "parseETag()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "etag_middleware_extractversionfrometag",
+      "label": "extractVersionFromETag()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L36"
+    },
+    {
+      "id": "etag_middleware_setetagheader",
+      "label": "setETagHeader()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L49"
+    },
+    {
+      "id": "etag_middleware_validateetag",
+      "label": "validateETag()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L78"
+    },
+    {
+      "id": "etag_middleware_etagsmatch",
+      "label": "etagsMatch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L105"
+    },
+    {
+      "id": "etag_middleware_handleconcurrencyerror",
+      "label": "handleConcurrencyError()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L119"
+    },
+    {
+      "id": "etag_middleware_sendodataresponse",
+      "label": "sendODataResponse()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L144"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts",
+      "target": "express",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts",
+      "target": "crypto",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts",
+      "target": "etag_middleware_generateetag",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts",
+      "target": "etag_middleware_parseetag",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts",
+      "target": "etag_middleware_extractversionfrometag",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts",
+      "target": "etag_middleware_setetagheader",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts",
+      "target": "etag_middleware_validateetag",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts",
+      "target": "etag_middleware_etagsmatch",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L105",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts",
+      "target": "etag_middleware_handleconcurrencyerror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L119",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_web_generated_projects_proj_1768636433704_ptawpmxm6_backend_src_middleware_etag_middleware_ts",
+      "target": "etag_middleware_sendodataresponse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L144",
+      "weight": 1.0
+    },
+    {
+      "source": "etag_middleware_extractversionfrometag",
+      "target": "etag_middleware_parseetag",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "etag_middleware_setetagheader",
+      "target": "etag_middleware_generateetag",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "etag_middleware_validateetag",
+      "target": "etag_middleware_parseetag",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L95",
+      "weight": 1.0
+    },
+    {
+      "source": "etag_middleware_validateetag",
+      "target": "etag_middleware_extractversionfrometag",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L96",
+      "weight": 1.0
+    },
+    {
+      "source": "etag_middleware_etagsmatch",
+      "target": "etag_middleware_parseetag",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L106",
+      "weight": 1.0
+    },
+    {
+      "source": "etag_middleware_sendodataresponse",
+      "target": "etag_middleware_generateetag",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L156",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "etag_middleware_generateetag",
+      "callee": "digest",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L17"
+    },
+    {
+      "caller_nid": "etag_middleware_generateetag",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L17"
+    },
+    {
+      "caller_nid": "etag_middleware_generateetag",
+      "callee": "createHash",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L17"
+    },
+    {
+      "caller_nid": "etag_middleware_parseetag",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "etag_middleware_parseetag",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "etag_middleware_parseetag",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "etag_middleware_extractversionfrometag",
+      "callee": "parseInt",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "etag_middleware_extractversionfrometag",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "etag_middleware_setetagheader",
+      "callee": "bind",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "etag_middleware_setetagheader",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "etag_middleware_setetagheader",
+      "callee": "isArray",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "etag_middleware_setetagheader",
+      "callee": "digest",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "etag_middleware_setetagheader",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "etag_middleware_setetagheader",
+      "callee": "createHash",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "etag_middleware_setetagheader",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "etag_middleware_setetagheader",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "etag_middleware_setetagheader",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "etag_middleware_setetagheader",
+      "callee": "originalJson",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "etag_middleware_setetagheader",
+      "callee": "next",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "etag_middleware_validateetag",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "etag_middleware_validateetag",
+      "callee": "next",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "etag_middleware_validateetag",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "etag_middleware_validateetag",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "etag_middleware_validateetag",
+      "callee": "next",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "etag_middleware_validateetag",
+      "callee": "next",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "etag_middleware_handleconcurrencyerror",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "etag_middleware_handleconcurrencyerror",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "etag_middleware_handleconcurrencyerror",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "etag_middleware_handleconcurrencyerror",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "etag_middleware_handleconcurrencyerror",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "etag_middleware_handleconcurrencyerror",
+      "callee": "next",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "etag_middleware_sendodataresponse",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "etag_middleware_sendodataresponse",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "etag_middleware_sendodataresponse",
+      "callee": "isArray",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "etag_middleware_sendodataresponse",
+      "callee": "setHeader",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L156"
+    },
+    {
+      "caller_nid": "etag_middleware_sendodataresponse",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L160"
+    },
+    {
+      "caller_nid": "etag_middleware_sendodataresponse",
+      "callee": "status",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/web/generated-projects/proj_1768636433704_ptawpmxm6/backend/src/middleware/etag.middleware.ts",
+      "source_location": "L160"
+    }
+  ]
+}

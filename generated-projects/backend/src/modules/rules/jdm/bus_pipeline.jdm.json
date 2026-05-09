@@ -13,9 +13,7 @@
       "position": { "x": 300, "y": 0 },
       "content": {
         "hitPolicy": "collect",
-        "inputs": [
-          { "id": "i1", "name": "Name", "field": "name" },
-        ],
+        "inputs": [{ "id": "i1", "name": "Name", "field": "name" }],
         "outputs": [
           { "id": "o1", "name": "Action", "field": "action" },
           { "id": "o2", "name": "Message", "field": "message" },

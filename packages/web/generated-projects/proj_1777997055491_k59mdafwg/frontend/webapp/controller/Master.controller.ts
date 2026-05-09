@@ -7,12 +7,12 @@
  * Generated: 2026-05-06T11:42:08.765Z
  */
 
+import MessageToast from "sap/m/MessageToast";
+import type UI5Event from "sap/ui/base/Event";
 import Controller from "sap/ui/core/mvc/Controller";
-import JSONModel from "sap/ui/model/json/JSONModel";
 import Filter from "sap/ui/model/Filter";
 import FilterOperator from "sap/ui/model/FilterOperator";
-import MessageToast from "sap/m/MessageToast";
-import UI5Event from "sap/ui/base/Event";
+import JSONModel from "sap/ui/model/json/JSONModel";
 
 /**
  * Entity Interface
@@ -44,7 +44,6 @@ interface ViewModel {
  * Master Controller
  */
 export default class MasterController extends Controller {
-
   /**
    * Controller initialization
    */
@@ -52,7 +51,7 @@ export default class MasterController extends Controller {
     // Create view model
     const oViewModel: ViewModel = {
       busy: true,
-      entityCount: 0
+      entityCount: 0,
     };
     this.getView()?.setModel(new JSONModel(oViewModel), "view");
 
@@ -69,26 +68,29 @@ export default class MasterController extends Controller {
     const oView = this.getView();
 
     // Wait for metadata to load
-    oModel?.getMetaModel().requestObject("/").then((oMetadata: any) => {
-      const aEntities = this._extractEntitiesFromMetadata(oMetadata);
+    oModel
+      ?.getMetaModel()
+      .requestObject("/")
+      .then((oMetadata: any) => {
+        const aEntities = this._extractEntitiesFromMetadata(oMetadata);
 
-      // Create entity model
-      const oEntityModel: EntityModel = {
-        entities: aEntities
-      };
+        // Create entity model
+        const oEntityModel: EntityModel = {
+          entities: aEntities,
+        };
 
-      oView?.setModel(new JSONModel(oEntityModel));
-      oView?.getModel("view")?.setProperty("/busy", false);
-      oView?.getModel("view")?.setProperty("/entityCount", aEntities.length);
+        oView?.setModel(new JSONModel(oEntityModel));
+        oView?.getModel("view")?.setProperty("/busy", false);
+        oView?.getModel("view")?.setProperty("/entityCount", aEntities.length);
 
-      // Show/hide no data message
-      this._updateNoDataMessage(aEntities.length === 0);
-
-    }).catch((oError: any) => {
-      console.error("Failed to load metadata:", oError);
-      oView?.getModel("view")?.setProperty("/busy", false);
-      this._updateNoDataMessage(true);
-    });
+        // Show/hide no data message
+        this._updateNoDataMessage(aEntities.length === 0);
+      })
+      .catch((oError: any) => {
+        console.error("Failed to load metadata:", oError);
+        oView?.getModel("view")?.setProperty("/busy", false);
+        this._updateNoDataMessage(true);
+      });
   }
 
   /**
@@ -120,7 +122,7 @@ export default class MasterController extends Controller {
                 entityType: sEntityType,
                 description: this._getEntityDescription(sKey),
                 isSystem: false,
-                icon: "sap-icon://table-view"
+                icon: "sap-icon://table-view",
               });
             } else if (bIsSystem) {
               aEntities.push({
@@ -128,7 +130,7 @@ export default class MasterController extends Controller {
                 entityType: sEntityType,
                 description: "System entity",
                 isSystem: true,
-                icon: "sap-icon://it-host"
+                icon: "sap-icon://it-host",
               });
             }
           }
@@ -156,10 +158,7 @@ export default class MasterController extends Controller {
   private _getEntityDescription(sEntityName: string): string {
     // In a full implementation, this would fetch from sys_table
     // For now, generate a readable description
-    const sCleanName = sEntityName
-      .replace(/^bus_/, "")
-      .replace(/^sys_/, "")
-      .replace(/_/g, " ");
+    const sCleanName = sEntityName.replace(/^bus_/, "").replace(/^sys_/, "").replace(/_/g, " ");
 
     return sCleanName.charAt(0).toUpperCase() + sCleanName.slice(1);
   }
@@ -188,12 +187,14 @@ export default class MasterController extends Controller {
     if (sQuery && sQuery.length > 0) {
       const aFilters = [
         new Filter("name", FilterOperator.Contains, sQuery),
-        new Filter("description", FilterOperator.Contains, sQuery)
+        new Filter("description", FilterOperator.Contains, sQuery),
       ];
-      oBinding?.filter(new Filter({
-        filters: aFilters,
-        and: false
-      }));
+      oBinding?.filter(
+        new Filter({
+          filters: aFilters,
+          and: false,
+        })
+      );
     } else {
       oBinding?.filter([]);
     }
@@ -211,7 +212,7 @@ export default class MasterController extends Controller {
 
       // Navigate to list view
       this.getOwnerComponent().getRouter().navTo("list", {
-        entity: sEntityName
+        entity: sEntityName,
       });
     }
   }

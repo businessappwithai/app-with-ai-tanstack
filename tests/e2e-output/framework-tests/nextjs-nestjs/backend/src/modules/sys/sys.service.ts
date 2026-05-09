@@ -7,8 +7,8 @@
  * Generated: 2026-03-20T16:41:26.575Z
  */
 
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { DatabaseService } from '../../database/database.service';
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import type { DatabaseService } from "../../database/database.service";
 
 interface PaginationOptions {
   page?: number;
@@ -66,19 +66,19 @@ export class SysService {
     const { page = 1, limit = 100, search, prefix } = options;
     const offset = (page - 1) * limit;
 
-    let query = this.db.knex('sys_table').where('is_active', true);
+    let query = this.db.knex("sys_table").where("is_active", true);
 
     if (prefix) {
-      query = query.where('table_name', 'like', `${prefix}%`);
+      query = query.where("table_name", "like", `${prefix}%`);
     }
 
     if (search) {
-      query = query.where('name', 'like', `%${search}%`);
+      query = query.where("name", "like", `%${search}%`);
     }
 
     const [data, countResult] = await Promise.all([
-      query.clone().orderBy('name').limit(limit).offset(offset),
-      query.clone().clearSelect().count('* as count').first(),
+      query.clone().orderBy("name").limit(limit).offset(offset),
+      query.clone().clearSelect().count("* as count").first(),
     ]);
 
     return {
@@ -92,7 +92,7 @@ export class SysService {
   }
 
   async findTableById(id: string) {
-    const table = await this.db.knex('sys_table').where('sys_table_id', id).first();
+    const table = await this.db.knex("sys_table").where("sys_table_id", id).first();
     if (!table) {
       throw new NotFoundException(`Table with ID ${id} not found`);
     }
@@ -100,7 +100,7 @@ export class SysService {
   }
 
   async findTableByName(tableName: string) {
-    const table = await this.db.knex('sys_table').where('table_name', tableName).first();
+    const table = await this.db.knex("sys_table").where("table_name", tableName).first();
     if (!table) {
       throw new NotFoundException(`Table ${tableName} not found`);
     }
@@ -115,15 +115,15 @@ export class SysService {
     const { page = 1, limit = 100, tableId } = options;
     const offset = (page - 1) * limit;
 
-    let query = this.db.knex('sys_column').where('is_active', true);
+    let query = this.db.knex("sys_column").where("is_active", true);
 
     if (tableId) {
-      query = query.where('sys_table_id', tableId);
+      query = query.where("sys_table_id", tableId);
     }
 
     const [data, countResult] = await Promise.all([
-      query.clone().orderBy('seq_no').limit(limit).offset(offset),
-      query.clone().clearSelect().count('* as count').first(),
+      query.clone().orderBy("seq_no").limit(limit).offset(offset),
+      query.clone().clearSelect().count("* as count").first(),
     ]);
 
     return {
@@ -137,7 +137,7 @@ export class SysService {
   }
 
   async findColumnById(id: string) {
-    const column = await this.db.knex('sys_column').where('sys_column_id', id).first();
+    const column = await this.db.knex("sys_column").where("sys_column_id", id).first();
     if (!column) {
       throw new NotFoundException(`Column with ID ${id} not found`);
     }
@@ -148,36 +148,39 @@ export class SysService {
   // SYS_FIELD Operations (Critical for Runtime UI Modification)
   // ============================================================================
 
-  async findAllFields(options: PaginationOptions & { tabId?: string; tableId?: string; view?: 'form' | 'grid' } = {}) {
+  async findAllFields(
+    options: PaginationOptions & { tabId?: string; tableId?: string; view?: "form" | "grid" } = {}
+  ) {
     const { page = 1, limit = 100, tabId, tableId, view } = options;
     const offset = (page - 1) * limit;
 
-    let query = this.db.knex('sys_field')
-      .select('sys_field.*', 'sys_column.column_name', 'sys_column.name as column_display_name')
-      .leftJoin('sys_column', 'sys_field.sys_column_id', 'sys_column.sys_column_id')
-      .where('sys_field.is_active', true);
+    let query = this.db
+      .knex("sys_field")
+      .select("sys_field.*", "sys_column.column_name", "sys_column.name as column_display_name")
+      .leftJoin("sys_column", "sys_field.sys_column_id", "sys_column.sys_column_id")
+      .where("sys_field.is_active", true);
 
     if (tabId) {
-      query = query.where('sys_field.sys_tab_id', tabId);
+      query = query.where("sys_field.sys_tab_id", tabId);
     }
 
     if (tableId) {
-      query = query.where('sys_column.sys_table_id', tableId);
+      query = query.where("sys_column.sys_table_id", tableId);
     }
 
     // Filter by visibility based on view type
-    if (view === 'form') {
-      query = query.where('sys_field.is_displayed', true);
-    } else if (view === 'grid') {
-      query = query.where('sys_field.is_displayed_grid', true);
+    if (view === "form") {
+      query = query.where("sys_field.is_displayed", true);
+    } else if (view === "grid") {
+      query = query.where("sys_field.is_displayed_grid", true);
     }
 
     // Order by appropriate seq_no
-    const orderBy = view === 'grid' ? 'sys_field.seq_no_grid' : 'sys_field.seq_no';
+    const orderBy = view === "grid" ? "sys_field.seq_no_grid" : "sys_field.seq_no";
 
     const [data, countResult] = await Promise.all([
       query.clone().orderBy(orderBy).limit(limit).offset(offset),
-      query.clone().clearSelect().count('* as count').first(),
+      query.clone().clearSelect().count("* as count").first(),
     ]);
 
     return {
@@ -191,7 +194,7 @@ export class SysService {
   }
 
   async findFieldById(id: string) {
-    const field = await this.db.knex('sys_field').where('sys_field_id', id).first();
+    const field = await this.db.knex("sys_field").where("sys_field_id", id).first();
     if (!field) {
       throw new NotFoundException(`Field with ID ${id} not found`);
     }
@@ -203,7 +206,7 @@ export class SysService {
 
     // Optimistic locking check
     if (version !== undefined && field.version !== version) {
-      throw new ConflictException('Field was modified by another user');
+      throw new ConflictException("Field was modified by another user");
     }
 
     const updateData = {
@@ -212,7 +215,7 @@ export class SysService {
       updated: new Date().toISOString(),
     };
 
-    await this.db.knex('sys_field').where('sys_field_id', id).update(updateData);
+    await this.db.knex("sys_field").where("sys_field_id", id).update(updateData);
 
     // Invalidate field cache since field metadata changed
     this.invalidateFieldCache();
@@ -223,8 +226,8 @@ export class SysService {
   async batchReorderFields(fields: Array<{ id: string; seq_no: number }>) {
     await this.db.knex.transaction(async (trx) => {
       for (const { id, seq_no } of fields) {
-        await trx('sys_field')
-          .where('sys_field_id', id)
+        await trx("sys_field")
+          .where("sys_field_id", id)
           .update({ seq_no, updated: new Date().toISOString() });
       }
     });
@@ -243,11 +246,11 @@ export class SysService {
     const { page = 1, limit = 100 } = options;
     const offset = (page - 1) * limit;
 
-    let query = this.db.knex('sys_reference').where('is_active', true);
+    const query = this.db.knex("sys_reference").where("is_active", true);
 
     const [data, countResult] = await Promise.all([
-      query.clone().orderBy('name').limit(limit).offset(offset),
-      query.clone().clearSelect().count('* as count').first(),
+      query.clone().orderBy("name").limit(limit).offset(offset),
+      query.clone().clearSelect().count("* as count").first(),
     ]);
 
     return {
@@ -261,7 +264,7 @@ export class SysService {
   }
 
   async findReferenceById(id: string) {
-    const ref = await this.db.knex('sys_reference').where('sys_reference_id', id).first();
+    const ref = await this.db.knex("sys_reference").where("sys_reference_id", id).first();
     if (!ref) {
       throw new NotFoundException(`Reference with ID ${id} not found`);
     }
@@ -279,16 +282,18 @@ export class SysService {
     const table = await this.findTableByName(tableName);
 
     const [columns, fields] = await Promise.all([
-      this.db.knex('sys_column')
-        .where('sys_table_id', table.sys_table_id)
-        .where('is_active', true)
-        .orderBy('seq_no'),
-      this.db.knex('sys_field')
-        .select('sys_field.*', 'sys_column.column_name')
-        .leftJoin('sys_column', 'sys_field.sys_column_id', 'sys_column.sys_column_id')
-        .where('sys_column.sys_table_id', table.sys_table_id)
-        .where('sys_field.is_active', true)
-        .orderBy('sys_field.seq_no'),
+      this.db
+        .knex("sys_column")
+        .where("sys_table_id", table.sys_table_id)
+        .where("is_active", true)
+        .orderBy("seq_no"),
+      this.db
+        .knex("sys_field")
+        .select("sys_field.*", "sys_column.column_name")
+        .leftJoin("sys_column", "sys_field.sys_column_id", "sys_column.sys_column_id")
+        .where("sys_column.sys_table_id", table.sys_table_id)
+        .where("sys_field.is_active", true)
+        .orderBy("sys_field.seq_no"),
     ]);
 
     return {
@@ -307,29 +312,38 @@ export class SysService {
     return this.getCached(`form_fields:${tableName}`, async () => {
       const table = await this.findTableByName(tableName);
 
-      return this.db.knex('sys_field')
+      return this.db
+        .knex("sys_field")
         .select(
-          'sys_field.*',
-          'sys_column.column_name',
-          'sys_column.name as display_name',
-          'sys_column.is_mandatory',
-          'sys_column.field_length',
-          'sys_reference.name as reference_name',
-          'sys_ref_table.sys_table_id as ref_table_id',
-          'ref_table.table_name as ref_table_name',
-          'key_column.column_name as ref_key_column',
-          'display_column.column_name as ref_display_column',
+          "sys_field.*",
+          "sys_column.column_name",
+          "sys_column.name as display_name",
+          "sys_column.is_mandatory",
+          "sys_column.field_length",
+          "sys_reference.name as reference_name",
+          "sys_ref_table.sys_table_id as ref_table_id",
+          "ref_table.table_name as ref_table_name",
+          "key_column.column_name as ref_key_column",
+          "display_column.column_name as ref_display_column"
         )
-        .leftJoin('sys_column', 'sys_field.sys_column_id', 'sys_column.sys_column_id')
-        .leftJoin('sys_reference', 'sys_column.sys_reference_id', 'sys_reference.sys_reference_id')
-        .leftJoin('sys_ref_table', 'sys_column.sys_reference_id', 'sys_ref_table.sys_reference_id')
-        .leftJoin('sys_table as ref_table', 'sys_ref_table.sys_table_id', 'ref_table.sys_table_id')
-        .leftJoin('sys_column as key_column', 'sys_ref_table.key_column_id', 'key_column.sys_column_id')
-        .leftJoin('sys_column as display_column', 'sys_ref_table.display_column_id', 'display_column.sys_column_id')
-        .where('sys_column.sys_table_id', table.sys_table_id)
-        .where('sys_field.is_active', true)
-        .where('sys_field.is_displayed', true)
-        .orderBy('sys_field.seq_no');
+        .leftJoin("sys_column", "sys_field.sys_column_id", "sys_column.sys_column_id")
+        .leftJoin("sys_reference", "sys_column.sys_reference_id", "sys_reference.sys_reference_id")
+        .leftJoin("sys_ref_table", "sys_column.sys_reference_id", "sys_ref_table.sys_reference_id")
+        .leftJoin("sys_table as ref_table", "sys_ref_table.sys_table_id", "ref_table.sys_table_id")
+        .leftJoin(
+          "sys_column as key_column",
+          "sys_ref_table.key_column_id",
+          "key_column.sys_column_id"
+        )
+        .leftJoin(
+          "sys_column as display_column",
+          "sys_ref_table.display_column_id",
+          "display_column.sys_column_id"
+        )
+        .where("sys_column.sys_table_id", table.sys_table_id)
+        .where("sys_field.is_active", true)
+        .where("sys_field.is_displayed", true)
+        .orderBy("sys_field.seq_no");
     });
   }
 
@@ -342,27 +356,36 @@ export class SysService {
     return this.getCached(`grid_fields:${tableName}`, async () => {
       const table = await this.findTableByName(tableName);
 
-      return this.db.knex('sys_field')
+      return this.db
+        .knex("sys_field")
         .select(
-          'sys_field.*',
-          'sys_column.column_name',
-          'sys_column.name as display_name',
-          'sys_reference.name as reference_name',
-          'sys_ref_table.sys_table_id as ref_table_id',
-          'ref_table.table_name as ref_table_name',
-          'key_column.column_name as ref_key_column',
-          'display_column.column_name as ref_display_column',
+          "sys_field.*",
+          "sys_column.column_name",
+          "sys_column.name as display_name",
+          "sys_reference.name as reference_name",
+          "sys_ref_table.sys_table_id as ref_table_id",
+          "ref_table.table_name as ref_table_name",
+          "key_column.column_name as ref_key_column",
+          "display_column.column_name as ref_display_column"
         )
-        .leftJoin('sys_column', 'sys_field.sys_column_id', 'sys_column.sys_column_id')
-        .leftJoin('sys_reference', 'sys_column.sys_reference_id', 'sys_reference.sys_reference_id')
-        .leftJoin('sys_ref_table', 'sys_column.sys_reference_id', 'sys_ref_table.sys_reference_id')
-        .leftJoin('sys_table as ref_table', 'sys_ref_table.sys_table_id', 'ref_table.sys_table_id')
-        .leftJoin('sys_column as key_column', 'sys_ref_table.key_column_id', 'key_column.sys_column_id')
-        .leftJoin('sys_column as display_column', 'sys_ref_table.display_column_id', 'display_column.sys_column_id')
-        .where('sys_column.sys_table_id', table.sys_table_id)
-        .where('sys_field.is_active', true)
-        .where('sys_field.is_displayed_grid', true)
-        .orderBy('sys_field.seq_no_grid');
+        .leftJoin("sys_column", "sys_field.sys_column_id", "sys_column.sys_column_id")
+        .leftJoin("sys_reference", "sys_column.sys_reference_id", "sys_reference.sys_reference_id")
+        .leftJoin("sys_ref_table", "sys_column.sys_reference_id", "sys_ref_table.sys_reference_id")
+        .leftJoin("sys_table as ref_table", "sys_ref_table.sys_table_id", "ref_table.sys_table_id")
+        .leftJoin(
+          "sys_column as key_column",
+          "sys_ref_table.key_column_id",
+          "key_column.sys_column_id"
+        )
+        .leftJoin(
+          "sys_column as display_column",
+          "sys_ref_table.display_column_id",
+          "display_column.sys_column_id"
+        )
+        .where("sys_column.sys_table_id", table.sys_table_id)
+        .where("sys_field.is_active", true)
+        .where("sys_field.is_displayed_grid", true)
+        .orderBy("sys_field.seq_no_grid");
     });
   }
 }

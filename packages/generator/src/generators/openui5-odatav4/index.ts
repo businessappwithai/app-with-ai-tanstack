@@ -6,5 +6,5 @@
  * - Frontend: OpenUI5 Flexible Column Layout
  */
 
-export * from './odata-backend.generator';
-export * from './openui5-frontend.generator';
+export * from "./odata-backend.generator";
+export * from "./openui5-frontend.generator";

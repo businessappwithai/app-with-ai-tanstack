@@ -4,16 +4,16 @@
  * Generated: 2026-05-07T09:31:28.657Z
  */
 
-import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
-import type { Knex } from 'knex';
-import { v4 as uuidv4 } from 'uuid';
-import { KNEX_CONNECTION } from './database.constants';
+import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import type { Knex } from "knex";
+import { v4 as uuidv4 } from "uuid";
+import { KNEX_CONNECTION } from "./database.constants";
 
 export interface PaginationOptions {
   page?: number;
   limit?: number;
   orderBy?: string;
-  orderDir?: 'asc' | 'desc';
+  orderDir?: "asc" | "desc";
 }
 
 export interface PaginatedResult<T> {
@@ -55,29 +55,29 @@ export class DatabaseService {
   async findAll<T>(
     tableName: string,
     options: PaginationOptions = {},
-    filters: Record<string, any> = {},
+    filters: Record<string, any> = {}
   ): Promise<PaginatedResult<T>> {
-    const { page = 1, limit = 20, orderBy = 'created_at', orderDir = 'desc' } = options;
+    const { page = 1, limit = 20, orderBy = "created_at", orderDir = "desc" } = options;
 
     const offset = (page - 1) * limit;
 
     // Build query
-    let query = this.knex(tableName).whereNull('deleted_at');
+    let query = this.knex(tableName).whereNull("deleted_at");
 
     // Apply filters
     for (const [key, value] of Object.entries(filters)) {
-      if (value !== undefined && value !== null && value !== '') {
+      if (value !== undefined && value !== null && value !== "") {
         if (
-          typeof value === 'object' &&
+          typeof value === "object" &&
           value !== null &&
-          'operator' in value &&
-          'value' in value
+          "operator" in value &&
+          "value" in value
         ) {
           // Handle operator objects for comparison queries: { operator: '>', value: '...' }
           const { operator, value: filterValue } = value;
           query = query.where(key, operator, filterValue);
-        } else if (typeof value === 'string' && value.includes('%')) {
-          query = query.where(key, 'ilike', value);
+        } else if (typeof value === "string" && value.includes("%")) {
+          query = query.where(key, "ilike", value);
         } else {
           query = query.where(key, value);
         }
@@ -85,7 +85,7 @@ export class DatabaseService {
     }
 
     // Get total count
-    const [{ count }] = await query.clone().count('* as count');
+    const [{ count }] = await query.clone().count("* as count");
     const total = parseInt(count as string, 10);
 
     // Get data with pagination
@@ -107,7 +107,7 @@ export class DatabaseService {
    */
   async findById<T>(tableName: string, id: string): Promise<T | null> {
     // The primary key column is always 'id' in the database schema
-    const record = await this.knex(tableName).where('id', id).whereNull('deleted_at').first();
+    const record = await this.knex(tableName).where("id", id).whereNull("deleted_at").first();
 
     return record as T | null;
   }
@@ -129,7 +129,7 @@ export class DatabaseService {
    * Find records by a specific field
    */
   async findBy<T>(tableName: string, field: string, value: any): Promise<T[]> {
-    return this.knex(tableName).where(field, value).whereNull('deleted_at') as Promise<T[]>;
+    return this.knex(tableName).where(field, value).whereNull("deleted_at") as Promise<T[]>;
   }
 
   /**
@@ -159,7 +159,7 @@ export class DatabaseService {
     tableName: string,
     id: string,
     data: Partial<T>,
-    expectedVersion?: number,
+    expectedVersion?: number
   ): Promise<T> {
     // Check if record exists
     const existing = await this.findByIdOrFail<T & { version: number }>(tableName, id);
@@ -167,16 +167,16 @@ export class DatabaseService {
     // Optimistic concurrency check
     if (expectedVersion !== undefined && existing.version !== expectedVersion) {
       throw new ConflictException(
-        `Record has been modified by another user. Expected version ${expectedVersion}, current version ${existing.version}`,
+        `Record has been modified by another user. Expected version ${expectedVersion}, current version ${existing.version}`
       );
     }
 
     // Update record - use 'id' as the primary key column
     await this.knex(tableName)
-      .where('id', id)
+      .where("id", id)
       .update({
         ...data,
-        version: this.knex.raw('version + 1'),
+        version: this.knex.raw("version + 1"),
         updated_at: new Date(),
       });
 
@@ -191,7 +191,7 @@ export class DatabaseService {
     await this.findByIdOrFail(tableName, id);
 
     // Soft delete - use 'id' as the primary key column
-    const result = await this.knex(tableName).where('id', id).update({
+    const result = await this.knex(tableName).where("id", id).update({
       deleted_at: new Date(),
       updated_at: new Date(),
     });
@@ -204,7 +204,7 @@ export class DatabaseService {
    */
   async hardDelete(tableName: string, id: string): Promise<boolean> {
     // Hard delete - use 'id' as the primary key column
-    const result = await this.knex(tableName).where('id', id).delete();
+    const result = await this.knex(tableName).where("id", id).delete();
 
     return result > 0;
   }
@@ -214,7 +214,7 @@ export class DatabaseService {
    */
   async restore(tableName: string, id: string): Promise<boolean> {
     // Restore - use 'id' as the primary key column
-    const result = await this.knex(tableName).where('id', id).whereNotNull('deleted_at').update({
+    const result = await this.knex(tableName).where("id", id).whereNotNull("deleted_at").update({
       deleted_at: null,
       updated_at: new Date(),
     });
@@ -226,7 +226,7 @@ export class DatabaseService {
    * Count records in a table
    */
   async count(tableName: string, filters: Record<string, any> = {}): Promise<number> {
-    let query = this.knex(tableName).whereNull('deleted_at');
+    let query = this.knex(tableName).whereNull("deleted_at");
 
     for (const [key, value] of Object.entries(filters)) {
       if (value !== undefined && value !== null) {
@@ -234,7 +234,7 @@ export class DatabaseService {
       }
     }
 
-    const [{ count }] = await query.count('* as count');
+    const [{ count }] = await query.count("* as count");
     return parseInt(count as string, 10);
   }
 
@@ -243,7 +243,7 @@ export class DatabaseService {
    */
   async exists(tableName: string, id: string): Promise<boolean> {
     // Use 'id' as the primary key column
-    const result = await this.knex(tableName).where('id', id).whereNull('deleted_at').first();
+    const result = await this.knex(tableName).where("id", id).whereNull("deleted_at").first();
 
     return !!result;
   }
@@ -261,6 +261,6 @@ export class DatabaseService {
    */
   async destroy(): Promise<void> {
     await this.knex.destroy();
-    console.log('✓ Database connection closed');
+    console.log("✓ Database connection closed");
   }
 }

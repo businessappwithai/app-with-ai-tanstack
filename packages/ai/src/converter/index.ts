@@ -1,5 +1,5 @@
-import { analyzeDomainWithOpenAI, generateMermaidWithValidation } from "./openai-fallback";
 import type { DomainAnalysis } from "../types";
+import { analyzeDomainWithOpenAI, generateMermaidWithValidation } from "./openai-fallback";
 
 // Export OpenAI functions for direct use
 export { analyzeDomainWithOpenAI, generateMermaidWithValidation };
@@ -83,16 +83,12 @@ export async function convertToMermaid(description: string): Promise<string> {
   return converter.convertFast(description);
 }
 
-export async function convertToMermaidFast(
-  description: string,
-): Promise<string> {
+export async function convertToMermaidFast(description: string): Promise<string> {
   const converter = new AIToMermaidConverter();
   return converter.convertFast(description);
 }
 
-export async function analyzeDomainOnly(
-  description: string,
-): Promise<DomainAnalysis> {
+export async function analyzeDomainOnly(description: string): Promise<DomainAnalysis> {
   const converter = new AIToMermaidConverter();
   return converter.analyzeOnly(description);
 }

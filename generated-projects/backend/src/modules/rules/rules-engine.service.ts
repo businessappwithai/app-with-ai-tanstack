@@ -28,13 +28,13 @@
  * Project: crm-app
  */
 
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
-import { ZenEngine } from '@gorules/zen-engine';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { ZenEngine } from "@gorules/zen-engine";
+import { Injectable, Logger, type OnModuleDestroy } from "@nestjs/common";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export interface RuleAction {
-  type: 'validate' | 'notify' | 'prevent' | 'transform';
+  type: "validate" | "notify" | "prevent" | "transform";
   config: Record<string, unknown>;
 }
 
@@ -63,21 +63,21 @@ export class RulesEngine implements OnModuleDestroy {
 
   /** Maps entity type names to their JDM file names */
   private readonly jdmFiles: Record<string, string> = {
-    bus_company: 'bus_company.jdm.json',
-    bus_contact: 'bus_contact.jdm.json',
-    bus_deal: 'bus_deal.jdm.json',
-    bus_deal_stage: 'bus_deal_stage.jdm.json',
-    bus_pipeline: 'bus_pipeline.jdm.json',
-    bus_activity: 'bus_activity.jdm.json',
-    bus_note: 'bus_note.jdm.json',
-    bus_task: 'bus_task.jdm.json',
-    bus_email_message: 'bus_email_message.jdm.json',
-    bus_email_template: 'bus_email_template.jdm.json',
-    bus_product: 'bus_product.jdm.json',
-    bus_quote: 'bus_quote.jdm.json',
-    bus_quote_item: 'bus_quote_item.jdm.json',
-    bus_user: 'bus_user.jdm.json',
-    bus_team: 'bus_team.jdm.json',
+    bus_company: "bus_company.jdm.json",
+    bus_contact: "bus_contact.jdm.json",
+    bus_deal: "bus_deal.jdm.json",
+    bus_deal_stage: "bus_deal_stage.jdm.json",
+    bus_pipeline: "bus_pipeline.jdm.json",
+    bus_activity: "bus_activity.jdm.json",
+    bus_note: "bus_note.jdm.json",
+    bus_task: "bus_task.jdm.json",
+    bus_email_message: "bus_email_message.jdm.json",
+    bus_email_template: "bus_email_template.jdm.json",
+    bus_product: "bus_product.jdm.json",
+    bus_quote: "bus_quote.jdm.json",
+    bus_quote_item: "bus_quote_item.jdm.json",
+    bus_user: "bus_user.jdm.json",
+    bus_team: "bus_team.jdm.json",
   };
 
   constructor() {
@@ -101,7 +101,7 @@ export class RulesEngine implements OnModuleDestroy {
     entityType: string,
     jdmContent: string,
     data: Record<string, unknown>,
-    action: 'create' | 'update' | 'delete',
+    action: "create" | "update" | "delete"
   ): Promise<RuleEvaluationResult[]> {
     this.logger.log(`Evaluating rules for ${entityType}:${action}`);
 
@@ -113,17 +113,17 @@ export class RulesEngine implements OnModuleDestroy {
 
       if (Array.isArray(result.result)) {
         violations = result.result as JdmViolation[];
-      } else if (result.result && typeof result.result === 'object') {
+      } else if (result.result && typeof result.result === "object") {
         violations = [result.result as JdmViolation];
       }
 
       return violations.map((v) => ({
-        ruleId: v.ruleId || v.rule_id || 'unknown',
-        ruleName: v.ruleId || v.rule_id || 'unknown',
+        ruleId: v.ruleId || v.rule_id || "unknown",
+        ruleName: v.ruleId || v.rule_id || "unknown",
         matched: true,
         actions: [
           {
-            type: v.action as RuleAction['type'],
+            type: v.action as RuleAction["type"],
             config: { message: v.message },
           },
         ],
@@ -133,8 +133,8 @@ export class RulesEngine implements OnModuleDestroy {
       this.logger.error(`Error evaluating rules for ${entityType}: ${message}`);
       return [
         {
-          ruleId: 'engine-error',
-          ruleName: 'Rules Engine Error',
+          ruleId: "engine-error",
+          ruleName: "Rules Engine Error",
           matched: false,
           actions: [],
           errors: [message],
@@ -154,7 +154,7 @@ export class RulesEngine implements OnModuleDestroy {
   async evaluateRules(
     entityType: string,
     data: Record<string, unknown>,
-    action: 'create' | 'update' | 'delete',
+    action: "create" | "update" | "delete"
   ): Promise<RuleEvaluationResult[]> {
     this.logger.log(`Evaluating rules for ${entityType}:${action}`);
 
@@ -164,7 +164,7 @@ export class RulesEngine implements OnModuleDestroy {
       return [];
     }
 
-    const jdmPath = join(__dirname, 'jdm', jdmFile);
+    const jdmPath = join(__dirname, "jdm", jdmFile);
     let content: Buffer;
     try {
       content = readFileSync(jdmPath);
@@ -181,7 +181,7 @@ export class RulesEngine implements OnModuleDestroy {
       // hitPolicy "collect" returns an array; single-match returns an object or null
       if (Array.isArray(result.result)) {
         violations = result.result as JdmViolation[];
-      } else if (result.result && typeof result.result === 'object') {
+      } else if (result.result && typeof result.result === "object") {
         violations = [result.result as JdmViolation];
       }
     } catch (error: unknown) {
@@ -189,8 +189,8 @@ export class RulesEngine implements OnModuleDestroy {
       this.logger.error(`Error evaluating rules for ${entityType}: ${message}`);
       return [
         {
-          ruleId: 'engine-error',
-          ruleName: 'Rules Engine Error',
+          ruleId: "engine-error",
+          ruleName: "Rules Engine Error",
           matched: false,
           actions: [],
           errors: [message],
@@ -204,7 +204,7 @@ export class RulesEngine implements OnModuleDestroy {
       matched: true,
       actions: [
         {
-          type: v.action as RuleAction['type'],
+          type: v.action as RuleAction["type"],
           config: { message: v.message },
         },
       ],

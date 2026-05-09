@@ -1,4 +1,4 @@
-import OpenAI from 'openai';
+import OpenAI from "openai";
 
 /** Attribute shape used in OpenAI-parsed entity responses */
 interface ParsedAttribute {
@@ -34,28 +34,39 @@ interface ParsedRelationship {
  * Returns { valid: true } if valid, { valid: false, error: string } if invalid
  */
 function validateMermaidSyntax(mermaidSyntax: string): { valid: boolean; error?: string } {
-  const lines = mermaidSyntax.trim().split('\n');
+  const lines = mermaidSyntax.trim().split("\n");
   const errors: string[] = [];
 
   // Check for erDiagram opening
-  if (!lines[0]?.trim().startsWith('erDiagram')) {
+  if (!lines[0]?.trim().startsWith("erDiagram")) {
     errors.push('Must start with "erDiagram"');
   }
 
-  const linesWithContent = lines.filter(line => line.trim() && !line.trim().startsWith('%%'));
+  const linesWithContent = lines.filter((line) => line.trim() && !line.trim().startsWith("%%"));
 
   for (let i = 0; i < linesWithContent.length; i++) {
-    const line = (linesWithContent[i] ?? '').trim();
+    const line = (linesWithContent[i] ?? "").trim();
 
     // Skip entity blocks and empty lines
-    if (line.includes('{') || line.includes('}') || line === 'erDiagram') {
+    if (line.includes("{") || line.includes("}") || line === "erDiagram") {
       continue;
     }
 
     // Check if it's a relationship line
-    if (line.includes('--')) {
+    if (line.includes("--")) {
       // Validate relationship syntax
-      const validCardinalities = ['||--||', '||--o{', '}o--||', '}o--o{', '||--|{', '}|--||', '||..||', '||..o{', '}o..||', '}o..o{'];
+      const validCardinalities = [
+        "||--||",
+        "||--o{",
+        "}o--||",
+        "}o--o{",
+        "||--|{",
+        "}|--||",
+        "||..||",
+        "||..o{",
+        "}o..||",
+        "}o..o{",
+      ];
 
       let hasValidCardinality = false;
       for (const cardinality of validCardinalities) {
@@ -75,8 +86,8 @@ function validateMermaidSyntax(mermaidSyntax: string): { valid: boolean; error?:
       // Entity definition starts, ensure it has a closing brace
       let braceCount = 1;
       for (let j = i + 1; j < linesWithContent.length; j++) {
-        if ((linesWithContent[j] ?? '').includes('{')) braceCount++;
-        if ((linesWithContent[j] ?? '').includes('}')) braceCount--;
+        if ((linesWithContent[j] ?? "").includes("{")) braceCount++;
+        if ((linesWithContent[j] ?? "").includes("}")) braceCount--;
         if (braceCount === 0) break;
       }
       if (braceCount > 0) {
@@ -86,7 +97,7 @@ function validateMermaidSyntax(mermaidSyntax: string): { valid: boolean; error?:
   }
 
   if (errors.length > 0) {
-    return { valid: false, error: errors.join('; ') };
+    return { valid: false, error: errors.join("; ") };
   }
 
   return { valid: true };
@@ -109,8 +120,9 @@ async function generateMermaidWithRetry(
     console.log(`[Mermaid Generation] Attempt ${retryCount}/${maxRetries}`);
 
     try {
-      const prompt = retryCount === 1
-        ? `Generate a valid Mermaid ERD diagram from these entities and relationships:
+      const prompt =
+        retryCount === 1
+          ? `Generate a valid Mermaid ERD diagram from these entities and relationships:
 
 ENTITIES:
 ${JSON.stringify(entities, null, 2)}
@@ -119,7 +131,7 @@ RELATIONSHIPS:
 ${JSON.stringify(relationships, null, 2)}
 
 Generate ONLY valid Mermaid ERD syntax. Start with "erDiagram" and use proper cardinality symbols.`
-        : `Previous attempt failed validation. Error: ${lastError}
+          : `Previous attempt failed validation. Error: ${lastError}
 
 Please fix the Mermaid ERD syntax:
 
@@ -137,22 +149,23 @@ Generate ONLY valid Mermaid ERD syntax. Follow these rules:
 5. Relationships: ENTITY_A ||--o{ ENTITY_B : "label"`;
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-4-turbo-preview',
+        model: "gpt-4-turbo-preview",
         messages: [
           {
-            role: 'system',
-            content: 'You are an expert at generating valid Mermaid ERD diagrams. Always respond with only the Mermaid code, no explanations.'
+            role: "system",
+            content:
+              "You are an expert at generating valid Mermaid ERD diagrams. Always respond with only the Mermaid code, no explanations.",
           },
           {
-            role: 'user',
-            content: prompt
-          }
+            role: "user",
+            content: prompt,
+          },
         ],
         temperature: 0.3,
         max_tokens: 2000,
       });
 
-      let mermaidSyntax = response.choices[0]?.message?.content || '';
+      let mermaidSyntax = response.choices[0]?.message?.content || "";
 
       // Extract code blocks if present
       const codeBlockMatch = mermaidSyntax.match(/```(?:mermaid)?\n([\s\S]*?)```/);
@@ -177,9 +190,8 @@ Generate ONLY valid Mermaid ERD syntax. Follow these rules:
       return {
         mermaidSyntax,
         entityCount: entities.length,
-        relationshipCount: relationships.length
+        relationshipCount: relationships.length,
       };
-
     } catch (error) {
       console.error(`[Mermaid Generation] Error on attempt ${retryCount}:`, error);
       if (retryCount >= maxRetries) {
@@ -189,7 +201,7 @@ Generate ONLY valid Mermaid ERD syntax. Follow these rules:
   }
 
   // Fallback: generate programmatically
-  console.log('[Mermaid Generation] Using programmatic fallback');
+  console.log("[Mermaid Generation] Using programmatic fallback");
   return generateMermaidProgrammatic(entities, relationships);
 }
 
@@ -200,31 +212,31 @@ function generateMermaidProgrammatic(
   entities: ParsedEntity[],
   relationships: ParsedRelationship[]
 ): { mermaidSyntax: string; entityCount: number; relationshipCount: number } {
-  let syntax = 'erDiagram\n';
+  let syntax = "erDiagram\n";
 
   // Relationships
   for (const rel of relationships) {
     const symbols: Record<string, string> = {
-      oneToOne: '||--||',
-      oneToMany: '||--o{',
-      manyToOne: '}o--||',
-      manyToMany: '}o--o{'
+      oneToOne: "||--||",
+      oneToMany: "||--o{",
+      manyToOne: "}o--||",
+      manyToMany: "}o--o{",
     };
-    const symbol = symbols[rel.cardinality] || '||--o{';
+    const symbol = symbols[rel.cardinality] || "||--o{";
     syntax += `    ${rel.source} ${symbol} ${rel.target} : "${rel.name}"\n`;
   }
 
-  syntax += '\n';
+  syntax += "\n";
 
   // Entities
   for (const entity of entities) {
     syntax += `    ${entity.name} {\n`;
     for (const attr of entity.suggestedAttributes || entity.attributes || []) {
       const modifiers = [];
-      if (attr.name === 'id' || attr.isPrimaryKey) modifiers.push('PK');
-      if (attr.isUnique) modifiers.push('UK');
-      if (attr.isForeignKey) modifiers.push('FK');
-      syntax += `        ${attr.type} ${attr.name}${modifiers.length ? ' ' + modifiers.join(' ') : ''}\n`;
+      if (attr.name === "id" || attr.isPrimaryKey) modifiers.push("PK");
+      if (attr.isUnique) modifiers.push("UK");
+      if (attr.isForeignKey) modifiers.push("FK");
+      syntax += `        ${attr.type} ${attr.name}${modifiers.length ? " " + modifiers.join(" ") : ""}\n`;
     }
     syntax += `    }\n\n`;
   }
@@ -232,7 +244,7 @@ function generateMermaidProgrammatic(
   return {
     mermaidSyntax: syntax,
     entityCount: entities.length,
-    relationshipCount: relationships.length
+    relationshipCount: relationships.length,
   };
 }
 
@@ -371,17 +383,17 @@ erDiagram
 export async function analyzeDomainWithOpenAI(description: string) {
   const apiKey = process.env.OPENAI_API_KEY;
 
-  console.log('[OpenAI Analysis] Starting analysis, API key present:', !!apiKey);
+  console.log("[OpenAI Analysis] Starting analysis, API key present:", !!apiKey);
 
   if (!apiKey) {
-    throw new Error('OPENAI_API_KEY environment variable is not set');
+    throw new Error("OPENAI_API_KEY environment variable is not set");
   }
 
   const openai = new OpenAI({ apiKey });
 
-  const conversationHistory: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
+  const conversationHistory: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
     {
-      role: 'system',
+      role: "system",
       content: `You are an expert data modeler specializing in Entity-Relationship Diagram analysis and Mermaid ERD syntax.
 
 ${MERMAID_ERD_DOCUMENTATION}
@@ -414,59 +426,63 @@ Response format:
     }
   ],
   "summary": "Brief analysis summary"
-}`
-    }
+}`,
+    },
   ];
 
-  console.log('[OpenAI Analysis] Calling OpenAI API...');
+  console.log("[OpenAI Analysis] Calling OpenAI API...");
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model: "gpt-4-turbo-preview",
       messages: [
         ...conversationHistory,
         {
-          role: 'user',
+          role: "user",
           content: `Analyze this domain description and extract entities and relationships:
 
-${description}`
-        }
+${description}`,
+        },
       ],
-      response_format: { type: 'json_object' },
+      response_format: { type: "json_object" },
       temperature: 0.7,
       max_tokens: 4000,
     });
 
-    console.log('[OpenAI Analysis] Got response, parsing...');
+    console.log("[OpenAI Analysis] Got response, parsing...");
 
     const content = response.choices[0]?.message?.content;
     if (!content) {
-      throw new Error('Empty response from OpenAI');
+      throw new Error("Empty response from OpenAI");
     }
 
     const parsed = JSON.parse(content);
 
-    console.log(`[OpenAI Analysis] Extracted ${parsed.entities?.length || 0} entities, ${parsed.relationships?.length || 0} relationships`);
+    console.log(
+      `[OpenAI Analysis] Extracted ${parsed.entities?.length || 0} entities, ${parsed.relationships?.length || 0} relationships`
+    );
 
     // Generate Mermaid with retry logic
     const entities = parsed.entities || [];
     const relationships = parsed.relationships || [];
 
-    console.log('[OpenAI Analysis] Generating Mermaid syntax with validation...');
+    console.log("[OpenAI Analysis] Generating Mermaid syntax with validation...");
     const mermaidResult = await generateMermaidWithRetry(openai, entities, relationships, 3);
 
-    console.log(`[OpenAI Analysis] Generated Mermaid with ${mermaidResult.entityCount} entities, ${mermaidResult.relationshipCount} relationships`);
+    console.log(
+      `[OpenAI Analysis] Generated Mermaid with ${mermaidResult.entityCount} entities, ${mermaidResult.relationshipCount} relationships`
+    );
 
     return {
       entities,
       relationships,
-      summary: parsed.summary || '',
+      summary: parsed.summary || "",
     };
   } catch (error) {
-    console.error('[OpenAI Analysis] API error:', error);
+    console.error("[OpenAI Analysis] API error:", error);
     if (error instanceof Error) {
-      console.error('[OpenAI Analysis] Error message:', error.message);
-      console.error('[OpenAI Analysis] Error stack:', error.stack);
+      console.error("[OpenAI Analysis] Error message:", error.message);
+      console.error("[OpenAI Analysis] Error stack:", error.stack);
     }
     throw error;
   }

@@ -7,12 +7,12 @@
  * Generated: 2026-05-07T09:31:28.374Z
  */
 
-import { Controller, Get, UseGuards, Req } from '@nestjs/common';
-import { FastifyRequest } from 'fastify';
-import { SessionAuthGuard } from './guards/session-auth.guard';
-import { Public } from './decorators/public.decorator';
+import { Controller, Get, Req, UseGuards } from "@nestjs/common";
+import type { FastifyRequest } from "fastify";
+import { Public } from "./decorators/public.decorator";
+import { SessionAuthGuard } from "./guards/session-auth.guard";
 
-@Controller('me')
+@Controller("me")
 @UseGuards(SessionAuthGuard)
 export class AuthController {
   /**
@@ -28,9 +28,9 @@ export class AuthController {
   /**
    * GET /api/me/health - Public health check
    */
-  @Get('health')
+  @Get("health")
   @Public()
   healthCheck() {
-    return { status: 'ok' };
+    return { status: "ok" };
   }
 }

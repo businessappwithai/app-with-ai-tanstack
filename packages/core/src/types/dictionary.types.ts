@@ -8,7 +8,7 @@ export interface AD_Table {
   table_name: string;
   name: string;
   description?: string;
-  access_level: 'System' | 'Organization' | 'Client+Organization' | 'All';
+  access_level: "System" | "Organization" | "Client+Organization" | "All";
   is_view: boolean;
   is_document: boolean;
   window_id?: string;
@@ -38,7 +38,7 @@ export interface AD_Window {
   ad_window_id: string;
   name: string;
   description?: string;
-  window_type: 'M' | 'T' | 'Q'; // Maintain, Transaction, Query
+  window_type: "M" | "T" | "Q"; // Maintain, Transaction, Query
   entity_type: string;
   created_at: Date;
   updated_at: Date;
@@ -91,7 +91,7 @@ export interface AD_Val_Rule {
   ad_val_rule_id: string;
   name: string;
   description?: string;
-  type: 'S' | 'L'; // SQL, List
+  type: "S" | "L"; // SQL, List
   code: string;
   ad_table_id?: string;
   created_at: Date;

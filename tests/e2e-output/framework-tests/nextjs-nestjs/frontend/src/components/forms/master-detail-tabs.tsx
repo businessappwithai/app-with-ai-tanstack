@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Master Detail Tabs Component - Swiss Clean Design
@@ -24,19 +24,19 @@
  * Auto-generated component
  */
 
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api-client';
-import { toast } from 'sonner';
-import { useTranslations } from '@/lib/translations';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, Plus, Loader2, FileText, AlertCircle } from 'lucide-react';
-import Link from 'next/link';
-import { DynamicTable } from '@/components/tables/dynamic-table';
-import { DynamicForm } from '@/components/forms/dynamic-form';
-import { cn } from '@/lib/utils';
-import { Icon } from '@/components/ui/icon';
-import { useTableMetadata } from '@/hooks/use-entities';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AlertCircle, ChevronLeft, FileText, Loader2, Plus } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
+import { DynamicForm } from "@/components/forms/dynamic-form";
+import { DynamicTable } from "@/components/tables/dynamic-table";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { useTableMetadata } from "@/hooks/use-entities";
+import { apiClient } from "@/lib/api-client";
+import { useTranslations } from "@/lib/translations";
+import { cn } from "@/lib/utils";
 
 interface MasterDetailTab {
   id: string;
@@ -86,7 +86,7 @@ export function MasterDetailTabs({ parentId, parentTable, tabs }: MasterDetailTa
       {activeTab && (
         <MasterDetailTabContent
           key={activeTab}
-          tab={tabs.find(t => t.id === activeTab)!}
+          tab={tabs.find((t) => t.id === activeTab)!}
           parentId={parentId}
           parentTable={parentTable}
           onClose={() => setActiveTab(null)}
@@ -108,7 +108,7 @@ interface TabWithIconProps {
 function TabWithIcon({ tab, isActive, onClick }: TabWithIconProps) {
   // Fetch table metadata if no icon is provided
   const shouldFetchIcon = !tab.icon;
-  const { data: tableMetadata } = useTableMetadata(shouldFetchIcon ? tab.tableName : '');
+  const { data: tableMetadata } = useTableMetadata(shouldFetchIcon ? tab.tableName : "");
 
   const icon = tab.icon || (tableMetadata?.icon && <Icon name={tableMetadata.icon} size={16} />);
 
@@ -118,8 +118,8 @@ function TabWithIcon({ tab, isActive, onClick }: TabWithIconProps) {
       className={cn(
         "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
         isActive
-          ? 'bg-gradient-to-r from-primary to-primary/80 text-white shadow-md'
-          : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground'
+          ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-md"
+          : "text-muted-foreground hover:bg-primary/10 hover:text-foreground"
       )}
     >
       {icon && <span className="opacity-70">{icon}</span>}
@@ -135,7 +135,12 @@ interface MasterDetailTabContentProps {
   onClose: () => void;
 }
 
-function MasterDetailTabContent({ tab, parentId, parentTable, onClose }: MasterDetailTabContentProps) {
+function MasterDetailTabContent({
+  tab,
+  parentId,
+  parentTable,
+  onClose,
+}: MasterDetailTabContentProps) {
   const { t } = useTranslations();
   const queryClient = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
@@ -143,7 +148,7 @@ function MasterDetailTabContent({ tab, parentId, parentTable, onClose }: MasterD
 
   // Fetch table metadata for icon if not provided
   const shouldFetchIcon = !tab.icon;
-  const { data: tableMetadata } = useTableMetadata(shouldFetchIcon ? tab.tableName : '');
+  const { data: tableMetadata } = useTableMetadata(shouldFetchIcon ? tab.tableName : "");
   const icon = tab.icon || (tableMetadata?.icon && <Icon name={tableMetadata.icon} size={20} />);
 
   // Fetch related records with filter for parent
@@ -153,10 +158,12 @@ function MasterDetailTabContent({ tab, parentId, parentTable, onClose }: MasterD
       const filterField = tab.parentField;
       // Build query string with filter for parent field
       const params = new URLSearchParams({
-        limit: '100',
+        limit: "100",
         [filterField]: parentId,
       });
-      const response = await apiClient.get<{ data: any[] }>(`/api/bus/${tab.tableName}?${params.toString()}`);
+      const response = await apiClient.get<{ data: any[] }>(
+        `/api/bus/${tab.tableName}?${params.toString()}`
+      );
       return response.data || [];
     },
     enabled: !!parentId,
@@ -169,10 +176,10 @@ function MasterDetailTabContent({ tab, parentId, parentTable, onClose }: MasterD
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [tab.tableName, parentId] });
-      toast.success(t('tabs.recordDeleted' as any));
+      toast.success(t("tabs.recordDeleted" as any));
     },
     onError: (error: Error) => {
-      toast.error(t('tabs.deleteFailed' as any, { error: error.message }));
+      toast.error(t("tabs.deleteFailed" as any, { error: error.message }));
     },
   });
 
@@ -183,7 +190,9 @@ function MasterDetailTabContent({ tab, parentId, parentTable, onClose }: MasterD
         <div className="flex items-center justify-center py-12">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="h-12 w-12 animate-spin text-primary/70" />
-            <p className="text-sm text-muted-foreground">{t('tabs.loading' as any, { label: tab.label.toLowerCase() })}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("tabs.loading" as any, { label: tab.label.toLowerCase() })}
+            </p>
           </div>
         </div>
       </div>
@@ -199,9 +208,11 @@ function MasterDetailTabContent({ tab, parentId, parentTable, onClose }: MasterD
             <AlertCircle className="h-6 w-6 text-destructive" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-destructive">{t('tabs.loadFailed' as any, { label: tab.label })}</p>
+            <p className="font-semibold text-destructive">
+              {t("tabs.loadFailed" as any, { label: tab.label })}
+            </p>
             <p className="text-sm text-muted-foreground mt-1">
-              {error instanceof Error ? error.message : 'Unknown error'}
+              {error instanceof Error ? error.message : "Unknown error"}
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={() => refetch()} className="shadow-sm">
@@ -222,11 +233,21 @@ function MasterDetailTabContent({ tab, parentId, parentTable, onClose }: MasterD
               <Plus className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-foreground">New {tab.label.slice(0, -1)}</h3>
-              <p className="text-sm text-muted-foreground">Create a new record linked to this {parentTable.replace('bus_', '').replace('_', ' ')}</p>
+              <h3 className="text-xl font-semibold text-foreground">
+                New {tab.label.slice(0, -1)}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Create a new record linked to this{" "}
+                {parentTable.replace("bus_", "").replace("_", " ")}
+              </p>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={() => setIsCreating(false)} className="shadow-sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsCreating(false)}
+            className="shadow-sm"
+          >
             <ChevronLeft className="mr-2 h-4 w-4" />
             Back to List
           </Button>
@@ -255,11 +276,18 @@ function MasterDetailTabContent({ tab, parentId, parentTable, onClose }: MasterD
               <FileText className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-foreground">Edit {tab.label.slice(0, -1)}</h3>
+              <h3 className="text-xl font-semibold text-foreground">
+                Edit {tab.label.slice(0, -1)}
+              </h3>
               <p className="text-sm text-muted-foreground">Modify the record details</p>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={() => setSelectedId(null)} className="shadow-sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSelectedId(null)}
+            className="shadow-sm"
+          >
             <ChevronLeft className="mr-2 h-4 w-4" />
             Back to List
           </Button>
@@ -293,7 +321,9 @@ function MasterDetailTabContent({ tab, parentId, parentTable, onClose }: MasterD
           <div>
             <h3 className="text-xl font-semibold text-foreground">{tab.label}</h3>
             <p className="text-sm text-muted-foreground">
-              {hasData ? `${data.length} record${data.length > 1 ? 's' : ''} found` : 'No records yet'}
+              {hasData
+                ? `${data.length} record${data.length > 1 ? "s" : ""} found`
+                : "No records yet"}
             </p>
           </div>
         </div>
@@ -320,7 +350,9 @@ function MasterDetailTabContent({ tab, parentId, parentTable, onClose }: MasterD
               <FileText className="h-8 w-8 text-muted-foreground/50" />
             </div>
             <div>
-              <p className="text-muted-foreground font-medium">No {tab.label.toLowerCase()} found</p>
+              <p className="text-muted-foreground font-medium">
+                No {tab.label.toLowerCase()} found
+              </p>
               <p className="text-sm text-muted-foreground mt-1">
                 Click "New {tab.label.slice(0, -1)}" to create the first record
               </p>
@@ -341,7 +373,13 @@ interface CreateEntityFormProps {
   onSuccess: () => void;
 }
 
-function CreateEntityForm({ tableName, parentField, parentId, onCancel, onSuccess }: CreateEntityFormProps) {
+function CreateEntityForm({
+  tableName,
+  parentField,
+  parentId,
+  onCancel,
+  onSuccess,
+}: CreateEntityFormProps) {
   const { t } = useTranslations();
   const mutation = useMutation({
     mutationFn: async (formData: Record<string, unknown>) => {
@@ -353,11 +391,11 @@ function CreateEntityForm({ tableName, parentField, parentId, onCancel, onSucces
       return apiClient.post(`/api/bus/${tableName}`, dataWithParent);
     },
     onSuccess: () => {
-      toast.success(t('tabs.recordCreated' as any));
+      toast.success(t("tabs.recordCreated" as any));
       onSuccess();
     },
     onError: (error: Error) => {
-      toast.error(t('tabs.createFailed' as any, { error: error.message }));
+      toast.error(t("tabs.createFailed" as any, { error: error.message }));
     },
   });
 
@@ -386,7 +424,13 @@ interface EditEntityWrapperProps {
   onSuccess: () => void;
 }
 
-function EditEntityWrapper({ tableName, recordId, parentField, onCancel, onSuccess }: EditEntityWrapperProps) {
+function EditEntityWrapper({
+  tableName,
+  recordId,
+  parentField,
+  onCancel,
+  onSuccess,
+}: EditEntityWrapperProps) {
   const { t } = useTranslations();
   const { data: record, isLoading } = useQuery({
     queryKey: [tableName, recordId],
@@ -400,11 +444,11 @@ function EditEntityWrapper({ tableName, recordId, parentField, onCancel, onSucce
       return apiClient.patch(`/api/bus/${tableName}/${recordId}`, formData);
     },
     onSuccess: () => {
-      toast.success(t('tabs.recordUpdated' as any));
+      toast.success(t("tabs.recordUpdated" as any));
       onSuccess();
     },
     onError: (error: Error) => {
-      toast.error(t('tabs.updateFailed' as any, { error: error.message }));
+      toast.error(t("tabs.updateFailed" as any, { error: error.message }));
     },
   });
 
@@ -413,7 +457,7 @@ function EditEntityWrapper({ tableName, recordId, parentField, onCancel, onSucce
       <div className="flex items-center justify-center py-12">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-12 w-12 animate-spin text-primary/70" />
-          <p className="text-sm text-muted-foreground">{t('common.loading' as any)} record...</p>
+          <p className="text-sm text-muted-foreground">{t("common.loading" as any)} record...</p>
         </div>
       </div>
     );

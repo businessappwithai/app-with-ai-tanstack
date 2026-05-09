@@ -1,1 +1,113 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_fix_list_controllers_py", "label": "fix_list_controllers.py", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L1"}, {"id": "fix_list_controllers_fix_list_controller", "label": "fix_list_controller()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L8"}, {"id": "fix_list_controllers_rationale_9", "label": "Fix _loadFieldMetadata function in a list controller.", "file_type": "rationale", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L9"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_fix_list_controllers_py", "target": "sys", "relation": "imports", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L5", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_fix_list_controllers_py", "target": "re", "relation": "imports", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_fix_list_controllers_py", "target": "fix_list_controllers_fix_list_controller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L8", "weight": 1.0}, {"source": "fix_list_controllers_rationale_9", "target": "fix_list_controllers_fix_list_controller", "relation": "rationale_for", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L9", "weight": 1.0}], "raw_calls": [{"caller_nid": "fix_list_controllers_fix_list_controller", "callee": "open", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L10"}, {"caller_nid": "fix_list_controllers_fix_list_controller", "callee": "read", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L11"}, {"caller_nid": "fix_list_controllers_fix_list_controller", "callee": "sub", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L60"}, {"caller_nid": "fix_list_controllers_fix_list_controller", "callee": "strip", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L60"}, {"caller_nid": "fix_list_controllers_fix_list_controller", "callee": "print", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L63"}, {"caller_nid": "fix_list_controllers_fix_list_controller", "callee": "open", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L66"}, {"caller_nid": "fix_list_controllers_fix_list_controller", "callee": "write", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L67"}, {"caller_nid": "fix_list_controllers_fix_list_controller", "callee": "print", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py", "source_location": "L69"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_fix_list_controllers_py",
+      "label": "fix_list_controllers.py",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "fix_list_controllers_fix_list_controller",
+      "label": "fix_list_controller()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L8"
+    },
+    {
+      "id": "fix_list_controllers_rationale_9",
+      "label": "Fix _loadFieldMetadata function in a list controller.",
+      "file_type": "rationale",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L9"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_fix_list_controllers_py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_fix_list_controllers_py",
+      "target": "re",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_fix_list_controllers_py",
+      "target": "fix_list_controllers_fix_list_controller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "fix_list_controllers_rationale_9",
+      "target": "fix_list_controllers_fix_list_controller",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L9",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "fix_list_controllers_fix_list_controller",
+      "callee": "open",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L10"
+    },
+    {
+      "caller_nid": "fix_list_controllers_fix_list_controller",
+      "callee": "read",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L11"
+    },
+    {
+      "caller_nid": "fix_list_controllers_fix_list_controller",
+      "callee": "sub",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "fix_list_controllers_fix_list_controller",
+      "callee": "strip",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "fix_list_controllers_fix_list_controller",
+      "callee": "print",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "fix_list_controllers_fix_list_controller",
+      "callee": "open",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "fix_list_controllers_fix_list_controller",
+      "callee": "write",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "fix_list_controllers_fix_list_controller",
+      "callee": "print",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/fix_list_controllers.py",
+      "source_location": "L69"
+    }
+  ]
+}

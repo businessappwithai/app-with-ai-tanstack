@@ -21,47 +21,47 @@
  * ```
  */
 
-import { Entity, EntityAttribute, Relationship } from '@erdwithai/core/types';
+import type { Entity, EntityAttribute, Relationship } from "@erdwithai/core/types";
 
 // Type mapping from Mermaid types to our standard types
-const TYPE_MAP: Record<string, EntityAttribute['type']> = {
+const TYPE_MAP: Record<string, EntityAttribute["type"]> = {
   // String types
-  string: 'string',
-  varchar: 'string',
-  char: 'string',
-  text: 'text',
-  longtext: 'text',
+  string: "string",
+  varchar: "string",
+  char: "string",
+  text: "text",
+  longtext: "text",
 
   // Number types
-  int: 'integer',
-  integer: 'integer',
-  bigint: 'integer',
-  smallint: 'integer',
-  number: 'decimal',
-  decimal: 'decimal',
-  float: 'decimal',
-  double: 'decimal',
-  money: 'decimal',
+  int: "integer",
+  integer: "integer",
+  bigint: "integer",
+  smallint: "integer",
+  number: "decimal",
+  decimal: "decimal",
+  float: "decimal",
+  double: "decimal",
+  money: "decimal",
 
   // Boolean
-  bool: 'boolean',
-  boolean: 'boolean',
+  bool: "boolean",
+  boolean: "boolean",
 
   // Date/Time
-  date: 'date',
-  datetime: 'datetime',
-  timestamp: 'datetime',
-  time: 'datetime',
+  date: "date",
+  datetime: "datetime",
+  timestamp: "datetime",
+  time: "datetime",
 
   // JSON
-  json: 'json',
-  jsonb: 'json',
-  object: 'json',
-  array: 'json',
+  json: "json",
+  jsonb: "json",
+  object: "json",
+  array: "json",
 
   // UUID
-  uuid: 'string',
-  guid: 'string',
+  uuid: "string",
+  guid: "string",
 };
 
 export class MermaidParser {
@@ -75,19 +75,19 @@ export class MermaidParser {
     const relationships: Relationship[] = [];
 
     // Normalize line endings
-    const normalizedContent = mermaidSyntax.replace(/\r\n/g, '\n');
-    const lines = normalizedContent.split('\n');
+    const normalizedContent = mermaidSyntax.replace(/\r\n/g, "\n");
+    const lines = normalizedContent.split("\n");
 
     let currentEntity: Partial<Entity> | null = null;
     let currentAttributes: EntityAttribute[] = [];
     let inEntityBlock = false;
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i] ?? '';
+      const line = lines[i] ?? "";
       const trimmed = line.trim();
 
       // Skip empty lines, comments, and erDiagram declaration
-      if (!trimmed || trimmed === 'erDiagram' || trimmed.startsWith('%%')) {
+      if (!trimmed || trimmed === "erDiagram" || trimmed.startsWith("%%")) {
         continue;
       }
 
@@ -115,7 +115,7 @@ export class MermaidParser {
       }
 
       // Parse entity end
-      if (trimmed === '}') {
+      if (trimmed === "}") {
         if (currentEntity) {
           entities.push(this.completeEntity(currentEntity, currentAttributes));
           currentEntity = null;
@@ -156,32 +156,36 @@ export class MermaidParser {
     // Patterns for different relationship types
     const patterns: Array<{
       regex: RegExp;
-      cardinality: Relationship['cardinality'];
+      cardinality: Relationship["cardinality"];
     }> = [
       // one-to-one: ||--||
       {
-        regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\|\|--\|\|\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*"?([^"]+)"?$/,
-        cardinality: 'oneToOne',
+        regex:
+          /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\|\|--\|\|\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*"?([^"]+)"?$/,
+        cardinality: "oneToOne",
       },
       // one-to-many: ||--o{ or ||--|{
       {
-        regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\|\|--o?\{\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*"?([^"]+)"?$/,
-        cardinality: 'oneToMany',
+        regex:
+          /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\|\|--o?\{\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*"?([^"]+)"?$/,
+        cardinality: "oneToMany",
       },
       // many-to-one: }o--|| or }{--||
       {
-        regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\}o?--\|\|\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*"?([^"]+)"?$/,
-        cardinality: 'manyToOne',
+        regex:
+          /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\}o?--\|\|\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*"?([^"]+)"?$/,
+        cardinality: "manyToOne",
       },
       // many-to-many: }o--o{ or }{--|{
       {
-        regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\}o?--o?\{\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*"?([^"]+)"?$/,
-        cardinality: 'manyToMany',
+        regex:
+          /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\}o?--o?\{\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*"?([^"]+)"?$/,
+        cardinality: "manyToMany",
       },
       // Also support zero-or-one patterns
       {
         regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\|o--o\|\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*"?([^"]+)"?$/,
-        cardinality: 'oneToOne',
+        cardinality: "oneToOne",
       },
     ];
 
@@ -201,12 +205,24 @@ export class MermaidParser {
     // Try simpler pattern without relationship name
     const simplePatterns: Array<{
       regex: RegExp;
-      cardinality: Relationship['cardinality'];
+      cardinality: Relationship["cardinality"];
     }> = [
-      { regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\|\|--\|\|\s+([a-zA-Z_][a-zA-Z0-9_]*)$/, cardinality: 'oneToOne' },
-      { regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\|\|--o?\{\s+([a-zA-Z_][a-zA-Z0-9_]*)$/, cardinality: 'oneToMany' },
-      { regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\}o?--\|\|\s+([a-zA-Z_][a-zA-Z0-9_]*)$/, cardinality: 'manyToOne' },
-      { regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\}o?--o?\{\s+([a-zA-Z_][a-zA-Z0-9_]*)$/, cardinality: 'manyToMany' },
+      {
+        regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\|\|--\|\|\s+([a-zA-Z_][a-zA-Z0-9_]*)$/,
+        cardinality: "oneToOne",
+      },
+      {
+        regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\|\|--o?\{\s+([a-zA-Z_][a-zA-Z0-9_]*)$/,
+        cardinality: "oneToMany",
+      },
+      {
+        regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\}o?--\|\|\s+([a-zA-Z_][a-zA-Z0-9_]*)$/,
+        cardinality: "manyToOne",
+      },
+      {
+        regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\}o?--o?\{\s+([a-zA-Z_][a-zA-Z0-9_]*)$/,
+        cardinality: "manyToMany",
+      },
     ];
 
     for (const { regex, cardinality } of simplePatterns) {
@@ -246,23 +262,23 @@ export class MermaidParser {
     const parts = trimmed.split(/\s+/);
     if (parts.length < 2) return null;
 
-    const rawType = (parts[0] ?? '').toLowerCase();
+    const rawType = (parts[0] ?? "").toLowerCase();
     const name = parts[1];
     if (!name) return null;
     const modifiers = parts.slice(2).map((m) => m.toUpperCase());
 
     // Map type to standard type
-    const type = TYPE_MAP[rawType] || 'string';
+    const type = TYPE_MAP[rawType] || "string";
 
     // Parse modifiers
-    const isPrimaryKey = modifiers.includes('PK');
+    const isPrimaryKey = modifiers.includes("PK");
     // Note: FK modifier is used for future reference tracking
     // const isForeignKey = modifiers.includes('FK');
-    const isUnique = modifiers.includes('UK') || modifiers.includes('UNIQUE');
-    const isOptional = modifiers.includes('OPTIONAL') || modifiers.includes('NULL');
+    const isUnique = modifiers.includes("UK") || modifiers.includes("UNIQUE");
+    const isOptional = modifiers.includes("OPTIONAL") || modifiers.includes("NULL");
 
     // Extract max length if specified (e.g., string(255))
-    const lengthMatch = (parts[0] ?? '').match(/\((\d+)\)/);
+    const lengthMatch = (parts[0] ?? "").match(/\((\d+)\)/);
     const maxLength = lengthMatch && lengthMatch[1] ? parseInt(lengthMatch[1], 10) : undefined;
 
     return {
@@ -278,32 +294,30 @@ export class MermaidParser {
    * Complete entity with default values
    */
   private completeEntity(partial: Partial<Entity>, attributes: EntityAttribute[]): Entity {
-    const name = partial.name ?? '';
+    const name = partial.name ?? "";
     if (!name) {
-      throw new Error('Entity name is required');
+      throw new Error("Entity name is required");
     }
 
     // Convert PascalCase to snake_case for table name
     const tableName = this.toSnakeCase(name);
 
     // Check if id attribute exists, otherwise auto-add
-    const hasIdAttribute = attributes.some(
-      (a) => a.name === 'id' || a.name.endsWith('_id')
-    );
+    const hasIdAttribute = attributes.some((a) => a.name === "id" || a.name.endsWith("_id"));
 
     if (!hasIdAttribute) {
       // Add id as first attribute
       attributes.unshift({
-        name: 'id',
-        type: 'string', // UUID
+        name: "id",
+        type: "string", // UUID
         required: true,
         unique: true,
       });
     }
 
     // Find primary key (look for PK modifier or 'id' field)
-    const pkAttribute = attributes.find((a) => a.unique && a.name === 'id');
-    const primaryKey = pkAttribute?.name || 'id';
+    const pkAttribute = attributes.find((a) => a.unique && a.name === "id");
+    const primaryKey = pkAttribute?.name || "id";
 
     return {
       name,
@@ -332,16 +346,16 @@ export class MermaidParser {
 
     // Otherwise, convert PascalCase/camelCase to snake_case
     return str
-      .replace(/([A-Z])/g, '_$1')
+      .replace(/([A-Z])/g, "_$1")
       .toLowerCase()
-      .replace(/^_/, '');
+      .replace(/^_/, "");
   }
 
   /**
    * Normalize relationship name
    */
   private normalizeRelationshipName(name: string): string {
-    return name.trim().replace(/\s+/g, '_').toLowerCase();
+    return name.trim().replace(/\s+/g, "_").toLowerCase();
   }
 
   /**
@@ -350,11 +364,11 @@ export class MermaidParser {
    */
   private generateForeignKey(
     targetEntity: string,
-    _cardinality: Relationship['cardinality']
+    _cardinality: Relationship["cardinality"]
   ): string {
     const snakeName = this.toSnakeCase(targetEntity);
     // Remove bus_ prefix if present to match actual database schema
-    const cleanName = snakeName.replace(/^bus_/, '');
+    const cleanName = snakeName.replace(/^bus_/, "");
     return `${cleanName}_id`;
   }
 }

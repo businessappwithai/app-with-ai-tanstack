@@ -7,44 +7,38 @@
  * Week: 1
  */
 
-// Public API exports
-export { zenEngine, default as ZenEngineSingleton } from "./zen-engine.singleton";
-export type { EvaluationResult, EvaluationOptions } from "./zen-engine.singleton";
-
-export {
-  ruleCache,
-  RuleCacheService,
-} from "./rule-cache.service";
-export type { CacheStats } from "./rule-cache.service";
-
-export { RulesEngineService } from "./rules-engine.service";
-
-export {
-  JDMContentSchema,
-  JDMNodeSchema,
-  JDMDecisionTableNodeSchema,
-  JDMExpressionNodeSchema,
-  JDMFunctionNodeSchema,
-  JDMRuleSchema,
-  validateJDM,
-  assertValidJDM,
-} from "./jdm.schema";
 export type {
   JDMContent,
-  JDMNode,
   JDMDecisionTableNode,
   JDMExpressionNode,
   JDMFunctionNode,
+  JDMNode,
 } from "./jdm.schema";
-
+export {
+  assertValidJDM,
+  JDMContentSchema,
+  JDMDecisionTableNodeSchema,
+  JDMExpressionNodeSchema,
+  JDMFunctionNodeSchema,
+  JDMNodeSchema,
+  JDMRuleSchema,
+  validateJDM,
+} from "./jdm.schema";
+export type { CacheStats } from "./rule-cache.service";
+export {
+  RuleCacheService,
+  ruleCache,
+} from "./rule-cache.service";
 export type {
+  IRulesEngineService,
   JDMContent as JDM,
+  RuleDefinition,
   RuleEvaluationContext,
   RuleEvaluationResult,
-  RuleDefinition,
   RuleValidationResult,
-  IRulesEngineService,
 } from "./rules.types";
-
 // Default export
-export { RulesEngineService as default } from "./rules-engine.service";
+export { RulesEngineService, RulesEngineService as default } from "./rules-engine.service";
+export type { EvaluationOptions, EvaluationResult } from "./zen-engine.singleton";
+// Public API exports
+export { default as ZenEngineSingleton, zenEngine } from "./zen-engine.singleton";

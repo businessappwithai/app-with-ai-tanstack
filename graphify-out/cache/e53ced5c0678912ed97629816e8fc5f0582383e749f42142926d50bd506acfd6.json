@@ -1,1 +1,863 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "label": "BusEncounterList.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L1"}, {"id": "busencounterlist_controller_busencounterlistcontroller", "label": "BusEncounterListController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L30"}, {"id": "busencounterlist_controller_busencounterlistcontroller_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L34"}, {"id": "busencounterlist_controller_busencounterlistcontroller_initializetable", "label": "._initializeTable()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L52"}, {"id": "busencounterlist_controller_busencounterlistcontroller_getcolumnwidth", "label": "._getColumnWidth()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L101"}, {"id": "busencounterlist_controller_busencounterlistcontroller_getfieldsfrommetadata", "label": "._getFieldsFromMetadata()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L106"}, {"id": "busencounterlist_controller_busencounterlistcontroller_formatcellvalue", "label": "._formatCellValue()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L121"}, {"id": "busencounterlist_controller_busencounterlistcontroller_formatstatusstate", "label": "._formatStatusState()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L131"}, {"id": "busencounterlist_controller_busencounterlistcontroller_oncreatepress", "label": ".onCreatePress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L140"}, {"id": "busencounterlist_controller_busencounterlistcontroller_onitempress", "label": ".onItemPress()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L145"}, {"id": "busencounterlist_controller_busencounterlistcontroller_onsearch", "label": ".onSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L157"}, {"id": "busencounterlist_controller_busencounterlistcontroller_onquicksearch", "label": ".onQuickSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L175"}, {"id": "busencounterlist_controller_busencounterlistcontroller_onsort", "label": ".onSort()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L179"}, {"id": "busencounterlist_controller_busencounterlistcontroller_onrefresh", "label": ".onRefresh()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L189"}, {"id": "busencounterlist_controller_busencounterlistcontroller_ontoggleadvancedsearch", "label": ".onToggleAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L195"}, {"id": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch", "label": ".onAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L200"}, {"id": "busencounterlist_controller_busencounterlistcontroller_onclearadvancedsearch", "label": ".onClearAdvancedSearch()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L211"}, {"id": "busencounterlist_controller_busencounterlistcontroller_topascalcase", "label": "._toPascalCase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L217"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L8", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "jsonmodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L9", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "odatamodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L10", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "filter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "filteroperator", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "sorter", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "messagetoast", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "router", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L15", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "event", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L16", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "column", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L17", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "columnlistitem", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L18", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "text", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L19", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "label", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L20", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "objectstatus", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L21", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts", "target": "busencounterlist_controller_busencounterlistcontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L30", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L34", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_initializetable", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L52", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_getcolumnwidth", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L101", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_getfieldsfrommetadata", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L106", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_formatcellvalue", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L121", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_formatstatusstate", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L131", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_oncreatepress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L140", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_onitempress", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L145", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_onsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L157", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_onquicksearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L175", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_onsort", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L179", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_onrefresh", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L189", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_ontoggleadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L195", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L200", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_onclearadvancedsearch", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L211", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller", "target": "busencounterlist_controller_busencounterlistcontroller_topascalcase", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L217", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller_oninit", "target": "busencounterlist_controller_busencounterlistcontroller_getfieldsfrommetadata", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L45", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller_oninit", "target": "busencounterlist_controller_busencounterlistcontroller_initializetable", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L49", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller_onquicksearch", "target": "busencounterlist_controller_busencounterlistcontroller_onsearch", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L176", "weight": 1.0}, {"source": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch", "target": "busencounterlist_controller_busencounterlistcontroller_topascalcase", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L205", "weight": 1.0}], "raw_calls": [{"caller_nid": "busencounterlist_controller_busencounterlistcontroller_oninit", "callee": "getModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L35"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_oninit", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L35"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L48"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L48"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L53"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L56"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L57"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable", "callee": "removeAllColumns", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L59"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable", "callee": "removeAllItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L60"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L62"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable", "callee": "forEach", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L76"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L91"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable", "callee": "bindItems", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L92"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L98"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_getcolumnwidth", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L103"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatcellvalue", "callee": "match", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L124"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatcellvalue", "callee": "isNaN", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L126"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatcellvalue", "callee": "getTime", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L126"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatcellvalue", "callee": "toLocaleDateString", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L126"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatcellvalue", "callee": "String", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L128"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatstatusstate", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L133"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatstatusstate", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L134"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatstatusstate", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L135"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatstatusstate", "callee": "includes", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L136"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_oncreatepress", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L141"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_oncreatepress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L141"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_oncreatepress", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L142"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress", "callee": "getSource", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L146"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress", "callee": "getBindingContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L147"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress", "callee": "getPath", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L148"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress", "callee": "substring", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L150"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress", "callee": "lastIndexOf", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L150"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress", "callee": "replace", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L151"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L152"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L152"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L153"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsearch", "callee": "getParameter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L158"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L159"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L160"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L168"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L170"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsort", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L180"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsort", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L181"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsort", "callee": "getSorters", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L183"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsort", "callee": "sort", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L184"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsort", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L185"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onrefresh", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L190"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onrefresh", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L191"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onrefresh", "callee": "refresh", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L192"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onrefresh", "callee": "show", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L192"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_ontoggleadvancedsearch", "callee": "getProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L196"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_ontoggleadvancedsearch", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L197"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch", "callee": "getSelectedKey", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L201"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L201"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch", "callee": "getSelectedKey", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L202"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L202"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch", "callee": "getValue", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L203"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L203"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L206"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L206"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L207"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onclearadvancedsearch", "callee": "getBinding", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L212"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onclearadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L212"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onclearadvancedsearch", "callee": "filter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L213"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onclearadvancedsearch", "callee": "setValue", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L214"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_onclearadvancedsearch", "callee": "byId", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L214"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_topascalcase", "callee": "join", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L218"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_topascalcase", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L218"}, {"caller_nid": "busencounterlist_controller_busencounterlistcontroller_topascalcase", "callee": "split", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts", "source_location": "L218"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "label": "BusEncounterList.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller",
+      "label": "BusEncounterListController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L30"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L34"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_initializetable",
+      "label": "._initializeTable()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L52"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_getcolumnwidth",
+      "label": "._getColumnWidth()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L101"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_getfieldsfrommetadata",
+      "label": "._getFieldsFromMetadata()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L106"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_formatcellvalue",
+      "label": "._formatCellValue()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L121"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_formatstatusstate",
+      "label": "._formatStatusState()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L131"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_oncreatepress",
+      "label": ".onCreatePress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L140"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_onitempress",
+      "label": ".onItemPress()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L145"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_onsearch",
+      "label": ".onSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L157"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_onquicksearch",
+      "label": ".onQuickSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L175"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_onsort",
+      "label": ".onSort()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L179"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_onrefresh",
+      "label": ".onRefresh()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L189"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_ontoggleadvancedsearch",
+      "label": ".onToggleAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L195"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch",
+      "label": ".onAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L200"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_onclearadvancedsearch",
+      "label": ".onClearAdvancedSearch()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L211"
+    },
+    {
+      "id": "busencounterlist_controller_busencounterlistcontroller_topascalcase",
+      "label": "._toPascalCase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L217"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "jsonmodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "odatamodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "filter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "filteroperator",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "sorter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "messagetoast",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "router",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "event",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "column",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "columnlistitem",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "text",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "label",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "objectstatus",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entity_busencounterlist_controller_ts",
+      "target": "busencounterlist_controller_busencounterlistcontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_initializetable",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_getcolumnwidth",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L101",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_getfieldsfrommetadata",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L106",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_formatcellvalue",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_formatstatusstate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L131",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_oncreatepress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_onitempress",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L145",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_onsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L157",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_onquicksearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L175",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_onsort",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L179",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_onrefresh",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L189",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_ontoggleadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L195",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L200",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_onclearadvancedsearch",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L211",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller",
+      "target": "busencounterlist_controller_busencounterlistcontroller_topascalcase",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L217",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller_oninit",
+      "target": "busencounterlist_controller_busencounterlistcontroller_getfieldsfrommetadata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller_oninit",
+      "target": "busencounterlist_controller_busencounterlistcontroller_initializetable",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller_onquicksearch",
+      "target": "busencounterlist_controller_busencounterlistcontroller_onsearch",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L176",
+      "weight": 1.0
+    },
+    {
+      "source": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch",
+      "target": "busencounterlist_controller_busencounterlistcontroller_topascalcase",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L205",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_oninit",
+      "callee": "getModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_oninit",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable",
+      "callee": "removeAllColumns",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable",
+      "callee": "removeAllItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable",
+      "callee": "forEach",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable",
+      "callee": "bindItems",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_initializetable",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_getcolumnwidth",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatcellvalue",
+      "callee": "match",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatcellvalue",
+      "callee": "isNaN",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatcellvalue",
+      "callee": "getTime",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatcellvalue",
+      "callee": "toLocaleDateString",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatcellvalue",
+      "callee": "String",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatstatusstate",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L133"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatstatusstate",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatstatusstate",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_formatstatusstate",
+      "callee": "includes",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_oncreatepress",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_oncreatepress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_oncreatepress",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress",
+      "callee": "getSource",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L146"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress",
+      "callee": "getBindingContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress",
+      "callee": "getPath",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress",
+      "callee": "substring",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress",
+      "callee": "lastIndexOf",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress",
+      "callee": "replace",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onitempress",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsearch",
+      "callee": "getParameter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L159"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L160"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L168"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L170"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsort",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L180"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsort",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L181"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsort",
+      "callee": "getSorters",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L183"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsort",
+      "callee": "sort",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L184"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onsort",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L185"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onrefresh",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onrefresh",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onrefresh",
+      "callee": "refresh",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L192"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onrefresh",
+      "callee": "show",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L192"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_ontoggleadvancedsearch",
+      "callee": "getProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L196"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_ontoggleadvancedsearch",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L197"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch",
+      "callee": "getSelectedKey",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L201"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L201"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch",
+      "callee": "getSelectedKey",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L202"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L202"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch",
+      "callee": "getValue",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L206"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L206"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onadvancedsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L207"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onclearadvancedsearch",
+      "callee": "getBinding",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onclearadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onclearadvancedsearch",
+      "callee": "filter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L213"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onclearadvancedsearch",
+      "callee": "setValue",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L214"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_onclearadvancedsearch",
+      "callee": "byId",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L214"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_topascalcase",
+      "callee": "join",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L218"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_topascalcase",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L218"
+    },
+    {
+      "caller_nid": "busencounterlist_controller_busencounterlistcontroller_topascalcase",
+      "callee": "split",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/entity/BusEncounterList.controller.ts",
+      "source_location": "L218"
+    }
+  ]
+}

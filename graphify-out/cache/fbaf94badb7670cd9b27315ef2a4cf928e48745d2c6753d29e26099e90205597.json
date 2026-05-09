@@ -1,1 +1,286 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entitymenu_controller_ts", "label": "EntityMenu.controller.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L1"}, {"id": "entitymenu_controller_entitymenucontroller", "label": "EntityMenuController", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L47"}, {"id": "entitymenu_controller_entitymenucontroller_oninit", "label": ".onInit()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L53"}, {"id": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "label": "._loadEntityMenuFromDatabase()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L67"}, {"id": "entitymenu_controller_entitymenucontroller_onentityselect", "label": ".onEntitySelect()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L120"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entitymenu_controller_ts", "target": "controller", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L11", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entitymenu_controller_ts", "target": "router", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L12", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entitymenu_controller_ts", "target": "event", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entitymenu_controller_ts", "target": "odatamodel", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L14", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entitymenu_controller_ts", "target": "entitymenu_controller_entitymenucontroller", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L47", "weight": 1.0}, {"source": "entitymenu_controller_entitymenucontroller", "target": "entitymenu_controller_entitymenucontroller_oninit", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L53", "weight": 1.0}, {"source": "entitymenu_controller_entitymenucontroller", "target": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L67", "weight": 1.0}, {"source": "entitymenu_controller_entitymenucontroller", "target": "entitymenu_controller_entitymenucontroller_onentityselect", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L120", "weight": 1.0}, {"source": "entitymenu_controller_entitymenucontroller_oninit", "target": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L59", "weight": 1.0}], "raw_calls": [{"caller_nid": "entitymenu_controller_entitymenucontroller_oninit", "callee": "setModel", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L56"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_oninit", "callee": "getView", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L56"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_oninit", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L61"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L69"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "getManifestEntry", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L72"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L72"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L75"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "fetch", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L78"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "json", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L84"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "warn", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L88"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L89"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L93"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L93"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "map", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L96"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L105"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L107"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L109"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase", "callee": "setProperty", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L111"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect", "callee": "getSource", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L121"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect", "callee": "getBindingContext", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L122"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect", "callee": "getObject", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L123"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect", "callee": "getRouter", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L127"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect", "callee": "getOwnerComponent", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L127"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect", "callee": "navTo", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L129"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect", "callee": "log", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L130"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L132"}, {"caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect", "callee": "error", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts", "source_location": "L135"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entitymenu_controller_ts",
+      "label": "EntityMenu.controller.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "entitymenu_controller_entitymenucontroller",
+      "label": "EntityMenuController",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L47"
+    },
+    {
+      "id": "entitymenu_controller_entitymenucontroller_oninit",
+      "label": ".onInit()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L53"
+    },
+    {
+      "id": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "label": "._loadEntityMenuFromDatabase()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L67"
+    },
+    {
+      "id": "entitymenu_controller_entitymenucontroller_onentityselect",
+      "label": ".onEntitySelect()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L120"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entitymenu_controller_ts",
+      "target": "controller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entitymenu_controller_ts",
+      "target": "router",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entitymenu_controller_ts",
+      "target": "event",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entitymenu_controller_ts",
+      "target": "odatamodel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_generated_projects_hms_openui5_odatav4_typescript_frontend_webapp_controller_entitymenu_controller_ts",
+      "target": "entitymenu_controller_entitymenucontroller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "entitymenu_controller_entitymenucontroller",
+      "target": "entitymenu_controller_entitymenucontroller_oninit",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "entitymenu_controller_entitymenucontroller",
+      "target": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "entitymenu_controller_entitymenucontroller",
+      "target": "entitymenu_controller_entitymenucontroller_onentityselect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L120",
+      "weight": 1.0
+    },
+    {
+      "source": "entitymenu_controller_entitymenucontroller_oninit",
+      "target": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L59",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_oninit",
+      "callee": "setModel",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_oninit",
+      "callee": "getView",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_oninit",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "getManifestEntry",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "fetch",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "json",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "warn",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "map",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_loadentitymenufromdatabase",
+      "callee": "setProperty",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect",
+      "callee": "getSource",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L121"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect",
+      "callee": "getBindingContext",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect",
+      "callee": "getObject",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect",
+      "callee": "getRouter",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect",
+      "callee": "getOwnerComponent",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect",
+      "callee": "navTo",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect",
+      "callee": "log",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L132"
+    },
+    {
+      "caller_nid": "entitymenu_controller_entitymenucontroller_onentityselect",
+      "callee": "error",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/generated-projects/hms-openui5-odatav4-typescript/frontend/webapp/controller/EntityMenu.controller.ts",
+      "source_location": "L135"
+    }
+  ]
+}

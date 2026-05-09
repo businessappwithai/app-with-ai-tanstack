@@ -3,15 +3,15 @@
  * Provides authentication and authorization guards for both stacks
  */
 
+import type { AuthService } from "./auth.service.js";
 import type {
-  IGuard,
+  AuthGuardOptions,
   GuardContext,
   GuardResult,
-  AuthGuardOptions,
-  RoleGuardOptions,
+  IGuard,
   PermissionGuardOptions,
+  RoleGuardOptions,
 } from "./guards.types.js";
-import type { AuthService } from "./auth.service.js";
 
 /**
  * Authentication Guard

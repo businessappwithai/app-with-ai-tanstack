@@ -9,13 +9,7 @@
  * %%hook beforeCreate validateAndHash User[field: password, email]
  */
 
-import {
-  HookDefinitionNode,
-  ParameterNode,
-  ParseResult,
-  ParseError,
-  HookType,
-} from "./types";
+import type { HookDefinitionNode, HookType, ParameterNode, ParseError, ParseResult } from "./types";
 
 export class HookSyntaxParser {
   private readonly HOOK_DECL = "%%hook";
@@ -24,8 +18,7 @@ export class HookSyntaxParser {
   private readonly HOOK_TYPE_PATTERN =
     /^(beforeCreate|afterCreate|beforeUpdate|afterUpdate|beforeDelete|afterDelete|beforeQuery|afterQuery|customValidate)$/;
 
-  private readonly HOOK_DEFINITION_PATTERN =
-    /^%%hook\s+(\w+)\s+(\w+)\s+on\s+(\w+)(?:\[(.*)\])?$/;
+  private readonly HOOK_DEFINITION_PATTERN = /^%%hook\s+(\w+)\s+(\w+)\s+on\s+(\w+)(?:\[(.*)\])?$/;
 
   private readonly PARAMETER_PATTERN = /^field:\s*(\w+)$/;
 
@@ -49,7 +42,8 @@ export class HookSyntaxParser {
     const match = trimmedInput.match(this.HOOK_DEFINITION_PATTERN);
     if (!match) {
       errors.push({
-        message: "Invalid hook definition format. Expected: %%hook <type> <name> on <entity>[<params>]",
+        message:
+          "Invalid hook definition format. Expected: %%hook <type> <name> on <entity>[<params>]",
         offendingSymbol: trimmedInput,
       });
       return { ast: null, errors };
@@ -60,8 +54,8 @@ export class HookSyntaxParser {
     // Validate hook type
     if (!hookTypeStr || !this.HOOK_TYPE_PATTERN.test(hookTypeStr)) {
       errors.push({
-        message: `Invalid hook type: '${hookTypeStr || ''}'. Must be one of: beforeCreate, afterCreate, beforeUpdate, afterUpdate, beforeDelete, afterDelete, beforeQuery, afterQuery, customValidate`,
-        offendingSymbol: hookTypeStr || '',
+        message: `Invalid hook type: '${hookTypeStr || ""}'. Must be one of: beforeCreate, afterCreate, beforeUpdate, afterUpdate, beforeDelete, afterDelete, beforeQuery, afterQuery, customValidate`,
+        offendingSymbol: hookTypeStr || "",
       });
       return { ast: null, errors };
     }
@@ -71,8 +65,8 @@ export class HookSyntaxParser {
     // Validate hook name
     if (!hookName || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(hookName)) {
       errors.push({
-        message: `Invalid hook name: '${hookName || ''}'. Must start with letter or underscore`,
-        offendingSymbol: hookName || '',
+        message: `Invalid hook name: '${hookName || ""}'. Must start with letter or underscore`,
+        offendingSymbol: hookName || "",
       });
       return { ast: null, errors };
     }
@@ -81,7 +75,7 @@ export class HookSyntaxParser {
     if (!entity || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(entity)) {
       errors.push({
         message: `Invalid entity name: '${entity}'. Must start with letter or underscore`,
-        offendingSymbol: entity || '',
+        offendingSymbol: entity || "",
       });
       return { ast: null, errors };
     }
@@ -103,8 +97,8 @@ export class HookSyntaxParser {
     const ast: HookDefinitionNode = {
       $type: "HookDefinition",
       hookType,
-      hookName: hookName || '',
-      entity: entity || '',
+      hookName: hookName || "",
+      entity: entity || "",
       parameters: parameters.length > 0 ? parameters : undefined,
       raw: trimmedInput,
     };
@@ -116,10 +110,7 @@ export class HookSyntaxParser {
    * Parse parameters from parameter string
    * Format: field: name, field: email
    */
-  private parseParameters(
-    paramsStr: string,
-    parameters: ParameterNode[]
-  ): ParseError[] {
+  private parseParameters(paramsStr: string, parameters: ParameterNode[]): ParseError[] {
     const errors: ParseError[] = [];
     const parts = paramsStr.split(",").map((p) => p.trim());
 
@@ -140,8 +131,8 @@ export class HookSyntaxParser {
       // Validate parameter name
       if (!paramName || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(paramName)) {
         errors.push({
-          message: `Invalid parameter name: '${paramName || ''}'. Must start with letter or underscore`,
-          offendingSymbol: paramName || '',
+          message: `Invalid parameter name: '${paramName || ""}'. Must start with letter or underscore`,
+          offendingSymbol: paramName || "",
         });
         continue;
       }

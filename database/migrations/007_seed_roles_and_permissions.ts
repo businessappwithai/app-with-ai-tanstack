@@ -54,14 +54,9 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex("ad_role").whereIn("name", [
-    "admin",
-    "doctor",
-    "nurse",
-    "receptionist",
-    "billing",
-    "readonly",
-  ]).delete();
+  await knex("ad_role")
+    .whereIn("name", ["admin", "doctor", "nurse", "receptionist", "billing", "readonly"])
+    .delete();
 
   console.log("Removed default roles");
 }

@@ -1,1 +1,473 @@
-{"nodes": [{"id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_workflow_workflow_service_ts", "label": "workflow.service.ts", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L1"}, {"id": "workflow_service_workflowservice", "label": "WorkflowService", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L22"}, {"id": "workflow_service_workflowservice_constructor", "label": ".constructor()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L26"}, {"id": "workflow_service_workflowservice_trigger", "label": ".trigger()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L38"}, {"id": "workflow_service_workflowservice_getstatus", "label": ".getStatus()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L76"}, {"id": "workflow_service_workflowservice_retry", "label": ".retry()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L102"}, {"id": "workflow_service_workflowservice_setentitystatus", "label": ".setEntityStatus()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L119"}, {"id": "workflow_service_workflowservice_completeworkflow", "label": ".completeWorkflow()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L136"}, {"id": "workflow_service_workflowservice_getpendingworkflows", "label": ".getPendingWorkflows()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L181"}, {"id": "workflow_service_workflowservice_getentityworkflows", "label": ".getEntityWorkflows()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L191"}, {"id": "workflow_service_workflowservice_timeoutstuckworkflows", "label": ".timeoutStuckWorkflows()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L208"}, {"id": "workflow_service_createworkflowservice", "label": "createWorkflowService()", "file_type": "code", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L233"}], "edges": [{"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_workflow_workflow_service_ts", "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_workflow_workflow_types_ts", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L6", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_workflow_workflow_service_ts", "target": "knex", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L13", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_workflow_workflow_service_ts", "target": "workflow_service_workflowservice", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L22", "weight": 1.0}, {"source": "workflow_service_workflowservice", "target": "workflow_service_workflowservice_constructor", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L26", "weight": 1.0}, {"source": "workflow_service_workflowservice", "target": "workflow_service_workflowservice_trigger", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L38", "weight": 1.0}, {"source": "workflow_service_workflowservice", "target": "workflow_service_workflowservice_getstatus", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L76", "weight": 1.0}, {"source": "workflow_service_workflowservice", "target": "workflow_service_workflowservice_retry", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L102", "weight": 1.0}, {"source": "workflow_service_workflowservice", "target": "workflow_service_workflowservice_setentitystatus", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L119", "weight": 1.0}, {"source": "workflow_service_workflowservice", "target": "workflow_service_workflowservice_completeworkflow", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L136", "weight": 1.0}, {"source": "workflow_service_workflowservice", "target": "workflow_service_workflowservice_getpendingworkflows", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L181", "weight": 1.0}, {"source": "workflow_service_workflowservice", "target": "workflow_service_workflowservice_getentityworkflows", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L191", "weight": 1.0}, {"source": "workflow_service_workflowservice", "target": "workflow_service_workflowservice_timeoutstuckworkflows", "relation": "method", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L208", "weight": 1.0}, {"source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_workflow_workflow_service_ts", "target": "workflow_service_createworkflowservice", "relation": "contains", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L233", "weight": 1.0}, {"source": "workflow_service_workflowservice_trigger", "target": "workflow_service_workflowservice_setentitystatus", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L58", "weight": 1.0}, {"source": "workflow_service_workflowservice_retry", "target": "workflow_service_workflowservice_trigger", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L113", "weight": 1.0}, {"source": "workflow_service_workflowservice_completeworkflow", "target": "workflow_service_workflowservice_setentitystatus", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L171", "weight": 1.0}, {"source": "workflow_service_workflowservice_timeoutstuckworkflows", "target": "workflow_service_workflowservice_completeworkflow", "relation": "calls", "confidence": "EXTRACTED", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L218", "weight": 1.0}], "raw_calls": [{"caller_nid": "workflow_service_workflowservice_trigger", "callee": "returning", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L45"}, {"caller_nid": "workflow_service_workflowservice_trigger", "callee": "insert", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L45"}, {"caller_nid": "workflow_service_workflowservice_trigger", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L45"}, {"caller_nid": "workflow_service_workflowservice_trigger", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L51"}, {"caller_nid": "workflow_service_workflowservice_getstatus", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L77"}, {"caller_nid": "workflow_service_workflowservice_getstatus", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L77"}, {"caller_nid": "workflow_service_workflowservice_getstatus", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L77"}, {"caller_nid": "workflow_service_workflowservice_getstatus", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L91"}, {"caller_nid": "workflow_service_workflowservice_getstatus", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L92"}, {"caller_nid": "workflow_service_workflowservice_getstatus", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L94"}, {"caller_nid": "workflow_service_workflowservice_retry", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L103"}, {"caller_nid": "workflow_service_workflowservice_retry", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L103"}, {"caller_nid": "workflow_service_workflowservice_retry", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L103"}, {"caller_nid": "workflow_service_workflowservice_retry", "callee": "parse", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L112"}, {"caller_nid": "workflow_service_workflowservice_setentitystatus", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L125"}, {"caller_nid": "workflow_service_workflowservice_setentitystatus", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L125"}, {"caller_nid": "workflow_service_workflowservice_setentitystatus", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L125"}, {"caller_nid": "workflow_service_workflowservice_setentitystatus", "callee": "toLowerCase", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L125"}, {"caller_nid": "workflow_service_workflowservice_completeworkflow", "callee": "first", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L148"}, {"caller_nid": "workflow_service_workflowservice_completeworkflow", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L148"}, {"caller_nid": "workflow_service_workflowservice_completeworkflow", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L148"}, {"caller_nid": "workflow_service_workflowservice_completeworkflow", "callee": "update", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L157"}, {"caller_nid": "workflow_service_workflowservice_completeworkflow", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L157"}, {"caller_nid": "workflow_service_workflowservice_completeworkflow", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L157"}, {"caller_nid": "workflow_service_workflowservice_completeworkflow", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L161"}, {"caller_nid": "workflow_service_workflowservice_completeworkflow", "callee": "stringify", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L163"}, {"caller_nid": "workflow_service_workflowservice_getpendingworkflows", "callee": "limit", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L182"}, {"caller_nid": "workflow_service_workflowservice_getpendingworkflows", "callee": "orderBy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L182"}, {"caller_nid": "workflow_service_workflowservice_getpendingworkflows", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L182"}, {"caller_nid": "workflow_service_workflowservice_getpendingworkflows", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L182"}, {"caller_nid": "workflow_service_workflowservice_getentityworkflows", "callee": "limit", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L196"}, {"caller_nid": "workflow_service_workflowservice_getentityworkflows", "callee": "orderBy", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L196"}, {"caller_nid": "workflow_service_workflowservice_getentityworkflows", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L196"}, {"caller_nid": "workflow_service_workflowservice_getentityworkflows", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L196"}, {"caller_nid": "workflow_service_workflowservice_timeoutstuckworkflows", "callee": "now", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L209"}, {"caller_nid": "workflow_service_workflowservice_timeoutstuckworkflows", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L211"}, {"caller_nid": "workflow_service_workflowservice_timeoutstuckworkflows", "callee": "where", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L211"}, {"caller_nid": "workflow_service_workflowservice_timeoutstuckworkflows", "callee": "db", "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts", "source_location": "L211"}]}
+{
+  "nodes": [
+    {
+      "id": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_workflow_workflow_service_ts",
+      "label": "workflow.service.ts",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "workflow_service_workflowservice",
+      "label": "WorkflowService",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L22"
+    },
+    {
+      "id": "workflow_service_workflowservice_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L26"
+    },
+    {
+      "id": "workflow_service_workflowservice_trigger",
+      "label": ".trigger()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L38"
+    },
+    {
+      "id": "workflow_service_workflowservice_getstatus",
+      "label": ".getStatus()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L76"
+    },
+    {
+      "id": "workflow_service_workflowservice_retry",
+      "label": ".retry()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L102"
+    },
+    {
+      "id": "workflow_service_workflowservice_setentitystatus",
+      "label": ".setEntityStatus()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L119"
+    },
+    {
+      "id": "workflow_service_workflowservice_completeworkflow",
+      "label": ".completeWorkflow()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L136"
+    },
+    {
+      "id": "workflow_service_workflowservice_getpendingworkflows",
+      "label": ".getPendingWorkflows()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L181"
+    },
+    {
+      "id": "workflow_service_workflowservice_getentityworkflows",
+      "label": ".getEntityWorkflows()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L191"
+    },
+    {
+      "id": "workflow_service_workflowservice_timeoutstuckworkflows",
+      "label": ".timeoutStuckWorkflows()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L208"
+    },
+    {
+      "id": "workflow_service_createworkflowservice",
+      "label": "createWorkflowService()",
+      "file_type": "code",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L233"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_workflow_workflow_service_ts",
+      "target": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_workflow_workflow_types_ts",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_workflow_workflow_service_ts",
+      "target": "knex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_workflow_workflow_service_ts",
+      "target": "workflow_service_workflowservice",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "workflow_service_workflowservice",
+      "target": "workflow_service_workflowservice_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "workflow_service_workflowservice",
+      "target": "workflow_service_workflowservice_trigger",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "workflow_service_workflowservice",
+      "target": "workflow_service_workflowservice_getstatus",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "workflow_service_workflowservice",
+      "target": "workflow_service_workflowservice_retry",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "workflow_service_workflowservice",
+      "target": "workflow_service_workflowservice_setentitystatus",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L119",
+      "weight": 1.0
+    },
+    {
+      "source": "workflow_service_workflowservice",
+      "target": "workflow_service_workflowservice_completeworkflow",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L136",
+      "weight": 1.0
+    },
+    {
+      "source": "workflow_service_workflowservice",
+      "target": "workflow_service_workflowservice_getpendingworkflows",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L181",
+      "weight": 1.0
+    },
+    {
+      "source": "workflow_service_workflowservice",
+      "target": "workflow_service_workflowservice_getentityworkflows",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L191",
+      "weight": 1.0
+    },
+    {
+      "source": "workflow_service_workflowservice",
+      "target": "workflow_service_workflowservice_timeoutstuckworkflows",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L208",
+      "weight": 1.0
+    },
+    {
+      "source": "users_pramodkoshy_projects_dynamic_test_app_with_ai_packages_core_src_workflow_workflow_service_ts",
+      "target": "workflow_service_createworkflowservice",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L233",
+      "weight": 1.0
+    },
+    {
+      "source": "workflow_service_workflowservice_trigger",
+      "target": "workflow_service_workflowservice_setentitystatus",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "workflow_service_workflowservice_retry",
+      "target": "workflow_service_workflowservice_trigger",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "workflow_service_workflowservice_completeworkflow",
+      "target": "workflow_service_workflowservice_setentitystatus",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L171",
+      "weight": 1.0
+    },
+    {
+      "source": "workflow_service_workflowservice_timeoutstuckworkflows",
+      "target": "workflow_service_workflowservice_completeworkflow",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L218",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "workflow_service_workflowservice_trigger",
+      "callee": "returning",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_trigger",
+      "callee": "insert",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_trigger",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_trigger",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_getstatus",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_getstatus",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_getstatus",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_getstatus",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_getstatus",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_getstatus",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_retry",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_retry",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_retry",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_retry",
+      "callee": "parse",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_setentitystatus",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_setentitystatus",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_setentitystatus",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_setentitystatus",
+      "callee": "toLowerCase",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_completeworkflow",
+      "callee": "first",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_completeworkflow",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_completeworkflow",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_completeworkflow",
+      "callee": "update",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L157"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_completeworkflow",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L157"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_completeworkflow",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L157"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_completeworkflow",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_completeworkflow",
+      "callee": "stringify",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L163"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_getpendingworkflows",
+      "callee": "limit",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_getpendingworkflows",
+      "callee": "orderBy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_getpendingworkflows",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_getpendingworkflows",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_getentityworkflows",
+      "callee": "limit",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L196"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_getentityworkflows",
+      "callee": "orderBy",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L196"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_getentityworkflows",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L196"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_getentityworkflows",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L196"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_timeoutstuckworkflows",
+      "callee": "now",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_timeoutstuckworkflows",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L211"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_timeoutstuckworkflows",
+      "callee": "where",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L211"
+    },
+    {
+      "caller_nid": "workflow_service_workflowservice_timeoutstuckworkflows",
+      "callee": "db",
+      "source_file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/packages/core/src/workflow/workflow.service.ts",
+      "source_location": "L211"
+    }
+  ]
+}
