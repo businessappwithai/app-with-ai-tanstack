@@ -51,11 +51,11 @@ const features = [
   },
   {
     title: "Multi-Stack Generation",
-    description: "Generate Next.js, NestJS, OData V4, OpenUI5 applications",
+    description: "Generate TanStack Start, NestJS, OData V4, OpenUI5 applications",
     icon: Code2,
     href: "/generator",
     color: "from-pink-500 to-rose-500",
-    features: ["Next.js + Shadcn", "NestJS + Knex", "OData V4", "OpenUI5 FCL"],
+    features: ["TanStack Start + Shadcn", "NestJS + Kysely", "OData V4", "OpenUI5 FCL"],
   },
   {
     title: "Database Connection",

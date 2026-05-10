@@ -136,7 +136,7 @@ export function NewProjectModal({
                   disabled={isSubmitting}
                 />
                 <div className="flex-1">
-                  <p className="font-semibold">Full Stack: Next.js + NestJS</p>
+                  <p className="font-semibold">Full Stack: TanStack Start + NestJS</p>
                   <p className="text-sm text-muted-foreground">
                     Modern web framework with React, TypeScript, and PostgreSQL
                   </p>

@@ -54,7 +54,7 @@ Available gstack skills:
 | `bun run lint:fix` | ESLint auto-fix |
 | `bun run format` | Prettier format all files |
 | `bun run migrate` | Run database migrations |
-| `bun run generate:nextjs` | Generate Next.js/NestJS app |
+| `bun run generate:tanstack` | Generate TanStack Start/NestJS app |
 | `bun run generate:odata` | Generate OData V4 service |
 | `bun run generate:ui5` | Generate OpenUI5 app |
 | `bun run convert` | Run AI conversion CLI |
@@ -71,7 +71,7 @@ ERDwithAI transforms natural language descriptions into production-ready full-st
 - AI-powered entity extraction using Claude Sonnet 4 (via Mastra.ai agents)
 - Human-in-the-loop (HITL) approval workflow for ERD design
 - Visual ERD designer with Mermaid diagram rendering
-- Multi-stack code generation: Next.js/NestJS and OpenUI5/OData V4
+- Multi-stack code generation: TanStack Start/NestJS and OpenUI5/OData V4
 - Dictionary-driven architecture inspired by Compiere ERP
 - CopilotKit integration for AI-assisted UI interactions
 - E2B sandbox for code execution in generated projects
@@ -83,8 +83,8 @@ ERDwithAI transforms natural language descriptions into production-ready full-st
 | Runtime | Bun.js 1.3+ |
 | AI Orchestration | Mastra.ai v1.10+, CopilotKit v1.53+ |
 | AI Model | Anthropic Claude (claude-sonnet-4-20250514) |
-| Frontend | Next.js 14+, React 18+, Shadcn UI, TailwindCSS, Zustand |
-| Backend | NestJS 10+, Fastify, Knex.js |
+| Frontend | TanStack Start 1+, Vite 5+, React 18+, Shadcn UI, TailwindCSS, Zustand |
+| Backend | NestJS 10+, Fastify, Kysely (type-safe SQL) |
 | Database | PostgreSQL (production), SQLite (Mastra state/dev) |
 | Templates | Handlebars 4.7+ |
 | Testing | Playwright v1.57+, Vitest, Testing Library |
@@ -95,13 +95,13 @@ ERDwithAI transforms natural language descriptions into production-ready full-st
 ## Monorepo Structure
 
 ```
-app_with_ai/
+app-with-ai-tanstack/
 ├── packages/
 │   ├── core/          # Core business logic, types, hooks, RBAC, validation
 │   ├── generator/     # Code generation engine, CLI, Handlebars templates
 │   ├── ai/            # Mastra.ai agents, CopilotKit, AI workflows, CLI
-│   └── web/           # Next.js 14 web application
-├── database/          # Knex migrations, knexfile.ts, generator.sql
+│   └── web/           # TanStack Start web application
+├── database/          # Migrations, knexfile.ts, generator.sql
 ├── docs/              # Architecture, development, testing, roadmap docs
 ├── generated-projects/# Output directory for generated applications
 ├── tests/             # Playwright E2E test suites
@@ -176,7 +176,7 @@ src/
 │   ├── dictionary.generator.ts
 │   ├── full-stack.generator.ts
 │   ├── orchestrator.ts        # Coordinates multi-stack generation
-│   ├── nextjs-nestjs/         # Next.js frontend + NestJS backend stack
+│   ├── nextjs-nestjs/         # TanStack Start frontend + NestJS backend stack
 │   ├── openui5-odatav4/       # OpenUI5 frontend + OData V4 backend stack
 │   └── tests/                 # E2E test generators per stack
 ├── parsers/
@@ -185,9 +185,9 @@ src/
     └── loader.ts              # Handlebars template loader
 templates/
 ├── common/            # Shared: migrations, seeds, AI agents, services
-├── nextjs-nestjs/     # Full-stack: NestJS backend + Next.js frontend
+├── nextjs-nestjs/     # Full-stack: NestJS backend + TanStack Start frontend
 │   ├── backend/       # Controllers, DTOs, Services, Guards, Auth, DB, Tests
-│   └── frontend/      # App, Components (Admin/Forms/Tables/UI), Hooks, i18n
+│   └── frontend/      # Routes, Components (Admin/Forms/Tables/UI), Hooks, i18n
 └── openui5-odatav4/   # OpenUI5 + OData V4 stack
     ├── backend/       # OData config, Controllers, Database, Middleware, Tests
     └── frontend/      # Controllers, Views (XML), Fragments, i18n, Manifest
@@ -230,36 +230,31 @@ src/
 
 ### @erdwithai/web (`packages/web/`)
 
-Next.js 14 web application with App Router.
+TanStack Start web application with file-based routing and Vite.
 
 ```
 src/
-├── app/
-│   ├── page.tsx               # Root → redirects to /projects
-│   ├── providers.tsx          # CopilotKit provider wrapper
-│   ├── projects/
-│   │   ├── page.tsx           # Projects list (Zustand store)
-│   │   └── [id]/
-│   │       ├── init/          # Project initialization step
-│   │       ├── design/        # ERD design step (HITL approval)
-│   │       ├── generate/      # Code generation step
-│   │       ├── enhance/       # Service enhancement step
-│   │       │   └── [serviceName]/
-│   │       └── deploy/        # Deployment step
-│   └── api/
-│       ├── ai/
-│       │   ├── convert/route.ts         # AI conversion endpoint
-│       │   ├── convert-stream/route.ts  # Streaming AI conversion
-│       │   ├── code-agent/route.ts      # Code agent endpoint
-│       │   └── code-agent-stream/route.ts
-│       ├── copilotkit/route.ts          # CopilotKit runtime endpoint
-│       ├── deploy/route.ts
-│       ├── generate/route.ts
-│       └── projects/
-│           ├── route.ts                 # CRUD for projects
-│           └── [id]/
-│               ├── erd-versions/        # ERD version history & restore
-│               └── workflows/[serviceName]/ # Workflow management
+├── routes/
+│   ├── __root.tsx             # Root layout (replaces app/layout.tsx + app/providers.tsx)
+│   ├── index.tsx              # Root → redirects to /projects
+│   ├── dashboard.tsx          # Dashboard page
+│   ├── api/
+│   │   ├── copilotkit.ts      # CopilotKit API endpoint
+│   │   ├── generate.ts        # Code generation endpoint
+│   │   └── projects/
+│   │       ├── index.ts       # Projects CRUD
+│   │       └── $id/
+│   │           ├── erd-versions/index.ts    # ERD version history
+│   │           └── workflows/$serviceName/  # Workflow endpoints
+│   └── projects/
+│       ├── index.tsx          # Projects list (Zustand store)
+│       └── $id/
+│           ├── init.tsx       # Project initialization step
+│           ├── design.tsx     # ERD design step (HITL approval)
+│           ├── generate.tsx   # Code generation step
+│           ├── enhance/
+│           │   └── $serviceName.tsx # Service enhancement step
+│           └── deploy.tsx     # Deployment step
 ├── components/
 │   ├── ProgressStepper.tsx    # Multi-step project wizard
 │   ├── approval/              # HITL entity approval cards
@@ -268,7 +263,10 @@ src/
 │   ├── project/               # Project creation modal
 │   └── workflow/              # Flowchart preview component
 ├── hooks/
-│   └── useHumanInTheLoop.ts   # HITL state management hook
+│   ├── useHumanInTheLoop.ts   # HITL state management hook
+│   └── useApi.ts              # API client hook
+├── lib/
+│   └── api-client.ts          # API client utility
 ├── store/
 │   └── projectStore.ts        # Zustand project state store
 └── types/
@@ -306,14 +304,14 @@ src/
 
 ### Import Order
 
-1. External dependencies (React, Next.js, etc.)
+1. External dependencies (React, TanStack, etc.)
 2. Internal package imports (`@erdwithai/*`)
 3. Relative imports (`./types`, `../utils`)
 4. Type-only imports (`import type`)
 
 ```typescript
 import React from "react";
-import Link from "next/link";
+import { createFileRoute } from "@tanstack/react-router";
 import { Database } from "lucide-react";
 
 import { mastra } from "@erdwithai/ai";
@@ -412,11 +410,13 @@ export async function analyzeDomain(description: string) {
 - `ANTHROPIC_API_KEY` - Anthropic API key (Claude claude-sonnet-4-20250514)
 - `DATABASE_URL` - PostgreSQL connection string
 
-**Web Application:**
-- `NEXT_PUBLIC_APP_URL` - Application URL (default: `http://localhost:3000`)
-- `NEXT_PUBLIC_API_URL` - API URL (default: `http://localhost:3000/api`)
-- `NEXT_PUBLIC_MASTRA_URL` - Mastra service URL (default: `http://localhost:4111`)
+**Web Application (TanStack Start):**
+- `VITE_APP_URL` - Application URL (default: `http://localhost:3000`)
+- `VITE_API_URL` - API URL (default: `http://localhost:3000/api`)
+- `VITE_MASTRA_URL` - Mastra service URL (default: `http://localhost:4111`)
 - `COPILOTKIT_API_KEY` - CopilotKit API key
+
+Note: TanStack Start uses Vite, so environment variables must be prefixed with `VITE_` for client-side access.
 
 **Mastra AI Service:**
 - `MASTRA_DATABASE_URL` - Mastra state database (default: SQLite `mastra.db`)
@@ -519,10 +519,10 @@ bun run packages/generator/migrations/migrate.ts
 | `packages/ai/src/workflows/erd-design-workflow.ts` | HITL ERD design workflow |
 | `packages/generator/src/parsers/mermaid.parser.ts` | Mermaid ERD parser |
 | `packages/generator/src/generators/orchestrator.ts` | Generation orchestrator |
-| `packages/generator/templates/nextjs-nestjs/` | Next.js/NestJS templates |
+| `packages/generator/templates/nextjs-nestjs/` | TanStack Start/NestJS templates |
 | `packages/generator/templates/openui5-odatav4/` | OpenUI5/OData templates |
-| `packages/web/src/app/providers.tsx` | CopilotKit provider |
-| `packages/web/src/app/api/copilotkit/route.ts` | CopilotKit runtime endpoint |
+| `packages/web/src/routes/__root.tsx` | Root layout (replaces app/layout.tsx) |
+| `packages/web/src/routes/api/copilotkit.ts` | CopilotKit runtime endpoint |
 | `packages/web/src/hooks/useHumanInTheLoop.ts` | HITL React hook |
 | `webapp/` | Pre-built OpenUI5 HMS reference application |
 | `docs/architecture.md` | System architecture deep-dive |
@@ -560,9 +560,10 @@ bun run packages/generator/migrations/migrate.ts
 
 ### Adding a New API Route (Web)
 
-1. Create `route.ts` in the appropriate `packages/web/src/app/api/` subdirectory
-2. Export `GET`, `POST`, `PUT`, `DELETE` handlers as needed
-3. Use Next.js App Router conventions (`NextRequest`, `NextResponse`)
+1. Create `.ts` file in `packages/web/src/routes/api/` subdirectory
+2. Use `createAPIFileRoute()` for file-based routing
+3. Export `GET`, `POST`, `PUT`, `DELETE` handlers as needed
+4. Use TanStack Start conventions for API routes
 
 ### Modifying RBAC
 

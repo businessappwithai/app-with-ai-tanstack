@@ -16,7 +16,7 @@ export class ApiClient {
   private client: AxiosInstance;
   private tokenRefreshPromise: Promise<string> | null = null;
 
-  constructor(baseURL: string = process.env.NEXT_PUBLIC_API_URL || "/api") {
+  constructor(baseURL: string = import.meta.env.VITE_API_URL || "/api") {
     this.client = axios.create({
       baseURL,
       timeout: 30000,

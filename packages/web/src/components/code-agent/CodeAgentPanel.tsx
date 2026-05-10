@@ -27,7 +27,7 @@ interface CodeAgentPanelProps {
 
 export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
   const [task, setTask] = useState("");
-  const [stack, setStack] = useState<"nextjs-nestjs" | "openui5-odata">("nextjs-nestjs");
+  const [stack, setStack] = useState<"tanstack-start-nestjs" | "openui5-odata">("tanstack-start-nestjs");
   const [includeTests, setIncludeTests] = useState(true);
   const [includeMigrations, setIncludeMigrations] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -134,7 +134,7 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
           What code would you like to generate?
         </label>
         <textarea
-          placeholder="e.g., Generate a complete Next.js application with user authentication, or Create database migrations for the ERD"
+          placeholder="e.g., Generate a complete TanStack Start application with user authentication, or Create database migrations for the ERD"
           value={task}
           onChange={(e) => setTask(e.target.value)}
           rows={3}
@@ -149,10 +149,10 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
         </label>
         <select
           value={stack}
-          onChange={(e) => setStack(e.target.value as "nextjs-nestjs" | "openui5-odata")}
+          onChange={(e) => setStack(e.target.value as "tanstack-start-nestjs" | "openui5-odata")}
           className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
         >
-          <option value="nextjs-nestjs">Next.js + NestJS</option>
+          <option value="tanstack-start-nestjs">TanStack Start + NestJS</option>
           <option value="openui5-odata">OpenUI5 + OData</option>
         </select>
       </div>

@@ -42,13 +42,6 @@
     /* Completeness */
     "skipDefaultLibCheck": true,
 
-    /* Next.js Plugin */
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-
     /* Path Mapping */
     "paths": {
       "@erdwithai/core": ["./packages/core/src"],
@@ -74,13 +67,11 @@
     "packages/web/src/**/*.tsx",
     "packages/web/vitest.config.ts",
     "tests/**/*.ts",
-    "tests/**/*.tsx",
-    ".next/types/**/*.ts"
+    "tests/**/*.tsx"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    ".next",
     "out",
     "build",
     "database",

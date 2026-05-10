@@ -163,7 +163,7 @@ function ProjectsPage() {
             </select>
             <select className="px-4 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary">
               <option>All Types</option>
-              <option>Next.js/NestJS</option>
+              <option>TanStack Start/NestJS</option>
               <option>OpenUI5/OData</option>
             </select>
           </div>
@@ -296,7 +296,7 @@ function ProjectsPage() {
                         <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
                         <polyline points="14,2 14,8 20,8" />
                       </svg>
-                      <span>{project.stackType === "nestjs-nextjs" ? "Next.js" : "OpenUI5"}</span>
+                      <span>{project.stackType === "nestjs-nextjs" ? "TanStack Start" : "OpenUI5"}</span>
                     </div>
                   </div>
 

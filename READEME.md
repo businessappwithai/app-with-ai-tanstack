@@ -16,7 +16,7 @@ Transform natural language descriptions into production-ready full-stack applica
 - 🎨 **Visual ERD Designer** - Browser-based Mermaid ERD editor
 
 ### Code Generation
-- ⚡ **Modern Web Stack** - Next.js + Shadcn UI + TanStack Query
+- ⚡ **Modern Web Stack** - TanStack Start + Shadcn UI + TanStack Query
 - 🏢 **Enterprise Backend** - NestJS + Fastify + Knex.js
 - 🌐 **OData V4 Services** - RESTful OData with jaystack
 - 📱 **OpenUI5 FCL** - SAP-style Flexible Column Layout apps
@@ -143,8 +143,8 @@ erdwithai-convert "CRM system" --analyze-only --json > analysis.json
 # 1. Create ERD (using designer or CLI)
 erdwithai-convert "Blog platform" -o blog.mermaid
 
-# 2. Generate Modern Web Stack (nextjs-nestjs)
-bun run generate:nextjs -- -i blog.mermaid -o ./generated/blog-app
+# 2. Generate Modern Web Stack (tanstack-start-nestjs)
+bun run generate:tanstack -- -i blog.mermaid -o ./generated/blog-app
 
 # 3. Or Generate Enterprise SAP-Style Stack (openui5-odatav4)
 bun run generate:odata -- -i blog.mermaid -o ./generated/blog-api
@@ -160,7 +160,7 @@ erdwithai/
 │   ├── core/       # Core business logic, types, hooks, RBAC
 │   ├── generator/  # Code generation engine & Handlebars templates
 │   ├── ai/         # AI features (Mastra.ai agents, CopilotKit)
-│   └── web/        # Next.js web application
+│   └── web/        # TanStack Start web application
 ├── docs/           # Documentation
 │   ├── ARCHITECTURE.md   # System architecture & code style guide
 │   ├── DEVELOPMENT.md    # Build system, commands, running the app
@@ -195,7 +195,7 @@ Dictionary Populator (Create AD_Table, AD_Column records)
     ↓
 Code Generator (Template-based generation)
     ↓
-Generated Application (Next.js/NestJS or OpenUI5/OData)
+Generated Application (TanStack Start/NestJS or OpenUI5/OData)
 ```
 
 ### Technology Stack
@@ -205,8 +205,8 @@ Generated Application (Next.js/NestJS or OpenUI5/OData)
 | **Runtime** | Bun.js 1.3+ |
 | **AI Framework** | Mastra.ai, CopilotKit |
 | **AI Model** | Anthropic Claude Sonnet 4 |
-| **Frontend** | Next.js 14+, React 18+, Shadcn UI, TailwindCSS |
-| **Backend** | NestJS 10+, Fastify, Knex.js |
+| **Frontend** | TanStack Start 1+, Vite 5+, React 18+, Shadcn UI, TailwindCSS |
+| **Backend** | NestJS 10+, Fastify, Kysely (type-safe SQL) |
 | **OData** | jaystack/odata-v4-server |
 | **UI Framework** | OpenUI5 1.120+ (FCL) |
 | **Database** | PostgreSQL, SQLite |
@@ -244,9 +244,9 @@ bun run test:e2e     # E2E tests (with auto-start server)
 # Code Generation
 bun run convert      # Convert natural language to Mermaid
 bun run migrate      # Run database migrations
-bun run generate:nextjs   # Generate Next.js app
-bun run generate:odata    # Generate OData V4 service
-bun run generate:ui5      # Generate OpenUI5 app
+bun run generate:tanstack   # Generate TanStack Start app
+bun run generate:odata      # Generate OData V4 service
+bun run generate:ui5        # Generate OpenUI5 app
 ```
 
 ### Build Status
@@ -255,7 +255,7 @@ bun run generate:ui5      # Generate OpenUI5 app
 - @erdwithai/core: 124.75 KB (27 modules)
 - @erdwithai/generator: 220.68 KB (51 modules)
 - @erdwithai/ai: 44.7 KB (including Mastra)
-- @erdwithai/web: Next.js optimized build
+- @erdwithai/web: TanStack Start optimized build
 
 ---
 
@@ -325,7 +325,7 @@ bun run start              # Web app
 
 **Optional:**
 - `MASTRA_DATABASE_URL` - Mastra state database (default: SQLite)
-- `NEXT_PUBLIC_APP_URL` - Application URL (default: http://localhost:3000)
+- `VITE_APP_URL` - Application URL (default: http://localhost:3000)
 - `CORS_ORIGIN` - CORS allowed origins
 
 See `.env.example` for complete list.
@@ -409,7 +409,7 @@ MIT License - See LICENSE file for details
 - **CopilotKit** - Conversational UI components
 - **Compiere/iDempiere** - Dictionary architecture inspiration
 - **Shadcn** - Beautiful UI components
-- **Vercel** - Next.js framework
+- **TanStack** - Modern web framework
 
 ---
 

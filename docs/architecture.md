@@ -4,12 +4,12 @@
 
 ERDwithAI is an AI-powered Entity Relationship Design & Code Generation platform built with:
 
-- **Runtime**: Bun.js 1.1+ (Node.js 20+ compatible)
+- **Runtime**: Bun.js 1.3+ (Node.js 20+ compatible)
 - **AI Framework**: Mastra.ai, CopilotKit, AG-UI
 - **AI Model**: Anthropic Claude Sonnet 4
-- **Frontend**: Next.js 14+, React 18+, Shadcn UI, TailwindCSS
-- **Backend**: NestJS, Knex.js, OData V4
-- **Database**: PostgreSQL (primary), LibSQL (Mastra state)
+- **Frontend**: TanStack Start 1+, Vite 5+, React 18+, Shadcn UI, TailwindCSS
+- **Backend**: NestJS, Kysely (type-safe SQL), OData V4
+- **Database**: PostgreSQL (primary), SQLite (Mastra state)
 - **Templates**: Handlebars 4.7+
 - **Validation**: Zod 3.22+
 - **State**: Zustand 4.4+
@@ -66,7 +66,7 @@ ERDwithAI is an AI-powered Entity Relationship Design & Code Generation platform
                ▼
 ┌─────────────────────────────────────────┐
 │      Generated Application              │
-│  Next.js / NestJS / OData / OpenUI5     │
+│ TanStack Start / NestJS / OData / OpenUI5│
 └─────────────────────────────────────────┘
 ```
 
@@ -78,7 +78,7 @@ erdwithai/
 │   ├── core/              # Core business logic, types, hooks, services
 │   ├── generator/         # Code generation engine & Handlebars templates
 │   ├── ai/               # AI features (Mastra.ai agents, CopilotKit)
-│   └── web/              # Next.js web application
+│   └── web/              # TanStack Start web application
 ├── migrations/           # Database schema migrations
 ├── docs/                # Project documentation
 └── templates/           # Code generation templates
@@ -114,7 +114,7 @@ Mastra.ai orchestration for AI-powered design.
 - CLI tool
 
 ### @erdwithai/web ⭐
-Next.js web application with CopilotKit.
+TanStack Start web application with CopilotKit.
 
 **Key Components:**
 - CopilotKit provider
@@ -179,7 +179,7 @@ Next.js web application with CopilotKit.
 ### Import Conventions
 
 **Order of imports:**
-1. External dependencies (React, Next.js, etc.)
+1. External dependencies (React, TanStack, etc.)
 2. Internal package imports (@erdwithai/\*)
 3. Relative imports (./types, ../utils)
 4. Type imports (import type)
@@ -187,7 +187,7 @@ Next.js web application with CopilotKit.
 **Example:**
 ```typescript
 import React from "react";
-import Link from "next/link";
+import { createFileRoute } from "@tanstack/react-router";
 import { Database, FileCode } from "lucide-react";
 
 import { mastra } from "@erdwithai/ai";

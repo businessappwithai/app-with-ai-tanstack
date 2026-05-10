@@ -1,17 +1,17 @@
 ---
 name: erdwithai-web
-description: Next.js web application with CopilotKit integration for human-in-the-loop ERD design
+description: TanStack Start web application with CopilotKit integration for human-in-the-loop ERD design
 ---
 
 # @erdwithai/web Skill
 
-This skill provides guidance for working with the web package of ERDwithAI, which is a Next.js application providing the user interface for AI-powered ERD design with CopilotKit integration.
+This skill provides guidance for working with the web package of ERDwithAI, which is a TanStack Start application providing the user interface for AI-powered ERD design with CopilotKit integration.
 
 ## Package Overview
 
 The web package provides:
 
-- **Next.js Application**: Modern React-based web application
+- **TanStack Start Application**: Modern React-based full-stack web application with file-based routing
 - **CopilotKit Integration**: AI copilot for interactive ERD design
 - **Entity Approval UI**: Human-in-the-loop approval components
 - **Dashboard**: Project and ERD management interface
@@ -22,90 +22,113 @@ The web package provides:
 ```
 packages/web/
 ├── src/
-│   ├── app/
+│   ├── routes/
+│   │   ├── __root.tsx             # Root layout (replaces app/layout.tsx + app/providers.tsx)
+│   │   ├── index.tsx              # Root → redirects to /projects
+│   │   ├── dashboard.tsx          # Dashboard page
 │   │   ├── api/
-│   │   │   ├── copilotkit/
-│   │   │   │   └── route.ts      # CopilotKit API endpoint
-│   │   │   └── mastra/
-│   │   │       └── route.ts      # Mastra API proxy
-│   │   ├── dashboard/
-│   │   │   └── page.tsx          # Dashboard page
-│   │   ├── editor/
-│   │   │   └── page.tsx          # ERD editor page
-│   │   ├── projects/
-│   │   │   └── page.tsx          # Projects list
-│   │   ├── layout.tsx            # Root layout
-│   │   ├── page.tsx              # Home page
-│   │   └── providers.tsx         # Provider wrappers
+│   │   │   ├── copilotkit.ts      # CopilotKit API endpoint
+│   │   │   └── projects/
+│   │   │       └── index.ts       # Projects CRUD
+│   │   └── projects/
+│   │       ├── index.tsx          # Projects list
+│   │       └── $id/
+│   │           ├── design.tsx     # ERD design page
+│   │           ├── generate.tsx   # Code generation page
+│   │           └── deploy.tsx     # Deployment page
 │   ├── components/
 │   │   ├── approval/
 │   │   │   ├── entity-approval-card.tsx  # Entity approval UI
 │   │   │   └── relationship-approval.tsx # Relationship approval
-│   │   ├── erd/
-│   │   │   ├── mermaid-viewer.tsx        # Mermaid rendering
-│   │   │   └── entity-list.tsx           # Entity list display
+│   │   ├── code-agent/
+│   │   │   └── CodeAgentPanel.tsx       # Code agent panel
+│   │   ├── workflow/
+│   │   │   └── FlowchartPreview.tsx     # Workflow flowchart
 │   │   └── ui/
 │   │       └── ...                        # Shadcn UI components
 │   ├── hooks/
-│   │   └── use-mastra.ts         # Mastra client hook
+│   │   ├── useHumanInTheLoop.ts   # HITL state management hook
+│   │   └── useMastra.ts            # Mastra client hook
 │   ├── lib/
-│   │   └── utils.ts              # Utility functions
+│   │   ├── api-client.ts           # API client utility
+│   │   └── utils.ts                # Utility functions
 │   └── store/
-│       └── project-store.ts      # Zustand state management
+│       └── projectStore.ts         # Zustand state management
 ├── public/
 ├── tailwind.config.ts
-├── next.config.js
+├── vite.config.ts
 └── package.json
 ```
 
 ## Key Concepts
+
+### TanStack Start File-Based Routing
+
+TanStack Start uses file-based routing with `$` prefix for dynamic segments (different from Next.js):
+
+```typescript
+// routes/projects/$id/design.tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/projects/$id/design")({
+  component: DesignPage,
+});
+
+function DesignPage() {
+  const { id } = Route.useParams();  // Access route params via Route.useParams()
+  const navigate = useNavigate();    // Navigation via useNavigate()
+
+  return (
+    <div>
+      <h1>Design Project {id}</h1>
+      <button onClick={() => navigate({ to: "/projects" })}>
+        Back to Projects
+      </button>
+    </div>
+  );
+}
+```
 
 ### CopilotKit Integration
 
 The app integrates CopilotKit for AI-powered interactions:
 
 ```typescript
-// src/app/providers.tsx
+// src/routes/__root.tsx
 import { CopilotKit, CopilotSidebar } from '@copilotkit/react-core';
-import { CopilotTextarea } from '@copilotkit/react-ui';
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export const Route = createRootRoute({
+  component: RootLayout,
+});
+
+function RootLayout() {
   return (
     <CopilotKit runtimeUrl="/api/copilotkit">
       <CopilotSidebar>
-        {children}
+        <Outlet />
       </CopilotSidebar>
     </CopilotKit>
   );
 }
 ```
 
-### CopilotKit API Route
-
-The API route connects to the AI backend:
+### CopilotKit API Route (TanStack Start style)
 
 ```typescript
-// src/app/api/copilotkit/route.ts
-import { CopilotRuntime, OpenAIAdapter } from '@copilotkit/runtime';
-import { mastra } from '@erdwithai/ai';
+// routes/api/copilotkit.ts
+import { createAPIFileRoute } from "@tanstack/start/api";
+import { copilotRuntimeGenericHTTPEndpoint } from "@copilotkit/runtime";
 
-export async function POST(req: Request) {
-  const runtime = new CopilotRuntime({
-    actions: [
-      {
-        name: 'analyzeERD',
-        description: 'Analyze a domain description and generate ERD',
-        parameters: [...],
-        handler: async ({ description }) => {
-          const result = await mastra.getAgent('domainAgent').generate(description);
-          return result;
-        }
-      }
-    ]
-  });
-  
-  return runtime.handle(req);
-}
+export const Route = createAPIFileRoute("/api/copilotkit")({
+  POST: async ({ request }) => {
+    const handler = copilotRuntimeGenericHTTPEndpoint({
+      runtime: yourCopilotRuntime,
+      serviceAdapter: yourServiceAdapter,
+      endpoint: "/api/copilotkit",
+    });
+    return handler(request);
+  },
+});
 ```
 
 ### Entity Approval Card
@@ -139,39 +162,12 @@ export function EntityApprovalCard({
 }
 ```
 
-### Mastra Client Hook
-
-Custom hook for Mastra.ai integration:
-
-```typescript
-// src/hooks/use-mastra.ts
-import { MastraClient } from '@mastra/client-js';
-
-export function useMastra() {
-  const client = new MastraClient({
-    baseUrl: process.env.NEXT_PUBLIC_MASTRA_URL || 'http://localhost:4111'
-  });
-  
-  return {
-    async analyzeDescription(description: string) {
-      const agent = await client.getAgent('domainAgent');
-      return agent.generate(description);
-    },
-    
-    async startWorkflow(description: string) {
-      const workflow = await client.getWorkflow('erdDesignWorkflow');
-      return workflow.start({ description });
-    }
-  };
-}
-```
-
 ### Zustand State Management
 
 Project state is managed with Zustand:
 
 ```typescript
-// src/store/project-store.ts
+// src/store/projectStore.ts
 import { create } from 'zustand';
 
 interface ProjectState {
@@ -209,10 +205,13 @@ bun run build && bun run start
 Create `.env.local`:
 
 ```bash
-NEXT_PUBLIC_MASTRA_URL=http://localhost:4111
+VITE_MASTRA_URL=http://localhost:4111
+VITE_API_URL=http://localhost:3000/api
 ANTHROPIC_API_KEY=sk-ant-xxx
 COPILOTKIT_API_KEY=ck_xxx  # If using CopilotKit Cloud
 ```
+
+Note: TanStack Start uses `VITE_*` prefix for client-side environment variables (accessed via `import.meta.env.VITE_*`) and `process.env.*` for server-side API routes.
 
 ## Building the Package
 
@@ -226,12 +225,13 @@ bun run build:core && bun run build:ai && bun run build:web
 ### Production
 - **@erdwithai/core**: workspace:* - Core types
 - **@erdwithai/ai**: workspace:* - AI integration
-- **@mastra/client-js**: ^1.0.0-beta.9 - Mastra client
+- **@tanstack/react-router**: ^1.x - File-based routing
+- **@tanstack/start**: ^1.x - TanStack Start framework
+- **vite**: ^5.x - Build tool
+- **@mastra/client-js**: ^1.0.0+ - Mastra client
 - **@copilotkit/react-core**: latest - CopilotKit React
 - **@copilotkit/react-ui**: latest - CopilotKit UI components
 - **@copilotkit/runtime**: latest - CopilotKit runtime
-- **@ag-ui/core**: latest - AG-UI components
-- **next**: ^14.0.4 - Next.js framework
 - **react**: ^18.2.0 - React
 - **zustand**: ^4.4.7 - State management
 - **@radix-ui/***: Various Radix UI primitives
@@ -244,13 +244,54 @@ bun run build:core && bun run build:ai && bun run build:web
 
 ## Common Tasks
 
-### Adding a New Page
+### Adding a New Page Route
 
-1. Create `src/app/my-page/page.tsx`:
+1. Create `src/routes/my-page.tsx`:
    ```typescript
-   export default function MyPage() {
+   import { createFileRoute } from "@tanstack/react-router";
+
+   export const Route = createFileRoute("/my-page")({
+     component: MyPage,
+   });
+
+   function MyPage() {
      return <div>My Page Content</div>;
    }
+   ```
+
+2. Or with dynamic segments `src/routes/items/$id.tsx`:
+   ```typescript
+   export const Route = createFileRoute("/items/$id")({
+     component: ItemDetail,
+   });
+
+   function ItemDetail() {
+     const { id } = Route.useParams();
+     return <div>Item {id}</div>;
+   }
+   ```
+
+### Adding a New API Route
+
+1. Create `src/routes/api/my-endpoint.ts`:
+   ```typescript
+   import { createAPIFileRoute } from "@tanstack/start/api";
+
+   export const Route = createAPIFileRoute("/api/my-endpoint")({
+     GET: async ({ request, params }) => {
+       // Handle GET
+       return new Response(JSON.stringify({ data: 'value' }), {
+         headers: { "Content-Type": "application/json" },
+       });
+     },
+     POST: async ({ request, params }) => {
+       // Handle POST
+       const data = await request.json();
+       return new Response(JSON.stringify({ success: true }), {
+         headers: { "Content-Type": "application/json" },
+       });
+     },
+   });
    ```
 
 ### Adding a New Component
@@ -261,20 +302,8 @@ bun run build:core && bun run build:ai && bun run build:web
 
 ### Adding a CopilotKit Action
 
-1. Edit `src/app/api/copilotkit/route.ts`
-2. Add action to the `actions` array:
-   ```typescript
-   {
-     name: 'myAction',
-     description: 'What this action does',
-     parameters: [
-       { name: 'param1', type: 'string', description: '...' }
-     ],
-     handler: async ({ param1 }) => {
-       // Implementation
-     }
-   }
-   ```
+1. Edit `src/routes/api/copilotkit.ts`
+2. Add action to the runtime configuration
 
 ### Styling Guidelines
 
@@ -292,6 +321,17 @@ import { cn } from '@/lib/utils';
 )}>
 ```
 
+## Key Differences from Next.js
+
+| Feature | Next.js | TanStack Start |
+|---------|---------|---|
+| Dynamic routes | `[id]` | `$id` |
+| Route params hook | `useParams()` | `Route.useParams()` |
+| Navigation | `useRouter().push()` | `useNavigate({ to: '/' })` |
+| Env vars (client) | `process.env.NEXT_PUBLIC_*` | `import.meta.env.VITE_*` |
+| API routes | `app/api/route.ts` with `NextRequest/NextResponse` | `routes/api/*.ts` with `createAPIFileRoute()` |
+| Layout | `app/layout.tsx` | `routes/__root.tsx` |
+
 ## Exports
 
 This is a private package (not published to npm). It's the main entry point for the web application.
@@ -302,4 +342,5 @@ This is a private package (not published to npm). It's the main entry point for 
 cd packages/web
 bun run lint
 bun run type-check
+bun run test
 ```
