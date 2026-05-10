@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * App Layout Component
  *
@@ -8,7 +6,7 @@
  * Generated: {{now}}
  */
 
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Header, Sidebar } from "@/components/layout";
 import { useAuth } from "@/contexts/auth-context";
@@ -19,13 +17,13 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push("/login");
+      navigate({ to: "/login" });
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, navigate]);
 
   if (isLoading) {
     return (

@@ -149,7 +149,7 @@ export function validateCodeGenerationOptions(options: CodeGenerationOptions): {
   }
 
   if (options.stack && !["tanstackjs-nestjs", "openui5-odata"].includes(options.stack)) {
-    errors.push('Invalid stack. Must be "nextjs-nestjs" or "openui5-odata"');
+    errors.push('Invalid stack. Must be "tanstackjs-nestjs" or "openui5-odata"');
   }
 
   if (

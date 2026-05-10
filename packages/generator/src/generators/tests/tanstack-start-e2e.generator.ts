@@ -1,5 +1,5 @@
 /**
- * Playwright E2E Test Generator for Next.js Frontends
+ * Playwright E2E Test Generator for TanStack Start Frontends
  * Generates comprehensive E2E tests for Option 1 applications
  */
 
@@ -8,7 +8,7 @@ import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
 import { BaseE2ETestGenerator } from "./base-e2e.generator";
 
-export class NextJSPlaywrightE2ETestGenerator extends BaseE2ETestGenerator {
+export class TanStackStartPlaywrightE2ETestGenerator extends BaseE2ETestGenerator {
   async generate(): Promise<void> {
     const e2eDir = join(this.config.outputDir, "frontend", "e2e");
     await mkdir(e2eDir, { recursive: true });

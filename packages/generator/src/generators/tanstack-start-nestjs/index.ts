@@ -3,8 +3,8 @@
  *
  * Modern Web Stack:
  * - Backend: NestJS + Fastify + Knex.js
- * - Frontend: Next.js + Shadcn + TanStack
+ * - Frontend: TanStack Start + Shadcn + TanStack
  */
 
 export * from "./nestjs-backend.generator";
-export * from "./nextjs-frontend.generator";
+export * from "./tanstack-start-frontend.generator";

@@ -132,7 +132,7 @@ export class GeneratorOrchestrator {
       {
         value: "tanstackjs-nestjs",
         label: "Modern Web Stack",
-        description: "Next.js + Shadcn UI + TanStack | NestJS + Fastify + Knex.js",
+        description: "TanStack Start + Shadcn UI + TanStack | NestJS + Fastify + Knex.js",
       },
       {
         value: "openui5-odatav4",
@@ -145,7 +145,7 @@ export class GeneratorOrchestrator {
   private getStackDescription(): string {
     switch (this.options.stackOption) {
       case "tanstackjs-nestjs":
-        return "Modern Web Stack (Next.js + NestJS)";
+        return "Modern Web Stack (TanStack Start + NestJS)";
       case "openui5-odatav4":
         return "Enterprise SAP-Style Stack (OpenUI5 + OData V4)";
       default:

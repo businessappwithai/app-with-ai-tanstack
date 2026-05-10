@@ -13,7 +13,7 @@
  * - bus_ prefixed business entity tables
  * - Full CRUD operations with ETag concurrency
  *
- * Generated from templates in nextjs-nestjs/backend/
+ * Generated from templates in tanstack-start-nestjs/backend/
  */
 
 import {
@@ -41,7 +41,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
   private options: NestJsBackendOptions;
 
   constructor(options: NestJsBackendOptions) {
-    super(path.join(__dirname, "../../../templates/nextjs-nestjs/backend"));
+    super(path.join(__dirname, "../../../templates/tanstack-start-nestjs/backend"));
     this.options = options;
   }
 

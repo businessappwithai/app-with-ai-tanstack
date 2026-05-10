@@ -259,7 +259,7 @@ export class TemplateLoader {
     });
 
     // ========================================================================
-    // TanStack Helpers (nextjs-nestjs: Next.js)
+    // TanStack Helpers (tanstack-start-nestjs: TanStack Start)
     // ========================================================================
     Handlebars.registerHelper("tanstackQueryKey", (entity: string) => `['${entity}', 'list']`);
     Handlebars.registerHelper("tanstackDetailKey", (entity: string, id?: string) => {
@@ -307,7 +307,7 @@ export class TemplateLoader {
     });
 
     // ========================================================================
-    // NestJS Helpers (nextjs-nestjs: Backend)
+    // NestJS Helpers (tanstack-start-nestjs: Backend)
     // ========================================================================
     Handlebars.registerHelper(
       "nestControllerName",
@@ -403,7 +403,7 @@ export class TemplateLoader {
     );
 
     // ========================================================================
-    // Shadcn UI Helpers (nextjs-nestjs: Frontend)
+    // Shadcn UI Helpers (tanstack-start-nestjs: Frontend)
     // ========================================================================
     Handlebars.registerHelper("shadcnInputType", (referenceId: number) => {
       const mapping: Record<number, string> = {

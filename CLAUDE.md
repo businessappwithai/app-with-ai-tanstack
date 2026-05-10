@@ -114,7 +114,7 @@ ERDwithAI transforms natural language descriptions into production-ready full-st
 - AI-powered entity extraction using Claude Sonnet 4 (via Mastra.ai agents)
 - Human-in-the-loop (HITL) approval workflow for ERD design
 - Visual ERD designer with Mermaid diagram rendering
-- Multi-stack code generation: Next.js/NestJS and OpenUI5/OData V4
+- Multi-stack code generation: TanStack Start/NestJS and OpenUI5/OData V4
 - Dictionary-driven architecture inspired by Compiere ERP
 - CopilotKit integration for AI-assisted UI interactions
 - E2B sandbox for code execution in generated projects
@@ -222,7 +222,7 @@ src/
 │   ├── dictionary.generator.ts
 │   ├── full-stack.generator.ts
 │   ├── orchestrator.ts        # Coordinates multi-stack generation
-│   ├── nextjs-nestjs/         # Next.js frontend + NestJS backend stack
+│   ├── tanstack-start-nestjs/ # TanStack Start frontend + NestJS backend stack
 │   ├── openui5-odatav4/       # OpenUI5 frontend + OData V4 backend stack
 │   └── tests/                 # E2E test generators per stack
 ├── parsers/
@@ -231,9 +231,9 @@ src/
     └── loader.ts              # Handlebars template loader
 templates/
 ├── common/            # Shared: migrations, seeds, AI agents, services
-├── nextjs-nestjs/     # Full-stack: NestJS backend + Next.js frontend
+├── tanstack-start-nestjs/ # Full-stack: NestJS backend + TanStack Start frontend
 │   ├── backend/       # Controllers, DTOs, Services, Guards, Auth, DB, Tests
-│   └── frontend/      # App, Components (Admin/Forms/Tables/UI), Hooks, i18n
+│   └── frontend/      # Routes, Components (Admin/Forms/Tables/UI), Hooks, i18n
 └── openui5-odatav4/   # OpenUI5 + OData V4 stack
     ├── backend/       # OData config, Controllers, Database, Middleware, Tests
     └── frontend/      # Controllers, Views (XML), Fragments, i18n, Manifest
@@ -790,9 +790,9 @@ await db.deleteFrom('projects').where('id', '=', id).execute();
 
 ### Adding a New API Route (Web)
 
-1. Create `route.ts` in the appropriate `packages/web/src/app/api/` subdirectory
-2. Export `GET`, `POST`, `PUT`, `DELETE` handlers as needed
-3. Use Next.js App Router conventions (`NextRequest`, `NextResponse`)
+1. Create `index.ts` in the appropriate `packages/web/src/routes/api/` subdirectory
+2. Use `createAPIFileRoute()` to define route handlers
+3. Export `GET`, `POST`, `PUT`, `DELETE` handlers as needed using Response API
 
 ### Modifying RBAC
 

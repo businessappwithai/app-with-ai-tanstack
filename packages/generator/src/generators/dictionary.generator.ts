@@ -78,7 +78,7 @@ export interface DictionaryContext {
 
 /**
  * Generates complete Application Dictionary metadata for all entities.
- * This class is used by both Option 1 (NextJS-NestJS) and Option 2 (OpenUI5-OData).
+ * This class is used by both Option 1 (TanStack Start-NestJS) and Option 2 (OpenUI5-OData).
  */
 export class DictionaryGenerator {
   private config: DictionaryGenerationConfig;

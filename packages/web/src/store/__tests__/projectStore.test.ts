@@ -43,7 +43,7 @@ const makeProject = (overrides: Partial<Project> = {}): Project => ({
   updatedAt: "2024-01-01T00:00:00Z",
   status: "draft",
   isDeleted: false,
-  stackType: "nestjs-nextjs",
+  stackType: "tanstackjs-nestjs",
   port: 3001,
   ...overrides,
 });

@@ -14,7 +14,7 @@
  * - TanStack Form for forms
  * - Runtime UI layout modification via sys_field.seq_no
  *
- * Generated from templates in nextjs-nestjs/frontend/
+ * Generated from templates in tanstack-start-nestjs/frontend/
  */
 
 import { type Entity, entityToBusEntity, type Relationship } from "@erdwithai/core/types";
@@ -23,7 +23,7 @@ import * as path from "path";
 import { BaseGenerator } from "../base.generator";
 import { CliExecutor } from "../../utils/cli-executor";
 
-export interface NextJsFrontendOptions {
+export interface TanStackStartFrontendOptions {
   projectName: string;
   projectVersion: string;
   projectDescription: string;
@@ -31,15 +31,15 @@ export interface NextJsFrontendOptions {
   enableDarkMode: boolean;
 }
 
-export class NextJsFrontendGenerator extends BaseGenerator {
-  private options: NextJsFrontendOptions;
+export class TanStackStartFrontendGenerator extends BaseGenerator {
+  private options: TanStackStartFrontendOptions;
 
-  constructor(options: NextJsFrontendOptions) {
+  constructor(options: TanStackStartFrontendOptions) {
     // Find the template directory
     // After bun bundles the code, the class is in dist/cli/generate.js or dist/index.js
-    // We need to navigate from there to packages/generator/templates/nextjs-nestjs/frontend/
+    // We need to navigate from there to packages/generator/templates/tanstack-start-nestjs/frontend/
 
-    super(path.join(__dirname, "../../../templates/nextjs-nestjs/frontend"));
+    super(path.join(__dirname, "../../../templates/tanstack-start-nestjs/frontend"));
     this.options = options;
   }
 
@@ -208,7 +208,7 @@ export class NextJsFrontendGenerator extends BaseGenerator {
   }
 
   private async generateCoreFiles(outputDir: string, context: any): Promise<void> {
-    const templateDir = path.join(__dirname, "../../../templates/nextjs-nestjs/frontend");
+    const templateDir = path.join(__dirname, "../../../templates/tanstack-start-nestjs/frontend");
 
     // Root layout
     const layoutContent = await this.renderTemplate("src/app/layout.tsx.hbs", context);
@@ -299,7 +299,7 @@ export class NextJsFrontendGenerator extends BaseGenerator {
   }
 
   private async generateApiLayer(outputDir: string, context: any): Promise<void> {
-    const templateDir = path.join(__dirname, "../../../templates/nextjs-nestjs/frontend");
+    const templateDir = path.join(__dirname, "../../../templates/tanstack-start-nestjs/frontend");
 
     // API client (static file, copy directly)
     await fs.copyFile(
@@ -337,7 +337,7 @@ export class NextJsFrontendGenerator extends BaseGenerator {
   }
 
   private async generateComponents(outputDir: string, _context: any): Promise<void> {
-    const templateDir = path.join(__dirname, "../../../templates/nextjs-nestjs/frontend");
+    const templateDir = path.join(__dirname, "../../../templates/tanstack-start-nestjs/frontend");
 
     // Copy Shadcn UI components (static files, no templating needed)
     const uiComponents = [

@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Master Detail Tabs Component - Swiss Clean Design
  *
@@ -26,7 +24,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, ChevronLeft, FileText, Loader2, Plus } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { DynamicForm } from "@/components/forms/dynamic-form";
