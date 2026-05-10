@@ -1,9 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- template context objects are dynamically shaped */
 /**
- * Option 1: Next.js + Shadcn + TanStack Frontend Generator
+ * Option 1: TanStack Start + Shadcn UI Frontend Generator
  *
- * Generates a complete Next.js frontend with:
- * - App Router for file-based routing
+ * Two-phase generation process:
+ * 1. Scaffold using TanStack Start CLI (bun create tanstack-start)
+ * 2. Overlay custom generator templates on top
+ *
+ * Generates a complete TanStack Start frontend with:
+ * - File-based routing with Vite + Vinxi
  * - Shadcn UI components
  * - TanStack Query for data fetching
  * - TanStack Table for data grids
@@ -17,6 +21,7 @@ import { type Entity, entityToBusEntity, type Relationship } from "@erdwithai/co
 import * as fs from "fs/promises";
 import * as path from "path";
 import { BaseGenerator } from "../base.generator";
+import { CliExecutor } from "../../utils/cli-executor";
 
 export interface NextJsFrontendOptions {
   projectName: string;
@@ -43,11 +48,15 @@ export class NextJsFrontendGenerator extends BaseGenerator {
     relationships: Relationship[],
     outputDir: string
   ): Promise<void> {
-    // Create output directory structure
-    await this.createDirectoryStructure(outputDir);
+    console.log(`\n📦 Phase 1: Scaffolding TanStack Start project...`);
+    await this.scaffoldTanStackProject(outputDir);
 
+    console.log(`\n🎨 Phase 2: Overlaying custom templates...`);
     // Prepare context for templates
     const context = this.prepareContext(entities, relationships);
+
+    // Create additional directories beyond TanStack Start scaffolding
+    await this.createAdditionalDirectories(outputDir);
 
     // Generate core application files
     await this.generateCoreFiles(outputDir, context);
@@ -64,14 +73,52 @@ export class NextJsFrontendGenerator extends BaseGenerator {
     // Generate admin pages for field layout
     await this.generateAdminPages(outputDir, context);
 
-    // Generate configuration files
-    await this.generateConfigFiles(outputDir, context);
+    // Update configuration files
+    await this.updateConfigFiles(outputDir, context);
 
     // Generate test files
     await this.generateTestFiles(outputDir, context);
+
+    console.log(`\n✅ TanStack Start frontend generation complete!`);
   }
 
-  private async createDirectoryStructure(outputDir: string): Promise<void> {
+  /**
+   * Phase 1: Scaffold base TanStack Start project using CLI
+   */
+  private async scaffoldTanStackProject(outputDir: string): Promise<void> {
+    const parentDir = path.dirname(outputDir);
+    const projectName = path.basename(outputDir);
+
+    // Create parent directory if it doesn't exist
+    await fs.mkdir(parentDir, { recursive: true });
+
+    try {
+      // Run: bun create tanstack-start@latest [projectName]
+      // This creates the base TanStack Start scaffolding
+      console.log(`  Creating TanStack Start project: ${projectName}`);
+      await CliExecutor.executeAsync("bun", [
+        "create",
+        "tanstack-start@latest",
+        projectName,
+        "--yes",
+      ], {
+        cwd: parentDir,
+        stdio: "inherit",
+        timeout: 600000, // 10 minutes for TanStack setup
+      });
+
+      console.log(`  ✅ TanStack Start scaffolding complete`);
+    } catch (error) {
+      console.error(`Error during TanStack Start scaffolding:`, error);
+      // Continue anyway - user may have a custom setup
+      console.warn(`  Proceeding without CLI scaffolding - will use template generation`);
+    }
+  }
+
+  /**
+   * Create additional directories beyond TanStack Start scaffolding
+   */
+  private async createAdditionalDirectories(outputDir: string): Promise<void> {
     const dirs = [
       "src/app",
       "src/app/(entities)",
@@ -468,42 +515,64 @@ export class NextJsFrontendGenerator extends BaseGenerator {
     }
   }
 
-  private async generateConfigFiles(outputDir: string, context: any): Promise<void> {
-    // package.json
+  /**
+   * Update/enhance configuration files created by TanStack Start CLI
+   */
+  private async updateConfigFiles(outputDir: string, context: any): Promise<void> {
+    // Update package.json with additional dependencies and custom config
     const packageJsonContent = await this.renderTemplate("package.json.hbs", context);
-    await fs.writeFile(path.join(outputDir, "package.json"), packageJsonContent);
+    await fs.writeFile(
+      path.join(outputDir, "package.json"),
+      typeof packageJsonContent === "string"
+        ? packageJsonContent
+        : JSON.stringify(packageJsonContent, null, 2)
+    );
 
-    // next.config.js
-    const nextConfigContent = await this.renderTemplate("next.config.js.hbs", context);
-    await fs.writeFile(path.join(outputDir, "next.config.js"), nextConfigContent);
+    // Update/generate TanStack Start config if template exists
+    try {
+      const tanStackConfigContent = await this.renderTemplate("vite.config.ts.hbs", context);
+      await fs.writeFile(path.join(outputDir, "vite.config.ts"), tanStackConfigContent);
+    } catch (e) {
+      console.warn("Custom vite config template not found, keeping TanStack Start default");
+    }
 
-    // tailwind.config.js
-    const tailwindContent = await this.renderTemplate("tailwind.config.js.hbs", context);
-    await fs.writeFile(path.join(outputDir, "tailwind.config.js"), tailwindContent);
+    // Update tailwind.config.js
+    try {
+      const tailwindContent = await this.renderTemplate("tailwind.config.js.hbs", context);
+      await fs.writeFile(path.join(outputDir, "tailwind.config.js"), tailwindContent);
+    } catch (e) {
+      console.warn("Custom tailwind config template not found, keeping TanStack Start default");
+    }
 
-    // tsconfig.json
-    const tsconfigContent = await this.renderTemplate("tsconfig.json.hbs", context);
-    await fs.writeFile(path.join(outputDir, "tsconfig.json"), tsconfigContent);
+    // Update tsconfig.json
+    try {
+      const tsconfigContent = await this.renderTemplate("tsconfig.json.hbs", context);
+      await fs.writeFile(path.join(outputDir, "tsconfig.json"), tsconfigContent);
+    } catch (e) {
+      console.warn("Custom tsconfig template not found, keeping TanStack Start default");
+    }
 
-    // ESLint configuration
+    // Update ESLint configuration
     try {
       const eslintContent = await this.renderTemplate(".eslintrc.cjs.hbs", context);
       await fs.writeFile(path.join(outputDir, ".eslintrc.cjs"), eslintContent);
     } catch (e) {
-      console.warn("ESLint config template not found");
+      console.warn("Custom ESLint config template not found, keeping TanStack Start default");
     }
 
-    // Prettier configuration
+    // Update Prettier configuration
     try {
       const prettierContent = await this.renderTemplate(".prettierrc.hbs", context);
       await fs.writeFile(path.join(outputDir, ".prettierrc"), prettierContent);
     } catch (e) {
-      console.warn("Prettier config template not found");
+      console.warn("Custom Prettier config template not found, keeping TanStack Start default");
     }
 
-    // Environment variables for frontend
-    // Backend on port 3000, Frontend on port 3001
-    const envLocalContent = `NEXT_PUBLIC_API_URL=${context.config.baseUrl}\nPORT=3001\n`;
+    // Generate environment configuration for TanStack Start
+    const envLocalContent = `VITE_API_URL=${context.config.baseUrl}
+VITE_MASTRA_URL=http://localhost:4111
+PORT=3001
+`;
     await fs.writeFile(path.join(outputDir, ".env.local"), envLocalContent);
   }
 

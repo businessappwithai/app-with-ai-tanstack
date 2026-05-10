@@ -2,6 +2,10 @@
 /**
  * Option 1: NestJS + Fastify + Knex.js Backend Generator
  *
+ * Two-phase generation process:
+ * 1. Scaffold using NestJS CLI (nest new)
+ * 2. Overlay custom generator templates on top
+ *
  * Generates a complete NestJS backend with:
  * - Fastify adapter for high performance
  * - Knex.js for database operations
@@ -21,6 +25,7 @@ import {
 import * as fs from "fs/promises";
 import * as path from "path";
 import { BaseGenerator } from "../base.generator";
+import { CliExecutor } from "../../utils/cli-executor";
 
 export interface NestJsBackendOptions {
   projectName: string;
@@ -45,11 +50,15 @@ export class NestJsBackendGenerator extends BaseGenerator {
     relationships: Relationship[],
     outputDir: string
   ): Promise<void> {
-    // Create output directory structure
-    await this.createDirectoryStructure(outputDir);
+    console.log(`\n📦 Phase 1: Scaffolding NestJS project...`);
+    await this.scaffoldNestJsProject(outputDir);
 
+    console.log(`\n🎨 Phase 2: Overlaying custom templates...`);
     // Prepare context for templates
     const context = this.prepareContext(entities, relationships);
+
+    // Create additional directories needed for generated code
+    await this.createAdditionalDirectories(outputDir);
 
     // Generate core application files
     await this.generateCoreFiles(outputDir, context);
@@ -63,14 +72,60 @@ export class NestJsBackendGenerator extends BaseGenerator {
     // Generate migrations and seeds
     await this.generateMigrations(outputDir, context);
 
-    // Generate configuration files
-    await this.generateConfigFiles(outputDir, context);
+    // Update/enhance configuration files
+    await this.updateConfigFiles(outputDir, context);
 
     // Generate test files
     await this.generateTestFiles(outputDir, context);
+
+    console.log(`\n✅ NestJS backend generation complete!`);
   }
 
-  private async createDirectoryStructure(outputDir: string): Promise<void> {
+  /**
+   * Phase 1: Scaffold base NestJS project using CLI
+   */
+  private async scaffoldNestJsProject(outputDir: string): Promise<void> {
+    const parentDir = path.dirname(outputDir);
+    const projectName = path.basename(outputDir);
+
+    // Check if nest CLI is available
+    if (!CliExecutor.isCommandAvailable("nest")) {
+      console.warn(`\n⚠️  NestJS CLI not found globally. Attempting to use npx...`);
+    }
+
+    // Create parent directory if it doesn't exist
+    await fs.mkdir(parentDir, { recursive: true });
+
+    try {
+      // Run nest new with --package-manager bun and --skip-git flag
+      // This creates the base scaffolding structure
+      console.log(`  Creating NestJS project: ${projectName}`);
+      await CliExecutor.executeAsync("bun", [
+        "x",
+        "nest",
+        "new",
+        projectName,
+        "--package-manager",
+        "bun",
+        "--skip-git",
+      ], {
+        cwd: parentDir,
+        stdio: "inherit",
+        timeout: 300000,
+      });
+
+      console.log(`  ✅ NestJS scaffolding complete`);
+    } catch (error) {
+      console.error(`Error during NestJS scaffolding:`, error);
+      // Continue anyway - user may have a custom setup
+      console.warn(`  Proceeding without CLI scaffolding - will use template generation`);
+    }
+  }
+
+  /**
+   * Create additional directories beyond what NestJS CLI scaffolds
+   */
+  private async createAdditionalDirectories(outputDir: string): Promise<void> {
     const dirs = [
       "src/common/decorators",
       "src/common/filters",
@@ -765,40 +820,50 @@ export async function executeAfterListHooks(
     await fs.writeFile(path.join(outputDir, "seeds/03_business_data.ts"), businessDataContent);
   }
 
-  private async generateConfigFiles(outputDir: string, context: any): Promise<void> {
-    // package.json
+  /**
+   * Update/enhance configuration files created by NestJS CLI
+   */
+  private async updateConfigFiles(outputDir: string, context: any): Promise<void> {
+    // Update package.json with additional dependencies
     const packageJsonContent = await this.renderTemplate("package.json.hbs", context);
-    await fs.writeFile(path.join(outputDir, "package.json"), packageJsonContent);
+    await fs.writeFile(
+      path.join(outputDir, "package.json"),
+      typeof packageJsonContent === "string"
+        ? packageJsonContent
+        : JSON.stringify(packageJsonContent, null, 2)
+    );
 
-    // tsconfig.json
-    const tsconfigContent = await this.renderTemplate("tsconfig.json.hbs", context);
-    await fs.writeFile(path.join(outputDir, "tsconfig.json"), tsconfigContent);
+    // Update tsconfig.json
+    try {
+      const tsconfigContent = await this.renderTemplate("tsconfig.json.hbs", context);
+      await fs.writeFile(path.join(outputDir, "tsconfig.json"), tsconfigContent);
+    } catch (e) {
+      console.warn("Custom tsconfig template not found, keeping NestJS default");
+    }
 
-    // knexfile.ts
+    // Generate knexfile.ts
     const knexfileContent = await this.renderTemplate("knexfile.ts.hbs", context);
     await fs.writeFile(path.join(outputDir, "knexfile.ts"), knexfileContent);
 
-    // .env.example
+    // Generate/update environment files
     const envContent = await this.renderTemplate(".env.example.hbs", context);
     await fs.writeFile(path.join(outputDir, ".env.example"), envContent);
-
-    // .env (copy from .env.example for immediate use)
     await fs.writeFile(path.join(outputDir, ".env"), envContent);
 
-    // ESLint configuration
+    // Update ESLint configuration
     try {
       const eslintContent = await this.renderTemplate(".eslintrc.cjs.hbs", context);
       await fs.writeFile(path.join(outputDir, ".eslintrc.cjs"), eslintContent);
     } catch (e) {
-      console.warn("ESLint config template not found");
+      console.warn("Custom ESLint config template not found, keeping NestJS default");
     }
 
-    // Prettier configuration
+    // Update Prettier configuration
     try {
       const prettierContent = await this.renderTemplate(".prettierrc.hbs", context);
       await fs.writeFile(path.join(outputDir, ".prettierrc"), prettierContent);
     } catch (e) {
-      console.warn("Prettier config template not found");
+      console.warn("Custom Prettier config template not found, keeping NestJS default");
     }
 
     // Database module
