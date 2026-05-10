@@ -15,11 +15,11 @@ import * as path from "path";
 import {
   NestJsBackendGenerator,
   type NestJsBackendOptions,
-} from "./nextjs-nestjs/nestjs-backend.generator";
+} from "./tanstack-start-nestjs/nestjs-backend.generator";
 import {
-  NextJsFrontendGenerator,
-  type NextJsFrontendOptions,
-} from "./nextjs-nestjs/nextjs-frontend.generator";
+  TanStackStartFrontendGenerator,
+  type TanStackStartFrontendOptions,
+} from "./tanstack-start-nestjs/tanstack-start-frontend.generator";
 import {
   ODataBackendGenerator,
   type ODataBackendOptions,
@@ -46,9 +46,9 @@ export interface FullStackGeneratorOptions {
   aiNlModel?: string;
 
   // tanstackjs-nestjs specific
-  nextjsNestjs?: {
+  tanstackStartNestjs?: {
     backend: Partial<NestJsBackendOptions>;
-    frontend: Partial<NextJsFrontendOptions>;
+    frontend: Partial<TanStackStartFrontendOptions>;
   };
 
   // openui5-odatav4 specific
@@ -127,18 +127,18 @@ export class FullStackGenerator {
       enableSwagger: true,
       enableCors: true,
       ...aiConfig,
-      ...this.options.nextjsNestjs?.backend,
+      ...this.options.tanstackStartNestjs?.backend,
     };
 
     // Frontend options
-    const frontendOptions: NextJsFrontendOptions = {
+    const frontendOptions: TanStackStartFrontendOptions = {
       projectName: this.options.projectName,
       projectVersion: this.options.projectVersion,
       projectDescription: this.options.projectDescription,
       apiBaseUrl: `http://localhost:${this.options.port}`,
       enableDarkMode: true,
       ...aiConfig,
-      ...this.options.nextjsNestjs?.frontend,
+      ...this.options.tanstackStartNestjs?.frontend,
     };
 
     console.log("📦 Generating NestJS backend...");
@@ -146,7 +146,7 @@ export class FullStackGenerator {
     await backendGenerator.generate(entities, relationships, backendDir);
 
     console.log("📦 Generating Next.js frontend...");
-    const frontendGenerator = new NextJsFrontendGenerator(frontendOptions);
+    const frontendGenerator = new TanStackStartFrontendGenerator(frontendOptions);
     await frontendGenerator.generate(entities, relationships, frontendDir);
   }
 

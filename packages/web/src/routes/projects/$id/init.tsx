@@ -27,12 +27,12 @@ function InitPage() {
   const [formData, setFormData] = useState<{
     name: string;
     description: string;
-    stackType: "nestjs-nextjs";
+    stackType: "tanstackjs-nestjs";
     databaseUrl: string;
   }>({
     name: "",
     description: "",
-    stackType: "nestjs-nextjs",
+    stackType: "tanstackjs-nestjs",
     databaseUrl: "",
   });
 
@@ -270,7 +270,7 @@ function InitPage() {
                   <div className="space-y-2">
                     <label
                       className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-colors ${
-                        formData.stackType === "nestjs-nextjs"
+                        formData.stackType === "tanstackjs-nestjs"
                           ? "border-primary bg-primary/10"
                           : "border-border hover:border-primary/50"
                       }`}
@@ -278,12 +278,12 @@ function InitPage() {
                       <input
                         type="radio"
                         name="stack-type"
-                        value="nestjs-nextjs"
-                        checked={formData.stackType === "nestjs-nextjs"}
+                        value="tanstackjs-nestjs"
+                        checked={formData.stackType === "tanstackjs-nestjs"}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
-                            stackType: "nestjs-nextjs",
+                            stackType: "tanstackjs-nestjs",
                           })
                         }
                         className="sr-only"
@@ -296,7 +296,7 @@ function InitPage() {
                           Modern web framework with React, TypeScript, and PostgreSQL
                         </p>
                       </div>
-                      {formData.stackType === "nestjs-nextjs" && (
+                      {formData.stackType === "tanstackjs-nestjs" && (
                         <div className="w-5 h-5 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
                           <svg
                             className="w-3 h-3 text-white"

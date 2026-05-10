@@ -10,7 +10,7 @@ interface NewProjectModalProps {
   onCreateProject: (data: {
     name: string;
     description: string;
-    stackType: "nestjs-nextjs" | "odata-ui5";
+    stackType: "tanstackjs-nestjs" | "odata-ui5";
   }) => Promise<void>;
   isLoading?: boolean;
 }
@@ -24,7 +24,7 @@ export function NewProjectModal({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    stackType: "nestjs-nextjs" as "nestjs-nextjs" | "odata-ui5",
+    stackType: "tanstackjs-nestjs" as "tanstackjs-nestjs" | "odata-ui5",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +36,7 @@ export function NewProjectModal({
     try {
       await onCreateProject(formData);
       // Reset form after successful creation
-      setFormData({ name: "", description: "", stackType: "nestjs-nextjs" });
+      setFormData({ name: "", description: "", stackType: "tanstackjs-nestjs" });
       onClose();
     } catch (error) {
       console.error("Failed to create project:", error);
@@ -116,7 +116,7 @@ export function NewProjectModal({
             <div className="space-y-2">
               <label
                 className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-colors ${
-                  formData.stackType === "nestjs-nextjs"
+                  formData.stackType === "tanstackjs-nestjs"
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-primary/50"
                 }`}
@@ -124,12 +124,12 @@ export function NewProjectModal({
                 <input
                   type="radio"
                   name="stack-type"
-                  value="nestjs-nextjs"
-                  checked={formData.stackType === "nestjs-nextjs"}
+                  value="tanstackjs-nestjs"
+                  checked={formData.stackType === "tanstackjs-nestjs"}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      stackType: e.target.value as "nestjs-nextjs" | "odata-ui5",
+                      stackType: e.target.value as "tanstackjs-nestjs" | "odata-ui5",
                     })
                   }
                   className="sr-only"
@@ -141,7 +141,7 @@ export function NewProjectModal({
                     Modern web framework with React, TypeScript, and PostgreSQL
                   </p>
                 </div>
-                {formData.stackType === "nestjs-nextjs" && (
+                {formData.stackType === "tanstackjs-nestjs" && (
                   <div className="w-5 h-5 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
                     <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path
@@ -169,7 +169,7 @@ export function NewProjectModal({
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      stackType: e.target.value as "nestjs-nextjs" | "odata-ui5",
+                      stackType: e.target.value as "tanstackjs-nestjs" | "odata-ui5",
                     })
                   }
                   className="sr-only"

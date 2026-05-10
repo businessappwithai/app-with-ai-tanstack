@@ -2,8 +2,8 @@
  * Authentication Client
  *
  * Direct fetch calls to better-auth HTTP handler on the backend.
- * Uses Next.js rewrites (/api/* -> backend) so cookies are
- * scoped to the frontend domain and visible to middleware.
+ * Uses TanStack Start API routes (/api/* -> backend) so cookies are
+ * scoped to the frontend domain and automatically passed with requests.
  *
  * Better-auth standard paths:
  *   GET  /api/auth/get-session

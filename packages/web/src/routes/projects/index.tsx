@@ -50,7 +50,7 @@ function ProjectsPage() {
   const handleNewProject = async (data: {
     name: string;
     description: string;
-    stackType: "nestjs-nextjs" | "odata-ui5";
+    stackType: "tanstackjs-nestjs" | "odata-ui5";
   }) => {
     setIsCreatingProject(true);
     try {
@@ -296,7 +296,7 @@ function ProjectsPage() {
                         <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
                         <polyline points="14,2 14,8 20,8" />
                       </svg>
-                      <span>{project.stackType === "nestjs-nextjs" ? "TanStack Start" : "OpenUI5"}</span>
+                      <span>{project.stackType === "tanstackjs-nestjs" ? "TanStack Start" : "OpenUI5"}</span>
                     </div>
                   </div>
 

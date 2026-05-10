@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Entity List Page
  *
@@ -13,7 +11,7 @@
  */
 
 import { Edit, Eye, Plus, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { DynamicForm } from "@/components/forms/dynamic-form";
@@ -38,34 +36,15 @@ import {
 } from "@/hooks/use-entities";
 
 interface EntityListPageProps {
-  params: Promise<{ entity: string }>;
+  entity: string;
 }
 
-export default function EntityListPage({ params }: EntityListPageProps) {
-  // In Next.js 15, params is a Promise
-  const [entityName, setEntityName] = useState<string>("");
-
-  // We'll need to handle the Promise params properly
-  // For now, this is a placeholder that will be resolved when the page renders
-  useState(() => {
-    params.then((p) => setEntityName(p.entity));
-  });
-
-  if (!entityName) {
-    return (
-      <AppLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-        </div>
-      </AppLayout>
-    );
-  }
-
-  return <EntityListContent entityName={entityName} />;
+export default function EntityListPage({ entity }: EntityListPageProps) {
+  return <EntityListContent entityName={entity} />;
 }
 
 function EntityListContent({ entityName }: { entityName: string }) {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
   const [selectedId, setSelectedId] = useState<string | null>(null);

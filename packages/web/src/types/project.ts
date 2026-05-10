@@ -11,7 +11,7 @@ export interface Project {
 
   // Configuration (Step 1)
   stackType:
-    | "nestjs-nextjs" // Option 1
+    | "tanstackjs-nestjs" // Option 1
     | "odata-ui5"; // Option 2
   port: number;
   databaseUrl?: string;
@@ -66,6 +66,6 @@ export const STEP_LABELS: Record<ProjectStep, string> = {
 };
 
 export const STACK_LABELS: Record<Project["stackType"], string> = {
-  "nestjs-nextjs": "tanstackjs-nestjs: NestJS + TanStack Start",
+  "tanstackjs-nestjs": "tanstackjs-nestjs: NestJS + TanStack Start",
   "odata-ui5": "openui5-odatav4: OData + OpenUI5",
 };

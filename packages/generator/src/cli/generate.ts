@@ -20,8 +20,8 @@ import { promises as fs } from "fs";
 import * as path from "path";
 import * as readline from "readline";
 import { FullStackGenerator, type StackOption } from "../generators/full-stack.generator";
-import { NestJsBackendGenerator } from "../generators/nextjs-nestjs/nestjs-backend.generator";
-import { NextJsFrontendGenerator } from "../generators/nextjs-nestjs/nextjs-frontend.generator";
+import { NestJsBackendGenerator } from "../generators/tanstack-start-nestjs/nestjs-backend.generator";
+import { TanStackStartFrontendGenerator } from "../generators/tanstack-start-nestjs/tanstack-start-frontend.generator";
 import { ODataBackendGenerator } from "../generators/openui5-odatav4/odata-backend.generator";
 import { OpenUI5FrontendGenerator } from "../generators/openui5-odatav4/openui5-frontend.generator";
 import { MermaidParser } from "../parsers/mermaid.parser";
@@ -180,7 +180,7 @@ program
         projectDescription: options.description,
         outputDir,
         port: parseInt(options.port, 10),
-        nextjsNestjs:
+        tanstackStartNestjs:
           stackOption === "tanstackjs-nestjs"
             ? {
                 backend: {
@@ -295,7 +295,7 @@ program
   .requiredOption("-i, --input <file>", "Input Mermaid ERD file")
   .requiredOption("-o, --output <dir>", "Output directory")
   .option("-n, --name <name>", "Project name", "my-frontend")
-  .option("-s, --stack <stack>", "Frontend stack: nextjs or openui5", "nextjs")
+  .option("-s, --stack <stack>", "Frontend stack: tanstack or openui5", "tanstack")
   .option("--api-url <url>", "Backend API URL", "http://localhost:3000")
   .action(async (options) => {
     console.log("\n🚀 Generating Frontend...\n");
@@ -310,11 +310,11 @@ program
       const outputDir = resolvePath(options.output);
       await fs.mkdir(outputDir, { recursive: true });
 
-      if (options.stack === "nextjs") {
-        const generator = new NextJsFrontendGenerator({
+      if (options.stack === "tanstack" || options.stack === "nextjs") {
+        const generator = new TanStackStartFrontendGenerator({
           projectName: options.name,
           projectVersion: "1.0.0",
-          projectDescription: "Generated Next.js frontend",
+          projectDescription: "Generated TanStack Start frontend",
           apiBaseUrl: options.apiUrl,
           enableDarkMode: true,
         });
@@ -329,7 +329,7 @@ program
         });
         await generator.generate(entities, relationships, outputDir);
       } else {
-        throw new Error('Invalid frontend stack. Use "nextjs" or "openui5"');
+        throw new Error('Invalid frontend stack. Use "tanstack" or "openui5"');
       }
 
       console.log(`\n✅ Frontend generated at: ${outputDir}`);

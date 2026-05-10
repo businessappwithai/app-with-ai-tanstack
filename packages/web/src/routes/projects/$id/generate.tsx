@@ -35,7 +35,7 @@ interface StackOption {
 
 const stackOptions: StackOption[] = [
   {
-    id: "nestjs-nextjs",
+    id: "tanstackjs-nestjs",
     title: "tanstackjs-nestjs: NestJS + TanStack Start",
     description: "Enterprise-grade backend with modern React frontend",
     icon: <Database className="w-8 h-8" />,
