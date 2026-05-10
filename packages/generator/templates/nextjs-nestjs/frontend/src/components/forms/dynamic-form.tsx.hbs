@@ -15,7 +15,7 @@
  * Auto-generated component
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useFormFields, type FieldMetadata, useRefList, useEntities } from '@/hooks/use-entities';
 import { Input } from '@/components/ui/input';
@@ -24,9 +24,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { apiClient } from '@/lib/api-client';
 import { useTranslations } from '@/lib/translations';
 import { getFieldLabel } from '@/lib/i18n-fields';
 
@@ -193,8 +191,6 @@ function FieldRenderer({ field, form, serverErrors = {}, tableName, readOnlyFiel
       color: field.color,
     };
   };
-
-  const fieldColorStyle = getFieldColorStyle();
 
   return (
     <form.Field
