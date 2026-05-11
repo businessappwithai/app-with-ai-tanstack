@@ -22,11 +22,12 @@ export function snakeCase(str: string): string {
 export function kebabCase(str: string): string {
   if (!str) return "";
   return str
-    .replace(/([A-Z])/g, "-$1")
+    .replace(/\s+/g, "-") // Replace spaces with hyphen first
+    .replace(/([a-z])([A-Z])/g, "$1-$2") // Insert hyphen before capitals that follow lowercase
     .toLowerCase()
-    .replace(/[\s_]+/g, "-") // Replace spaces and underscores with single hyphen
-    .replace(/^-/, "") // Remove leading hyphen
-    .replace(/-+/g, "-"); // Replace multiple hyphens with single hyphen
+    .replace(/[_]+/g, "-") // Replace underscores with hyphen
+    .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
+    .replace(/^-|^-|-$/g, ""); // Remove leading/trailing hyphens
 }
 
 export function plural(str: string): string {
