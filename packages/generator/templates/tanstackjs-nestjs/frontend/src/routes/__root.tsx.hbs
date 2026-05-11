@@ -1,0 +1,39 @@
+/**
+ * Root Layout Component - Swiss Clean Design
+ *
+ * Provides the application shell with:
+ * - Theme configuration (light/dark mode)
+ * - Provider wrapping
+ * - TanStack Router outlet
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { createRootRoute, Outlet } from '@tanstack/react-router';
+import { Providers } from '../providers';
+import '../styles/globals.css';
+
+export const Route = createRootRoute({
+  component: RootLayout,
+});
+
+function RootLayout() {
+  return (
+    <html lang="en"{{#if config.enableDarkMode}} className="dark"{{/if}}>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{{project.name}}</title>
+        <meta name="description" content="{{project.description}}" />
+      </head>
+      <body className="font-sans antialiased">
+        <Providers>
+          <main className="min-h-screen bg-background">
+            <Outlet />
+          </main>
+        </Providers>
+      </body>
+    </html>
+  );
+}

@@ -1,0 +1,40 @@
+/**
+ * Hook Executor
+ *
+ * Executes registered hooks for entity lifecycle events.
+ * Generated: 2026-05-09T16:10:52.293Z
+ */
+
+import { HookContext, HookLifecycle } from './hook.types';
+import { globalHookRegistry } from './hook-registry';
+
+export class HookExecutor {
+  async execute<T>(
+    entityName: string,
+    lifecycle: HookLifecycle,
+    data: T,
+    metadata?: Record<string, any>
+  ): Promise<T> {
+    const hooks = globalHookRegistry.getHooks(entityName, lifecycle);
+
+    let result = data;
+    const context: HookContext<T> = {
+      entity: entityName,
+      lifecycle,
+      data: result,
+      metadata
+    };
+
+    for (const hook of hooks) {
+      const hookResult = await hook.execute(context);
+      if (hookResult !== undefined) {
+        result = hookResult;
+        context.data = result;
+      }
+    }
+
+    return result;
+  }
+}
+
+export const globalHookExecutor = new HookExecutor();

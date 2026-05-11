@@ -1,0 +1,396 @@
+/**
+ * Field Layout Editor Component
+ *
+ * Allows administrators to customize field ordering and visibility
+ * for forms and tables. Changes are persisted to sys_field.seq_no
+ * and sys_field.seq_no_grid.
+ *
+ * Features:
+ * - Drag-and-drop field reordering
+ * - Toggle field visibility
+ * - Switch between form and grid layout modes
+ * - Batch save changes
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+'use client';
+
+import { useState, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { GripVertical, Eye, EyeOff, Save, RefreshCw, Check, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useFormFields, useGridFields } from '@/hooks/use-entities';
+import { FieldMetadata } from '@/hooks/use-entities';
+import { apiClient } from '@/lib/api-client';
+import { toast } from 'sonner';
+
+interface FieldLayoutEditorProps {
+  /** Entity/table name */
+  entityName: string;
+}
+
+type LayoutMode = 'form' | 'grid';
+
+/**
+ * Sortable field item component
+ */
+function SortableField({
+  field,
+  mode,
+  onToggleVisibility,
+}: {
+  field: FieldMetadata & { tempSeqNo: number };
+  mode: LayoutMode;
+  onToggleVisibility: (fieldId: string, isVisible: boolean) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: field.sys_field_id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const isVisible = mode === 'form' ? field.is_displayed : field.is_displayed_grid;
+  const seqNo = mode === 'form' ? field.seq_no : field.seq_no_grid;
+  const tempSeqNo = field.tempSeqNo;
+
+  // Field styling
+  const fieldStyle: React.CSSProperties = {};
+  if (field.font_color) {
+    fieldStyle.color = field.font_color;
+  }
+  if (field.background_color) {
+    fieldStyle.backgroundColor = field.background_color;
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-3 p-3 bg-background border rounded-lg ${
+        isDragging ? 'shadow-lg z-10' : ''
+      }`}
+    >
+      {/* Drag handle */}
+      <button
+        className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-5 w-5" />
+      </button>
+
+      {/* Sequence number */}
+      <div className="w-16 text-center">
+        <span className="text-sm font-mono text-muted-foreground">
+          {tempSeqNo}
+        </span>
+        {seqNo !== tempSeqNo && (
+          <span className="block text-xs text-amber-600">was {seqNo}</span>
+        )}
+      </div>
+
+      {/* Field info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="font-medium" style={fieldStyle}>
+            {field.name}
+          </span>
+          {!isVisible && (
+            <span className="text-xs text-muted-foreground">(hidden)</span>
+          )}
+        </div>
+        <div className="text-sm text-muted-foreground truncate">
+          {field.column_name} ({field.data_type})
+        </div>
+      </div>
+
+      {/* Visibility toggle */}
+      <div className="flex items-center gap-2">
+        <Label htmlFor={`visible-${field.sys_field_id}`} className="sr-only">
+          Visible
+        </Label>
+        <Checkbox
+          id={`visible-${field.sys_field_id}`}
+          checked={isVisible}
+          onCheckedChange={(checked) => onToggleVisibility(field.sys_field_id, !!checked)}
+        />
+        <label
+          htmlFor={`visible-${field.sys_field_id}`}
+          className="text-xs text-muted-foreground cursor-pointer"
+        >
+          {isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+        </label>
+      </div>
+    </div>
+  );
+}
+
+export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
+  const queryClient = useQueryClient();
+  const [mode, setMode] = useState<LayoutMode>('form');
+  const [hasChanges, setHasChanges] = useState(false);
+  const [fields, setFields] = useState<(FieldMetadata & { tempSeqNo: number })[]>([]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Query form fields
+  const { data: formFields, isLoading: isLoadingForm } = useFormFields(entityName);
+
+  // Query grid fields
+  const { data: gridFields, isLoading: isLoadingGrid } = useGridFields(entityName);
+
+  // Initialize fields when data loads
+  const isLoading = isLoadingForm || isLoadingGrid;
+
+  useState(() => {
+    if (!isLoading && (formFields || gridFields)) {
+      const sourceFields = mode === 'form' ? formFields : gridFields;
+      if (sourceFields) {
+        const fieldsWithTempSeq = sourceFields.map((f, i) => ({
+          ...f,
+          tempSeqNo: (i + 1) * 10,
+        }));
+        setFields(fieldsWithTempSeq);
+      }
+    }
+  });
+
+  // Update fields when mode changes
+  useState(() => {
+    const sourceFields = mode === 'form' ? formFields : gridFields;
+    if (sourceFields) {
+      const fieldsWithTempSeq = sourceFields.map((f, i) => ({
+        ...f,
+        tempSeqNo: (i + 1) * 10,
+      }));
+      setFields(fieldsWithTempSeq);
+      setHasChanges(false);
+    }
+  });
+
+  // Save mutation
+  const saveMutation = useMutation({
+    mutationFn: async (updates: Array<{ id: string; seq_no: number; is_displayed?: boolean }>) => {
+      // Batch update all fields
+      await Promise.all(
+        updates.map((update) =>
+          apiClient.patch(`/api/sys/fields/${update.id}`, {
+            seq_no: mode === 'form' ? update.seq_no : undefined,
+            seq_no_grid: mode === 'grid' ? update.seq_no : undefined,
+            is_displayed: mode === 'form' ? update.is_displayed : undefined,
+            is_displayed_grid: mode === 'grid' ? update.is_displayed : undefined,
+          })
+        )
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['entities', 'fields', entityName] });
+      setHasChanges(false);
+      toast.success('Field layout saved successfully');
+    },
+    onError: () => {
+      toast.error('Failed to save field layout');
+    },
+  });
+
+  // Handle drag end
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setFields((items) => {
+        const oldIndex = items.findIndex((item) => item.sys_field_id === active.id);
+        const newIndex = items.findIndex((item) => item.sys_field_id === over.id);
+
+        const newItems = [...items];
+        const [movedItem] = newItems.splice(oldIndex, 1);
+        newItems.splice(newIndex, 0, movedItem);
+
+        // Recalculate sequence numbers
+        return newItems.map((item, index) => ({
+          ...item,
+          tempSeqNo: (index + 1) * 10,
+        }));
+      });
+      setHasChanges(true);
+    }
+  }, []);
+
+  // Toggle field visibility
+  const handleToggleVisibility = useCallback((fieldId: string, isVisible: boolean) => {
+    setFields((items) =>
+      items.map((item) =>
+        item.sys_field_id === fieldId
+          ? {
+              ...item,
+              ...(mode === 'form'
+                ? { is_displayed: isVisible }
+                : { is_displayed_grid: isVisible }),
+            }
+          : item
+      )
+    );
+    setHasChanges(true);
+  }, [mode]);
+
+  // Save changes
+  const handleSave = useCallback(() => {
+    const updates = fields.map((field) => ({
+      id: field.sys_field_id,
+      seq_no: field.tempSeqNo,
+      is_displayed: field.is_displayed,
+      is_displayed_grid: field.is_displayed_grid,
+    }));
+
+    saveMutation.mutate(updates);
+  }, [fields, saveMutation]);
+
+  // Reset changes
+  const handleReset = useCallback(() => {
+    const sourceFields = mode === 'form' ? formFields : gridFields;
+    if (sourceFields) {
+      const fieldsWithTempSeq = sourceFields.map((f, i) => ({
+        ...f,
+        tempSeqNo: (i + 1) * 10,
+      }));
+      setFields(fieldsWithTempSeq);
+      setHasChanges(false);
+    }
+  }, [mode, formFields, gridFields]);
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-12">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Field Layout Editor</CardTitle>
+            <CardDescription>
+              Customize field order and visibility for {entityName}
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            {hasChanges && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReset}
+                  disabled={saveMutation.isPending}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Reset
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSave}
+                  disabled={saveMutation.isPending}
+                >
+                  {saveMutation.isPending ? (
+                    <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-1" />
+                  )}
+                  Save Changes
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Tabs value={mode} onValueChange={(v) => setMode(v as LayoutMode)} className="space-y-6">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="form">Form Layout (seq_no)</TabsTrigger>
+            <TabsTrigger value="grid">Grid Layout (seq_no_grid)</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value={mode} className="space-y-4">
+            {fields.length === 0 ? (
+              <div className="text-center text-muted-foreground py-8">
+                No fields found for this entity.
+              </div>
+            ) : (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+                modifiers={[restrictToVerticalAxis]}
+              >
+                <SortableContext
+                  items={fields.map((f) => f.sys_field_id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-2">
+                    {fields.map((field) => (
+                      <SortableField
+                        key={field.sys_field_id}
+                        field={field}
+                        mode={mode}
+                        onToggleVisibility={handleToggleVisibility}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {/* Instructions */}
+        <div className="mt-6 p-4 bg-muted rounded-lg">
+          <h4 className="font-medium mb-2">How to use:</h4>
+          <ul className="text-sm text-muted-foreground space-y-1">
+            <li>• Drag fields using the grip handle to reorder them</li>
+            <li>• Toggle visibility using the eye icon</li>
+            <li>• Sequence numbers are automatically recalculated (10, 20, 30...)</li>
+            <li>• Click "Save Changes" to persist your changes</li>
+            <li>• Switch between Form and Grid layouts to configure each</li>
+          </ul>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

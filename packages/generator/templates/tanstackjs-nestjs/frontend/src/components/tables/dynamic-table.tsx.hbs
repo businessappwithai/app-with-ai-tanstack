@@ -1,0 +1,530 @@
+/**
+ * Dynamic Table Component
+ *
+ * Renders a data table with columns dynamically generated from sys_field metadata.
+ * Uses TanStack Table for powerful sorting, filtering, and pagination.
+ *
+ * Features:
+ * - Columns ordered by sys_field.seq_no_grid
+ * - Visibility controlled by sys_field.is_displayed_grid
+ * - Cell type rendering based on data type
+ * - Sortable columns
+ * - Row selection and actions
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+'use client';
+
+import { useState, useMemo } from 'react';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  flexRender,
+  type ColumnDef,
+  type SortingState,
+  type ColumnFiltersState,
+  type PaginationState,
+} from '@tanstack/react-table';
+import { ArrowUpDown, ArrowUp, ArrowDown, MoreHorizontal, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useGridFields } from '@/hooks/use-entities';
+import { EntityRecord } from '@/hooks/use-entities';
+
+interface DynamicTableProps {
+  /** Table/Entity name */
+  tableName: string;
+  /** Data rows to display */
+  data: EntityRecord[];
+  /** Loading state */
+  isLoading?: boolean;
+  /** Total count for pagination */
+  totalCount?: number;
+  /** Current page number (1-indexed) */
+  page?: number;
+  /** Page size */
+  pageSize?: number;
+  /** Page change callback */
+  onPageChange?: (page: number) => void;
+  /** Row click callback */
+  onRowClick?: (row: EntityRecord) => void;
+  /** View action callback */
+  onView?: (id: string) => void;
+  /** Edit action callback */
+  onEdit?: (id: string) => void;
+  /** Delete action callback */
+  onDelete?: (id: string) => void;
+  /** Currently selected row ID */
+  selectedId?: string;
+}
+
+/**
+ * Map database data type to column type for rendering
+ */
+function getCellValueType(dataType?: string): 'text' | 'number' | 'boolean' | 'date' | 'link' {
+  if (!dataType) return 'text';
+
+  const type = dataType.toLowerCase();
+
+  if (type.includes('int') || type.includes('decimal') || type.includes('numeric') || type.includes('money')) {
+    return 'number';
+  }
+  if (type.includes('bool')) {
+    return 'boolean';
+  }
+  if (type.includes('date') || type.includes('time')) {
+    return 'date';
+  }
+  if (type.includes('email') || type.includes('url')) {
+    return 'link';
+  }
+
+  return 'text';
+}
+
+/**
+ * Format cell value based on type
+ */
+function formatCellValue(value: unknown, type: string): string {
+  if (value === null || value === undefined) {
+    return '';
+  }
+
+  switch (type) {
+    case 'date':
+      return new Date(String(value)).toLocaleDateString();
+    case 'number':
+      return typeof value === 'number' ? value.toLocaleString() : String(value);
+    case 'boolean':
+      return value === true ? 'Yes' : 'No';
+    default:
+      return String(value);
+  }
+}
+
+export function DynamicTable({
+  tableName,
+  data = [],
+  isLoading = false,
+  totalCount = 0,
+  page = 1,
+  pageSize = 20,
+  onPageChange,
+  onRowClick,
+  onView,
+  onEdit,
+  onDelete,
+  selectedId,
+}: DynamicTableProps) {
+  // Query field metadata for this entity
+  const { data: fields, isLoading: isLoadingFields } = useGridFields(tableName);
+
+  // Sorting state
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState('');
+
+  // Build column definitions from sys_field metadata
+  const columns = useMemo<ColumnDef<EntityRecord>[]>(() => {
+    if (!fields || fields.length === 0) {
+      // Fallback columns if metadata unavailable
+      return [
+        {
+          accessorKey: 'id',
+          header: 'ID',
+          cell: (info) => info.getValue() as string,
+        },
+        {
+          accessorKey: 'name',
+          header: 'Name',
+          cell: (info) => info.getValue() as string,
+        },
+      ];
+    }
+
+    // Map sys_field to TanStack Table columns
+    // Only include fields where is_displayed_grid is true
+    // Order by seq_no_grid
+    return fields
+      .filter((f) => f.is_displayed_grid)
+      .sort((a, b) => a.seq_no_grid - b.seq_no_grid)
+      .map((field) => {
+        const cellType = getCellValueType(field.data_type);
+
+        return {
+          accessorKey: field.column_name,
+          header: field.name || field.column_name,
+          cell: (info: any) => {
+            const value = info.getValue();
+
+            // Render based on cell type
+            switch (cellType) {
+              case 'boolean':
+                return (
+                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                    value ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {value ? 'Yes' : 'No'}
+                  </span>
+                );
+
+              case 'number':
+                return (
+                  <span className="font-mono">
+                    {formatCellValue(value, 'number')}
+                  </span>
+                );
+
+              case 'date':
+                return (
+                  <span className="text-muted-foreground">
+                    {formatCellValue(value, 'date')}
+                  </span>
+                );
+
+              case 'link':
+                return (
+                  <a
+                    href={String(value)}
+                    className="text-primary hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {String(value)}
+                  </a>
+                );
+
+              default:
+                // Apply field styling if present
+                const style: React.CSSProperties = {};
+                if (field.font_color) {
+                  style.color = field.font_color;
+                }
+                if (field.background_color) {
+                  style.backgroundColor = field.background_color;
+                }
+                if (field.font_style) {
+                  if (field.font_style.includes('bold')) {
+                    style.fontWeight = 'bold';
+                  }
+                  if (field.font_style.includes('italic')) {
+                    style.fontStyle = 'italic';
+                  }
+                }
+
+                return (
+                  <span style={style} className="block truncate max-w-[200px]">
+                    {formatCellValue(value, 'text')}
+                  </span>
+                );
+            }
+          },
+          enableSorting: true,
+          enableColumnFilter: false,
+        } as ColumnDef<EntityRecord>;
+      });
+  }, [fields]);
+
+  // Add actions column if callbacks provided
+  const columnsWithActions = useMemo<ColumnDef<EntityRecord>[]>(() => {
+    if (!onView && !onEdit && !onDelete) {
+      return columns;
+    }
+
+    return [
+      ...columns,
+      {
+        id: 'actions',
+        cell: (info) => {
+          const row = info.row.original as EntityRecord;
+          const id = String(row.id);
+
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {onView && (
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onView(id);
+                  }}>
+                    View
+                  </DropdownMenuItem>
+                )}
+                {onEdit && (
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(id);
+                  }}>
+                    Edit
+                  </DropdownMenuItem>
+                )}
+                {onDelete && (
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(id);
+                    }}
+                    className="text-destructive"
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
+      },
+    ];
+  }, [columns, onView, onEdit, onDelete]);
+
+  // Initialize table
+  const table = useReactTable({
+    data,
+    columns: columnsWithActions,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    state: {
+      sorting,
+      columnFilters,
+      globalFilter,
+    },
+    manualPagination: !!onPageChange,
+    pageCount: onPageChange ? Math.ceil(totalCount / pageSize) : -1,
+  });
+
+  // Loading state
+  if (isLoading || isLoadingFields) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary/70"></div>
+          <p className="text-sm text-muted-foreground">Loading table data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (data.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted/50 mb-4">
+          <Search className="h-8 w-8 text-muted-foreground/50" />
+        </div>
+        <p className="text-lg font-medium text-muted-foreground">No data found</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          Create a new record to get started.
+        </p>
+      </div>
+    );
+  }
+
+  const totalPages = onPageChange ? Math.ceil(totalCount / pageSize) : table.getPageCount();
+
+  return (
+    <div className="space-y-4">
+      {/* Search and filter - Enhanced Design */}
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
+          <Input
+            placeholder="Filter records..."
+            value={globalFilter ?? ''}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="pl-9 h-9 bg-background/80 backdrop-blur-sm border-border/60 focus:border-primary/50 focus:ring-primary/20 shadow-sm"
+          />
+        </div>
+      </div>
+
+      {/* Table - Enhanced Design */}
+      <div className="rounded-xl border border-border/60 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-md overflow-hidden">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="hover:bg-muted/50 border-b border-border/40">
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className="bg-muted/20">
+                    {header.isPlaceholder ? null : (
+                      <div
+                        className={`flex items-center space-x-2 ${
+                          header.column.getCanSort() ? 'cursor-pointer select-none' : ''
+                        }`}
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        <span>
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                        </span>
+                        {header.column.getCanSort() && (
+                          <span className="ml-2">
+                            {header.column.getIsSorted() === 'asc' ? (
+                              <ArrowUp className="h-4 w-4" />
+                            ) : header.column.getIsSorted() === 'desc' ? (
+                              <ArrowDown className="h-4 w-4" />
+                            ) : (
+                              <ArrowUpDown className="h-4 w-4 opacity-20" />
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className={`cursor-pointer hover:bg-muted/50 border-b border-border/30 transition-colors ${
+                    selectedId && String(row.original.id) === selectedId
+                      ? 'bg-primary/10'
+                      : ''
+                  }`}
+                  onClick={() => onRowClick && onRowClick(row.original)}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className="py-3">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-32 text-center"
+                >
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/50">
+                      <Search className="h-5 w-5 text-muted-foreground/50" />
+                    </div>
+                    <p className="text-sm text-muted-foreground">No results found</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Pagination - Enhanced Design */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between rounded-lg border border-border/60 bg-gradient-to-br from-muted/20 to-muted/10 backdrop-blur-sm p-4 shadow-sm">
+          <div className="text-sm text-muted-foreground">
+            {onPageChange
+              ? <>Showing <span className="font-semibold text-foreground">{((page - 1) * pageSize) + 1}</span> to{' '}
+                <span className="font-semibold text-foreground">{Math.min(page * pageSize, totalCount)}</span> of{' '}
+                <span className="font-semibold text-foreground">{totalCount}</span> records</>
+              : <>Showing <span className="font-semibold text-foreground">{table.getFilteredRowModel().rows.length}</span> of{' '}
+                <span className="font-semibold text-foreground">{table.getCoreRowModel().rows.length}</span> row(s)</>
+            }
+          </div>
+          <div className="flex items-center gap-2">
+            {onPageChange ? (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onPageChange(1)}
+                  disabled={page <= 1}
+                  className="shadow-sm"
+                >
+                  <ChevronsLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onPageChange(page - 1)}
+                  disabled={page <= 1}
+                  className="shadow-sm"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm font-medium px-3 py-1 rounded-md bg-background/80 border border-border/40">
+                  Page {page} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onPageChange(page + 1)}
+                  disabled={page >= totalPages}
+                  className="shadow-sm"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onPageChange(totalPages)}
+                  disabled={page >= totalPages}
+                  className="shadow-sm"
+                >
+                  <ChevronsRight className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                  className="shadow-sm"
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                  className="shadow-sm"
+                >
+                  Next
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,27 @@
+import { test, expect } from '@playwright/test';
+import { testData } from '../test-data';
+
+test.describe('Navigation Tests', () => {
+  test('should navigate to all entities from menu', async ({ page }) => {
+    // Start at dashboard (home page redirects to dashboard)
+    await page.goto('/');
+
+    {{#each entities}}
+    // Navigate to {{displayName}}
+    await page.click('a[href="/{{tableName}}"]');
+    await expect(page).toHaveURL(/\/{{tableName}}/);
+    await expect(page.locator('h1, h2').filter({ hasText: /{{displayName}}/i })).toBeVisible();
+
+    // Go back to dashboard
+    await page.goto('/dashboard');
+    {{/each}}
+  });
+
+  test('should display all entities in dashboard', async ({ page }) => {
+    await page.goto('/dashboard');
+
+    {{#each entities}}
+    await expect(page.locator('a[href="/{{tableName}}"]')).toBeVisible();
+    {{/each}}
+  });
+});
