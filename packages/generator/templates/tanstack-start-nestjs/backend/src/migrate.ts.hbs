@@ -16,6 +16,7 @@ const dbClient = process.env.DATABASE_CLIENT ?? 'pg';
 let dialect: PostgresDialect | SqliteDialect;
 
 if (dbClient === 'better-sqlite3') {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const Database = require('better-sqlite3');
   dialect = new SqliteDialect({ database: new Database(process.env.DATABASE_FILENAME ?? './data/app.db') });
 } else {

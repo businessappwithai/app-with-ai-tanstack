@@ -8,7 +8,7 @@
  */
 
 import { Injectable, NotFoundException, BadRequestException, ConflictException, Inject, Logger } from '@nestjs/common';
-import { Kysely, sql } from 'kysely';
+import { Kysely } from 'kysely';
 import { randomUUID } from 'crypto';
 import { KYSELY_CONNECTION } from '../../database/database.constants';
 import { DatabaseService, PaginationOptions, PaginatedResult } from '../../database/database.service';
