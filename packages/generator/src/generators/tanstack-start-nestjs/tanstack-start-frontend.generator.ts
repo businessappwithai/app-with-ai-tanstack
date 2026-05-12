@@ -283,8 +283,12 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     const providersContent = await this.renderTemplate("src/providers/index.tsx.hbs", context);
     await fs.writeFile(path.join(outputDir, "src/providers/index.tsx"), providersContent);
 
-    // Copy provider files (Note: browser-router-provider is not needed for Next.js App Router)
-    const providerFiles = ["src/providers/query-provider.tsx"];
+    // Copy provider files
+    const providerFiles = [
+      "src/providers/query-provider.tsx",
+      "src/providers/browser-router-provider.tsx",
+      "src/providers/index.ts",
+    ];
 
     for (const file of providerFiles) {
       try {
