@@ -60,20 +60,40 @@ export class SysService {
   // ============================================================
 
   async findAllTables(options: PaginationOptions & { search?: string } = {}) {
-    const { page = 1, limit = 100, search, prefix } = options;
-    const offset = (page - 1) * limit;
+    try {
+      const { page = 1, limit = 100, search, prefix } = options;
+      const offset = (page - 1) * limit;
+      console.log(`[SysService.findAllTables] Starting with page=${page}, limit=${limit}, search=${search}, prefix=${prefix}`);
 
-    let query = this.db.kysely.selectFrom('sys_table').selectAll().where('is_active', '=', 1);
+      let query = this.db.kysely.selectFrom('sys_table').selectAll().where('is_active', '=', 1);
+      console.log(`[SysService.findAllTables] Initial query created`);
 
-    if (prefix) query = query.where('table_name', 'like', `${prefix}%`);
-    if (search) query = query.where('name', 'like', `%${search}%`);
+      if (prefix) {
+        console.log(`[SysService.findAllTables] Adding prefix filter: ${prefix}%`);
+        query = query.where('table_name', 'like', `${prefix}%`);
+      }
+      if (search) {
+        console.log(`[SysService.findAllTables] Adding search filter: %${search}%`);
+        query = query.where('name', 'like', `%${search}%`);
+      }
 
-    const [data, countRow] = await Promise.all([
-      query.orderBy('name').limit(Number(limit)).offset(Number(offset)).execute(),
-      query.clearSelect().select((eb) => eb.fn.countAll().as('count')).executeTakeFirst(),
-    ]);
+      console.log(`[SysService.findAllTables] Executing parallel queries`);
+      const [data, countRow] = await Promise.all([
+        query.orderBy('name').limit(Number(limit)).offset(Number(offset)).execute(),
+        query.clearSelect().select((eb) => eb.fn.countAll().as('count')).executeTakeFirst(),
+      ]);
 
-    return { data, meta: { total: Number(countRow?.count ?? 0), page, pageSize: limit } };
+      console.log(`[SysService.findAllTables] Results: ${data.length} records, total=${countRow?.count}`);
+      return { data, meta: { total: Number(countRow?.count ?? 0), page, pageSize: limit } };
+    } catch (error) {
+      console.error(`[SysService.findAllTables] ERROR:`, error);
+      if (error instanceof Error) {
+        console.error(`[SysService.findAllTables] Error message: ${error.message}`);
+        console.error(`[SysService.findAllTables] Error name: ${error.name}`);
+        console.error(`[SysService.findAllTables] Error stack: ${error.stack}`);
+      }
+      throw error;
+    }
   }
 
   async findAllDatabaseTables(options: PaginationOptions & { search?: string } = {}) {

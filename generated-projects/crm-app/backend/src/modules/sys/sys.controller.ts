@@ -40,7 +40,19 @@ export class SysController {
     @Query('search') search?: string,
     @Query('prefix') prefix?: string,
   ) {
-    return this.sysService.findAllTables({ page, limit, search, prefix });
+    try {
+      console.log(`[SysController] GET /sys/tables - page=${page}, limit=${limit}, search=${search}, prefix=${prefix}`);
+      const result = await this.sysService.findAllTables({ page, limit, search, prefix });
+      console.log(`[SysController] GET /sys/tables - SUCCESS`);
+      return result;
+    } catch (error) {
+      console.error(`[SysController] GET /sys/tables - ERROR:`, error);
+      if (error instanceof Error) {
+        console.error(`[SysController] Error message: ${error.message}`);
+        console.error(`[SysController] Error stack: ${error.stack}`);
+      }
+      throw error;
+    }
   }
 
   @Get('tables/all')

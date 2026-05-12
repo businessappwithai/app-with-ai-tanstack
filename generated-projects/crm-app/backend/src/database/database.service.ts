@@ -79,53 +79,70 @@ export class DatabaseService {
     options: PaginationOptions = {},
     filters: Record<string, any> = {},
   ): Promise<PaginatedResult<T>> {
-    const {
-      page = 1,
-      limit = 20,
-      orderBy = 'created_at',
-      orderDir = 'desc',
-    } = options;
+    try {
+      const {
+        page = 1,
+        limit = 20,
+        orderBy = 'created_at',
+        orderDir = 'desc',
+      } = options;
 
-    const offset = (page - 1) * limit;
+      const offset = (page - 1) * limit;
+      console.log(`[findAll] table=${tableName}, page=${page}, limit=${limit}, orderBy=${orderBy}`);
 
-    let query = this.kysely
-      .selectFrom(tableName as any)
-      .selectAll()
-      .where('deleted_at' as any, 'is', null);
+      let query = this.kysely
+        .selectFrom(tableName as any)
+        .selectAll()
+        .where('deleted_at' as any, 'is', null);
 
-    for (const [key, value] of Object.entries(filters)) {
-      if (value !== undefined && value !== null && value !== '') {
-        if (typeof value === 'object' && 'operator' in value && 'value' in value) {
-          query = query.where(key as any, value.operator, value.value);
-        } else if (typeof value === 'string' && value.includes('%')) {
-          query = query.where(sql.ref(key), 'ilike', value);
-        } else {
-          query = query.where(key as any, '=', value);
+      console.log(`[findAll] Initial query created for ${tableName}`);
+
+      for (const [key, value] of Object.entries(filters)) {
+        console.log(`[findAll] Processing filter: ${key}=${JSON.stringify(value)}`);
+        if (value !== undefined && value !== null && value !== '') {
+          if (typeof value === 'object' && 'operator' in value && 'value' in value) {
+            query = query.where(key as any, value.operator, value.value);
+          } else if (typeof value === 'string' && value.includes('%')) {
+            query = query.where(sql.ref(key), 'ilike', value);
+          } else {
+            query = query.where(key as any, '=', value);
+          }
         }
       }
+
+      console.log(`[findAll] Executing count query for ${tableName}`);
+      const countResult = await (query as any)
+        .clearSelect()
+        .select((eb: any) => eb.fn.countAll().as('count'))
+        .executeTakeFirst();
+      const total = Number(countResult?.count ?? 0);
+      console.log(`[findAll] Count result: ${total}`);
+
+      console.log(`[findAll] Executing data query for ${tableName}`);
+      const data = await query
+        .orderBy(orderBy as any, orderDir)
+        .limit(Number(limit))
+        .offset(Number(offset))
+        .execute();
+
+      console.log(`[findAll] Data retrieved: ${data.length} records`);
+      return {
+        data: data as T[],
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
+      };
+    } catch (error) {
+      console.error(`[findAll] ERROR in table ${tableName}:`, error);
+      if (error instanceof Error) {
+        console.error(`[findAll] Error message: ${error.message}`);
+        console.error(`[findAll] Error stack: ${error.stack}`);
+      }
+      throw error;
     }
-
-    const countResult = await (query as any)
-      .clearSelect()
-      .select((eb: any) => eb.fn.countAll().as('count'))
-      .executeTakeFirst();
-    const total = Number(countResult?.count ?? 0);
-
-    const data = await query
-      .orderBy(orderBy as any, orderDir)
-      .limit(Number(limit))
-      .offset(Number(offset))
-      .execute();
-
-    return {
-      data: data as T[],
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
   }
 
   /**
