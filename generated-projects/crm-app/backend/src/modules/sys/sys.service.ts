@@ -3,12 +3,12 @@
  *
  * Provides data access for all sys_ tables using Kysely.
  *
- * Generated: 2026-05-12T10:10:06.699Z
+ * Generated: 2026-05-12T10:27:31.171Z
  */
 
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { sql } from 'kysely';
-import { DatabaseService } from '../../database/database.service';
+import type { DatabaseService } from '../../database/database.service';
 
 interface PaginationOptions {
   page?: number;

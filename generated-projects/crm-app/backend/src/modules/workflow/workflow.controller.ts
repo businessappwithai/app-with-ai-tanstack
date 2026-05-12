@@ -7,7 +7,7 @@
  * - Retrying failed workflows
  * - Monitoring workflow execution
  *
- * Generated: 2026-05-12T10:10:06.693Z
+ * Generated: 2026-05-12T10:27:31.165Z
  * Project: crm-app
  */
 
@@ -16,7 +16,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { WorkflowService } from './workflow.service';
+import type { WorkflowService } from './workflow.service';
 
 @ApiTags('workflows')
 @ApiBearerAuth()

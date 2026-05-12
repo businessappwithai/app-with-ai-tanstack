@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-05-12T10:10:09.903Z
+ * Generated: 2026-05-12T10:27:33.434Z
  * Project: crm-app
  */
 

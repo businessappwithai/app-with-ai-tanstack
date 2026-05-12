@@ -1,7 +1,7 @@
 /**
  * Database Constants
  *
- * Generated: 2026-05-12T10:10:06.725Z
+ * Generated: 2026-05-12T10:27:31.196Z
  */
 
 export const KYSELY_CONNECTION = 'KYSELY_CONNECTION';

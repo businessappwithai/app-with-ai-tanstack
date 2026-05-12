@@ -4,7 +4,7 @@
  * Dynamic controller for all bus_ prefixed tables.
  * CRUD operations are driven by the Application Dictionary metadata.
  *
- * Generated: 2026-05-12T10:10:06.699Z
+ * Generated: 2026-05-12T10:27:31.171Z
  */
 
 import {
@@ -24,7 +24,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
-import { BusService } from './bus.service';
+import type { BusService } from './bus.service';
 
 @ApiTags('bus')
 @ApiBearerAuth()

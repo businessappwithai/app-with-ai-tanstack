@@ -4,15 +4,14 @@
  * Provides CRUD operations for managing business rules in the database.
  * Integrates with GoRules Zen Engine for rule evaluation.
  *
- * Generated: 2026-05-12T10:10:06.689Z
+ * Generated: 2026-05-12T10:27:31.161Z
  * Project: crm-app
  */
 
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { Kysely } from 'kysely';
 import { InjectDatabase } from '../../database/database.service.decorator';
-import { RulesEngine } from './rules-engine.service';
-import type { RuleEvaluationResult } from './rules-engine.service';
+import type { RulesEngine, RuleEvaluationResult } from './rules-engine.service';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 

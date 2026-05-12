@@ -3,7 +3,7 @@
  * Application Dictionary tables following Compiere pattern
  * SQLite-compatible with TEXT UUIDs and TIMESTAMP handling
  *
- * Generated: 2026-05-12T10:10:06.702Z
+ * Generated: 2026-05-12T10:27:31.174Z
  */
 
 import { type Kysely, sql } from 'kysely';

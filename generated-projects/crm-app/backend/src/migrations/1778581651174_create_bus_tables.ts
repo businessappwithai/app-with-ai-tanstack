@@ -3,7 +3,7 @@
  * Creates all business entity tables
  * SQLite-compatible with TEXT UUIDs and TIMESTAMP handling
  *
- * Generated: 2026-05-12T10:10:06.706Z
+ * Generated: 2026-05-12T10:27:31.178Z
  */
 
 import { type Kysely, sql } from 'kysely';

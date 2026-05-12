@@ -4,7 +4,7 @@
  * Handles CRUD operations for all sys_ tables.
  * The sys_field endpoints are critical for runtime UI modification.
  *
- * Generated: 2026-05-12T10:10:06.698Z
+ * Generated: 2026-05-12T10:27:31.170Z
  */
 
 import {
@@ -20,7 +20,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { SysService } from './sys.service';
+import type { SysService } from './sys.service';
 
 @ApiTags('sys')
 @ApiBearerAuth()

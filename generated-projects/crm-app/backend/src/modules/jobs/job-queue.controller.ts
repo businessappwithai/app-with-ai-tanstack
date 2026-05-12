@@ -3,14 +3,13 @@
  *
  * REST API for managing background jobs
  *
- * Generated: 2026-05-12T10:10:06.688Z
+ * Generated: 2026-05-12T10:27:31.160Z
  * Project: crm-app
  */
 
 import { Controller, Get, Post, Body, Param, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { JobQueueService } from './job-queue.service';
-import type { EmailJobData, ReportJobData, SyncJobData } from './job-queue.service';
+import type { JobQueueService, EmailJobData, ReportJobData, SyncJobData } from './job-queue.service';
 
 @ApiTags('jobs')
 @Controller('jobs')

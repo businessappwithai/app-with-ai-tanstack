@@ -11,7 +11,7 @@
  * - Server-side pagination
  * - Row actions (View, Edit, Delete)
  *
- * Generated: 2026-05-12T10:10:09.914Z
+ * Generated: 2026-05-12T10:27:33.445Z
  * Project: crm-app
  */
 

@@ -11,7 +11,7 @@
  * - Getting rule history
  * - Migrating rules from files to database
  *
- * Generated: 2026-05-12T10:10:06.690Z
+ * Generated: 2026-05-12T10:27:31.162Z
  * Project: crm-app
  */
 
@@ -21,15 +21,15 @@ import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { RulesService } from './rules.service';
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
+import type { RulesService } from './rules.service';
+import { ZodValidationPipe } from '@/common/pipes/zod-validation.pipe';
 import {
   CreateRuleSchema,
   UpdateRuleSchema,
   ValidateJdmSchema,
   DryRunSchema,
   EvaluateRulesSchema,
-} from './dto';
+} from './dto/rules.dto';
 
 @ApiTags('rules')
 @ApiBearerAuth()
@@ -167,12 +167,12 @@ export class RulesController {
   ) {
     const operationMap: Record<string, 'create' | 'update' | 'delete'> = {
       CREATE: 'create',
-      READ: 'create',
       UPDATE: 'update',
       DELETE: 'delete',
+      READ: 'create',
     };
 
-    const mappedOperation: 'create' | 'update' | 'delete' = operationMap[body.operation] || 'create';
+    const mappedOperation = operationMap[body.operation] || 'create';
     const results = await this.rulesService.evaluate(
       body.entityName,
       body.data,

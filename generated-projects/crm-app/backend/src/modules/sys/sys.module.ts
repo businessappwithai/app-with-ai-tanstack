@@ -4,7 +4,7 @@
  * Handles all sys_ prefixed tables:
  * - sys_table, sys_column, sys_field
  *
- * Generated: 2026-05-12T10:10:06.698Z
+ * Generated: 2026-05-12T10:27:31.170Z
  */
 
 import { Module } from '@nestjs/common';

@@ -2,7 +2,7 @@
  * Kysely Migration Runner
  *
  * Run with: bun run src/migrate.ts [up|down|latest|rollback]
- * Generated: 2026-05-12T10:10:06.724Z
+ * Generated: 2026-05-12T10:27:31.194Z
  */
 
 import * as path from 'path';
