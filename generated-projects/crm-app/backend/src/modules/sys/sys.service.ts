@@ -8,7 +8,7 @@
 
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { sql } from 'kysely';
-import type { DatabaseService } from '../../database/database.service';
+import { DatabaseService } from '../../database/database.service';
 
 interface PaginationOptions {
   page?: number;

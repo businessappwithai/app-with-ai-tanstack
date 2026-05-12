@@ -26,6 +26,16 @@ export default defineConfig({
         '@': path.resolve('./src'),
       },
     },
+    server: {
+      middlewareMode: false,
+      port: 3001,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3000',
+          changeOrigin: true,
+        },
+      },
+    },
     ssr: {
       noExternal: true,
     },
