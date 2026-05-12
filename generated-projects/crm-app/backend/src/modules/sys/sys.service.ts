@@ -3,7 +3,7 @@
  *
  * Provides data access for all sys_ tables using Kysely.
  *
- * Generated: 2026-05-12T10:27:31.171Z
+ * Generated: 2026-05-12T11:38:40.022Z
  */
 
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
@@ -68,7 +68,7 @@ export class SysService {
     if (search) query = query.where('name', 'like', `%${search}%`);
 
     const [data, countRow] = await Promise.all([
-      query.orderBy('name').limit(limit).offset(offset).execute(),
+      query.orderBy('name').limit(Number(limit)).offset(Number(offset)).execute(),
       query.clearSelect().select((eb) => eb.fn.countAll().as('count')).executeTakeFirst(),
     ]);
 
@@ -158,7 +158,7 @@ export class SysService {
     if (tableId) query = query.where('sys_table_id', '=', tableId);
 
     const [data, countRow] = await Promise.all([
-      query.orderBy('seq_no').limit(limit).offset(offset).execute(),
+      query.orderBy('seq_no').limit(Number(limit)).offset(Number(offset)).execute(),
       query.clearSelect().select((eb) => eb.fn.countAll().as('count')).executeTakeFirst(),
     ]);
 
@@ -240,7 +240,7 @@ export class SysService {
     const orderCol = view === 'grid' ? 'sys_field.seq_no_grid' : 'sys_field.seq_no';
 
     const [data, countRow] = await Promise.all([
-      query.orderBy(orderCol as any).limit(limit).offset(offset).execute(),
+      query.orderBy(orderCol as any).limit(Number(limit)).offset(Number(offset)).execute(),
       query.clearSelect().select((eb) => eb.fn.countAll().as('count')).executeTakeFirst(),
     ]);
 

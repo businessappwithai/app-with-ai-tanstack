@@ -284,6 +284,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
       "src/common/filters/http-exception.filter.ts",
       "src/common/guards/etag.guard.ts",
       "src/common/interceptors/transform.interceptor.ts",
+      "src/common/pipes/zod-validation.pipe.ts",
     ];
 
     for (const file of commonFiles) {
@@ -472,6 +473,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
 
     // Rules module
     const rulesFiles = [
+      { tpl: "src/modules/rules/dto/rules.dto.ts.hbs", out: "src/modules/rules/dto/rules.dto.ts" },
       { tpl: "src/modules/rules/rules.module.ts.hbs", out: "src/modules/rules/rules.module.ts" },
       { tpl: "src/modules/rules/rules.service.ts.hbs", out: "src/modules/rules/rules.service.ts" },
       {

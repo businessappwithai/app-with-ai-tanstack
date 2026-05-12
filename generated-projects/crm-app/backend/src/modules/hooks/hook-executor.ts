@@ -2,7 +2,7 @@
  * Hook Executor
  *
  * Executes registered hooks for entity lifecycle events.
- * Generated: 2026-05-12T10:27:31.156Z
+ * Generated: 2026-05-12T11:38:40.007Z
  */
 
 import type { HookContext, HookLifecycle } from './hook.types';

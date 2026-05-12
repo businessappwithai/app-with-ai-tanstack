@@ -3,7 +3,7 @@
 /**
  * Sidebar Navigation Component
  *
- * Generated: 2026-05-12T10:27:33.436Z
+ * Generated: 2026-05-12T11:38:43.014Z
  */
 
 import { useState } from 'react';

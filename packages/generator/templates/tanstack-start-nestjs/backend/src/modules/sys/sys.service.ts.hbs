@@ -69,7 +69,7 @@ export class SysService {
     if (search) query = query.where('name', 'like', `%${search}%`);
 
     const [data, countRow] = await Promise.all([
-      query.orderBy('name').limit(limit).offset(offset).execute(),
+      query.orderBy('name').limit(Number(limit)).offset(Number(offset)).execute(),
       query.clearSelect().select((eb) => eb.fn.countAll().as('count')).executeTakeFirst(),
     ]);
 
@@ -241,7 +241,7 @@ export class SysService {
     const orderCol = view === 'grid' ? 'sys_field.seq_no_grid' : 'sys_field.seq_no';
 
     const [data, countRow] = await Promise.all([
-      query.orderBy(orderCol as any).limit(limit).offset(offset).execute(),
+      query.orderBy(orderCol as any).limit(Number(limit)).offset(Number(offset)).execute(),
       query.clearSelect().select((eb) => eb.fn.countAll().as('count')).executeTakeFirst(),
     ]);
 

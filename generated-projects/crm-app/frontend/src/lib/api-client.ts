@@ -1,7 +1,7 @@
 /**
  * API Client for Backend Communication
  *
- * Generated: 2026-05-12T10:27:33.434Z
+ * Generated: 2026-05-12T11:38:43.012Z
  */
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";

@@ -3,7 +3,7 @@
  *
  * Marks routes that don't require authentication
  *
- * Generated: 2026-05-12T10:27:31.150Z
+ * Generated: 2026-05-12T11:38:40.002Z
  */
 
 import { SetMetadata } from '@nestjs/common';

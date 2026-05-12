@@ -7,7 +7,7 @@
  * - Retrying failed workflows
  * - Monitoring workflow execution
  *
- * Generated: 2026-05-12T10:27:31.165Z
+ * Generated: 2026-05-12T11:38:40.016Z
  * Project: crm-app
  */
 

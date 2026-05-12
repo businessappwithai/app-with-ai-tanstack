@@ -1,7 +1,7 @@
 /**
  * Database Service with Kysely
  *
- * Generated: 2026-05-12T10:27:31.197Z
+ * Generated: 2026-05-12T11:38:40.049Z
  */
 
 import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
@@ -83,8 +83,8 @@ export class DatabaseService {
 
     const data = await query
       .orderBy(orderBy as any, orderDir)
-      .limit(limit)
-      .offset(offset)
+      .limit(Number(limit))
+      .offset(Number(offset))
       .execute();
 
     return {

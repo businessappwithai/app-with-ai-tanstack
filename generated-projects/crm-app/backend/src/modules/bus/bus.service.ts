@@ -4,7 +4,7 @@
  * Dynamic service for all bus_ prefixed tables.
  * Validates data against Application Dictionary metadata.
  *
- * Generated: 2026-05-12T10:27:31.172Z
+ * Generated: 2026-05-12T11:38:40.023Z
  */
 
 import { Injectable, NotFoundException, BadRequestException, ConflictException, Inject, Logger } from '@nestjs/common';
