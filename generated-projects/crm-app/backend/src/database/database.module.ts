@@ -1,7 +1,7 @@
 /**
  * Database Module with Kysely
  *
- * Generated: 2026-05-12T11:48:19.458Z
+ * Generated: 2026-05-12T11:57:03.531Z
  */
 
 import { Module, Global, OnModuleDestroy, Inject } from '@nestjs/common';

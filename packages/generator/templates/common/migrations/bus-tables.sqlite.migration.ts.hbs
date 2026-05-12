@@ -41,7 +41,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       , {{name}} TIMESTAMP{{#if required}} NOT NULL{{/if}}
         {{/case}}
         {{#case 20}}
-      , {{name}} BOOLEAN{{#if required}} NOT NULL{{/if}}{{#if default}} DEFAULT {{default}}{{/if}}
+      , {{name}} INTEGER{{#if required}} NOT NULL{{/if}}{{#if default}} DEFAULT {{#if (eq default true)}}1{{else if (eq default false)}}0{{else}}{{default}}{{/if}}{{/if}}
         {{/case}}
         {{#case 30}}
       , {{name}} VARCHAR(255){{#if required}} NOT NULL{{/if}}

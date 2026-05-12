@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-05-12T11:48:21.043Z
+ * Generated: 2026-05-12T11:57:05.730Z
  * Project: crm-app
  */
 

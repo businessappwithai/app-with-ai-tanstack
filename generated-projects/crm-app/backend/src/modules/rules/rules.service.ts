@@ -4,7 +4,7 @@
  * Provides CRUD operations for managing business rules in the database.
  * Integrates with GoRules Zen Engine for rule evaluation.
  *
- * Generated: 2026-05-12T11:48:19.423Z
+ * Generated: 2026-05-12T11:57:03.496Z
  * Project: crm-app
  */
 
@@ -130,7 +130,7 @@ export class RulesService {
         operation: dto.operation.toUpperCase(),
         jdm_content: dto.jdmContent,
         version: 1,
-        is_active: true,
+        is_active: 1,
         created_by: userId,
         created_at: new Date(),
         updated_at: new Date(),
@@ -191,7 +191,7 @@ export class RulesService {
     await this.db
       .updateTable('sys_rule_definitions')
       .set({
-        is_active: false,
+        is_active: 0,
         updated_at: new Date(),
       })
       .where('id', '=', id)
@@ -341,7 +341,7 @@ export class RulesService {
       .selectAll()
       .where('entity_name', '=', entityType)
       .where('operation', '=', action.toUpperCase())
-      .where('is_active', '=', true)
+      .where('is_active', '=', 1)
       .executeTakeFirst();
 
     if (!rule) {
@@ -394,7 +394,7 @@ export class RulesService {
       .selectAll()
       .where('entity_name', '=', entityType)
       .where('operation', '=', action.toUpperCase())
-      .where('is_active', '=', true)
+      .where('is_active', '=', 1)
       .executeTakeFirst();
 
     if (!rule) {

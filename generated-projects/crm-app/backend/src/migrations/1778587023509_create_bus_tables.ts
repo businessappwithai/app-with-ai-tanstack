@@ -3,7 +3,7 @@
  * Creates all business entity tables
  * SQLite-compatible with TEXT UUIDs and TIMESTAMP handling
  *
- * Generated: 2026-05-12T11:48:19.440Z
+ * Generated: 2026-05-12T11:57:03.513Z
  */
 
 import { Kysely, sql } from 'kysely';
@@ -99,8 +99,8 @@ export async function up(db: Kysely<any>): Promise<void> {
       , name VARCHAR(255) NOT NULL
       , sort_order INTEGER NOT NULL
       , default_probability INTEGER NOT NULL
-      , is_won BOOLEAN NOT NULL
-      , is_lost BOOLEAN NOT NULL
+      , is_won INTEGER NOT NULL
+      , is_lost INTEGER NOT NULL
       , created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       , updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       , deleted_at TIMESTAMP
@@ -118,8 +118,8 @@ export async function up(db: Kysely<any>): Promise<void> {
     CREATE TABLE IF NOT EXISTS bus_pipeline (
       id TEXT PRIMARY KEY
       , name VARCHAR(255) NOT NULL
-      , is_default BOOLEAN NOT NULL
-      , is_active BOOLEAN NOT NULL
+      , is_default INTEGER NOT NULL
+      , is_active INTEGER NOT NULL
       , created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       , updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       , deleted_at TIMESTAMP
@@ -166,7 +166,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       , company_id VARCHAR(255)
       , deal_id VARCHAR(255)
       , content TEXT NOT NULL
-      , is_pinned BOOLEAN NOT NULL
+      , is_pinned INTEGER NOT NULL
       , author_id VARCHAR(255) NOT NULL
       , created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       , updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -240,7 +240,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       , body_html TEXT NOT NULL
       , body_text TEXT
       , category VARCHAR(255)
-      , is_active BOOLEAN NOT NULL
+      , is_active INTEGER NOT NULL
       , created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       , updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       , deleted_at TIMESTAMP
@@ -262,7 +262,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       , description TEXT
       , unit_price REAL NOT NULL
       , currency VARCHAR(255) NOT NULL
-      , is_active BOOLEAN NOT NULL
+      , is_active INTEGER NOT NULL
       , created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       , updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       , deleted_at TIMESTAMP
@@ -333,7 +333,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       , last_name VARCHAR(255) NOT NULL
       , role VARCHAR(255) NOT NULL
       , team_id VARCHAR(255)
-      , is_active BOOLEAN NOT NULL
+      , is_active INTEGER NOT NULL
       , last_login TIMESTAMP
       , created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       , updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

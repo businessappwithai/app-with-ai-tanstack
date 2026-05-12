@@ -4,7 +4,7 @@
  * Handles CRUD operations for all sys_ tables.
  * The sys_field endpoints are critical for runtime UI modification.
  *
- * Generated: 2026-05-12T11:48:19.431Z
+ * Generated: 2026-05-12T11:57:03.506Z
  */
 
 import {

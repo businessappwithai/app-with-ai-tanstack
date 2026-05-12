@@ -12,7 +12,7 @@
   * Note: TanStack Router provides built-in client-side routing
   * via @tanstack/react-router, so no custom router provider is needed.
  *
- * Generated: 2026-05-12T11:48:21.042Z
+ * Generated: 2026-05-12T11:57:05.729Z
  */
 
 import React, { type ReactNode } from 'react';

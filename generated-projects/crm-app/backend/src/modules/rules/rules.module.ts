@@ -3,7 +3,7 @@
  *
  * Business rules engine module for crm-app
  *
- * Generated: 2026-05-12T11:48:19.422Z
+ * Generated: 2026-05-12T11:57:03.495Z
  */
 
 import { Module } from '@nestjs/common';

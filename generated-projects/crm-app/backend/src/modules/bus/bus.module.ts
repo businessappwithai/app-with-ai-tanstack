@@ -4,7 +4,7 @@
  * Handles all bus_ prefixed business entity tables.
  * Provides dynamic CRUD operations for all business entities.
  *
- * Generated: 2026-05-12T11:48:19.433Z
+ * Generated: 2026-05-12T11:57:03.508Z
  */
 
 import { Module } from '@nestjs/common';

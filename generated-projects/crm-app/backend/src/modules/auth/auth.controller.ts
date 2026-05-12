@@ -4,7 +4,7 @@
  * Provides user profile endpoints. Actual auth routes (sign-in, sign-up,
  * sign-out, session) are handled by better-auth at /api/auth/*.
  *
- * Generated: 2026-05-12T11:48:19.414Z
+ * Generated: 2026-05-12T11:57:03.488Z
  */
 
 import { Controller, Get, UseGuards, Req } from '@nestjs/common';

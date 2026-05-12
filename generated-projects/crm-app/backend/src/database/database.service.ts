@@ -1,7 +1,7 @@
 /**
  * Database Service with Kysely
  *
- * Generated: 2026-05-12T11:48:19.459Z
+ * Generated: 2026-05-12T11:57:03.532Z
  */
 
 import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
@@ -32,6 +32,36 @@ export class DatabaseService {
 
   constructor(@Inject(KYSELY_CONNECTION) kysely: Kysely<any>) {
     this.kysely = kysely;
+  }
+
+  /**
+   * Convert JavaScript types to SQLite-safe values
+   * SQLite doesn't support native booleans, Dates, objects, etc.
+   */
+  static sqliteSafe(obj: Record<string, any>): Record<string, any> {
+    return Object.fromEntries(
+      Object.entries(obj)
+        .filter(([_, v]) => v !== undefined)
+        .map(([k, v]) => {
+          if (v instanceof Date) {
+            return [k, v.toISOString()];
+          }
+          if (typeof v === 'boolean') {
+            return [k, v ? 1 : 0];
+          }
+          if (
+            v &&
+            typeof v === 'object' &&
+            !Buffer.isBuffer(v) &&
+            !Array.isArray(v)
+          ) {
+            if (v.constructor === Object) {
+              return [k, JSON.stringify(v)];
+            }
+          }
+          return [k, v];
+        })
+    );
   }
 
   /**
@@ -154,7 +184,10 @@ export class DatabaseService {
       updated_at: now,
     };
 
-    await this.kysely.insertInto(tableName as any).values(record).execute();
+    const safedRecord = DatabaseService.sqliteSafe(record as any);
+    console.log('CREATE TABLE:', tableName);
+    console.log('CREATE DATA:', JSON.stringify(safedRecord, null, 2));
+    await this.kysely.insertInto(tableName as any).values(safedRecord).execute();
 
     return this.findByIdOrFail<T>(tableName, id);
   }
@@ -176,12 +209,16 @@ export class DatabaseService {
       );
     }
 
+    const updateData = DatabaseService.sqliteSafe({
+      ...data,
+      updated_at: new Date(),
+    });
+
     await this.kysely
       .updateTable(tableName as any)
       .set({
-        ...data,
+        ...updateData,
         version: sql`version + 1`,
-        updated_at: new Date(),
       } as any)
       .where('id' as any, '=', id)
       .execute();

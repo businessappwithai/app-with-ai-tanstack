@@ -6,7 +6,7 @@
  * - Technical precision with JetBrains Mono metrics
  * - Clean borders and refined spacing
  *
- * Generated: 2026-05-12T11:48:21.042Z
+ * Generated: 2026-05-12T11:57:05.729Z
  * Project: crm-app
  */
 
@@ -314,7 +314,7 @@ function DashboardPage() {
                 {totalEntities} registered {totalEntities === 1 ? 'entity' : 'entities'}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Generated: 2026-05-12T11:48:21.042Z
+                Generated: 2026-05-12T11:57:05.729Z
               </p>
             </div>
             <Link to="/admin">

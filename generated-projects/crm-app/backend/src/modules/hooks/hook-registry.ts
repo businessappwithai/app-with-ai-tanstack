@@ -2,7 +2,7 @@
  * Hook Registry
  *
  * Manages registration and retrieval of hooks for entity lifecycle events.
- * Generated: 2026-05-12T11:48:19.417Z
+ * Generated: 2026-05-12T11:57:03.491Z
  */
 
 import { Hook, HookLifecycle } from './hook.types';

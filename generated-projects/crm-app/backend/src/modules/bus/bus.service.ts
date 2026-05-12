@@ -4,7 +4,7 @@
  * Dynamic service for all bus_ prefixed tables.
  * Validates data against Application Dictionary metadata.
  *
- * Generated: 2026-05-12T11:48:19.433Z
+ * Generated: 2026-05-12T11:57:03.508Z
  */
 
 import { Injectable, NotFoundException, BadRequestException, ConflictException, Inject, Logger } from '@nestjs/common';
@@ -180,7 +180,7 @@ export class BusService {
       .selectFrom('sys_table')
       .selectAll()
       .where('table_name', '=', tableName)
-      .where('is_active', '=', true)
+      .where('is_active', '=', 1)
       .executeTakeFirst();
 
     if (!tableRecord) {
@@ -199,7 +199,7 @@ export class BusService {
       .selectFrom('sys_table')
       .selectAll()
       .where('table_name', '=', tableName)
-      .where('is_active', '=', true)
+      .where('is_active', '=', 1)
       .executeTakeFirst();
 
     if (!table) {
@@ -241,7 +241,7 @@ export class BusService {
         'sys_field.name as field_name',
       ])
       .where('sys_column.sys_table_id', '=', table.sys_table_id)
-      .where('sys_column.is_active', '=', true)
+      .where('sys_column.is_active', '=', 1)
       .orderBy('sys_column.seq_no', 'asc')
       .execute();
 

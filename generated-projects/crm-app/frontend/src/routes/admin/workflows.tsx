@@ -3,7 +3,7 @@
  *
  * Monitor workflow execution history and status
  *
- * Generated: 2026-05-12T11:48:21.059Z
+ * Generated: 2026-05-12T11:57:05.746Z
  * Project: crm-app
  */
 

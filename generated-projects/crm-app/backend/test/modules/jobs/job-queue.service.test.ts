@@ -1,7 +1,7 @@
 /**
  * Unit tests for JobQueueService (Trigger.dev v3 integration)
  *
- * Generated: 2026-05-12T11:48:19.466Z
+ * Generated: 2026-05-12T11:57:03.539Z
  * Project: crm-app
  */
 

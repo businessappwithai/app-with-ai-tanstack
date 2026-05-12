@@ -3,12 +3,13 @@
  *
  * Provides data access for all sys_ tables using Kysely.
  *
- * Generated: 2026-05-12T11:38:40.022Z
+ * Generated: 2026-05-12T11:57:03.507Z
  */
 
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { sql } from 'kysely';
 import { DatabaseService } from '../../database/database.service';
+import type { Kysely } from 'kysely';
 
 interface PaginationOptions {
   page?: number;
@@ -67,14 +68,9 @@ export class SysService {
     if (prefix) query = query.where('table_name', 'like', `${prefix}%`);
     if (search) query = query.where('name', 'like', `%${search}%`);
 
-    const countQuery = this.db.kysely.selectFrom('sys_table').where('is_active', '=', 1);
-    let countQueryWithFilters = countQuery;
-    if (prefix) countQueryWithFilters = countQueryWithFilters.where('table_name', 'like', `${prefix}%`);
-    if (search) countQueryWithFilters = countQueryWithFilters.where('name', 'like', `%${search}%`);
-
     const [data, countRow] = await Promise.all([
       query.orderBy('name').limit(Number(limit)).offset(Number(offset)).execute(),
-      countQueryWithFilters.select((eb) => eb.fn.countAll<number>().as('count')).executeTakeFirst(),
+      query.clearSelect().select((eb) => eb.fn.countAll().as('count')).executeTakeFirst(),
     ]);
 
     return { data, meta: { total: Number(countRow?.count ?? 0), page, pageSize: limit } };
@@ -102,7 +98,7 @@ export class SysService {
 
     const sysTableData = tableNames.length > 0
       ? await this.db.kysely.selectFrom('sys_table').selectAll()
-          .where('table_name', 'in', tableNames).where('is_active', '=', true).execute()
+          .where('table_name', 'in', tableNames).where('is_active', '=', 1).execute()
       : [];
 
     const data = paginatedRows.map(t => {
@@ -159,11 +155,11 @@ export class SysService {
     const { page = 1, limit = 100, tableId } = options;
     const offset = (page - 1) * limit;
 
-    let query = this.db.kysely.selectFrom('sys_column').selectAll().where('is_active', '=', true);
+    let query = this.db.kysely.selectFrom('sys_column').selectAll().where('is_active', '=', 1);
     if (tableId) query = query.where('sys_table_id', '=', tableId);
 
     const [data, countRow] = await Promise.all([
-      query.orderBy('seq_no').limit(Number(limit)).offset(Number(offset)).execute(),
+      query.orderBy('seq_no').limit(limit).offset(offset).execute(),
       query.clearSelect().select((eb) => eb.fn.countAll().as('count')).executeTakeFirst(),
     ]);
 
@@ -235,12 +231,12 @@ export class SysService {
         'sys_column.column_name',
         'sys_column.name as column_display_name',
       ])
-      .where('sys_field.is_active', '=', true);
+      .where('sys_field.is_active', '=', 1);
 
     if (tabId) query = query.where('sys_field.sys_tab_id', '=', tabId);
     if (tableId) query = query.where('sys_column.sys_table_id', '=', tableId);
-    if (view === 'form') query = query.where('sys_field.is_displayed', '=', true);
-    else if (view === 'grid') query = query.where('sys_field.is_displayed_grid', '=', true);
+    if (view === 'form') query = query.where('sys_field.is_displayed', '=', 1);
+    else if (view === 'grid') query = query.where('sys_field.is_displayed_grid', '=', 1);
 
     const orderCol = view === 'grid' ? 'sys_field.seq_no_grid' : 'sys_field.seq_no';
 
@@ -297,7 +293,7 @@ export class SysService {
     let query = this.db.kysely
       .selectFrom('sys_field_group')
       .selectAll()
-      .where('sys_field_group.is_active', '=', true);
+      .where('sys_field_group.is_active', '=', 1);
 
     if (tableName) {
       query = (query as any)
@@ -338,7 +334,7 @@ export class SysService {
   async deleteFieldGroup(id: string) {
     await this.findFieldGroupById(id);
     await this.db.kysely.updateTable('sys_field_group')
-      .set({ is_active: false, updated: new Date().toISOString() } as any)
+      .set({ is_active: 0, updated: new Date().toISOString() } as any)
       .where('sys_field_group_id', '=', id)
       .execute();
     return { success: true };
@@ -352,7 +348,7 @@ export class SysService {
     const { page = 1, limit = 100 } = options;
     const offset = (page - 1) * limit;
 
-    const query = this.db.kysely.selectFrom('sys_reference').selectAll().where('is_active', '=', true);
+    const query = this.db.kysely.selectFrom('sys_reference').selectAll().where('is_active', '=', 1);
 
     const [data, countRow] = await Promise.all([
       query.orderBy('name').limit(limit).offset(offset).execute(),
@@ -379,14 +375,14 @@ export class SysService {
     const [columns, fields] = await Promise.all([
       this.db.kysely.selectFrom('sys_column').selectAll()
         .where('sys_table_id', '=', table.sys_table_id)
-        .where('is_active', '=', true)
+        .where('is_active', '=', 1)
         .orderBy('seq_no')
         .execute(),
       this.db.kysely.selectFrom('sys_field')
         .innerJoin('sys_column', 'sys_column.sys_column_id', 'sys_field.sys_column_id')
         .select(['sys_field.sys_field_id', 'sys_field.name', 'sys_field.seq_no', 'sys_field.is_displayed', 'sys_column.column_name'])
         .where('sys_column.sys_table_id', '=', table.sys_table_id)
-        .where('sys_field.is_active', '=', true)
+        .where('sys_field.is_active', '=', 1)
         .orderBy('sys_field.seq_no')
         .execute(),
     ]);
@@ -423,8 +419,8 @@ export class SysService {
           'display_column.column_name as ref_display_column',
         ])
         .where('sys_column.sys_table_id', '=', table.sys_table_id)
-        .where('sys_field.is_active', '=', true)
-        .where('sys_field.is_displayed', '=', true)
+        .where('sys_field.is_active', '=', 1)
+        .where('sys_field.is_displayed', '=', 1)
         .orderBy('sys_field.seq_no')
         .execute();
     });
@@ -455,8 +451,8 @@ export class SysService {
           'display_column.column_name as ref_display_column',
         ])
         .where('sys_column.sys_table_id', '=', table.sys_table_id)
-        .where('sys_field.is_active', '=', true)
-        .where('sys_field.is_displayed_grid', '=', true)
+        .where('sys_field.is_active', '=', 1)
+        .where('sys_field.is_displayed_grid', '=', 1)
         .orderBy('sys_field.seq_no_grid')
         .execute();
     });
