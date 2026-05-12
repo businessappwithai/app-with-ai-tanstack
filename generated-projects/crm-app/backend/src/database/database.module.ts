@@ -21,12 +21,12 @@ import { DatabaseService } from './database.service';
 
         let dialect: PostgresDialect | SqliteDialect;
 
-        if (dbClient === 'better-sqlite3') {
-          // SQLite database with better-sqlite3 - Bun.js optimized
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
-          const Database = require('better-sqlite3');
+        if (dbClient === 'better-sqlite3' || dbClient === 'sqlite') {
+          // SQLite database with Bun native support (bun:sqlite)
+          const { Database } = await import('bun:sqlite');
           const filename = configService.get('DATABASE_FILENAME', './data/crm-app.db');
-          dialect = new SqliteDialect({ database: new Database(filename) as any });
+          const db = new Database(filename, { create: true });
+          dialect = new SqliteDialect({ database: db as any });
         } else {
           // PostgreSQL dialect - Bun.js compatible
           // eslint-disable-next-line @typescript-eslint/no-var-requires

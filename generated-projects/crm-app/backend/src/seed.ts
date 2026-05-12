@@ -31,7 +31,7 @@ async function createDialect(): Promise<PostgresDialect | SqliteDialect> {
 }
 
 async function runSeeds(db: Kysely<any>) {
-  const seedDir = path.join(path.dirname(import.meta.dir), 'seeds');
+  const seedDir = path.join(__dirname, '..', 'seeds');
   const files = (await fs.promises.readdir(seedDir)).sort();
 
   for (const file of files) {
