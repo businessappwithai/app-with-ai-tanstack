@@ -24,7 +24,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
-import type { BusService } from './bus.service';
+import { BusService } from './bus.service';
 
 @ApiTags('bus')
 @ApiBearerAuth()

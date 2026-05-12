@@ -20,7 +20,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import type { SysService } from './sys.service';
+import { SysService } from './sys.service';
 
 @ApiTags('sys')
 @ApiBearerAuth()

@@ -11,7 +11,8 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { Kysely } from 'kysely';
 import { InjectDatabase } from '../../database/database.service.decorator';
-import type { RulesEngine, RuleEvaluationResult } from './rules-engine.service';
+import { RulesEngine } from './rules-engine.service';
+import type { RuleEvaluationResult } from './rules-engine.service';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
