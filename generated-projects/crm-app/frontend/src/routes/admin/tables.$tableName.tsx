@@ -3,14 +3,14 @@
  *
  * Swiss Clean Design - Editorial layout with minimalist aesthetic
  *
- * Generated: 2026-05-12T11:38:43.025Z
+ * Generated: 2026-05-12T11:48:21.058Z
  * Project: crm-app
  */
 
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
-import { apiClient, type PaginatedResponse } from '@/lib/api-client';
+import { apiClient, PaginatedResponse } from '@/lib/api-client';
 import {
   ArrowLeft,
   Save,

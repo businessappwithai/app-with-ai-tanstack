@@ -13,12 +13,12 @@
  * 6. Mutations applied in DB transaction
  * 7. Workflow record updated (status: success/error)
  *
- * Generated: 2026-05-12T11:38:40.016Z
+ * Generated: 2026-05-12T11:48:19.426Z
  * Project: crm-app
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import type { Kysely } from 'kysely';
+import { Kysely } from 'kysely';
 import { InjectDatabase } from '../../database/database.service.decorator';
 import { entityLifecycleWorkflow } from '../../trigger/entity-lifecycle-workflow.task';
 

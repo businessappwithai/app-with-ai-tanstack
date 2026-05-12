@@ -9,14 +9,14 @@
  * Uses Trigger.dev v3 tasks which run on Trigger.dev's durable execution
  * infrastructure without requiring a self-hosted Redis instance.
  *
- * Generated: 2026-05-12T11:38:40.011Z
+ * Generated: 2026-05-12T11:48:19.421Z
  * Project: crm-app
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { sendEmailTask, type EmailTaskPayload } from '../../trigger/email.task';
-import { generateReportTask, type ReportTaskPayload } from '../../trigger/report.task';
-import { syncEntityTask, type SyncTaskPayload } from '../../trigger/sync.task';
+import { sendEmailTask, EmailTaskPayload } from '../../trigger/email.task';
+import { generateReportTask, ReportTaskPayload } from '../../trigger/report.task';
+import { syncEntityTask, SyncTaskPayload } from '../../trigger/sync.task';
 
 // Re-export payload types to preserve the existing public API surface
 export type EmailJobData = EmailTaskPayload;

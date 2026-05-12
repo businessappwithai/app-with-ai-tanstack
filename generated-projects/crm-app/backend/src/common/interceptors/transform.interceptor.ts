@@ -2,16 +2,16 @@
  * Transform Interceptor
  *
  * Standardizes API responses with consistent format.
- * Generated: 2026-05-12T11:38:40.001Z
+ * Generated: 2026-05-12T11:48:19.411Z
  */
 
 import {
   Injectable,
-  type NestInterceptor,
-  type ExecutionContext,
-  type CallHandler,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
 } from '@nestjs/common';
-import type { Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 export interface Response<T> {

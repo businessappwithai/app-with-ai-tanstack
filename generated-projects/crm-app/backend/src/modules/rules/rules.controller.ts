@@ -11,7 +11,7 @@
  * - Getting rule history
  * - Migrating rules from files to database
  *
- * Generated: 2026-05-12T11:38:40.013Z
+ * Generated: 2026-05-12T11:48:19.424Z
  * Project: crm-app
  */
 

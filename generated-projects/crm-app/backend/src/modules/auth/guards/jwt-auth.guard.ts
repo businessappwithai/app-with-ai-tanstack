@@ -3,10 +3,10 @@
  *
  * Protects routes by validating session tokens from BetterAuth
  *
- * Generated: 2026-05-12T11:38:40.003Z
+ * Generated: 2026-05-12T11:48:19.413Z
  */
 
-import { Injectable, type CanActivate, type ExecutionContext, UnauthorizedException, Inject } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Inject } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { auth } from '../../../lib/better-auth';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';

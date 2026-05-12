@@ -4,7 +4,7 @@
  * Dynamic controller for all bus_ prefixed tables.
  * CRUD operations are driven by the Application Dictionary metadata.
  *
- * Generated: 2026-05-12T11:38:40.022Z
+ * Generated: 2026-05-12T11:48:19.432Z
  */
 
 import {

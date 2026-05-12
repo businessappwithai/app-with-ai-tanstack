@@ -9,12 +9,12 @@
  * 4. Parse output mutations and apply to database
  * 5. Write sys_workflow_runs record
  *
- * Generated: 2026-05-12T11:38:40.010Z
+ * Generated: 2026-05-12T11:48:19.420Z
  * Project: crm-app
  */
 
 import { task } from '@trigger.dev/sdk/v3';
-import type { ZenEngine } from '@gorules/zen-engine';
+import { ZenEngine } from '@gorules/zen-engine';
 
 // Placeholder task that logs workflow execution
 export const entityLifecycleWorkflow = task({

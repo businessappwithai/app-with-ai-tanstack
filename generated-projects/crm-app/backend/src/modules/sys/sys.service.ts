@@ -62,14 +62,19 @@ export class SysService {
     const { page = 1, limit = 100, search, prefix } = options;
     const offset = (page - 1) * limit;
 
-    let query = this.db.kysely.selectFrom('sys_table').selectAll().where('is_active', '=', true);
+    let query = this.db.kysely.selectFrom('sys_table').selectAll().where('is_active', '=', 1);
 
     if (prefix) query = query.where('table_name', 'like', `${prefix}%`);
     if (search) query = query.where('name', 'like', `%${search}%`);
 
+    const countQuery = this.db.kysely.selectFrom('sys_table').where('is_active', '=', 1);
+    let countQueryWithFilters = countQuery;
+    if (prefix) countQueryWithFilters = countQueryWithFilters.where('table_name', 'like', `${prefix}%`);
+    if (search) countQueryWithFilters = countQueryWithFilters.where('name', 'like', `%${search}%`);
+
     const [data, countRow] = await Promise.all([
       query.orderBy('name').limit(Number(limit)).offset(Number(offset)).execute(),
-      query.clearSelect().select((eb) => eb.fn.countAll().as('count')).executeTakeFirst(),
+      countQueryWithFilters.select((eb) => eb.fn.countAll<number>().as('count')).executeTakeFirst(),
     ]);
 
     return { data, meta: { total: Number(countRow?.count ?? 0), page, pageSize: limit } };

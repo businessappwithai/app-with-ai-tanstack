@@ -2,7 +2,7 @@
  * Kysely Migration Runner
  *
  * Run with: bun run src/migrate.ts [up|down|latest|rollback]
- * Generated: 2026-05-12T11:38:40.047Z
+ * Generated: 2026-05-12T11:48:19.457Z
  */
 
 import * as path from 'path';
@@ -46,7 +46,7 @@ async function createDialect(): Promise<PostgresDialect | SqliteDialect> {
         readdir: (dir: string) => fs.promises.readdir(dir),
       },
       path,
-      // @ts-expect-error - import.meta.dir is supported in Bun runtime
+      // @ts-ignore - import.meta.dir is supported in Bun runtime
       migrationFolder: path.join(import.meta.dir, 'migrations'),
     }),
   });

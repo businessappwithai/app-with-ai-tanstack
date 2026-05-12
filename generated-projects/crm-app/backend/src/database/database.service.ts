@@ -1,11 +1,11 @@
 /**
  * Database Service with Kysely
  *
- * Generated: 2026-05-12T11:38:40.049Z
+ * Generated: 2026-05-12T11:48:19.459Z
  */
 
 import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
-import { type Kysely, sql } from 'kysely';
+import { Kysely, sql } from 'kysely';
 import { v4 as uuidv4 } from 'uuid';
 import { KYSELY_CONNECTION } from './database.constants';
 

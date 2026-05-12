@@ -8,7 +8,7 @@
  * and validates it against BetterAuth's session store.
  */
 
-import { Injectable, type CanActivate, type ExecutionContext, UnauthorizedException, Logger, Inject } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Logger, Inject } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { auth } from '../../../lib/better-auth';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';

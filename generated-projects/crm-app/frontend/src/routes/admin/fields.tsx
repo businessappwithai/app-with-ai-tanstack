@@ -4,7 +4,7 @@
  * Allows administrators to customize field ordering and visibility
  * for forms and tables. Changes are persisted to sys_field.seq_no.
  *
- * Generated: 2026-05-12T11:38:43.024Z
+ * Generated: 2026-05-12T11:48:21.057Z
  * Project: crm-app
  */
 
@@ -40,7 +40,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { apiClient, type PaginatedResponse } from '@/lib/api-client';
+import { apiClient, PaginatedResponse } from '@/lib/api-client';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/admin/fields')({

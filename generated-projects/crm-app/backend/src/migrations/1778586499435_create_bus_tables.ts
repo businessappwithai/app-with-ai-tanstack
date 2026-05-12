@@ -3,10 +3,10 @@
  * Creates all business entity tables
  * SQLite-compatible with TEXT UUIDs and TIMESTAMP handling
  *
- * Generated: 2026-05-12T11:38:40.029Z
+ * Generated: 2026-05-12T11:48:19.440Z
  */
 
-import { type Kysely, sql } from 'kysely';
+import { Kysely, sql } from 'kysely';
 
 export async function up(db: Kysely<any>): Promise<void> {
   // ==========================================================================

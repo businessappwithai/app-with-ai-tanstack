@@ -25,7 +25,8 @@
       "arrowParentheses": "always",
       "bracketSpacing": true,
       "trailingCommas": "es5",
-      "semicolons": "always"
+      "semicolons": "always",
+      "organizeImports": false
     },
     "parser": {
       "unsafeParameterDecoratorsEnabled": true

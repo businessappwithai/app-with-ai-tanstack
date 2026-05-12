@@ -4,7 +4,7 @@
  * Dynamic service for all bus_ prefixed tables.
  * Validates data against Application Dictionary metadata.
  *
- * Generated: 2026-05-12T11:38:40.023Z
+ * Generated: 2026-05-12T11:48:19.433Z
  */
 
 import { Injectable, NotFoundException, BadRequestException, ConflictException, Inject, Logger } from '@nestjs/common';
@@ -339,10 +339,10 @@ export class BusService {
       case 15: case 16:
         if (!(value instanceof Date) && isNaN(Date.parse(value))) return `Field '${fieldName}' must be a valid date`;
         break;
-      case 13: case 18: case 19: {
+      case 13: case 18: case 19:
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
         if (typeof value !== 'string' || !uuidRegex.test(value)) return `Field '${fieldName}' must be a valid UUID`;
-        break;}
+        break;
       case 28:
         if (typeof value !== 'object') return `Field '${fieldName}' must be a JSON object`;
         break;

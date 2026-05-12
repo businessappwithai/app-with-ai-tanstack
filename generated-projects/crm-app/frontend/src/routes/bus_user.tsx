@@ -11,14 +11,14 @@
  * - Server-side pagination
  * - Row actions (View, Edit, Delete)
  *
- * Generated: 2026-05-12T11:38:43.021Z
+ * Generated: 2026-05-12T11:48:21.054Z
  * Project: crm-app
  */
 
 import { useState, useMemo, useCallback } from 'react';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient, type PaginatedResponse } from '@/lib/api-client';
+import { apiClient, PaginatedResponse } from '@/lib/api-client';
 import { useGridFields, type FieldMetadata } from '@/hooks/use-entities';
 import { DynamicTable } from '@/components/tables/dynamic-table';
 import { Button } from '@/components/ui/button';

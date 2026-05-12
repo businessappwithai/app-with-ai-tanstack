@@ -1,18 +1,18 @@
 /**
  * HTTP Exception Filter
  *
- * Generated: 2026-05-12T11:38:40.001Z
+ * Generated: 2026-05-12T11:48:19.410Z
  */
 
 import {
-  type ExceptionFilter,
+  ExceptionFilter,
   Catch,
-  type ArgumentsHost,
+  ArgumentsHost,
   HttpException,
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export interface ErrorResponse {
   statusCode: number;
@@ -62,7 +62,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
     let error = 'Internal Server Error';
-    let details: any ;
+    let details: any = undefined;
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();

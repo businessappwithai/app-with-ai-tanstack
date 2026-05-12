@@ -1,10 +1,10 @@
 /**
  * Database Module with Kysely
  *
- * Generated: 2026-05-12T11:38:40.049Z
+ * Generated: 2026-05-12T11:48:19.458Z
  */
 
-import { Module, Global, type OnModuleDestroy, Inject } from '@nestjs/common';
+import { Module, Global, OnModuleDestroy, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Kysely, PostgresDialect, SqliteDialect } from 'kysely';
 import { KYSELY_CONNECTION } from './database.constants';

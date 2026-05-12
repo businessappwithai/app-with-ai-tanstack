@@ -12,7 +12,7 @@
  * }
  */
 
-import { createParamDecorator, type ExecutionContext } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export interface CurrentUser {
   id: string;
