@@ -16,7 +16,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import type { WorkflowService } from './workflow.service';
+import { WorkflowService } from './workflow.service';
 
 @ApiTags('workflows')
 @ApiBearerAuth()

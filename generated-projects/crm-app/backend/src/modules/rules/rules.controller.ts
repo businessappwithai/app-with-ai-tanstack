@@ -21,7 +21,7 @@ import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import type { RulesService } from './rules.service';
+import { RulesService } from './rules.service';
 import { ZodValidationPipe } from '@/common/pipes/zod-validation.pipe';
 import {
   CreateRuleSchema,
