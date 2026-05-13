@@ -6,7 +6,11 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { Kysely, PostgresDialect, SqliteDialect } from 'kysely';
-import 'dotenv/config';
+import { config } from 'dotenv';
+
+// Load .env from the backend root (parent of src/) regardless of cwd
+config({ path: path.join(__dirname, '..', '.env') });
+config({ path: path.join(__dirname, '..', '.env.local'), override: true });
 
 const dbClient = process.env.DATABASE_CLIENT ?? 'pg';
 
@@ -14,7 +18,26 @@ async function createDialect(): Promise<PostgresDialect | SqliteDialect> {
   if (dbClient === 'better-sqlite3' || dbClient === 'sqlite') {
     const { Database } = await import('bun:sqlite');
     const dbPath = process.env.DATABASE_FILENAME ?? './data/crm-app.db';
-    const db = new Database(dbPath, { create: true });
+    const rawDb = new Database(dbPath, { create: true });
+    const db = new Proxy(rawDb, {
+      get(target, prop) {
+        if (prop === 'prepare') {
+          return (sql: string) => {
+            const stmt = target.prepare(sql);
+            const isRead = /^\s*(SELECT|PRAGMA|WITH|EXPLAIN)/i.test(sql);
+            return new Proxy(stmt, {
+              get(s, p) {
+                if (p === 'reader') return isRead;
+                const val = (s as any)[p];
+                return typeof val === 'function' ? val.bind(s) : val;
+              },
+            });
+          };
+        }
+        const val = (target as any)[prop];
+        return typeof val === 'function' ? val.bind(target) : val;
+      },
+    });
     return new SqliteDialect({ database: db as any });
   } else {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -34,7 +57,7 @@ async function createDialect(): Promise<PostgresDialect | SqliteDialect> {
 async function runSeeds(db: Kysely<any>) {
   const seedDir = path.join(__dirname, '..', 'seeds');
   const files = (await fs.promises.readdir(seedDir))
-    .filter(f => f.endsWith('.ts') && !f.endsWith('.bak') && f === '01_sys_references.ts')
+    .filter(f => f.endsWith('.ts') && !f.endsWith('.bak'))
     .sort();
 
   for (const file of files) {
@@ -52,9 +75,6 @@ async function runSeeds(db: Kysely<any>) {
       }
     }
   }
-
-  console.log('\n⚠  02_sys_dictionary.ts and 03_business_data.ts will be enhanced in future iterations');
-  console.log('   They require detailed schema refinement matching the complete data model.\n');
 }
 
 (async () => {

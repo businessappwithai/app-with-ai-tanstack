@@ -46,14 +46,16 @@ export class BusController {
   @ApiResponse({ status: 200, description: 'Returns paginated list of records' })
   async findAll(
     @Param('entity') entity: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
     @Query('orderBy') orderBy?: string,
     @Query('orderDir') orderDir?: 'asc' | 'desc',
     @Query() query?: Record<string, any>,
   ) {
     const methodName = 'findAll';
-    this.logger.debug(`[${methodName}] Request - entity: ${entity}, page: ${page}, limit: ${limit}, orderBy: ${orderBy}, orderDir: ${orderDir}`);
+    const parsedPage = page ? parseInt(page, 10) : undefined;
+    const parsedLimit = limit ? parseInt(limit, 10) : undefined;
+    this.logger.debug(`[${methodName}] Request - entity: ${entity}, page: ${parsedPage}, limit: ${parsedLimit}, orderBy: ${orderBy}, orderDir: ${orderDir}`);
 
     // Extract filters from query params (exclude pagination params)
     const { page: _p, limit: _l, orderBy: _ob, orderDir: _od, ...rawFilters } = query || {};
@@ -65,7 +67,7 @@ export class BusController {
       this.logger.debug(`[${methodName}] Filters: ${JSON.stringify(parsedFilters)}`);
     }
 
-    const result = await this.busService.findAll(entity, { page, limit, orderBy, orderDir }, parsedFilters);
+    const result = await this.busService.findAll(entity, { page: parsedPage, limit: parsedLimit, orderBy, orderDir }, parsedFilters);
 
     this.logger.log(`[${methodName}] Success - entity: ${entity}, returned ${result.data.length} records (total: ${result.meta.total})`);
     return result;

@@ -80,6 +80,12 @@ export async function up(db: Kysely<any>): Promise<void> {
       name VARCHAR(100) NOT NULL,
       description TEXT,
       module_name VARCHAR(100),
+      access_level VARCHAR(1) NOT NULL DEFAULT 'A',
+      is_view INTEGER NOT NULL DEFAULT 0,
+      is_document INTEGER NOT NULL DEFAULT 0,
+      is_high_volume INTEGER NOT NULL DEFAULT 0,
+      is_changelog INTEGER NOT NULL DEFAULT 1,
+      sys_window_id TEXT,
       entity_type VARCHAR(40) NOT NULL DEFAULT 'U',
       is_active INTEGER NOT NULL DEFAULT 0,
       created_by VARCHAR(100) NOT NULL,
@@ -99,10 +105,17 @@ export async function up(db: Kysely<any>): Promise<void> {
       column_name VARCHAR(100) NOT NULL,
       name VARCHAR(100) NOT NULL,
       description TEXT,
-      column_type VARCHAR(40) NOT NULL,
+      column_type VARCHAR(40) DEFAULT 'S',
       is_key INTEGER NOT NULL DEFAULT 0,
+      is_parent INTEGER NOT NULL DEFAULT 0,
       is_mandatory INTEGER NOT NULL DEFAULT 0,
       is_updateable INTEGER NOT NULL DEFAULT 1,
+      is_identifier INTEGER NOT NULL DEFAULT 0,
+      is_selection_column INTEGER NOT NULL DEFAULT 0,
+      is_translated INTEGER NOT NULL DEFAULT 0,
+      is_encrypted INTEGER NOT NULL DEFAULT 0,
+      is_allow_logging INTEGER NOT NULL DEFAULT 1,
+      is_allow_copy INTEGER NOT NULL DEFAULT 0,
       max_length INTEGER,
       sys_reference_id INTEGER REFERENCES sys_reference(sys_reference_id),
       seq_no INTEGER NOT NULL DEFAULT 0,
@@ -122,10 +135,13 @@ export async function up(db: Kysely<any>): Promise<void> {
   await sql`
     CREATE TABLE IF NOT EXISTS sys_window (
       sys_window_id TEXT PRIMARY KEY,
-      sys_table_id TEXT NOT NULL REFERENCES sys_table(sys_table_id) ON DELETE CASCADE,
+      sys_table_id TEXT REFERENCES sys_table(sys_table_id) ON DELETE CASCADE,
       name VARCHAR(100) NOT NULL,
       description TEXT,
       window_type VARCHAR(1) NOT NULL DEFAULT 'T',
+      is_sales_transaction INTEGER NOT NULL DEFAULT 0,
+      is_default INTEGER NOT NULL DEFAULT 1,
+      entity_type VARCHAR(40) NOT NULL DEFAULT 'U',
       is_active INTEGER NOT NULL DEFAULT 0,
       created_by VARCHAR(100) NOT NULL,
       updated_by VARCHAR(100) NOT NULL,
@@ -143,7 +159,37 @@ export async function up(db: Kysely<any>): Promise<void> {
       sys_window_id TEXT NOT NULL REFERENCES sys_window(sys_window_id) ON DELETE CASCADE,
       sys_table_id TEXT NOT NULL REFERENCES sys_table(sys_table_id) ON DELETE CASCADE,
       name VARCHAR(100) NOT NULL,
+      tab_level INTEGER NOT NULL DEFAULT 0,
       seq_no INTEGER NOT NULL DEFAULT 0,
+      is_single_row INTEGER NOT NULL DEFAULT 0,
+      has_tree INTEGER NOT NULL DEFAULT 0,
+      is_info_tab INTEGER NOT NULL DEFAULT 0,
+      is_translation_tab INTEGER NOT NULL DEFAULT 0,
+      is_read_only INTEGER NOT NULL DEFAULT 0,
+      is_insert_record INTEGER NOT NULL DEFAULT 1,
+      is_advanced_tab INTEGER NOT NULL DEFAULT 0,
+      entity_type VARCHAR(40) NOT NULL DEFAULT 'U',
+      is_active INTEGER NOT NULL DEFAULT 0,
+      created_by VARCHAR(100) NOT NULL,
+      updated_by VARCHAR(100) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `.execute(db);
+
+  // ============================================================================
+  // sys_field_group - Field Grouping
+  // ============================================================================
+  await sql`
+    CREATE TABLE IF NOT EXISTS sys_field_group (
+      sys_field_group_id TEXT PRIMARY KEY,
+      sys_table_id TEXT REFERENCES sys_table(sys_table_id) ON DELETE CASCADE,
+      name VARCHAR(100) NOT NULL,
+      description TEXT,
+      field_group_type VARCHAR(1) NOT NULL DEFAULT 'C',
+      is_collapsed_by_default INTEGER NOT NULL DEFAULT 0,
+      seq_no INTEGER NOT NULL DEFAULT 0,
+      entity_type VARCHAR(40) NOT NULL DEFAULT 'U',
       is_active INTEGER NOT NULL DEFAULT 0,
       created_by VARCHAR(100) NOT NULL,
       updated_by VARCHAR(100) NOT NULL,
@@ -160,6 +206,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       sys_field_id TEXT PRIMARY KEY,
       sys_tab_id TEXT NOT NULL REFERENCES sys_tab(sys_tab_id) ON DELETE CASCADE,
       sys_column_id TEXT NOT NULL REFERENCES sys_column(sys_column_id) ON DELETE CASCADE,
+      sys_field_group_id TEXT REFERENCES sys_field_group(sys_field_group_id) ON DELETE SET NULL,
       name VARCHAR(100) NOT NULL,
       label VARCHAR(100),
       seq_no INTEGER NOT NULL DEFAULT 0,
@@ -168,7 +215,12 @@ export async function up(db: Kysely<any>): Promise<void> {
       is_displayed_grid INTEGER NOT NULL DEFAULT 1,
       is_mandatory INTEGER NOT NULL DEFAULT 0,
       is_read_only INTEGER NOT NULL DEFAULT 0,
+      is_encrypted INTEGER NOT NULL DEFAULT 0,
+      is_field_only INTEGER NOT NULL DEFAULT 0,
+      is_heading INTEGER NOT NULL DEFAULT 0,
+      is_same_line INTEGER NOT NULL DEFAULT 0,
       field_type VARCHAR(40) NOT NULL DEFAULT 'TextField',
+      entity_type VARCHAR(40) NOT NULL DEFAULT 'U',
       is_active INTEGER NOT NULL DEFAULT 0,
       created_by VARCHAR(100) NOT NULL,
       updated_by VARCHAR(100) NOT NULL,
@@ -246,36 +298,18 @@ export async function up(db: Kysely<any>): Promise<void> {
   `.execute(db);
 
   // ============================================================================
-  // sys_access - Role to Table/Field Access Mapping
+  // sys_access - Role to Table/Window Access Mapping
   // ============================================================================
   await sql`
     CREATE TABLE IF NOT EXISTS sys_access (
       sys_access_id TEXT PRIMARY KEY,
       sys_role_id TEXT NOT NULL REFERENCES sys_role(sys_role_id) ON DELETE CASCADE,
       sys_table_id TEXT REFERENCES sys_table(sys_table_id) ON DELETE CASCADE,
-      sys_field_id TEXT REFERENCES sys_field(sys_field_id) ON DELETE CASCADE,
-      read_access INTEGER NOT NULL DEFAULT 0,
-      create_access INTEGER NOT NULL DEFAULT 0,
-      update_access INTEGER NOT NULL DEFAULT 0,
-      delete_access INTEGER NOT NULL DEFAULT 0,
-      is_active INTEGER NOT NULL DEFAULT 0,
-      created_by VARCHAR(100) NOT NULL,
-      updated_by VARCHAR(100) NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `.execute(db);
-
-  // ============================================================================
-  // sys_field_group - Field Grouping
-  // ============================================================================
-  await sql`
-    CREATE TABLE IF NOT EXISTS sys_field_group (
-      sys_field_group_id TEXT PRIMARY KEY,
-      sys_table_id TEXT NOT NULL REFERENCES sys_table(sys_table_id) ON DELETE CASCADE,
-      name VARCHAR(100) NOT NULL,
-      description TEXT,
-      seq_no INTEGER NOT NULL DEFAULT 0,
+      sys_window_id TEXT REFERENCES sys_window(sys_window_id) ON DELETE CASCADE,
+      access_type_table VARCHAR(1) NOT NULL DEFAULT 'W',
+      is_read_only INTEGER NOT NULL DEFAULT 0,
+      is_exclude INTEGER NOT NULL DEFAULT 0,
+      entity_type VARCHAR(40) NOT NULL DEFAULT 'U',
       is_active INTEGER NOT NULL DEFAULT 0,
       created_by VARCHAR(100) NOT NULL,
       updated_by VARCHAR(100) NOT NULL,
@@ -300,8 +334,8 @@ export async function down(db: Kysely<any>): Promise<void> {
   await db.schema.dropTable('sys_access').ifExists().execute();
   await db.schema.dropTable('sys_user_roles').ifExists().execute();
   await db.schema.dropTable('sys_user').ifExists().execute();
-  await db.schema.dropTable('sys_field_group').ifExists().execute();
   await db.schema.dropTable('sys_field').ifExists().execute();
+  await db.schema.dropTable('sys_field_group').ifExists().execute();
   await db.schema.dropTable('sys_role').ifExists().execute();
   await db.schema.dropTable('sys_tab').ifExists().execute();
   await db.schema.dropTable('sys_window').ifExists().execute();

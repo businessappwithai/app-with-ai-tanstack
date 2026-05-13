@@ -1,6 +1,8 @@
 /**
- * Database Migration Runner
- * Run with: bun run src/migrate.ts
+ * Database Seed Runner
+ * Run with: bun run src/seed.ts
+ *
+ * Generated: {{now}}
  */
 
 import * as path from 'path';
@@ -8,7 +10,7 @@ import * as fs from 'fs';
 import { Kysely, PostgresDialect, SqliteDialect } from 'kysely';
 import { config } from 'dotenv';
 
-// Load .env from the backend root (parent of src/) regardless of cwd
+// Load .env from backend root (parent of src/) regardless of cwd
 config({ path: path.join(__dirname, '..', '.env') });
 config({ path: path.join(__dirname, '..', '.env.local'), override: true });
 
@@ -17,7 +19,7 @@ const dbClient = process.env.DATABASE_CLIENT ?? 'pg';
 async function createDialect(): Promise<PostgresDialect | SqliteDialect> {
   if (dbClient === 'better-sqlite3' || dbClient === 'sqlite') {
     const { Database } = await import('bun:sqlite');
-    const dbPath = process.env.DATABASE_FILENAME ?? path.join(__dirname, '..', 'data', 'crm-app.db');
+    const dbPath = process.env.DATABASE_FILENAME ?? path.join(__dirname, '..', 'data', '{{snakeCase project.name}}.db');
     const dir = path.dirname(dbPath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -52,27 +54,29 @@ async function createDialect(): Promise<PostgresDialect | SqliteDialect> {
         port: Number(process.env.DATABASE_PORT ?? 5432),
         user: process.env.DATABASE_USER ?? 'postgres',
         password: process.env.DATABASE_PASSWORD ?? '',
-        database: process.env.DATABASE_NAME ?? 'crm-app',
+        database: process.env.DATABASE_NAME ?? '{{snakeCase project.name}}',
       }),
     });
   }
 }
 
-async function runMigrations(db: Kysely<any>) {
-  const migrationDir = path.join(__dirname, 'migrations');
-  const files = (await fs.promises.readdir(migrationDir)).filter(f => f.endsWith('.ts')).sort();
+async function runSeeds(db: Kysely<any>) {
+  const seedDir = path.join(__dirname, '..', 'seeds');
+  const files = (await fs.promises.readdir(seedDir))
+    .filter(f => f.endsWith('.ts') && !f.endsWith('.bak'))
+    .sort();
 
   for (const file of files) {
-    const migrationPath = path.join(migrationDir, file);
-    const migrationModule = await import(migrationPath);
+    const seedPath = path.join(seedDir, file);
+    const seedModule = await import(seedPath);
 
-    if (migrationModule.up) {
+    if (seedModule.seed) {
       try {
-        console.log(`Running migration: ${file}`);
-        await migrationModule.up(db);
-        console.log(`✓ Migration "${file}" completed`);
+        console.log(`Running seed: ${file}`);
+        await seedModule.seed(db);
+        console.log(`✓ Seed "${file}" completed`);
       } catch (error) {
-        console.error(`✗ Migration "${file}" failed:`, error);
+        console.error(`✗ Seed "${file}" failed:`, error);
         throw error;
       }
     }
@@ -84,10 +88,10 @@ async function runMigrations(db: Kysely<any>) {
   const db = new Kysely<any>({ dialect });
 
   try {
-    await runMigrations(db);
-    console.log('✓ All migrations completed');
+    await runSeeds(db);
+    console.log('✓ Seed initialization completed');
   } catch (error) {
-    console.error('Migration failed:', error);
+    console.error('Seeding failed:', error);
     process.exit(1);
   } finally {
     await db.destroy();

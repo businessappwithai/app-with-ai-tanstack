@@ -810,7 +810,11 @@ export async function executeAfterListHooks(
     try {
       const existingFiles = await fs.readdir(migrationsDir);
       for (const file of existingFiles) {
-        if (file.endsWith("_create_sys_tables.ts") || file.endsWith("_create_bus_tables.ts")) {
+        if (
+          file.endsWith("_create_auth_tables.ts") ||
+          file.endsWith("_create_sys_tables.ts") ||
+          file.endsWith("_create_bus_tables.ts")
+        ) {
           await fs.unlink(path.join(migrationsDir, file));
         }
       }
@@ -828,6 +832,16 @@ export async function executeAfterListHooks(
       dbType === "sqlite"
         ? "../../common/migrations/bus-tables.sqlite.migration.ts.hbs"
         : "../../common/migrations/bus-tables.migration.ts.hbs";
+
+    // auth tables migration (must run before sys/bus tables)
+    const authMigrationContent = await this.renderTemplate(
+      "src/migrations/000_create_auth_tables.ts.hbs",
+      context
+    );
+    await fs.writeFile(
+      path.join(outputDir, `src/migrations/${timestamp - 1}_create_auth_tables.ts`),
+      authMigrationContent
+    );
 
     // sys tables migration
     const sysMigrationContent = await this.renderTemplate(sysMigrationTemplate, context);
@@ -889,6 +903,10 @@ export async function executeAfterListHooks(
     // Generate src/migrate.ts (Kysely migration runner)
     const migrateContent = await this.renderTemplate("src/migrate.ts.hbs", context);
     await fs.writeFile(path.join(outputDir, "src", "migrate.ts"), migrateContent);
+
+    // Generate src/seed.ts (Kysely seed runner)
+    const seedRunnerContent = await this.renderTemplate("src/seed.ts.hbs", context);
+    await fs.writeFile(path.join(outputDir, "src", "seed.ts"), seedRunnerContent);
 
     // Generate/update environment files
     const envContent = await this.renderTemplate(".env.example.hbs", context);

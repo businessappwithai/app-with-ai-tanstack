@@ -26,7 +26,29 @@ import { DatabaseService } from './database.service';
           const filename = configService.get('DATABASE_FILENAME', './data/crm-app.db');
           try {
             const { Database: BunDatabase } = await import('bun:sqlite');
-            const db = new BunDatabase(filename, { create: true });
+            const rawDb = new BunDatabase(filename, { create: true });
+            // Wrap bun:sqlite to add `reader` property that Kysely's SqliteDialect requires.
+            // bun:sqlite Statement objects lack this property, causing Kysely to use stmt.run()
+            // instead of stmt.all() for SELECT queries, returning no rows.
+            const db = new Proxy(rawDb, {
+              get(target, prop) {
+                if (prop === 'prepare') {
+                  return (sql: string) => {
+                    const stmt = target.prepare(sql);
+                    const isRead = /^\s*(SELECT|PRAGMA|WITH|EXPLAIN)/i.test(sql);
+                    return new Proxy(stmt, {
+                      get(s, p) {
+                        if (p === 'reader') return isRead;
+                        const val = (s as any)[p];
+                        return typeof val === 'function' ? val.bind(s) : val;
+                      },
+                    });
+                  };
+                }
+                const val = (target as any)[prop];
+                return typeof val === 'function' ? val.bind(target) : val;
+              },
+            });
             dialect = new SqliteDialect({ database: db as any });
           } catch {
             // Fallback to better-sqlite3 for Node.js runtime

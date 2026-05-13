@@ -26,7 +26,13 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
     // Configuration
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.local', '.env'],
+      // Use __dirname-relative paths so .env is found regardless of process cwd
+      envFilePath: [
+        `${__dirname}/../.env.local`,
+        `${__dirname}/../.env`,
+        '.env.local',
+        '.env',
+      ],
     }),
 
     // Rate limiting (permissive in dev/test, strict in production)

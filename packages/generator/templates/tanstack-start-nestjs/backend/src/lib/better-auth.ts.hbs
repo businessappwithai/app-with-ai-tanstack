@@ -5,81 +5,76 @@
  * - Email/Password authentication
  * - Session management
  * - Role-based access control
- * - Integration with existing sys_user table
  */
 
 import { betterAuth } from 'better-auth';
-{{#if (eq databaseType 'sqlite')}}
+import { kyselyAdapter } from '@better-auth/kysely-adapter';
+import { Kysely, SqliteDialect } from 'kysely';
+import { config } from 'dotenv';
 import * as path from 'path';
+import * as fs from 'fs';
 
-// In-memory fallback for testing environments (when better-sqlite3 native module isn't available)
-const createFallbackDb = () => ({
-  prepare: (sql: string) => ({
-    run: (..._args: any[]) => ({ changes: 1, lastInsertRowid: 1n }),
-    all: (..._args: any[]) => [],
-    get: (..._args: any[]) => null,
-  }),
-  exec: (_sql: string) => undefined,
-  close: () => undefined,
-});
+// Load .env from backend root regardless of cwd
+config({ path: path.join(__dirname, '..', '..', '.env') });
+config({ path: path.join(__dirname, '..', '..', '.env.local'), override: true });
 
-let authDb: any = createFallbackDb();
-
-// Lazy initialize better-sqlite3 on demand (only if imported outside of tests)
-if (process.env.NODE_ENV !== 'test') {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const Database = require('better-sqlite3');
-    authDb = new Database(path.resolve(process.env.DATABASE_FILENAME || './data/{{projectSnake}}.db'));
-  } catch (error) {
-    console.warn('better-sqlite3 not available, using in-memory fallback');
+function createBunSqliteProxy(dbPath: string): any {
+  const { Database } = require('bun:sqlite');
+  // Ensure parent directory exists before opening
+  const dir = path.dirname(dbPath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
   }
+  const raw = new Database(dbPath, { create: true });
+  // Wrap to add `reader` property that Kysely's SqliteDialect requires.
+  // bun:sqlite Statement objects lack this property, causing Kysely to use stmt.run()
+  // instead of stmt.all() for SELECT queries, returning no rows.
+  // Also treat INSERT/UPDATE...RETURNING as reads so stmt.all() returns RETURNING rows.
+  return new Proxy(raw, {
+    get(target, prop) {
+      if (prop === 'prepare') {
+        return (sql: string) => {
+          const stmt = target.prepare(sql);
+          const isRead = /^\s*(SELECT|PRAGMA|WITH|EXPLAIN)/i.test(sql) || /\bRETURNING\b/i.test(sql);
+          return new Proxy(stmt, {
+            get(s, p) {
+              if (p === 'reader') return isRead;
+              const val = (s as any)[p];
+              return typeof val === 'function' ? val.bind(s) : val;
+            },
+          });
+        };
+      }
+      const val = (target as any)[prop];
+      return typeof val === 'function' ? val.bind(target) : val;
+    },
+  });
 }
-{{else}}
-import { Kysely, PostgresDialect } from 'kysely';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { Pool } = require('pg');
-const authDb = new Kysely<unknown>({
-  dialect: new PostgresDialect({
-    pool: new Pool({
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432', 10),
-      database: '{{projectSnake}}_auth',
-      user: process.env.DB_USER || process.env.USER || 'postgres',
-      password: process.env.DB_PASSWORD || '',
-    }),
-  }),
-});
-{{/if}}
+const dbPath = path.resolve(process.env.DATABASE_FILENAME || path.join(__dirname, '..', '..', 'data', '{{projectSnake}}.db'));
+const sqliteDb = createBunSqliteProxy(dbPath);
+const kysely = new Kysely<any>({ dialect: new SqliteDialect({ database: sqliteDb }) });
 
 export const auth = betterAuth({
-{{#if (eq databaseType 'sqlite')}}
-  database: {
-    db: authDb,
-    type: 'sqlite',
-  },
-{{else}}
-  database: kyselyAdapter(authDb),
-{{/if}}
+  database: kyselyAdapter(kysely, { provider: 'sqlite' }),
+  baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+  secret: process.env.BETTER_AUTH_SECRET || '{{projectSnake}}-dev-secret',
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
     sendResetPassword: async ({ user, url: _url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
       console.log('Password reset requested for:', user.email || user.id);
-      // TODO: Integrate email service
     },
     sendVerificationEmail: async ({ user, url: _url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
       console.log('Verification email sent to:', user.email || user.id);
-      // TODO: Integrate email service
     },
   },
   session: {
-    expiresIn: 60 * 60 * 24, // 1 day
-    updateAge: 60 * 60 * 12, // Update session every 12 hours
+    expiresIn: 60 * 60 * 24,
+    updateAge: 60 * 60 * 12,
     cookieCache: {
       enabled: true,
-      maxAge: 5 * 60, // 5 minutes
+      maxAge: 5 * 60,
     },
   },
   account: {
