@@ -36,6 +36,7 @@ out/
 *.sqlite
 *.sqlite3
 erdwithai-mastra.db*
+database/erdwithai.db/
 
 # Logs
 logs/

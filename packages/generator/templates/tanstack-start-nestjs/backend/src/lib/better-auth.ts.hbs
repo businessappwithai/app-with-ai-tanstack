@@ -9,7 +9,9 @@
 
 import { betterAuth } from 'better-auth';
 import { kyselyAdapter } from '@better-auth/kysely-adapter';
-import { Kysely, SqliteDialect } from 'kysely';
+import { Kysely } from 'kysely';
+import { PGlite } from '@electric-sql/pglite';
+import { PGliteDialect } from 'kysely-pglite-dialect';
 import { config } from 'dotenv';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -18,89 +20,74 @@ import * as fs from 'fs';
 config({ path: path.join(__dirname, '..', '..', '.env') });
 config({ path: path.join(__dirname, '..', '..', '.env.local'), override: true });
 
-function createBunSqliteProxy(dbPath: string): any {
-  const { Database } = require('bun:sqlite');
-  // Ensure parent directory exists before opening
-  const dir = path.dirname(dbPath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+let authInstance: ReturnType<typeof betterAuth> | null = null;
+
+export async function initAuth() {
+  if (!authInstance) {
+    const dbDir = process.env.DATABASE_DIR || path.join(__dirname, '..', '..', 'data', '{{projectSnake}}.db');
+    fs.mkdirSync(dbDir, { recursive: true });
+    const pglite = new PGlite(dbDir);
+    await pglite.waitReady;
+    const kysely = new Kysely<any>({ dialect: new PGliteDialect(pglite) });
+
+    authInstance = betterAuth({
+      database: kyselyAdapter(kysely, { provider: 'pg' }),
+      baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+      secret: process.env.BETTER_AUTH_SECRET || '{{projectSnake}}-dev-secret',
+      emailAndPassword: {
+        enabled: true,
+        requireEmailVerification: false,
+        sendResetPassword: async ({ user, url: _url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
+          console.log('Password reset requested for:', user.email || user.id);
+        },
+        sendVerificationEmail: async ({ user, url: _url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
+          console.log('Verification email sent to:', user.email || user.id);
+        },
+      },
+      session: {
+        expiresIn: 60 * 60 * 24,
+        updateAge: 60 * 60 * 12,
+        cookieCache: {
+          enabled: true,
+          maxAge: 5 * 60,
+        },
+      },
+      account: {
+        accountLinking: {
+          enabled: false,
+        },
+      },
+      user: {
+        additionalFields: {
+          role: {
+            type: 'string',
+            required: false,
+            defaultValue: 'user',
+          },
+          sysUserId: {
+            type: 'string',
+            required: false,
+          },
+        },
+      },
+      advanced: {
+        cookiePrefix: '{{projectSnake}}_app',
+        crossSubDomainCookies: {
+          enabled: false,
+        },
+      },
+    });
   }
-  const raw = new Database(dbPath, { create: true });
-  // Wrap to add `reader` property that Kysely's SqliteDialect requires.
-  // bun:sqlite Statement objects lack this property, causing Kysely to use stmt.run()
-  // instead of stmt.all() for SELECT queries, returning no rows.
-  // Also treat INSERT/UPDATE...RETURNING as reads so stmt.all() returns RETURNING rows.
-  return new Proxy(raw, {
-    get(target, prop) {
-      if (prop === 'prepare') {
-        return (sql: string) => {
-          const stmt = target.prepare(sql);
-          const isRead = /^\s*(SELECT|PRAGMA|WITH|EXPLAIN)/i.test(sql) || /\bRETURNING\b/i.test(sql);
-          return new Proxy(stmt, {
-            get(s, p) {
-              if (p === 'reader') return isRead;
-              const val = (s as any)[p];
-              return typeof val === 'function' ? val.bind(s) : val;
-            },
-          });
-        };
-      }
-      const val = (target as any)[prop];
-      return typeof val === 'function' ? val.bind(target) : val;
-    },
-  });
+
+  return authInstance;
 }
 
-const dbPath = path.resolve(process.env.DATABASE_FILENAME || path.join(__dirname, '..', '..', 'data', '{{projectSnake}}.db'));
-const sqliteDb = createBunSqliteProxy(dbPath);
-const kysely = new Kysely<any>({ dialect: new SqliteDialect({ database: sqliteDb }) });
+export function getAuth() {
+  if (!authInstance) {
+    throw new Error('Auth not initialized. Call initAuth() first.');
+  }
+  return authInstance;
+}
 
-export const auth = betterAuth({
-  database: kyselyAdapter(kysely, { provider: 'sqlite' }),
-  baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
-  secret: process.env.BETTER_AUTH_SECRET || '{{projectSnake}}-dev-secret',
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: false,
-    sendResetPassword: async ({ user, url: _url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
-      console.log('Password reset requested for:', user.email || user.id);
-    },
-    sendVerificationEmail: async ({ user, url: _url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
-      console.log('Verification email sent to:', user.email || user.id);
-    },
-  },
-  session: {
-    expiresIn: 60 * 60 * 24,
-    updateAge: 60 * 60 * 12,
-    cookieCache: {
-      enabled: true,
-      maxAge: 5 * 60,
-    },
-  },
-  account: {
-    accountLinking: {
-      enabled: false,
-    },
-  },
-  user: {
-    additionalFields: {
-      role: {
-        type: 'string',
-        required: false,
-        defaultValue: 'user',
-      },
-      sysUserId: {
-        type: 'string',
-        required: false,
-      },
-    },
-  },
-  advanced: {
-    cookiePrefix: '{{projectSnake}}_app',
-    crossSubDomainCookies: {
-      enabled: false,
-    },
-  },
-});
-
-export type Session = typeof auth.$Infer.Session;
+export { getAuth as auth };
+export type Session = ReturnType<typeof getAuth>['$Infer']['Session'];

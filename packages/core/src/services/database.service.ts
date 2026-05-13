@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Database service for ERDwithAI
- * Handles all database operations using Kysely
- * ALL project data stored in local SQLite at database/generator.sql
+ * Handles all database operations using Kysely + PGLite
+ * ALL project data stored in file-based PGLite at database/erdwithai.db
  */
 
-import Database from "better-sqlite3";
-import { Kysely, SqliteDialect, sql } from "kysely";
+import { PGlite } from "@electric-sql/pglite";
+import { Kysely, sql } from "kysely";
+import { PGliteDialect } from "kysely-pglite-dialect";
+import { mkdirSync } from "fs";
 import { resolve } from "path";
 
 // Database schema types
@@ -82,7 +84,7 @@ interface WorkflowsTable {
   hook_definitions: string | null;
   flowchart_code: string | null;
   generated_hook_code: string | null;
-  is_draft: number;
+  is_draft: boolean;
 }
 
 interface GenerationHistoryTable {
@@ -219,29 +221,21 @@ interface Database {
   auth_verification_tokens: AuthVerificationTokensTable;
 }
 
-// Create database connection
-function createDatabase(): Kysely<Database> {
-  const dbPath = resolve(process.cwd(), "database/generator.sql");
-
-  return new Kysely<Database>({
-    dialect: new SqliteDialect({
-      database: new Database(dbPath),
-    }),
-  });
-}
-
-// Create a safe wrapper around Kysely to handle initialization errors
+// Create a safe wrapper around Kysely to handle async PGLite initialization
 class SafeDatabase {
   private db: Kysely<Database> | null = null;
   private error: Error | null = null;
-  private initialized = false;
+  private initPromise: Promise<void> | null = null;
 
-  private initDb() {
-    if (this.initialized) return;
-    this.initialized = true;
-
+  private async doInit(): Promise<void> {
     try {
-      this.db = createDatabase();
+      const dbDir = resolve(process.cwd(), "database/erdwithai.db");
+      mkdirSync(dbDir, { recursive: true });
+      const pglite = new PGlite(dbDir);
+      await pglite.waitReady;
+      this.db = new Kysely<Database>({
+        dialect: new PGliteDialect(pglite),
+      });
     } catch (err) {
       this.error = err instanceof Error ? err : new Error(String(err));
       console.error("Database initialization failed:", this.error.message);
@@ -249,13 +243,15 @@ class SafeDatabase {
     }
   }
 
-  getDb(): Kysely<Database> | null {
-    this.initDb();
+  async getDb(): Promise<Kysely<Database> | null> {
+    if (!this.initPromise) {
+      this.initPromise = this.doInit();
+    }
+    await this.initPromise;
     return this.db;
   }
 
   getError(): Error | null {
-    this.initDb();
     return this.error;
   }
 
@@ -264,6 +260,7 @@ class SafeDatabase {
       await this.db.destroy();
       this.db = null;
     }
+    this.initPromise = null;
   }
 }
 
@@ -271,14 +268,14 @@ class SafeDatabase {
 let safeDb: SafeDatabase | null = null;
 
 /**
- * Get or create the database connection
+ * Get or create the database connection (async - PGLite requires async init)
  */
-export function getDatabase(): Kysely<Database> {
+export async function getDatabase(): Promise<Kysely<Database>> {
   if (!safeDb) {
     safeDb = new SafeDatabase();
   }
 
-  const actualDb = safeDb.getDb();
+  const actualDb = await safeDb.getDb();
   const dbError = safeDb.getError();
 
   if (dbError) {
@@ -307,7 +304,7 @@ export async function closeDatabase(): Promise<void> {
  * Creates comprehensive schema for ALL project data
  */
 export async function runMigrations(): Promise<void> {
-  const database = getDatabase();
+  const database = await getDatabase();
 
   // ============================================
   // PROJECTS TABLE - Core project particulars
@@ -322,7 +319,7 @@ export async function runMigrations(): Promise<void> {
       .addColumn("icon", "text", (col) => col.defaultTo("📊"))
       .addColumn("icon_color", "text", (col) => col.defaultTo("#3b82f6"))
       .addColumn("status", "text", (col) => col.defaultTo("draft"))
-      .addColumn("is_deleted", "integer", (col) => col.defaultTo(0))
+      .addColumn("is_deleted", "boolean", (col) => col.defaultTo(false))
       .addColumn("stack_type", "text", (col) => col.defaultTo("nestjs"))
       .addColumn("stack_version", "text", (col) => col.defaultTo("latest"))
       .addColumn("port", "integer", (col) => col.defaultTo(4001))
@@ -335,17 +332,13 @@ export async function runMigrations(): Promise<void> {
       .addColumn("generated_path", "text")
       .addColumn("output_directory", "text")
       .addColumn("build_config", "text")
-      .addColumn("is_typescript", "integer", (col) => col.defaultTo(1))
-      .addColumn("is_tailwind", "integer", (col) => col.defaultTo(1))
+      .addColumn("is_typescript", "boolean", (col) => col.defaultTo(true))
+      .addColumn("is_tailwind", "boolean", (col) => col.defaultTo(true))
       .addColumn("deployment_status", "text")
       .addColumn("deployment_url", "text")
       .addColumn("uptime", "text")
       .addColumn("created_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updated_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
-      .addIndex("status_idx", ["status"])
-      .addIndex("is_deleted_idx", ["is_deleted"])
-      .addIndex("stack_type_idx", ["stack_type"])
-      .addIndex("created_at_idx", ["created_at"])
       .execute();
   } catch {
     // Table already exists, ignore
@@ -363,22 +356,19 @@ export async function runMigrations(): Promise<void> {
       .addColumn("version_number", "integer", (col) => col.notNull())
       .addColumn("mermaid_code", "text", (col) => col.notNull())
       .addColumn("description", "text")
-      .addColumn("is_current", "integer", (col) => col.defaultTo(0))
+      .addColumn("is_current", "boolean", (col) => col.defaultTo(false))
       .addColumn("validation_errors", "text")
       .addColumn("parsed_schema", "text")
       .addColumn("entity_count", "integer", (col) => col.defaultTo(0))
       .addColumn("relationship_count", "integer", (col) => col.defaultTo(0))
       .addColumn("ai_suggestions", "text")
-      .addColumn("ai_enhanced", "integer", (col) => col.defaultTo(0))
+      .addColumn("ai_enhanced", "boolean", (col) => col.defaultTo(false))
       .addColumn("import_source", "text")
       .addColumn("import_metadata", "text")
       .addColumn("created_by", "text")
       .addColumn("commit_message", "text")
       .addColumn("change_summary", "text")
       .addColumn("created_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
-      .addIndex("project_id_idx", ["project_id"])
-      .addIndex("is_current_idx", ["is_current"])
-      .addIndex("created_at_idx", ["created_at"])
       .execute();
   } catch {
     // Table already exists, ignore
@@ -405,17 +395,14 @@ export async function runMigrations(): Promise<void> {
       .addColumn("generated_code", "text")
       .addColumn("code_language", "text", (col) => col.defaultTo("typescript"))
       .addColumn("status", "text", (col) => col.defaultTo("draft"))
-      .addColumn("is_enabled", "integer", (col) => col.defaultTo(1))
+      .addColumn("is_enabled", "boolean", (col) => col.defaultTo(true))
       .addColumn("hook_definitions", "text")
       .addColumn("flowchart_code", "text")
       .addColumn("generated_hook_code", "text")
-      .addColumn("is_draft", "integer", (col) => col.defaultTo(0))
+      .addColumn("is_draft", "boolean", (col) => col.defaultTo(false))
       .addColumn("created_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updated_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("last_executed_at", "text")
-      .addIndex("project_id_idx", ["project_id"])
-      .addIndex("service_name_idx", ["service_name"])
-      .addIndex("status_idx", ["status"])
       .execute();
   } catch {
     // Table already exists, ignore
@@ -456,9 +443,6 @@ export async function runMigrations(): Promise<void> {
       .addColumn("started_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("completed_at", "text")
       .addColumn("duration_ms", "integer")
-      .addIndex("project_id_idx", ["project_id"])
-      .addIndex("status_idx", ["status"])
-      .addIndex("started_at_idx", ["started_at"])
       .execute();
   } catch {
     // Table already exists, ignore
@@ -486,7 +470,7 @@ export async function runMigrations(): Promise<void> {
       .addColumn("health_status", "text")
       .addColumn("resource_usage", "text")
       .addColumn("deployment_config", "text")
-      .addColumn("auto_restart", "integer", (col) => col.defaultTo(0))
+      .addColumn("auto_restart", "boolean", (col) => col.defaultTo(false))
       .addColumn("restart_count", "integer", (col) => col.defaultTo(0))
       .addColumn("stdout_log", "text")
       .addColumn("stderr_log", "text")
@@ -494,9 +478,6 @@ export async function runMigrations(): Promise<void> {
       .addColumn("stopped_at", "text")
       .addColumn("created_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updated_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
-      .addIndex("project_id_idx", ["project_id"])
-      .addIndex("status_idx", ["status"])
-      .addIndex("environment_idx", ["environment"])
       .execute();
   } catch {
     // Table already exists, ignore
@@ -519,14 +500,11 @@ export async function runMigrations(): Promise<void> {
       .addColumn("schema", "text")
       .addColumn("fields", "text")
       .addColumn("relationships", "text")
-      .addColumn("generate_api", "integer", (col) => col.defaultTo(1))
-      .addColumn("generate_ui", "integer", (col) => col.defaultTo(1))
-      .addColumn("generate_crud", "integer", (col) => col.defaultTo(1))
+      .addColumn("generate_api", "boolean", (col) => col.defaultTo(true))
+      .addColumn("generate_ui", "boolean", (col) => col.defaultTo(true))
+      .addColumn("generate_crud", "boolean", (col) => col.defaultTo(true))
       .addColumn("created_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updated_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
-      .addIndex("project_id_idx", ["project_id"])
-      .addIndex("erd_version_id_idx", ["erd_version_id"])
-      .addIndex("name_idx", ["name"])
       .execute();
   } catch {
     // Table already exists, ignore
@@ -562,10 +540,9 @@ export async function runMigrations(): Promise<void> {
       .addColumn("email", "text", (col) => col.notNull().unique())
       .addColumn("name", "text")
       .addColumn("image", "text")
-      .addColumn("emailVerified", "integer", (col) => col.defaultTo(0))
+      .addColumn("emailVerified", "boolean", (col) => col.defaultTo(false))
       .addColumn("createdAt", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updatedAt", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
-      .addIndex("email_idx", ["email"])
       .execute();
   } catch {
     // Table already exists, ignore
@@ -582,8 +559,6 @@ export async function runMigrations(): Promise<void> {
       .addColumn("expiresAt", "text", (col) => col.notNull())
       .addColumn("createdAt", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updatedAt", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
-      .addIndex("userId_idx", ["userId"])
-      .addIndex("token_idx", ["token"])
       .execute();
   } catch {
     // Table already exists, ignore
@@ -602,8 +577,6 @@ export async function runMigrations(): Promise<void> {
       .addColumn("accessToken", "text")
       .addColumn("expiresAt", "integer")
       .addColumn("createdAt", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
-      .addIndex("userId_idx", ["userId"])
-      .addIndex("provider_idx", ["provider"])
       .execute();
   } catch {
     // Table already exists, ignore
@@ -618,7 +591,6 @@ export async function runMigrations(): Promise<void> {
       .addColumn("email", "text", (col) => col.notNull())
       .addColumn("expires", "text", (col) => col.notNull())
       .addColumn("createdAt", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
-      .addIndex("email_idx", ["email"])
       .execute();
   } catch {
     // Table already exists, ignore
@@ -640,7 +612,7 @@ function transformProject(dbProject: any): any {
     createdAt: dbProject.created_at,
     updatedAt: dbProject.updated_at,
     status: dbProject.status,
-    isDeleted: dbProject.is_deleted ? true : false,
+    isDeleted: dbProject.is_deleted,
     stackType: dbProject.stack_type,
     port: dbProject.port,
     databaseUrl: dbProject.database_url,
@@ -660,11 +632,11 @@ export const projectDb = {
    */
   async findAll(options?: { status?: string; includeDeleted?: boolean }) {
     try {
-      const database = getDatabase();
+      const database = await getDatabase();
       let query = database.selectFrom("projects").selectAll();
 
       if (!options?.includeDeleted) {
-        query = query.where("is_deleted", "=", false as any);
+        query = query.where("is_deleted", "=", false);
       }
 
       if (options?.status) {
@@ -688,11 +660,11 @@ export const projectDb = {
    */
   async search(searchTerm: string) {
     try {
-      const database = getDatabase();
+      const database = await getDatabase();
       const dbProjects = await database
         .selectFrom("projects")
         .selectAll()
-        .where("is_deleted", "=", false as any)
+        .where("is_deleted", "=", false)
         .where((eb) =>
           eb(sql`lower(${eb.ref("name")})`, "like", `%${searchTerm.toLowerCase()}%`).or(
             sql`lower(${eb.ref("description")})`,
@@ -717,12 +689,12 @@ export const projectDb = {
    * Get a project by ID with ALL related data
    */
   async findById(id: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const dbProject = await database
       .selectFrom("projects")
       .selectAll()
       .where("id", "=", id)
-      .where("is_deleted", "=", false as any)
+      .where("is_deleted", "=", false)
       .executeTakeFirst();
 
     if (!dbProject) return null;
@@ -792,7 +764,7 @@ export const projectDb = {
     is_typescript?: boolean;
     is_tailwind?: boolean;
   }) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const [project] = await database
       .insertInto("projects")
       .values({
@@ -812,9 +784,9 @@ export const projectDb = {
         generated_path: data.generated_path || null,
         output_directory: data.output_directory || null,
         build_config: JSON.stringify(data.build_config || {}),
-        is_typescript: (data.is_typescript !== false ? 1 : 0) as any,
-        is_tailwind: (data.is_tailwind !== false ? 1 : 0) as any,
-        is_deleted: false as any,
+        is_typescript: data.is_typescript !== false,
+        is_tailwind: data.is_tailwind !== false,
+        is_deleted: false,
         status: "draft",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -854,7 +826,7 @@ export const projectDb = {
       uptime?: string;
     }
   ) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const updateData: any = { updated_at: new Date().toISOString() };
 
     if (data.name !== undefined) updateData.name = data.name;
@@ -895,10 +867,10 @@ export const projectDb = {
    * Soft delete a project
    */
   async softDelete(id: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     await database
       .updateTable("projects")
-      .set({ is_deleted: true as any })
+      .set({ is_deleted: true })
       .where("id", "=", id)
       .execute();
   },
@@ -907,7 +879,7 @@ export const projectDb = {
    * Permanently delete a project
    */
   async delete(id: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     await database.deleteFrom("projects").where("id", "=", id).execute();
   },
 };
@@ -920,7 +892,7 @@ export const erdVersionDb = {
    * Get all versions for a project
    */
   async getVersions(projectId: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     return await database
       .selectFrom("erd_versions")
       .selectAll()
@@ -933,7 +905,7 @@ export const erdVersionDb = {
    * Get the current ERD version for a project
    */
   async getCurrentErdVersion(projectId: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     return await database
       .selectFrom("erd_versions")
       .selectAll()
@@ -962,7 +934,7 @@ export const erdVersionDb = {
     commit_message?: string;
     change_summary?: any;
   }) {
-    const database = getDatabase();
+    const database = await getDatabase();
 
     const lastVersion = await database
       .selectFrom("erd_versions")
@@ -989,14 +961,14 @@ export const erdVersionDb = {
         version_number: versionNumber,
         mermaid_code: data.mermaid_code,
         description: data.description || null,
-        is_current: (data.is_current ?? true) as any,
+        is_current: data.is_current ?? true,
         created_by: data.created_by || null,
         validation_errors: JSON.stringify(data.validation_errors || []),
         parsed_schema: JSON.stringify(data.parsed_schema || {}),
         entity_count: data.entity_count || 0,
         relationship_count: data.relationship_count || 0,
         ai_suggestions: JSON.stringify(data.ai_suggestions || {}),
-        ai_enhanced: (data.ai_enhanced || false) as any,
+        ai_enhanced: data.ai_enhanced || false,
         import_source: data.import_source || null,
         import_metadata: JSON.stringify(data.import_metadata || {}),
         commit_message: data.commit_message || null,
@@ -1013,7 +985,7 @@ export const erdVersionDb = {
    * Update the current version for a project
    */
   async setCurrentVersion(versionId: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
 
     const version = await database
       .selectFrom("erd_versions")
@@ -1046,7 +1018,7 @@ export const erdVersionDb = {
    * Delete a version
    */
   async delete(versionId: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     await database.deleteFrom("erd_versions").where("id", "=", versionId).execute();
   },
 };
@@ -1059,7 +1031,7 @@ export const workflowDb = {
    * Get all workflows for a project
    */
   async getWorkflows(projectId: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     return await database
       .selectFrom("workflows")
       .selectAll()
@@ -1072,7 +1044,7 @@ export const workflowDb = {
    * Get a workflow by ID
    */
   async findById(id: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     return await database
       .selectFrom("workflows")
       .selectAll()
@@ -1097,7 +1069,7 @@ export const workflowDb = {
     generated_code?: string;
     code_language?: string;
   }) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const [workflow] = await database
       .insertInto("workflows")
       .values({
@@ -1115,7 +1087,7 @@ export const workflowDb = {
         generated_code: data.generated_code || null,
         code_language: data.code_language || "typescript",
         status: "draft",
-        is_enabled: true as any,
+        is_enabled: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       } as any)
@@ -1143,7 +1115,7 @@ export const workflowDb = {
       generated_code?: string;
     }
   ) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const updateData: any = { updated_at: new Date().toISOString() };
 
     if (data.name !== undefined) updateData.name = data.name;
@@ -1172,7 +1144,7 @@ export const workflowDb = {
    * Delete a workflow
    */
   async delete(id: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     await database.deleteFrom("workflows").where("id", "=", id).execute();
   },
 };
@@ -1185,7 +1157,7 @@ export const hookWorkflowDb = {
    * Get hook workflow by service name
    */
   async getByService(projectId: string, serviceName: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const workflow = await database
       .selectFrom("workflows")
       .selectAll()
@@ -1201,7 +1173,7 @@ export const hookWorkflowDb = {
       hook_definitions: (workflow as any).hook_definitions
         ? JSON.parse((workflow as any).hook_definitions)
         : [],
-      is_draft: Boolean((workflow as any).is_draft),
+      is_draft: (workflow as any).is_draft,
     };
   },
 
@@ -1209,7 +1181,7 @@ export const hookWorkflowDb = {
    * Get all hook workflows for a project
    */
   async getAllHookWorkflows(projectId: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const workflows = await database
       .selectFrom("workflows")
       .selectAll()
@@ -1237,7 +1209,7 @@ export const hookWorkflowDb = {
     isDraft: boolean;
     description?: string;
   }) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const existing = await this.getByService(data.projectId, data.serviceName);
 
     const workflowData = {
@@ -1248,7 +1220,7 @@ export const hookWorkflowDb = {
       hook_definitions: JSON.stringify(data.hooks),
       flowchart_code: data.flowchartCode,
       generated_hook_code: data.generatedHookCode || null,
-      is_draft: data.isDraft ? 1 : 0,
+      is_draft: data.isDraft,
       description: data.description || null,
       updated_at: new Date().toISOString(),
     };
@@ -1273,7 +1245,7 @@ export const hookWorkflowDb = {
           id: `wf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           ...workflowData,
           status: data.isDraft ? "draft" : "active",
-          is_enabled: true as any,
+          is_enabled: true,
           created_at: new Date().toISOString(),
         } as any)
         .returningAll()
@@ -1323,7 +1295,7 @@ export const hookWorkflowDb = {
    * Delete hook workflow by service
    */
   async deleteByService(projectId: string, serviceName: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     await database
       .deleteFrom("workflows")
       .where("project_id", "=", projectId)
@@ -1342,7 +1314,7 @@ export const hookWorkflowDb = {
     hookType: string;
     rules: string;
   }) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const workflow = await this.getByService(data.projectId, data.serviceName);
     if (!workflow) {
       throw new Error(`Workflow not found for service ${data.serviceName}`);
@@ -1369,7 +1341,7 @@ export const hookWorkflowDb = {
     return {
       ...updatedWorkflow,
       hook_definitions: hookDefinitions,
-      is_draft: (updatedWorkflow as any).is_draft === 1,
+      is_draft: (updatedWorkflow as any).is_draft,
     };
   },
 
@@ -1410,7 +1382,7 @@ export const generationHistoryDb = {
    * Get all generation history for a project
    */
   async getAll(projectId: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     return await database
       .selectFrom("generation_history")
       .selectAll()
@@ -1423,7 +1395,7 @@ export const generationHistoryDb = {
    * Get the latest generation for a project
    */
   async getLatest(projectId: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     return await database
       .selectFrom("generation_history")
       .selectAll()
@@ -1436,7 +1408,7 @@ export const generationHistoryDb = {
    * Get by status
    */
   async getByStatus(projectId: string, status: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     return await database
       .selectFrom("generation_history")
       .selectAll()
@@ -1456,7 +1428,7 @@ export const generationHistoryDb = {
     generation_options?: any;
     status: string;
   }) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const [generation] = await database
       .insertInto("generation_history")
       .values({
@@ -1491,7 +1463,7 @@ export const generationHistoryDb = {
       total_size_bytes?: number;
     }
   ) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const updateData: any = {};
 
     if (data.progress !== undefined) updateData.progress = data.progress;
@@ -1536,7 +1508,7 @@ export const generationHistoryDb = {
       total_size_bytes?: number;
     }
   ) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const updateData: any = {
       status: "completed",
       progress: 100,
@@ -1573,7 +1545,7 @@ export const generationHistoryDb = {
    * Mark generation as failed
    */
   async fail(id: string, errorMessage: string, logs?: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const [generation] = await database
       .updateTable("generation_history")
       .set({
@@ -1598,7 +1570,7 @@ export const deploymentDb = {
    * Get deployment for a project
    */
   async getDeployment(projectId: string, environment: string = "development") {
-    const database = getDatabase();
+    const database = await getDatabase();
     return await database
       .selectFrom("deployments")
       .selectAll()
@@ -1611,7 +1583,7 @@ export const deploymentDb = {
    * Get all deployments for a project
    */
   async getAllDeployments(projectId: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     return await database
       .selectFrom("deployments")
       .selectAll()
@@ -1638,7 +1610,7 @@ export const deploymentDb = {
     stdout_log?: string;
     stderr_log?: string;
   }) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const existing = await this.getDeployment(data.project_id, data.environment || "development");
 
     const updateData: any = {
@@ -1702,7 +1674,7 @@ export const deploymentDb = {
       uptime_seconds?: number;
     }
   ) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const updateData: any = { ...healthData };
 
     if (healthData.health_status !== undefined)
@@ -1724,7 +1696,7 @@ export const deploymentDb = {
    * Stop and delete deployment
    */
   async delete(projectId: string, environment: string = "development") {
-    const database = getDatabase();
+    const database = await getDatabase();
 
     await database
       .updateTable("deployments")
@@ -1752,7 +1724,7 @@ export const entityDb = {
    * Get all entities for a project
    */
   async getByProject(projectId: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     return await database
       .selectFrom("entities")
       .selectAll()
@@ -1765,7 +1737,7 @@ export const entityDb = {
    * Get entities for an ERD version
    */
   async getByErdVersion(erdVersionId: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     return await database
       .selectFrom("entities")
       .selectAll()
@@ -1791,7 +1763,7 @@ export const entityDb = {
     generate_ui?: boolean;
     generate_crud?: boolean;
   }) {
-    const database = getDatabase();
+    const database = await getDatabase();
 
     const existing = await database
       .selectFrom("entities")
@@ -1836,7 +1808,7 @@ export const entityDb = {
    * Delete entities for a project
    */
   async deleteByProject(projectId: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     await database.deleteFrom("entities").where("project_id", "=", projectId).execute();
   },
 };
@@ -1849,7 +1821,7 @@ export const settingsDb = {
    * Get a setting value
    */
   async get(key: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
     const setting = await database
       .selectFrom("settings")
       .selectAll()
@@ -1874,7 +1846,7 @@ export const settingsDb = {
    * Set a setting value
    */
   async set(key: string, value: any, type: string = "string", description?: string) {
-    const database = getDatabase();
+    const database = await getDatabase();
 
     let stringValue: string;
     switch (type) {

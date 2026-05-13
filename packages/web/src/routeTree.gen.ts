@@ -14,6 +14,8 @@ import { Route as DesignerRouteImport } from './routes/designer'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
+import { Route as ApiCopilotkitRouteImport } from './routes/api/copilotkit'
+import { Route as ApiProjectsIndexRouteImport } from './routes/api/projects/index'
 import { Route as AdminWorkflowsIndexRouteImport } from './routes/admin/workflows/index'
 import { Route as AdminRulesIndexRouteImport } from './routes/admin/rules/index'
 import { Route as ProjectsIdInitRouteImport } from './routes/projects/$id/init'
@@ -49,6 +51,16 @@ const IndexRoute = IndexRouteImport.update({
 const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   id: '/projects/',
   path: '/projects/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCopilotkitRoute = ApiCopilotkitRouteImport.update({
+  id: '/api/copilotkit',
+  path: '/api/copilotkit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProjectsIndexRoute = ApiProjectsIndexRouteImport.update({
+  id: '/api/projects/',
+  path: '/api/projects/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminWorkflowsIndexRoute = AdminWorkflowsIndexRouteImport.update({
@@ -114,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/designer': typeof DesignerRoute
   '/settings': typeof SettingsRoute
+  '/api/copilotkit': typeof ApiCopilotkitRoute
   '/projects/': typeof ProjectsIndexRoute
   '/admin/rules/new': typeof AdminRulesNewRoute
   '/admin/workflows/$workflowId': typeof AdminWorkflowsWorkflowIdRoute
@@ -123,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/projects/$id/init': typeof ProjectsIdInitRoute
   '/admin/rules/': typeof AdminRulesIndexRoute
   '/admin/workflows/': typeof AdminWorkflowsIndexRoute
+  '/api/projects/': typeof ApiProjectsIndexRoute
   '/admin/rules/$entity/$ruleId': typeof AdminRulesEntityRuleIdRoute
   '/projects/$id/enhance/$serviceName': typeof ProjectsIdEnhanceServiceNameRoute
   '/projects/$id/enhance/': typeof ProjectsIdEnhanceIndexRoute
@@ -132,6 +146,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/designer': typeof DesignerRoute
   '/settings': typeof SettingsRoute
+  '/api/copilotkit': typeof ApiCopilotkitRoute
   '/projects': typeof ProjectsIndexRoute
   '/admin/rules/new': typeof AdminRulesNewRoute
   '/admin/workflows/$workflowId': typeof AdminWorkflowsWorkflowIdRoute
@@ -141,6 +156,7 @@ export interface FileRoutesByTo {
   '/projects/$id/init': typeof ProjectsIdInitRoute
   '/admin/rules': typeof AdminRulesIndexRoute
   '/admin/workflows': typeof AdminWorkflowsIndexRoute
+  '/api/projects': typeof ApiProjectsIndexRoute
   '/admin/rules/$entity/$ruleId': typeof AdminRulesEntityRuleIdRoute
   '/projects/$id/enhance/$serviceName': typeof ProjectsIdEnhanceServiceNameRoute
   '/projects/$id/enhance': typeof ProjectsIdEnhanceIndexRoute
@@ -151,6 +167,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/designer': typeof DesignerRoute
   '/settings': typeof SettingsRoute
+  '/api/copilotkit': typeof ApiCopilotkitRoute
   '/projects/': typeof ProjectsIndexRoute
   '/admin/rules/new': typeof AdminRulesNewRoute
   '/admin/workflows/$workflowId': typeof AdminWorkflowsWorkflowIdRoute
@@ -160,6 +177,7 @@ export interface FileRoutesById {
   '/projects/$id/init': typeof ProjectsIdInitRoute
   '/admin/rules/': typeof AdminRulesIndexRoute
   '/admin/workflows/': typeof AdminWorkflowsIndexRoute
+  '/api/projects/': typeof ApiProjectsIndexRoute
   '/admin/rules/$entity/$ruleId': typeof AdminRulesEntityRuleIdRoute
   '/projects/$id/enhance/$serviceName': typeof ProjectsIdEnhanceServiceNameRoute
   '/projects/$id/enhance/': typeof ProjectsIdEnhanceIndexRoute
@@ -171,6 +189,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/designer'
     | '/settings'
+    | '/api/copilotkit'
     | '/projects/'
     | '/admin/rules/new'
     | '/admin/workflows/$workflowId'
@@ -180,6 +199,7 @@ export interface FileRouteTypes {
     | '/projects/$id/init'
     | '/admin/rules/'
     | '/admin/workflows/'
+    | '/api/projects/'
     | '/admin/rules/$entity/$ruleId'
     | '/projects/$id/enhance/$serviceName'
     | '/projects/$id/enhance/'
@@ -189,6 +209,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/designer'
     | '/settings'
+    | '/api/copilotkit'
     | '/projects'
     | '/admin/rules/new'
     | '/admin/workflows/$workflowId'
@@ -198,6 +219,7 @@ export interface FileRouteTypes {
     | '/projects/$id/init'
     | '/admin/rules'
     | '/admin/workflows'
+    | '/api/projects'
     | '/admin/rules/$entity/$ruleId'
     | '/projects/$id/enhance/$serviceName'
     | '/projects/$id/enhance'
@@ -207,6 +229,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/designer'
     | '/settings'
+    | '/api/copilotkit'
     | '/projects/'
     | '/admin/rules/new'
     | '/admin/workflows/$workflowId'
@@ -216,6 +239,7 @@ export interface FileRouteTypes {
     | '/projects/$id/init'
     | '/admin/rules/'
     | '/admin/workflows/'
+    | '/api/projects/'
     | '/admin/rules/$entity/$ruleId'
     | '/projects/$id/enhance/$serviceName'
     | '/projects/$id/enhance/'
@@ -226,6 +250,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DesignerRoute: typeof DesignerRoute
   SettingsRoute: typeof SettingsRoute
+  ApiCopilotkitRoute: typeof ApiCopilotkitRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   AdminRulesNewRoute: typeof AdminRulesNewRoute
   AdminWorkflowsWorkflowIdRoute: typeof AdminWorkflowsWorkflowIdRoute
@@ -235,6 +260,7 @@ export interface RootRouteChildren {
   ProjectsIdInitRoute: typeof ProjectsIdInitRoute
   AdminRulesIndexRoute: typeof AdminRulesIndexRoute
   AdminWorkflowsIndexRoute: typeof AdminWorkflowsIndexRoute
+  ApiProjectsIndexRoute: typeof ApiProjectsIndexRoute
   AdminRulesEntityRuleIdRoute: typeof AdminRulesEntityRuleIdRoute
   ProjectsIdEnhanceServiceNameRoute: typeof ProjectsIdEnhanceServiceNameRoute
   ProjectsIdEnhanceIndexRoute: typeof ProjectsIdEnhanceIndexRoute
@@ -275,6 +301,20 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/projects/'
       preLoaderRoute: typeof ProjectsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/copilotkit': {
+      id: '/api/copilotkit'
+      path: '/api/copilotkit'
+      fullPath: '/api/copilotkit'
+      preLoaderRoute: typeof ApiCopilotkitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/': {
+      id: '/api/projects/'
+      path: '/api/projects'
+      fullPath: '/api/projects/'
+      preLoaderRoute: typeof ApiProjectsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/workflows/': {
@@ -362,6 +402,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DesignerRoute: DesignerRoute,
   SettingsRoute: SettingsRoute,
+  ApiCopilotkitRoute: ApiCopilotkitRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
   AdminRulesNewRoute: AdminRulesNewRoute,
   AdminWorkflowsWorkflowIdRoute: AdminWorkflowsWorkflowIdRoute,
@@ -371,6 +412,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsIdInitRoute: ProjectsIdInitRoute,
   AdminRulesIndexRoute: AdminRulesIndexRoute,
   AdminWorkflowsIndexRoute: AdminWorkflowsIndexRoute,
+  ApiProjectsIndexRoute: ApiProjectsIndexRoute,
   AdminRulesEntityRuleIdRoute: AdminRulesEntityRuleIdRoute,
   ProjectsIdEnhanceServiceNameRoute: ProjectsIdEnhanceServiceNameRoute,
   ProjectsIdEnhanceIndexRoute: ProjectsIdEnhanceIndexRoute,

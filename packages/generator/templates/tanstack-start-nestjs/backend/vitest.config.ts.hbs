@@ -30,8 +30,7 @@ export default defineConfig({
       statements: 80,
     },
     env: {
-      DATABASE_CLIENT: 'better-sqlite3',
-      DATABASE_FILENAME: ':memory:',
+      DATABASE_DIR: ':memory:',
       NODE_ENV: 'test',
     },
     testTimeout: 30000,
