@@ -20,7 +20,7 @@ import * as fs from 'fs';
 config({ path: path.join(__dirname, '..', '..', '.env') });
 config({ path: path.join(__dirname, '..', '..', '.env.local'), override: true });
 
-let authInstance: ReturnType<typeof betterAuth> | null = null;
+let authInstance: any = null;
 
 export async function initAuth() {
   if (!authInstance) {
@@ -31,7 +31,7 @@ export async function initAuth() {
     const kysely = new Kysely<any>({ dialect: new PGliteDialect(pglite) });
 
     authInstance = betterAuth({
-      database: kyselyAdapter(kysely, { provider: 'pg' }),
+      database: kyselyAdapter(kysely),
       baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
       secret: process.env.BETTER_AUTH_SECRET || '{{projectSnake}}-dev-secret',
       emailAndPassword: {
@@ -82,7 +82,7 @@ export async function initAuth() {
   return authInstance;
 }
 
-export function getAuth() {
+export function getAuth(): any {
   if (!authInstance) {
     throw new Error('Auth not initialized. Call initAuth() first.');
   }
@@ -90,4 +90,4 @@ export function getAuth() {
 }
 
 export { getAuth as auth };
-export type Session = ReturnType<typeof getAuth>['$Infer']['Session'];
+export type Session = any;

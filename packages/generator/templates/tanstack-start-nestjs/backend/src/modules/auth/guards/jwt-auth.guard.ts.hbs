@@ -8,7 +8,7 @@
 
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Inject } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { auth } from '../../../lib/better-auth';
+import { getAuth } from '../../../lib/better-auth';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
@@ -30,6 +30,7 @@ export class JwtAuthGuard implements CanActivate {
     const headers = request.headers;
 
     try {
+      const auth = getAuth();
       const session = await auth.api.getSession({
         headers,
       });

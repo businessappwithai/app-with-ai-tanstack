@@ -10,7 +10,7 @@
 
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Logger, Inject } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { auth } from '../../../lib/better-auth';
+import { getAuth } from '../../../lib/better-auth';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
@@ -35,6 +35,7 @@ export class SessionAuthGuard implements CanActivate {
 
     try {
       // BetterAuth validates session from cookies or Authorization header
+      const auth = getAuth();
       const session = await auth.api.getSession({
         headers,
       });

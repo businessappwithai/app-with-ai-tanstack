@@ -9,10 +9,13 @@ import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { auth } from './lib/better-auth';
+import { initAuth, getAuth } from './lib/better-auth';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
+
+  // Initialize authentication system
+  await initAuth();
 
   // Create NestJS app with Fastify adapter for high performance
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -30,6 +33,7 @@ async function bootstrap() {
   // and manages cookies/sessions correctly through better-auth's built-in handler.
   const port = process.env.PORT || {{config.port}};
   const fastifyInstance = app.getHttpAdapter().getInstance();
+  const auth = getAuth();
 
   fastifyInstance.all('/api/auth/*', async (request, reply) => {
     try {
