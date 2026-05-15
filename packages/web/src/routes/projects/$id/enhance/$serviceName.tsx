@@ -308,7 +308,7 @@ function ServiceWorkflowPage() {
   const [showGeneratedCode, setShowGeneratedCode] = useState(false);
   const [activeTab, setActiveTab] = useState<"hooks" | "workflows">("hooks");
 
-  const draftSaveTimerRef = useRef<NodeJS.Timeout>();
+  const draftSaveTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const isDirtyRef = useRef(false);
 
   const entities = useMemo(() => {

@@ -105,7 +105,7 @@ function InitPage() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate({ to: "/projects/" })}
+              onClick={() => navigate({ to: "/projects" })}
               className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -113,7 +113,7 @@ function InitPage() {
             <h1 className="font-bold text-xl tracking-tight">Project Configuration</h1>
           </div>
           <button
-            onClick={() => navigate({ to: "/projects/" })}
+            onClick={() => navigate({ to: "/projects" })}
             className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
           >
             <User className="w-5 h-5" />
@@ -280,7 +280,7 @@ function InitPage() {
                         name="stack-type"
                         value="tanstackjs-nestjs"
                         checked={formData.stackType === "tanstackjs-nestjs"}
-                        onChange={(e) =>
+                        onChange={() =>
                           setFormData({
                             ...formData,
                             stackType: "tanstackjs-nestjs",

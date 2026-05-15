@@ -422,7 +422,7 @@ function ProjectsPage() {
       {/* Logs Viewer Modal */}
       {showLogsViewer && (
         <LogsViewer
-          actionId={currentActionId}
+          actionId={currentActionId ?? undefined}
           onClose={() => setShowLogsViewer(false)}
           projectName={
             projects.find((p) => p.id === useProjectStore.getState().currentProject?.id)?.name

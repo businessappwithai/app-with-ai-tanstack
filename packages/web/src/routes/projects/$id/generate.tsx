@@ -1,13 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
-  AlertCircle,
   CheckCircle2,
   Database,
-  HardDrive,
-  HelpCircle,
   Loader2,
-  RefreshCw,
-  Settings,
   Zap,
 } from "lucide-react";
 import type React from "react";
@@ -64,7 +59,7 @@ function GeneratePage() {
 
   const [localProject, setLocalProject] = useState<Project | null>(null);
   const [selectedStack, setSelectedStack] = useState<StackType | null>(null);
-  const [selectedDatabase, setSelectedDatabase] = useState<"sqlite" | "postgresql">("postgresql");
+  const [selectedDatabase] = useState<"sqlite" | "postgresql">("postgresql");
   const [selectedPort, setSelectedPort] = useState<number>(9001);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationComplete, setGenerationComplete] = useState(false);
