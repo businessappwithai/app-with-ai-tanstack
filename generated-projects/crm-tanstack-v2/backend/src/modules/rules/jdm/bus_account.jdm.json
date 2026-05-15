@@ -1,0 +1,69 @@
+{
+  "nodes": [
+    {
+      "id": "input",
+      "type": "inputNode",
+      "name": "Input",
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "id": "bus_account-validation",
+      "type": "decisionTableNode",
+      "name": "Account Validation",
+      "position": { "x": 300, "y": 0 },
+      "content": {
+        "hitPolicy": "collect",
+        "inputs": [
+          { "id": "i1", "name": "Name", "field": "name" },
+          { "id": "i2", "name": "Email", "field": "email" },
+          { "id": "i3", "name": "Phone", "field": "phone" },
+        ],
+        "outputs": [
+          { "id": "o1", "name": "Action", "field": "action" },
+          { "id": "o2", "name": "Message", "field": "message" },
+          { "id": "o3", "name": "Rule ID", "field": "ruleId" }
+        ],
+        "rules": [
+          {
+            "_id": "bus_account-name-required",
+            "i1": "== null",
+            "o1": "prevent",
+            "o2": "Name is required",
+            "o3": "bus_account-name-required"
+          },
+          {
+            "_id": "bus_account-email-required",
+            "i2": "== null",
+            "o1": "prevent",
+            "o2": "Email is required",
+            "o3": "bus_account-email-required"
+          },
+          {
+            "_id": "bus_account-phone-required",
+            "i3": "== null",
+            "o1": "prevent",
+            "o2": "Phone is required",
+            "o3": "bus_account-phone-required"
+          },
+          {
+            "_id": "bus_account-created_at-required",
+            "i4": "== null",
+            "o1": "prevent",
+            "o2": "Created At is required",
+            "o3": "bus_account-created_at-required"
+          }
+        ]
+      }
+    },
+    {
+      "id": "output",
+      "type": "outputNode",
+      "name": "Output",
+      "position": { "x": 600, "y": 0 }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "sourceId": "input", "targetId": "bus_account-validation" },
+    { "id": "e2", "sourceId": "bus_account-validation", "targetId": "output" }
+  ]
+}

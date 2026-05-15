@@ -1,0 +1,20 @@
+/**
+ * Home Page - Redirect to Dashboard
+ *
+ * Automatically redirects to the main dashboard page.
+ *
+ * Generated: 2026-05-15T16:06:27.778Z
+ */
+
+import { createFileRoute, redirect } from '@tanstack/react-router';
+
+export const Route = createFileRoute('/')({
+  beforeLoad: () => {
+    throw redirect({ to: '/dashboard' });
+  },
+  component: () => (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+    </div>
+  ),
+});

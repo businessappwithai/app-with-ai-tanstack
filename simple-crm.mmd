@@ -1,0 +1,43 @@
+erDiagram
+    ACCOUNT {
+        int id PK
+        string name
+        string email
+        string phone
+        datetime created_at
+    }
+
+    CONTACT {
+        int id PK
+        string first_name
+        string last_name
+        string email
+        string phone
+        int account_id FK
+        datetime created_at
+    }
+
+    OPPORTUNITY {
+        int id PK
+        string name
+        decimal amount
+        string stage
+        int account_id FK
+        datetime close_date
+        datetime created_at
+    }
+
+    ACTIVITY {
+        int id PK
+        string type
+        string description
+        int contact_id FK
+        int opportunity_id FK
+        datetime activity_date
+        datetime created_at
+    }
+
+    ACCOUNT ||--o{ CONTACT : has
+    ACCOUNT ||--o{ OPPORTUNITY : has
+    CONTACT ||--o{ ACTIVITY : has
+    OPPORTUNITY ||--o{ ACTIVITY : related_to

@@ -1,0 +1,41 @@
+import { defineConfig } from '@tanstack/start/config'
+import path from 'path'
+
+export default defineConfig({
+  tsr: {
+    appDirectory: 'src',
+    routesDirectory: 'src/routes',
+    generatedRouteTree: 'src/routeTree.gen.ts',
+    quoteStyle: 'single',
+    semicolons: false,
+  },
+  server: {
+    preset: 'node-server',
+  },
+  react: {
+    jsxRuntime: 'automatic',
+    jsxImportSource: 'react',
+  },
+  vite: {
+    esbuild: {
+      jsx: 'automatic',
+      jsxImportSource: 'react',
+    },
+    resolve: {
+      alias: {
+        '@': path.resolve('./src'),
+      },
+    },
+    server: {
+      middlewareMode: false,
+      port: 3000,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+        },
+      },
+    },
+    ssr: false,
+  },
+})
