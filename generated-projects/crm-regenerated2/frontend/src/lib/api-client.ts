@@ -4,7 +4,7 @@
  * Generated: 2026-05-16T05:41:34.294Z
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 // ============================================================================
 // Logger Utility

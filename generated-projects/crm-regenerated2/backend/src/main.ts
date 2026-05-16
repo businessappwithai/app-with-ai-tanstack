@@ -73,6 +73,7 @@ async function bootstrap() {
   const allowedOrigins = corsOrigin.split(',').concat([
     'http://localhost:3000',
     'http://localhost:3001',
+    'http://localhost:3050',
   ]);
   app.enableCors({
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
