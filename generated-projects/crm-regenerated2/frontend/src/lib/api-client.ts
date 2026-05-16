@@ -24,7 +24,7 @@ class Logger {
   constructor(prefix: string = "[ApiClient]") {
     this.prefix = prefix;
     // Use INFO level in production, DEBUG level in development
-    this.level = process.env.NODE_ENV === "production" ? LogLevel.INFO : LogLevel.DEBUG;
+    this.level = import.meta.env.MODE === "production" ? LogLevel.INFO : LogLevel.DEBUG;
   }
 
   private shouldLog(level: LogLevel): boolean {
