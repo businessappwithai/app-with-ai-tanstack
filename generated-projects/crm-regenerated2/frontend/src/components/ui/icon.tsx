@@ -50,6 +50,7 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   share: Icons.Share2,
   star: Icons.Star,
   suitcase: Icons.Briefcase,
+  table: Icons.Table,
   tag: Icons.Tag,
   target: Icons.Target,
   task: Icons.CheckSquare,
@@ -68,7 +69,7 @@ const iconMap: Record<string, React.ComponentType<any>> = {
 };
 
 export function Icon({ name, size = 24, className, ...props }: IconProps) {
-  const IconComponent = iconMap[name] || Icons.Help;
+  const IconComponent = iconMap[name.toLowerCase()] || iconMap[name] || Icons.HelpCircle;
   return (
     <IconComponent
       size={typeof size === 'number' ? size : parseInt(size as string)}
