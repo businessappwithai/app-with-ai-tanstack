@@ -31,10 +31,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await fetch(`${API_BASE}/api/auth/session`, { credentials: 'include' });
+        const response = await fetch(`${API_BASE}/api/auth/get-session`, { credentials: 'include' });
         if (response.ok) {
           const data = await response.json();
-          setUser(data.user);
+          if (data?.user) setUser(data.user);
         }
       } catch (error) {
         console.error('Failed to check session:', error);
