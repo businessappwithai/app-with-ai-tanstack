@@ -1,0 +1,90 @@
+{
+  "nodes": [
+    {
+      "id": "input",
+      "type": "inputNode",
+      "name": "Input",
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "id": "bus_quote-validation",
+      "type": "decisionTableNode",
+      "name": "Quote Validation",
+      "position": { "x": 300, "y": 0 },
+      "content": {
+        "hitPolicy": "collect",
+        "inputs": [
+          { "id": "i1", "name": "Deal Id", "field": "deal_id" },
+          { "id": "i2", "name": "Quote Number", "field": "quote_number" },
+          { "id": "i3", "name": "Status", "field": "status" },
+        ],
+        "outputs": [
+          { "id": "o1", "name": "Action", "field": "action" },
+          { "id": "o2", "name": "Message", "field": "message" },
+          { "id": "o3", "name": "Rule ID", "field": "ruleId" }
+        ],
+        "rules": [
+          {
+            "_id": "bus_quote-deal_id-required",
+            "i1": "== null",
+            "o1": "prevent",
+            "o2": "Deal Id is required",
+            "o3": "bus_quote-deal_id-required"
+          },
+          {
+            "_id": "bus_quote-quote_number-required",
+            "i2": "== null",
+            "o1": "prevent",
+            "o2": "Quote Number is required",
+            "o3": "bus_quote-quote_number-required"
+          },
+          {
+            "_id": "bus_quote-status-required",
+            "i3": "== null",
+            "o1": "prevent",
+            "o2": "Status is required",
+            "o3": "bus_quote-status-required"
+          },
+          {
+            "_id": "bus_quote-subtotal-required",
+            "i5": "== null",
+            "o1": "prevent",
+            "o2": "Subtotal is required",
+            "o3": "bus_quote-subtotal-required"
+          },
+          {
+            "_id": "bus_quote-discount_amount-required",
+            "i6": "== null",
+            "o1": "prevent",
+            "o2": "Discount Amount is required",
+            "o3": "bus_quote-discount_amount-required"
+          },
+          {
+            "_id": "bus_quote-tax_amount-required",
+            "i7": "== null",
+            "o1": "prevent",
+            "o2": "Tax Amount is required",
+            "o3": "bus_quote-tax_amount-required"
+          },
+          {
+            "_id": "bus_quote-total_amount-required",
+            "i8": "== null",
+            "o1": "prevent",
+            "o2": "Total Amount is required",
+            "o3": "bus_quote-total_amount-required"
+          },
+        ]
+      }
+    },
+    {
+      "id": "output",
+      "type": "outputNode",
+      "name": "Output",
+      "position": { "x": 600, "y": 0 }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "sourceId": "input", "targetId": "bus_quote-validation" },
+    { "id": "e2", "sourceId": "bus_quote-validation", "targetId": "output" }
+  ]
+}

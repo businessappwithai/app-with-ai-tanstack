@@ -1,0 +1,273 @@
+/**
+ * Database Service with Kysely
+ *
+ * Generated: 2026-05-16T05:41:09.517Z
+ */
+
+import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
+import { Kysely, sql } from 'kysely';
+import { v4 as uuidv4 } from 'uuid';
+import { KYSELY_CONNECTION } from './database.constants';
+
+export interface PaginationOptions {
+  page?: number;
+  limit?: number;
+  orderBy?: string;
+  orderDir?: 'asc' | 'desc';
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+@Injectable()
+export class DatabaseService {
+  public readonly kysely: Kysely<any>;
+
+  constructor(@Inject(KYSELY_CONNECTION) kysely: Kysely<any>) {
+    this.kysely = kysely;
+  }
+
+  /**
+   * Start a transaction
+   */
+  async transaction<T>(callback: (trx: Kysely<any>) => Promise<T>): Promise<T> {
+    return this.kysely.transaction().execute(callback);
+  }
+
+  /**
+   * Find all records in a table with pagination
+   */
+  async findAll<T>(
+    tableName: string,
+    options: PaginationOptions = {},
+    filters: Record<string, any> = {},
+  ): Promise<PaginatedResult<T>> {
+    const {
+      page = 1,
+      limit = 20,
+      orderBy = 'created_at',
+      orderDir = 'desc',
+    } = options;
+
+    const offset = (page - 1) * limit;
+
+    let query = this.kysely
+      .selectFrom(tableName as any)
+      .selectAll()
+      .where('deleted_at' as any, 'is', null);
+
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined && value !== null && value !== '') {
+        if (typeof value === 'object' && 'operator' in value && 'value' in value) {
+          query = query.where(key as any, value.operator, value.value);
+        } else if (typeof value === 'string' && value.includes('%')) {
+          query = query.where(sql.ref(key), 'ilike', value);
+        } else {
+          query = query.where(key as any, '=', value);
+        }
+      }
+    }
+
+    const countResult = await (query as any)
+      .clearSelect()
+      .select((eb: any) => eb.fn.countAll().as('count'))
+      .executeTakeFirst();
+    const total = Number(countResult?.count ?? 0);
+
+    const data = await query
+      .orderBy(orderBy as any, orderDir)
+      .limit(Number(limit))
+      .offset(Number(offset))
+      .execute();
+
+    return {
+      data: data as T[],
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /**
+   * Find a single record by ID
+   */
+  async findById<T>(tableName: string, id: string): Promise<T | null> {
+    const record = await this.kysely
+      .selectFrom(tableName as any)
+      .selectAll()
+      .where('id' as any, '=', id)
+      .where('deleted_at' as any, 'is', null)
+      .executeTakeFirst();
+
+    return (record as T) ?? null;
+  }
+
+  /**
+   * Find a single record by ID or throw NotFoundException
+   */
+  async findByIdOrFail<T>(tableName: string, id: string): Promise<T> {
+    const record = await this.findById<T>(tableName, id);
+
+    if (!record) {
+      throw new NotFoundException(`Record not found in ${tableName} with id ${id}`);
+    }
+
+    return record;
+  }
+
+  /**
+   * Find records by a specific field
+   */
+  async findBy<T>(tableName: string, field: string, value: any): Promise<T[]> {
+    const records = await this.kysely
+      .selectFrom(tableName as any)
+      .selectAll()
+      .where(field as any, '=', value)
+      .where('deleted_at' as any, 'is', null)
+      .execute();
+
+    return records as T[];
+  }
+
+  /**
+   * Create a new record
+   */
+  async create<T>(tableName: string, data: Partial<T>): Promise<T> {
+    const id = (data as any).id || uuidv4();
+    const now = new Date();
+
+    const record = {
+      ...data,
+      id,
+      version: 1,
+      created_at: now,
+      updated_at: now,
+    };
+
+    await this.kysely.insertInto(tableName as any).values(record).execute();
+
+    return this.findByIdOrFail<T>(tableName, id);
+  }
+
+  /**
+   * Update an existing record with optimistic concurrency control
+   */
+  async update<T>(
+    tableName: string,
+    id: string,
+    data: Partial<T>,
+    expectedVersion?: number,
+  ): Promise<T> {
+    const existing = await this.findByIdOrFail<T & { version: number }>(tableName, id);
+
+    if (expectedVersion !== undefined && existing.version !== expectedVersion) {
+      throw new ConflictException(
+        `Record has been modified by another user. Expected version ${expectedVersion}, current version ${existing.version}`,
+      );
+    }
+
+    await this.kysely
+      .updateTable(tableName as any)
+      .set({
+        ...data,
+        version: sql`version + 1`,
+        updated_at: new Date(),
+      } as any)
+      .where('id' as any, '=', id)
+      .execute();
+
+    return this.findByIdOrFail<T>(tableName, id);
+  }
+
+  /**
+   * Soft delete a record
+   */
+  async softDelete(tableName: string, id: string): Promise<boolean> {
+    await this.findByIdOrFail(tableName, id);
+
+    const result = await this.kysely
+      .updateTable(tableName as any)
+      .set({ deleted_at: new Date(), updated_at: new Date() } as any)
+      .where('id' as any, '=', id)
+      .executeTakeFirst();
+
+    return Number(result.numUpdatedRows) > 0;
+  }
+
+  /**
+   * Permanently delete a record
+   */
+  async hardDelete(tableName: string, id: string): Promise<boolean> {
+    const result = await this.kysely
+      .deleteFrom(tableName as any)
+      .where('id' as any, '=', id)
+      .executeTakeFirst();
+
+    return Number(result.numDeletedRows) > 0;
+  }
+
+  /**
+   * Restore a soft-deleted record
+   */
+  async restore(tableName: string, id: string): Promise<boolean> {
+    const result = await this.kysely
+      .updateTable(tableName as any)
+      .set({ deleted_at: null, updated_at: new Date() } as any)
+      .where('id' as any, '=', id)
+      .where('deleted_at' as any, 'is not', null)
+      .executeTakeFirst();
+
+    return Number(result.numUpdatedRows) > 0;
+  }
+
+  /**
+   * Count records in a table
+   */
+  async count(tableName: string, filters: Record<string, any> = {}): Promise<number> {
+    let query = this.kysely
+      .selectFrom(tableName as any)
+      .select((eb: any) => eb.fn.countAll().as('count'))
+      .where('deleted_at' as any, 'is', null);
+
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined && value !== null) {
+        query = query.where(key as any, '=', value);
+      }
+    }
+
+    const result = await query.executeTakeFirst() as { count: string | number } | undefined;
+    return Number(result?.count ?? 0);
+  }
+
+  /**
+   * Check if a record exists
+   */
+  async exists(tableName: string, id: string): Promise<boolean> {
+    const result = await this.kysely
+      .selectFrom(tableName as any)
+      .select('id' as any)
+      .where('id' as any, '=', id)
+      .where('deleted_at' as any, 'is', null)
+      .executeTakeFirst();
+
+    return !!result;
+  }
+
+  /**
+   * Execute a raw SQL query
+   */
+  async raw<T>(sqlStr: string): Promise<T> {
+    const result = await sql.raw(sqlStr).execute(this.kysely);
+    return (result as any).rows as T;
+  }
+}
