@@ -49,12 +49,12 @@ export class DatabaseService {
     options: PaginationOptions = {},
     filters: Record<string, any> = {},
   ): Promise<PaginatedResult<T>> {
-    const {
-      page = 1,
-      limit = 20,
-      orderBy = 'created_at',
-      orderDir = 'desc',
-    } = options;
+    const rawPage = options.page;
+    const rawLimit = options.limit;
+    const page = (typeof rawPage === 'number' && !isNaN(rawPage) && rawPage > 0) ? Math.floor(rawPage) : 1;
+    const limit = (typeof rawLimit === 'number' && !isNaN(rawLimit) && rawLimit > 0) ? Math.floor(rawLimit) : 20;
+    const orderBy = options.orderBy || 'created_at';
+    const orderDir = options.orderDir || 'desc';
 
     const offset = (page - 1) * limit;
 
