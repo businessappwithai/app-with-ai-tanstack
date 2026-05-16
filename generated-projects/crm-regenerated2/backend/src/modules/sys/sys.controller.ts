@@ -51,6 +51,12 @@ export class SysController {
   @ApiOperation({ summary: 'SSE stream for real-time sys_* change events' })
   async subscribeEvents(@Req() req: FastifyRequest, @Res() reply: FastifyReply) {
     const rawReply = reply.raw;
+    // rawReply bypasses NestJS CORS middleware, so set CORS headers manually
+    const origin = (req.headers as Record<string, string>).origin;
+    if (origin) {
+      rawReply.setHeader('Access-Control-Allow-Origin', origin);
+      rawReply.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
     rawReply.setHeader('Content-Type', 'text/event-stream');
     rawReply.setHeader('Cache-Control', 'no-cache');
     rawReply.setHeader('Connection', 'keep-alive');
