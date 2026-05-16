@@ -1,5 +1,7 @@
 import React, { type ReactNode, createContext, useContext, useState, useEffect } from 'react';
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 interface User {
   id: string;
   email: string;
@@ -29,7 +31,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await fetch('/api/auth/session', { credentials: 'include' });
+        const response = await fetch(`${API_BASE}/api/auth/session`, { credentials: 'include' });
         if (response.ok) {
           const data = await response.json();
           setUser(data.user);
@@ -46,7 +48,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/sign-in', {
+      const response = await fetch(`${API_BASE}/api/auth/sign-in/email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -63,7 +65,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = async () => {
     setIsLoading(true);
     try {
-      await fetch('/api/auth/sign-out', { method: 'POST', credentials: 'include' });
+      await fetch(`${API_BASE}/api/auth/sign-out`, { method: 'POST', credentials: 'include' });
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -73,7 +75,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signup = async (email: string, password: string, name: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/sign-up', {
+      const response = await fetch(`${API_BASE}/api/auth/sign-up/email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name }),
