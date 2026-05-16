@@ -93,7 +93,7 @@ export function DynamicTable({
                 {columns.length > 0 ? (
                   columns.map((col) => (
                     <th
-                      key={col.sys_field_id}
+                      key={col.sys_field_id || col.column_name}
                       className="px-4 py-3 text-left font-semibold text-foreground/80 whitespace-nowrap"
                     >
                       {col.name || col.column_name}
@@ -114,7 +114,7 @@ export function DynamicTable({
                   {columns.length > 0 ? (
                     columns.map((col) => (
                       <td
-                        key={col.sys_field_id}
+                        key={col.sys_field_id || col.column_name}
                         className="px-4 py-3 text-foreground/80 max-w-[200px] truncate"
                         title={String(row[col.column_name] ?? '')}
                       >
