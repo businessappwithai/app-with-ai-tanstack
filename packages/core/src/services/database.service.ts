@@ -236,6 +236,8 @@ class SafeDatabase {
       this.db = new Kysely<Database>({
         dialect: new PGliteDialect(pglite),
       });
+      // Auto-run migrations so tables exist on first start
+      await runMigrationsOn(this.db);
     } catch (err) {
       this.error = err instanceof Error ? err : new Error(String(err));
       console.error("Database initialization failed:", this.error.message);
@@ -303,8 +305,16 @@ export async function closeDatabase(): Promise<void> {
  * Run database migrations
  * Creates comprehensive schema for ALL project data
  */
+async function runMigrationsOn(database: Kysely<Database>): Promise<void> {
+  await _runMigrationsImpl(database);
+}
+
 export async function runMigrations(): Promise<void> {
   const database = await getDatabase();
+  await _runMigrationsImpl(database);
+}
+
+async function _runMigrationsImpl(database: Kysely<Database>): Promise<void> {
 
   // ============================================
   // PROJECTS TABLE - Core project particulars
