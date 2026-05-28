@@ -1,6 +1,6 @@
-import { createAPIFileRoute } from "@tanstack/start/api";
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createAPIFileRoute("/api/ai/convert-stream")({
+export const Route = createFileRoute("/api/ai/convert-stream")({ server: { handlers: {
   POST: async ({ request }) => {
     try {
       const body = await request.json();
@@ -62,5 +62,7 @@ export const Route = createAPIFileRoute("/api/ai/convert-stream")({
         }
       );
     }
+  },
+  },
   },
 });

@@ -1,10 +1,10 @@
-import { createAPIFileRoute } from "@tanstack/start/api";
+import { createFileRoute } from "@tanstack/react-router";
 import fs from "node:fs/promises";
 import path from "node:path";
 
 const MERMAID_DIR = path.join(process.cwd(), "generated-projects", ".mermaid-library");
 
-export const Route = createAPIFileRoute("/api/mermaid/$filename")({
+export const Route = createFileRoute("/api/mermaid/$filename")({ server: { handlers: {
   GET: async ({ params }) => {
     try {
       const { filename } = params;
@@ -58,5 +58,7 @@ export const Route = createAPIFileRoute("/api/mermaid/$filename")({
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
+  },
+  },
   },
 });

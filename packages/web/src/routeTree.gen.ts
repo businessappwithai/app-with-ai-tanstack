@@ -22,25 +22,25 @@ import { Route as ApiCopilotkitRouteImport } from './routes/api/copilotkit'
 import { Route as ApiWorkflowsIndexRouteImport } from './routes/api/workflows/index'
 import { Route as ApiRulesIndexRouteImport } from './routes/api/rules/index'
 import { Route as ApiProjectsIndexRouteImport } from './routes/api/projects/index'
+import { Route as ApiMermaidIndexRouteImport } from './routes/api/mermaid/index'
 import { Route as AdminWorkflowsIndexRouteImport } from './routes/admin/workflows/index'
 import { Route as AdminRulesIndexRouteImport } from './routes/admin/rules/index'
+import { Route as AdminMermaidIndexRouteImport } from './routes/admin/mermaid/index'
+import { Route as ProjectsIdRulesDesignRouteImport } from './routes/projects/$id/rules-design'
 import { Route as ProjectsIdInitRouteImport } from './routes/projects/$id/init'
 import { Route as ProjectsIdGenerateRouteImport } from './routes/projects/$id/generate'
 import { Route as ProjectsIdDesignRouteImport } from './routes/projects/$id/design'
 import { Route as ProjectsIdDeployRouteImport } from './routes/projects/$id/deploy'
 import { Route as ApiRulesValidateRouteImport } from './routes/api/rules/validate'
+import { Route as ApiMermaidParseRouteImport } from './routes/api/mermaid/parse'
+import { Route as ApiMermaidFilenameRouteImport } from './routes/api/mermaid/$filename'
+import { Route as ApiAiRulesStreamRouteImport } from './routes/api/ai/rules-stream'
 import { Route as ApiAiConvertStreamRouteImport } from './routes/api/ai/convert-stream'
 import { Route as ApiAiConvertRouteImport } from './routes/api/ai/convert'
 import { Route as ApiAiCodeAgentStreamRouteImport } from './routes/api/ai/code-agent-stream'
 import { Route as ApiAiCodeAgentRouteImport } from './routes/api/ai/code-agent'
-import { Route as ApiAiRulesStreamRouteImport } from './routes/api/ai/rules-stream'
 import { Route as AdminWorkflowsWorkflowIdRouteImport } from './routes/admin/workflows/$workflowId'
 import { Route as AdminRulesNewRouteImport } from './routes/admin/rules/new'
-import { Route as AdminMermaidIndexRouteImport } from './routes/admin/mermaid/index'
-import { Route as ProjectsIdRulesDesignRouteImport } from './routes/projects/$id/rules-design'
-import { Route as ApiMermaidIndexRouteImport } from './routes/api/mermaid/index'
-import { Route as ApiMermaidParseRouteImport } from './routes/api/mermaid/parse'
-import { Route as ApiMermaidFilenameRouteImport } from './routes/api/mermaid/$filename'
 import { Route as ProjectsIdEnhanceIndexRouteImport } from './routes/projects/$id/enhance/index'
 import { Route as ApiWorkflowsWorkflowIdIndexRouteImport } from './routes/api/workflows/$workflowId/index'
 import { Route as ApiRulesRuleIdIndexRouteImport } from './routes/api/rules/$ruleId/index'
@@ -127,6 +127,11 @@ const ApiProjectsIndexRoute = ApiProjectsIndexRouteImport.update({
   path: '/api/projects/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMermaidIndexRoute = ApiMermaidIndexRouteImport.update({
+  id: '/api/mermaid/',
+  path: '/api/mermaid/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminWorkflowsIndexRoute = AdminWorkflowsIndexRouteImport.update({
   id: '/admin/workflows/',
   path: '/admin/workflows/',
@@ -135,6 +140,16 @@ const AdminWorkflowsIndexRoute = AdminWorkflowsIndexRouteImport.update({
 const AdminRulesIndexRoute = AdminRulesIndexRouteImport.update({
   id: '/admin/rules/',
   path: '/admin/rules/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMermaidIndexRoute = AdminMermaidIndexRouteImport.update({
+  id: '/admin/mermaid/',
+  path: '/admin/mermaid/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsIdRulesDesignRoute = ProjectsIdRulesDesignRouteImport.update({
+  id: '/projects/$id/rules-design',
+  path: '/projects/$id/rules-design',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsIdInitRoute = ProjectsIdInitRouteImport.update({
@@ -160,6 +175,21 @@ const ProjectsIdDeployRoute = ProjectsIdDeployRouteImport.update({
 const ApiRulesValidateRoute = ApiRulesValidateRouteImport.update({
   id: '/api/rules/validate',
   path: '/api/rules/validate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMermaidParseRoute = ApiMermaidParseRouteImport.update({
+  id: '/api/mermaid/parse',
+  path: '/api/mermaid/parse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMermaidFilenameRoute = ApiMermaidFilenameRouteImport.update({
+  id: '/api/mermaid/$filename',
+  path: '/api/mermaid/$filename',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiRulesStreamRoute = ApiAiRulesStreamRouteImport.update({
+  id: '/api/ai/rules-stream',
+  path: '/api/ai/rules-stream',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAiConvertStreamRoute = ApiAiConvertStreamRouteImport.update({
@@ -191,36 +221,6 @@ const AdminWorkflowsWorkflowIdRoute =
 const AdminRulesNewRoute = AdminRulesNewRouteImport.update({
   id: '/admin/rules/new',
   path: '/admin/rules/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminMermaidIndexRoute = AdminMermaidIndexRouteImport.update({
-  id: '/admin/mermaid/',
-  path: '/admin/mermaid/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProjectsIdRulesDesignRoute = ProjectsIdRulesDesignRouteImport.update({
-  id: '/projects/$id/rules-design',
-  path: '/projects/$id/rules-design',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAiRulesStreamRoute = ApiAiRulesStreamRouteImport.update({
-  id: '/api/ai/rules-stream',
-  path: '/api/ai/rules-stream',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiMermaidIndexRoute = ApiMermaidIndexRouteImport.update({
-  id: '/api/mermaid/',
-  path: '/api/mermaid/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiMermaidParseRoute = ApiMermaidParseRouteImport.update({
-  id: '/api/mermaid/parse',
-  path: '/api/mermaid/parse',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiMermaidFilenameRoute = ApiMermaidFilenameRouteImport.update({
-  id: '/api/mermaid/$filename',
-  path: '/api/mermaid/$filename',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsIdEnhanceIndexRoute = ProjectsIdEnhanceIndexRouteImport.update({
@@ -353,23 +353,23 @@ export interface FileRoutesByFullPath {
   '/projects/': typeof ProjectsIndexRoute
   '/admin/rules/new': typeof AdminRulesNewRoute
   '/admin/workflows/$workflowId': typeof AdminWorkflowsWorkflowIdRoute
-  '/admin/mermaid/': typeof AdminMermaidIndexRoute
-  '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
-  '/api/ai/rules-stream': typeof ApiAiRulesStreamRoute
-  '/api/mermaid/': typeof ApiMermaidIndexRoute
-  '/api/mermaid/parse': typeof ApiMermaidParseRoute
-  '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
   '/api/ai/code-agent': typeof ApiAiCodeAgentRoute
   '/api/ai/code-agent-stream': typeof ApiAiCodeAgentStreamRoute
   '/api/ai/convert': typeof ApiAiConvertRoute
   '/api/ai/convert-stream': typeof ApiAiConvertStreamRoute
+  '/api/ai/rules-stream': typeof ApiAiRulesStreamRoute
+  '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
+  '/api/mermaid/parse': typeof ApiMermaidParseRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
   '/projects/$id/deploy': typeof ProjectsIdDeployRoute
   '/projects/$id/design': typeof ProjectsIdDesignRoute
   '/projects/$id/generate': typeof ProjectsIdGenerateRoute
   '/projects/$id/init': typeof ProjectsIdInitRoute
+  '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
+  '/admin/mermaid/': typeof AdminMermaidIndexRoute
   '/admin/rules/': typeof AdminRulesIndexRoute
   '/admin/workflows/': typeof AdminWorkflowsIndexRoute
+  '/api/mermaid/': typeof ApiMermaidIndexRoute
   '/api/projects/': typeof ApiProjectsIndexRoute
   '/api/rules/': typeof ApiRulesIndexRoute
   '/api/workflows/': typeof ApiWorkflowsIndexRoute
@@ -407,23 +407,23 @@ export interface FileRoutesByTo {
   '/projects': typeof ProjectsIndexRoute
   '/admin/rules/new': typeof AdminRulesNewRoute
   '/admin/workflows/$workflowId': typeof AdminWorkflowsWorkflowIdRoute
-  '/admin/mermaid': typeof AdminMermaidIndexRoute
-  '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
-  '/api/ai/rules-stream': typeof ApiAiRulesStreamRoute
-  '/api/mermaid': typeof ApiMermaidIndexRoute
-  '/api/mermaid/parse': typeof ApiMermaidParseRoute
-  '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
   '/api/ai/code-agent': typeof ApiAiCodeAgentRoute
   '/api/ai/code-agent-stream': typeof ApiAiCodeAgentStreamRoute
   '/api/ai/convert': typeof ApiAiConvertRoute
   '/api/ai/convert-stream': typeof ApiAiConvertStreamRoute
+  '/api/ai/rules-stream': typeof ApiAiRulesStreamRoute
+  '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
+  '/api/mermaid/parse': typeof ApiMermaidParseRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
   '/projects/$id/deploy': typeof ProjectsIdDeployRoute
   '/projects/$id/design': typeof ProjectsIdDesignRoute
   '/projects/$id/generate': typeof ProjectsIdGenerateRoute
   '/projects/$id/init': typeof ProjectsIdInitRoute
+  '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
+  '/admin/mermaid': typeof AdminMermaidIndexRoute
   '/admin/rules': typeof AdminRulesIndexRoute
   '/admin/workflows': typeof AdminWorkflowsIndexRoute
+  '/api/mermaid': typeof ApiMermaidIndexRoute
   '/api/projects': typeof ApiProjectsIndexRoute
   '/api/rules': typeof ApiRulesIndexRoute
   '/api/workflows': typeof ApiWorkflowsIndexRoute
@@ -462,23 +462,23 @@ export interface FileRoutesById {
   '/projects/': typeof ProjectsIndexRoute
   '/admin/rules/new': typeof AdminRulesNewRoute
   '/admin/workflows/$workflowId': typeof AdminWorkflowsWorkflowIdRoute
-  '/admin/mermaid/': typeof AdminMermaidIndexRoute
-  '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
-  '/api/ai/rules-stream': typeof ApiAiRulesStreamRoute
-  '/api/mermaid/': typeof ApiMermaidIndexRoute
-  '/api/mermaid/parse': typeof ApiMermaidParseRoute
-  '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
   '/api/ai/code-agent': typeof ApiAiCodeAgentRoute
   '/api/ai/code-agent-stream': typeof ApiAiCodeAgentStreamRoute
   '/api/ai/convert': typeof ApiAiConvertRoute
   '/api/ai/convert-stream': typeof ApiAiConvertStreamRoute
+  '/api/ai/rules-stream': typeof ApiAiRulesStreamRoute
+  '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
+  '/api/mermaid/parse': typeof ApiMermaidParseRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
   '/projects/$id/deploy': typeof ProjectsIdDeployRoute
   '/projects/$id/design': typeof ProjectsIdDesignRoute
   '/projects/$id/generate': typeof ProjectsIdGenerateRoute
   '/projects/$id/init': typeof ProjectsIdInitRoute
+  '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
+  '/admin/mermaid/': typeof AdminMermaidIndexRoute
   '/admin/rules/': typeof AdminRulesIndexRoute
   '/admin/workflows/': typeof AdminWorkflowsIndexRoute
+  '/api/mermaid/': typeof ApiMermaidIndexRoute
   '/api/projects/': typeof ApiProjectsIndexRoute
   '/api/rules/': typeof ApiRulesIndexRoute
   '/api/workflows/': typeof ApiWorkflowsIndexRoute
@@ -522,13 +522,19 @@ export interface FileRouteTypes {
     | '/api/ai/code-agent-stream'
     | '/api/ai/convert'
     | '/api/ai/convert-stream'
+    | '/api/ai/rules-stream'
+    | '/api/mermaid/$filename'
+    | '/api/mermaid/parse'
     | '/api/rules/validate'
     | '/projects/$id/deploy'
     | '/projects/$id/design'
     | '/projects/$id/generate'
     | '/projects/$id/init'
+    | '/projects/$id/rules-design'
+    | '/admin/mermaid/'
     | '/admin/rules/'
     | '/admin/workflows/'
+    | '/api/mermaid/'
     | '/api/projects/'
     | '/api/rules/'
     | '/api/workflows/'
@@ -552,11 +558,6 @@ export interface FileRouteTypes {
     | '/api/projects/$id/workflows/$serviceName/'
     | '/api/projects/$id/workflows/$serviceName/files/$fileName'
     | '/api/projects/$id/workflows/$serviceName/files/'
-    | '/admin/mermaid/'
-    | '/projects/$id/rules-design'
-    | '/api/ai/rules-stream'
-    | '/api/mermaid/'
-    | '/api/mermaid/$filename'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -575,13 +576,19 @@ export interface FileRouteTypes {
     | '/api/ai/code-agent-stream'
     | '/api/ai/convert'
     | '/api/ai/convert-stream'
+    | '/api/ai/rules-stream'
+    | '/api/mermaid/$filename'
+    | '/api/mermaid/parse'
     | '/api/rules/validate'
     | '/projects/$id/deploy'
     | '/projects/$id/design'
     | '/projects/$id/generate'
     | '/projects/$id/init'
+    | '/projects/$id/rules-design'
+    | '/admin/mermaid'
     | '/admin/rules'
     | '/admin/workflows'
+    | '/api/mermaid'
     | '/api/projects'
     | '/api/rules'
     | '/api/workflows'
@@ -605,11 +612,6 @@ export interface FileRouteTypes {
     | '/api/projects/$id/workflows/$serviceName'
     | '/api/projects/$id/workflows/$serviceName/files/$fileName'
     | '/api/projects/$id/workflows/$serviceName/files'
-    | '/admin/mermaid'
-    | '/projects/$id/rules-design'
-    | '/api/ai/rules-stream'
-    | '/api/mermaid'
-    | '/api/mermaid/$filename'
   id:
     | '__root__'
     | '/'
@@ -628,13 +630,19 @@ export interface FileRouteTypes {
     | '/api/ai/code-agent-stream'
     | '/api/ai/convert'
     | '/api/ai/convert-stream'
+    | '/api/ai/rules-stream'
+    | '/api/mermaid/$filename'
+    | '/api/mermaid/parse'
     | '/api/rules/validate'
     | '/projects/$id/deploy'
     | '/projects/$id/design'
     | '/projects/$id/generate'
     | '/projects/$id/init'
+    | '/projects/$id/rules-design'
+    | '/admin/mermaid/'
     | '/admin/rules/'
     | '/admin/workflows/'
+    | '/api/mermaid/'
     | '/api/projects/'
     | '/api/rules/'
     | '/api/workflows/'
@@ -658,11 +666,6 @@ export interface FileRouteTypes {
     | '/api/projects/$id/workflows/$serviceName/'
     | '/api/projects/$id/workflows/$serviceName/files/$fileName'
     | '/api/projects/$id/workflows/$serviceName/files/'
-    | '/admin/mermaid/'
-    | '/projects/$id/rules-design'
-    | '/api/ai/rules-stream'
-    | '/api/mermaid/'
-    | '/api/mermaid/$filename'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -682,13 +685,19 @@ export interface RootRouteChildren {
   ApiAiCodeAgentStreamRoute: typeof ApiAiCodeAgentStreamRoute
   ApiAiConvertRoute: typeof ApiAiConvertRoute
   ApiAiConvertStreamRoute: typeof ApiAiConvertStreamRoute
+  ApiAiRulesStreamRoute: typeof ApiAiRulesStreamRoute
+  ApiMermaidFilenameRoute: typeof ApiMermaidFilenameRoute
+  ApiMermaidParseRoute: typeof ApiMermaidParseRoute
   ApiRulesValidateRoute: typeof ApiRulesValidateRoute
   ProjectsIdDeployRoute: typeof ProjectsIdDeployRoute
   ProjectsIdDesignRoute: typeof ProjectsIdDesignRoute
   ProjectsIdGenerateRoute: typeof ProjectsIdGenerateRoute
   ProjectsIdInitRoute: typeof ProjectsIdInitRoute
+  ProjectsIdRulesDesignRoute: typeof ProjectsIdRulesDesignRoute
+  AdminMermaidIndexRoute: typeof AdminMermaidIndexRoute
   AdminRulesIndexRoute: typeof AdminRulesIndexRoute
   AdminWorkflowsIndexRoute: typeof AdminWorkflowsIndexRoute
+  ApiMermaidIndexRoute: typeof ApiMermaidIndexRoute
   ApiProjectsIndexRoute: typeof ApiProjectsIndexRoute
   ApiRulesIndexRoute: typeof ApiRulesIndexRoute
   ApiWorkflowsIndexRoute: typeof ApiWorkflowsIndexRoute
@@ -712,12 +721,6 @@ export interface RootRouteChildren {
   ApiProjectsIdWorkflowsServiceNameIndexRoute: typeof ApiProjectsIdWorkflowsServiceNameIndexRoute
   ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute: typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute
   ApiProjectsIdWorkflowsServiceNameFilesIndexRoute: typeof ApiProjectsIdWorkflowsServiceNameFilesIndexRoute
-  AdminMermaidIndexRoute: typeof AdminMermaidIndexRoute
-  ProjectsIdRulesDesignRoute: typeof ProjectsIdRulesDesignRoute
-  ApiAiRulesStreamRoute: typeof ApiAiRulesStreamRoute
-  ApiMermaidIndexRoute: typeof ApiMermaidIndexRoute
-  ApiMermaidParseRoute: typeof ApiMermaidParseRoute
-  ApiMermaidFilenameRoute: typeof ApiMermaidFilenameRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -813,6 +816,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProjectsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/mermaid/': {
+      id: '/api/mermaid/'
+      path: '/api/mermaid'
+      fullPath: '/api/mermaid/'
+      preLoaderRoute: typeof ApiMermaidIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/workflows/': {
       id: '/admin/workflows/'
       path: '/admin/workflows'
@@ -825,6 +835,20 @@ declare module '@tanstack/react-router' {
       path: '/admin/rules'
       fullPath: '/admin/rules/'
       preLoaderRoute: typeof AdminRulesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/mermaid/': {
+      id: '/admin/mermaid/'
+      path: '/admin/mermaid'
+      fullPath: '/admin/mermaid/'
+      preLoaderRoute: typeof AdminMermaidIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/$id/rules-design': {
+      id: '/projects/$id/rules-design'
+      path: '/projects/$id/rules-design'
+      fullPath: '/projects/$id/rules-design'
+      preLoaderRoute: typeof ProjectsIdRulesDesignRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects/$id/init': {
@@ -860,6 +884,27 @@ declare module '@tanstack/react-router' {
       path: '/api/rules/validate'
       fullPath: '/api/rules/validate'
       preLoaderRoute: typeof ApiRulesValidateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mermaid/parse': {
+      id: '/api/mermaid/parse'
+      path: '/api/mermaid/parse'
+      fullPath: '/api/mermaid/parse'
+      preLoaderRoute: typeof ApiMermaidParseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mermaid/$filename': {
+      id: '/api/mermaid/$filename'
+      path: '/api/mermaid/$filename'
+      fullPath: '/api/mermaid/$filename'
+      preLoaderRoute: typeof ApiMermaidFilenameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai/rules-stream': {
+      id: '/api/ai/rules-stream'
+      path: '/api/ai/rules-stream'
+      fullPath: '/api/ai/rules-stream'
+      preLoaderRoute: typeof ApiAiRulesStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ai/convert-stream': {
@@ -1044,48 +1089,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/mermaid/': {
-      id: '/admin/mermaid/'
-      path: '/admin/mermaid'
-      fullPath: '/admin/mermaid/'
-      preLoaderRoute: typeof AdminMermaidIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$id/rules-design': {
-      id: '/projects/$id/rules-design'
-      path: '/projects/$id/rules-design'
-      fullPath: '/projects/$id/rules-design'
-      preLoaderRoute: typeof ProjectsIdRulesDesignRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ai/rules-stream': {
-      id: '/api/ai/rules-stream'
-      path: '/api/ai/rules-stream'
-      fullPath: '/api/ai/rules-stream'
-      preLoaderRoute: typeof ApiAiRulesStreamRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/mermaid/': {
-      id: '/api/mermaid/'
-      path: '/api/mermaid'
-      fullPath: '/api/mermaid/'
-      preLoaderRoute: typeof ApiMermaidIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/mermaid/parse': {
-      id: '/api/mermaid/parse'
-      path: '/api/mermaid/parse'
-      fullPath: '/api/mermaid/parse'
-      preLoaderRoute: typeof ApiMermaidParseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/mermaid/$filename': {
-      id: '/api/mermaid/$filename'
-      path: '/api/mermaid/$filename'
-      fullPath: '/api/mermaid/$filename'
-      preLoaderRoute: typeof ApiMermaidFilenameRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -1106,13 +1109,19 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiCodeAgentStreamRoute: ApiAiCodeAgentStreamRoute,
   ApiAiConvertRoute: ApiAiConvertRoute,
   ApiAiConvertStreamRoute: ApiAiConvertStreamRoute,
+  ApiAiRulesStreamRoute: ApiAiRulesStreamRoute,
+  ApiMermaidFilenameRoute: ApiMermaidFilenameRoute,
+  ApiMermaidParseRoute: ApiMermaidParseRoute,
   ApiRulesValidateRoute: ApiRulesValidateRoute,
   ProjectsIdDeployRoute: ProjectsIdDeployRoute,
   ProjectsIdDesignRoute: ProjectsIdDesignRoute,
   ProjectsIdGenerateRoute: ProjectsIdGenerateRoute,
   ProjectsIdInitRoute: ProjectsIdInitRoute,
+  ProjectsIdRulesDesignRoute: ProjectsIdRulesDesignRoute,
+  AdminMermaidIndexRoute: AdminMermaidIndexRoute,
   AdminRulesIndexRoute: AdminRulesIndexRoute,
   AdminWorkflowsIndexRoute: AdminWorkflowsIndexRoute,
+  ApiMermaidIndexRoute: ApiMermaidIndexRoute,
   ApiProjectsIndexRoute: ApiProjectsIndexRoute,
   ApiRulesIndexRoute: ApiRulesIndexRoute,
   ApiWorkflowsIndexRoute: ApiWorkflowsIndexRoute,
@@ -1145,12 +1154,6 @@ const rootRouteChildren: RootRouteChildren = {
     ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute,
   ApiProjectsIdWorkflowsServiceNameFilesIndexRoute:
     ApiProjectsIdWorkflowsServiceNameFilesIndexRoute,
-  AdminMermaidIndexRoute: AdminMermaidIndexRoute,
-  ProjectsIdRulesDesignRoute: ProjectsIdRulesDesignRoute,
-  ApiAiRulesStreamRoute: ApiAiRulesStreamRoute,
-  ApiMermaidIndexRoute: ApiMermaidIndexRoute,
-  ApiMermaidParseRoute: ApiMermaidParseRoute,
-  ApiMermaidFilenameRoute: ApiMermaidFilenameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

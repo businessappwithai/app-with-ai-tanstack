@@ -1,6 +1,6 @@
-import { createAPIFileRoute } from "@tanstack/start/api";
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createAPIFileRoute("/api/rules/validate")({
+export const Route = createFileRoute("/api/rules/validate")({ server: { handlers: {
   POST: async ({ request, params }) => {
     try {
       const body = await request.json();
@@ -89,5 +89,7 @@ export const Route = createAPIFileRoute("/api/rules/validate")({
       headers: { "Content-Type": "application/json" },
     });
   }
+  },
+  },
   },
 });

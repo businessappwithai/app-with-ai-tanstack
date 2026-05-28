@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { createAPIFileRoute } from "@tanstack/start/api";
+import { createFileRoute } from "@tanstack/react-router";
 import { parseMermaidFlowchart } from "@/lib/mermaid-flowchart-parser";
 import { convertToJdm } from "@/lib/jdm-converter";
 
@@ -77,7 +77,7 @@ function convertToJdmFromMermaid(
   sse(controller, encoder, { step: "complete", message: "JDM generated!", jdm });
 }
 
-export const Route = createAPIFileRoute("/api/ai/rules-stream")({
+export const Route = createFileRoute("/api/ai/rules-stream")({ server: { handlers: {
   POST: async ({ request }) => {
     const encoder = new TextEncoder();
 
@@ -137,5 +137,7 @@ export const Route = createAPIFileRoute("/api/ai/rules-stream")({
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
+  },
+  },
   },
 });

@@ -237,7 +237,7 @@ Remember: You are a professional code generation agent that transforms ERD diagr
       url: "file:../../../../mastra-code-agent.db",
     }),
     options: {
-      threads: { generateTitle: true },
+      generateTitle: true,
       semanticRecall: true,
       workingMemory: { enabled: true },
     },

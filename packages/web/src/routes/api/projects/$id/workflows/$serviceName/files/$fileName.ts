@@ -1,8 +1,6 @@
-import { createAPIFileRoute } from "@tanstack/start/api";
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createAPIFileRoute(
-  "/api/projects/$id/workflows/$serviceName/files/$fileName"
-)({
+export const Route = createFileRoute("/api/projects/$id/workflows/$serviceName/files/$fileName")({ server: { handlers: {
   PUT: async ({ request, params }) => {
     try {
       const body = await request.json();
@@ -44,5 +42,7 @@ export const Route = createAPIFileRoute(
         }
       );
     }
+  },
+  },
   },
 });

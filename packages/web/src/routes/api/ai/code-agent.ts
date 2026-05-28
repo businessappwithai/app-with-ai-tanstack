@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/start/api";
+import { createFileRoute } from "@tanstack/react-router";
 import { codeAgent } from "@erdwithai/ai";
 
 interface CodeAgentRequest {
@@ -12,7 +12,7 @@ interface CodeAgentRequest {
   };
 }
 
-export const Route = createAPIFileRoute("/api/ai/code-agent")({
+export const Route = createFileRoute("/api/ai/code-agent")({ server: { handlers: {
   POST: async ({ request }) => {
     try {
       const body: CodeAgentRequest = await request.json();
@@ -65,5 +65,7 @@ export const Route = createAPIFileRoute("/api/ai/code-agent")({
         }
       );
     }
+  },
+  },
   },
 });

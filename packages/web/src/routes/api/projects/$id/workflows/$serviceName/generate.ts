@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/start/api";
+import { createFileRoute } from "@tanstack/react-router";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
 
@@ -75,9 +75,7 @@ function generateHookCode(
   return hookCode;
 }
 
-export const Route = createAPIFileRoute(
-  "/api/projects/$id/workflows/$serviceName/generate"
-)({
+export const Route = createFileRoute("/api/projects/$id/workflows/$serviceName/generate")({ server: { handlers: {
   POST: async ({ request, params }) => {
     try {
       const projectId = params.id as string;
@@ -217,5 +215,7 @@ export const Route = createAPIFileRoute(
         }
       );
     }
+  },
+  },
   },
 });

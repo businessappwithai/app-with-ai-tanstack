@@ -2,10 +2,10 @@
 // Converts Mermaid erDiagram or flowchart TD → structured definitions via TypeScript AST parsers.
 // No AI involved — pure deterministic parsing.
 
-import { createAPIFileRoute } from "@tanstack/start/api";
+import { createFileRoute } from "@tanstack/react-router";
 import { parseMermaid } from "@/lib/mermaid";
 
-export const Route = createAPIFileRoute("/api/mermaid/parse")({
+export const Route = createFileRoute("/api/mermaid/parse")({ server: { handlers: {
   POST: async ({ request }) => {
     try {
       const { code } = (await request.json()) as { code: string };
@@ -28,5 +28,7 @@ export const Route = createAPIFileRoute("/api/mermaid/parse")({
         { status: 422, headers: { "Content-Type": "application/json" } }
       );
     }
+  },
+  },
   },
 });

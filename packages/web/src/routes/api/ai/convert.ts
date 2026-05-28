@@ -1,7 +1,7 @@
-import { createAPIFileRoute } from "@tanstack/start/api";
+import { createFileRoute } from "@tanstack/react-router";
 import { convertToMermaid } from "@erdwithai/ai";
 
-export const Route = createAPIFileRoute("/api/ai/convert")({
+export const Route = createFileRoute("/api/ai/convert")({ server: { handlers: {
   POST: async ({ request }) => {
     try {
       const body = await request.json();
@@ -57,5 +57,7 @@ export const Route = createAPIFileRoute("/api/ai/convert")({
         }
       );
     }
+  },
+  },
   },
 });

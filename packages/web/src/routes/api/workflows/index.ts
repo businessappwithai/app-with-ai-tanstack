@@ -1,7 +1,7 @@
-import { createAPIFileRoute } from "@tanstack/start/api";
+import { createFileRoute } from "@tanstack/react-router";
 import { getDatabase } from "@erdwithai/core/services";
 
-export const Route = createAPIFileRoute("/api/workflows")({
+export const Route = createFileRoute("/api/workflows/")({ server: { handlers: {
   GET: async ({ request }) => {
     try {
       const url = new URL(request.url);
@@ -32,5 +32,7 @@ export const Route = createAPIFileRoute("/api/workflows")({
         headers: { "Content-Type": "application/json" },
       });
     }
+  },
+  },
   },
 });

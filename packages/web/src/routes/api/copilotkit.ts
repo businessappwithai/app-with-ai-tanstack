@@ -1,14 +1,14 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { createAPIFileRoute } from "@tanstack/start/api";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   AnthropicAdapter,
   CopilotRuntime,
-  copilotRuntimeGenericHTTPEndpoint,
+  copilotRuntimeNextJSAppRouterEndpoint,
 } from "@copilotkit/runtime";
 
 const runtime = new CopilotRuntime();
 
-export const Route = createAPIFileRoute("/api/copilotkit")({
+export const Route = createFileRoute("/api/copilotkit")({ server: { handlers: {
   POST: async ({ request }) => {
     try {
       const serviceAdapter = new AnthropicAdapter({
@@ -18,13 +18,13 @@ export const Route = createAPIFileRoute("/api/copilotkit")({
         model: "claude-3-5-sonnet-20241022",
       });
 
-      const handler = copilotRuntimeGenericHTTPEndpoint({
+      const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
         runtime,
         serviceAdapter,
         endpoint: "/api/copilotkit",
       });
 
-      return handler(request);
+      return handleRequest(request);
     } catch (error) {
       console.error("CopilotKit error:", error);
       return new Response(
@@ -34,5 +34,7 @@ export const Route = createAPIFileRoute("/api/copilotkit")({
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
+  },
+  },
   },
 });

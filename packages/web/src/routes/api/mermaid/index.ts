@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/start/api";
+import { createFileRoute } from "@tanstack/react-router";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -8,7 +8,7 @@ async function ensureDir() {
   await fs.mkdir(MERMAID_DIR, { recursive: true });
 }
 
-export const Route = createAPIFileRoute("/api/mermaid")({
+export const Route = createFileRoute("/api/mermaid/")({ server: { handlers: {
   GET: async ({ request }) => {
     try {
       await ensureDir();
@@ -102,5 +102,7 @@ export const Route = createAPIFileRoute("/api/mermaid")({
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
+  },
+  },
   },
 });

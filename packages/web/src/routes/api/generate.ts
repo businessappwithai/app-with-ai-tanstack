@@ -1,10 +1,10 @@
-import { createAPIFileRoute } from "@tanstack/start/api";
+import { createFileRoute } from "@tanstack/react-router";
 import { generationHistoryDb, projectDb } from "@erdwithai/core/services";
 import { FullStackGenerator, MermaidParser } from "@erdwithai/generator";
 import fs from "fs/promises";
 import path from "path";
 
-export const Route = createAPIFileRoute("/api/generate")({
+export const Route = createFileRoute("/api/generate")({ server: { handlers: {
   POST: async ({ request }) => {
     const body = await request.json();
     const { projectId, stackType, stackOption, erdCode } = body;
@@ -109,5 +109,7 @@ export const Route = createAPIFileRoute("/api/generate")({
         Connection: "keep-alive",
       },
     });
+  },
+  },
   },
 });
