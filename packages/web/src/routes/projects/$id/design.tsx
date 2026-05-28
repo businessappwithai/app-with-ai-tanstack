@@ -483,7 +483,7 @@ function DesignPage() {
   const handleGenerate = async () => {
     await handleSave();
     goToNextStep();
-    navigate({ to: "/projects/$id/generate", params: { id: projectId } });
+    navigate({ to: "/projects/$id/rules-design", params: { id: projectId } });
   };
 
   const handleAiSubmit = async () => {
@@ -789,7 +789,7 @@ function DesignPage() {
   const handleZoomOut = () => setZoom((z) => Math.max(z - 10, 50));
   const handleZoomReset = () => setZoom(100);
 
-  const handleExportMrd = () => {
+  const handleExportMrd = async () => {
     if (!erdCode.trim()) {
       alert("No ERD code to export");
       return;
@@ -797,7 +797,24 @@ function DesignPage() {
 
     const version = versions.length > 0 ? `v${versions.length}` : "v1";
     const sanitizedName = (project?.name ?? "export").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-    const filename = `${sanitizedName}-${version}.mrd`;
+    const filename = `${sanitizedName}-erd-${version}.mmd`;
+
+    // Save to server mermaid library
+    try {
+      await fetch("/api/mermaid", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId,
+          projectName: project?.name ?? "export",
+          filename,
+          type: "erd",
+          content: erdCode,
+        }),
+      });
+    } catch (_e) {
+      // Non-blocking - still download locally
+    }
 
     const blob = new Blob([erdCode], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
@@ -944,6 +961,8 @@ function DesignPage() {
                       navigate({ to: "/projects/$id/init", params: { id: projectId } });
                     } else if (step === "design") {
                       // Already on design
+                    } else if (step === "rules") {
+                      navigate({ to: "/projects/$id/rules-design", params: { id: projectId } });
                     } else if (step === "generate") {
                       navigate({ to: "/projects/$id/generate", params: { id: projectId } });
                     } else if (step === "enhance") {

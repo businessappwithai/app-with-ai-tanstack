@@ -1,5 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Database, Loader2, Plus, Search, Trash2 } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Database, FileCode2, Loader2, Plus, Search, Trash2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { LogsViewer } from "@/components/logs/LogsViewer";
 import { NewProjectModal } from "@/components/project";
@@ -128,6 +128,20 @@ function ProjectsPage() {
               </div>
               <h1 className="font-bold text-2xl tracking-tight text-foreground">ERDwithAI</h1>
             </div>
+            <div className="flex items-center gap-3">
+              <Link
+                to="/admin/mermaid"
+                className="flex items-center gap-2 px-4 py-2.5 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground rounded-xl text-sm font-medium transition-colors"
+              >
+                <FileCode2 className="w-4 h-4" />
+                Mermaid Library
+              </Link>
+              <Link
+                to="/admin/rules"
+                className="flex items-center gap-2 px-4 py-2.5 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground rounded-xl text-sm font-medium transition-colors"
+              >
+                Rules Admin
+              </Link>
             <button
               onClick={() => setShowNewProjectModal(true)}
               disabled={isLoading || isCreatingProject}
@@ -141,6 +155,7 @@ function ProjectsPage() {
               )}
               {isCreatingProject ? "Creating..." : "Create New Project"}
             </button>
+            </div>
           </div>
 
           {/* Search & Filter Bar */}

@@ -53,17 +53,28 @@ export interface WorkflowDefinition {
   description?: string;
 }
 
-export type ProjectStep = "init" | "design" | "generate" | "enhance" | "deploy";
+export type ProjectStep = "init" | "design" | "rules" | "generate" | "enhance" | "deploy";
 
-export const STEP_ORDER: ProjectStep[] = ["init", "design", "generate", "enhance", "deploy"];
+export const STEP_ORDER: ProjectStep[] = ["init", "design", "rules", "generate", "enhance", "deploy"];
 
 export const STEP_LABELS: Record<ProjectStep, string> = {
   init: "Init",
   design: "Design",
+  rules: "Rules",
   generate: "Gen",
   enhance: "Enhance",
   deploy: "Deploy",
 };
+
+export interface MermaidFile {
+  filename: string;
+  type: "erd" | "rules";
+  projectId: string;
+  projectName: string;
+  content: string;
+  createdAt: string;
+  downloadUrl: string;
+}
 
 export const STACK_LABELS: Record<Project["stackType"], string> = {
   "tanstackjs-nestjs": "tanstackjs-nestjs: NestJS + TanStack Start",

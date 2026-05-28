@@ -73,6 +73,7 @@
     "@mastra/libsql": "^1.6.4",
     "@mastra/loggers": "^1.0.2",
     "@mastra/memory": "^1.6.1",
+    "@mermaid-js/parser": "^1.1.1",
     "@tanstack/start": "^1.120.20",
     "critters": "^0.0.25",
     "kysely-pglite-dialect": "^1.3.1",

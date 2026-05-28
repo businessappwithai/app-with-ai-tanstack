@@ -7,9 +7,10 @@ import type { ProjectStep } from "@/types/project";
 const steps: Array<{ key: ProjectStep; label: string; number: number }> = [
   { key: "init", label: "Init", number: 1 },
   { key: "design", label: "Design", number: 2 },
-  { key: "generate", label: "Gen", number: 3 },
-  { key: "enhance", label: "Enhance", number: 4 },
-  { key: "deploy", label: "Deploy", number: 5 },
+  { key: "rules", label: "Rules", number: 3 },
+  { key: "generate", label: "Gen", number: 4 },
+  { key: "enhance", label: "Enhance", number: 5 },
+  { key: "deploy", label: "Deploy", number: 6 },
 ];
 
 interface ProgressStepperProps {
