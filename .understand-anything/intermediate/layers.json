@@ -1,0 +1,61 @@
+[
+  {
+    "id": "layer:core-foundation",
+    "name": "Core & Foundation",
+    "description": "Base types, services, hooks, and validation logic shared across all packages. Includes the hook system for cross-cutting concerns, base service layer with CRUD+workflow integration, entity/RBAC types, and database connectivity via Kysely.",
+    "nodeIds": [
+      "file:packages/core/src/types/hook.types.ts",
+      "file:packages/core/src/types/entity.types.ts",
+      "file:packages/core/src/hooks/hook-builder.ts",
+      "file:packages/core/src/hooks/hook-registry.ts",
+      "file:packages/core/src/hooks/hook-executor.ts",
+      "file:packages/core/src/services/base.service.ts",
+      "file:packages/core/src/services/database.service.ts",
+      "file:packages/core/src/workflow/workflow.service.ts",
+      "file:packages/core/src/rules/rules-engine.service.ts",
+      "concept:HookSystem",
+      "concept:ServiceLayerWithHooks"
+    ]
+  },
+  {
+    "id": "layer:ai-intelligence",
+    "name": "AI & Intelligence",
+    "description": "Mastra.ai orchestration layer with sequential agents for natural language processing. Transforms business descriptions into structured entity models and Mermaid ERD syntax. Includes domain analysis, entity refinement, relationship discovery, Mermaid generation, and AI-to-Mermaid converter.",
+    "nodeIds": [
+      "file:packages/ai/src/agents/domain-agent.ts",
+      "file:packages/ai/src/agents/entity-agent.ts",
+      "file:packages/ai/src/agents/relationship-agent.ts",
+      "file:packages/ai/src/agents/mermaid-agent.ts",
+      "file:packages/ai/src/mastra/agents/code-agent.ts",
+      "file:packages/ai/src/converter/index.ts",
+      "concept:AIAgentPipeline"
+    ]
+  },
+  {
+    "id": "layer:code-generation",
+    "name": "Code Generation",
+    "description": "Multi-stage code generation engine orchestrating dictionary metadata, Handlebars templates, and stack-specific generators. Includes Mermaid parser, base generator abstraction, dictionary metadata generator (Compiere-style), and full-stack generators for TanStack Start/NestJS.",
+    "nodeIds": [
+      "file:packages/generator/src/parsers/mermaid.parser.ts",
+      "file:packages/generator/src/generators/base.generator.ts",
+      "file:packages/generator/src/generators/dictionary.generator.ts",
+      "file:packages/generator/src/generators/orchestrator.ts",
+      "file:packages/generator/src/generators/tanstack-start-nestjs/index.ts",
+      "file:packages/generator/src/generators/tanstack-start-nestjs/tanstack-start-frontend.generator.ts",
+      "file:packages/generator/src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts",
+      "concept:CodeGenerationOrchestration",
+      "concept:DictionaryMetadata"
+    ]
+  },
+  {
+    "id": "layer:frontend-web",
+    "name": "Frontend & Web",
+    "description": "TanStack Start v1 full-stack web application with file-based routing. Includes root layout, project management routes, ERD design interface, and API endpoints for AI conversion and code generation. Uses Vite/Vinxi with React 18+ and Shadcn UI.",
+    "nodeIds": [
+      "file:packages/web/src/routes/__root.tsx",
+      "file:packages/web/src/routes/projects/$id/design.tsx",
+      "file:packages/web/src/routes/api/ai/convert.ts",
+      "concept:TanStackStartRouting"
+    ]
+  }
+]

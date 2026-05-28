@@ -1,0 +1,453 @@
+{
+  "nodes": [
+    {
+      "id": "file:packages/core/src/hooks/hook-executor.ts",
+      "type": "file",
+      "name": "hook-executor.ts",
+      "filePath": "packages/core/src/hooks/hook-executor.ts",
+      "summary": "Global hook executor singleton that sequences hook execution across entity lifecycle events",
+      "tags": ["typescript", "hooks", "core", "singleton"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:packages/core/src/hooks/hook-registry.ts",
+      "type": "file",
+      "name": "hook-registry.ts",
+      "filePath": "packages/core/src/hooks/hook-registry.ts",
+      "summary": "Global registry for managing entity hooks by lifecycle with priority-based sorting",
+      "tags": ["typescript", "hooks", "core", "registry"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:packages/core/src/hooks/hook-builder.ts",
+      "type": "file",
+      "name": "hook-builder.ts",
+      "filePath": "packages/core/src/hooks/hook-builder.ts",
+      "summary": "Fluent builder API for defining hooks with lifecycle, priority, and handler functions",
+      "tags": ["typescript", "hooks", "builder"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/core/src/types/hook.types.ts",
+      "type": "file",
+      "name": "hook.types.ts",
+      "filePath": "packages/core/src/types/hook.types.ts",
+      "summary": "Hook system type definitions including HookLifecycle, HookContext, and Hook interface",
+      "tags": ["typescript", "types", "hooks"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:packages/core/src/services/base.service.ts",
+      "type": "file",
+      "name": "base.service.ts",
+      "filePath": "packages/core/src/services/base.service.ts",
+      "summary": "Abstract base service with integrated hook execution for CRUD operations and workflow triggering",
+      "tags": ["typescript", "service", "hooks", "core"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/core/src/services/database.service.ts",
+      "type": "file",
+      "name": "database.service.ts",
+      "filePath": "packages/core/src/services/database.service.ts",
+      "summary": "Kysely+PGlite database service for file-based project data management",
+      "tags": ["typescript", "database", "service", "kyrely"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/core/src/types/entity.types.ts",
+      "type": "file",
+      "name": "entity.types.ts",
+      "filePath": "packages/core/src/types/entity.types.ts",
+      "summary": "Core entity definitions with attributes, relationships, and Zod schemas for validation",
+      "tags": ["typescript", "types", "entities"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/ai/src/agents/domain-agent.ts",
+      "type": "file",
+      "name": "domain-agent.ts",
+      "filePath": "packages/ai/src/agents/domain-agent.ts",
+      "summary": "Mastra AI agent that analyzes business domain descriptions and extracts entities with Mermaid ERD syntax",
+      "tags": ["typescript", "mastra", "ai", "agent"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/ai/src/agents/entity-agent.ts",
+      "type": "file",
+      "name": "entity-agent.ts",
+      "filePath": "packages/ai/src/agents/entity-agent.ts",
+      "summary": "Mastra AI agent that refines entity structures following naming and field best practices",
+      "tags": ["typescript", "mastra", "ai", "agent"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/ai/src/agents/relationship-agent.ts",
+      "type": "file",
+      "name": "relationship-agent.ts",
+      "filePath": "packages/ai/src/agents/relationship-agent.ts",
+      "summary": "Mastra AI agent that analyzes relationships and determines cardinality patterns",
+      "tags": ["typescript", "mastra", "ai", "agent"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/ai/src/agents/mermaid-agent.ts",
+      "type": "file",
+      "name": "mermaid-agent.ts",
+      "filePath": "packages/ai/src/agents/mermaid-agent.ts",
+      "summary": "Mastra AI agent for generating valid Mermaid ERD syntax with programmatic fallback",
+      "tags": ["typescript", "mastra", "ai", "agent"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/ai/src/mastra/agents/code-agent.ts",
+      "type": "file",
+      "name": "code-agent.ts",
+      "filePath": "packages/ai/src/mastra/agents/code-agent.ts",
+      "summary": "Code generation agent powered by Claude Sonnet with E2B sandbox tool integration",
+      "tags": ["typescript", "mastra", "ai", "code-generation"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/ai/src/converter/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "packages/ai/src/converter/index.ts",
+      "summary": "AIToMermaidConverter class orchestrating domain analysis and Mermaid generation",
+      "tags": ["typescript", "ai", "converter"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/generator/src/generators/base.generator.ts",
+      "type": "file",
+      "name": "base.generator.ts",
+      "filePath": "packages/generator/src/generators/base.generator.ts",
+      "summary": "Abstract base generator with Handlebars template loading and rendering",
+      "tags": ["typescript", "generator", "handlebars"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:packages/generator/src/generators/orchestrator.ts",
+      "type": "file",
+      "name": "orchestrator.ts",
+      "filePath": "packages/generator/src/generators/orchestrator.ts",
+      "summary": "GeneratorOrchestrator coordinates dictionary generation and full-stack code generation",
+      "tags": ["typescript", "generator", "orchestration"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/generator/src/generators/dictionary.generator.ts",
+      "type": "file",
+      "name": "dictionary.generator.ts",
+      "filePath": "packages/generator/src/generators/dictionary.generator.ts",
+      "summary": "Dictionary generator creating Compiere-style metadata tables for entities and relationships",
+      "tags": ["typescript", "generator", "dictionary"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/generator/src/generators/tanstack-start-nestjs/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "packages/generator/src/generators/tanstack-start-nestjs/index.ts",
+      "summary": "Coordinator for TanStack Start frontend and NestJS backend generation",
+      "tags": ["typescript", "generator", "tanstack", "nestjs"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/generator/src/generators/tanstack-start-nestjs/tanstack-start-frontend.generator.ts",
+      "type": "file",
+      "name": "tanstack-start-frontend.generator.ts",
+      "filePath": "packages/generator/src/generators/tanstack-start-nestjs/tanstack-start-frontend.generator.ts",
+      "summary": "Generates TanStack Start frontend routes, components, and hooks from Handlebars templates",
+      "tags": ["typescript", "generator", "tanstack"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/generator/src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts",
+      "type": "file",
+      "name": "nestjs-backend.generator.ts",
+      "filePath": "packages/generator/src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts",
+      "summary": "Generates NestJS backend controllers, services, DTOs, and database entities",
+      "tags": ["typescript", "generator", "nestjs"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/generator/src/parsers/mermaid.parser.ts",
+      "type": "file",
+      "name": "mermaid.parser.ts",
+      "filePath": "packages/generator/src/parsers/mermaid.parser.ts",
+      "summary": "Parser converting Mermaid ERD syntax into Entity and Relationship objects",
+      "tags": ["typescript", "parser", "mermaid"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/web/src/routes/__root.tsx",
+      "type": "file",
+      "name": "__root.tsx",
+      "filePath": "packages/web/src/routes/__root.tsx",
+      "summary": "TanStack Start root layout component with Providers wrapper",
+      "tags": ["typescript", "react", "tanstack", "routing"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:packages/web/src/routes/projects/$id/design.tsx",
+      "type": "file",
+      "name": "design.tsx",
+      "filePath": "packages/web/src/routes/projects/$id/design.tsx",
+      "summary": "ERD design step with visual editor, Mermaid rendering, HITL approval, and version management",
+      "tags": ["typescript", "react", "tanstack", "pages"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/web/src/routes/api/ai/convert.ts",
+      "type": "file",
+      "name": "convert.ts",
+      "filePath": "packages/web/src/routes/api/ai/convert.ts",
+      "summary": "API endpoint converting natural language descriptions to Mermaid syntax",
+      "tags": ["typescript", "api", "ai"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:packages/core/src/workflow/workflow.service.ts",
+      "type": "file",
+      "name": "workflow.service.ts",
+      "filePath": "packages/core/src/workflow/workflow.service.ts",
+      "summary": "Workflow service managing entity lifecycle event triggering and workflow run tracking",
+      "tags": ["typescript", "workflow", "service"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/core/src/rules/rules-engine.service.ts",
+      "type": "file",
+      "name": "rules-engine.service.ts",
+      "filePath": "packages/core/src/rules/rules-engine.service.ts",
+      "summary": "Business rules engine integrating GoRules zen-engine for JDM evaluation",
+      "tags": ["typescript", "rules", "service"],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:HookSystem",
+      "type": "concept",
+      "name": "Hook System",
+      "summary": "Cross-cutting concerns (validation, audit, business rules) via lifecycle-based hooks integrated in BaseService CRUD operations",
+      "tags": ["pattern", "architecture", "hooks"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:AIAgentPipeline",
+      "type": "concept",
+      "name": "AI Agent Pipeline",
+      "summary": "Sequential Mastra AI agents transforming natural language to ERD: domain→entity→relationship→mermaid",
+      "tags": ["pattern", "architecture", "ai"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:CodeGenerationOrchestration",
+      "type": "concept",
+      "name": "Code Generation Orchestration",
+      "summary": "Multi-stage generator coordinating dictionary metadata, full-stack framework, and stack-specific templates",
+      "tags": ["pattern", "architecture", "generation"],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:TanStackStartRouting",
+      "type": "concept",
+      "name": "TanStack Start Routing",
+      "summary": "File-based routing with $ prefix for dynamic segments and API routes using createAPIFileRoute",
+      "tags": ["pattern", "framework", "routing"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:ServiceLayerWithHooks",
+      "type": "concept",
+      "name": "Service Layer with Hooks",
+      "summary": "BaseService abstract class with before/after hooks integrated into CRUD and workflow triggering",
+      "tags": ["pattern", "architecture", "service"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:DictionaryMetadata",
+      "type": "concept",
+      "name": "Compiere-Style Dictionary Metadata",
+      "summary": "sys_* tables storing application metadata (entities, attributes, relationships) for runtime schema flexibility",
+      "tags": ["pattern", "architecture", "database"],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:packages/core/src/services/base.service.ts",
+      "target": "file:packages/core/src/hooks/hook-executor.ts",
+      "type": "imports",
+      "weight": 0.95
+    },
+    {
+      "source": "file:packages/core/src/hooks/hook-executor.ts",
+      "target": "file:packages/core/src/hooks/hook-registry.ts",
+      "type": "imports",
+      "weight": 0.9
+    },
+    {
+      "source": "file:packages/core/src/hooks/hook-registry.ts",
+      "target": "file:packages/core/src/types/hook.types.ts",
+      "type": "imports",
+      "weight": 0.85
+    },
+    {
+      "source": "file:packages/core/src/services/base.service.ts",
+      "target": "file:packages/core/src/types/entity.types.ts",
+      "type": "imports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:packages/core/src/services/base.service.ts",
+      "target": "file:packages/core/src/workflow/workflow.service.ts",
+      "type": "imports",
+      "weight": 0.75
+    },
+    {
+      "source": "file:packages/ai/src/agents/domain-agent.ts",
+      "target": "file:packages/ai/src/agents/entity-agent.ts",
+      "type": "collaborates",
+      "weight": 0.7
+    },
+    {
+      "source": "file:packages/ai/src/agents/entity-agent.ts",
+      "target": "file:packages/ai/src/agents/relationship-agent.ts",
+      "type": "collaborates",
+      "weight": 0.7
+    },
+    {
+      "source": "file:packages/ai/src/agents/relationship-agent.ts",
+      "target": "file:packages/ai/src/agents/mermaid-agent.ts",
+      "type": "collaborates",
+      "weight": 0.7
+    },
+    {
+      "source": "file:packages/ai/src/converter/index.ts",
+      "target": "file:packages/ai/src/agents/domain-agent.ts",
+      "type": "imports",
+      "weight": 0.85
+    },
+    {
+      "source": "file:packages/web/src/routes/api/ai/convert.ts",
+      "target": "file:packages/ai/src/converter/index.ts",
+      "type": "imports",
+      "weight": 0.9
+    },
+    {
+      "source": "file:packages/generator/src/generators/orchestrator.ts",
+      "target": "file:packages/generator/src/generators/dictionary.generator.ts",
+      "type": "imports",
+      "weight": 0.95
+    },
+    {
+      "source": "file:packages/generator/src/generators/orchestrator.ts",
+      "target": "file:packages/generator/src/generators/tanstack-start-nestjs/index.ts",
+      "type": "imports",
+      "weight": 0.9
+    },
+    {
+      "source": "file:packages/generator/src/generators/tanstack-start-nestjs/index.ts",
+      "target": "file:packages/generator/src/generators/tanstack-start-nestjs/tanstack-start-frontend.generator.ts",
+      "type": "imports",
+      "weight": 0.9
+    },
+    {
+      "source": "file:packages/generator/src/generators/tanstack-start-nestjs/index.ts",
+      "target": "file:packages/generator/src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts",
+      "type": "imports",
+      "weight": 0.9
+    },
+    {
+      "source": "file:packages/generator/src/generators/tanstack-start-nestjs/tanstack-start-frontend.generator.ts",
+      "target": "file:packages/generator/src/generators/base.generator.ts",
+      "type": "extends",
+      "weight": 0.95
+    },
+    {
+      "source": "file:packages/generator/src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts",
+      "target": "file:packages/generator/src/generators/base.generator.ts",
+      "type": "extends",
+      "weight": 0.95
+    },
+    {
+      "source": "file:packages/generator/src/generators/orchestrator.ts",
+      "target": "file:packages/generator/src/parsers/mermaid.parser.ts",
+      "type": "imports",
+      "weight": 0.85
+    },
+    {
+      "source": "file:packages/generator/src/parsers/mermaid.parser.ts",
+      "target": "file:packages/core/src/types/entity.types.ts",
+      "type": "imports",
+      "weight": 0.9
+    },
+    {
+      "source": "file:packages/web/src/routes/projects/$id/design.tsx",
+      "target": "file:packages/web/src/routes/api/ai/convert.ts",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:packages/core/src/rules/rules-engine.service.ts",
+      "target": "file:packages/core/src/types/entity.types.ts",
+      "type": "imports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:packages/core/src/workflow/workflow.service.ts",
+      "target": "file:packages/core/src/types/entity.types.ts",
+      "type": "imports",
+      "weight": 0.75
+    },
+    {
+      "source": "file:packages/ai/src/mastra/agents/code-agent.ts",
+      "target": "file:packages/core/src/types/entity.types.ts",
+      "type": "imports",
+      "weight": 0.8
+    },
+    {
+      "source": "concept:HookSystem",
+      "target": "file:packages/core/src/services/base.service.ts",
+      "type": "implements",
+      "weight": 0.95
+    },
+    {
+      "source": "concept:AIAgentPipeline",
+      "target": "file:packages/ai/src/converter/index.ts",
+      "type": "implements",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:CodeGenerationOrchestration",
+      "target": "file:packages/generator/src/generators/orchestrator.ts",
+      "type": "implements",
+      "weight": 0.95
+    },
+    {
+      "source": "concept:TanStackStartRouting",
+      "target": "file:packages/web/src/routes/__root.tsx",
+      "type": "implements",
+      "weight": 0.85
+    },
+    {
+      "source": "concept:ServiceLayerWithHooks",
+      "target": "concept:HookSystem",
+      "type": "depends-on",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:DictionaryMetadata",
+      "target": "file:packages/generator/src/generators/dictionary.generator.ts",
+      "type": "implements",
+      "weight": 0.9
+    },
+    {
+      "source": "file:packages/generator/src/generators/dictionary.generator.ts",
+      "target": "file:packages/core/src/types/entity.types.ts",
+      "type": "imports",
+      "weight": 0.9
+    }
+  ]
+}

@@ -1,0 +1,791 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "ERDwithAI",
+    "description": "AI-powered entity relationship design and code generation platform",
+    "languages": ["TypeScript", "Handlebars", "JSON", "Markdown", "YAML", "JavaScript", "Shell", "SQL", "HTML", "CSS"],
+    "frameworks": ["TanStack Start", "NestJS", "Mastra.ai", "React", "Vite", "Playwright", "Vitest", "Kysely", "CopilotKit"],
+    "analyzedAt": "2026-05-28T00:00:00Z",
+    "gitCommitHash": "6d994faf4853f502dc5c563ccdf9f518961ba92c"
+  },
+  "nodes": [
+    {
+      "id": "file:packages/core/src/hooks/hook-executor.ts",
+      "type": "file",
+      "name": "hook-executor.ts",
+      "filePath": "packages/core/src/hooks/hook-executor.ts",
+      "summary": "Global hook executor singleton that sequences hook execution across entity lifecycle events",
+      "tags": ["typescript", "hooks", "core", "singleton"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:packages/core/src/hooks/hook-registry.ts",
+      "type": "file",
+      "name": "hook-registry.ts",
+      "filePath": "packages/core/src/hooks/hook-registry.ts",
+      "summary": "Global registry for managing entity hooks by lifecycle with priority-based sorting",
+      "tags": ["typescript", "hooks", "core", "registry"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:packages/core/src/hooks/hook-builder.ts",
+      "type": "file",
+      "name": "hook-builder.ts",
+      "filePath": "packages/core/src/hooks/hook-builder.ts",
+      "summary": "Fluent builder API for defining hooks with lifecycle, priority, and handler functions",
+      "tags": ["typescript", "hooks", "builder"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/core/src/types/hook.types.ts",
+      "type": "file",
+      "name": "hook.types.ts",
+      "filePath": "packages/core/src/types/hook.types.ts",
+      "summary": "Hook system type definitions including HookLifecycle, HookContext, and Hook interface",
+      "tags": ["typescript", "types", "hooks"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:packages/core/src/services/base.service.ts",
+      "type": "file",
+      "name": "base.service.ts",
+      "filePath": "packages/core/src/services/base.service.ts",
+      "summary": "Abstract base service with integrated hook execution for CRUD operations and workflow triggering",
+      "tags": ["typescript", "service", "hooks", "core"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/core/src/services/database.service.ts",
+      "type": "file",
+      "name": "database.service.ts",
+      "filePath": "packages/core/src/services/database.service.ts",
+      "summary": "Kysely+PGlite database service for file-based project data management",
+      "tags": ["typescript", "database", "service", "kyrely"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/core/src/types/entity.types.ts",
+      "type": "file",
+      "name": "entity.types.ts",
+      "filePath": "packages/core/src/types/entity.types.ts",
+      "summary": "Core entity definitions with attributes, relationships, and Zod schemas for validation",
+      "tags": ["typescript", "types", "entities"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/ai/src/agents/domain-agent.ts",
+      "type": "file",
+      "name": "domain-agent.ts",
+      "filePath": "packages/ai/src/agents/domain-agent.ts",
+      "summary": "Mastra AI agent that analyzes business domain descriptions and extracts entities with Mermaid ERD syntax",
+      "tags": ["typescript", "mastra", "ai", "agent"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/ai/src/agents/entity-agent.ts",
+      "type": "file",
+      "name": "entity-agent.ts",
+      "filePath": "packages/ai/src/agents/entity-agent.ts",
+      "summary": "Mastra AI agent that refines entity structures following naming and field best practices",
+      "tags": ["typescript", "mastra", "ai", "agent"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/ai/src/agents/relationship-agent.ts",
+      "type": "file",
+      "name": "relationship-agent.ts",
+      "filePath": "packages/ai/src/agents/relationship-agent.ts",
+      "summary": "Mastra AI agent that analyzes relationships and determines cardinality patterns",
+      "tags": ["typescript", "mastra", "ai", "agent"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/ai/src/agents/mermaid-agent.ts",
+      "type": "file",
+      "name": "mermaid-agent.ts",
+      "filePath": "packages/ai/src/agents/mermaid-agent.ts",
+      "summary": "Mastra AI agent for generating valid Mermaid ERD syntax with programmatic fallback",
+      "tags": ["typescript", "mastra", "ai", "agent"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/ai/src/mastra/agents/code-agent.ts",
+      "type": "file",
+      "name": "code-agent.ts",
+      "filePath": "packages/ai/src/mastra/agents/code-agent.ts",
+      "summary": "Code generation agent powered by Claude Sonnet with E2B sandbox tool integration",
+      "tags": ["typescript", "mastra", "ai", "code-generation"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/ai/src/converter/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "packages/ai/src/converter/index.ts",
+      "summary": "AIToMermaidConverter class orchestrating domain analysis and Mermaid generation",
+      "tags": ["typescript", "ai", "converter"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/generator/src/generators/base.generator.ts",
+      "type": "file",
+      "name": "base.generator.ts",
+      "filePath": "packages/generator/src/generators/base.generator.ts",
+      "summary": "Abstract base generator with Handlebars template loading and rendering",
+      "tags": ["typescript", "generator", "handlebars"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:packages/generator/src/generators/orchestrator.ts",
+      "type": "file",
+      "name": "orchestrator.ts",
+      "filePath": "packages/generator/src/generators/orchestrator.ts",
+      "summary": "GeneratorOrchestrator coordinates dictionary generation and full-stack code generation",
+      "tags": ["typescript", "generator", "orchestration"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/generator/src/generators/dictionary.generator.ts",
+      "type": "file",
+      "name": "dictionary.generator.ts",
+      "filePath": "packages/generator/src/generators/dictionary.generator.ts",
+      "summary": "Dictionary generator creating Compiere-style metadata tables for entities and relationships",
+      "tags": ["typescript", "generator", "dictionary"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/generator/src/generators/tanstack-start-nestjs/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "packages/generator/src/generators/tanstack-start-nestjs/index.ts",
+      "summary": "Coordinator for TanStack Start frontend and NestJS backend generation",
+      "tags": ["typescript", "generator", "tanstack", "nestjs"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/generator/src/generators/tanstack-start-nestjs/tanstack-start-frontend.generator.ts",
+      "type": "file",
+      "name": "tanstack-start-frontend.generator.ts",
+      "filePath": "packages/generator/src/generators/tanstack-start-nestjs/tanstack-start-frontend.generator.ts",
+      "summary": "Generates TanStack Start frontend routes, components, and hooks from Handlebars templates",
+      "tags": ["typescript", "generator", "tanstack"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/generator/src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts",
+      "type": "file",
+      "name": "nestjs-backend.generator.ts",
+      "filePath": "packages/generator/src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts",
+      "summary": "Generates NestJS backend controllers, services, DTOs, and database entities",
+      "tags": ["typescript", "generator", "nestjs"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/generator/src/parsers/mermaid.parser.ts",
+      "type": "file",
+      "name": "mermaid.parser.ts",
+      "filePath": "packages/generator/src/parsers/mermaid.parser.ts",
+      "summary": "Parser converting Mermaid ERD syntax into Entity and Relationship objects",
+      "tags": ["typescript", "parser", "mermaid"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/web/src/routes/__root.tsx",
+      "type": "file",
+      "name": "__root.tsx",
+      "filePath": "packages/web/src/routes/__root.tsx",
+      "summary": "TanStack Start root layout component with Providers wrapper",
+      "tags": ["typescript", "react", "tanstack", "routing"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:packages/web/src/routes/projects/$id/design.tsx",
+      "type": "file",
+      "name": "design.tsx",
+      "filePath": "packages/web/src/routes/projects/$id/design.tsx",
+      "summary": "ERD design step with visual editor, Mermaid rendering, HITL approval, and version management",
+      "tags": ["typescript", "react", "tanstack", "pages"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:packages/web/src/routes/api/ai/convert.ts",
+      "type": "file",
+      "name": "convert.ts",
+      "filePath": "packages/web/src/routes/api/ai/convert.ts",
+      "summary": "API endpoint converting natural language descriptions to Mermaid syntax",
+      "tags": ["typescript", "api", "ai"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:packages/core/src/workflow/workflow.service.ts",
+      "type": "file",
+      "name": "workflow.service.ts",
+      "filePath": "packages/core/src/workflow/workflow.service.ts",
+      "summary": "Workflow service managing entity lifecycle event triggering and workflow run tracking",
+      "tags": ["typescript", "workflow", "service"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:packages/core/src/rules/rules-engine.service.ts",
+      "type": "file",
+      "name": "rules-engine.service.ts",
+      "filePath": "packages/core/src/rules/rules-engine.service.ts",
+      "summary": "Business rules engine integrating GoRules zen-engine for JDM evaluation",
+      "tags": ["typescript", "rules", "service"],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:HookSystem",
+      "type": "concept",
+      "name": "Hook System",
+      "summary": "Cross-cutting concerns (validation, audit, business rules) via lifecycle-based hooks integrated in BaseService CRUD operations",
+      "tags": ["pattern", "architecture", "hooks"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:AIAgentPipeline",
+      "type": "concept",
+      "name": "AI Agent Pipeline",
+      "summary": "Sequential Mastra AI agents transforming natural language to ERD: domain->entity->relationship->mermaid",
+      "tags": ["pattern", "architecture", "ai"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:CodeGenerationOrchestration",
+      "type": "concept",
+      "name": "Code Generation Orchestration",
+      "summary": "Multi-stage generator coordinating dictionary metadata, full-stack framework, and stack-specific templates",
+      "tags": ["pattern", "architecture", "generation"],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:TanStackStartRouting",
+      "type": "concept",
+      "name": "TanStack Start Routing",
+      "summary": "File-based routing with $ prefix for dynamic segments and API routes using createAPIFileRoute",
+      "tags": ["pattern", "framework", "routing"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:ServiceLayerWithHooks",
+      "type": "concept",
+      "name": "Service Layer with Hooks",
+      "summary": "BaseService abstract class with before/after hooks integrated into CRUD and workflow triggering",
+      "tags": ["pattern", "architecture", "service"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:DictionaryMetadata",
+      "type": "concept",
+      "name": "Compiere-Style Dictionary Metadata",
+      "summary": "sys_* tables storing application metadata (entities, attributes, relationships) for runtime schema flexibility",
+      "tags": ["pattern", "architecture", "database"],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:packages/core/src/services/base.service.ts",
+      "target": "file:packages/core/src/hooks/hook-executor.ts",
+      "type": "imports",
+      "weight": 0.95
+    },
+    {
+      "source": "file:packages/core/src/hooks/hook-executor.ts",
+      "target": "file:packages/core/src/hooks/hook-registry.ts",
+      "type": "imports",
+      "weight": 0.9
+    },
+    {
+      "source": "file:packages/core/src/hooks/hook-registry.ts",
+      "target": "file:packages/core/src/types/hook.types.ts",
+      "type": "imports",
+      "weight": 0.85
+    },
+    {
+      "source": "file:packages/core/src/services/base.service.ts",
+      "target": "file:packages/core/src/types/entity.types.ts",
+      "type": "imports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:packages/core/src/services/base.service.ts",
+      "target": "file:packages/core/src/workflow/workflow.service.ts",
+      "type": "imports",
+      "weight": 0.75
+    },
+    {
+      "source": "file:packages/ai/src/agents/domain-agent.ts",
+      "target": "file:packages/ai/src/agents/entity-agent.ts",
+      "type": "collaborates",
+      "weight": 0.7
+    },
+    {
+      "source": "file:packages/ai/src/agents/entity-agent.ts",
+      "target": "file:packages/ai/src/agents/relationship-agent.ts",
+      "type": "collaborates",
+      "weight": 0.7
+    },
+    {
+      "source": "file:packages/ai/src/agents/relationship-agent.ts",
+      "target": "file:packages/ai/src/agents/mermaid-agent.ts",
+      "type": "collaborates",
+      "weight": 0.7
+    },
+    {
+      "source": "file:packages/ai/src/converter/index.ts",
+      "target": "file:packages/ai/src/agents/domain-agent.ts",
+      "type": "imports",
+      "weight": 0.85
+    },
+    {
+      "source": "file:packages/web/src/routes/api/ai/convert.ts",
+      "target": "file:packages/ai/src/converter/index.ts",
+      "type": "imports",
+      "weight": 0.9
+    },
+    {
+      "source": "file:packages/generator/src/generators/orchestrator.ts",
+      "target": "file:packages/generator/src/generators/dictionary.generator.ts",
+      "type": "imports",
+      "weight": 0.95
+    },
+    {
+      "source": "file:packages/generator/src/generators/orchestrator.ts",
+      "target": "file:packages/generator/src/generators/tanstack-start-nestjs/index.ts",
+      "type": "imports",
+      "weight": 0.9
+    },
+    {
+      "source": "file:packages/generator/src/generators/tanstack-start-nestjs/index.ts",
+      "target": "file:packages/generator/src/generators/tanstack-start-nestjs/tanstack-start-frontend.generator.ts",
+      "type": "imports",
+      "weight": 0.9
+    },
+    {
+      "source": "file:packages/generator/src/generators/tanstack-start-nestjs/index.ts",
+      "target": "file:packages/generator/src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts",
+      "type": "imports",
+      "weight": 0.9
+    },
+    {
+      "source": "file:packages/generator/src/generators/tanstack-start-nestjs/tanstack-start-frontend.generator.ts",
+      "target": "file:packages/generator/src/generators/base.generator.ts",
+      "type": "extends",
+      "weight": 0.95
+    },
+    {
+      "source": "file:packages/generator/src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts",
+      "target": "file:packages/generator/src/generators/base.generator.ts",
+      "type": "extends",
+      "weight": 0.95
+    },
+    {
+      "source": "file:packages/generator/src/generators/orchestrator.ts",
+      "target": "file:packages/generator/src/parsers/mermaid.parser.ts",
+      "type": "imports",
+      "weight": 0.85
+    },
+    {
+      "source": "file:packages/generator/src/parsers/mermaid.parser.ts",
+      "target": "file:packages/core/src/types/entity.types.ts",
+      "type": "imports",
+      "weight": 0.9
+    },
+    {
+      "source": "file:packages/web/src/routes/projects/$id/design.tsx",
+      "target": "file:packages/web/src/routes/api/ai/convert.ts",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:packages/core/src/rules/rules-engine.service.ts",
+      "target": "file:packages/core/src/types/entity.types.ts",
+      "type": "imports",
+      "weight": 0.8
+    },
+    {
+      "source": "file:packages/core/src/workflow/workflow.service.ts",
+      "target": "file:packages/core/src/types/entity.types.ts",
+      "type": "imports",
+      "weight": 0.75
+    },
+    {
+      "source": "file:packages/ai/src/mastra/agents/code-agent.ts",
+      "target": "file:packages/core/src/types/entity.types.ts",
+      "type": "imports",
+      "weight": 0.8
+    },
+    {
+      "source": "concept:HookSystem",
+      "target": "file:packages/core/src/services/base.service.ts",
+      "type": "implements",
+      "weight": 0.95
+    },
+    {
+      "source": "concept:AIAgentPipeline",
+      "target": "file:packages/ai/src/converter/index.ts",
+      "type": "implements",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:CodeGenerationOrchestration",
+      "target": "file:packages/generator/src/generators/orchestrator.ts",
+      "type": "implements",
+      "weight": 0.95
+    },
+    {
+      "source": "concept:TanStackStartRouting",
+      "target": "file:packages/web/src/routes/__root.tsx",
+      "type": "implements",
+      "weight": 0.85
+    },
+    {
+      "source": "concept:ServiceLayerWithHooks",
+      "target": "concept:HookSystem",
+      "type": "depends-on",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:DictionaryMetadata",
+      "target": "file:packages/generator/src/generators/dictionary.generator.ts",
+      "type": "implements",
+      "weight": 0.9
+    },
+    {
+      "source": "file:packages/generator/src/generators/dictionary.generator.ts",
+      "target": "file:packages/core/src/types/entity.types.ts",
+      "type": "imports",
+      "weight": 0.9
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:core-foundation",
+      "name": "Core & Foundation",
+      "description": "Base types, services, hooks, and validation logic shared across all packages. Includes the hook system for cross-cutting concerns, base service layer with CRUD+workflow integration, entity/RBAC types, and database connectivity via Kysely.",
+      "nodeIds": [
+        "file:packages/core/src/types/hook.types.ts",
+        "file:packages/core/src/types/entity.types.ts",
+        "file:packages/core/src/hooks/hook-builder.ts",
+        "file:packages/core/src/hooks/hook-registry.ts",
+        "file:packages/core/src/hooks/hook-executor.ts",
+        "file:packages/core/src/services/base.service.ts",
+        "file:packages/core/src/services/database.service.ts",
+        "file:packages/core/src/workflow/workflow.service.ts",
+        "file:packages/core/src/rules/rules-engine.service.ts",
+        "concept:HookSystem",
+        "concept:ServiceLayerWithHooks"
+      ]
+    },
+    {
+      "id": "layer:ai-intelligence",
+      "name": "AI & Intelligence",
+      "description": "Mastra.ai orchestration layer with sequential agents for natural language processing. Transforms business descriptions into structured entity models and Mermaid ERD syntax. Includes domain analysis, entity refinement, relationship discovery, Mermaid generation, and AI-to-Mermaid converter.",
+      "nodeIds": [
+        "file:packages/ai/src/agents/domain-agent.ts",
+        "file:packages/ai/src/agents/entity-agent.ts",
+        "file:packages/ai/src/agents/relationship-agent.ts",
+        "file:packages/ai/src/agents/mermaid-agent.ts",
+        "file:packages/ai/src/mastra/agents/code-agent.ts",
+        "file:packages/ai/src/converter/index.ts",
+        "concept:AIAgentPipeline"
+      ]
+    },
+    {
+      "id": "layer:code-generation",
+      "name": "Code Generation",
+      "description": "Multi-stage code generation engine orchestrating dictionary metadata, Handlebars templates, and stack-specific generators. Includes Mermaid parser, base generator abstraction, dictionary metadata generator (Compiere-style), and full-stack generators for TanStack Start/NestJS.",
+      "nodeIds": [
+        "file:packages/generator/src/parsers/mermaid.parser.ts",
+        "file:packages/generator/src/generators/base.generator.ts",
+        "file:packages/generator/src/generators/dictionary.generator.ts",
+        "file:packages/generator/src/generators/orchestrator.ts",
+        "file:packages/generator/src/generators/tanstack-start-nestjs/index.ts",
+        "file:packages/generator/src/generators/tanstack-start-nestjs/tanstack-start-frontend.generator.ts",
+        "file:packages/generator/src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts",
+        "concept:CodeGenerationOrchestration",
+        "concept:DictionaryMetadata"
+      ]
+    },
+    {
+      "id": "layer:frontend-web",
+      "name": "Frontend & Web",
+      "description": "TanStack Start v1 full-stack web application with file-based routing. Includes root layout, project management routes, ERD design interface, and API endpoints for AI conversion and code generation. Uses Vite/Vinxi with React 18+ and Shadcn UI.",
+      "nodeIds": [
+        "file:packages/web/src/routes/__root.tsx",
+        "file:packages/web/src/routes/projects/$id/design.tsx",
+        "file:packages/web/src/routes/api/ai/convert.ts",
+        "concept:TanStackStartRouting"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Project Overview & What ERDwithAI Does",
+      "description": "Understand the big picture: ERDwithAI transforms natural language descriptions into production-ready full-stack applications. Learn the end-to-end workflow from business domain to deployed code. This is your north star for understanding why each component exists.",
+      "nodeIds": [
+        "README.md",
+        "docs/architecture.md",
+        "docs/DEVELOPMENT.md"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Project Structure & Package Organization",
+      "description": "Get familiar with the monorepo layout. Understand the four main packages: @erdwithai/core (business logic), @erdwithai/ai (AI agents), @erdwithai/generator (code generation), and @erdwithai/web (frontend). See how they depend on each other and what each one does.",
+      "nodeIds": [
+        "package.json",
+        "tsconfig.json",
+        "packages/core/package.json",
+        "packages/ai/package.json",
+        "packages/generator/package.json",
+        "packages/web/package.json"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Core Foundation: Types & Entity Model",
+      "description": "Master the fundamental data structures. Learn about EntityDefinition, EntityAttribute, Relationship, and Zod schemas. These types flow through every other layer, so understanding them deeply is critical. This is the common language that all components speak.",
+      "nodeIds": [
+        "file:packages/core/src/types/entity.types.ts",
+        "file:packages/core/src/types/hook.types.ts",
+        "file:packages/core/src/types/api.types.ts",
+        "file:packages/core/src/types/dictionary.types.ts",
+        "file:packages/core/src/validation/schemas.ts"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Hook System: Cross-Cutting Concerns",
+      "description": "Learn how the hook system provides validation, audit trails, and business rules at entity lifecycle events. Understand the registry, executor, and builder pattern. This is the mechanism that makes BaseService powerful and extensible.",
+      "nodeIds": [
+        "file:packages/core/src/types/hook.types.ts",
+        "file:packages/core/src/hooks/hook-registry.ts",
+        "file:packages/core/src/hooks/hook-executor.ts",
+        "file:packages/core/src/hooks/hook-builder.ts",
+        "concept:HookSystem"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Service Layer: BaseService & Database",
+      "description": "Understand the abstract BaseService class that provides CRUD operations with integrated hook execution. Learn how services are the backbone that orchestrates hooks, workflows, and database operations. Then explore the Kysely database service for type-safe queries.",
+      "nodeIds": [
+        "file:packages/core/src/services/base.service.ts",
+        "file:packages/core/src/services/database.service.ts",
+        "file:packages/core/src/services/entity.service.ts",
+        "file:packages/core/src/workflow/workflow.service.ts",
+        "concept:ServiceLayerWithHooks"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Core Foundations Summary: Running Locally",
+      "description": "Before moving to AI agents, get the core packages working locally. Run the database service, understand schema, and see hooks in action. This gives you the foundation for understanding everything downstream.",
+      "nodeIds": [
+        "database/migrations/",
+        "packages/core/src/services/database.service.ts",
+        ".env.example"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "AI Agent Pipeline: From Words to Entities",
+      "description": "Learn the sequential AI agent pipeline that converts natural language into structured entities. Follow the flow: domain-agent (analyzes business) -> entity-agent (refines structure) -> relationship-agent (finds connections) -> mermaid-agent (generates diagram syntax). Each agent passes output to the next.",
+      "nodeIds": [
+        "file:packages/ai/src/agents/domain-agent.ts",
+        "file:packages/ai/src/agents/entity-agent.ts",
+        "file:packages/ai/src/agents/relationship-agent.ts",
+        "file:packages/ai/src/agents/mermaid-agent.ts",
+        "concept:AIAgentPipeline"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "AI Converter: Orchestrating the Pipeline",
+      "description": "See how AIToMermaidConverter orchestrates all agents and handles the complete transformation. Understand error handling, validation, and the fallback converter. This is the entry point that ties all agents together.",
+      "nodeIds": [
+        "file:packages/ai/src/converter/index.ts",
+        "file:packages/ai/src/converter/openai-fallback.ts",
+        "packages/ai/src/mastra/index.ts"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Mastra.ai Configuration & Code Agent",
+      "description": "Understand how Mastra.ai framework configures AI agents, storage, logging, and observability. Learn about the code-agent for code generation with E2B sandbox integration. This is the AI runtime infrastructure.",
+      "nodeIds": [
+        "file:packages/ai/src/mastra/index.ts",
+        "file:packages/ai/src/mastra/agents/code-agent.ts",
+        "file:packages/ai/src/mastra/tools/e2b.ts"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "Code Generation: The Orchestrator",
+      "description": "Learn the multi-stage code generation process. Understand the GeneratorOrchestrator that coordinates dictionary generation, Mermaid parsing, and full-stack code generation. See how it orchestrates all the downstream generators.",
+      "nodeIds": [
+        "file:packages/generator/src/generators/orchestrator.ts",
+        "file:packages/generator/src/parsers/mermaid.parser.ts",
+        "file:packages/generator/src/generators/base.generator.ts"
+      ]
+    },
+    {
+      "order": 11,
+      "title": "Dictionary Generation: Compiere-Style Metadata",
+      "description": "Understand the DictionaryGenerator that creates sys_* metadata tables following Compiere ERP patterns. This metadata-driven approach enables runtime flexibility and schema evolution. Learn why this is powerful for generated applications.",
+      "nodeIds": [
+        "file:packages/generator/src/generators/dictionary.generator.ts",
+        "file:packages/core/src/types/dictionary.types.ts",
+        "concept:DictionaryMetadata"
+      ]
+    },
+    {
+      "order": 12,
+      "title": "Stack-Specific Generators: TanStack Start & NestJS",
+      "description": "Dive into full-stack code generation. Learn how TanStackStartFrontendGenerator creates React components and routes, and how NestJSBackendGenerator creates API controllers and services. See how both extend BaseGenerator with stack-specific Handlebars templates.",
+      "nodeIds": [
+        "file:packages/generator/src/generators/tanstack-start-nestjs/index.ts",
+        "file:packages/generator/src/generators/tanstack-start-nestjs/tanstack-start-frontend.generator.ts",
+        "file:packages/generator/src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts"
+      ]
+    },
+    {
+      "order": 13,
+      "title": "Code Generation Pipeline: End-to-End",
+      "description": "Walk through a complete code generation example. See how Mermaid syntax becomes Entity objects, how Dictionary metadata is generated, and how frontend and backend code is generated from templates. Run bun run generate:tanstack to see it in action.",
+      "nodeIds": [
+        "file:packages/generator/src/generators/orchestrator.ts",
+        "packages/generator/templates/tanstack-start-nestjs/",
+        "file:packages/generator/src/cli/generate.ts"
+      ]
+    },
+    {
+      "order": 14,
+      "title": "Frontend: TanStack Start Fundamentals",
+      "description": "Learn TanStack Start routing differences from Next.js. Understand file-based routing with $ prefixes for dynamic segments, createFileRoute() for pages, and createAPIFileRoute() for API endpoints. This is your entry point to the web application architecture.",
+      "nodeIds": [
+        "file:packages/web/src/routes/__root.tsx",
+        "concept:TanStackStartRouting",
+        "packages/web/src/routes/"
+      ]
+    },
+    {
+      "order": 15,
+      "title": "Frontend: Project Wizard & Navigation Flow",
+      "description": "Understand the multi-step project wizard UI: projects list -> init -> design -> generate -> enhance -> deploy. Learn how each step connects to the backend AI services and code generation. See the project flow from user's perspective.",
+      "nodeIds": [
+        "file:packages/web/src/routes/projects/index.tsx",
+        "file:packages/web/src/routes/projects/$id/init.tsx",
+        "file:packages/web/src/routes/projects/$id/design.tsx",
+        "file:packages/web/src/routes/projects/$id/generate.tsx"
+      ]
+    },
+    {
+      "order": 16,
+      "title": "Frontend: ERD Design Step & Human-In-The-Loop",
+      "description": "Deep dive into the design.tsx page. Learn how the visual ERD editor works with Mermaid rendering, entity approval workflow, and version management. This is where humans validate the AI's understanding before code generation.",
+      "nodeIds": [
+        "file:packages/web/src/routes/projects/$id/design.tsx",
+        "file:packages/web/src/hooks/useHumanInTheLoop.ts",
+        "packages/web/src/components/approval/"
+      ]
+    },
+    {
+      "order": 17,
+      "title": "Frontend: API Endpoints for AI Conversion",
+      "description": "Learn the API routes that power the frontend: convert.ts (natural language to Mermaid), generate.ts (triggering code generation), and deploy.ts (deployment). These are the bridges between frontend UI and backend AI/generation services.",
+      "nodeIds": [
+        "file:packages/web/src/routes/api/ai/convert.ts",
+        "file:packages/web/src/routes/api/generate.ts",
+        "file:packages/web/src/routes/api/deploy.ts"
+      ]
+    },
+    {
+      "order": 18,
+      "title": "Full End-to-End Flow: Natural Language to Application",
+      "description": "Trace a complete user journey: user enters natural language -> API calls convert.ts -> AIToMermaidConverter runs agent pipeline -> Mermaid ERD displayed -> user approves -> generate.ts called -> GeneratorOrchestrator generates full-stack code -> TanStack/NestJS app created. Understand all the moving pieces working together.",
+      "nodeIds": [
+        "file:packages/web/src/routes/api/ai/convert.ts",
+        "file:packages/ai/src/converter/index.ts",
+        "file:packages/web/src/routes/projects/$id/design.tsx",
+        "file:packages/web/src/routes/api/generate.ts",
+        "file:packages/generator/src/generators/orchestrator.ts"
+      ]
+    },
+    {
+      "order": 19,
+      "title": "Testing: Unit Tests with Vitest",
+      "description": "Learn how to write and run unit tests. Understand the test setup, jsdom environment, and how to test core services, agents, and generators. Run bun run test to see coverage. This ensures code quality across the system.",
+      "nodeIds": [
+        "vitest.config.ts",
+        "test/setup.ts",
+        "packages/core/src/**/*.spec.ts",
+        "packages/ai/src/**/*.spec.ts"
+      ]
+    },
+    {
+      "order": 20,
+      "title": "Testing: E2E Tests with Playwright",
+      "description": "Learn how to write Playwright E2E tests that exercise the full UI flow. Understand the test structure, base URL setup, and how to test complete workflows. Run bun run test:playwright to validate the entire application.",
+      "nodeIds": [
+        "playwright.config.ts",
+        "tests/e2e/",
+        "docs/TESTING.md"
+      ]
+    },
+    {
+      "order": 21,
+      "title": "Development Workflow: Build, Type-Check, Lint",
+      "description": "Master the development commands: bun run build (compile all packages), bun run type-check (TypeScript validation), bun run lint (ESLint), bun run format (Prettier). These are run before every commit to maintain code quality.",
+      "nodeIds": [
+        "package.json",
+        "tsconfig.json",
+        ".eslintrc.js",
+        "prettier.config.js"
+      ]
+    },
+    {
+      "order": 22,
+      "title": "Running the Full Stack Locally",
+      "description": "Get both services running: Terminal 1 runs bun run dev for the web app (port 3000), Terminal 2 runs bun run dev:mastra for the Mastra service (port 4111). Test the complete system end-to-end locally before deploying.",
+      "nodeIds": [
+        "package.json",
+        ".env.example",
+        "packages/web/vite.config.ts",
+        "packages/ai/src/mastra/index.ts"
+      ]
+    },
+    {
+      "order": 23,
+      "title": "Rules Engine & Business Logic",
+      "description": "Learn the RulesEngineService that integrates GoRules zen-engine for JDM (Java Decision Model) evaluation. Understand how business rules can be attached to entities and executed during lifecycle events using the hook system.",
+      "nodeIds": [
+        "file:packages/core/src/rules/rules-engine.service.ts",
+        "file:packages/core/src/types/entity.types.ts"
+      ]
+    },
+    {
+      "order": 24,
+      "title": "Architecture Decisions & Design Patterns",
+      "description": "Read the DESIGN.md document to understand key architecture decisions: why hooks, why dictionary metadata, why Mastra.ai, why Kysely. Understand the tradeoffs made and the philosophy behind the system design.",
+      "nodeIds": [
+        "DESIGN.md",
+        "docs/architecture.md",
+        "HOOKS_GUIDE.md"
+      ]
+    },
+    {
+      "order": 25,
+      "title": "Next Steps: Contributing & Extending",
+      "description": "Now that you understand the system, learn how to contribute: adding new agents, creating generator templates, adding API routes, and writing tests. Check TODOS.md for current work items and opportunities to extend the system.",
+      "nodeIds": [
+        "TODOS.md",
+        "CONTRIBUTING.md",
+        "docs/ROADMAP.md"
+      ]
+    }
+  ]
+}
