@@ -28,8 +28,12 @@ export async function seed(db: Kysely<any>): Promise<void> {
         {{#case 10}}{{name}}: '{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{#if (eq name "name")}}Test {{../../displayName}} {{@../index}}{{else}}Sample {{name}} {{@../index}}{{/if}}{{/if}}',{{/case}}
         {{#case 11}}{{name}}: {{@../index}},{{/case}}
         {{#case 12}}{{name}}: {{@../index}}.50,{{/case}}
+        {{#case 15}}{{name}}: new Date(Date.now() + {{@../index}} * 86400000),{{/case}}
+        {{#case 16}}{{name}}: new Date(Date.now() + {{@../index}} * 3600000),{{/case}}
         {{#case 20}}{{name}}: {{#if (eq @../index 2)}}false{{else}}true{{/if}},{{/case}}
-        {{#default}}{{name}}: 'value-{{@../index}}',{{/default}}
+        {{#case 13}}{{name}}: null,{{/case}}
+        {{#case 14}}{{name}}: 'Sample {{name}} text {{@../index}}',{{/case}}
+        {{#default}}{{name}}: 'Sample {{name}} {{@../index}}',{{/default}}
       {{/switch}}
       {{/unless}}
       {{/unless}}

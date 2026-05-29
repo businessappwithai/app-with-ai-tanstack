@@ -9,8 +9,8 @@
 
 import { betterAuth } from 'better-auth';
 import { kyselyAdapter } from '@better-auth/kysely-adapter';
-import { Kysely, MysqlDialect } from 'kysely';
-import { createPool } from 'mysql2';
+import { Kysely, PostgresDialect } from 'kysely';
+import { Pool } from 'pg';
 import { config } from 'dotenv';
 import * as path from 'path';
 
@@ -22,30 +22,21 @@ let authInstance: any = null;
 
 function buildPool() {
   const url = process.env.DATABASE_URL;
-  if (url && (url.startsWith('mysql://') || url.startsWith('mariadb://'))) {
-    const parsed = new URL(url.replace(/^mariadb:\/\//, 'mysql://'));
-    return createPool({
-      host: parsed.hostname || '127.0.0.1',
-      port: parsed.port ? Number(parsed.port) : 3306,
-      user: parsed.username || '{{projectSnake}}',
-      password: parsed.password || '',
-      database: parsed.pathname.replace(/^\//, '') || '{{projectSnake}}',
-      waitForConnections: true,
-    });
+  if (url) {
+    return new Pool({ connectionString: url });
   }
-  return createPool({
+  return new Pool({
     host: process.env.DB_HOST ?? '127.0.0.1',
-    port: Number(process.env.DB_PORT ?? 3306),
+    port: Number(process.env.DB_PORT ?? 5432),
     user: process.env.DB_USER ?? '{{projectSnake}}',
     password: process.env.DB_PASSWORD ?? '',
     database: process.env.DB_NAME ?? '{{projectSnake}}',
-    waitForConnections: true,
   });
 }
 
 export async function initAuth() {
   if (!authInstance) {
-    const kysely = new Kysely<any>({ dialect: new MysqlDialect({ pool: buildPool() }) });
+    const kysely = new Kysely<any>({ dialect: new PostgresDialect({ pool: buildPool() }) });
 
     authInstance = betterAuth({
       database: kyselyAdapter(kysely),

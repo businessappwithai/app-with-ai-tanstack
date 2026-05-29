@@ -7,8 +7,8 @@
 
 import * as path from 'path';
 import * as fs from 'fs';
-import { Kysely, MysqlDialect } from 'kysely';
-import { createPool } from 'mysql2';
+import { Kysely, PostgresDialect } from 'kysely';
+import { Pool } from 'pg';
 import { config } from 'dotenv';
 
 // Load .env from backend root (parent of src/) regardless of cwd
@@ -17,30 +17,25 @@ config({ path: path.join(__dirname, '..', '.env.local'), override: true });
 
 function buildPool() {
   const url = process.env.DATABASE_URL;
-  if (url && (url.startsWith('mysql://') || url.startsWith('mariadb://'))) {
-    const parsed = new URL(url.replace(/^mariadb:\/\//, 'mysql://'));
-    return createPool({
-      host: parsed.hostname || '127.0.0.1',
-      port: parsed.port ? Number(parsed.port) : 3306,
-      user: parsed.username || '{{snakeCase project.name}}',
-      password: parsed.password || '',
-      database: parsed.pathname.replace(/^\//, '') || '{{snakeCase project.name}}',
-      waitForConnections: true,
-    });
+  if (url) {
+    return new Pool({ connectionString: url });
   }
-  return createPool({
+  return new Pool({
     host: process.env.DB_HOST ?? '127.0.0.1',
-    port: Number(process.env.DB_PORT ?? 3306),
+    port: Number(process.env.DB_PORT ?? 5432),
     user: process.env.DB_USER ?? '{{snakeCase project.name}}',
     password: process.env.DB_PASSWORD ?? '',
     database: process.env.DB_NAME ?? '{{snakeCase project.name}}',
-    waitForConnections: true,
   });
 }
 
 async function runMigrations(db: Kysely<any>) {
+  // Support both .ts (bun) and .js (node dist/) runtimes
   const migrationDir = path.join(__dirname, 'migrations');
-  const files = (await fs.promises.readdir(migrationDir)).filter(f => f.endsWith('.ts')).sort();
+  const ext = __filename.endsWith('.ts') ? '.ts' : '.js';
+  const files = (await fs.promises.readdir(migrationDir))
+    .filter(f => f.endsWith(ext) && !f.endsWith('.map'))
+    .sort();
 
   for (const file of files) {
     const migrationPath = path.join(migrationDir, file);
@@ -60,7 +55,7 @@ async function runMigrations(db: Kysely<any>) {
 }
 
 (async () => {
-  const db = new Kysely<any>({ dialect: new MysqlDialect({ pool: buildPool() }) });
+  const db = new Kysely<any>({ dialect: new PostgresDialect({ pool: buildPool() }) });
 
   try {
     await runMigrations(db);
