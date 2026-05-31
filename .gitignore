@@ -18,6 +18,8 @@ coverage/
 
 # Generated projects runtime artifacts
 packages/web/generated-projects/
+packages/generator/generated-projects/
+generated-projects/
 
 # Production
 dist/
