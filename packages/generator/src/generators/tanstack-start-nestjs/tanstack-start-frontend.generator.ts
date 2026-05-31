@@ -71,9 +71,11 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
   private resolvedTemplateDir: string;
 
   constructor(options: TanStackStartFrontendOptions) {
-    // Resolve template directory correctly regardless of bundling
-    const stack = options.stackOption || "tanstack-start-nestjs";
-    const templateDir = resolveTemplateDir(`${stack}/frontend`);
+    // All frontend templates live in tanstack-start-nestjs/frontend/ as the
+    // single canonical source. tanstackjs-nestjs/frontend/ is kept only for
+    // legacy scaffold scaffolding differences; Electric/TanStack DB templates
+    // are not duplicated there.
+    const templateDir = resolveTemplateDir("tanstack-start-nestjs/frontend");
     super(templateDir);
     this.options = options;
     this.resolvedTemplateDir = templateDir;

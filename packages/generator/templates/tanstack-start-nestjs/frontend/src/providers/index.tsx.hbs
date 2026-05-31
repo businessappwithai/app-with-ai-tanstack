@@ -3,15 +3,13 @@
 /**
  * Application Providers
  *
- * Wraps the app with all necessary providers:
- * - TanStack Query (React Query) for server state
- * - ElectricProvider for local-first sys_ metadata (TanStack DB + ElectricSQL)
- * - AuthProvider for authentication
- * - TranslationProvider for i18n
- * - Toaster for notifications
- *
- * Note: TanStack Router provides built-in client-side routing
- * via @tanstack/react-router, so no custom router provider is needed.
+ * Provider order (outer → inner):
+ * 1. QueryProvider  — TanStack Query server state
+ * 2. AuthProvider   — session / user object
+ * 3. ElectricProvider — syncs sys_ metadata for the current user's role into
+ *                       TanStack DB Collections (local PGlite); role-scoped so
+ *                       only relevant rows are loaded client-side
+ * 4. TranslationProvider — i18n
  *
  * Generated: {{now}}
  */
@@ -19,7 +17,7 @@
 import React, { type ReactNode, useEffect, useState } from 'react';
 import { QueryProvider } from './query-provider';
 import { ElectricProvider } from './electric-provider';
-import { AuthProvider } from '@/contexts/auth-context';
+import { AuthProvider, useAuth } from '@/contexts/auth-context';
 import { TranslationProvider } from '@/lib/translations';
 import { Toaster } from 'sonner';
 
@@ -33,17 +31,31 @@ function ClientToaster() {
   return mounted ? <Toaster position="top-right" richColors /> : null;
 }
 
+/**
+ * Inner wrapper so ElectricProvider can read the role from AuthContext.
+ * Sits inside AuthProvider so useAuth() is always available.
+ */
+function ElectricBridge({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const role  = (user as { role?: string } | null)?.role ?? '';
+  const token = (user as { token?: string } | null)?.token;
+  return (
+    <ElectricProvider role={role} token={token}>
+      {children}
+    </ElectricProvider>
+  );
+}
+
 export function Providers({ children }: ProvidersProps) {
   return (
     <QueryProvider>
       <AuthProvider>
-        {/* ElectricProvider syncs sys_ tables to local PGlite for fast metadata lookups */}
-        <ElectricProvider>
+        <ElectricBridge>
           <TranslationProvider>
             {children}
             <ClientToaster />
           </TranslationProvider>
-        </ElectricProvider>
+        </ElectricBridge>
       </AuthProvider>
     </QueryProvider>
   );

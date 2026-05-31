@@ -1,24 +1,17 @@
-'use client';
-
 /**
  * Application Providers
  *
  * Wraps the app with all necessary providers:
  * - TanStack Query (React Query) for server state
- * - ElectricProvider for local-first sys_ metadata (TanStack DB + ElectricSQL)
  * - AuthProvider for authentication
  * - TranslationProvider for i18n
  * - Toaster for notifications
  *
- * Note: TanStack Router provides built-in client-side routing
- * via @tanstack/react-router, so no custom router provider is needed.
- *
  * Generated: {{now}}
  */
 
-import React, { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode } from 'react';
 import { QueryProvider } from './query-provider';
-import { ElectricProvider } from './electric-provider';
 import { AuthProvider } from '@/contexts/auth-context';
 import { TranslationProvider } from '@/lib/translations';
 import { Toaster } from 'sonner';
@@ -27,23 +20,14 @@ interface ProvidersProps {
   children: ReactNode;
 }
 
-function ClientToaster() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  return mounted ? <Toaster position="top-right" richColors /> : null;
-}
-
 export function Providers({ children }: ProvidersProps) {
   return (
     <QueryProvider>
       <AuthProvider>
-        {/* ElectricProvider syncs sys_ tables to local PGlite for fast metadata lookups */}
-        <ElectricProvider>
-          <TranslationProvider>
-            {children}
-            <ClientToaster />
-          </TranslationProvider>
-        </ElectricProvider>
+        <TranslationProvider>
+          {children}
+          <Toaster position="top-right" richColors />
+        </TranslationProvider>
       </AuthProvider>
     </QueryProvider>
   );

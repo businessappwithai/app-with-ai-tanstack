@@ -1,12 +1,11 @@
 /**
- * ElectricSQL + PGlite Setup
+ * ElectricSQL + PGlite — local-first sync for sys_ (Application Dictionary) tables.
  *
- * Provides a client-side Postgres database (PGlite) that syncs
- * sys_ metadata tables from the server via ElectricSQL shapes.
- *
- * sys_ tables are synced once per session (per role) so all
- * metadata queries become instant local lookups with zero
- * network round-trips after the initial sync.
+ * sys_ rows are scoped to the authenticated user's role: each Electric shape
+ * subscription forwards a `role` query param so the NestJS Electric proxy can
+ * apply server-side filtering before sending rows to the client. Only the rows
+ * that belong to the current role are loaded into the local PGlite instance and
+ * subsequently into TanStack DB Collections — nothing else is synced client-side.
  *
  * Generated: {{now}}
  * Project: {{project.name}}
@@ -16,11 +15,13 @@ import { PGlite } from '@electric-sql/pglite';
 import { electricSync } from '@electric-sql/pglite-sync';
 
 export const ELECTRIC_URL =
-  import.meta.env.VITE_ELECTRIC_URL ?? `${import.meta.env.VITE_API_URL ?? 'http://localhost:3001'}/v1/shape`;
+  import.meta.env.VITE_ELECTRIC_URL ??
+  `${import.meta.env.VITE_API_URL ?? 'http://localhost:3001'}/v1/shape`;
 
 let _db: PGlite | null = null;
 let _initPromise: Promise<PGlite> | null = null;
 
+/** DDL for the local PGlite schema — mirrors the server-side sys_ tables. */
 const SYS_DDL = `
   CREATE TABLE IF NOT EXISTS sys_table (
     sys_table_id TEXT PRIMARY KEY,
@@ -29,7 +30,6 @@ const SYS_DDL = `
     description TEXT,
     is_active BOOLEAN DEFAULT TRUE
   );
-
   CREATE TABLE IF NOT EXISTS sys_column (
     sys_column_id TEXT PRIMARY KEY,
     sys_table_id TEXT NOT NULL,
@@ -40,7 +40,6 @@ const SYS_DDL = `
     is_mandatory BOOLEAN DEFAULT FALSE,
     seq_no INTEGER DEFAULT 0
   );
-
   CREATE TABLE IF NOT EXISTS sys_field (
     sys_field_id TEXT PRIMARY KEY,
     sys_column_id TEXT NOT NULL,
@@ -52,13 +51,11 @@ const SYS_DDL = `
     is_read_only BOOLEAN DEFAULT FALSE,
     is_mandatory BOOLEAN DEFAULT FALSE
   );
-
   CREATE TABLE IF NOT EXISTS sys_reference (
     sys_reference_id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT
   );
-
   CREATE TABLE IF NOT EXISTS sys_window (
     sys_window_id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -72,9 +69,7 @@ export async function getDb(): Promise<PGlite> {
   if (_initPromise) return _initPromise;
 
   _initPromise = (async () => {
-    const db = await PGlite.create({
-      extensions: { electric: electricSync() },
-    });
+    const db = await PGlite.create({ extensions: { electric: electricSync() } });
     await db.exec(SYS_DDL);
     _db = db;
     return db;
@@ -84,41 +79,47 @@ export async function getDb(): Promise<PGlite> {
 }
 
 export interface SyncConfig {
-  role?: string;
-  userId?: string;
+  /** User role — forwarded to the Electric proxy to filter sys_ rows per role. */
+  role: string;
+  /** Session token forwarded as a header for proxy-level auth. */
+  token?: string;
 }
 
 export type UnsubscribeFn = () => void;
 
-export async function syncSysTables(config: SyncConfig = {}): Promise<UnsubscribeFn> {
+/**
+ * Subscribe to Electric shapes for all sys_ tables, scoped to the given role.
+ *
+ * The `role` param is forwarded to the NestJS Electric proxy (`/v1/shape`) which
+ * applies a WHERE clause so only the rows visible to that role are streamed.
+ * This is the only place where sys_ data enters the client — everything else
+ * reads from TanStack DB Collections that are populated from PGlite.
+ */
+export async function syncSysTablesForRole(config: SyncConfig): Promise<UnsubscribeFn> {
   const db = await getDb();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ext = (db as any).electric as ReturnType<typeof electricSync>;
 
-  type ShapeSpec = {
-    table: string;
-    primaryKey: string[];
-    where?: string;
-  };
+  const commonParams = { role: config.role };
+  const authHeaders = config.token ? { Authorization: `Bearer ${config.token}` } : {};
+
+  type ShapeSpec = { table: string; primaryKey: string[] };
 
   const specs: ShapeSpec[] = [
-    { table: 'sys_table', primaryKey: ['sys_table_id'], where: config.role ? `is_active = true` : undefined },
-    { table: 'sys_column', primaryKey: ['sys_column_id'] },
-    { table: 'sys_field', primaryKey: ['sys_field_id'] },
+    { table: 'sys_table',     primaryKey: ['sys_table_id'] },
+    { table: 'sys_column',    primaryKey: ['sys_column_id'] },
+    { table: 'sys_field',     primaryKey: ['sys_field_id'] },
     { table: 'sys_reference', primaryKey: ['sys_reference_id'] },
-    { table: 'sys_window', primaryKey: ['sys_window_id'] },
+    { table: 'sys_window',    primaryKey: ['sys_window_id'] },
   ];
 
   const subscriptions = await Promise.all(
-    specs.map(({ table, primaryKey, where }) =>
+    specs.map(({ table, primaryKey }) =>
       ext.syncShapeToTable({
         shape: {
           url: ELECTRIC_URL,
-          params: {
-            table,
-            ...(where ? { where } : {}),
-            ...(config.userId ? { userId: config.userId } : {}),
-          },
+          params: { table, ...commonParams },
+          headers: authHeaders,
         },
         table,
         primaryKey,

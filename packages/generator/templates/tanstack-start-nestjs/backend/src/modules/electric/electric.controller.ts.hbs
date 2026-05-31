@@ -1,12 +1,13 @@
 /**
  * Electric Shape Proxy Controller
  *
- * Proxies ElectricSQL shape requests to the upstream Electric server,
- * injecting authentication and per-role filtering so clients only
- * receive the sys_ rows they are authorised to see.
+ * Proxies ElectricSQL shape requests to the upstream Electric server.
+ * Only sys_ tables are permitted. The `role` query param (forwarded by
+ * the client) is used to inject a per-role WHERE clause so each client
+ * only receives the sys_ rows its role is allowed to see.
  *
- * Clients connect to  GET /v1/shape?table=sys_table&...
- * which is forwarded to ELECTRIC_URL (default http://localhost:3000).
+ * Clients: GET /v1/shape?table=sys_table&role=admin&...
+ * Upstream: GET ELECTRIC_URL/v1/shape?table=sys_table&where=<role-clause>&...
  *
  * Generated: {{now}}
  * Project: {{project.name}}
@@ -33,67 +34,68 @@ const ALLOWED_SYS_TABLES = new Set([
   'sys_window',
 ]);
 
-const ELECTRIC_UPSTREAM =
-  process.env.ELECTRIC_URL ?? 'http://localhost:3000';
+const ELECTRIC_UPSTREAM = process.env.ELECTRIC_URL ?? 'http://localhost:3000';
+
+/** Map a role string to a Postgres WHERE clause applied to every sys_ shape. */
+function roleWhereClause(role: string): string {
+  // Admins see everything; all other roles only see active, non-admin rows.
+  if (role === 'admin' || role === 'superuser') {
+    return `is_active = true`;
+  }
+  return `is_active = true AND (allowed_roles IS NULL OR allowed_roles @> ARRAY['${role}']::text[])`;
+}
 
 @ApiTags('electric')
 @Controller('v1/shape')
 export class ElectricController {
   private readonly logger = new Logger(ElectricController.name);
 
-  /**
-   * Proxy GET /v1/shape to the Electric server.
-   * Only sys_ tables are allowed; all other tables are blocked.
-   */
   @Get()
-  @ApiOperation({ summary: 'Electric shape proxy for sys_ tables' })
+  @ApiOperation({ summary: 'Role-scoped Electric shape proxy for sys_ tables' })
   async proxyShape(
     @Query() query: Record<string, string>,
     @Req() req: FastifyRequest,
     @Res() res: FastifyReply,
   ) {
     const table = query['table'];
+    const role  = query['role'] ?? 'user';
 
     if (!table || !ALLOWED_SYS_TABLES.has(table)) {
       throw new HttpException(
-        `Table '${table}' is not available via the Electric proxy`,
+        `Table '${table}' is not accessible via the Electric proxy`,
         HttpStatus.FORBIDDEN,
       );
     }
 
-    // Build upstream URL, forwarding all original query params
-    const upstreamParams = new URLSearchParams(query as Record<string, string>);
-    const upstreamUrl = `${ELECTRIC_UPSTREAM}/v1/shape?${upstreamParams.toString()}`;
+    // Strip the `role` param before forwarding; replace with server-generated WHERE
+    const upstreamParams = new URLSearchParams(query);
+    upstreamParams.delete('role');
+    upstreamParams.set('where', roleWhereClause(role));
 
-    this.logger.debug(`Proxying Electric shape: ${upstreamUrl}`);
+    const upstreamUrl = `${ELECTRIC_UPSTREAM}/v1/shape?${upstreamParams.toString()}`;
+    this.logger.debug(`Electric proxy [role=${role}]: ${upstreamUrl}`);
 
     try {
       const upstream = await fetch(upstreamUrl, {
         headers: {
           Accept: req.headers['accept'] ?? 'application/json',
           'Cache-Control': 'no-cache',
+          // Forward auth token to upstream Electric if present
+          ...(req.headers['authorization']
+            ? { Authorization: req.headers['authorization'] as string }
+            : {}),
         },
       });
 
-      // Stream response headers back
       const headers: Record<string, string> = {};
-      upstream.headers.forEach((value, key) => {
-        headers[key] = value;
-      });
-      // Enable CORS for browser clients
+      upstream.headers.forEach((value, key) => { headers[key] = value; });
       headers['Access-Control-Allow-Origin'] = '*';
 
       const body = await upstream.arrayBuffer();
-      res
-        .status(upstream.status)
-        .headers(headers)
-        .send(Buffer.from(body));
+      res.status(upstream.status).headers(headers).send(Buffer.from(body));
     } catch (err) {
       this.logger.error('Electric proxy error', err);
-      throw new HttpException(
-        'Electric upstream unavailable',
-        HttpStatus.BAD_GATEWAY,
-      );
+      throw new HttpException('Electric upstream unavailable', HttpStatus.BAD_GATEWAY);
     }
   }
 }

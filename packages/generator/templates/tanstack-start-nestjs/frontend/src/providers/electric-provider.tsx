@@ -3,10 +3,13 @@
 /**
  * ElectricSQL Provider
  *
- * Initialises PGlite + ElectricSQL sync on mount and makes the
- * database available to the whole React tree. sys_ metadata tables
- * are synced once per session (filtered by the current user's role)
- * so all dictionary/metadata queries run locally at memory speed.
+ * Initialises PGlite + ElectricSQL sync for sys_ (Application Dictionary) tables.
+ * Only rows visible to the authenticated user's role are synced to the local
+ * PGlite database and loaded into TanStack DB Collections — nothing else is
+ * pulled client-side.
+ *
+ * The `role` prop must match a role string known to the backend Electric proxy
+ * so the server-side WHERE clause is applied before rows leave the server.
  */
 
 import React, {
@@ -17,7 +20,7 @@ import React, {
   useState,
   type ReactNode,
 } from 'react';
-import { getDb, syncSysTables, type SyncConfig, type UnsubscribeFn } from '@/lib/electric';
+import { syncSysTablesForRole, getDb, type SyncConfig, type UnsubscribeFn } from '@/lib/electric';
 import { reloadSysCollections } from '@/lib/sys-collections';
 import type { PGlite } from '@electric-sql/pglite';
 
@@ -49,13 +52,13 @@ export function useElectric(): ElectricContextValue {
 
 export interface ElectricProviderProps {
   children: ReactNode;
-  /** Role string used to filter Electric shapes (per-role sync). */
-  role?: string;
-  /** User ID forwarded to the Electric proxy for row-level auth. */
-  userId?: string;
+  /** Role of the authenticated user — scopes the Electric shape subscription. */
+  role: string;
+  /** Session token forwarded to the Electric proxy for auth. */
+  token?: string;
 }
 
-export function ElectricProvider({ children, role, userId }: ElectricProviderProps) {
+export function ElectricProvider({ children, role, token }: ElectricProviderProps) {
   const [db, setDb] = useState<PGlite | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isSynced, setIsSynced] = useState(false);
@@ -63,27 +66,25 @@ export function ElectricProvider({ children, role, userId }: ElectricProviderPro
   const unsubRef = useRef<UnsubscribeFn | null>(null);
 
   useEffect(() => {
+    if (!role) return;
+
     let cancelled = false;
 
     async function init() {
       try {
         setIsSyncing(true);
+        setIsSynced(false);
         setError(null);
 
         const database = await getDb();
         if (cancelled) return;
         setDb(database);
 
-        const config: SyncConfig = { role, userId };
-        const unsub = await syncSysTables(config);
-        if (cancelled) {
-          unsub();
-          return;
-        }
-
+        const config: SyncConfig = { role, token };
+        const unsub = await syncSysTablesForRole(config);
+        if (cancelled) { unsub(); return; }
         unsubRef.current = unsub;
 
-        // Populate TanStack DB collections from the now-synced PGlite data
         await reloadSysCollections();
         if (cancelled) return;
 
@@ -104,8 +105,9 @@ export function ElectricProvider({ children, role, userId }: ElectricProviderPro
       cancelled = true;
       unsubRef.current?.();
       unsubRef.current = null;
+      setIsSynced(false);
     };
-  }, [role, userId]);
+  }, [role, token]);
 
   return (
     <ElectricContext.Provider value={{ db, isSyncing, isSynced, error }}>
