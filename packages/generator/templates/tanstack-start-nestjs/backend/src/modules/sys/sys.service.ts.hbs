@@ -80,14 +80,11 @@ export class SysService {
     const { page = 1, limit = 100, search, prefix } = options;
     const offset = (page - 1) * limit;
 
-    // Query information_schema via raw SQL (Kysely doesn't type information_schema)
-    let whereClause = `table_schema = 'public' AND table_type = 'BASE TABLE'`;
-    if (prefix) whereClause += ` AND table_name LIKE '${prefix}%'`;
-    if (search) whereClause += ` AND table_name LIKE '%${search}%'`;
-
     const allTables = await sql<{ table_name: string }[]>`
       SELECT table_name FROM information_schema.tables
-      WHERE ${sql.raw(whereClause)}
+      WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+      ${prefix ? sql`AND table_name LIKE ${prefix + '%'}` : sql``}
+      ${search ? sql`AND table_name LIKE ${'%' + search + '%'}` : sql``}
       ORDER BY table_name
     `.execute(this.db.kysely);
 

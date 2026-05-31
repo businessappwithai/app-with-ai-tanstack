@@ -82,7 +82,7 @@ export class RulesEngine implements OnModuleDestroy {
     this.logger.log(`Evaluating rules for ${entityType}:${action}`);
 
     try {
-      const decision = this.engine.createDecision(Buffer.from(JSON.stringify(jdmContent)));
+      const decision = this.engine.createDecision(Buffer.from(jdmContent));
       const result = await decision.evaluate({ ...data, action });
 
       let violations: JdmViolation[] = [];
