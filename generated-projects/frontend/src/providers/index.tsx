@@ -10,7 +10,7 @@
  * Generated: 2026-05-31T11:58:04.514Z
  */
 
-import { type ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { QueryProvider } from './query-provider';
 import { AuthProvider } from '@/contexts/auth-context';
 import { TranslationProvider } from '@/lib/translations';
@@ -20,13 +20,19 @@ interface ProvidersProps {
   children: ReactNode;
 }
 
+function ClientToaster() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return mounted ? <Toaster position="top-right" richColors /> : null;
+}
+
 export function Providers({ children }: ProvidersProps) {
   return (
     <QueryProvider>
       <AuthProvider>
         <TranslationProvider>
           {children}
-          <Toaster position="top-right" richColors />
+          <ClientToaster />
         </TranslationProvider>
       </AuthProvider>
     </QueryProvider>

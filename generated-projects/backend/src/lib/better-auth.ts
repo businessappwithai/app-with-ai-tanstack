@@ -41,6 +41,7 @@ export async function initAuth() {
     authInstance = betterAuth({
       database: kyselyAdapter(kysely),
       baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+      trustedOrigins: (process.env.TRUSTED_ORIGINS || process.env.CORS_ORIGIN || '').split(',').filter(Boolean),
       secret: (() => {
         const s = process.env.BETTER_AUTH_SECRET;
         if (!s) throw new Error('BETTER_AUTH_SECRET environment variable is required');

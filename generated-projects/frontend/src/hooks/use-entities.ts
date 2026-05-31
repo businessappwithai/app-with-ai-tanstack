@@ -136,8 +136,7 @@ export function useEntityMetadata(entity: string) {
   return useQuery({
     queryKey: entityKeys.metadata(entity),
     queryFn: async () => {
-      const response = await apiClient.get<{ data: any }>(`/api/bus/${entity}/meta`);
-      return response.data;
+      return apiClient.get<any>(`/api/bus/${entity}/meta`);
     },
     staleTime: 30 * 60 * 1000, // 30 minutes - metadata rarely changes
   });
@@ -164,8 +163,7 @@ export function useFormFields(entity: string) {
   return useQuery<FieldMetadata[]>({
     queryKey: entityKeys.fields(entity, 'form'),
     queryFn: async () => {
-      const response = await apiClient.get<{ data: FieldMetadata[] }>(`/api/bus/${entity}/fields/form`);
-      return response.data;
+      return apiClient.get<FieldMetadata[]>(`/api/bus/${entity}/fields/form`);
     },
     staleTime: 30 * 60 * 1000,
   });
@@ -175,8 +173,7 @@ export function useGridFields(entity: string) {
   return useQuery<FieldMetadata[]>({
     queryKey: entityKeys.fields(entity, 'grid'),
     queryFn: async () => {
-      const response = await apiClient.get<{ data: FieldMetadata[] }>(`/api/bus/${entity}/fields/grid`);
-      return response.data;
+      return apiClient.get<FieldMetadata[]>(`/api/bus/${entity}/fields/grid`);
     },
     staleTime: 30 * 60 * 1000,
   });
@@ -216,8 +213,8 @@ export function useAllFormFields(entity: string) {
   return useQuery<FieldMetadata[]>({
     queryKey: ['fields-all', entity, 'form'],
     queryFn: async () => {
-      const response = await apiClient.get<{ data: FieldMetadata[] }>(`/api/sys/fields/form?entity=${entity}`);
-      return response.data || [];
+      const response = await apiClient.get<FieldMetadata[] | { data: FieldMetadata[] }>(`/api/sys/fields/form?entity=${entity}`);
+      return (Array.isArray(response) ? response : (response as any).data) || [];
     },
     staleTime: 30 * 60 * 1000,
   });
@@ -230,8 +227,8 @@ export function useAllGridFields(entity: string) {
   return useQuery<FieldMetadata[]>({
     queryKey: ['fields-all', entity, 'grid'],
     queryFn: async () => {
-      const response = await apiClient.get<{ data: FieldMetadata[] }>(`/api/sys/fields/grid?entity=${entity}`);
-      return response.data || [];
+      const response = await apiClient.get<FieldMetadata[] | { data: FieldMetadata[] }>(`/api/sys/fields/grid?entity=${entity}`);
+      return (Array.isArray(response) ? response : (response as any).data) || [];
     },
     staleTime: 30 * 60 * 1000,
   });

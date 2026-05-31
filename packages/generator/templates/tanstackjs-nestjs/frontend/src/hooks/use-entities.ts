@@ -166,8 +166,7 @@ export function useFormFields(entity: string) {
   return useQuery<FieldMetadata[]>({
     queryKey: entityKeys.fields(entity, "form"),
     queryFn: async () => {
-      const response = await apiClient.get<{ data: FieldMetadata[] }>(`/bus/${entity}/fields/form`);
-      return response.data;
+      return apiClient.get<FieldMetadata[]>(`/bus/${entity}/fields/form`);
     },
     staleTime: 30 * 60 * 1000,
   });
@@ -177,8 +176,7 @@ export function useGridFields(entity: string) {
   return useQuery<FieldMetadata[]>({
     queryKey: entityKeys.fields(entity, "grid"),
     queryFn: async () => {
-      const response = await apiClient.get<{ data: FieldMetadata[] }>(`/bus/${entity}/fields/grid`);
-      return response.data;
+      return apiClient.get<FieldMetadata[]>(`/bus/${entity}/fields/grid`);
     },
     staleTime: 30 * 60 * 1000,
   });

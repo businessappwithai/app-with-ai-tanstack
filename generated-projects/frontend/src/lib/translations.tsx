@@ -55,3 +55,10 @@ export function useTranslation() {
   }
   return context;
 }
+
+export function translate(key: string, locale = 'en'): string {
+  const dict = translations[locale as keyof typeof translations] || translations.en;
+  return (dict as Record<string, string>)[key] || key;
+}
+
+export const useTranslations = useTranslation;

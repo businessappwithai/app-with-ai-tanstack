@@ -30,7 +30,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Check for existing session
     const checkSession = async () => {
       try {
-        const response = await fetch('/api/auth/session', {
+        const response = await fetch('/api/auth/get-session', {
           credentials: 'include',
         });
         if (response.ok) {
