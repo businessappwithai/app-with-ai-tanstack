@@ -46,6 +46,7 @@ Available gstack skills:
 - `/retro` - Weekly retrospective
 - `/investigate` - Debugging errors
 - `/document-release` - Post-ship doc updates
+- `/document-generate` - Generate documentation
 - `/codex` - Adversarial code review / second opinion
 - `/cso` - Chief Security Officer review
 - `/autoplan` - Automated planning
