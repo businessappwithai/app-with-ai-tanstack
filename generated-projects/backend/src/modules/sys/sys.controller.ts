@@ -203,6 +203,12 @@ export class SysController {
   // SYS_REFERENCE Endpoints
   // ============================================================================
 
+  @Get('ref-list')
+  @ApiOperation({ summary: 'Get reference list values by sys_reference_id' })
+  async findRefList(@Query('sys_reference_id') sysReferenceId: string) {
+    return this.sysService.findRefListBySysReferenceId(parseInt(sysReferenceId, 10) || 0);
+  }
+
   @Get('references')
   @ApiOperation({ summary: 'List all references (lookup types)' })
   async findAllReferences(@Query('page') page?: string, @Query('limit') limit?: string) {

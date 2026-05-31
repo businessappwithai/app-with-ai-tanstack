@@ -362,6 +362,16 @@ export class SysService {
     return ref;
   }
 
+  async findRefListBySysReferenceId(sysReferenceId: number) {
+    const data = await this.db.kysely
+      .selectFrom('sys_ref_list')
+      .selectAll()
+      .where('sys_reference_id', '=', sysReferenceId)
+      .orderBy('value')
+      .execute();
+    return { data };
+  }
+
   // ============================================================
   // Dictionary Helpers
   // ============================================================
