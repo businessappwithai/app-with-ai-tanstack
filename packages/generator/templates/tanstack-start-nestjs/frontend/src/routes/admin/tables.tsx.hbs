@@ -60,7 +60,7 @@ function TableBrowserPage() {
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-4">
-                <Database className="h-8 w-8" style={{ color: '#2563EB' }} />
+                <Database className="h-8 w-8 text-blue-600" />
                 <h1 className="text-6xl font-bold tracking-tight text-foreground font-display">
                   Table Browser
                 </h1>
@@ -142,9 +142,9 @@ function TableBrowserPage() {
         ) : (
           <div className="border-2 border-border">
             {filteredTables.map((table, index) => (
-              <Link
+              <a
                 key={table.sys_table_id || table.table_name}
-                to={`/admin/tables/${table.table_name}`}
+                href={`/admin/tables/${table.table_name}`}
                 className={`block px-6 py-4 flex items-center gap-4 hover:bg-blue-50 transition-colors text-left ${index > 0 ? 'border-t-2 border-border' : ''}`}
               >
                 <Table2 className="h-5 w-5 flex-shrink-0 text-blue-600" />
@@ -161,7 +161,7 @@ function TableBrowserPage() {
                   {table.description && <p className="text-sm text-muted-foreground">{table.description}</p>}
                 </div>
                 <div className="text-sm text-blue-600 font-medium group-hover:underline">View & Edit →</div>
-              </Link>
+              </a>
             ))}
           </div>
         )}

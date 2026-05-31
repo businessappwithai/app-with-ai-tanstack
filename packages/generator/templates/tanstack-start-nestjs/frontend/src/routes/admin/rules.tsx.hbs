@@ -140,12 +140,12 @@ function AdminRulesPage() {
                 <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              <Link to="/admin/rules/new">
+              <a href="/admin/rules/new">
                 <Button className="bg-black text-white hover:bg-gray-800 rounded-none">
                   <Plus className="h-4 w-4 mr-2" />
                   New Rule
                 </Button>
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -301,7 +301,7 @@ function AdminRulesPage() {
                 </div>
 
                 <div className="col-span-1 flex justify-end gap-2">
-                  <Link to={`/admin/rules/${rule.id}/edit`}>
+                  <a href={`/admin/rules/${rule.id}/edit`}>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -309,7 +309,7 @@ function AdminRulesPage() {
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
-                  </Link>
+                  </a>
                   <Button
                     variant="ghost"
                     size="sm"

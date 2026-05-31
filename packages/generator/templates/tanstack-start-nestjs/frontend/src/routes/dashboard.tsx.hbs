@@ -117,8 +117,8 @@ function QuickAccessCard({ table }: { table: TableMetadata }) {
   }
 
   return (
-    <Link
-      to={`/${table.table_name}`}
+    <a
+      href={`/${table.table_name}`}
       className="swiss-card p-6 group hover:border-primary/50 transition-all hover:shadow-lg"
     >
       <div className="space-y-4">
@@ -179,7 +179,7 @@ function QuickAccessCard({ table }: { table: TableMetadata }) {
           </span>
         </div>
       </div>
-    </Link>
+    </a>
   );
 }
 

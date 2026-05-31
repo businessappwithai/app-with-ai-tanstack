@@ -1,20 +1,121 @@
-import React, { ReactNode } from 'react'
+import React, { type ReactNode, createContext, useContext, useState, useEffect } from 'react';
 
-interface AuthContextType {
-  user: null | { id: string; email: string }
-  isLoading: boolean
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role?: string;
 }
 
-const AuthContext = React.createContext<AuthContextType>({ user: null, isLoading: false })
+interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  isAdmin: () => boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  signup: (email: string, password: string, name: string) => Promise<void>;
+}
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await fetch('/api/auth/get-session', {
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        }
+      } catch (error) {
+        console.error('Failed to check session:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkSession();
+  }, []);
+
+  const login = async (email: string, password: string) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/auth/sign-in', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+        credentials: 'include',
+      });
+
+      if (!response.ok) throw new Error('Login failed');
+      const data = await response.json();
+      setUser(data.user);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    setIsLoading(true);
+    try {
+      await fetch('/api/auth/sign-out', { method: 'POST', credentials: 'include' });
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signup = async (email: string, password: string, name: string) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/auth/sign-up', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name }),
+        credentials: 'include',
+      });
+
+      if (!response.ok) throw new Error('Signup failed');
+      const data = await response.json();
+      setUser(data.user);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const isAdmin = () => user?.role === 'admin';
+
   return (
-    <AuthContext.Provider value={{ user: null, isLoading: false }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        isAuthenticated: !!user,
+        isAdmin,
+        login,
+        logout,
+        signup,
+      }}
+    >
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
 
 export function useAuth() {
-  return React.useContext(AuthContext)
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
 }

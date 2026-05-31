@@ -464,11 +464,11 @@ function EntityDetailPage() {
                 <h3 className="text-sm font-semibold text-foreground">Quick Actions</h3>
               </div>
               <div className="flex flex-col gap-2">
-                <Link to="/{{addBusPrefix entity.tableName}}/new">
+                <a href="/{{addBusPrefix entity.tableName}}/new">
                   <Button variant="outline" size="sm" className="w-full justify-start shadow-sm hover:shadow-md transition-shadow">
                     Create New {{entity.name}}
                   </Button>
-                </Link>
+                </a>
                 <Link to="/{{addBusPrefix entity.tableName}}">
                   <Button variant="outline" size="sm" className="w-full justify-start shadow-sm hover:shadow-md transition-shadow">
                     View All {{entity.name}} Records

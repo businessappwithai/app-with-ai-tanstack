@@ -1,64 +1,68 @@
 /**
- * TanStack DB Collections for sys_ Entities
+ * In-memory cache for sys_ (Application Dictionary) entities.
  *
- * Defines typed, in-memory collections backed by the local PGlite
- * database. Collections are kept in sync via ElectricSQL shapes,
- * so reads are always served from memory (fast path).
- *
- * Pattern: TanStack DB collection → PGlite (local) → Electric sync → Postgres (server)
+ * Data is populated from the local PGlite database after ElectricSQL sync
+ * completes. Components read from this cache via `getSysCache()` — reads are
+ * instant because they skip the network entirely.
  *
  * Generated: {{now}}
  * Project: {{project.name}}
  */
 
-import { Collection } from '@tanstack/db';
 import type { FieldMetadata, ColumnMetadata, SysTable, SysReference } from '@/hooks/use-field-metadata';
 import { getDb } from './electric';
 
 /* -------------------------------------------------------------------------- */
-/*  Collection factories                                                       */
+/*  Cache state                                                                */
 /* -------------------------------------------------------------------------- */
 
-async function queryPGlite<T>(sql: string, params?: unknown[]): Promise<T[]> {
-  const db = await getDb();
-  const result = await db.query<T>(sql, params);
-  return result.rows;
+export interface SysCache {
+  tables: SysTable[];
+  columns: ColumnMetadata[];
+  fields: FieldMetadata[];
+  references: SysReference[];
+  loaded: boolean;
 }
 
-export const sysTableCollection = new Collection<SysTable, string>({
-  id: 'sys_table',
-  getKey: (item) => item.sys_table_id,
-  loader: () => queryPGlite<SysTable>('SELECT * FROM sys_table WHERE is_active = TRUE ORDER BY name'),
-});
-
-export const sysColumnCollection = new Collection<ColumnMetadata, string>({
-  id: 'sys_column',
-  getKey: (item) => item.sys_column_id,
-  loader: () => queryPGlite<ColumnMetadata>('SELECT * FROM sys_column ORDER BY seq_no'),
-});
-
-export const sysFieldCollection = new Collection<FieldMetadata, string>({
-  id: 'sys_field',
-  getKey: (item) => item.sys_field_id,
-  loader: () => queryPGlite<FieldMetadata>('SELECT * FROM sys_field ORDER BY seq_no'),
-});
-
-export const sysReferenceCollection = new Collection<SysReference, string>({
-  id: 'sys_reference',
-  getKey: (item) => String(item.sys_reference_id),
-  loader: () => queryPGlite<SysReference>('SELECT * FROM sys_reference ORDER BY name'),
-});
+let _cache: SysCache = { tables: [], columns: [], fields: [], references: [], loaded: false };
+const _listeners = new Set<() => void>();
 
 /* -------------------------------------------------------------------------- */
-/*  Helpers                                                                   */
+/*  Public API                                                                 */
 /* -------------------------------------------------------------------------- */
 
-/** Reload all collections from PGlite after a sync batch completes. */
+/** Subscribe to cache invalidations. Returns an unsubscribe function. */
+export function subscribeSysCache(fn: () => void): () => void {
+  _listeners.add(fn);
+  return () => _listeners.delete(fn);
+}
+
+/** Read the current cache snapshot (synchronous, zero-cost). */
+export function getSysCache(): SysCache {
+  return _cache;
+}
+
+/**
+ * Reload all sys_ collections from PGlite.
+ * Called by ElectricProvider after each sync batch completes.
+ */
 export async function reloadSysCollections(): Promise<void> {
-  await Promise.all([
-    sysTableCollection.load(),
-    sysColumnCollection.load(),
-    sysFieldCollection.load(),
-    sysReferenceCollection.load(),
+  const db = await getDb();
+
+  const [tables, columns, fields, references] = await Promise.all([
+    db.query<SysTable>('SELECT * FROM sys_table WHERE is_active = TRUE ORDER BY name'),
+    db.query<ColumnMetadata>('SELECT * FROM sys_column ORDER BY seq_no'),
+    db.query<FieldMetadata>('SELECT * FROM sys_field ORDER BY seq_no'),
+    db.query<SysReference>('SELECT * FROM sys_reference ORDER BY name'),
   ]);
+
+  _cache = {
+    tables: tables.rows,
+    columns: columns.rows,
+    fields: fields.rows,
+    references: references.rows,
+    loaded: true,
+  };
+
+  _listeners.forEach((fn) => fn());
 }

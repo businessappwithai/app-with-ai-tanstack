@@ -11,6 +11,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isAdmin: () => boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   signup: (email: string, password: string, name: string) => Promise<void>;
@@ -93,12 +94,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const isAdmin = () => user?.role === 'admin';
+
   return (
     <AuthContext.Provider
       value={{
         user,
         isLoading,
         isAuthenticated: !!user,
+        isAdmin,
         login,
         logout,
         signup,

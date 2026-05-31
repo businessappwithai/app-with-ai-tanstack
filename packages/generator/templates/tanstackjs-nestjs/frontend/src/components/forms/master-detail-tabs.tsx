@@ -179,7 +179,7 @@ function MasterDetailTabContent({
       toast.success(t("tabs.recordDeleted" as any));
     },
     onError: (error: Error) => {
-      toast.error(t("tabs.deleteFailed" as any, { error: error.message }));
+      toast.error(`${t("tabs.deleteFailed" as any)}: ${error.message}`);
     },
   });
 
@@ -191,7 +191,7 @@ function MasterDetailTabContent({
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="h-12 w-12 animate-spin text-primary/70" />
             <p className="text-sm text-muted-foreground">
-              {t("tabs.loading" as any, { label: tab.label.toLowerCase() })}
+              {`${t("tabs.loading" as any)} ${tab.label.toLowerCase()}`}
             </p>
           </div>
         </div>
@@ -209,7 +209,7 @@ function MasterDetailTabContent({
           </div>
           <div className="flex-1">
             <p className="font-semibold text-destructive">
-              {t("tabs.loadFailed" as any, { label: tab.label })}
+              {`${t("tabs.loadFailed" as any)} ${tab.label}`}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
               {error instanceof Error ? error.message : "Unknown error"}
@@ -395,7 +395,7 @@ function CreateEntityForm({
       onSuccess();
     },
     onError: (error: Error) => {
-      toast.error(t("tabs.createFailed" as any, { error: error.message }));
+      toast.error(`${t("tabs.createFailed" as any)}: ${error.message}`);
     },
   });
 
@@ -448,7 +448,7 @@ function EditEntityWrapper({
       onSuccess();
     },
     onError: (error: Error) => {
-      toast.error(t("tabs.updateFailed" as any, { error: error.message }));
+      toast.error(`${t("tabs.updateFailed" as any)}: ${error.message}`);
     },
   });
 

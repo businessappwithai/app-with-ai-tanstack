@@ -292,7 +292,7 @@ export function useCreateEntity<T extends EntityRecord = EntityRecord>(
       // Rollback to previous value on error
       queryClient.setQueryData(entityKeys.lists(), context?.previousData);
       const errorMessage = Array.isArray(err.message) ? err.message.join(', ') : err.message;
-      toast.error(translate('entities.createFailed' as any, { error: errorMessage }));
+      toast.error(`${translate('entities.createFailed' as any)}: ${errorMessage}`);
     },
     onSettled: () => {
       // Refetch to ensure server state
@@ -351,7 +351,7 @@ export function useUpdateEntity<T extends EntityRecord = EntityRecord>(
       queryClient.setQueryData(entityKeys.detail(entity, variables.id), context?.previousDetail);
       queryClient.setQueryData(entityKeys.lists(), context?.previousList);
       const errorMessage = Array.isArray(err.message) ? err.message.join(', ') : err.message;
-      toast.error(translate('entities.updateFailed' as any, { error: errorMessage }));
+      toast.error(`${translate('entities.updateFailed' as any)}: ${errorMessage}`);
     },
     onSettled: (_data, _error, variables) => {
       // Refetch to ensure server state
@@ -399,7 +399,7 @@ export function useDeleteEntity(entity: string) {
       queryClient.setQueryData(entityKeys.detail(entity, id), context?.previousDetail);
       queryClient.setQueryData(entityKeys.lists(), context?.previousList);
       const errorMessage = Array.isArray(err.message) ? err.message.join(', ') : err.message;
-      toast.error(translate('entities.deleteFailed' as any, { error: errorMessage }));
+      toast.error(`${translate('entities.deleteFailed' as any)}: ${errorMessage}`);
     },
     onSettled: () => {
       // Refetch to ensure server state

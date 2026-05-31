@@ -306,11 +306,9 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("electric-provider static file not found, skipping:", (e as Error).message);
     }
 
-    // Copy provider files
+    // Copy provider files (only query-provider; index.tsx comes from the .hbs template)
     const providerFiles = [
       "src/providers/query-provider.tsx",
-      "src/providers/browser-router-provider.tsx",
-      "src/providers/index.ts",
     ];
 
     for (const file of providerFiles) {

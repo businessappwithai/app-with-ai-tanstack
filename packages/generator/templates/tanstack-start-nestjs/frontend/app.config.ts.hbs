@@ -9,9 +9,6 @@ export default defineConfig({
     quoteStyle: 'single',
     semicolons: false,
   },
-  server: {
-    preset: 'node-server',
-  },
   react: {
     jsxRuntime: 'automatic',
     jsxImportSource: 'react',
@@ -26,16 +23,5 @@ export default defineConfig({
         '@': path.resolve('./src'),
       },
     },
-    server: {
-      middlewareMode: false,
-      port: 3000,
-      proxy: {
-        '/api': {
-          target: 'http://localhost:3001',
-          changeOrigin: true,
-        },
-      },
-    },
-    ssr: false,
   },
 })

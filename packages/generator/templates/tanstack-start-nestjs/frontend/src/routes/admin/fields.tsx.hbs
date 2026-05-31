@@ -44,8 +44,8 @@ import { apiClient, PaginatedResponse } from '@/lib/api-client';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/admin/fields')({
-  validateSearch: (search: Record<string, unknown>) => ({
-    entity: (search.entity as string) || '',
+  validateSearch: (search: Record<string, unknown>): { entity?: string } => ({
+    entity: (search.entity as string) || undefined,
   }),
   component: FieldLayoutPage,
 });
