@@ -9,13 +9,16 @@ import { Kysely, sql } from 'kysely';
 export async function up(db: Kysely<any>): Promise<void> {
   await sql`
     CREATE TABLE IF NOT EXISTS sys_reference (
-      sys_reference_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      sys_reference_id INTEGER PRIMARY KEY,
       name VARCHAR(100) NOT NULL,
       description TEXT,
-      reference_type VARCHAR(20) NOT NULL,
+      validation_type VARCHAR(1) NOT NULL DEFAULT 'S',
+      entity_type VARCHAR(40) NOT NULL DEFAULT 'U',
       validation_regex VARCHAR(500),
       format_pattern VARCHAR(100),
       is_active BOOLEAN DEFAULT true,
+      created_by VARCHAR(100) NOT NULL DEFAULT 'system',
+      updated_by VARCHAR(100) NOT NULL DEFAULT 'system',
       created_at TIMESTAMPTZ DEFAULT NOW(),
       updated_at TIMESTAMPTZ DEFAULT NOW()
     )
@@ -24,12 +27,15 @@ export async function up(db: Kysely<any>): Promise<void> {
   await sql`
     CREATE TABLE IF NOT EXISTS sys_ref_list (
       sys_ref_list_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      reference_id UUID NOT NULL REFERENCES sys_reference(sys_reference_id),
+      sys_reference_id INTEGER NOT NULL,
       value VARCHAR(100) NOT NULL,
       name VARCHAR(255) NOT NULL,
       description TEXT,
       seq_no INTEGER DEFAULT 0,
+      entity_type VARCHAR(40) NOT NULL DEFAULT 'U',
       is_active BOOLEAN DEFAULT true,
+      created_by VARCHAR(100) NOT NULL DEFAULT 'system',
+      updated_by VARCHAR(100) NOT NULL DEFAULT 'system',
       created_at TIMESTAMPTZ DEFAULT NOW(),
       updated_at TIMESTAMPTZ DEFAULT NOW()
     )
@@ -200,7 +206,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       seq_no_grid INTEGER DEFAULT 0,
       display_length INTEGER,
       field_type VARCHAR(20),
-      sys_reference_id UUID REFERENCES sys_reference(sys_reference_id),
+      sys_reference_id INTEGER REFERENCES sys_reference(sys_reference_id),
       sys_val_rule_id UUID REFERENCES sys_val_rule(sys_val_rule_id),
       default_value VARCHAR(255),
       display_logic TEXT,

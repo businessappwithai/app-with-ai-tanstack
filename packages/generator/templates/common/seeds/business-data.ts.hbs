@@ -5,11 +5,14 @@
  * Generated: {{now}}
  */
 
-import { Kysely } from 'kysely';
+import { Kysely, sql } from 'kysely';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function seed(db: Kysely<any>): Promise<void> {
   const now = new Date();
+
+  // Disable FK constraint checking during bulk seed to allow any insertion order
+  await sql`SET session_replication_role = replica`.execute(db);
 
   {{#each entities}}
   // {{displayName}} ({{tableName}})
@@ -25,13 +28,13 @@ export async function seed(db: Kysely<any>): Promise<void> {
       {{#unless (eq name 'updated_at')}}
       {{#unless (eq name 'deleted_at')}}
       {{#switch (typeToReferenceId type)}}
-        {{#case 10}}{{name}}: '{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{#if (eq name "name")}}Test {{../../displayName}} {{@../index}}{{else}}Sample {{name}} {{@../index}}{{/if}}{{/if}}',{{/case}}
+        {{#case 10}}{{name}}: {{#if (endsWith name '_id')}}uuidv4(){{else}}'{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{#if (eq name "name")}}Test {{../../displayName}} {{@../index}}{{else}}Sample {{name}} {{@../index}}{{/if}}{{/if}}'{{/if}},{{/case}}
         {{#case 11}}{{name}}: {{@../index}},{{/case}}
         {{#case 12}}{{name}}: {{@../index}}.50,{{/case}}
         {{#case 15}}{{name}}: new Date(Date.now() + {{@../index}} * 86400000),{{/case}}
         {{#case 16}}{{name}}: new Date(Date.now() + {{@../index}} * 3600000),{{/case}}
         {{#case 20}}{{name}}: {{#if (eq @../index 2)}}false{{else}}true{{/if}},{{/case}}
-        {{#case 13}}{{name}}: null,{{/case}}
+        {{#case 13}}{{name}}: uuidv4(),{{/case}}
         {{#case 14}}{{name}}: 'Sample {{name}} text {{@../index}}',{{/case}}
         {{#default}}{{name}}: 'Sample {{name}} {{@../index}}',{{/default}}
       {{/switch}}
@@ -51,6 +54,9 @@ export async function seed(db: Kysely<any>): Promise<void> {
   await db.insertInto('{{tableName}}').values({{camelCase name}}Records).execute();
 
   {{/each}}
+
+  // Re-enable FK constraint checking
+  await sql`SET session_replication_role = DEFAULT`.execute(db);
 
   console.log('✓ Business sample data seeded');
 }

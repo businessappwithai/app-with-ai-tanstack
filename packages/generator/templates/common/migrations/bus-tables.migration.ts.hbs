@@ -19,7 +19,11 @@ export async function up(db: Kysely<any>): Promise<void> {
       {{#unless (or (eq name ../primaryKey) (eq name 'created_at') (eq name 'updated_at') (eq name 'deleted_at'))}}
       {{#switch (typeToReferenceId type)}}
         {{#case 10}}
+      {{#if (endsWith name '_id')}}
+      , {{name}} UUID{{#if required}} NOT NULL{{/if}}
+      {{else}}
       , {{name}} VARCHAR({{#if maxLength}}{{maxLength}}{{else}}255{{/if}}){{#if required}} NOT NULL{{/if}}{{#if unique}} UNIQUE{{/if}}{{#if default}} DEFAULT '{{default}}'{{/if}}
+      {{/if}}
         {{/case}}
         {{#case 11}}
       , {{name}} INTEGER{{#if required}} NOT NULL{{/if}}{{#if default}} DEFAULT {{default}}{{/if}}
@@ -58,11 +62,6 @@ export async function up(db: Kysely<any>): Promise<void> {
       , updated_at TIMESTAMPTZ DEFAULT NOW()
       , deleted_at TIMESTAMPTZ
       , version INTEGER NOT NULL DEFAULT 1
-      {{#each relationships}}
-      {{#if (eq cardinality 'manyToOne')}}
-      , {{foreignKey}} UUID REFERENCES {{targetTableName}}({{targetTablePrimaryKey}}) ON DELETE {{#if onDelete}}{{onDelete}}{{else}}SET NULL{{/if}} ON UPDATE {{#if onUpdate}}{{onUpdate}}{{else}}CASCADE{{/if}}
-      {{/if}}
-      {{/each}}
     )
   `.execute(db);
 
@@ -72,6 +71,19 @@ export async function up(db: Kysely<any>): Promise<void> {
   {{/if}}
   {{/each}}
 
+  {{/each}}
+
+  // Foreign key constraints (added after all tables to avoid ordering issues)
+  {{#each relationships}}
+  {{#if (eq cardinality 'oneToMany')}}
+  await sql`
+    ALTER TABLE bus_{{snakeCase targetEntity}}
+    ADD CONSTRAINT fk_bus_{{snakeCase targetEntity}}_{{snakeCase sourceEntity}}_id
+      FOREIGN KEY ({{snakeCase sourceEntity}}_id)
+      REFERENCES bus_{{snakeCase sourceEntity}}(id)
+      ON DELETE SET NULL ON UPDATE CASCADE
+  `.execute(db).catch(() => {});
+  {{/if}}
   {{/each}}
 }
 

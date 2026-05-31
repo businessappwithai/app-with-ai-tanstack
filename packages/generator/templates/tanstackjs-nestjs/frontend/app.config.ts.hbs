@@ -36,7 +36,7 @@ export default defineConfig({
     server: {
       proxy: {
         '/api': {
-          target: 'http://localhost:{{port}}',
+          target: 'http://localhost:{{config.backendPort}}',
           changeOrigin: true,
         },
       },

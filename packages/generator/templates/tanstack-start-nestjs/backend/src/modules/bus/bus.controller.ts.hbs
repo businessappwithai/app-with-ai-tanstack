@@ -22,12 +22,15 @@ import {
   HttpStatus,
   ParseUUIDPipe,
   Logger,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { BusService } from './bus.service';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 
 @ApiTags('bus')
 @ApiBearerAuth()
+@UseGuards(SessionAuthGuard)
 @Controller('bus')
 export class BusController {
   private readonly logger = new Logger(BusController.name);
@@ -131,6 +134,59 @@ export class BusController {
     }
 
     return parsed;
+  }
+
+  /**
+   * Get dictionary metadata for an entity
+   * Useful for clients to understand field configuration
+   * GET /api/bus/:entity/meta
+   */
+  @Get(':entity/meta')
+  @ApiOperation({ summary: 'Get dictionary metadata for an entity' })
+  @ApiParam({ name: 'entity', description: 'Entity name' })
+  @ApiResponse({ status: 200, description: 'Returns entity metadata from Application Dictionary' })
+  async getMetadata(@Param('entity') entity: string) {
+    const methodName = 'getMetadata';
+    this.logger.debug(`[${methodName}] Request - entity: ${entity}`);
+
+    const result = await this.busService.getEntityMetadata(entity);
+
+    this.logger.debug(`[${methodName}] Success - entity: ${entity}, returned ${result.columns.length} columns`);
+    return result;
+  }
+
+  /**
+   * Get fields configuration for forms (ordered by seq_no)
+   * GET /api/bus/:entity/fields/form
+   */
+  @Get(':entity/fields/form')
+  @ApiOperation({ summary: 'Get fields for form display (ordered by seq_no)' })
+  @ApiParam({ name: 'entity', description: 'Entity name' })
+  async getFormFields(@Param('entity') entity: string) {
+    const methodName = 'getFormFields';
+    this.logger.debug(`[${methodName}] Request - entity: ${entity}`);
+
+    const result = await this.busService.getFormFields(entity);
+
+    this.logger.debug(`[${methodName}] Success - entity: ${entity}, returned ${result.length} form fields`);
+    return result;
+  }
+
+  /**
+   * Get fields configuration for grid/table (ordered by seq_no_grid)
+   * GET /api/bus/:entity/fields/grid
+   */
+  @Get(':entity/fields/grid')
+  @ApiOperation({ summary: 'Get fields for grid display (ordered by seq_no_grid)' })
+  @ApiParam({ name: 'entity', description: 'Entity name' })
+  async getGridFields(@Param('entity') entity: string) {
+    const methodName = 'getGridFields';
+    this.logger.debug(`[${methodName}] Request - entity: ${entity}`);
+
+    const result = await this.busService.getGridFields(entity);
+
+    this.logger.debug(`[${methodName}] Success - entity: ${entity}, returned ${result.length} grid fields`);
+    return result;
   }
 
   /**
@@ -271,56 +327,4 @@ export class BusController {
     this.logger.log(`[${methodName}] Success - entity: ${entity}, id: ${id}`);
   }
 
-  /**
-   * Get dictionary metadata for an entity
-   * Useful for clients to understand field configuration
-   * GET /api/bus/:entity/meta
-   */
-  @Get(':entity/meta')
-  @ApiOperation({ summary: 'Get dictionary metadata for an entity' })
-  @ApiParam({ name: 'entity', description: 'Entity name' })
-  @ApiResponse({ status: 200, description: 'Returns entity metadata from Application Dictionary' })
-  async getMetadata(@Param('entity') entity: string) {
-    const methodName = 'getMetadata';
-    this.logger.debug(`[${methodName}] Request - entity: ${entity}`);
-
-    const result = await this.busService.getEntityMetadata(entity);
-
-    this.logger.debug(`[${methodName}] Success - entity: ${entity}, returned ${result.columns.length} columns`);
-    return result;
-  }
-
-  /**
-   * Get fields configuration for forms (ordered by seq_no)
-   * GET /api/bus/:entity/fields/form
-   */
-  @Get(':entity/fields/form')
-  @ApiOperation({ summary: 'Get fields for form display (ordered by seq_no)' })
-  @ApiParam({ name: 'entity', description: 'Entity name' })
-  async getFormFields(@Param('entity') entity: string) {
-    const methodName = 'getFormFields';
-    this.logger.debug(`[${methodName}] Request - entity: ${entity}`);
-
-    const result = await this.busService.getFormFields(entity);
-
-    this.logger.debug(`[${methodName}] Success - entity: ${entity}, returned ${result.length} form fields`);
-    return result;
-  }
-
-  /**
-   * Get fields configuration for grid/table (ordered by seq_no_grid)
-   * GET /api/bus/:entity/fields/grid
-   */
-  @Get(':entity/fields/grid')
-  @ApiOperation({ summary: 'Get fields for grid display (ordered by seq_no_grid)' })
-  @ApiParam({ name: 'entity', description: 'Entity name' })
-  async getGridFields(@Param('entity') entity: string) {
-    const methodName = 'getGridFields';
-    this.logger.debug(`[${methodName}] Request - entity: ${entity}`);
-
-    const result = await this.busService.getGridFields(entity);
-
-    this.logger.debug(`[${methodName}] Success - entity: ${entity}, returned ${result.length} grid fields`);
-    return result;
-  }
 }

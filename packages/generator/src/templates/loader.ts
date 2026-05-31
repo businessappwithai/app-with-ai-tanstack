@@ -502,6 +502,8 @@ export class TemplateLoader {
       "split",
       (str: string, separator: string) => str?.split(separator) || []
     );
+    Handlebars.registerHelper("endsWith", (str: string, suffix: string) => str?.endsWith(suffix) ?? false);
+    Handlebars.registerHelper("startsWith", (str: string, prefix: string) => str?.startsWith(prefix) ?? false);
     Handlebars.registerHelper("concat", (...args) => args.slice(0, -1).join(""));
     Handlebars.registerHelper("substring", (str: string, start: number, length?: number) =>
       length ? str?.substring(start, start + length) : str?.substring(start)

@@ -4,7 +4,13 @@
  * Generated: {{now}}
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "{{config.baseUrl}}";
+const API_BASE_URL = (() => {
+  const url = import.meta.env.VITE_API_URL;
+  if (!url && import.meta.env.MODE === "production") {
+    console.warn("[ApiClient] VITE_API_URL is not set in production. API calls may fail.");
+  }
+  return url || "{{config.baseUrl}}";
+})();
 
 // ============================================================================
 // Logger Utility

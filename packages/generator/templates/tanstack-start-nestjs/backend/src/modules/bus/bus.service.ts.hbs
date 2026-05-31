@@ -121,7 +121,15 @@ export class BusService {
 
     let result: any;
     try {
-      result = await this.db.create(tableName, processedData);
+      result = await this.db.transaction(async (trx) => {
+        const now = new Date();
+        const rows = await trx
+          .insertInto(tableName as any)
+          .values({ ...processedData, created_at: now, updated_at: now, deleted_at: null } as any)
+          .returningAll()
+          .execute();
+        return rows[0];
+      });
     } catch (error: any) {
       const msg: string = error?.message ?? '';
       if (
@@ -150,7 +158,28 @@ export class BusService {
     await this.verifyEntity(entity);
 
     const processedData = await executeBeforeUpdateHooks(entity, data);
-    const result = await this.db.update(tableName, id, processedData, expectedVersion);
+    const result = await this.db.transaction(async (trx) => {
+      const existing = await trx
+        .selectFrom(tableName as any)
+        .selectAll()
+        .where('id' as any, '=', id)
+        .where('deleted_at' as any, 'is', null)
+        .executeTakeFirst();
+
+      if (!existing) return null;
+
+      if (expectedVersion !== undefined && (existing as any).version !== expectedVersion) {
+        throw new ConflictException('Record was modified by another user. Please reload and try again.');
+      }
+
+      const rows = await trx
+        .updateTable(tableName as any)
+        .set({ ...processedData, updated_at: new Date(), version: ((existing as any).version || 0) + 1 } as any)
+        .where('id' as any, '=', id)
+        .returningAll()
+        .execute();
+      return rows[0] ?? null;
+    });
 
     if (!result) {
       throw new NotFoundException(`Record not found in ${tableName} with id: ${id}`);
@@ -169,7 +198,16 @@ export class BusService {
       throw new BadRequestException(`Cannot delete ${entity}: still referenced`);
     }
 
-    const result = await this.db.softDelete(tableName, id);
+    const result = await this.db.transaction(async (trx) => {
+      const rows = await trx
+        .updateTable(tableName as any)
+        .set({ deleted_at: new Date(), updated_at: new Date() } as any)
+        .where('id' as any, '=', id)
+        .where('deleted_at' as any, 'is', null)
+        .returningAll()
+        .execute();
+      return rows.length > 0;
+    });
     await executeAfterDeleteHooks(entity, result);
     return result;
   }
@@ -309,7 +347,7 @@ export class BusService {
       }
 
       if ((mode === 'update' || mode === 'patch') && !column.is_updateable) {
-        if (value !== undefined && column.column_name !== `${this.getTableName(entity)}_id`) {
+        if (value !== undefined && column.column_name !== 'id') {
           errors.push(`Field '${column.name}' is not updateable`);
         }
       }

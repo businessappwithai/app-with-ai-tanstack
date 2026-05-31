@@ -1,0 +1,66 @@
+{
+  "nodes": [
+    {
+      "id": "input",
+      "type": "inputNode",
+      "name": "Input",
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "id": "bus_company-validation",
+      "type": "decisionTableNode",
+      "name": "Company Validation",
+      "position": { "x": 300, "y": 0 },
+      "content": {
+        "hitPolicy": "collect",
+        "inputs": [
+          { "id": "i1", "name": "Name", "field": "name" },
+          { "id": "i2", "name": "Industry", "field": "industry" },
+          { "id": "i3", "name": "Website", "field": "website" },
+          { "id": "i4", "name": "Phone", "field": "phone" },
+          { "id": "i5", "name": "Email", "field": "email" },
+          { "id": "i8", "name": "Status", "field": "status" },
+          { "id": "i9", "name": "Owner Id", "field": "owner_id" }
+        ],
+        "outputs": [
+          { "id": "o1", "name": "Action", "field": "action" },
+          { "id": "o2", "name": "Message", "field": "message" },
+          { "id": "o3", "name": "Rule ID", "field": "ruleId" }
+        ],
+        "rules": [
+          {
+            "_id": "bus_company-name-required",
+            "i1": "== null",
+            "o1": "prevent",
+            "o2": "Name is required",
+            "o3": "bus_company-name-required"
+          },
+          {
+            "_id": "bus_company-status-required",
+            "i8": "== null",
+            "o1": "prevent",
+            "o2": "Status is required",
+            "o3": "bus_company-status-required"
+          },
+          {
+            "_id": "bus_company-owner_id-required",
+            "i9": "== null",
+            "o1": "prevent",
+            "o2": "Owner Id is required",
+            "o3": "bus_company-owner_id-required"
+          }
+        ]
+      }
+    },
+    {
+      "id": "output",
+      "type": "outputNode",
+      "name": "Output",
+      "position": { "x": 600, "y": 0 }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "sourceId": "input", "targetId": "bus_company-validation" },
+    { "id": "e2", "sourceId": "bus_company-validation", "targetId": "output" }
+  ]
+}

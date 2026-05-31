@@ -38,8 +38,8 @@ function buildPoolConfig(configService: ConfigService) {
         try {
           await db.selectFrom('information_schema.tables' as any).limit(1).execute();
           console.log('✓ Database connection established');
-        } catch (_error) {
-          console.log('✓ Database connection established');
+        } catch (error) {
+          console.warn('⚠ Database connection check failed:', error instanceof Error ? error.message : String(error));
         }
 
         return db;

@@ -219,6 +219,13 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       },
       config: {
         baseUrl: this.options.apiBaseUrl,
+        backendPort: (() => {
+          try {
+            return new URL(this.options.apiBaseUrl || 'http://localhost:3001').port || '3001';
+          } catch {
+            return '3001';
+          }
+        })(),
         enableDarkMode: this.options.enableDarkMode,
       },
       projectName: this.options.projectName,
@@ -347,7 +354,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
   }
 
   private async generateApiLayer(outputDir: string, context: any): Promise<void> {
-    const templateDir = path.join(__dirname, "../../../templates/tanstack-start-nestjs/frontend");
+    const templateDir = this.resolvedTemplateDir;
 
     // API client (rendered template)
     const apiClientContent = await this.renderTemplate("src/lib/api-client.ts.hbs", context);
@@ -383,7 +390,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
   }
 
   private async generateComponents(outputDir: string, _context: any): Promise<void> {
-    const templateDir = path.join(__dirname, "../../../templates/tanstack-start-nestjs/frontend");
+    const templateDir = this.resolvedTemplateDir;
 
     // Copy Shadcn UI components (static files, no templating needed)
     const uiComponents = [

@@ -40,7 +40,7 @@ export class SysController {
     @Query('search') search?: string,
     @Query('prefix') prefix?: string,
   ) {
-    return this.sysService.findAllTables({ page: page ? parseInt(page, 10) : 1, limit: limit ? parseInt(limit, 10) : 100, search, prefix });
+    return this.sysService.findAllTables({ page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100, search, prefix });
   }
 
   @Get('tables/all')
@@ -52,8 +52,8 @@ export class SysController {
     @Query('prefix') prefix?: string,
   ) {
     return this.sysService.findAllDatabaseTables({
-      page: page ? parseInt(page, 10) : 1,
-      limit: limit ? parseInt(limit, 10) : 100,
+      page: page ? (parseInt(page, 10) || 1) : 1,
+      limit: limit ? (parseInt(limit, 10) || 100) : 100,
       search,
       prefix,
     });
@@ -91,7 +91,7 @@ export class SysController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    return this.sysService.findAllColumns({ tableId, page: page ? parseInt(page, 10) : 1, limit: limit ? parseInt(limit, 10) : 100 });
+    return this.sysService.findAllColumns({ tableId, page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 });
   }
 
   @Get('columns/:id')
@@ -128,7 +128,7 @@ export class SysController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    return this.sysService.findAllFields({ tabId, tableId, view, page: page ? parseInt(page, 10) : 1, limit: limit ? parseInt(limit, 10) : 100 });
+    return this.sysService.findAllFields({ tabId, tableId, view, page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 });
   }
 
   @Get('fields/:id')
@@ -206,7 +206,7 @@ export class SysController {
   @Get('references')
   @ApiOperation({ summary: 'List all references (lookup types)' })
   async findAllReferences(@Query('page') page?: string, @Query('limit') limit?: string) {
-    return this.sysService.findAllReferences({ page: page ? parseInt(page, 10) : 1, limit: limit ? parseInt(limit, 10) : 100 });
+    return this.sysService.findAllReferences({ page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 });
   }
 
   @Get('references/:id')
