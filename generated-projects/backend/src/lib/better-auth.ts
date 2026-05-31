@@ -1,0 +1,105 @@
+/**
+ * BetterAuth Configuration
+ *
+ * Modern authentication for crm-app
+ * - Email/Password authentication
+ * - Session management
+ * - Role-based access control
+ */
+
+import { betterAuth } from 'better-auth';
+import { kyselyAdapter } from '@better-auth/kysely-adapter';
+import { Kysely, PostgresDialect } from 'kysely';
+import { Pool } from 'pg';
+import { config } from 'dotenv';
+import * as path from 'path';
+
+// Load .env from backend root regardless of cwd
+config({ path: path.join(__dirname, '..', '..', '.env') });
+config({ path: path.join(__dirname, '..', '..', '.env.local'), override: true });
+
+let authInstance: any = null;
+
+function buildPool() {
+  const url = process.env.DATABASE_URL;
+  if (url) {
+    return new Pool({ connectionString: url });
+  }
+  return new Pool({
+    host: process.env.DB_HOST ?? '127.0.0.1',
+    port: Number(process.env.DB_PORT ?? 5432),
+    user: process.env.DB_USER ?? 'crm_app',
+    password: process.env.DB_PASSWORD ?? '',
+    database: process.env.DB_NAME ?? 'crm_app',
+  });
+}
+
+export async function initAuth() {
+  if (!authInstance) {
+    const kysely = new Kysely<any>({ dialect: new PostgresDialect({ pool: buildPool() }) });
+
+    authInstance = betterAuth({
+      database: kyselyAdapter(kysely),
+      baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+      secret: (() => {
+        const s = process.env.BETTER_AUTH_SECRET;
+        if (!s) throw new Error('BETTER_AUTH_SECRET environment variable is required');
+        return s;
+      })(),
+      emailAndPassword: {
+        enabled: true,
+        requireEmailVerification: false,
+        sendResetPassword: async ({ user, url: _url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
+          console.log('Password reset requested for:', user.email || user.id);
+        },
+        sendVerificationEmail: async ({ user, url: _url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
+          console.log('Verification email sent to:', user.email || user.id);
+        },
+      },
+      session: {
+        expiresIn: 60 * 60 * 24,
+        updateAge: 60 * 60 * 12,
+        cookieCache: {
+          enabled: true,
+          maxAge: 5 * 60,
+        },
+      },
+      account: {
+        accountLinking: {
+          enabled: false,
+        },
+      },
+      user: {
+        additionalFields: {
+          role: {
+            type: 'string',
+            required: false,
+            defaultValue: 'user',
+          },
+          sysUserId: {
+            type: 'string',
+            required: false,
+          },
+        },
+      },
+      advanced: {
+        cookiePrefix: 'crm_app_app',
+        crossSubDomainCookies: {
+          enabled: false,
+        },
+      },
+    });
+  }
+
+  return authInstance;
+}
+
+export function getAuth(): any {
+  if (!authInstance) {
+    throw new Error('Auth not initialized. Call initAuth() first.');
+  }
+  return authInstance;
+}
+
+export { getAuth as auth };
+export type Session = any;

@@ -1,0 +1,72 @@
+/**
+ * Database Migration Runner
+ * Run with: bun run src/migrate.ts
+ *
+ * Generated: 2026-05-31T11:58:03.819Z
+ */
+
+import * as path from 'path';
+import * as fs from 'fs';
+import { Kysely, PostgresDialect } from 'kysely';
+import { Pool } from 'pg';
+import { config } from 'dotenv';
+
+// Load .env from backend root (parent of src/) regardless of cwd
+config({ path: path.join(__dirname, '..', '.env') });
+config({ path: path.join(__dirname, '..', '.env.local'), override: true });
+
+function buildPool() {
+  const url = process.env.DATABASE_URL;
+  if (url) {
+    return new Pool({ connectionString: url });
+  }
+  return new Pool({
+    host: process.env.DB_HOST ?? '127.0.0.1',
+    port: Number(process.env.DB_PORT ?? 5432),
+    user: process.env.DB_USER ?? 'crm-app',
+    password: process.env.DB_PASSWORD ?? '',
+    database: process.env.DB_NAME ?? 'crm-app',
+  });
+}
+
+async function runMigrations(db: Kysely<any>) {
+  // Support both .ts (bun) and .js (node dist/) runtimes
+  const migrationDir = path.join(__dirname, 'migrations');
+  const ext = __filename.endsWith('.ts') ? '.ts' : '.js';
+  const files = (await fs.promises.readdir(migrationDir))
+    .filter(f => f.endsWith(ext) && !f.endsWith('.map'))
+    .sort();
+
+  for (const file of files) {
+    const migrationPath = path.join(migrationDir, file);
+    const migrationModule = await import(migrationPath);
+
+    if (migrationModule.up) {
+      try {
+        console.log(`Running migration: ${file}`);
+        await migrationModule.up(db);
+        console.log(`✓ Migration "${file}" completed`);
+      } catch (error) {
+        console.error(`✗ Migration "${file}" failed:`, error);
+        throw error;
+      }
+    }
+  }
+}
+
+(async () => {
+  const db = new Kysely<any>({ dialect: new PostgresDialect({ pool: buildPool() }) });
+
+  try {
+    await runMigrations(db);
+    console.log('✓ All migrations completed');
+  } catch (error) {
+    console.error('Migration failed:', error);
+    process.exit(1);
+  } finally {
+    await db.destroy();
+  }
+})().catch((error) => {
+  console.error('Fatal error:', error);
+  process.exit(1);
+});

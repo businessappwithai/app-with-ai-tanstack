@@ -1,0 +1,64 @@
+{
+  "nodes": [
+    {
+      "id": "input",
+      "type": "inputNode",
+      "name": "Input",
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "id": "bus_email_message-validation",
+      "type": "decisionTableNode",
+      "name": "Email Message Validation",
+      "position": { "x": 300, "y": 0 },
+      "content": {
+        "hitPolicy": "collect",
+        "inputs": [
+          { "id": "i1", "name": "Contact Id", "field": "contact_id" },
+          { "id": "i2", "name": "Deal Id", "field": "deal_id" },
+          { "id": "i3", "name": "Thread Id", "field": "thread_id" },
+          { "id": "i4", "name": "Subject", "field": "subject" },
+          { "id": "i7", "name": "Direction", "field": "direction" },
+        ],
+        "outputs": [
+          { "id": "o1", "name": "Action", "field": "action" },
+          { "id": "o2", "name": "Message", "field": "message" },
+          { "id": "o3", "name": "Rule ID", "field": "ruleId" }
+        ],
+        "rules": [
+          {
+            "_id": "bus_email_message-subject-required",
+            "i4": "== null",
+            "o1": "prevent",
+            "o2": "Subject is required",
+            "o3": "bus_email_message-subject-required"
+          },
+          {
+            "_id": "bus_email_message-direction-required",
+            "i7": "== null",
+            "o1": "prevent",
+            "o2": "Direction is required",
+            "o3": "bus_email_message-direction-required"
+          },
+          {
+            "_id": "bus_email_message-open_count-required",
+            "i11": "== null",
+            "o1": "prevent",
+            "o2": "Open Count is required",
+            "o3": "bus_email_message-open_count-required"
+          }
+        ]
+      }
+    },
+    {
+      "id": "output",
+      "type": "outputNode",
+      "name": "Output",
+      "position": { "x": 600, "y": 0 }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "sourceId": "input", "targetId": "bus_email_message-validation" },
+    { "id": "e2", "sourceId": "bus_email_message-validation", "targetId": "output" }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "nodes": [
+    {
+      "id": "input",
+      "type": "inputNode",
+      "name": "Input",
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "id": "bus_email_template-validation",
+      "type": "decisionTableNode",
+      "name": "Email Template Validation",
+      "position": { "x": 300, "y": 0 },
+      "content": {
+        "hitPolicy": "collect",
+        "inputs": [
+          { "id": "i1", "name": "Name", "field": "name" },
+          { "id": "i2", "name": "Subject", "field": "subject" },
+          { "id": "i5", "name": "Category", "field": "category" },
+        ],
+        "outputs": [
+          { "id": "o1", "name": "Action", "field": "action" },
+          { "id": "o2", "name": "Message", "field": "message" },
+          { "id": "o3", "name": "Rule ID", "field": "ruleId" }
+        ],
+        "rules": [
+          {
+            "_id": "bus_email_template-name-required",
+            "i1": "== null",
+            "o1": "prevent",
+            "o2": "Name is required",
+            "o3": "bus_email_template-name-required"
+          },
+          {
+            "_id": "bus_email_template-subject-required",
+            "i2": "== null",
+            "o1": "prevent",
+            "o2": "Subject is required",
+            "o3": "bus_email_template-subject-required"
+          },
+          {
+            "_id": "bus_email_template-body_html-required",
+            "i3": "== null",
+            "o1": "prevent",
+            "o2": "Body Html is required",
+            "o3": "bus_email_template-body_html-required"
+          },
+          {
+            "_id": "bus_email_template-is_active-required",
+            "i6": "== null",
+            "o1": "prevent",
+            "o2": "Is Active is required",
+            "o3": "bus_email_template-is_active-required"
+          }
+        ]
+      }
+    },
+    {
+      "id": "output",
+      "type": "outputNode",
+      "name": "Output",
+      "position": { "x": 600, "y": 0 }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "sourceId": "input", "targetId": "bus_email_template-validation" },
+    { "id": "e2", "sourceId": "bus_email_template-validation", "targetId": "output" }
+  ]
+}

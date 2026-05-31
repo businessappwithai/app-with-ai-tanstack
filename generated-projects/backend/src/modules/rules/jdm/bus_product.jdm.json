@@ -1,0 +1,76 @@
+{
+  "nodes": [
+    {
+      "id": "input",
+      "type": "inputNode",
+      "name": "Input",
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "id": "bus_product-validation",
+      "type": "decisionTableNode",
+      "name": "Product Validation",
+      "position": { "x": 300, "y": 0 },
+      "content": {
+        "hitPolicy": "collect",
+        "inputs": [
+          { "id": "i1", "name": "Name", "field": "name" },
+          { "id": "i2", "name": "Sku", "field": "sku" },
+          { "id": "i5", "name": "Currency", "field": "currency" },
+        ],
+        "outputs": [
+          { "id": "o1", "name": "Action", "field": "action" },
+          { "id": "o2", "name": "Message", "field": "message" },
+          { "id": "o3", "name": "Rule ID", "field": "ruleId" }
+        ],
+        "rules": [
+          {
+            "_id": "bus_product-name-required",
+            "i1": "== null",
+            "o1": "prevent",
+            "o2": "Name is required",
+            "o3": "bus_product-name-required"
+          },
+          {
+            "_id": "bus_product-sku-required",
+            "i2": "== null",
+            "o1": "prevent",
+            "o2": "Sku is required",
+            "o3": "bus_product-sku-required"
+          },
+          {
+            "_id": "bus_product-unit_price-required",
+            "i4": "== null",
+            "o1": "prevent",
+            "o2": "Unit Price is required",
+            "o3": "bus_product-unit_price-required"
+          },
+          {
+            "_id": "bus_product-currency-required",
+            "i5": "== null",
+            "o1": "prevent",
+            "o2": "Currency is required",
+            "o3": "bus_product-currency-required"
+          },
+          {
+            "_id": "bus_product-is_active-required",
+            "i6": "== null",
+            "o1": "prevent",
+            "o2": "Is Active is required",
+            "o3": "bus_product-is_active-required"
+          }
+        ]
+      }
+    },
+    {
+      "id": "output",
+      "type": "outputNode",
+      "name": "Output",
+      "position": { "x": 600, "y": 0 }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "sourceId": "input", "targetId": "bus_product-validation" },
+    { "id": "e2", "sourceId": "bus_product-validation", "targetId": "output" }
+  ]
+}

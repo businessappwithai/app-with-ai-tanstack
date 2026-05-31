@@ -1,0 +1,78 @@
+{
+  "nodes": [
+    {
+      "id": "input",
+      "type": "inputNode",
+      "name": "Input",
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "id": "bus_user-validation",
+      "type": "decisionTableNode",
+      "name": "User Validation",
+      "position": { "x": 300, "y": 0 },
+      "content": {
+        "hitPolicy": "collect",
+        "inputs": [
+          { "id": "i1", "name": "Email", "field": "email" },
+          { "id": "i2", "name": "First Name", "field": "first_name" },
+          { "id": "i3", "name": "Last Name", "field": "last_name" },
+          { "id": "i4", "name": "Role", "field": "role" },
+          { "id": "i5", "name": "Team Id", "field": "team_id" },
+        ],
+        "outputs": [
+          { "id": "o1", "name": "Action", "field": "action" },
+          { "id": "o2", "name": "Message", "field": "message" },
+          { "id": "o3", "name": "Rule ID", "field": "ruleId" }
+        ],
+        "rules": [
+          {
+            "_id": "bus_user-email-required",
+            "i1": "== null",
+            "o1": "prevent",
+            "o2": "Email is required",
+            "o3": "bus_user-email-required"
+          },
+          {
+            "_id": "bus_user-first_name-required",
+            "i2": "== null",
+            "o1": "prevent",
+            "o2": "First Name is required",
+            "o3": "bus_user-first_name-required"
+          },
+          {
+            "_id": "bus_user-last_name-required",
+            "i3": "== null",
+            "o1": "prevent",
+            "o2": "Last Name is required",
+            "o3": "bus_user-last_name-required"
+          },
+          {
+            "_id": "bus_user-role-required",
+            "i4": "== null",
+            "o1": "prevent",
+            "o2": "Role is required",
+            "o3": "bus_user-role-required"
+          },
+          {
+            "_id": "bus_user-is_active-required",
+            "i6": "== null",
+            "o1": "prevent",
+            "o2": "Is Active is required",
+            "o3": "bus_user-is_active-required"
+          },
+        ]
+      }
+    },
+    {
+      "id": "output",
+      "type": "outputNode",
+      "name": "Output",
+      "position": { "x": 600, "y": 0 }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "sourceId": "input", "targetId": "bus_user-validation" },
+    { "id": "e2", "sourceId": "bus_user-validation", "targetId": "output" }
+  ]
+}
