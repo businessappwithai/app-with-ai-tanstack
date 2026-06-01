@@ -23,6 +23,7 @@ export default defineConfig({
         '@': path.resolve('./src'),
       },
     },
+    // @ts-expect-error - server proxy is valid Vite config but not typed in StartUserViteConfig
     server: {
       proxy: {
         '/api': {
