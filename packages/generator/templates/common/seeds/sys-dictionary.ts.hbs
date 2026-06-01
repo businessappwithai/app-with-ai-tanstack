@@ -221,7 +221,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: {{camelCase name}}TableId,
     table_name: '{{tableName}}',
     name: '{{displayName}}',
-    description: '{{#if description}}{{description}}{{else}}{{displayName}} business entity{{/if}}',
+    description: '{{#if description}}{{description}}{{else}}Manage {{displayName}} records{{/if}}',
     access_level: 'A',
     is_view: false,
     is_document: false,

@@ -66,8 +66,8 @@ async function bootstrap() {
     }),
   );
 
-  // Global prefix for API routes
-  app.setGlobalPrefix('api');
+  // Global prefix for API routes — exclude Electric shape proxy so it lives at /v1/shape
+  app.setGlobalPrefix('api', { exclude: ['v1/shape'] });
 
   // Mount better-auth HTTP handler at /api/auth/*
   // This handles all auth routes (sign-in, sign-up, sign-out, session, etc.)

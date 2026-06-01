@@ -34,7 +34,7 @@ const ALLOWED_SYS_TABLES = new Set([
   'sys_window',
 ]);
 
-const ELECTRIC_UPSTREAM = process.env.ELECTRIC_URL ?? 'http://localhost:3000';
+const ELECTRIC_UPSTREAM = process.env.ELECTRIC_URL ?? null;
 
 /** Map a role string to a Postgres WHERE clause applied to every sys_ shape. */
 function roleWhereClause(role: string): string {
@@ -59,6 +59,13 @@ export class ElectricController {
   ) {
     const table = query['table'];
     const role  = query['role'] ?? 'user';
+
+    if (!ELECTRIC_UPSTREAM) {
+      throw new HttpException(
+        'Electric upstream not configured (set ELECTRIC_URL env var); client should use HTTP API fallback',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
 
     if (!table || !ALLOWED_SYS_TABLES.has(table)) {
       throw new HttpException(

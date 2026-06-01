@@ -692,10 +692,12 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     // Generate environment configuration for TanStack Start
     // VITE_API_URL points to the frontend (port 3001) so the Vite proxy
     // forwards /api/* requests to the NestJS backend, keeping cookies same-origin
-    const envLocalContent = `VITE_API_URL=http://localhost:3001
+    const envLocalContent = `VITE_API_URL=
 VITE_BACKEND_URL=${context.config.baseUrl}
 VITE_MASTRA_URL=http://localhost:4111
-VITE_ELECTRIC_URL=${context.config.baseUrl}/v1/shape
+# Set VITE_ELECTRIC_URL to enable ElectricSQL real-time sync (requires ELECTRIC_URL on backend)
+# Leave empty to use HTTP API fallback
+VITE_ELECTRIC_URL=
 PORT=3001
 `;
     await fs.writeFile(path.join(outputDir, ".env.local"), envLocalContent);

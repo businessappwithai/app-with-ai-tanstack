@@ -322,7 +322,7 @@ export class MermaidParser {
     return {
       name,
       tableName,
-      description: `${name} entity`,
+      description: ``,
       attributes,
       primaryKey,
       timestamps: true,

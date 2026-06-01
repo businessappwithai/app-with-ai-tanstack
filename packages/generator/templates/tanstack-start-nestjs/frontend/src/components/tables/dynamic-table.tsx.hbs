@@ -1,16 +1,42 @@
-'use client';
+"use client";
 
-import React, { useMemo, useState } from 'react';
+/**
+ * Dynamic Table Component
+ *
+ * Renders a data table based on sys_field metadata from the Application Dictionary.
+ * Columns are ordered by seq_no_grid which can be modified at runtime.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
 import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
+  type ColumnDef,
+  type ColumnFiltersState,
   flexRender,
-  SortingState,
-  ColumnDef,
-} from '@tanstack/react-table';
-import { ChevronUp, ChevronDown, Eye, Edit, Trash2 } from 'lucide-react';
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  type SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
+import { format } from "date-fns";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Search,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { DeleteConfirmDialog } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -18,217 +44,171 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '../ui/alert-dialog';
-import { Button } from '../ui/button';
-import { Skeleton } from '../ui/skeleton';
+} from "@/components/ui/table";
+import { type FieldMetadata, useGridFields } from "@/hooks/use-entities";
+import { useTranslations } from "@/lib/translations";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 interface DynamicTableProps {
   tableName: string;
-  data: any[];
+  data: Record<string, unknown>[];
   isLoading?: boolean;
   totalCount?: number;
+  page?: number;
   pageSize?: number;
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+  onRowClick?: (row: Record<string, unknown>) => void;
+  onDelete?: (id: string) => void | Promise<void>;
   onView?: (id: string) => void;
   onEdit?: (id: string) => void;
-  onDelete?: (id: string) => void;
+  selectedId?: string;
 }
 
-export const DynamicTable: React.FC<DynamicTableProps> = ({
-  tableName,
-  data,
-  isLoading = false,
-  totalCount = 0,
-  pageSize = 10,
-  onView,
-  onEdit,
-  onDelete,
-}) => {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: pageSize,
-  });
+// ============================================================================
+// Reference Type Constants
+// ============================================================================
 
-  const columns = useMemo<ColumnDef<any>[]>(() => {
-    if (data.length === 0) {
-      return [];
-    }
+const REFERENCE_TYPE = {
+  STRING: 10,
+  INTEGER: 11,
+  AMOUNT: 12,
+  ID: 13,
+  TEXT: 14,
+  DATE: 15,
+  DATETIME: 16,
+  LIST: 17,
+  TABLE: 18,
+  TABLE_DIRECT: 19,
+  YES_NO: 20,
+  URL: 24,
+  EMAIL: 30,
+  PHONE: 31,
+};
 
-    const baseColumns = Object.keys(data[0] || {}).map((key) => ({
-      accessorKey: key,
-      header: ({ column }: any) => {
-        const isSorted = column.getIsSorted();
-        return (
-          <div className="flex items-center gap-2 cursor-pointer" onClick={column.getToggleSortingHandler()}>
-            <span className="font-mono-display text-[11px] uppercase tracking-wider">
-              {key}
-            </span>
-            {isSorted === 'asc' && <ChevronUp className="w-4 h-4" />}
-            {isSorted === 'desc' && <ChevronDown className="w-4 h-4" />}
-            {!isSorted && <div className="w-4 h-4" />}
-          </div>
-        );
-      },
-      cell: ({ row }: any) => {
-        const value = row.getValue(key);
-        if (value instanceof Date) {
-          return value.toLocaleDateString();
-        }
-        if (typeof value === 'boolean') {
-          return value ? 'Yes' : 'No';
-        }
-        if (value === null || value === undefined) {
-          return '—';
-        }
+// ============================================================================
+// Cell Formatters
+// ============================================================================
+
+function formatCellValue(value: unknown, referenceId: number): string {
+  if (value === null || value === undefined) {
+    return "-";
+  }
+
+  switch (referenceId) {
+    case REFERENCE_TYPE.YES_NO:
+      return value ? "Yes" : "No";
+
+    case REFERENCE_TYPE.DATE:
+      try {
+        return format(new Date(value as string), "dd/MM/yyyy");
+      } catch {
         return String(value);
-      },
-    }));
+      }
 
-    if (onView || onEdit || onDelete) {
-      baseColumns.push({
-        id: 'actions',
-        header: () => (
-          <span className="font-mono-display text-[11px] uppercase tracking-wider">
-            Actions
-          </span>
-        ),
-        cell: ({ row }: any) => (
-          <div className="flex items-center gap-2">
-            {onView && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onView(row.original.id)}
-                title="View"
-              >
-                <Eye className="w-4 h-4" />
-              </Button>
-            )}
-            {onEdit && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onEdit(row.original.id)}
-                title="Edit"
-              >
-                <Edit className="w-4 h-4" />
-              </Button>
-            )}
-            {onDelete && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    title="Delete"
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogTitle>Delete Record</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to delete this record? This action cannot be undone.
-                  </AlertDialogDescription>
-                  <div className="flex gap-4 justify-end">
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => onDelete(row.original.id)}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      Delete
-                    </AlertDialogAction>
-                  </div>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-          </div>
-        ),
-      } as ColumnDef<any>);
+    case REFERENCE_TYPE.DATETIME:
+      try {
+        return format(new Date(value as string), "dd/MM/yyyy HH:mm:ss");
+      } catch {
+        return String(value);
+      }
+
+    case REFERENCE_TYPE.AMOUNT:
+      return typeof value === "number"
+        ? value.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : String(value);
+
+    case REFERENCE_TYPE.INTEGER:
+      return typeof value === "number" ? value.toLocaleString() : String(value);
+
+    case REFERENCE_TYPE.TEXT: {
+      const text = String(value);
+      return text.length > 100 ? text.slice(0, 100) + "..." : text;
     }
 
-    return baseColumns;
-  }, [data, onView, onEdit, onDelete]);
+    case REFERENCE_TYPE.URL:
+      return String(value);
 
-  const table = useReactTable({
-    data,
-    columns,
-    state: {
-      sorting,
-      pagination,
+    case REFERENCE_TYPE.EMAIL:
+      return String(value);
+
+    default:
+      return String(value);
+  }
+}
+
+// ============================================================================
+// Column Generator
+// ============================================================================
+
+function generateColumns(fields: FieldMetadata[]): ColumnDef<Record<string, unknown>>[] {
+  return fields.map((field) => ({
+    id: field.column_name,
+    accessorKey: field.column_name,
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="-ml-4 h-8"
+        >
+          {field.name}
+          {column.getIsSorted() === "asc" ? (
+            <ArrowUp className="ml-2 h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ArrowDown className="ml-2 h-4 w-4" />
+          ) : (
+            <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
+          )}
+        </Button>
+      );
     },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    manualPagination: false,
-  });
+    cell: ({ row }) => {
+      const value = row.getValue(field.column_name);
+      return (
+        <span className="block truncate max-w-[200px]">
+          {formatCellValue(value, field.sys_reference_id)}
+        </span>
+      );
+    },
+    enableSorting: true,
+    enableFiltering: true,
+  }));
+}
 
-  if (isLoading) {
-    return (
-      <div className="skeleton space-y-3 p-4">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="flex gap-4">
-            <Skeleton className="h-12 flex-1" />
-            <Skeleton className="h-12 w-20" />
-          </div>
-        ))}
-      </div>
-    );
-  }
+// ============================================================================
+// Loading Skeleton
+// ============================================================================
 
-  if (data.length === 0) {
-    return (
-      <div className="empty-state flex items-center justify-center py-12 px-4 border rounded-lg bg-muted/20">
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground">
-            No {tableName.toLowerCase()} records found
-          </p>
-        </div>
-      </div>
-    );
-  }
-
+function TableSkeleton() {
   return (
-    <div className="space-y-4">
-      <div className="border rounded-lg overflow-hidden">
-        <Table>
+    <div className="space-y-4" data-testid="table-loading-skeleton">
+      <div className="flex gap-2">
+        <Skeleton className="h-10 w-64" />
+      </div>
+      <div className="rounded-md border">
+        <Table data-testid="entity-table">
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="bg-card">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
+            <TableRow>
+              {[1, 2, 3, 4].map((i) => (
+                <TableHead key={i}>
+                  <Skeleton className="h-4 w-24" />
+                </TableHead>
+              ))}
+            </TableRow>
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    )}
+            {[1, 2, 3, 4, 5].map((row) => (
+              <TableRow key={row}>
+                {[1, 2, 3, 4].map((cell) => (
+                  <TableCell key={cell}>
+                    <Skeleton className="h-4 w-full" />
                   </TableCell>
                 ))}
               </TableRow>
@@ -236,43 +216,267 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
           </TableBody>
         </Table>
       </div>
+    </div>
+  );
+}
 
-      {totalCount > 0 && (
-        <div className="table-footer flex items-center justify-between gap-4 px-2 py-4 border-t">
+// ============================================================================
+// Dynamic Table Component
+// ============================================================================
+
+export function DynamicTable({
+  tableName,
+  data,
+  isLoading: dataLoading = false,
+  totalCount = 0,
+  page = 1,
+  pageSize = 20,
+  onPageChange,
+  onPageSizeChange: _onPageSizeChange,
+  onRowClick,
+  onDelete: _onDelete,
+  onView,
+  onEdit,
+  selectedId,
+}: DynamicTableProps) {
+  const { t } = useTranslations();
+  const { data: fields, isLoading: fieldsLoading, error } = useGridFields(tableName);
+
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [rowToDelete, setRowToDelete] = useState<{ id: string; name?: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteClick = (rowId: string) => {
+    const row = data.find((r) => (r as any).id === rowId);
+    const rowName = row
+      ? (row as any).name || (row as any).title || `Record #${rowId}`
+      : undefined;
+    setRowToDelete({ id: rowId, name: rowName });
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!rowToDelete || !_onDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await _onDelete(rowToDelete.id);
+      setDeleteDialogOpen(false);
+      setRowToDelete(null);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : t("common.unexpectedError" as any);
+      toast.error(t("table.deleteFailed" as any), {
+        description: errorMessage,
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const columns = useMemo(() => {
+    const baseColumns = !fields ? [] : generateColumns(fields);
+
+    if (onView || onEdit || _onDelete) {
+      baseColumns.unshift({
+        id: "actions",
+        header: t("common.actions" as any),
+        cell: ({ row }) => {
+          const rowId = row.original.id as string;
+
+          return (
+            <div className="flex gap-2">
+              {onView && (
+                <button
+                  onClick={() => onView(rowId)}
+                  className="text-blue-600 hover:text-blue-800 text-sm"
+                >
+                  View
+                </button>
+              )}
+              {onEdit && (
+                <button
+                  onClick={() => onEdit(rowId)}
+                  className="text-green-600 hover:text-green-800 text-sm"
+                >
+                  Edit
+                </button>
+              )}
+              {_onDelete && (
+                <button
+                  onClick={() => handleDeleteClick(rowId)}
+                  className="text-red-600 hover:text-red-800 text-sm"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          );
+        },
+        enableSorting: false,
+      });
+    }
+
+    return baseColumns;
+  }, [fields, onView, onEdit, _onDelete, tableName, t]);
+
+  const table = useReactTable({
+    data,
+    columns,
+    state: {
+      sorting,
+      columnFilters,
+      globalFilter,
+    },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    manualPagination: true,
+    pageCount: Math.ceil(totalCount / pageSize),
+  });
+
+  if (fieldsLoading || dataLoading) {
+    return <TableSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-md bg-destructive/15 p-4 text-destructive">
+        Failed to load table columns: {error.message}
+      </div>
+    );
+  }
+
+  if (!fields || fields.length === 0) {
+    return (
+      <div className="rounded-md bg-muted p-4 text-muted-foreground">
+        No columns configured for grid display.
+      </div>
+    );
+  }
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  return (
+    <div className="space-y-4">
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        itemName={rowToDelete?.name}
+        onConfirm={confirmDelete}
+        isConfirming={isDeleting}
+      />
+
+      <div className="flex items-center justify-between gap-2">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search..."
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="pl-8"
+          />
+        </div>
+        {totalCount > 0 && (
           <div className="text-sm text-muted-foreground">
-            Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
-            {Math.min(
-              (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
-              totalCount
-            )}{' '}
-            of {totalCount} records
+            Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of{" "}
+            {totalCount} entries
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Previous
-            </Button>
-            <span className="text-sm text-muted-foreground flex items-center px-2">
-              Page {table.getState().pagination.pageIndex + 1} of{' '}
-              {Math.ceil(totalCount / table.getState().pagination.pageSize)}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Next
-            </Button>
-          </div>
+        )}
+      </div>
+
+      <div className="rounded-md border" data-testid="entity-table-container">
+        <Table data-testid="entity-table">
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => {
+                const rowId = row.original.id as string;
+                const isSelected = selectedId === rowId;
+
+                return (
+                  <TableRow
+                    key={row.id}
+                    data-state={isSelected && "selected"}
+                    className={onRowClick ? "cursor-pointer" : ""}
+                    onClick={() => onRowClick?.(row.original)}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })
+            ) : (
+              <TableRow data-testid="no-results-row">
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange?.(1)}
+            disabled={page === 1}
+          >
+            <ChevronsLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange?.(page - 1)}
+            disabled={page === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm">
+            Page {page} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange?.(page + 1)}
+            disabled={page === totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange?.(totalPages)}
+            disabled={page === totalPages}
+          >
+            <ChevronsRight className="h-4 w-4" />
+          </Button>
         </div>
       )}
     </div>
   );
-};
-
-export default DynamicTable;
+}

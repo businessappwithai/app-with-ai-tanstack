@@ -14,9 +14,11 @@
 import { PGlite } from '@electric-sql/pglite';
 import { electricSync } from '@electric-sql/pglite-sync';
 
-export const ELECTRIC_URL =
-  import.meta.env.VITE_ELECTRIC_URL ??
-  `${import.meta.env.VITE_API_URL ?? 'http://localhost:3001'}/v1/shape`;
+export const ELECTRIC_URL: string =
+  import.meta.env.VITE_ELECTRIC_URL || '';
+
+/** When ELECTRIC_URL is not set, sync is disabled and hooks use HTTP fallback. */
+export const ELECTRIC_ENABLED = !!ELECTRIC_URL;
 
 let _db: PGlite | null = null;
 let _initPromise: Promise<PGlite> | null = null;
@@ -96,6 +98,10 @@ export type UnsubscribeFn = () => void;
  * reads from TanStack DB Collections that are populated from PGlite.
  */
 export async function syncSysTablesForRole(config: SyncConfig): Promise<UnsubscribeFn> {
+  if (!ELECTRIC_ENABLED) {
+    return () => {};
+  }
+
   const db = await getDb();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ext = (db as any).electric as { syncShapeToTable: (opts: any) => Promise<any> };
