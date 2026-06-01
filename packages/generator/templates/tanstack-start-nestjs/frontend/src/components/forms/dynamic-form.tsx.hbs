@@ -525,21 +525,12 @@ export function DynamicForm({
 
     // Show all displayed fields except:
     // 1. The parent reference field (e.g., patient_id when creating from patient)
-    // 2. System fields (created_at, updated_at, deleted_at, id) in create mode
+    // 2. Auto-managed columns (id, created_at, updated_at, deleted_at, version) in create mode
+    const AUTO_MANAGED_COLUMNS = new Set(['id', 'created_at', 'updated_at', 'deleted_at', 'version']);
     const displayFields = fields.filter((f) => {
-      // Filter out non-displayed fields
       if (!f.is_displayed) return false;
-
-      // Filter out parent field
       if (f.column_name === parentField) return false;
-
-      // Filter out system fields in create mode
-      // In edit/view mode, these fields may be shown as read-only
-      const systemFields = ['created_at', 'updated_at', 'deleted_at', 'id'];
-      if (mode === 'create' && systemFields.includes(f.column_name)) {
-        return false;
-      }
-
+      if (mode === 'create' && AUTO_MANAGED_COLUMNS.has(f.column_name)) return false;
       return true;
     });
 

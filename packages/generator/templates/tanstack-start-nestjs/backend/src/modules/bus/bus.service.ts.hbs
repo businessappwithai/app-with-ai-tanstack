@@ -270,7 +270,6 @@ export class BusService {
         'sys_column.is_updateable',
         'sys_column.field_length',
         'sys_column.default_value',
-        'sys_column.ref_table_name',
         'sys_column.seq_no',
         'sys_field.sys_field_id',
         'sys_field.seq_no as field_seq_no',
@@ -301,7 +300,7 @@ export class BusService {
         is_updateable: col.is_updateable,
         field_length: col.field_length,
         default_value: col.default_value,
-        ref_table_name: col.ref_table_name,
+        ref_table_name: this.resolveRefTableName(col.column_name, col.sys_reference_id),
         seq_no: col.field_seq_no || col.seq_no || 0,
         seq_no_grid: col.seq_no_grid || 0,
         is_displayed: col.is_displayed !== false,
@@ -408,6 +407,24 @@ export class BusService {
       case 28: try { return JSON.parse(defaultValue); } catch { return {}; }
       default: return defaultValue;
     }
+  }
+
+  private static readonly COLUMN_TABLE_ALIASES: Record<string, string> = {
+    owner_id: 'bus_user',
+    author_id: 'bus_user',
+    manager_id: 'bus_user',
+    assigned_to: 'bus_user',
+    created_by: 'bus_user',
+  };
+
+  private resolveRefTableName(columnName: string, sysReferenceId: number): string | undefined {
+    if (sysReferenceId !== 18 && sysReferenceId !== 19) return undefined;
+    if (BusService.COLUMN_TABLE_ALIASES[columnName]) {
+      return BusService.COLUMN_TABLE_ALIASES[columnName];
+    }
+    if (!columnName.endsWith('_id') || columnName === 'id') return undefined;
+    const baseName = columnName.slice(0, -3);
+    return `bus_${baseName}`;
   }
 
   clearMetadataCache(): void {

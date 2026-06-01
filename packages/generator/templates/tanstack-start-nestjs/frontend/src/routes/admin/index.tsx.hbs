@@ -297,7 +297,7 @@ function AdminDashboardPage() {
                         )}
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <Link to="/admin/fields" search={{ entity: table.table_name }}>
+                        <Link to="/admin/fields" search=\{{ entity: table.table_name }}>
                           <Button variant="ghost" size="sm" className="hover:bg-black hover:text-white transition-colors">
                             Configure Fields
                             <ArrowRight className="h-3 w-3 ml-1" />
@@ -316,7 +316,7 @@ function AdminDashboardPage() {
             <h3 className="section-header mb-4">Generated Entity Quick Links</h3>
             <div className="flex flex-wrap gap-2">
               {tables.map((table) => (
-                <Link key={table.sys_table_id} to="/admin/fields" search={{ entity: table.table_name }}>
+                <Link key={table.sys_table_id} to="/admin/fields" search=\{{ entity: table.table_name }}>
                   <span className="inline-flex items-center border border-border px-3 py-1.5 text-sm hover:border-primary hover:text-primary transition-colors cursor-pointer">
                     {table.name}
                     <ArrowRight className="h-3 w-3 ml-1" />
