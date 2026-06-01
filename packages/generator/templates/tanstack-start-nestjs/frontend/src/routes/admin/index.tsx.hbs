@@ -269,43 +269,43 @@ function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {{#each tables as |table|}}
-                  <tr className="border-b border-border hover:bg-gray-50 transition-colors">
-                    <td className="py-4 px-6">
-                      <div className="font-bold text-foreground">{{table.name}}</div>
-                      {{#if table.description}}
-                      <div className="text-sm text-muted-foreground mt-1">{{table.description}}</div>
-                      {{/if}}
-                    </td>
-                    <td className="py-4 px-6">
-                      <code className="text-xs bg-black text-white px-2 py-1">{{table.table_name}}</code>
-                    </td>
-                    <td className="py-4 px-6 text-center">
-                      <span className="inline-block bg-background border border-border px-3 py-1 text-xs font-bold">
-                        {{table.fieldCount}} fields
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 text-center">
-                      {{#unless table.isInactive}}
-                      <span className="inline-block bg-black text-white px-3 py-1 text-xs font-bold uppercase tracking-wider">
-                        Active
-                      </span>
-                      {{else}}
-                      <span className="inline-block border border-border px-3 py-1 text-xs font-bold uppercase tracking-wider">
-                        Inactive
-                      </span>
-                      {{/unless}}
-                    </td>
-                    <td className="py-4 px-6 text-right">
-                      <Link to={`/admin/fields?entity=${encodeURIComponent('{{table.table_name}}')}`}>
-                        <Button variant="ghost" size="sm" className="hover:bg-black hover:text-white transition-colors">
-                          Configure Fields
-                          <ArrowRight className="h-3 w-3 ml-1" />
-                        </Button>
-                      </Link>
-                    </td>
-                  </tr>
-                  {{/each}}
+                  {tables.map((table) => (
+                    <tr key={table.sys_table_id} className="border-b border-border hover:bg-muted/30 transition-colors">
+                      <td className="py-4 px-6">
+                        <div className="font-bold text-foreground">{table.name}</div>
+                        {table.description && (
+                          <div className="text-sm text-muted-foreground mt-1">{table.description}</div>
+                        )}
+                      </td>
+                      <td className="py-4 px-6">
+                        <code className="text-xs bg-black text-white px-2 py-1">{table.table_name}</code>
+                      </td>
+                      <td className="py-4 px-6 text-center">
+                        <span className="inline-block bg-background border border-border px-3 py-1 text-xs font-bold">
+                          {fieldCountByTable[table.table_name] || 0} fields
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-center">
+                        {table.is_active !== false ? (
+                          <span className="inline-block bg-black text-white px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                            Active
+                          </span>
+                        ) : (
+                          <span className="inline-block border border-border px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                            Inactive
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <Link to="/admin/fields" search={{ entity: table.table_name }}>
+                          <Button variant="ghost" size="sm" className="hover:bg-black hover:text-white transition-colors">
+                            Configure Fields
+                            <ArrowRight className="h-3 w-3 ml-1" />
+                          </Button>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -315,14 +315,14 @@ function AdminDashboardPage() {
           <div className="mt-8 swiss-card p-8">
             <h3 className="section-header mb-4">Generated Entity Quick Links</h3>
             <div className="flex flex-wrap gap-2">
-              {{#each quickEntityLinks as |entity|}}
-              <Link to={`/admin/fields?entity={{entity.table}}`}>
-                <span className="inline-block border border-border px-3 py-1.5 text-sm hover:border-primary hover:text-primary transition-colors cursor-pointer">
-                  {{entity.name}}
-                  <ArrowRight className="h-3 w-3 ml-1 inline" />
-                </span>
-              </Link>
-              {{/each}}
+              {tables.map((table) => (
+                <Link key={table.sys_table_id} to="/admin/fields" search={{ entity: table.table_name }}>
+                  <span className="inline-flex items-center border border-border px-3 py-1.5 text-sm hover:border-primary hover:text-primary transition-colors cursor-pointer">
+                    {table.name}
+                    <ArrowRight className="h-3 w-3 ml-1" />
+                  </span>
+                </Link>
+              ))}
             </div>
           </div>
         </section>

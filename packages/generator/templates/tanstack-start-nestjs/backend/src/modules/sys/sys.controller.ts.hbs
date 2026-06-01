@@ -124,11 +124,12 @@ export class SysController {
   async findAllFields(
     @Query('tabId') tabId?: string,
     @Query('tableId') tableId?: string,
+    @Query('table_name') tableName?: string,
     @Query('view') view?: 'form' | 'grid',
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    return this.sysService.findAllFields({ tabId, tableId, view, page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 });
+    return this.sysService.findAllFields({ tabId, tableId, tableName, view, page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 });
   }
 
   @Get('fields/:id')
@@ -219,5 +220,15 @@ export class SysController {
   @ApiOperation({ summary: 'Get reference by ID' })
   async findReferenceById(@Param('id', ParseUUIDPipe) id: string) {
     return this.sysService.findReferenceById(id);
+  }
+
+  // ============================================================================
+  // SYS_WINDOW Endpoints
+  // ============================================================================
+
+  @Get('windows')
+  @ApiOperation({ summary: 'List all windows' })
+  async findAllWindows(@Query('page') page?: string, @Query('limit') limit?: string) {
+    return this.sysService.findAllWindows({ page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 });
   }
 }

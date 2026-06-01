@@ -663,6 +663,16 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("Custom tailwind config template not found, keeping TanStack Start default");
     }
 
+    // Copy postcss.config.js (required for Tailwind CSS processing)
+    try {
+      await fs.copyFile(
+        path.join(templateDir, "postcss.config.js"),
+        path.join(outputDir, "postcss.config.js")
+      );
+    } catch (e) {
+      console.warn("postcss.config.js template not found");
+    }
+
     // Update tsconfig.json
     try {
       const tsconfigContent = await this.renderTemplate("tsconfig.json.hbs", context);
@@ -680,7 +690,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     }
 
     // Generate environment configuration for TanStack Start
-    const envLocalContent = `VITE_API_URL=${context.config.baseUrl}
+    // VITE_API_URL points to the frontend (port 3001) so the Vite proxy
+    // forwards /api/* requests to the NestJS backend, keeping cookies same-origin
+    const envLocalContent = `VITE_API_URL=http://localhost:3001
+VITE_BACKEND_URL=${context.config.baseUrl}
 VITE_MASTRA_URL=http://localhost:4111
 VITE_ELECTRIC_URL=${context.config.baseUrl}/v1/shape
 PORT=3001

@@ -207,13 +207,14 @@ export class SysService {
   // SYS_FIELD
   // ============================================================
 
-  async findAllFields(options: PaginationOptions & { tabId?: string; tableId?: string; view?: 'form' | 'grid' } = {}) {
-    const { page = 1, limit = 100, tabId, tableId, view } = options;
+  async findAllFields(options: PaginationOptions & { tabId?: string; tableId?: string; tableName?: string; view?: 'form' | 'grid' } = {}) {
+    const { page = 1, limit = 100, tabId, tableId, tableName, view } = options;
     const offset = (page - 1) * limit;
 
     let query = this.db.kysely
       .selectFrom('sys_field')
       .innerJoin('sys_column', 'sys_column.sys_column_id', 'sys_field.sys_column_id')
+      .innerJoin('sys_table', 'sys_table.sys_table_id', 'sys_column.sys_table_id')
       .select([
         'sys_field.sys_field_id',
         'sys_field.sys_tab_id',
@@ -227,11 +228,13 @@ export class SysService {
         'sys_field.is_active',
         'sys_column.column_name',
         'sys_column.name as column_display_name',
+        'sys_table.table_name',
       ])
       .where('sys_field.is_active', '=', true);
 
     if (tabId) query = query.where('sys_field.sys_tab_id', '=', tabId);
     if (tableId) query = query.where('sys_column.sys_table_id', '=', tableId);
+    if (tableName) query = query.where('sys_table.table_name', '=', tableName);
     if (view === 'form') query = query.where('sys_field.is_displayed', '=', true);
     else if (view === 'grid') query = query.where('sys_field.is_displayed_grid', '=', true);
 
@@ -370,6 +373,24 @@ export class SysService {
       .orderBy('value')
       .execute();
     return { data };
+  }
+
+  // ============================================================
+  // SYS_WINDOW
+  // ============================================================
+
+  async findAllWindows(options: PaginationOptions = {}) {
+    const { page = 1, limit = 100 } = options;
+    const offset = (page - 1) * limit;
+
+    const query = this.db.kysely.selectFrom('sys_window' as any).selectAll();
+
+    const [data, countRow] = await Promise.all([
+      query.orderBy('name' as any).limit(limit).offset(offset).execute(),
+      query.clearSelect().select((eb) => eb.fn.countAll().as('count')).executeTakeFirst(),
+    ]);
+
+    return { data, meta: { total: Number(countRow?.count ?? 0), page, pageSize: limit } };
   }
 
   // ============================================================
