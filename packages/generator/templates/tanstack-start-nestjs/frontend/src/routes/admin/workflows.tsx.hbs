@@ -58,7 +58,7 @@ function AdminWorkflowsPage() {
       if (operationFilter) params.append('operation', operationFilter);
       params.append('limit', '100');
 
-      const response = await apiClient.get<WorkflowRun[]>(`/api/workflow/runs?${params.toString()}`);
+      const response = await apiClient.get<WorkflowRun[]>(`/api/workflows/runs?${params.toString()}`);
       return response;
     },
     refetchInterval: 5000, // Refresh every 5 seconds
