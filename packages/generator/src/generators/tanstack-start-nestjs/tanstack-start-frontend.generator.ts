@@ -638,6 +638,8 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
    * Update/enhance configuration files created by TanStack Start CLI
    */
   private async updateConfigFiles(outputDir: string, context: any): Promise<void> {
+    const templateDir = this.resolvedTemplateDir;
+
     // Update package.json with additional dependencies and custom config
     const packageJsonContent = await this.renderTemplate("package.json.hbs", context);
     await fs.writeFile(
