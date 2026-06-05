@@ -361,6 +361,15 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     } catch (e) {
       console.warn("Auth lib file not found");
     }
+
+    // Auth proxy API route — catches /api/auth/* and proxies to NestJS backend
+    try {
+      await fs.mkdir(path.join(outputDir, "src/routes/api/auth"), { recursive: true });
+      const authProxyContent = await this.renderTemplate("src/routes/api/auth/$.ts.hbs", context);
+      await fs.writeFile(path.join(outputDir, "src/routes/api/auth/$.ts"), authProxyContent);
+    } catch (e) {
+      console.warn("Auth proxy route template not found");
+    }
   }
 
   private async generateApiLayer(outputDir: string, context: any): Promise<void> {

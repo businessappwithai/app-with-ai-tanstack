@@ -105,6 +105,13 @@ class Logger {
    */
   logError(method: string, url: string, error: unknown, duration?: number) {
     const durationStr = duration ? ` (${duration}ms)` : "";
+
+    if (error instanceof Error) {
+      // Network/fetch errors (ERR_CONNECTION_REFUSED, offline) — expected when backend is unavailable
+      this.warn(`✗ ${method} ${url} - ${error.message}${durationStr}`);
+      return;
+    }
+
     this.error(`✗ ${method} ${url} - Failed${durationStr}`);
 
     if (error && typeof error === "object") {
@@ -123,9 +130,6 @@ class Logger {
       if ("details" in error && (error as ApiError).details) {
         this.error(`  Details:`, (error as ApiError).details);
       }
-    } else if (error instanceof Error) {
-      this.error(`  Message: ${error.message}`);
-      this.error(`  Stack:`, error.stack);
     } else {
       this.error(`  Unknown error:`, error);
     }

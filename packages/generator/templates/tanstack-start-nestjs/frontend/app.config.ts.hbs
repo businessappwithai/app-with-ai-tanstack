@@ -30,8 +30,21 @@ export default defineConfig({
     server: {
       proxy: {
         '/api': {
-          target: process.env.VITE_API_URL || 'http://localhost:3000',
+          target: process.env.VITE_API_URL || '{{config.baseUrl}}',
           changeOrigin: true,
+          configure: (proxy: any) => {
+            proxy.on('error', (_err: Error, req: any, res: any) => {
+              if (res.headersSent) return
+              const isAuth = (req.url as string)?.includes('/auth/')
+              if (isAuth) {
+                res.writeHead(200, { 'Content-Type': 'application/json' })
+                res.end(JSON.stringify({ user: null, session: null }))
+              } else {
+                res.writeHead(503, { 'Content-Type': 'application/json' })
+                res.end(JSON.stringify({ error: 'Backend unavailable' }))
+              }
+            })
+          },
         },
       },
     },
