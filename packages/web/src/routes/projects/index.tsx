@@ -31,6 +31,8 @@ function ProjectsPage() {
   } = useProjectStore();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All Status");
+  const [typeFilter, setTypeFilter] = useState("All Types");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState<string | null>(null);
   const [showLogsViewer, setShowLogsViewer] = useState(false);
@@ -41,11 +43,19 @@ function ProjectsPage() {
     loadProjects();
   }, [loadProjects]);
 
-  const filteredProjects = projects.filter(
-    (p) =>
+  const filteredProjects = projects.filter((p) => {
+    const matchesSearch =
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+      (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesStatus =
+      statusFilter === "All Status" ||
+      p.status?.toLowerCase() === statusFilter.toLowerCase();
+    const matchesType =
+      typeFilter === "All Types" ||
+      (typeFilter === "TanStack Start/NestJS" && p.stackType === "tanstackjs-nestjs") ||
+      (typeFilter === "OpenUI5/OData" && p.stackType === "odata-ui5");
+    return matchesSearch && matchesStatus && matchesType;
+  });
 
   const handleNewProject = async (data: {
     name: string;
@@ -170,13 +180,21 @@ function ProjectsPage() {
                 type="text"
               />
             </div>
-            <select className="px-4 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary"
+            >
               <option>All Status</option>
               <option>Active</option>
               <option>Draft</option>
               <option>Complete</option>
             </select>
-            <select className="px-4 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="px-4 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary"
+            >
               <option>All Types</option>
               <option>TanStack Start/NestJS</option>
               <option>OpenUI5/OData</option>

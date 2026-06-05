@@ -313,7 +313,7 @@ function DeployPage() {
       <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <WizardStepHeader
-            stepNumber={5}
+            stepNumber={6}
             title="Deploy Your Application"
             description="Your application is ready to deploy. Configure your environment variables and watch your app go live with a live preview URL."
             estimatedTime="1-2 min"

@@ -208,7 +208,7 @@ function GeneratePage() {
       <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <WizardStepHeader
-            stepNumber={3}
+            stepNumber={4}
             title="Generate Your Application"
             description="Select your tech stack and watch the code generation happen in real-time. Your full-stack application will be ready to deploy."
             estimatedTime="3-5 min"
