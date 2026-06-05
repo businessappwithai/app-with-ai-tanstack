@@ -191,7 +191,7 @@ program
                 },
                 frontend: {
                   apiBaseUrl: `http://localhost:${options.port}`,
-                  enableDarkMode: true,
+                  enableDarkMode: false,
                 },
               }
             : undefined,
@@ -316,7 +316,7 @@ program
           projectVersion: "1.0.0",
           projectDescription: "Generated TanStack Start frontend",
           apiBaseUrl: options.apiUrl,
-          enableDarkMode: true,
+          enableDarkMode: false,
         });
         await generator.generate(entities, relationships, outputDir);
       } else if (options.stack === "openui5") {
