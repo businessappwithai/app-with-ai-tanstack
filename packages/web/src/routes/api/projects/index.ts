@@ -4,10 +4,20 @@
  */
 
 import { createFileRoute } from "@tanstack/react-router";
-import { projectDb } from "@erdwithai/core/services";
+import { projectDb, runMigrations } from "@erdwithai/core/services";
+
+// Ensure DB schema exists on first request
+let _dbReady = false;
+async function ensureDb() {
+  if (!_dbReady) {
+    _dbReady = true;
+    await runMigrations().catch((err) => console.error("[DB] Migration error:", err));
+  }
+}
 
 export const Route = createFileRoute("/api/projects/")({ server: { handlers: {
   GET: async ({ request }) => {
+    await ensureDb();
     try {
       const url = new URL(request.url);
       const search = url.searchParams.get("search");
