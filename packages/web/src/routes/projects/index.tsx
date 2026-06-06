@@ -477,6 +477,11 @@ function ProjectsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl">
             <h3 className="text-lg font-bold mb-2">Delete Project?</h3>
+            {showDeleteConfirm && (
+              <p className="text-sm font-semibold mb-1 truncate">
+                {projects.find((p) => p.id === showDeleteConfirm)?.name}
+              </p>
+            )}
             <p className="text-sm text-muted-foreground mb-6">
               This will mark the project for deletion. It will be removed from your dashboard but
               not permanently deleted.
