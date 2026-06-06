@@ -18,7 +18,8 @@
 import { useState, useMemo, useCallback } from 'react';
 import { createFileRoute, Link, useNavigate, Outlet, useChildMatches } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient, PaginatedResponse } from '@/lib/api-client';
+import { toast } from 'sonner';
+import { apiClient, PaginatedResponse, isApiError } from '@/lib/api-client';
 import { useGridFields, type FieldMetadata } from '@/hooks/use-entities';
 import { DynamicTable } from '@/components/tables/dynamic-table';
 import { Button } from '@/components/ui/button';
@@ -192,6 +193,11 @@ function EntityListPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['{{kebabCase entity.name}}'] });
+      toast.success('Record deleted successfully');
+    },
+    onError: (err: unknown) => {
+      const message = isApiError(err) ? (typeof err.message === 'string' ? err.message : err.message.join(', ')) : 'Failed to delete record';
+      toast.error('Delete failed', { description: message });
     },
   });
 
@@ -475,11 +481,7 @@ function EntityListPage() {
         }
         onView={(id) => navigate({ to: '/{{addBusPrefix entity.tableName}}/$id', params: { id } })}
         onEdit={(id) => navigate({ to: '/{{addBusPrefix entity.tableName}}/$id', params: { id } })}
-        onDelete={(id) => {
-          if (confirm('Are you sure you want to delete this record?')) {
-            deleteMutation.mutate(id);
-          }
-        }}
+        onDelete={(id) => deleteMutation.mutate(id)}
         page={page}
         pageSize={pageSize}
         onPageChange={setPage}

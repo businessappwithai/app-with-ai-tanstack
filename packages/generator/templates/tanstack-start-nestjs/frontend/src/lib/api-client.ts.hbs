@@ -239,8 +239,10 @@ class ApiClient {
   }
 
   private buildUrl(path: string, params?: Record<string, unknown>): string {
-    const base = this.baseUrl || (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
-    const url = new URL(`${base}${path}`);
+    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+    const basePath = this.baseUrl || "/api";
+    const fullUrl = basePath.startsWith("http") ? basePath : origin + basePath;
+    const url = new URL(`${fullUrl}${path}`);
 
     if (params) {
       Object.entries(params).forEach(([key, value]) => {

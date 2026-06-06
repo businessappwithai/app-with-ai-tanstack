@@ -66,7 +66,7 @@ function useBusTables() {
   return useQuery({
     queryKey: ['sys-tables', 'bus_'],
     queryFn: async () => {
-      const response = await apiClient.get<TablesResponse>('/api/sys/tables?prefix=bus_');
+      const response = await apiClient.get<TablesResponse>('/sys/tables?prefix=bus_');
       return response;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes - table metadata rarely changes
