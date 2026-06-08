@@ -1,6 +1,6 @@
 # simple-crm
 
-A simple CRM application
+Generated application
 
 ## Tech Stack
 
