@@ -1,12 +1,15 @@
 /**
- * {{entity.name}} Detail/Edit Page
+ * {{entity.name}} Detail/Edit Page with Tabs
  *
  * Displays and allows editing of a single {{entity.name}} record
  * using dynamic fields driven by sys_field metadata from the
  * Application Dictionary.
  *
  * Features:
+ * - Tab-based organization from sys_window and sys_tab definitions
  * - Dynamic form rendering via sys_field (field ordering, visibility, read-only, mandatory)
+ * - Fields grouped by tab (iDempiere Application Dictionary pattern)
+ * - Related child records in master-detail tabs
  * - Edit mode with optimistic concurrency via ETag/version
  * - View mode with read-only display
  * - Delete with confirmation dialog
@@ -24,7 +27,9 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { useFormFields } from '@/hooks/use-entities';
+import { useWindowAndTabs, groupFieldsByTab, sortTabsBySequence, getTabById } from '@/hooks/use-window-tabs';
 import { DynamicForm } from '@/components/forms/dynamic-form';
+import { MasterDetailTabs } from '@/components/forms/master-detail-tabs';
 import { Button } from '@/components/ui/button';
 import {
   ArrowLeft,
@@ -61,9 +66,13 @@ function EntityDetailPage() {
   const queryClient = useQueryClient();
   const { id } = Route.useParams();
   const isNew = id === 'new';
+  const tableName = '{{addBusPrefix entity.tableName}}';
 
   // Mode: 'view' for read-only display, 'edit' for editing, 'create' for new records
   const [mode, setMode] = useState<'view' | 'edit' | 'create'>(isNew ? 'create' : 'view');
+
+  // Tab state: track which tab is active
+  const [activeTabId, setActiveTabId] = useState<string | null>(null);
 
   // Delete confirmation state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -72,7 +81,18 @@ function EntityDetailPage() {
   const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
 
   // Fetch field metadata from sys_field for this entity
-  const { data: formFields, isLoading: isLoadingFields } = useFormFields('{{addBusPrefix entity.tableName}}');
+  const { data: formFields, isLoading: isLoadingFields } = useFormFields(tableName);
+
+  // Fetch window and tabs from Application Dictionary
+  const { window: windowDef, tabs, isLoading: isLoadingWindow } = useWindowAndTabs(tableName);
+
+  // Set initial active tab to the first visible tab
+  React.useEffect(() => {
+    if (tabs.length > 0 && !activeTabId) {
+      const sortedTabs = sortTabsBySequence(tabs);
+      setActiveTabId(sortedTabs[0].sys_tab_id);
+    }
+  }, [tabs, activeTabId]);
 
   // Fetch the record data
   const { data, isLoading, error, refetch } = useQuery({
@@ -334,10 +354,35 @@ function EntityDetailPage() {
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Form - takes 3/4 width on large screens */}
-          <div className="lg:col-span-3">
+          {/* Form with Tabs - takes 3/4 width on large screens */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Tab Navigation - iDempiere Window Structure */}
+            {tabs.length > 0 && (
+              <div className="rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 backdrop-blur-sm p-1 shadow-sm">
+                <nav className="flex flex-wrap gap-1" role="tablist">
+                  {sortTabsBySequence(tabs).map((tab) => (
+                    <button
+                      key={tab.sys_tab_id}
+                      role="tab"
+                      onClick={() => setActiveTabId(tab.sys_tab_id)}
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        activeTabId === tab.sys_tab_id
+                          ? 'bg-gradient-to-r from-primary to-primary/80 text-white shadow-md'
+                          : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground'
+                      }`}
+                      aria-selected={activeTabId === tab.sys_tab_id}
+                    >
+                      <FileText className="h-4 w-4" />
+                      <span>{tab.name}</span>
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            )}
+
+            {/* Form Content */}
             <div className="rounded-xl border border-border/60 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm p-6 shadow-md">
-              {isLoading || isLoadingFields ? (
+              {isLoading || isLoadingFields || isLoadingWindow ? (
                 <div className="flex items-center justify-center h-64">
                   <div className="flex flex-col items-center gap-4">
                     <Loader2 className="h-12 w-12 animate-spin text-primary/70" />
@@ -345,17 +390,38 @@ function EntityDetailPage() {
                   </div>
                 </div>
               ) : (
-                <DynamicForm
-                  tableName="{{addBusPrefix entity.tableName}}"
-                  initialData={data}
-                  onSubmit={async (formData) => { await saveMutation.mutateAsync(formData); }}
-                  isSaving={saveMutation.isPending}
-                  mode={isNew ? 'create' : mode === 'edit' ? 'edit' : 'view'}
-                  readOnly={mode === 'view' && !isNew}
-                  serverErrors={serverErrors}
-                />
+                <>
+                  {/* Render form with fields from active tab */}
+                  {activeTabId && formFields && (
+                    <DynamicForm
+                      tableName={tableName}
+                      initialData={data}
+                      onSubmit={async (formData) => { await saveMutation.mutateAsync(formData); }}
+                      isSaving={saveMutation.isPending}
+                      mode={isNew ? 'create' : mode === 'edit' ? 'edit' : 'view'}
+                      readOnly={mode === 'view' && !isNew}
+                      serverErrors={serverErrors}
+                      tabId={activeTabId}
+                    />
+                  )}
+                </>
               )}
             </div>
+
+            {/* Master-Detail Tabs for Related Records */}
+            {!isNew && data && tabs.length > 0 && (
+              <div className="rounded-xl border border-border/60 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm p-6 shadow-md">
+                <h3 className="text-lg font-semibold mb-4">Related Records</h3>
+                <MasterDetailTabs
+                  parentId={String(data['{{entity.primaryKey}}'])}
+                  parentTable={tableName}
+                  tabs={[
+                    // Master-detail tabs configured from relationships
+                    // TODO: Populate based on sys_tab.parent_column_id relationships
+                  ]}
+                />
+              </div>
+            )}
           </div>
 
           {/* Sidebar - field metadata summary - Enhanced Design */}

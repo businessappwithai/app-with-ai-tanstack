@@ -1,0 +1,169 @@
+/**
+ * TanStack Query Hooks for Window and Tab Management
+ *
+ * Fetches window definitions and tab configurations from the Application Dictionary
+ * (sys_window, sys_tab) for organizing fields and related records.
+ *
+ * Generated: {{now}}
+ */
+
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api-client";
+
+// ============================================================================
+// Types
+// ============================================================================
+
+export interface WindowDefinition {
+  sys_window_id: string;
+  name: string;
+  description?: string;
+  help?: string;
+  window_type: string;
+  is_sales_transaction: boolean;
+  is_default: boolean;
+  entity_type: string;
+  is_active: boolean;
+}
+
+export interface TabDefinition {
+  sys_tab_id: string;
+  sys_window_id: string;
+  sys_table_id: string;
+  name: string;
+  description?: string;
+  help?: string;
+  tab_level: number;
+  seq_no: number;
+  is_single_row: boolean;
+  has_tree: boolean;
+  is_info_tab: boolean;
+  is_translation_tab: boolean;
+  is_read_only: boolean;
+  is_insert_record: boolean;
+  is_advanced_tab: boolean;
+  parent_column_id?: string;
+  link_column_id?: string;
+  order_by_clause?: string;
+  where_clause?: string;
+  display_logic?: string;
+  entity_type: string;
+  is_active: boolean;
+}
+
+// ============================================================================
+// Query Keys
+// ============================================================================
+
+const windowKeys = {
+  all: ["windows"] as const,
+  byTable: (tableName: string) => [...windowKeys.all, "table", tableName] as const,
+  byId: (id: string) => [...windowKeys.all, "id", id] as const,
+};
+
+const tabKeys = {
+  all: ["tabs"] as const,
+  byWindow: (windowId: string) => [...tabKeys.all, "window", windowId] as const,
+  byId: (id: string) => [...tabKeys.all, "id", id] as const,
+};
+
+// ============================================================================
+// Hooks
+// ============================================================================
+
+/**
+ * Fetch window definition for a business table
+ * @param tableName - The bus_* table name (e.g., 'bus_user', 'bus_company')
+ */
+export function useWindowByTable(tableName: string) {
+  return useQuery<WindowDefinition>({
+    queryKey: windowKeys.byTable(tableName),
+    queryFn: async () => {
+      const response = await apiClient.get<{ data: WindowDefinition }>(
+        `/sys/windows?table_name=${tableName}`
+      );
+      return response.data;
+    },
+    enabled: !!tableName,
+    staleTime: 30 * 60 * 1000, // 30 minutes - window definitions rarely change
+  });
+}
+
+/**
+ * Fetch all tabs for a window
+ * @param windowId - The sys_window_id
+ */
+export function useWindowTabs(windowId: string | undefined) {
+  return useQuery<TabDefinition[]>({
+    queryKey: tabKeys.byWindow(windowId || ""),
+    queryFn: async () => {
+      if (!windowId) return [];
+      const response = await apiClient.get<{ data: TabDefinition[] }>(
+        `/sys/tabs?window_id=${windowId}`
+      );
+      return response.data || [];
+    },
+    enabled: !!windowId,
+    staleTime: 30 * 60 * 1000, // 30 minutes - tab definitions rarely change
+  });
+}
+
+/**
+ * Fetch window and tabs together
+ * Convenience hook that combines useWindowByTable and useWindowTabs
+ */
+export function useWindowAndTabs(tableName: string) {
+  const windowQuery = useWindowByTable(tableName);
+  const tabsQuery = useWindowTabs(windowQuery.data?.sys_window_id);
+
+  return {
+    window: windowQuery.data,
+    tabs: tabsQuery.data || [],
+    isLoading: windowQuery.isLoading || tabsQuery.isLoading,
+    isError: windowQuery.isError || tabsQuery.isError,
+    error: windowQuery.error || tabsQuery.error,
+  };
+}
+
+/**
+ * Group fields by tab
+ * Helper function to organize field metadata by sys_tab_id
+ */
+export function groupFieldsByTab(
+  fields: Array<{ sys_tab_id?: string; [key: string]: any }>,
+  tabs: TabDefinition[]
+): Map<string, typeof fields> {
+  const grouped = new Map<string, typeof fields>();
+
+  // Initialize groups for each tab
+  tabs.forEach((tab) => {
+    grouped.set(tab.sys_tab_id, []);
+  });
+
+  // Also create a default group for fields without a tab
+  grouped.set("_unassigned", []);
+
+  // Add fields to their respective tabs
+  fields.forEach((field) => {
+    const tabId = field.sys_tab_id || "_unassigned";
+    const tabFields = grouped.get(tabId) || [];
+    tabFields.push(field);
+    grouped.set(tabId, tabFields);
+  });
+
+  return grouped;
+}
+
+/**
+ * Get tab by ID
+ */
+export function getTabById(tabs: TabDefinition[], tabId: string): TabDefinition | undefined {
+  return tabs.find((tab) => tab.sys_tab_id === tabId);
+}
+
+/**
+ * Sort tabs by sequence
+ */
+export function sortTabsBySequence(tabs: TabDefinition[]): TabDefinition[] {
+  return [...tabs].sort((a, b) => a.seq_no - b.seq_no);
+}

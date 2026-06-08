@@ -45,6 +45,7 @@ interface DynamicFormProps {
   serverErrors?: Record<string, string>;
   parentField?: string; // Field name that links to parent (e.g., 'patient_id') - will be hidden from form
   readOnlyFields?: string[]; // Specific field names that should be read-only (e.g., parent_id for child records)
+  tabId?: string; // sys_tab_id - if provided, only fields for this tab are displayed
 }
 
 // ============================================================================
@@ -483,6 +484,7 @@ export function DynamicForm({
   serverErrors = {},
   parentField,
   readOnlyFields = [],
+  tabId,
 }: DynamicFormProps) {
   const { t } = useTranslations();
   const { data: fields, isLoading: fieldsLoading, error } = useFormFields(tableName);
@@ -554,7 +556,13 @@ export function DynamicForm({
 
     // Show all displayed fields except the parent reference field (e.g., patient_id when creating from patient)
     // But DO show other reference fields like department_id, provider_id, etc.
-    const displayFields = fields.filter((f) => f.is_displayed && f.column_name !== parentField);
+    // If tabId is provided, only show fields belonging to that tab
+    let displayFields = fields.filter((f) => f.is_displayed && f.column_name !== parentField);
+
+    if (tabId) {
+      // Filter fields by tab - only show fields assigned to this tab
+      displayFields = displayFields.filter((f) => f.sys_tab_id === tabId);
+    }
 
     const groups: Map<string | null, FieldMetadata[]> = new Map();
 
@@ -568,7 +576,7 @@ export function DynamicForm({
     });
 
     return groups;
-  }, [fields, parentField]);
+  }, [fields, parentField, tabId]);
 
   if (isLoading) {
     return (
