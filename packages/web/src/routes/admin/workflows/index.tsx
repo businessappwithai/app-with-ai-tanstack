@@ -1,13 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
-  EyeIcon,
   RefreshCwIcon,
   RotateCwIcon,
-  MoreVerticalIcon,
   CheckCircle2Icon,
   AlertCircle,
   Clock,
-  SaveIcon,
+  ArrowRightIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -23,6 +21,15 @@ interface WorkflowRun {
   updated_at: string;
 }
 
+interface WorkflowStep {
+  id: string;
+  sequence: number;
+  name: string;
+  type: string;
+  status: "pending" | "running" | "success" | "error" | "skipped";
+  duration_ms?: number;
+}
+
 export const Route = createFileRoute("/admin/workflows/")({
   component: WorkflowMonitorPage,
 });
@@ -36,7 +43,8 @@ function WorkflowMonitorPage() {
     entity?: string;
   }>({});
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowRun | null>(null);
-  const [showMoreMenu, setShowMoreMenu] = useState<string | null>(null);
+  const [steps, setSteps] = useState<WorkflowStep[]>([]);
+  const [activeTab, setActiveTab] = useState<"overview" | "steps" | "logs">("overview");
 
   const fetchWorkflows = async () => {
     setLoading(true);
@@ -57,6 +65,18 @@ function WorkflowMonitorPage() {
     }
   };
 
+  const fetchWorkflowSteps = async (workflowId: string) => {
+    try {
+      const response = await fetch(`/api/workflows/${workflowId}/steps`);
+      if (!response.ok) throw new Error("Failed to fetch steps");
+      const data = await response.json();
+      setSteps(data.steps || []);
+    } catch (error) {
+      console.error("Failed to load steps:", error);
+      setSteps([]);
+    }
+  };
+
   useEffect(() => {
     fetchWorkflows();
   }, [filter]);
@@ -71,6 +91,12 @@ function WorkflowMonitorPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  const handleSelectWorkflow = (workflow: WorkflowRun) => {
+    setSelectedWorkflow(workflow);
+    setActiveTab("overview");
+    fetchWorkflowSteps(workflow.id);
+  };
 
   const retryWorkflow = async (workflowId: string) => {
     try {
@@ -88,34 +114,28 @@ function WorkflowMonitorPage() {
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case "success":
-        return {
-          bg: "bg-green-50 dark:bg-green-950/30",
-          border: "border-green-300 dark:border-green-800",
-          text: "text-green-700 dark:text-green-300",
-          icon: CheckCircle2Icon,
-        };
+        return { bg: "bg-green-100 dark:bg-green-950/50", text: "text-green-700 dark:text-green-300", icon: CheckCircle2Icon };
       case "error":
-        return {
-          bg: "bg-red-50 dark:bg-red-950/30",
-          border: "border-red-300 dark:border-red-800",
-          text: "text-red-700 dark:text-red-300",
-          icon: AlertCircle,
-        };
+        return { bg: "bg-red-100 dark:bg-red-950/50", text: "text-red-700 dark:text-red-300", icon: AlertCircle };
       case "running":
-        return {
-          bg: "bg-blue-50 dark:bg-blue-950/30",
-          border: "border-blue-300 dark:border-blue-800",
-          text: "text-blue-700 dark:text-blue-300",
-          icon: Clock,
-        };
-      case "draft":
+        return { bg: "bg-blue-100 dark:bg-blue-950/50", text: "text-blue-700 dark:text-blue-300", icon: Clock };
       default:
-        return {
-          bg: "bg-slate-100 dark:bg-slate-800",
-          border: "border-slate-300 dark:border-slate-700",
-          text: "text-slate-700 dark:text-slate-300",
-          icon: Clock,
-        };
+        return { bg: "bg-slate-100 dark:bg-slate-800", text: "text-slate-700 dark:text-slate-300", icon: Clock };
+    }
+  };
+
+  const getStepStatusColor = (status: string) => {
+    switch (status) {
+      case "success":
+        return "bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-300";
+      case "error":
+        return "bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-300";
+      case "running":
+        return "bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300";
+      case "pending":
+        return "bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300";
+      default:
+        return "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300";
     }
   };
 
@@ -124,6 +144,8 @@ function WorkflowMonitorPage() {
     running: "Running",
     success: "Completed",
     error: "Failed",
+    pending: "Pending",
+    skipped: "Skipped",
   };
 
   return (
@@ -152,187 +174,284 @@ function WorkflowMonitorPage() {
         </div>
 
         {/* Main Content */}
-        <div className="p-6">
-          {/* Filter Bar */}
-          <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-6 mb-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 uppercase tracking-wide mb-4">Filters</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Status</label>
-                <select
-                  className="w-full px-3 py-2.5 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-2 dark:focus:ring-offset-slate-950 transition-all"
-                  value={filter.status || ""}
-                  onChange={(e) => setFilter({ ...filter, status: e.target.value || undefined })}
-                >
-                  <option value="">All Statuses</option>
-                  <option value="draft">Draft</option>
-                  <option value="running">Running</option>
-                  <option value="success">Completed</option>
-                  <option value="error">Failed</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Entity</label>
-                <select
-                  className="w-full px-3 py-2.5 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-2 dark:focus:ring-offset-slate-950 transition-all"
-                  value={filter.entity || ""}
-                  onChange={(e) => setFilter({ ...filter, entity: e.target.value || undefined })}
-                >
-                  <option value="">All Entities</option>
-                  <option value="Patient">Patient</option>
-                  <option value="Appointment">Appointment</option>
-                  <option value="Prescription">Prescription</option>
-                  <option value="Invoice">Invoice</option>
-                  <option value="Ward">Ward</option>
-                </select>
-              </div>
-              <div className="flex items-end"></div>
-            </div>
-          </div>
-
-          {/* Workflows List or Empty State */}
-          {loading ? (
-            <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-12 text-center shadow-sm">
-              <div className="animate-spin inline-block h-8 w-8 border-4 border-[#FF8400] border-t-transparent rounded-full mb-4"></div>
-              <p className="text-slate-600 dark:text-slate-400">Loading workflows...</p>
-            </div>
-          ) : workflows.length === 0 ? (
-            <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-12 text-center shadow-sm">
-              <div className="text-5xl mb-4">⚙️</div>
-              <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-50 mb-2">No Workflows Running</h3>
-              <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-sm mx-auto">
-                Workflows will appear here as they execute. Workflows monitor and manage multi-step operations across your system.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {workflows.map((workflow) => {
-                const statusColors = getStatusBadgeColor(workflow.status);
-                const StatusIcon = statusColors.icon;
-
-                return (
-                  <div
-                    key={workflow.id}
-                    onClick={() => setSelectedWorkflow(workflow)}
-                    className={`bg-white dark:bg-slate-950 rounded-lg border transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
-                      selectedWorkflow?.id === workflow.id
-                        ? "border-[#FF8400] bg-orange-50 dark:bg-slate-900/50"
-                        : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
-                    }`}
+        <div className="p-6 flex gap-6">
+          {/* Left: Workflows List */}
+          <div className="w-96 flex-shrink-0">
+            {/* Filter Bar */}
+            <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-4 mb-4 shadow-sm">
+              <h2 className="text-xs font-semibold text-slate-900 dark:text-slate-50 uppercase tracking-wide mb-3">Filters</h2>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">Status</label>
+                  <select
+                    className="w-full px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-1 dark:focus:ring-offset-slate-950 transition-all"
+                    value={filter.status || ""}
+                    onChange={(e) => setFilter({ ...filter, status: e.target.value || undefined })}
                   >
-                    <div className="p-6">
-                      {/* Workflow Header */}
-                      <div className="flex justify-between items-start mb-4">
+                    <option value="">All Statuses</option>
+                    <option value="draft">Draft</option>
+                    <option value="running">Running</option>
+                    <option value="success">Completed</option>
+                    <option value="error">Failed</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">Entity</label>
+                  <select
+                    className="w-full px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-1 dark:focus:ring-offset-slate-950 transition-all"
+                    value={filter.entity || ""}
+                    onChange={(e) => setFilter({ ...filter, entity: e.target.value || undefined })}
+                  >
+                    <option value="">All Entities</option>
+                    <option value="Patient">Patient</option>
+                    <option value="Appointment">Appointment</option>
+                    <option value="Prescription">Prescription</option>
+                    <option value="Invoice">Invoice</option>
+                    <option value="Ward">Ward</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Workflows List */}
+            {loading ? (
+              <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-8 text-center shadow-sm">
+                <div className="animate-spin inline-block h-6 w-6 border-3 border-[#FF8400] border-t-transparent rounded-full mb-3"></div>
+                <p className="text-xs text-slate-600 dark:text-slate-400">Loading workflows...</p>
+              </div>
+            ) : workflows.length === 0 ? (
+              <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-6 text-center shadow-sm">
+                <div className="text-3xl mb-2">⚙️</div>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50">No Workflows</h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                  Workflows will appear as they execute.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+                {workflows.map((workflow) => {
+                  const statusColors = getStatusBadgeColor(workflow.status);
+                  const StatusIcon = statusColors.icon;
+
+                  return (
+                    <div
+                      key={workflow.id}
+                      onClick={() => handleSelectWorkflow(workflow)}
+                      className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
+                        selectedWorkflow?.id === workflow.id
+                          ? "border-[#FF8400] bg-orange-50 dark:bg-slate-900/50 shadow-md"
+                          : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm"
+                      }`}
+                    >
+                      <div className="flex justify-between items-start gap-2">
                         <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                            {workflow.operation}
-                          </h3>
-                          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                            Entity: <span className="font-medium">{workflow.entity_name}</span> | ID:{" "}
-                            <span className="font-mono">{workflow.entity_id}</span>
+                          <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">{workflow.operation}</h4>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 truncate">
+                            {workflow.entity_name}
                           </p>
                         </div>
-                        <div className="flex items-center gap-3">
-                          {/* Prominent Status Badge */}
-                          <div
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-medium text-sm min-w-[100px] justify-center ${statusColors.bg} ${statusColors.border} ${statusColors.text}`}
-                          >
-                            <StatusIcon className="h-4 w-4" />
-                            {statusLabels[workflow.status] || workflow.status}
-                          </div>
-
-                          {/* More Menu */}
-                          <div className="relative">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setShowMoreMenu(showMoreMenu === workflow.id ? null : workflow.id);
-                              }}
-                              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                            >
-                              <MoreVerticalIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-                            </button>
-
-                            {showMoreMenu === workflow.id && (
-                              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-lg z-10">
-                                <button className="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">
-                                  Export Logs
-                                </button>
-                                <button className="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                  Share Results
-                                </button>
-                              </div>
-                            )}
-                          </div>
+                        <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${statusColors.bg} ${statusColors.text}`}>
+                          <StatusIcon className="h-3 w-3" />
+                          {statusLabels[workflow.status]}
                         </div>
                       </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
-                      {/* Workflow Metadata */}
-                      <div className="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-800">
-                        <div className="text-sm text-slate-600 dark:text-slate-400">
-                          <div className="font-medium">
-                            Started {new Date(workflow.created_at).toLocaleDateString()} at{" "}
-                            {new Date(workflow.created_at).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+          {/* Right: Workflow Details Window (AD-Style Tabbed) */}
+          {selectedWorkflow ? (
+            <div className="flex-1">
+              <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 shadow-lg overflow-hidden flex flex-col h-[calc(100vh-200px)]">
+                {/* Window Header + Tabs */}
+                <div className="border-b border-slate-200 dark:border-slate-800 p-4 bg-gradient-to-r from-slate-50 to-transparent dark:from-slate-900 dark:to-transparent">
+                  <div className="mb-3">
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50">{selectedWorkflow.operation}</h2>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      {selectedWorkflow.entity_name} • {selectedWorkflow.entity_id}
+                    </p>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 mb-3">
+                    {selectedWorkflow.status === "error" && (
+                      <button
+                        onClick={() => retryWorkflow(selectedWorkflow.id)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 border border-[#FF8400] rounded-lg text-[#FF8400] text-sm hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-all duration-200 font-medium"
+                      >
+                        <RotateCwIcon className="h-4 w-4" />
+                        Retry
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Tab Navigation (AD-Style) */}
+                  <div className="flex gap-1 border-t border-slate-200 dark:border-slate-800 pt-3">
+                    <button
+                      onClick={() => setActiveTab("overview")}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
+                        activeTab === "overview"
+                          ? "border-[#FF8400] text-[#FF8400]"
+                          : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-50"
+                      }`}
+                    >
+                      Overview
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("steps")}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
+                        activeTab === "steps"
+                          ? "border-[#FF8400] text-[#FF8400]"
+                          : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-50"
+                      }`}
+                    >
+                      Steps ({steps.length})
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("logs")}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
+                        activeTab === "logs"
+                          ? "border-[#FF8400] text-[#FF8400]"
+                          : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-50"
+                      }`}
+                    >
+                      Logs
+                    </button>
+                  </div>
+                </div>
+
+                {/* Tab Content */}
+                <div className="flex-1 overflow-y-auto p-6">
+                  {activeTab === "overview" ? (
+                    <div className="space-y-4 max-w-2xl">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">Status</label>
+                          <div className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 ${getStatusBadgeColor(selectedWorkflow.status)}`}>
+                            {statusLabels[selectedWorkflow.status]}
                           </div>
-                          <div className="text-xs mt-1">
-                            Updated {new Date(workflow.updated_at).toLocaleDateString()}
-                          </div>
-                          {workflow.retry_count > 0 && (
-                            <div className="text-xs mt-1 text-[#FF8400] font-medium">
-                              {workflow.retry_count} {workflow.retry_count === 1 ? "retry" : "retries"}
-                            </div>
-                          )}
                         </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex gap-2">
-                          {workflow.status === "error" && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                retryWorkflow(workflow.id);
-                              }}
-                              className="flex items-center gap-2 px-4 py-2 border border-[#FF8400] rounded-lg text-[#FF8400] hover:bg-orange-50 dark:hover:bg-orange-950/30 hover:border-[#E67300] transition-all duration-200 font-medium"
-                            >
-                              <RotateCwIcon className="h-4 w-4" />
-                              Retry
-                            </button>
-                          )}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate({
-                                to: "/admin/workflows/$workflowId",
-                                params: { workflowId: workflow.id },
-                              });
-                            }}
-                            className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-[#FF8400] hover:text-[#FF8400] transition-all duration-200 font-medium"
-                          >
-                            <EyeIcon className="h-4 w-4" />
-                            Details
-                          </button>
+                        <div>
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">Entity</label>
+                          <input
+                            type="text"
+                            defaultValue={selectedWorkflow.entity_name}
+                            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 text-sm"
+                            readOnly
+                          />
                         </div>
                       </div>
-
-                      {/* Error Message (if present) */}
-                      {workflow.error_message && (
+                      <div>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">Entity ID</label>
+                        <input
+                          type="text"
+                          defaultValue={selectedWorkflow.entity_id}
+                          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 text-sm font-mono"
+                          readOnly
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">Started</label>
+                          <input
+                            type="text"
+                            defaultValue={new Date(selectedWorkflow.created_at).toLocaleString()}
+                            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 text-sm"
+                            readOnly
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">Updated</label>
+                          <input
+                            type="text"
+                            defaultValue={new Date(selectedWorkflow.updated_at).toLocaleString()}
+                            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 text-sm"
+                            readOnly
+                          />
+                        </div>
+                      </div>
+                      {selectedWorkflow.retry_count > 0 && (
+                        <div>
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">Retries</label>
+                          <input
+                            type="text"
+                            defaultValue={selectedWorkflow.retry_count}
+                            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 text-sm"
+                            readOnly
+                          />
+                        </div>
+                      )}
+                      {selectedWorkflow.error_message && (
                         <div className="mt-4 p-4 bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-800 rounded-lg">
                           <div className="flex gap-3">
                             <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                             <div className="text-sm text-red-700 dark:text-red-300">
-                              <strong className="block">Error Details:</strong>
-                              {workflow.error_message}
+                              <strong className="block">Error:</strong>
+                              {selectedWorkflow.error_message}
                             </div>
                           </div>
                         </div>
                       )}
                     </div>
-                  </div>
-                );
-              })}
+                  ) : activeTab === "steps" ? (
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Workflow Steps</h3>
+                      {steps.length === 0 ? (
+                        <div className="text-center py-8 text-slate-600 dark:text-slate-400">
+                          <p className="text-sm">No steps defined.</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {steps.map((step, idx) => (
+                            <div key={step.id} className="border border-slate-200 dark:border-slate-800 rounded-lg p-3">
+                              <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center gap-3">
+                                  <span className="text-xs font-mono font-semibold text-slate-600 dark:text-slate-400 min-w-[20px]">
+                                    {step.sequence}
+                                  </span>
+                                  <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">{step.name}</span>
+                                </div>
+                                <span className={`text-xs font-medium px-2 py-1 rounded ${getStepStatusColor(step.status)}`}>
+                                  {statusLabels[step.status] || step.status}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-slate-600 dark:text-slate-400 font-mono">{step.type}</span>
+                                {step.duration_ms && (
+                                  <span className="text-xs text-slate-600 dark:text-slate-400">{step.duration_ms}ms</span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Execution Logs</h3>
+                      <div className="bg-slate-900 dark:bg-black text-slate-100 dark:text-slate-200 p-4 rounded-lg font-mono text-xs max-h-96 overflow-y-auto border border-slate-800">
+                        <div className="text-slate-500">[INFO] Workflow started at {new Date(selectedWorkflow.created_at).toISOString()}</div>
+                        <div className="text-slate-500">[INFO] Entity: {selectedWorkflow.entity_name}</div>
+                        <div className="text-slate-500">[INFO] Operation: {selectedWorkflow.operation}</div>
+                        {selectedWorkflow.status === "error" && (
+                          <div className="text-red-400 mt-2">[ERROR] {selectedWorkflow.error_message}</div>
+                        )}
+                        <div className="text-slate-500 mt-2">[INFO] Workflow completed at {new Date(selectedWorkflow.updated_at).toISOString()}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center text-slate-600 dark:text-slate-400">
+                <p className="text-lg font-medium">Select a workflow to view details</p>
+                <p className="text-sm mt-1">Choose a workflow from the list on the left</p>
+              </div>
             </div>
           )}
         </div>

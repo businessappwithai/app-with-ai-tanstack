@@ -22,6 +22,15 @@ interface RuleDefinition {
   updatedAt: string;
 }
 
+interface RuleCondition {
+  id: string;
+  sequence: number;
+  entityAttribute: string;
+  operator: string;
+  value: string;
+  isActive: boolean;
+}
+
 export const Route = createFileRoute("/admin/rules/")({
   component: RulesListPage,
 });
@@ -35,6 +44,8 @@ function RulesListPage() {
     operation?: string;
   }>({});
   const [selectedRule, setSelectedRule] = useState<RuleDefinition | null>(null);
+  const [conditions, setConditions] = useState<RuleCondition[]>([]);
+  const [activeTab, setActiveTab] = useState<"properties" | "conditions">("properties");
   const [showMoreMenu, setShowMoreMenu] = useState<string | null>(null);
 
   const fetchRules = async () => {
@@ -56,6 +67,18 @@ function RulesListPage() {
     }
   };
 
+  const fetchRuleConditions = async (ruleId: string) => {
+    try {
+      const response = await fetch(`/api/rules/${ruleId}/conditions`);
+      if (!response.ok) throw new Error("Failed to fetch conditions");
+      const data = await response.json();
+      setConditions(data.conditions || []);
+    } catch (error) {
+      console.error("Failed to load conditions:", error);
+      setConditions([]);
+    }
+  };
+
   useEffect(() => {
     fetchRules();
   }, [filter]);
@@ -70,6 +93,12 @@ function RulesListPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  const handleSelectRule = (rule: RuleDefinition) => {
+    setSelectedRule(rule);
+    setActiveTab("properties");
+    fetchRuleConditions(rule.id);
+  };
 
   const deleteRule = async (ruleId: string) => {
     if (!confirm("Are you sure you want to delete this rule?")) return;
@@ -112,45 +141,46 @@ function RulesListPage() {
         </div>
 
         {/* Main Content */}
-        <div className="p-6">
-          {/* Filter Bar */}
-          <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-6 mb-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 uppercase tracking-wide mb-4">Filters</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Entity</label>
-                <select
-                  className="w-full px-3 py-2.5 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-2 dark:focus:ring-offset-slate-950 transition-all"
-                  value={filter.entity || ""}
-                  onChange={(e) => setFilter({ ...filter, entity: e.target.value || undefined })}
-                >
-                  <option value="">All Entities</option>
-                  <option value="Patient">Patient</option>
-                  <option value="Appointment">Appointment</option>
-                  <option value="Prescription">Prescription</option>
-                  <option value="Invoice">Invoice</option>
-                  <option value="Ward">Ward</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Operation</label>
-                <select
-                  className="w-full px-3 py-2.5 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-2 dark:focus:ring-offset-slate-950 transition-all"
-                  value={filter.operation || ""}
-                  onChange={(e) => setFilter({ ...filter, operation: e.target.value || undefined })}
-                >
-                  <option value="">All Operations</option>
-                  <option value="CREATE">CREATE</option>
-                  <option value="READ">READ</option>
-                  <option value="UPDATE">UPDATE</option>
-                  <option value="DELETE">DELETE</option>
-                  <option value="ALL">ALL</option>
-                </select>
-              </div>
-              <div className="flex items-end gap-2">
+        <div className="p-6 flex gap-6">
+          {/* Left: Rules List */}
+          <div className="w-96 flex-shrink-0">
+            {/* Filter Bar */}
+            <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-4 mb-4 shadow-sm">
+              <h2 className="text-xs font-semibold text-slate-900 dark:text-slate-50 uppercase tracking-wide mb-3">Filters</h2>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">Entity</label>
+                  <select
+                    className="w-full px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-1 dark:focus:ring-offset-slate-950 transition-all"
+                    value={filter.entity || ""}
+                    onChange={(e) => setFilter({ ...filter, entity: e.target.value || undefined })}
+                  >
+                    <option value="">All Entities</option>
+                    <option value="Patient">Patient</option>
+                    <option value="Appointment">Appointment</option>
+                    <option value="Prescription">Prescription</option>
+                    <option value="Invoice">Invoice</option>
+                    <option value="Ward">Ward</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">Operation</label>
+                  <select
+                    className="w-full px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-1 dark:focus:ring-offset-slate-950 transition-all"
+                    value={filter.operation || ""}
+                    onChange={(e) => setFilter({ ...filter, operation: e.target.value || undefined })}
+                  >
+                    <option value="">All Operations</option>
+                    <option value="CREATE">CREATE</option>
+                    <option value="READ">READ</option>
+                    <option value="UPDATE">UPDATE</option>
+                    <option value="DELETE">DELETE</option>
+                    <option value="ALL">ALL</option>
+                  </select>
+                </div>
                 <button
                   onClick={fetchRules}
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-[#FF8400] transition-all duration-200"
+                  className="w-full flex items-center justify-center gap-2 px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-[#FF8400] transition-all duration-200 text-sm font-medium"
                   title="Refresh (Ctrl+R)"
                 >
                   <RefreshCwIcon className="h-4 w-4" />
@@ -158,132 +188,246 @@ function RulesListPage() {
                 </button>
               </div>
             </div>
-          </div>
 
-          {/* Rules List or Empty State */}
-          {loading ? (
-            <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-12 text-center shadow-sm">
-              <div className="animate-spin inline-block h-8 w-8 border-4 border-[#FF8400] border-t-transparent rounded-full mb-4"></div>
-              <p className="text-slate-600 dark:text-slate-400">Loading rules...</p>
-            </div>
-          ) : rules.length === 0 ? (
-            <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-12 text-center shadow-sm">
-              <div className="text-5xl mb-4">📋</div>
-              <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-50 mb-2">No Business Rules Yet</h3>
-              <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-sm mx-auto">
-                Business rules automate decisions and validations across your system. Create your first rule to get started.
-              </p>
-              <button
-                onClick={() => navigate({ to: "/admin/rules/new" })}
-                className="px-6 py-2.5 bg-[#FF8400] text-white rounded-lg hover:bg-[#E67300] transition-all duration-200 font-medium inline-block"
-              >
-                Create Your First Rule
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {rules.map((rule) => (
-                <div
-                  key={rule.id}
-                  onClick={() => setSelectedRule(rule)}
-                  className={`bg-white dark:bg-slate-950 rounded-lg border transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${
-                    selectedRule?.id === rule.id
-                      ? "border-[#FF8400] bg-orange-50 dark:bg-slate-900/50"
-                      : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
-                  }`}
+            {/* Rules List */}
+            {loading ? (
+              <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-8 text-center shadow-sm">
+                <div className="animate-spin inline-block h-6 w-6 border-3 border-[#FF8400] border-t-transparent rounded-full mb-3"></div>
+                <p className="text-xs text-slate-600 dark:text-slate-400">Loading rules...</p>
+              </div>
+            ) : rules.length === 0 ? (
+              <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-6 text-center shadow-sm">
+                <div className="text-3xl mb-2">📋</div>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-1">No Rules Yet</h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
+                  Create your first rule to get started.
+                </p>
+                <button
+                  onClick={() => navigate({ to: "/admin/rules/new" })}
+                  className="w-full px-3 py-2 bg-[#FF8400] text-white text-xs font-medium rounded-lg hover:bg-[#E67300] transition-all duration-200"
                 >
-                  <div className="p-6">
-                    {/* Rule Header */}
-                    <div className="flex justify-between items-start mb-4">
+                  Create Rule
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+                {rules.map((rule) => (
+                  <div
+                    key={rule.id}
+                    onClick={() => handleSelectRule(rule)}
+                    className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
+                      selectedRule?.id === rule.id
+                        ? "border-[#FF8400] bg-orange-50 dark:bg-slate-900/50 shadow-md"
+                        : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm"
+                    }`}
+                  >
+                    <div className="flex justify-between items-start gap-2">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">{rule.ruleName}</h3>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                          {rule.entityName} • {rule.operation}
+                        <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">{rule.ruleName}</h4>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                          {rule.entityName}
                         </p>
                       </div>
-                      <div className="flex items-center gap-3">
-                        {/* Prominent Status Badge */}
-                        <div
-                          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-medium text-sm min-w-[100px] justify-center ${
-                            rule.isActive
-                              ? "bg-green-50 dark:bg-green-950/30 border-green-300 dark:border-green-800 text-green-700 dark:text-green-300"
-                              : "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300"
-                          }`}
-                        >
-                          {rule.isActive ? (
-                            <CheckCircle2Icon className="h-4 w-4" />
-                          ) : (
-                            <CircleIcon className="h-4 w-4" />
-                          )}
-                          {rule.isActive ? "Active" : "Inactive"}
-                        </div>
-
-                        {/* More Menu */}
-                        <div className="relative">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setShowMoreMenu(showMoreMenu === rule.id ? null : rule.id);
-                            }}
-                            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                          >
-                            <MoreVerticalIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-                          </button>
-
-                          {showMoreMenu === rule.id && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-lg z-10">
-                              <button className="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">
-                                Export
-                              </button>
-                              <button className="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                Share Settings
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Rule Metadata */}
-                    <div className="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-800">
-                      <div className="text-sm text-slate-600 dark:text-slate-400">
-                        <div className="font-medium">Version {rule.version}</div>
-                        <div className="text-xs mt-1">
-                          Updated {new Date(rule.updatedAt).toLocaleDateString()} at{" "}
-                          {new Date(rule.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate({
-                              to: "/admin/rules/$entity/$ruleId",
-                              params: { entity: rule.entityName, ruleId: rule.id },
-                            });
-                          }}
-                          className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-[#FF8400] hover:text-[#FF8400] transition-all duration-200 font-medium"
-                        >
-                          <EditIcon className="h-4 w-4" />
-                          Edit
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteRule(rule.id);
-                          }}
-                          className="flex items-center gap-2 px-4 py-2 border border-red-300 dark:border-red-900 rounded-lg text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30 hover:border-red-500 dark:hover:border-red-700 transition-all duration-200 font-medium"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                          Delete
-                        </button>
+                      <div
+                        className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${
+                          rule.isActive
+                            ? "bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-300"
+                            : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                        }`}
+                      >
+                        {rule.isActive ? (
+                          <CheckCircle2Icon className="h-3 w-3" />
+                        ) : (
+                          <CircleIcon className="h-3 w-3" />
+                        )}
+                        {rule.isActive ? "Active" : "Inactive"}
                       </div>
                     </div>
                   </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Right: Rule Details Window (AD-Style Tabbed) */}
+          {selectedRule ? (
+            <div className="flex-1">
+              <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 shadow-lg overflow-hidden flex flex-col h-[calc(100vh-200px)]">
+                {/* Window Header + Toolbar */}
+                <div className="border-b border-slate-200 dark:border-slate-800 p-4 bg-gradient-to-r from-slate-50 to-transparent dark:from-slate-900 dark:to-transparent">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50">{selectedRule.ruleName}</h2>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                        {selectedRule.entityName} • {selectedRule.operation}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          navigate({
+                            to: "/admin/rules/$entity/$ruleId",
+                            params: { entity: selectedRule.entityName, ruleId: selectedRule.id },
+                          });
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-[#FF8400] hover:border-[#FF8400] transition-all duration-200 font-medium"
+                      >
+                        <EditIcon className="h-4 w-4" />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deleteRule(selectedRule.id)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 border border-red-300 dark:border-red-900 rounded-lg text-red-700 dark:text-red-300 text-sm hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200 font-medium"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tab Navigation (AD-Style) */}
+                  <div className="flex gap-1 border-t border-slate-200 dark:border-slate-800 pt-3 mt-3">
+                    <button
+                      onClick={() => setActiveTab("properties")}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
+                        activeTab === "properties"
+                          ? "border-[#FF8400] text-[#FF8400]"
+                          : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-50"
+                      }`}
+                    >
+                      Properties
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("conditions")}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
+                        activeTab === "conditions"
+                          ? "border-[#FF8400] text-[#FF8400]"
+                          : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-50"
+                      }`}
+                    >
+                      Conditions ({conditions.length})
+                    </button>
+                  </div>
                 </div>
-              ))}
+
+                {/* Tab Content */}
+                <div className="flex-1 overflow-y-auto p-6">
+                  {activeTab === "properties" ? (
+                    <div className="space-y-4 max-w-2xl">
+                      <div>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Rule Name</label>
+                        <input
+                          type="text"
+                          defaultValue={selectedRule.ruleName}
+                          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] transition-all"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Entity</label>
+                          <input
+                            type="text"
+                            defaultValue={selectedRule.entityName}
+                            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] transition-all"
+                            readOnly
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Operation</label>
+                          <input
+                            type="text"
+                            defaultValue={selectedRule.operation}
+                            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] transition-all"
+                            readOnly
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Status</label>
+                        <div className="flex gap-4">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" checked={selectedRule.isActive} className="w-4 h-4" />
+                            <span className="text-sm text-slate-700 dark:text-slate-300">Active</span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" checked={!selectedRule.isActive} className="w-4 h-4" />
+                            <span className="text-sm text-slate-700 dark:text-slate-300">Inactive</span>
+                          </label>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Version</label>
+                        <input
+                          type="text"
+                          defaultValue={selectedRule.version}
+                          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] transition-all"
+                          readOnly
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Last Updated</label>
+                        <input
+                          type="text"
+                          defaultValue={new Date(selectedRule.updatedAt).toLocaleString()}
+                          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] transition-all"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Rule Conditions</h3>
+                      {conditions.length === 0 ? (
+                        <div className="text-center py-8 text-slate-600 dark:text-slate-400">
+                          <p className="text-sm">No conditions defined yet.</p>
+                        </div>
+                      ) : (
+                        <div className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+                          <table className="w-full text-sm">
+                            <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+                              <tr>
+                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">#</th>
+                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">Attribute</th>
+                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">Operator</th>
+                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">Value</th>
+                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {conditions.map((cond, idx) => (
+                                <tr key={cond.id} className="border-t border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{cond.sequence}</td>
+                                  <td className="px-4 py-3 text-slate-900 dark:text-slate-50 font-mono text-xs">{cond.entityAttribute}</td>
+                                  <td className="px-4 py-3 text-slate-900 dark:text-slate-50">{cond.operator}</td>
+                                  <td className="px-4 py-3 text-slate-900 dark:text-slate-50">{cond.value}</td>
+                                  <td className="px-4 py-3">
+                                    <span
+                                      className={`text-xs font-medium px-2 py-1 rounded ${
+                                        cond.isActive
+                                          ? "bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-300"
+                                          : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                                      }`}
+                                    >
+                                      {cond.isActive ? "Active" : "Inactive"}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center text-slate-600 dark:text-slate-400">
+                <p className="text-lg font-medium">Select a rule to view details</p>
+                <p className="text-sm mt-1">Choose a rule from the list on the left</p>
+              </div>
             </div>
           )}
         </div>
