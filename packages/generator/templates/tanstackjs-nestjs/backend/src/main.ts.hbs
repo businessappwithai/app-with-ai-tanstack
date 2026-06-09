@@ -28,10 +28,25 @@ async function bootstrap() {
   // Global prefix for API routes
   app.setGlobalPrefix('api');
 
-  // Mount better-auth HTTP handler at /api/auth/*
-  // This handles all auth routes (sign-in, sign-up, sign-out, session, etc.)
-  // and manages cookies/sessions correctly through better-auth's built-in handler.
   const port = process.env.PORT || {{config.port}};
+  // Enable CORS BEFORE raw Fastify routes so all routes get CORS headers
+  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
+  const allowedOrigins = [...new Set([
+    ...corsOrigin.split(','),
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3050',
+    'http://localhost:5173',
+  ])];
+  app.enableCors({
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'If-Match', 'If-None-Match'],
+    exposedHeaders: ['ETag', 'X-Total-Count'],
+    credentials: true,
+  });
+
+  // Mount better-auth HTTP handler at /api/auth/*
   const fastifyInstance = app.getHttpAdapter().getInstance();
   const auth = getAuth();
 
@@ -66,29 +81,6 @@ async function bootstrap() {
       logger.error('Auth handler error:', error);
       reply.status(500).send({ error: 'Authentication service error' });
     }
-  });
-
-  // Enable CORS - allow frontend origin (localhost:3000 for dev, configurable via env)
-  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
-  const allowedOrigins = corsOrigin.split(',').concat([
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:3050',
-    'http://localhost:5173',
-  ]);
-  app.enableCors({
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Origin not allowed by CORS'), false);
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'If-Match', 'If-None-Match'],
-    exposedHeaders: ['ETag', 'X-Total-Count'],
-    credentials: true,
   });
 
   // Global validation pipe for fallback validation

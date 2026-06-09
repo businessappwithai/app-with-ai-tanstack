@@ -22,7 +22,7 @@
  * Project: {{project.name}}
  */
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
@@ -88,7 +88,7 @@ function EntityDetailPage() {
   const { window: windowDef, tabs, isLoading: isLoadingWindow } = useWindowAndTabs(tableName);
 
   // Set initial active tab to the first visible tab
-  React.useEffect(() => {
+  useEffect(() => {
     if (tabs.length > 0 && !activeTabId) {
       const sortedTabs = sortTabsBySequence(tabs);
       setActiveTabId(sortedTabs[0].sys_tab_id);
