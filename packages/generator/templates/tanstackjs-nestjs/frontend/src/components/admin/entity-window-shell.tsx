@@ -1,7 +1,8 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/auth-context';
 import { Home, Info, Tag, Hash, Calendar, Shield, FileText, Database, Layers } from 'lucide-react';
 import { apiClient, type PaginatedResponse } from '@/lib/api-client';
 import { useFormFields, useGridFields, useTableMetadata, type FieldMetadata } from '@/hooks/use-entities';
@@ -167,6 +168,14 @@ function MetadataPanel({ record, fields, tableName, entityLabel }: {
 
 export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellProps) {
   const queryClient = useQueryClient();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const authNavigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      authNavigate({ to: '/auth/login' });
+    }
+  }, [authLoading, isAuthenticated, authNavigate]);
 
   const [viewMode, setViewMode] = useState<'list' | 'detail'>('list');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -175,6 +184,7 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
   const [formData, setFormData] = useState<AnyRecord>({});
   const [hasChanges, setHasChanges] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const { data: formFields, isLoading: isLoadingFields } = useFormFields(tableName);
@@ -218,6 +228,7 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
       toast.success(isCreating ? `${entityLabel} created` : `${entityLabel} saved`);
       setHasChanges(false);
       setIsCreating(false);
+      setIsEditing(false);
       queryClient.invalidateQueries({ queryKey: ['entity-records', tableName] });
       refetch();
     },
@@ -269,10 +280,12 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
     const idx = records.findIndex(r => r.id === row.id);
     if (idx !== -1) setCurrentIndex(idx);
     setViewMode('detail');
+    setIsEditing(false);
   }, [records]);
 
   const handleNew = () => {
     setIsCreating(true);
+    setIsEditing(true);
     setViewMode('detail');
     setFormData({});
     setHasChanges(false);
@@ -291,6 +304,17 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
     else setFormData({});
     setHasChanges(false);
     setIsCreating(false);
+    setIsEditing(false);
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    if (currentRecord) setFormData(currentRecord);
+    setHasChanges(false);
+    setIsEditing(false);
   };
 
   const handleFormChange = useCallback(() => {
@@ -317,6 +341,8 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
         onSave={handleSave}
         onDelete={handleDelete}
         onUndo={handleUndo}
+        onEdit={handleEdit}
+        onCancelEdit={handleCancelEdit}
         onRefresh={() => refetch()}
         searchValue={searchQuery}
         onSearchChange={(val) => { setSearchQuery(val); setPage(1); setCurrentIndex(0); }}
@@ -324,9 +350,11 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
         isDeleting={deleteMutation.isPending}
         hasChanges={hasChanges || isCreating}
         canDelete={!!currentRecordId && !isCreating && viewMode === 'detail'}
+        isEditing={isEditing || isCreating}
+        isDetailView={viewMode === 'detail' && !isCreating}
       />
 
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-gradient-to-r from-primary/5 to-transparent">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-gradient-to-r from-indigo-100 to-sky-50">
         <div className="flex items-center gap-3">
           <Link to="/dashboard" className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors">
             <Home className="w-3.5 h-3.5" />
@@ -336,7 +364,7 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
           {viewMode === 'detail' ? (
             <>
               <button
-                onClick={() => { setViewMode('list'); setIsCreating(false); setHasChanges(false); }}
+                onClick={() => { setViewMode('list'); setIsCreating(false); setIsEditing(false); setHasChanges(false); }}
                 className="text-xs text-muted-foreground hover:text-primary transition-colors"
               >
                 {entityLabel}
@@ -409,10 +437,12 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
           <div className="flex h-full">
             <div className="flex-1 overflow-auto p-6" onChange={handleFormChange}>
               <DynamicForm
+                key={isCreating ? 'new' : currentRecordId || 'empty'}
                 tableName={tableName}
                 initialData={isCreating ? {} : (currentRecord || {})}
                 onSubmit={handleFormSubmit}
-                mode={isCreating ? 'create' : 'edit'}
+                mode={isCreating ? 'create' : isEditing ? 'edit' : 'view'}
+                readOnly={!isEditing && !isCreating}
                 isSaving={saveMutation.isPending}
               />
             </div>

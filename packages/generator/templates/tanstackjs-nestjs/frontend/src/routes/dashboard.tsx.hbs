@@ -11,9 +11,10 @@
  */
 
 import { useState } from 'react';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
+import { useAuth } from '@/contexts/auth-context';
 import {
   Activity,
   ArrowRight,
@@ -26,6 +27,7 @@ import {
   Database,
   Eye,
   FileJson,
+  LogOut,
   TrendingUp,
   X,
 } from 'lucide-react';
@@ -185,7 +187,30 @@ function QuickAccessCard({ table }: { table: TableMetadata }) {
 
 function DashboardPage() {
   const { data: tablesData, isLoading: tablesLoading, error: tablesError } = useBusTables();
+  const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    navigate({ to: '/auth/login' });
+    return null;
+  }
+
+  const handleLogout = async () => {
+    await logout();
+    navigate({ to: '/auth/login' });
+  };
+
+  const getInitials = (name: string) =>
+    name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
   const tables = tablesData?.data ?? [];
   const totalEntities = tablesData?.meta?.total ?? 0;
@@ -244,9 +269,21 @@ function DashboardPage() {
                   <Settings className="w-5 h-5 text-muted-foreground" />
                 </button>
               </Link>
-              <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
-                <User className="w-5 h-5 text-primary-foreground" />
-              </div>
+              {user && (
+                <div className="flex items-center gap-2 pl-2 border-l border-border">
+                  <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-xs font-medium text-primary-foreground">
+                    {getInitials(user.name)}
+                  </div>
+                  <span className="text-sm font-medium text-foreground hidden md:inline">{user.name}</span>
+                  <button
+                    onClick={handleLogout}
+                    className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    title="Log out"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
