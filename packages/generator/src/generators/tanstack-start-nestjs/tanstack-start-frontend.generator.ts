@@ -542,6 +542,62 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         src: "src/components/admin/field-group-manager.tsx",
         dest: "src/components/admin/field-group-manager.tsx",
       },
+      // AD (Application Dictionary) components
+      {
+        src: "src/components/admin/ad-window-shell.tsx",
+        dest: "src/components/admin/ad-window-shell.tsx",
+      },
+      {
+        src: "src/components/admin/ad-toolbar.tsx",
+        dest: "src/components/admin/ad-toolbar.tsx",
+      },
+      {
+        src: "src/components/admin/ad-breadcrumb.tsx",
+        dest: "src/components/admin/ad-breadcrumb.tsx",
+      },
+      {
+        src: "src/components/admin/ad-record-nav.tsx",
+        dest: "src/components/admin/ad-record-nav.tsx",
+      },
+      {
+        src: "src/components/admin/ad-sidebar.tsx",
+        dest: "src/components/admin/ad-sidebar.tsx",
+      },
+      {
+        src: "src/components/admin/ad-field-definitions.ts",
+        dest: "src/components/admin/ad-field-definitions.ts",
+      },
+      {
+        src: "src/components/admin/ad-window-configs.ts",
+        dest: "src/components/admin/ad-window-configs.ts",
+      },
+      // Hooks
+      {
+        src: "src/hooks/use-record-navigation.ts",
+        dest: "src/hooks/use-record-navigation.ts",
+      },
+      {
+        src: "src/hooks/use-window-tabs.ts",
+        dest: "src/hooks/use-window-tabs.ts",
+      },
+      // UI components
+      {
+        src: "src/components/ui/breadcrumb.tsx",
+        dest: "src/components/ui/breadcrumb.tsx",
+      },
+      {
+        src: "src/components/ui/separator.tsx",
+        dest: "src/components/ui/separator.tsx",
+      },
+      {
+        src: "src/components/ui/tooltip.tsx",
+        dest: "src/components/ui/tooltip.tsx",
+      },
+      // Skeletons
+      {
+        src: "src/components/skeletons/form-skeleton.tsx",
+        dest: "src/components/skeletons/form-skeleton.tsx",
+      },
     ];
 
     for (const component of staticComponents) {
@@ -584,44 +640,31 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
   private async generateAdminPages(outputDir: string, context: any): Promise<void> {
     const adminDir = path.join(outputDir, "src/routes/admin");
     await fs.mkdir(adminDir, { recursive: true });
+    const templateDir = this.resolvedTemplateDir;
 
-    // Admin dashboard - renders as /admin via admin/index.tsx
-    const dashboardContent = await this.renderTemplate("src/routes/admin/index.tsx.hbs", context);
-    await fs.writeFile(path.join(adminDir, "index.tsx"), dashboardContent);
+    // Static AD pages (ADWindowShell-based, no Handlebars needed)
+    const staticAdminPages = [
+      "index.tsx",
+      "tables.tsx",
+      "windows.tsx",
+      "references.tsx",
+      "elements.tsx",
+    ];
+
+    for (const page of staticAdminPages) {
+      try {
+        await fs.copyFile(
+          path.join(templateDir, "src/routes/admin", page),
+          path.join(adminDir, page)
+        );
+      } catch (e) {
+        console.warn(`Static admin page not found: ${page}`);
+      }
+    }
 
     // Field layout management - renders as /admin/fields via admin/fields.tsx
     const fieldsContent = await this.renderTemplate("src/routes/admin/fields.tsx.hbs", context);
     await fs.writeFile(path.join(adminDir, "fields.tsx"), fieldsContent);
-
-    // Reference types - renders as /admin/references via admin/references.tsx
-    try {
-      const referencesContent = await this.renderTemplate(
-        "src/routes/admin/references.tsx.hbs",
-        context
-      );
-      await fs.writeFile(path.join(adminDir, "references.tsx"), referencesContent);
-    } catch (e) {
-      console.warn("Admin references page template not found");
-    }
-
-    // Table browser - renders as /admin/tables via admin/tables.tsx
-    try {
-      const tablesContent = await this.renderTemplate("src/routes/admin/tables.tsx.hbs", context);
-      await fs.writeFile(path.join(adminDir, "tables.tsx"), tablesContent);
-    } catch (e) {
-      console.warn("Admin tables page template not found");
-    }
-
-    // Table detail - renders as /admin/tables/$tableName via admin/tables.$tableName.tsx
-    try {
-      const tableDetailContent = await this.renderTemplate(
-        "src/routes/admin/tables.$tableName.tsx.hbs",
-        context
-      );
-      await fs.writeFile(path.join(adminDir, "tables.$tableName.tsx"), tableDetailContent);
-    } catch (e) {
-      console.warn("Admin table detail template not found");
-    }
 
     // Business rules management - renders as /admin/rules via admin/rules.tsx
     try {
