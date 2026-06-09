@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 
 interface DynamicFormProps {
   tableName: string;
+  fields?: FieldMetadata[];
   initialData?: Record<string, unknown>;
   onSubmit?: (data: Record<string, unknown>) => void | Promise<void>;
   isLoading?: boolean;
@@ -43,8 +44,8 @@ interface DynamicFormProps {
   mode?: "create" | "edit" | "view";
   readOnly?: boolean;
   serverErrors?: Record<string, string>;
-  parentField?: string; // Field name that links to parent (e.g., 'patient_id') - will be hidden from form
-  readOnlyFields?: string[]; // Specific field names that should be read-only (e.g., parent_id for child records)
+  parentField?: string;
+  readOnlyFields?: string[];
 }
 
 // ============================================================================
@@ -474,6 +475,7 @@ function FieldRenderer({
 
 export function DynamicForm({
   tableName,
+  fields: externalFields,
   initialData = {},
   onSubmit,
   isLoading: externalLoading = false,
@@ -485,7 +487,8 @@ export function DynamicForm({
   readOnlyFields = [],
 }: DynamicFormProps) {
   const { t } = useTranslations();
-  const { data: fields, isLoading: fieldsLoading, error } = useFormFields(tableName);
+  const { data: fetchedFields, isLoading: fieldsLoading, error } = useFormFields(tableName);
+  const fields = externalFields || fetchedFields;
 
   const form = useForm<FormValues>({
     defaultValues: initialData,
@@ -544,9 +547,7 @@ export function DynamicForm({
     }
   }, [initialData]);
 
-  // Only show skeleton when waiting for field metadata, not entity data
-  // Entity data loading should not block form rendering - form fields will populate when data arrives
-  const isLoading = fieldsLoading;
+  const isLoading = externalFields ? false : fieldsLoading;
 
   // Group fields by group_name (before early returns, so hooks are called consistently)
   const groupedFields = useMemo(() => {
@@ -583,7 +584,7 @@ export function DynamicForm({
     );
   }
 
-  if (error) {
+  if (error && !externalFields) {
     return (
       <div className="rounded-md bg-destructive/15 p-4 text-destructive">
         Failed to load form fields: {error.message}

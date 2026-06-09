@@ -53,6 +53,7 @@ import { useTranslations } from "@/lib/translations";
 
 interface DynamicTableProps {
   tableName: string;
+  fields?: FieldMetadata[];
   data: Record<string, unknown>[];
   isLoading?: boolean;
   totalCount?: number;
@@ -226,6 +227,7 @@ function TableSkeleton() {
 
 export function DynamicTable({
   tableName,
+  fields: externalFields,
   data,
   isLoading: dataLoading = false,
   totalCount = 0,
@@ -240,7 +242,9 @@ export function DynamicTable({
   selectedId,
 }: DynamicTableProps) {
   const { t } = useTranslations();
-  const { data: fields, isLoading: fieldsLoading, error } = useGridFields(tableName);
+  const { data: fetchedFields, isLoading: fetchFieldsLoading, error } = useGridFields(tableName);
+  const fields = externalFields || fetchedFields;
+  const fieldsLoading = externalFields ? false : fetchFieldsLoading;
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -353,7 +357,7 @@ export function DynamicTable({
     return <TableSkeleton />;
   }
 
-  if (error) {
+  if (error && !externalFields) {
     return (
       <div className="rounded-md bg-destructive/15 p-4 text-destructive">
         Failed to load table columns: {error.message}
