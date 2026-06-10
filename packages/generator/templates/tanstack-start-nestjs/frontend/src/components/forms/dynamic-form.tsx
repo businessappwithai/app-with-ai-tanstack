@@ -1,23 +1,10 @@
 "use client";
 
-/**
- * Dynamic Form Component
- *
- * Renders a form based on sys_field metadata from the Application Dictionary.
- * Fields are ordered by seq_no which can be modified at runtime.
- *
- * Features:
- * - Field grouping with section headers
- * - Multi-column layouts based on col_span
- * - Field colors and styling
- * - Dropdown/select fields for reference lists (sys_reference_id >= 1000)
- *
- * Auto-generated component
- */
-
 import { useForm } from "@tanstack/react-form";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { Lock, AlertCircle, Type, Hash, Mail, Link2, Phone, Calendar, ToggleLeft, FileText, List, Table2, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -27,12 +14,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { type FieldMetadata, useEntities, useFormFields, useRefList } from "@/hooks/use-entities";
 import { apiClient } from "@/lib/api-client";
 import { getFieldLabel } from "@/lib/i18n-fields";
+import { validateFormData, getFieldTypeLabel, getFieldTypeColor } from "@/lib/field-schema";
 import { useTranslations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
-
-// ============================================================================
-// Types
-// ============================================================================
 
 interface DynamicFormProps {
   tableName: string;
@@ -47,10 +31,6 @@ interface DynamicFormProps {
   parentField?: string;
   readOnlyFields?: string[];
 }
-
-// ============================================================================
-// Field Type Mapping
-// ============================================================================
 
 const REFERENCE_TYPE = {
   STRING: 10,
@@ -70,15 +50,26 @@ const REFERENCE_TYPE = {
   PASSWORD: 29,
 };
 
-// ============================================================================
-// Types
-// ============================================================================
-
 type FormValues = Record<string, unknown>;
 
-// ============================================================================
-// Field Renderer
-// ============================================================================
+function getFieldIcon(sysReferenceId: number) {
+  switch (sysReferenceId) {
+    case REFERENCE_TYPE.STRING: return Type;
+    case REFERENCE_TYPE.INTEGER: return Hash;
+    case REFERENCE_TYPE.AMOUNT: return Hash;
+    case REFERENCE_TYPE.EMAIL: return Mail;
+    case REFERENCE_TYPE.URL: return Link2;
+    case REFERENCE_TYPE.PHONE: return Phone;
+    case REFERENCE_TYPE.DATE:
+    case REFERENCE_TYPE.DATETIME: return Calendar;
+    case REFERENCE_TYPE.YES_NO: return ToggleLeft;
+    case REFERENCE_TYPE.TEXT: return FileText;
+    case REFERENCE_TYPE.PASSWORD: return KeyRound;
+    case REFERENCE_TYPE.TABLE:
+    case REFERENCE_TYPE.TABLE_DIRECT: return Table2;
+    default: return sysReferenceId >= 1000 ? List : Type;
+  }
+}
 
 interface TableReferenceFieldProps {
   field: FieldMetadata;
@@ -87,77 +78,121 @@ interface TableReferenceFieldProps {
   error: string | undefined;
 }
 
-/**
- * Component for rendering TABLE reference fields (sys_reference_id === 18)
- * Fetches records from the referenced table and displays them in a dropdown
- */
 function TableReferenceField({ field, fieldApi, isDisabled, error }: TableReferenceFieldProps) {
-  // Get the referenced table name from metadata (stored in sys_column.ref_table_name)
-  // This is populated from the database, not hardcoded
   const referencedTableName = field.ref_table_name || null;
+  const customEndpoint = field.ref_endpoint || null;
+  const idField = field.ref_id_field || 'id';
+  const labelField = field.ref_label_field || 'name';
 
-  // Fetch records from the referenced table
-  const { data: records, isLoading } = useEntities<any>(referencedTableName || "", undefined, {
-    enabled: !!referencedTableName,
+  // Custom endpoint (e.g. /sys/references) — use apiClient directly
+  const { data: customData, isLoading: isLoadingCustom } = useQuery({
+    queryKey: ['table-ref-custom', customEndpoint],
+    queryFn: () => apiClient.get<{ data: any[] }>(customEndpoint!, { limit: 500 }),
+    enabled: !!customEndpoint,
   });
 
-  // Get the actual data array from paginated response
-  const tableRecords = records?.data || [];
+  // Standard business table endpoint
+  const { data: records, isLoading: isLoadingRecords } = useEntities<any>(referencedTableName || "", undefined, {
+    enabled: !!referencedTableName && !customEndpoint,
+  });
 
-  // If we can't determine the table name, show a text input
-  if (!referencedTableName) {
+  const isLoading = isLoadingCustom || isLoadingRecords;
+  const tableRecords: any[] = customEndpoint
+    ? (customData as any)?.data ?? []
+    : records?.data ?? [];
+
+  if (!referencedTableName && !customEndpoint) {
     return (
-      <div className="space-y-2">
-        <Label htmlFor={field.column_name}>
-          {field.name}
-          {field.is_mandatory && <span className="text-destructive ml-1">*</span>}
-        </Label>
-        <Input
-          id={field.column_name}
-          name={field.column_name}
-          value={(fieldApi.state.value as string) || ""}
-          onChange={(e) => fieldApi.handleChange(e.target.value)}
-          onBlur={fieldApi.handleBlur}
-          disabled={isDisabled}
-          className={cn(error && "border-destructive")}
-        />
-        {error && <p className="text-sm text-destructive">{error}</p>}
-      </div>
+      <Input
+        id={field.column_name}
+        name={field.column_name}
+        value={(fieldApi.state.value as string) || ""}
+        onChange={(e) => fieldApi.handleChange(e.target.value)}
+        onBlur={fieldApi.handleBlur}
+        disabled={isDisabled}
+        className={cn(error && "border-destructive")}
+      />
     );
   }
 
-  return (
-    <div className="space-y-2">
-      <Label htmlFor={field.column_name}>
-        {field.name}
-        {field.is_mandatory && <span className="text-destructive ml-1">*</span>}
-      </Label>
-      {isLoading ? (
-        <Skeleton className="h-10 w-full" />
-      ) : (
-        <select
-          id={field.column_name}
-          name={field.column_name}
-          value={(fieldApi.state.value as string) || ""}
-          onChange={(e) => fieldApi.handleChange(e.target.value)}
-          onBlur={fieldApi.handleBlur}
-          disabled={isDisabled}
-          className={cn(
-            "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-            error && "border-destructive"
-          )}
-        >
-          <option value="">Select {field.name}...</option>
-          {tableRecords.map((record: any) => (
-            <option key={record.id} value={record.id}>
-              {record.name ||
-                `${record.first_name || ""} ${record.last_name || ""}`.trim() ||
-                record.id}
-            </option>
-          ))}
-        </select>
+  const currentValue = fieldApi.state.value;
+
+  return isLoading ? (
+    <Skeleton className="h-10 w-full" />
+  ) : (
+    <select
+      id={field.column_name}
+      name={field.column_name}
+      value={currentValue !== undefined && currentValue !== null ? String(currentValue) : ""}
+      onChange={(e) => {
+        const raw = e.target.value;
+        // Preserve numeric IDs for sys_reference_id etc.
+        const parsed = raw !== "" && !isNaN(Number(raw)) ? Number(raw) : raw;
+        fieldApi.handleChange(parsed || raw);
+      }}
+      onBlur={fieldApi.handleBlur}
+      disabled={isDisabled}
+      className={cn(
+        "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        error && "border-destructive"
       )}
-      {error && <p className="text-sm text-destructive">{error}</p>}
+    >
+      <option value="">Select {field.name}...</option>
+      {tableRecords.map((record: any) => {
+        const optValue = record[idField];
+        const optLabel = record[labelField] ||
+          `${record.first_name || ""} ${record.last_name || ""}`.trim() ||
+          String(optValue);
+        return (
+          <option key={String(optValue)} value={String(optValue)}>
+            {optLabel}
+          </option>
+        );
+      })}
+    </select>
+  );
+}
+
+function FieldTypeBadge({ field }: { field: FieldMetadata }) {
+  const Icon = getFieldIcon(field.sys_reference_id);
+  const typeLabel = getFieldTypeLabel(field.sys_reference_id);
+  const colorClass = getFieldTypeColor(field.sys_reference_id);
+
+  return (
+    <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium", colorClass)}>
+      <Icon className="w-3 h-3" />
+      {typeLabel}
+    </span>
+  );
+}
+
+function FieldConstraints({ field, charCount }: { field: FieldMetadata; charCount?: number }) {
+  const hints: string[] = [];
+  if (field.field_length && field.sys_reference_id !== REFERENCE_TYPE.YES_NO) {
+    hints.push(`max ${field.field_length}`);
+  }
+  if (field.sys_reference_id === REFERENCE_TYPE.PASSWORD) {
+    hints.push("min 6");
+  }
+
+  if (hints.length === 0 && charCount === undefined) return null;
+
+  return (
+    <div className="flex items-center justify-between mt-1">
+      {hints.length > 0 && (
+        <span className="text-[10px] text-muted-foreground">
+          {hints.join(" · ")}
+        </span>
+      )}
+      {charCount !== undefined && field.field_length && (
+        <span className={cn(
+          "text-[10px] font-mono",
+          charCount > field.field_length ? "text-destructive font-semibold" :
+          charCount > field.field_length * 0.8 ? "text-amber-500" : "text-muted-foreground"
+        )}>
+          {charCount}/{field.field_length}
+        </span>
+      )}
     </div>
   );
 }
@@ -166,90 +201,125 @@ interface FieldRendererProps {
   field: FieldMetadata;
   form: ReturnType<typeof useForm<FormValues>>;
   serverErrors?: Record<string, string>;
+  zodErrors?: Record<string, string>;
   tableName: string;
-  readOnlyFields?: string[]; // Additional read-only field names
+  readOnlyFields?: string[];
 }
 
 function FieldRenderer({
   field,
   form,
   serverErrors = {},
+  zodErrors = {},
   tableName,
   readOnlyFields = [],
 }: FieldRendererProps) {
   const isFormReadOnly = (form as any).readOnly || false;
   const formMode = (form as any).mode || "edit";
-
-  // Get translated field label (tab_name not yet available from API, using undefined)
   const fieldLabel = getFieldLabel(tableName, (field as any).tab_name, field.name, field.name);
+  const isDisabled = (field.is_read_only && formMode !== "create") || readOnlyFields.includes(field.column_name);
+  const isReadOnly = isDisabled || isFormReadOnly;
 
-  // For new record creation, ignore is_read_only to allow filling required fields
-  // Otherwise respect the is_read_only flag from database
-  // Also check if field is in readOnlyFields (for child edits where parent_id should be read-only)
-  const isDisabled =
-    (field.is_read_only && formMode !== "create") || readOnlyFields.includes(field.column_name);
-
-  // Fetch reference list values for dropdown fields (sys_reference_id >= 1000)
   const { data: refListValues, isLoading: isLoadingRefList } = useRefList(
     field.sys_reference_id >= 1000 ? field.sys_reference_id : 0
   );
-
-  // Determine field color style
-  const getFieldColorStyle = () => {
-    if (!field.color || field.color === "contrast") return {};
-    return {
-      color: field.color,
-    };
-  };
-
-  const fieldColorStyle = getFieldColorStyle();
 
   return (
     <form.Field
       name={field.column_name}
       validators={{
         onChange: ({ value }: { value: unknown }) => {
-          if (field.is_mandatory && !value) {
-            return `${fieldLabel} is required`;
-          }
-          if (
-            field.field_length &&
-            typeof value === "string" &&
-            value.length > field.field_length
-          ) {
+          if (field.is_mandatory && !value) return `${fieldLabel} is required`;
+          if (field.field_length && typeof value === "string" && value.length > field.field_length) {
             return `${fieldLabel} must be at most ${field.field_length} characters`;
           }
           return undefined;
         },
       }}
     >
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {(fieldApi: any) => {
         const clientError = fieldApi.state.meta.errors?.[0] as string | undefined;
         const serverError = serverErrors?.[field.column_name];
-        const error = clientError || serverError;
+        const zodError = zodErrors?.[field.column_name];
+        const error = clientError || serverError || zodError;
+        const currentValue = fieldApi.state.value;
+        const charCount = typeof currentValue === "string" ? currentValue.length : undefined;
 
-        // Dropdown/Select for reference lists (sys_reference_id >= 1000)
+        const labelBlock = (
+          <div className="flex items-center gap-2 mb-1.5">
+            <Label htmlFor={field.column_name} className={cn("text-sm font-medium", error && "text-destructive")}>
+              {fieldLabel}
+              {field.is_mandatory && <span className="text-red-500 ml-0.5">*</span>}
+            </Label>
+            <FieldTypeBadge field={field} />
+            {isDisabled && (
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                <Lock className="w-2.5 h-2.5" /> Read-only
+              </span>
+            )}
+          </div>
+        );
+
+        const errorBlock = error && (
+          <div className="flex items-center gap-1 mt-1.5 text-destructive">
+            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+            <p className="text-xs">{error}</p>
+          </div>
+        );
+
+        const inputStyles = cn(
+          error && "border-destructive ring-destructive/20",
+          isDisabled && "bg-muted/50 cursor-not-allowed",
+          field.is_mandatory && !error && "border-primary/30"
+        );
+
+        // Static options list (inline enum — no DB fetch required)
+        if (field.options && field.options.length > 0) {
+          return (
+            <div>
+              {labelBlock}
+              <select
+                id={field.column_name}
+                name={field.column_name}
+                value={(currentValue as string) || ""}
+                onChange={(e) => fieldApi.handleChange(e.target.value)}
+                onBlur={fieldApi.handleBlur}
+                disabled={isReadOnly}
+                className={cn(
+                  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                  inputStyles
+                )}
+              >
+                <option value="">Select {fieldLabel}...</option>
+                {field.options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              {errorBlock}
+            </div>
+          );
+        }
+
+        // Reference list dropdown
         if (field.sys_reference_id >= 1000) {
           return (
-            <div className="space-y-2">
-              <Label htmlFor={field.column_name}>
-                {fieldLabel}
-                {field.is_mandatory && <span className="text-destructive ml-1">*</span>}
-              </Label>
+            <div>
+              {labelBlock}
               {isLoadingRefList ? (
                 <Skeleton className="h-10 w-full" />
               ) : (
                 <select
                   id={field.column_name}
                   name={field.column_name}
-                  value={(fieldApi.state.value as string) || ""}
+                  value={(currentValue as string) || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
-                  disabled={isDisabled || isFormReadOnly}
+                  disabled={isReadOnly}
                   className={cn(
-                    "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                    error && "border-destructive"
+                    "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                    inputStyles
                   )}
                 >
                   <option value="">Select {fieldLabel}...</option>
@@ -260,207 +330,214 @@ function FieldRenderer({
                   ))}
                 </select>
               )}
-              {error && <p className="text-sm text-destructive">{error}</p>}
+              {errorBlock}
             </div>
           );
         }
 
-        // Dropdown/Select for table references (sys_reference_id === 18)
-        if (field.sys_reference_id === REFERENCE_TYPE.TABLE) {
+        // Table or Table Direct reference
+        if (field.sys_reference_id === REFERENCE_TYPE.TABLE || field.sys_reference_id === REFERENCE_TYPE.TABLE_DIRECT) {
           return (
-            <TableReferenceField
-              field={field}
-              fieldApi={fieldApi}
-              isDisabled={isDisabled || isFormReadOnly}
-              error={error}
-            />
+            <div>
+              {labelBlock}
+              <TableReferenceField
+                field={field}
+                fieldApi={fieldApi}
+                isDisabled={isReadOnly}
+                error={error}
+              />
+              {errorBlock}
+            </div>
           );
         }
 
-        // Render different input types based on sys_reference_id
         switch (field.sys_reference_id) {
           case REFERENCE_TYPE.TEXT:
             return (
-              <div className="space-y-2">
-                <Label htmlFor={field.column_name}>
-                  {fieldLabel}
-                  {field.is_mandatory && <span className="text-destructive ml-1">*</span>}
-                </Label>
+              <div>
+                {labelBlock}
                 <Textarea
                   id={field.column_name}
                   name={field.column_name}
-                  value={(fieldApi.state.value as string) || ""}
+                  value={(currentValue as string) || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
-                  disabled={isDisabled || isFormReadOnly}
-                  className={cn(error && "border-destructive")}
+                  disabled={isReadOnly}
+                  className={cn(inputStyles)}
                   rows={4}
                 />
-                {error && <p className="text-sm text-destructive">{error}</p>}
+                <FieldConstraints field={field} charCount={charCount} />
+                {errorBlock}
               </div>
             );
 
           case REFERENCE_TYPE.YES_NO:
             return (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-3 pt-6">
                 <Checkbox
                   id={field.column_name}
-                  checked={(fieldApi.state.value as boolean) || false}
+                  checked={(currentValue as boolean) || false}
                   onCheckedChange={(checked) => fieldApi.handleChange(checked)}
-                  disabled={isDisabled || isFormReadOnly}
+                  disabled={isReadOnly}
+                  className={cn(field.is_mandatory && "border-primary/50")}
                 />
-                <Label htmlFor={field.column_name}>{fieldLabel}</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor={field.column_name} className="text-sm">{fieldLabel}</Label>
+                  <FieldTypeBadge field={field} />
+                </div>
               </div>
             );
 
           case REFERENCE_TYPE.DATE:
             return (
-              <div className="space-y-2">
-                <Label htmlFor={field.column_name}>
-                  {fieldLabel}
-                  {field.is_mandatory && <span className="text-destructive ml-1">*</span>}
-                </Label>
+              <div>
+                {labelBlock}
                 <Input
                   id={field.column_name}
                   name={field.column_name}
                   type="date"
-                  value={(fieldApi.state.value as string)?.split("T")[0] || ""}
+                  value={(currentValue as string)?.split("T")[0] || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
-                  disabled={isDisabled || isFormReadOnly}
-                  className={cn(error && "border-destructive")}
+                  disabled={isReadOnly}
+                  className={cn(inputStyles)}
                 />
-                {error && <p className="text-sm text-destructive">{error}</p>}
+                {errorBlock}
               </div>
             );
 
           case REFERENCE_TYPE.DATETIME:
             return (
-              <div className="space-y-2">
-                <Label htmlFor={field.column_name}>
-                  {fieldLabel}
-                  {field.is_mandatory && <span className="text-destructive ml-1">*</span>}
-                </Label>
+              <div>
+                {labelBlock}
                 <Input
                   id={field.column_name}
                   name={field.column_name}
                   type="datetime-local"
-                  value={(fieldApi.state.value as string)?.slice(0, 16) || ""}
+                  value={(currentValue as string)?.slice(0, 16) || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
-                  disabled={isDisabled || isFormReadOnly}
-                  className={cn(error && "border-destructive")}
+                  disabled={isReadOnly}
+                  className={cn(inputStyles)}
                 />
-                {error && <p className="text-sm text-destructive">{error}</p>}
+                {errorBlock}
               </div>
             );
 
           case REFERENCE_TYPE.INTEGER:
           case REFERENCE_TYPE.AMOUNT:
             return (
-              <div className="space-y-2">
-                <Label htmlFor={field.column_name}>
-                  {fieldLabel}
-                  {field.is_mandatory && <span className="text-destructive ml-1">*</span>}
-                </Label>
+              <div>
+                {labelBlock}
                 <Input
                   id={field.column_name}
                   name={field.column_name}
                   type="number"
                   step={field.sys_reference_id === REFERENCE_TYPE.AMOUNT ? "0.01" : "1"}
-                  value={(fieldApi.state.value as number) ?? ""}
+                  value={(currentValue as number) ?? ""}
                   onChange={(e) => fieldApi.handleChange(e.target.valueAsNumber || null)}
                   onBlur={fieldApi.handleBlur}
-                  disabled={isDisabled || isFormReadOnly}
-                  className={cn(error && "border-destructive")}
+                  disabled={isReadOnly}
+                  className={cn(inputStyles)}
                 />
-                {error && <p className="text-sm text-destructive">{error}</p>}
+                {errorBlock}
               </div>
             );
 
           case REFERENCE_TYPE.EMAIL:
             return (
-              <div className="space-y-2">
-                <Label htmlFor={field.column_name}>
-                  {fieldLabel}
-                  {field.is_mandatory && <span className="text-destructive ml-1">*</span>}
-                </Label>
+              <div>
+                {labelBlock}
                 <Input
                   id={field.column_name}
                   name={field.column_name}
                   type="email"
-                  value={(fieldApi.state.value as string) || ""}
+                  value={(currentValue as string) || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
-                  disabled={isDisabled || isFormReadOnly}
-                  className={cn(error && "border-destructive")}
+                  disabled={isReadOnly}
+                  className={cn(inputStyles)}
                 />
-                {error && <p className="text-sm text-destructive">{error}</p>}
+                <FieldConstraints field={field} charCount={charCount} />
+                {errorBlock}
               </div>
             );
 
           case REFERENCE_TYPE.URL:
             return (
-              <div className="space-y-2">
-                <Label htmlFor={field.column_name}>
-                  {fieldLabel}
-                  {field.is_mandatory && <span className="text-destructive ml-1">*</span>}
-                </Label>
+              <div>
+                {labelBlock}
                 <Input
                   id={field.column_name}
                   name={field.column_name}
                   type="url"
-                  value={(fieldApi.state.value as string) || ""}
+                  value={(currentValue as string) || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
-                  disabled={isDisabled || isFormReadOnly}
-                  className={cn(error && "border-destructive")}
+                  disabled={isReadOnly}
+                  className={cn(inputStyles)}
+                  placeholder="https://..."
                 />
-                {error && <p className="text-sm text-destructive">{error}</p>}
+                <FieldConstraints field={field} charCount={charCount} />
+                {errorBlock}
+              </div>
+            );
+
+          case REFERENCE_TYPE.PHONE:
+            return (
+              <div>
+                {labelBlock}
+                <Input
+                  id={field.column_name}
+                  name={field.column_name}
+                  type="tel"
+                  value={(currentValue as string) || ""}
+                  onChange={(e) => fieldApi.handleChange(e.target.value)}
+                  onBlur={fieldApi.handleBlur}
+                  disabled={isReadOnly}
+                  className={cn(inputStyles)}
+                />
+                <FieldConstraints field={field} charCount={charCount} />
+                {errorBlock}
               </div>
             );
 
           case REFERENCE_TYPE.PASSWORD:
             return (
-              <div className="space-y-2">
-                <Label htmlFor={field.column_name}>
-                  {fieldLabel}
-                  {field.is_mandatory && <span className="text-destructive ml-1">*</span>}
-                </Label>
+              <div>
+                {labelBlock}
                 <Input
                   id={field.column_name}
                   name={field.column_name}
                   type="password"
-                  value={(fieldApi.state.value as string) || ""}
+                  value={(currentValue as string) || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
-                  disabled={isDisabled || isFormReadOnly}
-                  className={cn(error && "border-destructive")}
+                  disabled={isReadOnly}
+                  className={cn(inputStyles)}
                 />
-                {error && <p className="text-sm text-destructive">{error}</p>}
+                <FieldConstraints field={field} charCount={charCount} />
+                {errorBlock}
               </div>
             );
 
-          // Default: text input
           default:
             return (
-              <div className="space-y-2">
-                <Label htmlFor={field.column_name}>
-                  {fieldLabel}
-                  {field.is_mandatory && <span className="text-destructive ml-1">*</span>}
-                </Label>
+              <div>
+                {labelBlock}
                 <Input
                   id={field.column_name}
                   name={field.column_name}
                   type="text"
-                  value={(fieldApi.state.value as string) || ""}
+                  value={(currentValue as string) || ""}
                   onChange={(e) => fieldApi.handleChange(e.target.value)}
                   onBlur={fieldApi.handleBlur}
-                  disabled={isDisabled || isFormReadOnly}
+                  disabled={isReadOnly}
                   maxLength={field.field_length}
-                  className={cn(error && "border-destructive")}
+                  className={cn(inputStyles)}
                 />
-                {error && <p className="text-sm text-destructive">{error}</p>}
+                <FieldConstraints field={field} charCount={charCount} />
+                {errorBlock}
               </div>
             );
         }
@@ -468,10 +545,6 @@ function FieldRenderer({
     </form.Field>
   );
 }
-
-// ============================================================================
-// Dynamic Form Component
-// ============================================================================
 
 export function DynamicForm({
   tableName,
@@ -489,58 +562,49 @@ export function DynamicForm({
   const { t } = useTranslations();
   const { data: fetchedFields, isLoading: fieldsLoading, error } = useFormFields(tableName);
   const fields = externalFields || fetchedFields;
+  const [zodErrors, setZodErrors] = useState<Record<string, string>>({});
 
   const form = useForm<FormValues>({
     defaultValues: initialData,
     onSubmit: async ({ value }) => {
       if (readOnly || !onSubmit) return;
 
-      // Filter out non-updateable fields for update mode
-      // Only send updateable fields to the backend
-      // Never send: id, created_at, updated_at, deleted_at (backend handles these)
+      // Zod validation
+      if (fields) {
+        const displayedFields = fields.filter(f => f.is_displayed && f.column_name !== parentField);
+        const validation = validateFormData(displayedFields, value, mode);
+        if (!validation.success) {
+          setZodErrors(validation.errors);
+          toast.error("Please fix the validation errors");
+          return;
+        }
+        setZodErrors({});
+      }
+
       const filteredValues =
         mode === "edit" && fields
           ? Object.entries(value).reduce(
               (acc, [key, val]) => {
-                // Skip system fields that backend manages
-                if (
-                  key === "id" ||
-                  key === "created_at" ||
-                  key === "updated_at" ||
-                  key === "deleted_at"
-                ) {
-                  return acc;
-                }
-
-                // For all other fields, check if they're updateable (not read-only)
-                // version field is allowed for optimistic locking
+                if (key === "id" || key === "created_at" || key === "updated_at" || key === "deleted_at") return acc;
                 const field = fields.find((f: FieldMetadata) => f.column_name === key);
                 const isUpdateable = field?.is_updateable !== false;
                 const isVersionField = key === "version";
-
-                if (isUpdateable || isVersionField) {
-                  acc[key] = val;
-                }
+                if (isUpdateable || isVersionField) acc[key] = val;
                 return acc;
               },
               {} as Record<string, unknown>
             )
           : value;
 
-      // Call the onSubmit handler with filtered form values
-      // Toast notifications are handled by the caller (page component)
       await onSubmit(filteredValues);
     },
   });
 
-  // Attach readOnly and mode to form instance for FieldRenderer to access
   (form as any).readOnly = readOnly;
   (form as any).mode = mode;
 
-  // Update form values when initialData changes (e.g., after API call completes)
   useEffect(() => {
     if (Object.keys(initialData).length > 0) {
-      // Batch update all field values at once
       Object.entries(initialData).forEach(([key, value]) => {
         form.setFieldValue(key, value);
       });
@@ -549,25 +613,15 @@ export function DynamicForm({
 
   const isLoading = externalFields ? false : fieldsLoading;
 
-  // Group fields by group_name (before early returns, so hooks are called consistently)
   const groupedFields = useMemo(() => {
     if (!fields || fields.length === 0) return new Map();
-
-    // Show all displayed fields except the parent reference field (e.g., patient_id when creating from patient)
-    // But DO show other reference fields like department_id, provider_id, etc.
     const displayFields = fields.filter((f) => f.is_displayed && f.column_name !== parentField);
-
     const groups: Map<string | null, FieldMetadata[]> = new Map();
-
-    // First, separate fields into groups
     displayFields.forEach((field) => {
       const groupName = field.group_name || null;
-      if (!groups.has(groupName)) {
-        groups.set(groupName, []);
-      }
+      if (!groups.has(groupName)) groups.set(groupName, []);
       groups.get(groupName)!.push(field);
     });
-
     return groups;
   }, [fields, parentField]);
 
@@ -600,39 +654,34 @@ export function DynamicForm({
     );
   }
 
-  // Manual submit handler that collects form values and calls onSubmit
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (readOnly || !onSubmit) return;
 
-    // Get current form values using TanStack Form's state
     const currentValues = form.state.values;
     const value = currentValues as Record<string, unknown>;
 
-    // Filter out non-updateable fields for update mode
+    // Zod validation
+    if (fields) {
+      const displayedFields = fields.filter(f => f.is_displayed && f.column_name !== parentField);
+      const validation = validateFormData(displayedFields, value, mode);
+      if (!validation.success) {
+        setZodErrors(validation.errors);
+        toast.error("Please fix the validation errors");
+        return;
+      }
+      setZodErrors({});
+    }
+
     const filteredValues =
       mode === "edit" && fields
         ? Object.entries(value).reduce(
             (acc, [key, val]) => {
-              // Skip system fields that backend manages
-              if (
-                key === "id" ||
-                key === "created_at" ||
-                key === "updated_at" ||
-                key === "deleted_at"
-              ) {
-                return acc;
-              }
-
-              // For all other fields, check if they're updateable (not read-only)
-              // version field is allowed for optimistic locking
+              if (key === "id" || key === "created_at" || key === "updated_at" || key === "deleted_at") return acc;
               const field = fields.find((f: FieldMetadata) => f.column_name === key);
               const isUpdateable = !field?.is_read_only;
               const isVersionField = key === "version";
-
-              if (isUpdateable || isVersionField) {
-                acc[key] = val;
-              }
+              if (isUpdateable || isVersionField) acc[key] = val;
               return acc;
             },
             {} as Record<string, unknown>
@@ -642,96 +691,96 @@ export function DynamicForm({
     await onSubmit(filteredValues);
   };
 
+  const requiredCount = fields.filter(f => f.is_displayed && f.is_mandatory && f.column_name !== parentField).length;
+  const totalDisplayed = fields.filter(f => f.is_displayed && f.column_name !== parentField).length;
+
   return (
     <form.Provider>
       <form role="form" onSubmit={handleFormSubmit} className="space-y-6">
-        {/* Submit button - top (hide in view mode) */}
-        {!readOnly && onSubmit && (
-          <div className="flex justify-end gap-4">
+        {/* Form summary bar */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground">
+              {totalDisplayed} fields
+            </span>
+            {requiredCount > 0 && (
+              <>
+                <span className="text-muted-foreground/30">|</span>
+                <span className="text-xs text-red-500/80 font-medium">{requiredCount} required</span>
+              </>
+            )}
+            {Object.keys(zodErrors).length > 0 && (
+              <>
+                <span className="text-muted-foreground/30">|</span>
+                <span className="inline-flex items-center gap-1 text-xs text-destructive font-medium">
+                  <AlertCircle className="w-3 h-3" />
+                  {Object.keys(zodErrors).length} validation {Object.keys(zodErrors).length === 1 ? 'error' : 'errors'}
+                </span>
+              </>
+            )}
+          </div>
+          {!readOnly && onSubmit && (
             <form.Subscribe selector={(state: any) => [state.isSubmitting]}>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {([isFormSubmitting]: any) => (
-                <Button type="submit" disabled={isSaving || isFormSubmitting}>
-                  {isSaving || isFormSubmitting
-                    ? "Saving..."
-                    : mode === "create"
-                      ? "Create"
-                      : "Save"}
+                <Button type="submit" disabled={isSaving || isFormSubmitting} size="sm" className="bg-primary hover:bg-primary/90">
+                  {isSaving || isFormSubmitting ? "Saving..." : mode === "create" ? "Create" : "Save"}
                 </Button>
               )}
             </form.Subscribe>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Render grouped fields */}
         {Array.from(groupedFields.entries()).map(([groupName, fieldsInGroup]) => {
-          // Determine group columns (default to 1 if not in a group)
           const groupColumns = fieldsInGroup[0]?.group_columns || 1;
 
           return (
             <div key={groupName || "ungrouped"} className="space-y-4">
-              {/* Group header if fields are in a group */}
               {groupName && (
-                <div className="border-b pb-2">
-                  <h3 className="text-lg font-semibold" style={{ color: "#6366f1" }}>
-                    {groupName}
-                  </h3>
+                <div className="border-b border-primary/20 pb-2">
+                  <h3 className="text-sm font-semibold text-primary">{groupName}</h3>
                   {fieldsInGroup[0]?.group_description && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {fieldsInGroup[0].group_description}
-                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{fieldsInGroup[0].group_description}</p>
                   )}
                 </div>
               )}
 
-              {/* Render fields in multi-column grid using FieldRenderer for proper type handling */}
               <div
                 className={cn(
-                  "grid gap-4",
+                  "grid gap-x-6 gap-y-5",
                   groupColumns === 1 && "grid-cols-1",
                   groupColumns === 2 && "grid-cols-1 md:grid-cols-2",
                   groupColumns === 3 && "grid-cols-1 md:grid-cols-3",
                   groupColumns === 4 && "grid-cols-1 md:grid-cols-4"
                 )}
               >
-                {fieldsInGroup.map((field: FieldMetadata) => {
-                  return (
-                    <div
-                      key={field.sys_field_id}
-                      className={cn(
-                        // Apply custom column span if specified (max span is groupColumns)
-                        field.col_span &&
-                          field.col_span > 1 &&
-                          `md:col-span-${Math.min(groupColumns, field.col_span)}`
-                      )}
-                    >
-                      <FieldRenderer
-                        field={field}
-                        form={form}
-                        serverErrors={serverErrors}
-                        tableName={tableName}
-                        readOnlyFields={readOnlyFields}
-                      />
-                    </div>
-                  );
-                })}
+                {fieldsInGroup.map((field: FieldMetadata) => (
+                  <div
+                    key={field.sys_field_id}
+                    className={cn(
+                      field.col_span && field.col_span > 1 && `md:col-span-${Math.min(groupColumns, field.col_span)}`
+                    )}
+                  >
+                    <FieldRenderer
+                      field={field}
+                      form={form}
+                      serverErrors={serverErrors}
+                      zodErrors={zodErrors}
+                      tableName={tableName}
+                      readOnlyFields={readOnlyFields}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           );
         })}
 
-        {/* Submit button - hide in view mode */}
         {!readOnly && onSubmit && (
-          <div className="flex justify-end gap-4">
+          <div className="flex justify-end gap-4 pt-2 border-t border-border">
             <form.Subscribe selector={(state: any) => [state.isSubmitting]}>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {([isFormSubmitting]: any) => (
-                <Button type="submit" disabled={isSaving || isFormSubmitting}>
-                  {isSaving || isFormSubmitting
-                    ? "Saving..."
-                    : mode === "create"
-                      ? "Create"
-                      : "Save"}
+                <Button type="submit" disabled={isSaving || isFormSubmitting} className="bg-primary hover:bg-primary/90">
+                  {isSaving || isFormSubmitting ? "Saving..." : mode === "create" ? "Create" : "Save"}
                 </Button>
               )}
             </form.Subscribe>

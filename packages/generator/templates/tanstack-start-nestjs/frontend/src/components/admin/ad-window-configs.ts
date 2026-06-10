@@ -38,6 +38,9 @@ export interface ADLevel {
   formFields: FieldMetadata[];
   gridFields: FieldMetadata[];
   childTabs?: ADChildTabConfig[];
+  /** Optional: when set, overrides admin-style URL construction.
+   *  Detail URL → `${baseRoutePath}/${id}`, List URL → `${baseRoutePath}` */
+  baseRoutePath?: string;
 }
 
 export interface ADChildTabConfig {
@@ -47,11 +50,41 @@ export interface ADChildTabConfig {
   badge?: 'count';
 }
 
+// ---------------------------------------------------------------------------
+// Metadata-driven URL construction
+// level.id (e.g. 'window', 'tab') is the canonical key — it maps directly to
+// the sys_<id> table name in the Application Dictionary.
+// ---------------------------------------------------------------------------
+
+export interface ParentContext {
+  level: ADLevel;
+  id: string;
+}
+
+/** /admin/window/$id  or  /admin/window/$wId/tab/$tId  etc.
+ *  When level.baseRoutePath is set (e.g. bus entities), uses `${baseRoutePath}/${id}` instead. */
+export function buildAdminDetailUrl(parentCtx: ParentContext[], level: ADLevel, id: string): string {
+  if (level.baseRoutePath) return `${level.baseRoutePath}/${id}`;
+  const parts = parentCtx.flatMap(({ level: l, id: i }) => [l.id, i]);
+  parts.push(level.id, id);
+  return '/admin/' + parts.join('/');
+}
+
+/** /admin/windows  or  /admin/window/$wId/tabs  etc. */
+/** /admin/windows  or  /admin/window/$wId/tabs  etc.
+ *  When level.baseRoutePath is set, returns `${baseRoutePath}` (the list route itself). */
+export function buildAdminListUrl(parentCtx: ParentContext[], level: ADLevel): string {
+  if (level.baseRoutePath) return level.baseRoutePath;
+  const parts = parentCtx.flatMap(({ level: l, id: i }) => [l.id, i]);
+  parts.push(level.id + 's');
+  return '/admin/' + parts.join('/');
+}
+
 // ============================================================================
 // Level Definitions
 // ============================================================================
 
-const TABLE_LEVEL: ADLevel = {
+export const TABLE_LEVEL: ADLevel = {
   id: 'table',
   label: 'Table',
   endpoint: '/sys/tables',
@@ -62,7 +95,7 @@ const TABLE_LEVEL: ADLevel = {
   gridFields: SYS_TABLE_GRID_FIELDS,
 };
 
-const COLUMN_LEVEL: ADLevel = {
+export const COLUMN_LEVEL: ADLevel = {
   id: 'column',
   label: 'Column',
   endpoint: '/sys/columns',
@@ -74,7 +107,7 @@ const COLUMN_LEVEL: ADLevel = {
   gridFields: SYS_COLUMN_GRID_FIELDS,
 };
 
-const WINDOW_LEVEL: ADLevel = {
+export const WINDOW_LEVEL: ADLevel = {
   id: 'window',
   label: 'Window',
   endpoint: '/sys/windows',
@@ -85,7 +118,7 @@ const WINDOW_LEVEL: ADLevel = {
   gridFields: SYS_WINDOW_GRID_FIELDS,
 };
 
-const TAB_LEVEL: ADLevel = {
+export const TAB_LEVEL: ADLevel = {
   id: 'tab',
   label: 'Tab',
   endpoint: '/sys/tabs',
@@ -97,7 +130,7 @@ const TAB_LEVEL: ADLevel = {
   gridFields: SYS_TAB_GRID_FIELDS,
 };
 
-const FIELD_LEVEL: ADLevel = {
+export const FIELD_LEVEL: ADLevel = {
   id: 'field',
   label: 'Field',
   endpoint: '/sys/fields',
@@ -109,7 +142,7 @@ const FIELD_LEVEL: ADLevel = {
   gridFields: SYS_FIELD_GRID_FIELDS,
 };
 
-const REFERENCE_LEVEL: ADLevel = {
+export const REFERENCE_LEVEL: ADLevel = {
   id: 'reference',
   label: 'Reference',
   endpoint: '/sys/references',
@@ -120,7 +153,7 @@ const REFERENCE_LEVEL: ADLevel = {
   gridFields: SYS_REFERENCE_GRID_FIELDS,
 };
 
-const ELEMENT_LEVEL: ADLevel = {
+export const ELEMENT_LEVEL: ADLevel = {
   id: 'element',
   label: 'Element',
   endpoint: '/sys/elements',

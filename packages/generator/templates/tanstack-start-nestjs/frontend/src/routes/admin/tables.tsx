@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { ADWindowShell } from '@/components/admin/ad-window-shell';
-import { TABLE_AND_COLUMN_CONFIG } from '@/components/admin/ad-window-configs';
+import { ADListShell } from '@/components/admin/ad-list-shell';
+import { TABLE_LEVEL } from '@/components/admin/ad-window-configs';
 
 export const Route = createFileRoute('/admin/tables')({
-  component: TableAndColumnPage,
+  component: TablesListPage,
 });
 
-function TableAndColumnPage() {
-  return <ADWindowShell config={TABLE_AND_COLUMN_CONFIG} />;
+function TablesListPage() {
+  return <ADListShell level={TABLE_LEVEL} parentContext={[]} />;
 }

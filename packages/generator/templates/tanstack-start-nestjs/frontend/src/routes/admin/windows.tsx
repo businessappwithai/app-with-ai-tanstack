@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { ADWindowShell } from '@/components/admin/ad-window-shell';
-import { WINDOW_TAB_FIELD_CONFIG } from '@/components/admin/ad-window-configs';
+import { ADListShell } from '@/components/admin/ad-list-shell';
+import { WINDOW_LEVEL } from '@/components/admin/ad-window-configs';
 
 export const Route = createFileRoute('/admin/windows')({
-  component: WindowTabFieldPage,
+  component: WindowsListPage,
 });
 
-function WindowTabFieldPage() {
-  return <ADWindowShell config={WINDOW_TAB_FIELD_CONFIG} />;
+function WindowsListPage() {
+  return <ADListShell level={WINDOW_LEVEL} parentContext={[]} />;
 }

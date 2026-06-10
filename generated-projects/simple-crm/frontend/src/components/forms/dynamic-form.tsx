@@ -1,7 +1,8 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Lock, AlertCircle, Type, Hash, Mail, Link2, Phone, Calendar, ToggleLeft, FileText, List, Table2, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,8 @@ interface DynamicFormProps {
   fields?: FieldMetadata[];
   initialData?: Record<string, unknown>;
   onSubmit?: (data: Record<string, unknown>) => void | Promise<void>;
+  /** Called whenever any field value changes — useful for parent to track dirty state */
+  onChange?: (data: Record<string, unknown>) => void;
   isLoading?: boolean;
   isSaving?: boolean;
   mode?: "create" | "edit" | "view";
@@ -79,12 +82,28 @@ interface TableReferenceFieldProps {
 
 function TableReferenceField({ field, fieldApi, isDisabled, error }: TableReferenceFieldProps) {
   const referencedTableName = field.ref_table_name || null;
-  const { data: records, isLoading } = useEntities<any>(referencedTableName || "", undefined, {
-    enabled: !!referencedTableName,
-  });
-  const tableRecords = records?.data || [];
+  const customEndpoint = field.ref_endpoint || null;
+  const idField = field.ref_id_field || 'id';
+  const labelField = field.ref_label_field || 'name';
 
-  if (!referencedTableName) {
+  // Custom endpoint (e.g. /sys/references) — use apiClient directly
+  const { data: customData, isLoading: isLoadingCustom } = useQuery({
+    queryKey: ['table-ref-custom', customEndpoint],
+    queryFn: () => apiClient.get<{ data: any[] }>(customEndpoint!, { limit: 500 }),
+    enabled: !!customEndpoint,
+  });
+
+  // Standard business table endpoint
+  const { data: records, isLoading: isLoadingRecords } = useEntities<any>(referencedTableName || "", undefined, {
+    enabled: !!referencedTableName && !customEndpoint,
+  });
+
+  const isLoading = isLoadingCustom || isLoadingRecords;
+  const tableRecords: any[] = customEndpoint
+    ? (customData as any)?.data ?? []
+    : records?.data ?? [];
+
+  if (!referencedTableName && !customEndpoint) {
     return (
       <Input
         id={field.column_name}
@@ -98,14 +117,21 @@ function TableReferenceField({ field, fieldApi, isDisabled, error }: TableRefere
     );
   }
 
+  const currentValue = fieldApi.state.value;
+
   return isLoading ? (
     <Skeleton className="h-10 w-full" />
   ) : (
     <select
       id={field.column_name}
       name={field.column_name}
-      value={(fieldApi.state.value as string) || ""}
-      onChange={(e) => fieldApi.handleChange(e.target.value)}
+      value={currentValue !== undefined && currentValue !== null ? String(currentValue) : ""}
+      onChange={(e) => {
+        const raw = e.target.value;
+        // Preserve numeric IDs for sys_reference_id etc.
+        const parsed = raw !== "" && !isNaN(Number(raw)) ? Number(raw) : raw;
+        fieldApi.handleChange(parsed || raw);
+      }}
       onBlur={fieldApi.handleBlur}
       disabled={isDisabled}
       className={cn(
@@ -114,13 +140,17 @@ function TableReferenceField({ field, fieldApi, isDisabled, error }: TableRefere
       )}
     >
       <option value="">Select {field.name}...</option>
-      {tableRecords.map((record: any) => (
-        <option key={record.id} value={record.id}>
-          {record.name ||
-            `${record.first_name || ""} ${record.last_name || ""}`.trim() ||
-            record.id}
-        </option>
-      ))}
+      {tableRecords.map((record: any) => {
+        const optValue = record[idField];
+        const optLabel = record[labelField] ||
+          `${record.first_name || ""} ${record.last_name || ""}`.trim() ||
+          String(optValue);
+        return (
+          <option key={String(optValue)} value={String(optValue)}>
+            {optLabel}
+          </option>
+        );
+      })}
     </select>
   );
 }
@@ -245,6 +275,35 @@ function FieldRenderer({
           field.is_mandatory && !error && "border-primary/30"
         );
 
+        // Static options list (inline enum — no DB fetch required)
+        if (field.options && field.options.length > 0) {
+          return (
+            <div>
+              {labelBlock}
+              <select
+                id={field.column_name}
+                name={field.column_name}
+                value={(currentValue as string) || ""}
+                onChange={(e) => fieldApi.handleChange(e.target.value)}
+                onBlur={fieldApi.handleBlur}
+                disabled={isReadOnly}
+                className={cn(
+                  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                  inputStyles
+                )}
+              >
+                <option value="">Select {fieldLabel}...</option>
+                {field.options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              {errorBlock}
+            </div>
+          );
+        }
+
         // Reference list dropdown
         if (field.sys_reference_id >= 1000) {
           return (
@@ -278,8 +337,8 @@ function FieldRenderer({
           );
         }
 
-        // Table reference
-        if (field.sys_reference_id === REFERENCE_TYPE.TABLE) {
+        // Table or Table Direct reference
+        if (field.sys_reference_id === REFERENCE_TYPE.TABLE || field.sys_reference_id === REFERENCE_TYPE.TABLE_DIRECT) {
           return (
             <div>
               {labelBlock}
@@ -489,11 +548,24 @@ function FieldRenderer({
   );
 }
 
+/** Subscribes to form value changes and notifies the parent via onChange.
+ *  Skips the initial render so the parent isn't notified with the initial data. */
+function FormChangeNotifier({ form, onChange }: { form: ReturnType<typeof useForm<FormValues>>; onChange: (data: Record<string, unknown>) => void }) {
+  const values = form.useStore((state: any) => state.values);
+  const isFirst = useRef(true);
+  useEffect(() => {
+    if (isFirst.current) { isFirst.current = false; return; }
+    onChange(values);
+  }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
+  return null;
+}
+
 export function DynamicForm({
   tableName,
   fields: externalFields,
   initialData = {},
   onSubmit,
+  onChange,
   isLoading: externalLoading = false,
   isSaving = false,
   mode = "create",
@@ -515,7 +587,7 @@ export function DynamicForm({
       // Zod validation
       if (fields) {
         const displayedFields = fields.filter(f => f.is_displayed && f.column_name !== parentField);
-        const validation = validateFormData(displayedFields, value, mode);
+        const validation = validateFormData(displayedFields, value, mode === 'view' ? 'edit' : mode);
         if (!validation.success) {
           setZodErrors(validation.errors);
           toast.error("Please fix the validation errors");
@@ -607,7 +679,7 @@ export function DynamicForm({
     // Zod validation
     if (fields) {
       const displayedFields = fields.filter(f => f.is_displayed && f.column_name !== parentField);
-      const validation = validateFormData(displayedFields, value, mode);
+      const validation = validateFormData(displayedFields, value, mode === 'view' ? 'edit' : mode);
       if (!validation.success) {
         setZodErrors(validation.errors);
         toast.error("Please fix the validation errors");
@@ -639,6 +711,7 @@ export function DynamicForm({
 
   return (
     <form.Provider>
+      {onChange && <FormChangeNotifier form={form} onChange={onChange} />}
       <form role="form" onSubmit={handleFormSubmit} className="space-y-6">
         {/* Form summary bar */}
         <div className="flex items-center justify-between">

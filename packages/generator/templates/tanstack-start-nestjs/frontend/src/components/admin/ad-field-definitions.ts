@@ -36,22 +36,56 @@ const REF = {
   URL: 24,
 };
 
+// Extra opts to turn any field into a sys_reference dropdown selector
+const SYS_REF_LOOKUP: Partial<FieldMetadata> = {
+  ref_endpoint: '/sys/references',
+  ref_id_field: 'sys_reference_id',
+  ref_label_field: 'name',
+};
+
+// Static option lists for fixed enums
+const WINDOW_TYPE_OPTIONS = [
+  { value: 'M', label: 'Maintain' },
+  { value: 'T', label: 'Transaction' },
+  { value: 'Q', label: 'Query' },
+];
+
+const ACCESS_LEVEL_OPTIONS = [
+  { value: 'M', label: 'Maintain' },
+  { value: 'T', label: 'Transaction' },
+  { value: 'Q', label: 'Query' },
+  { value: 'A', label: 'Admin Only' },
+];
+
+const ENTITY_TYPE_OPTIONS = [
+  { value: 'D', label: 'Dictionary' },
+  { value: 'S', label: 'System' },
+  { value: 'U', label: 'User' },
+  { value: 'C', label: 'Custom' },
+];
+
+const VALIDATION_TYPE_OPTIONS = [
+  { value: 'S', label: 'Simple (no validation)' },
+  { value: 'L', label: 'List (sys_ref_list items)' },
+  { value: 'T', label: 'Table (reference to a table)' },
+];
+
 // ============================================================================
 // sys_table
 // ============================================================================
 
 export const SYS_TABLE_FORM_FIELDS: FieldMetadata[] = [
-  field('table_name', 'DB Table Name', REF.STRING, { is_mandatory: true, seq_no: 10, field_length: 100 }),
+  field('table_name', 'DB Table Name', REF.STRING, { is_mandatory: true, seq_no: 10, field_length: 100, is_read_only: true }),
   field('name', 'Name', REF.STRING, { is_mandatory: true, seq_no: 20, field_length: 100 }),
   field('description', 'Description', REF.TEXT, { seq_no: 30 }),
   field('icon', 'Icon', REF.STRING, { seq_no: 40, field_length: 100 }),
-  field('access_level', 'Access Level', REF.STRING, { seq_no: 50, field_length: 2 }),
+  field('access_level', 'Access Level', REF.LIST, { seq_no: 50, options: ACCESS_LEVEL_OPTIONS }),
   field('is_active', 'Active', REF.YES_NO, { seq_no: 60 }),
   field('is_view', 'View', REF.YES_NO, { seq_no: 70 }),
   field('is_document', 'Document', REF.YES_NO, { seq_no: 80 }),
   field('is_high_volume', 'High Volume', REF.YES_NO, { seq_no: 90 }),
   field('is_changelog', 'Maintain Change Log', REF.YES_NO, { seq_no: 100 }),
-  field('entity_type', 'Entity Type', REF.STRING, { seq_no: 110, field_length: 40, is_read_only: true }),
+  field('entity_type', 'Entity Type', REF.LIST, { seq_no: 110, options: ENTITY_TYPE_OPTIONS, is_read_only: true }),
 ];
 
 export const SYS_TABLE_GRID_FIELDS: FieldMetadata[] = [
@@ -66,10 +100,10 @@ export const SYS_TABLE_GRID_FIELDS: FieldMetadata[] = [
 // ============================================================================
 
 export const SYS_COLUMN_FORM_FIELDS: FieldMetadata[] = [
-  field('column_name', 'DB Column Name', REF.STRING, { is_mandatory: true, seq_no: 10, field_length: 100 }),
+  field('column_name', 'DB Column Name', REF.STRING, { is_mandatory: true, seq_no: 10, field_length: 100, is_read_only: true }),
   field('name', 'Name', REF.STRING, { is_mandatory: true, seq_no: 20, field_length: 100 }),
   field('description', 'Description', REF.TEXT, { seq_no: 30 }),
-  field('sys_reference_id', 'Reference', REF.INTEGER, { is_mandatory: true, seq_no: 40 }),
+  field('sys_reference_id', 'Reference Type', REF.TABLE, { is_mandatory: true, seq_no: 40, is_read_only: true, ...SYS_REF_LOOKUP }),
   field('field_length', 'Length', REF.INTEGER, { seq_no: 50 }),
   field('default_value', 'Default Value', REF.STRING, { seq_no: 60, field_length: 255 }),
   field('is_key', 'Key', REF.YES_NO, { seq_no: 70 }),
@@ -86,7 +120,7 @@ export const SYS_COLUMN_FORM_FIELDS: FieldMetadata[] = [
 export const SYS_COLUMN_GRID_FIELDS: FieldMetadata[] = [
   field('column_name', 'DB Column Name', REF.STRING, { seq_no_grid: 10 }),
   field('name', 'Name', REF.STRING, { seq_no_grid: 20 }),
-  field('sys_reference_id', 'Reference', REF.INTEGER, { seq_no_grid: 30 }),
+  field('sys_reference_id', 'Reference Type', REF.TABLE, { seq_no_grid: 30, ...SYS_REF_LOOKUP }),
   field('is_mandatory', 'Mandatory', REF.YES_NO, { seq_no_grid: 40 }),
   field('is_key', 'Key', REF.YES_NO, { seq_no_grid: 50 }),
   field('is_active', 'Active', REF.YES_NO, { seq_no_grid: 60 }),
@@ -100,11 +134,11 @@ export const SYS_WINDOW_FORM_FIELDS: FieldMetadata[] = [
   field('name', 'Name', REF.STRING, { is_mandatory: true, seq_no: 10, field_length: 100 }),
   field('description', 'Description', REF.TEXT, { seq_no: 20 }),
   field('help', 'Help', REF.TEXT, { seq_no: 30 }),
-  field('window_type', 'Window Type', REF.STRING, { seq_no: 40, field_length: 1 }),
+  field('window_type', 'Window Type', REF.LIST, { seq_no: 40, options: WINDOW_TYPE_OPTIONS }),
   field('is_sales_transaction', 'Sales Transaction', REF.YES_NO, { seq_no: 50 }),
   field('is_default', 'Default', REF.YES_NO, { seq_no: 60 }),
   field('is_active', 'Active', REF.YES_NO, { seq_no: 70 }),
-  field('entity_type', 'Entity Type', REF.STRING, { seq_no: 80, field_length: 40, is_read_only: true }),
+  field('entity_type', 'Entity Type', REF.LIST, { seq_no: 80, options: ENTITY_TYPE_OPTIONS, is_read_only: true }),
 ];
 
 export const SYS_WINDOW_GRID_FIELDS: FieldMetadata[] = [
@@ -150,6 +184,7 @@ export const SYS_FIELD_FORM_FIELDS: FieldMetadata[] = [
   field('name', 'Name', REF.STRING, { is_mandatory: true, seq_no: 10, field_length: 100 }),
   field('description', 'Description', REF.TEXT, { seq_no: 20 }),
   field('help', 'Help', REF.TEXT, { seq_no: 30 }),
+  field('sys_reference_id', 'Reference Type Override', REF.TABLE, { seq_no: 35, ...SYS_REF_LOOKUP }),
   field('seq_no', 'Sequence', REF.INTEGER, { seq_no: 40 }),
   field('seq_no_grid', 'Grid Sequence', REF.INTEGER, { seq_no: 50 }),
   field('display_length', 'Display Length', REF.INTEGER, { seq_no: 60 }),
@@ -178,12 +213,12 @@ export const SYS_FIELD_GRID_FIELDS: FieldMetadata[] = [
 
 export const SYS_REFERENCE_FORM_FIELDS: FieldMetadata[] = [
   field('sys_reference_id', 'Reference ID', REF.INTEGER, { is_mandatory: true, seq_no: 10, is_read_only: true }),
-  field('name', 'Name', REF.STRING, { is_mandatory: true, seq_no: 20, field_length: 100 }),
-  field('description', 'Description', REF.TEXT, { seq_no: 30 }),
-  field('validation_type', 'Validation Type', REF.STRING, { seq_no: 40, field_length: 1 }),
-  field('vformat', 'Value Format', REF.STRING, { seq_no: 50, field_length: 40 }),
-  field('is_active', 'Active', REF.YES_NO, { seq_no: 60 }),
-  field('entity_type', 'Entity Type', REF.STRING, { seq_no: 70, field_length: 40, is_read_only: true }),
+  field('name', 'Name', REF.STRING, { is_mandatory: true, seq_no: 20, field_length: 100, is_read_only: true }),
+  field('description', 'Description', REF.TEXT, { seq_no: 30, is_read_only: true }),
+  field('validation_type', 'Validation Type', REF.LIST, { seq_no: 40, options: VALIDATION_TYPE_OPTIONS, is_read_only: true }),
+  field('vformat', 'Value Format', REF.STRING, { seq_no: 50, field_length: 40, is_read_only: true }),
+  field('is_active', 'Active', REF.YES_NO, { seq_no: 60, is_read_only: true }),
+  field('entity_type', 'Entity Type', REF.LIST, { seq_no: 70, options: ENTITY_TYPE_OPTIONS, is_read_only: true }),
 ];
 
 export const SYS_REFERENCE_GRID_FIELDS: FieldMetadata[] = [

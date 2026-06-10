@@ -1,25 +1,14 @@
-/**
- * {{entity.name}} List Page
- *
- * Uses EntityWindowShell for consistent admin-style UX:
- * - Toolbar with New, Save, Delete, Undo, Refresh, Search
- * - List-first view with clickable rows
- * - Detail view with record navigation and Back to List
- * - Dynamic fields driven by sys_field metadata
- *
- * Generated: {{now}}
- * Project: {{project.name}}
- */
-
 import { createFileRoute, Outlet, useChildMatches } from '@tanstack/react-router';
-import { EntityWindowShell } from '@/components/admin/entity-window-shell';
+import { BusEntityPage } from '@/components/admin/bus-entity-page';
 
 export const Route = createFileRoute('/{{entity.tableName}}')({
-  component: EntityListWrapper,
+  component: {{entity.name}}ListPage,
 });
 
-function EntityListWrapper() {
+// Generated thin wrapper — replace the component body below to build a fully
+// custom window for this entity without touching the shared infrastructure.
+function {{entity.name}}ListPage() {
   const childMatches = useChildMatches();
   if (childMatches.length > 0) return <Outlet />;
-  return <EntityWindowShell tableName="{{entity.tableName}}" entityLabel="{{entity.name}}" />;
+  return <BusEntityPage entityName="{{lowerCase entity.name}}" />;
 }

@@ -1,11 +1,18 @@
 /**
  * TanStack Query Hooks for Entity CRUD Operations
  *
- * Generated: 2026-01-26T15:23:31.901Z
+ * Generated: 2026-06-09T07:37:11.473Z
  */
 
-import { type UseQueryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type ApiError, apiClient, type PaginatedResponse } from "@/lib/api-client";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type UseQueryOptions,
+} from '@tanstack/react-query';
+import { apiClient, type PaginatedResponse, type ApiError } from '@/lib/api-client';
+import { toast } from 'sonner';
+import { translate } from '@/lib/translations';
 
 // ============================================================================
 // Types
@@ -22,7 +29,7 @@ export interface EntityListParams {
   page?: number;
   limit?: number;
   orderBy?: string;
-  orderDir?: "asc" | "desc";
+  orderDir?: 'asc' | 'desc';
   search?: string;
   [key: string]: unknown;
 }
@@ -33,6 +40,7 @@ export interface FieldMetadata {
   column_name: string;
   sys_reference_id: number;
   is_mandatory: boolean;
+  is_updateable?: boolean;
   field_length?: number;
   default_value?: string;
   seq_no: number;
@@ -40,33 +48,23 @@ export interface FieldMetadata {
   is_displayed: boolean;
   is_displayed_grid: boolean;
   is_read_only: boolean;
-  // Group and styling properties
-  sys_field_group_id?: string;
-  group_name?: string;
-  group_description?: string;
-  group_columns?: number;
-  group_layout_type?: string;
   col_span?: number;
   row_span?: number;
+  field_group_id?: string;
+  group_name?: string;
+  group_columns?: number;
+  group_description?: string;
   color?: string;
+  background_color?: string;
   font_weight?: string;
   font_style?: string;
-  // Reference table properties (for table reference fields)
-  ref_table_id?: string;
-  ref_table_name?: string;
-  ref_key_column?: string;
-  ref_display_column?: string;
-}
-
-export interface FieldGroup {
-  sys_field_group_id: string;
-  sys_tab_id: string;
-  name: string;
-  description?: string;
-  seq_no: number;
-  columns: number;
-  layout_type: string;
-  is_collapsed_by_default: boolean;
+  text_align?: string;
+  ref_table_name?: string; // Referenced table name for TABLE reference types (sys_reference_id = 18)
+  ref_endpoint?: string;   // Custom API endpoint for table references (e.g. '/sys/references')
+  ref_id_field?: string;   // Field to use as option value (default: 'id')
+  ref_label_field?: string; // Field to use as option label (default: 'name')
+  options?: { value: string; label: string }[]; // Static options list for inline enums
+  tab_name?: string; // Tab name for i18n field labels
 }
 
 export interface TableMetadata {
@@ -75,12 +73,6 @@ export interface TableMetadata {
   name: string;
   description?: string;
   icon?: string;
-  access_level: string;
-  is_view: boolean;
-  is_document: boolean;
-  is_high_volume: boolean;
-  is_changelog: boolean;
-  entity_type: string;
   is_active: boolean;
 }
 
@@ -89,16 +81,19 @@ export interface TableMetadata {
 // ============================================================================
 
 export const entityKeys = {
-  all: ["entities"] as const,
-  lists: () => [...entityKeys.all, "list"] as const,
+  all: ['entities'] as const,
+  lists: () => [...entityKeys.all, 'list'] as const,
   list: (entity: string, params?: EntityListParams) =>
     [...entityKeys.lists(), entity, params] as const,
-  details: () => [...entityKeys.all, "detail"] as const,
-  detail: (entity: string, id: string) => [...entityKeys.details(), entity, id] as const,
-  metadata: (entity: string) => [...entityKeys.all, "metadata", entity] as const,
-  table: (entity: string) => [...entityKeys.all, "table", entity] as const,
-  fields: (entity: string, type: "form" | "grid" | "form-all" | "grid-all") =>
-    [...entityKeys.all, "fields", entity, type] as const,
+  details: () => [...entityKeys.all, 'detail'] as const,
+  detail: (entity: string, id: string) =>
+    [...entityKeys.details(), entity, id] as const,
+  metadata: (entity: string) =>
+    [...entityKeys.all, 'metadata', entity] as const,
+  table: (entity: string) =>
+    [...entityKeys.all, 'table', entity] as const,
+  fields: (entity: string, type: 'form' | 'grid') =>
+    [...entityKeys.all, 'fields', entity, type] as const,
 };
 
 // ============================================================================
@@ -108,7 +103,10 @@ export const entityKeys = {
 export function useEntities<T extends EntityRecord = EntityRecord>(
   entity: string,
   params?: EntityListParams,
-  options?: Omit<UseQueryOptions<PaginatedResponse<T>, ApiError>, "queryKey" | "queryFn">
+  options?: Omit<
+    UseQueryOptions<PaginatedResponse<T>, ApiError>,
+    'queryKey' | 'queryFn'
+  >
 ) {
   return useQuery<PaginatedResponse<T>, ApiError>({
     queryKey: entityKeys.list(entity, params),
@@ -124,7 +122,7 @@ export function useEntities<T extends EntityRecord = EntityRecord>(
 export function useEntity<T extends EntityRecord = EntityRecord>(
   entity: string,
   id: string,
-  options?: Omit<UseQueryOptions<T, ApiError>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<T, ApiError>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery<T, ApiError>({
     queryKey: entityKeys.detail(entity, id),
@@ -141,7 +139,9 @@ export function useEntity<T extends EntityRecord = EntityRecord>(
 export function useEntityMetadata(entity: string) {
   return useQuery({
     queryKey: entityKeys.metadata(entity),
-    queryFn: () => apiClient.get(`/bus/${entity}/meta`),
+    queryFn: async () => {
+      return apiClient.get<{ table: any; columns: any[]; window: any }>(`/bus/${entity}/meta`);
+    },
     staleTime: 30 * 60 * 1000, // 30 minutes - metadata rarely changes
   });
 }
@@ -153,18 +153,19 @@ export function useTableMetadata(entity: string) {
   return useQuery<TableMetadata>({
     queryKey: entityKeys.table(entity),
     queryFn: async () => {
-      const response = await apiClient.get<{ data: TableMetadata }>(
-        `/sys/table?table_name=${entity}`
-      );
-      return response.data;
+      // Fetch all tables and find the matching one
+      const response = await apiClient.get<{ data: TableMetadata[] }>(`/sys/tables`);
+      const table = response.data.find((t: TableMetadata) => t.table_name === entity);
+      return table as TableMetadata;
     },
     staleTime: 30 * 60 * 1000, // 30 minutes - table metadata rarely changes
+    enabled: !!entity,
   });
 }
 
 export function useFormFields(entity: string) {
   return useQuery<FieldMetadata[]>({
-    queryKey: entityKeys.fields(entity, "form"),
+    queryKey: entityKeys.fields(entity, 'form'),
     queryFn: async () => {
       return apiClient.get<FieldMetadata[]>(`/bus/${entity}/fields/form`);
     },
@@ -174,11 +175,38 @@ export function useFormFields(entity: string) {
 
 export function useGridFields(entity: string) {
   return useQuery<FieldMetadata[]>({
-    queryKey: entityKeys.fields(entity, "grid"),
+    queryKey: entityKeys.fields(entity, 'grid'),
     queryFn: async () => {
       return apiClient.get<FieldMetadata[]>(`/bus/${entity}/fields/grid`);
     },
     staleTime: 30 * 60 * 1000,
+  });
+}
+
+// ============================================================================
+// Reference List Hooks
+// ============================================================================
+
+export interface RefListValue {
+  sys_ref_list_id: string;
+  sys_reference_id: number;
+  value: string;
+  name: string;
+  description?: string;
+  is_active: boolean;
+}
+
+export function useRefList(sysReferenceId: number) {
+  return useQuery<RefListValue[]>({
+    queryKey: ['ref-list', sysReferenceId],
+    queryFn: async () => {
+      const response = await apiClient.get<{ data: RefListValue[] }>(
+        `/sys/ref-list?sys_reference_id=${sysReferenceId}`
+      );
+      return response.data;
+    },
+    staleTime: 60 * 60 * 1000, // 1 hour - reference data rarely changes
+    enabled: !!sysReferenceId && sysReferenceId >= 1000, // Only for our custom references
   });
 }
 
@@ -187,12 +215,10 @@ export function useGridFields(entity: string) {
  */
 export function useAllFormFields(entity: string) {
   return useQuery<FieldMetadata[]>({
-    queryKey: entityKeys.fields(entity, "form-all"),
+    queryKey: ['fields-all', entity, 'form'],
     queryFn: async () => {
-      const response = await apiClient.get<{ data: FieldMetadata[] }>(
-        `/bus/${entity}/fields/form/all`
-      );
-      return response.data;
+      const result = await apiClient.get<FieldMetadata[]>(`/sys/fields/form?entity=${entity}`);
+      return result || [];
     },
     staleTime: 30 * 60 * 1000,
   });
@@ -203,28 +229,30 @@ export function useAllFormFields(entity: string) {
  */
 export function useAllGridFields(entity: string) {
   return useQuery<FieldMetadata[]>({
-    queryKey: entityKeys.fields(entity, "grid-all"),
+    queryKey: ['fields-all', entity, 'grid'],
     queryFn: async () => {
-      const response = await apiClient.get<{ data: FieldMetadata[] }>(
-        `/bus/${entity}/fields/grid/all`
-      );
-      return response.data;
+      const result = await apiClient.get<FieldMetadata[]>(`/sys/fields/grid?entity=${entity}`);
+      return result || [];
     },
     staleTime: 30 * 60 * 1000,
   });
 }
 
 /**
- * Get field groups for an entity
+ * Update field styling properties
  */
-export function useFieldGroups(entity: string) {
-  return useQuery<FieldGroup[]>({
-    queryKey: ["field-groups", entity],
-    queryFn: async () => {
-      const response = await apiClient.get<{ data: FieldGroup[] }>(`/bus/${entity}/field-groups`);
-      return response.data;
+export function useUpdateFieldStyle(entity: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ fieldId, style }: { fieldId: string; style: Partial<FieldMetadata> }) => {
+      return apiClient.patch(`/sys/fields/${fieldId}?entity=${entity}`, style);
     },
-    staleTime: 30 * 60 * 1000,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fields-all', entity] });
+      queryClient.invalidateQueries({ queryKey: [entityKeys.fields(entity, 'form')] });
+      queryClient.invalidateQueries({ queryKey: [entityKeys.fields(entity, 'grid')] });
+      toast.success(translate('entities.fieldStyleUpdated' as any));
+    },
   });
 }
 
@@ -232,32 +260,105 @@ export function useFieldGroups(entity: string) {
 // Mutation Hooks
 // ============================================================================
 
-export function useCreateEntity<T extends EntityRecord = EntityRecord>(entity: string) {
+export function useCreateEntity<T extends EntityRecord = EntityRecord>(
+  entity: string
+) {
   const queryClient = useQueryClient();
 
-  return useMutation<T, ApiError, Partial<T>>({
+  type MutationContext = {
+    previousData?: unknown;
+  };
+
+  return useMutation<T, ApiError, Partial<T>, MutationContext>({
     mutationFn: (data) => apiClient.post<T>(`/bus/${entity}`, data),
-    onSuccess: () => {
-      // Invalidate list queries to refetch
+    onMutate: async (newData) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: entityKeys.lists() });
+
+      // Snapshot previous value
+      const previousData = queryClient.getQueryData(entityKeys.lists());
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(entityKeys.lists(), (old: any) => {
+        return {
+          ...old,
+          data: [...(old?.data || []), { ...newData, version: 0 } as T],
+        };
+      });
+
+      // Return context with previous data
+      return { previousData };
+    },
+    onError: (err, newData, context) => {
+      // Rollback to previous value on error
+      queryClient.setQueryData(entityKeys.lists(), context?.previousData);
+      const errorMessage = Array.isArray(err.message) ? err.message.join(', ') : err.message;
+      toast.error(`${translate('entities.createFailed' as any)}: ${errorMessage}`);
+    },
+    onSettled: () => {
+      // Refetch to ensure server state
       queryClient.invalidateQueries({ queryKey: entityKeys.lists() });
     },
   });
 }
 
-export function useUpdateEntity<T extends EntityRecord = EntityRecord>(entity: string) {
+export function useUpdateEntity<T extends EntityRecord = EntityRecord>(
+  entity: string
+) {
   const queryClient = useQueryClient();
 
-  return useMutation<T, ApiError, { id: string; data: Partial<T>; version?: number }>({
+  type MutationVariables = { id: string; data: Partial<T>; version?: number };
+  type MutationContext = {
+    previousDetail?: unknown;
+    previousList?: unknown;
+  };
+
+  return useMutation<T, ApiError, MutationVariables, MutationContext>({
     mutationFn: ({ id, data, version }) =>
       apiClient.patch<T>(`/bus/${entity}/${id}`, data, {
-        headers: version ? { "If-Match": `"v${version}"` } : undefined,
+        headers: version ? { 'If-Match': `"v${version}"` } : undefined,
       }),
-    onSuccess: (_, variables) => {
-      // Invalidate specific detail query
-      queryClient.invalidateQueries({
-        queryKey: entityKeys.detail(entity, variables.id),
-      });
-      // Invalidate list queries
+    onMutate: async ({ id, data, version }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: entityKeys.detail(entity, id) });
+      await queryClient.cancelQueries({ queryKey: entityKeys.lists() });
+
+      // Snapshot previous values
+      const previousDetail = queryClient.getQueryData(entityKeys.detail(entity, id));
+      const previousList = queryClient.getQueryData(entityKeys.lists());
+
+      // Optimistically update detail
+      queryClient.setQueryData(entityKeys.detail(entity, id), (old: any) => ({
+        ...old,
+        ...data,
+        version: version ? version + 1 : (old?.version || 0) + 1,
+      }));
+
+      // Optimistically update list
+      queryClient.setQueryData(entityKeys.lists(), (old: any) => ({
+        ...old,
+        data: old?.data?.map((item: any) =>
+          item.id === id || item.sys_table_id === id
+            ? { ...item, ...data, version: version ? version + 1 : (item.version || 0) + 1 }
+            : item
+        ),
+      }));
+
+      // Return context with previous data
+      return { previousDetail, previousList };
+    },
+    onError: (err, variables, context) => {
+      // Rollback to previous values on error
+      queryClient.setQueryData(entityKeys.detail(entity, variables.id), context?.previousDetail);
+      queryClient.setQueryData(entityKeys.lists(), context?.previousList);
+      const errorMessage = Array.isArray(err.message) ? err.message.join(', ') : err.message;
+      toast.error(`${translate('entities.updateFailed' as any)}: ${errorMessage}`);
+    },
+    onSettled: (_data, _error, variables) => {
+      // Refetch to ensure server state
+      if (variables) {
+        queryClient.invalidateQueries({ queryKey: entityKeys.detail(entity, variables.id) });
+      }
       queryClient.invalidateQueries({ queryKey: entityKeys.lists() });
     },
   });
@@ -266,12 +367,43 @@ export function useUpdateEntity<T extends EntityRecord = EntityRecord>(entity: s
 export function useDeleteEntity(entity: string) {
   const queryClient = useQueryClient();
 
-  return useMutation<void, ApiError, string>({
+  type MutationContext = {
+    previousDetail?: unknown;
+    previousList?: unknown;
+  };
+
+  return useMutation<void, ApiError, string, MutationContext>({
     mutationFn: (id) => apiClient.delete(`/bus/${entity}/${id}`),
-    onSuccess: (_, id) => {
-      // Remove from cache
-      queryClient.removeQueries({ queryKey: entityKeys.detail(entity, id) });
-      // Invalidate list queries
+    onMutate: async (id) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: entityKeys.detail(entity, id) });
+      await queryClient.cancelQueries({ queryKey: entityKeys.lists() });
+
+      // Snapshot previous values
+      const previousDetail = queryClient.getQueryData(entityKeys.detail(entity, id));
+      const previousList = queryClient.getQueryData(entityKeys.lists());
+
+      // Optimistically remove from detail cache
+      queryClient.setQueryData(entityKeys.detail(entity, id), null);
+
+      // Optimistically remove from list
+      queryClient.setQueryData(entityKeys.lists(), (old: any) => ({
+        ...old,
+        data: old?.data?.filter((item: any) => item.id !== id && item.sys_table_id !== id),
+      }));
+
+      // Return context with previous data
+      return { previousDetail, previousList };
+    },
+    onError: (err, id, context) => {
+      // Rollback to previous values on error
+      queryClient.setQueryData(entityKeys.detail(entity, id), context?.previousDetail);
+      queryClient.setQueryData(entityKeys.lists(), context?.previousList);
+      const errorMessage = Array.isArray(err.message) ? err.message.join(', ') : err.message;
+      toast.error(`${translate('entities.deleteFailed' as any)}: ${errorMessage}`);
+    },
+    onSettled: () => {
+      // Refetch to ensure server state
       queryClient.invalidateQueries({ queryKey: entityKeys.lists() });
     },
   });
@@ -304,20 +436,48 @@ export function usePrefetchEntityList(entity: string) {
 }
 
 // ============================================================================
-// Field Group Mutations
+// Field Group Hooks (for Admin)
 // ============================================================================
+
+export interface FieldGroup {
+  sys_field_group_id: string;
+  name: string;
+  description?: string;
+  columns: number;
+  layout_type: string;
+  is_collapsed_by_default: boolean;
+  seq_no: number;
+  field_count?: number;
+}
+
+export const fieldGroupKeys = {
+  all: ['field-groups'] as const,
+  lists: () => [...fieldGroupKeys.all, 'list'] as const,
+  list: (entity: string) => [...fieldGroupKeys.lists(), entity] as const,
+};
+
+export function useFieldGroups(entity: string) {
+  return useQuery<FieldGroup[]>({
+    queryKey: fieldGroupKeys.list(entity),
+    queryFn: async () => {
+      const response = await apiClient.get<{ data: FieldGroup[] }>(
+        '/sys/field-groups?entity=' + entity
+      );
+      return response.data || [];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
 
 export function useCreateFieldGroup(entity: string) {
   const queryClient = useQueryClient();
 
-  return useMutation<FieldGroup, ApiError, Omit<FieldGroup, "sys_field_group_id" | "sys_tab_id">>({
-    mutationFn: (groupData) => apiClient.post<FieldGroup>(`/bus/${entity}/field-groups`, groupData),
+  return useMutation<FieldGroup, ApiError, Partial<FieldGroup>>({
+    mutationFn: (data) =>
+      apiClient.post<FieldGroup>('/sys/field-groups?entity=' + entity, data),
     onSuccess: () => {
-      // Invalidate field groups query
-      queryClient.invalidateQueries({ queryKey: ["field-groups", entity] });
-      // Invalidate fields queries (as grouping might change)
-      queryClient.invalidateQueries({ queryKey: entityKeys.fields(entity, "form") });
-      queryClient.invalidateQueries({ queryKey: entityKeys.fields(entity, "grid") });
+      queryClient.invalidateQueries({ queryKey: fieldGroupKeys.list(entity) });
+      toast.success(translate('entities.fieldGroupCreated' as any));
     },
   });
 }
@@ -325,13 +485,19 @@ export function useCreateFieldGroup(entity: string) {
 export function useUpdateFieldGroup(entity: string) {
   const queryClient = useQueryClient();
 
-  return useMutation<FieldGroup, ApiError, { groupId: string; updates: Partial<FieldGroup> }>({
-    mutationFn: ({ groupId, updates }) =>
-      apiClient.put<FieldGroup>(`/bus/${entity}/field-groups/${groupId}`, updates),
+  return useMutation<
+    FieldGroup,
+    ApiError,
+    { id: string; data: Partial<FieldGroup> }
+  >({
+    mutationFn: ({ id, data }) =>
+      apiClient.put<FieldGroup>(
+        '/sys/field-groups/' + id + '?entity=' + entity,
+        data
+      ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["field-groups", entity] });
-      queryClient.invalidateQueries({ queryKey: entityKeys.fields(entity, "form") });
-      queryClient.invalidateQueries({ queryKey: entityKeys.fields(entity, "grid") });
+      queryClient.invalidateQueries({ queryKey: fieldGroupKeys.list(entity) });
+      toast.success(translate('entities.fieldGroupUpdated' as any));
     },
   });
 }
@@ -340,99 +506,11 @@ export function useDeleteFieldGroup(entity: string) {
   const queryClient = useQueryClient();
 
   return useMutation<void, ApiError, string>({
-    mutationFn: (groupId) => apiClient.delete(`/bus/${entity}/field-groups/${groupId}`),
+    mutationFn: (id) =>
+      apiClient.delete('/sys/field-groups/' + id + '?entity=' + entity),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["field-groups", entity] });
-      queryClient.invalidateQueries({ queryKey: entityKeys.fields(entity, "form") });
-      queryClient.invalidateQueries({ queryKey: entityKeys.fields(entity, "grid") });
+      queryClient.invalidateQueries({ queryKey: fieldGroupKeys.list(entity) });
+      toast.success(translate('entities.fieldGroupDeleted' as any));
     },
-  });
-}
-
-export function useAssignFieldToGroup(entity: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation<void, ApiError, { fieldId: string; groupId: string | null }>({
-    mutationFn: ({ fieldId, groupId }) =>
-      apiClient.put(`/bus/${entity}/fields/${fieldId}/group`, { groupId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["field-groups", entity] });
-      queryClient.invalidateQueries({ queryKey: entityKeys.fields(entity, "form") });
-      queryClient.invalidateQueries({ queryKey: entityKeys.fields(entity, "grid") });
-    },
-  });
-}
-
-export function useUpdateFieldStyle(entity: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation<void, ApiError, { fieldId: string; style: Partial<FieldMetadata> }>({
-    mutationFn: ({ fieldId, style }) =>
-      apiClient.patch(`/bus/${entity}/fields/${fieldId}/style`, style),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: entityKeys.fields(entity, "form") });
-      queryClient.invalidateQueries({ queryKey: entityKeys.fields(entity, "grid") });
-    },
-  });
-}
-
-// ============================================================================
-// Reference List Hooks (for sys_ref_list dropdowns)
-// ============================================================================
-
-interface RefListValue {
-  sys_ref_list_id: string;
-  sys_reference_id: number;
-  value: string;
-  name: string;
-  description?: string;
-  valid_from?: string;
-  valid_to?: string;
-  entity_type: string;
-}
-
-interface TableReferenceValue {
-  id: string;
-  [key: string]: unknown;
-}
-
-/**
- * Fetch dropdown values from sys_ref_list by sys_reference_id
- * Used for List type fields (sys_reference_id >= 1000)
- */
-export function useRefList(sysReferenceId: number) {
-  return useQuery<RefListValue[]>({
-    queryKey: ["ref-list", sysReferenceId],
-    queryFn: async () => {
-      if (!sysReferenceId || sysReferenceId < 1000) {
-        return [];
-      }
-      const response = await apiClient.get<{ data: RefListValue[] }>(
-        `/sys/ref-list?sys_reference_id=${sysReferenceId}`
-      );
-      return response.data;
-    },
-    staleTime: 30 * 60 * 1000, // 30 minutes
-  });
-}
-
-/**
- * Fetch table reference data (e.g., patient_id → bus_patient)
- * Used for Table type fields (sys_reference_id in sys_ref_table)
- */
-export function useTableReference(
-  sysReferenceId: number | undefined,
-  tableName: string | undefined
-) {
-  return useQuery<TableReferenceValue[]>({
-    queryKey: ["table-ref", sysReferenceId, tableName],
-    queryFn: async () => {
-      if (!sysReferenceId || !tableName) {
-        return [];
-      }
-      const response = await apiClient.get<TableReferenceValue[]>(`/bus/${tableName}`);
-      return response.data || [];
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes - table data changes more frequently
   });
 }

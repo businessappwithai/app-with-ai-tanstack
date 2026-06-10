@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Lock, AlertCircle, Type, Hash, Mail, Link2, Phone, Calendar, ToggleLeft, FileText, List, Table2, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,8 @@ interface DynamicFormProps {
   serverErrors?: Record<string, string>;
   parentField?: string;
   readOnlyFields?: string[];
+  /** Called whenever any field value changes — useful for parent to track dirty state */
+  onChange?: (data: Record<string, unknown>) => void;
 }
 
 const REFERENCE_TYPE = {
@@ -501,6 +503,7 @@ export function DynamicForm({
   serverErrors = {},
   parentField,
   readOnlyFields = [],
+  onChange,
 }: DynamicFormProps) {
   const { t } = useTranslations();
   const { data: fetchedFields, isLoading: fieldsLoading, error } = useFormFields(tableName);
@@ -729,7 +732,19 @@ export function DynamicForm({
             </form.Subscribe>
           </div>
         )}
-      </form>
+      {onChange && <FormChangeNotifier form={form} onChange={onChange} />}
+    </form>
     </form.Provider>
   );
+}
+
+/** Subscribes to form value changes and notifies the parent via onChange. */
+function FormChangeNotifier({ form, onChange }: { form: ReturnType<typeof useForm<FormValues>>; onChange: (data: Record<string, unknown>) => void }) {
+  const values = form.useStore((state: any) => state.values);
+  const isFirst = useRef(true);
+  useEffect(() => {
+    if (isFirst.current) { isFirst.current = false; return; }
+    onChange(values);
+  }, [values]);
+  return null;
 }

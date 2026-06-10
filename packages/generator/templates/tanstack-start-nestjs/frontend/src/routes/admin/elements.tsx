@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { ADWindowShell } from '@/components/admin/ad-window-shell';
-import { ELEMENT_CONFIG } from '@/components/admin/ad-window-configs';
+import { ADListShell } from '@/components/admin/ad-list-shell';
+import { ELEMENT_LEVEL } from '@/components/admin/ad-window-configs';
 
 export const Route = createFileRoute('/admin/elements')({
-  component: ElementPage,
+  component: ElementsListPage,
 });
 
-function ElementPage() {
-  return <ADWindowShell config={ELEMENT_CONFIG} />;
+function ElementsListPage() {
+  return <ADListShell level={ELEMENT_LEVEL} parentContext={[]} />;
 }

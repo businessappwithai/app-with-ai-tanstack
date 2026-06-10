@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { ADWindowShell } from '@/components/admin/ad-window-shell';
-import { REFERENCE_CONFIG } from '@/components/admin/ad-window-configs';
+import { ADListShell } from '@/components/admin/ad-list-shell';
+import { REFERENCE_LEVEL } from '@/components/admin/ad-window-configs';
 
 export const Route = createFileRoute('/admin/references')({
-  component: ReferencePage,
+  component: ReferencesListPage,
 });
 
-function ReferencePage() {
-  return <ADWindowShell config={REFERENCE_CONFIG} />;
+function ReferencesListPage() {
+  return <ADListShell level={REFERENCE_LEVEL} parentContext={[]} />;
 }

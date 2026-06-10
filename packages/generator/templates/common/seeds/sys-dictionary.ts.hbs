@@ -24,20 +24,6 @@ export async function seed(db: Kysely<any>): Promise<void> {
   // ============================================================================
 
   /**
-   * Generate randomized sequence numbers for fields
-   * This demonstrates runtime modification capability - admins can reorder later
-   */
-  function generateRandomSeqNumbers(count: number): number[] {
-    const seqNumbers = Array.from({ length: count }, (_, i) => (i + 1) * 10);
-    // Fisher-Yates shuffle
-    for (let i = seqNumbers.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [seqNumbers[i], seqNumbers[j]] = [seqNumbers[j], seqNumbers[i]];
-    }
-    return seqNumbers;
-  }
-
-  /**
    * Map entity attribute type to sys_reference_id
    */
   function typeToReferenceId(type: string): number {
@@ -50,6 +36,9 @@ export async function seed(db: Kysely<any>): Promise<void> {
       'datetime': 16,
       'text': 14,
       'json': 28,
+      // FK columns linking to other business tables — TABLE_DIRECT (19)
+      // resolveRefTableName() derives bus_{base} from the column name automatically
+      'fk': 19,
     };
     return mapping[type] || 10;
   }
@@ -301,10 +290,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   {{camelCase ../name}}ColumnSeqNo += 10;
   {{/each}}
 
-  // Create sys_field entries with RANDOMIZED seq_no
-  // This demonstrates the runtime modification capability
-  const {{camelCase name}}SeqNumbers = generateRandomSeqNumbers({{camelCase name}}Columns.length);
-
+  // Create sys_field entries with sequential seq_no
   for (let i = 0; i < {{camelCase name}}Columns.length; i++) {
     const col = {{camelCase name}}Columns[i];
     await db.insertInto('sys_field').values({
@@ -313,10 +299,10 @@ export async function seed(db: Kysely<any>): Promise<void> {
       sys_column_id: col.id,
       sys_field_group_id: i < 3 ? fieldGroupGeneral : fieldGroupDetails,
       name: col.displayName,
-      seq_no: {{camelCase name}}SeqNumbers[i],
+      seq_no: (i + 1) * 10,
       seq_no_grid: (i + 1) * 10,
       is_displayed: !col.isKey,
-      is_displayed_grid: !col.isKey && i < 8, // Hide pk fields, show first 8 non-pk columns in grid
+      is_displayed_grid: !col.isKey && i < 8, // show first 8 non-pk columns in grid
       is_read_only: ['created_at', 'updated_at', 'deleted_at'].includes(col.name),
       is_encrypted: false,
       is_same_line: false,
@@ -379,7 +365,6 @@ export async function seed(db: Kysely<any>): Promise<void> {
   console.log('  - 1 admin user (admin@localhost)');
   console.log('  - 3 field groups');
   console.log('');
-  console.log('NOTE: Field seq_no values are randomized to demonstrate');
-  console.log('      runtime UI modification capability. Administrators can');
-  console.log('      reorder fields via the admin interface.');
+  console.log('NOTE: Field seq_no values are sequential. Administrators can');
+  console.log('      reorder fields via the admin interface (Field Layout Manager).');
 }
