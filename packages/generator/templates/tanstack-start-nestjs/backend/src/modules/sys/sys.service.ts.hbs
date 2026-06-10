@@ -55,11 +55,24 @@ export class SysService {
     return columnName.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   }
 
+  private applyFilters(query: any, filters: Record<string, any>): any {
+    for (const [key, value] of Object.entries(filters)) {
+      if (value && typeof value === 'object' && 'operator' in value) {
+        query = query.where(sql.ref(key), value.operator, value.value);
+      } else if (typeof value === 'string' && (value.startsWith('%') || value.endsWith('%'))) {
+        query = query.where(sql.ref(key), 'ilike', value);
+      } else {
+        query = query.where(sql.ref(key), '=', value);
+      }
+    }
+    return query;
+  }
+
   // ============================================================
   // SYS_TABLE
   // ============================================================
 
-  async findAllTables(options: PaginationOptions & { search?: string } = {}) {
+  async findAllTables(options: PaginationOptions & { search?: string } = {}, filters: Record<string, any> = {}) {
     const { page = 1, limit = 100, search, prefix } = options;
     const offset = (page - 1) * limit;
 
@@ -67,6 +80,7 @@ export class SysService {
 
     if (prefix) query = query.where('table_name', 'like', `${prefix}%`);
     if (search) query = query.where('name', 'like', `%${search}%`);
+    if (Object.keys(filters).length > 0) query = this.applyFilters(query, filters);
 
     const [data, countRow] = await Promise.all([
       query.orderBy('name').limit(Number(limit)).offset(Number(offset)).execute(),
@@ -148,12 +162,13 @@ export class SysService {
   // SYS_COLUMN
   // ============================================================
 
-  async findAllColumns(options: PaginationOptions & { tableId?: string } = {}) {
+  async findAllColumns(options: PaginationOptions & { tableId?: string } = {}, filters: Record<string, any> = {}) {
     const { page = 1, limit = 100, tableId } = options;
     const offset = (page - 1) * limit;
 
     let query = this.db.kysely.selectFrom('sys_column').selectAll().where('is_active', '=', true);
     if (tableId) query = query.where('sys_table_id', '=', tableId);
+    if (Object.keys(filters).length > 0) query = this.applyFilters(query, filters);
 
     const [data, countRow] = await Promise.all([
       query.orderBy('seq_no').limit(limit).offset(offset).execute(),
@@ -207,7 +222,7 @@ export class SysService {
   // SYS_FIELD
   // ============================================================
 
-  async findAllFields(options: PaginationOptions & { tabId?: string; tableId?: string; tableName?: string; view?: 'form' | 'grid' } = {}) {
+  async findAllFields(options: PaginationOptions & { tabId?: string; tableId?: string; tableName?: string; view?: 'form' | 'grid' } = {}, filters: Record<string, any> = {}) {
     const { page = 1, limit = 100, tabId, tableId, tableName, view } = options;
     const offset = (page - 1) * limit;
 
@@ -237,6 +252,7 @@ export class SysService {
     if (tableName) query = query.where('sys_table.table_name', '=', tableName);
     if (view === 'form') query = query.where('sys_field.is_displayed', '=', true);
     else if (view === 'grid') query = query.where('sys_field.is_displayed_grid', '=', true);
+    if (Object.keys(filters).length > 0) query = this.applyFilters(query, filters);
 
     const orderCol = view === 'grid' ? 'sys_field.seq_no_grid' : 'sys_field.seq_no';
 
@@ -344,11 +360,12 @@ export class SysService {
   // SYS_REFERENCE
   // ============================================================
 
-  async findAllReferences(options: PaginationOptions = {}) {
+  async findAllReferences(options: PaginationOptions = {}, filters: Record<string, any> = {}) {
     const { page = 1, limit = 100 } = options;
     const offset = (page - 1) * limit;
 
-    const query = this.db.kysely.selectFrom('sys_reference').selectAll().where('is_active', '=', true);
+    let query = this.db.kysely.selectFrom('sys_reference').selectAll().where('is_active', '=', true);
+    if (Object.keys(filters).length > 0) query = this.applyFilters(query, filters);
 
     const [data, countRow] = await Promise.all([
       query.orderBy('name').limit(limit).offset(offset).execute(),
@@ -379,11 +396,12 @@ export class SysService {
   // SYS_WINDOW
   // ============================================================
 
-  async findAllWindows(options: PaginationOptions = {}) {
+  async findAllWindows(options: PaginationOptions = {}, filters: Record<string, any> = {}) {
     const { page = 1, limit = 100 } = options;
     const offset = (page - 1) * limit;
 
-    const query = this.db.kysely.selectFrom('sys_window' as any).selectAll();
+    let query = this.db.kysely.selectFrom('sys_window' as any).selectAll();
+    if (Object.keys(filters).length > 0) query = this.applyFilters(query, filters);
 
     const [data, countRow] = await Promise.all([
       query.orderBy('name' as any).limit(limit).offset(offset).execute(),
@@ -422,13 +440,14 @@ export class SysService {
   // SYS_TAB
   // ============================================================
 
-  async findAllTabs(options: PaginationOptions & { windowId?: string; tableId?: string } = {}) {
+  async findAllTabs(options: PaginationOptions & { windowId?: string; tableId?: string } = {}, filters: Record<string, any> = {}) {
     const { page = 1, limit = 100, windowId, tableId } = options;
     const offset = (page - 1) * limit;
 
     let query = this.db.kysely.selectFrom('sys_tab' as any).selectAll();
     if (windowId) query = (query as any).where('sys_window_id', '=', windowId);
     if (tableId) query = (query as any).where('sys_table_id', '=', tableId);
+    if (Object.keys(filters).length > 0) query = this.applyFilters(query, filters);
 
     const [data, countRow] = await Promise.all([
       (query as any).orderBy('seq_no').limit(limit).offset(offset).execute(),

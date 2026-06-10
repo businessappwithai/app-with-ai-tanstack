@@ -22,6 +22,29 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SysService } from './sys.service';
 
+function parseFilters(rawFilters: Record<string, any>): Record<string, any> {
+  const parsed: Record<string, any> = {};
+  for (const [key, value] of Object.entries(rawFilters)) {
+    if (key.startsWith('filter.') && typeof value === 'string' && value.includes(':')) {
+      const fieldName = key.substring(7);
+      const [operator, searchValue] = value.split(':', 2);
+      switch (operator) {
+        case 'contains':   parsed[fieldName] = `%${searchValue}%`; break;
+        case 'startsWith': parsed[fieldName] = `${searchValue}%`; break;
+        case 'endsWith':   parsed[fieldName] = `%${searchValue}`; break;
+        case 'equals':
+        case 'eq':         parsed[fieldName] = searchValue; break;
+        case 'gt':         parsed[fieldName] = { operator: '>', value: searchValue }; break;
+        case 'gte':        parsed[fieldName] = { operator: '>=', value: searchValue }; break;
+        case 'lt':         parsed[fieldName] = { operator: '<', value: searchValue }; break;
+        case 'lte':        parsed[fieldName] = { operator: '<=', value: searchValue }; break;
+        default:           parsed[fieldName] = searchValue;
+      }
+    }
+  }
+  return parsed;
+}
+
 @ApiTags('sys')
 @ApiBearerAuth()
 @Controller('sys')
@@ -39,8 +62,10 @@ export class SysController {
     @Query('limit') limit?: string,
     @Query('search') search?: string,
     @Query('prefix') prefix?: string,
+    @Query() query?: Record<string, any>,
   ) {
-    return this.sysService.findAllTables({ page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100, search, prefix });
+    const { page: _p, limit: _l, search: _s, prefix: _pr, ...rawFilters } = query || {};
+    return this.sysService.findAllTables({ page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100, search, prefix }, parseFilters(rawFilters));
   }
 
   @Get('tables/all')
@@ -90,8 +115,10 @@ export class SysController {
     @Query('tableId') tableId?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query() query?: Record<string, any>,
   ) {
-    return this.sysService.findAllColumns({ tableId, page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 });
+    const { tableId: _ti, page: _p, limit: _l, ...rawFilters } = query || {};
+    return this.sysService.findAllColumns({ tableId, page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 }, parseFilters(rawFilters));
   }
 
   @Get('columns/:id')
@@ -128,8 +155,10 @@ export class SysController {
     @Query('view') view?: 'form' | 'grid',
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query() query?: Record<string, any>,
   ) {
-    return this.sysService.findAllFields({ tabId, tableId, tableName, view, page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 });
+    const { tabId: _ti, tableId: _tbl, table_name: _tn, view: _v, page: _p, limit: _l, ...rawFilters } = query || {};
+    return this.sysService.findAllFields({ tabId, tableId, tableName, view, page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 }, parseFilters(rawFilters));
   }
 
   @Get('fields/:id')
@@ -212,8 +241,9 @@ export class SysController {
 
   @Get('references')
   @ApiOperation({ summary: 'List all references (lookup types)' })
-  async findAllReferences(@Query('page') page?: string, @Query('limit') limit?: string) {
-    return this.sysService.findAllReferences({ page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 });
+  async findAllReferences(@Query('page') page?: string, @Query('limit') limit?: string, @Query() query?: Record<string, any>) {
+    const { page: _p, limit: _l, ...rawFilters } = query || {};
+    return this.sysService.findAllReferences({ page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 }, parseFilters(rawFilters));
   }
 
   @Get('references/:id')
@@ -228,8 +258,9 @@ export class SysController {
 
   @Get('windows')
   @ApiOperation({ summary: 'List all windows' })
-  async findAllWindows(@Query('page') page?: string, @Query('limit') limit?: string) {
-    return this.sysService.findAllWindows({ page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 });
+  async findAllWindows(@Query('page') page?: string, @Query('limit') limit?: string, @Query() query?: Record<string, any>) {
+    const { page: _p, limit: _l, ...rawFilters } = query || {};
+    return this.sysService.findAllWindows({ page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 }, parseFilters(rawFilters));
   }
 
   @Get('windows/:id')
@@ -261,13 +292,15 @@ export class SysController {
     @Query('tableId') tableId?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query() query?: Record<string, any>,
   ) {
+    const { windowId: _wi, tableId: _ti, page: _p, limit: _l, ...rawFilters } = query || {};
     return this.sysService.findAllTabs({
       windowId,
       tableId,
       page: page ? (parseInt(page, 10) || 1) : 1,
       limit: limit ? (parseInt(limit, 10) || 100) : 100,
-    });
+    }, parseFilters(rawFilters));
   }
 
   @Get('tabs/:id')

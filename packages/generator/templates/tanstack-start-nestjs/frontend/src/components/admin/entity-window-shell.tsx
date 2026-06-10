@@ -1,9 +1,9 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth-context';
-import { Home, Info, Tag, Hash, Calendar, Shield, FileText, Database, Layers, Search, X } from 'lucide-react';
+import { Home, Info, Tag, Hash, Calendar, Shield, FileText, Database, Layers, Search, X, Plus } from 'lucide-react';
 import { apiClient, type PaginatedResponse } from '@/lib/api-client';
 import { useFormFields, useGridFields, useTableMetadata, type FieldMetadata } from '@/hooks/use-entities';
 import { getFieldTypeLabel, getFieldTypeColor } from '@/lib/field-schema';
@@ -11,12 +11,163 @@ import { DynamicForm } from '@/components/forms/dynamic-form';
 import { DynamicTable } from '@/components/tables/dynamic-table';
 import { DeleteConfirmDialog } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ADToolbar } from './ad-toolbar';
 import { ADRecordNav } from './ad-record-nav';
 
 type AnyRecord = Record<string, unknown>;
+
+// ---------------------------------------------------------------------------
+// Filter builder types & helpers
+// ---------------------------------------------------------------------------
+
+interface FilterRow {
+  id: string;
+  column: string;
+  operator: string;
+  value: string;
+}
+
+const FILTER_OPERATORS = {
+  text:    [{ value: 'contains', label: 'contains' }, { value: 'equals', label: 'equals' }, { value: 'startsWith', label: 'starts with' }, { value: 'endsWith', label: 'ends with' }],
+  number:  [{ value: 'equals', label: '=' }, { value: 'gt', label: '>' }, { value: 'gte', label: '>=' }, { value: 'lt', label: '<' }, { value: 'lte', label: '<=' }],
+  date:    [{ value: 'equals', label: 'on' }, { value: 'gt', label: 'after' }, { value: 'gte', label: 'on or after' }, { value: 'lt', label: 'before' }, { value: 'lte', label: 'on or before' }],
+  boolean: [{ value: 'equals', label: 'is' }],
+  lookup:  [{ value: 'contains', label: 'contains' }, { value: 'equals', label: 'equals' }],
+} as const;
+
+type FilterCategory = keyof typeof FILTER_OPERATORS;
+
+function getFilterCategory(sysReferenceId: number): FilterCategory {
+  if (sysReferenceId === 11 || sysReferenceId === 12) return 'number';
+  if (sysReferenceId === 15 || sysReferenceId === 16) return 'date';
+  if (sysReferenceId === 20) return 'boolean';
+  if (sysReferenceId === 17 || sysReferenceId === 18 || sysReferenceId === 19) return 'lookup';
+  return 'text';
+}
+
+function FilterValueInput({ row, field, onChange }: { row: FilterRow; field: FieldMetadata | undefined; onChange: (v: string) => void }) {
+  const cls = 'h-8 text-sm border border-input rounded-md px-2 bg-background focus:outline-none focus:ring-1 focus:ring-ring min-w-[160px]';
+  const cat = field ? getFilterCategory(field.sys_reference_id) : 'text';
+  const refId = field?.sys_reference_id ?? 10;
+
+  if (cat === 'boolean') {
+    return (
+      <select value={row.value} onChange={e => onChange(e.target.value)} className={cls} style={{ minWidth: 100 }}>
+        <option value="">Any</option>
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+    );
+  }
+  if (cat === 'date') {
+    return <input type={refId === 16 ? 'datetime-local' : 'date'} value={row.value} onChange={e => onChange(e.target.value)} className={cls} />;
+  }
+  if (cat === 'number') {
+    return <input type="number" value={row.value} onChange={e => onChange(e.target.value)} placeholder="Value…" className={cls} style={{ minWidth: 120 }} />;
+  }
+  return <input type="text" value={row.value} onChange={e => onChange(e.target.value)} placeholder="Value…" className={cls} />;
+}
+
+function FilterBuilder({
+  fields,
+  rows,
+  onChange,
+  onApply,
+  onClear,
+}: {
+  fields: FieldMetadata[];
+  rows: FilterRow[];
+  onChange: (rows: FilterRow[]) => void;
+  onApply: () => void;
+  onClear: () => void;
+}) {
+  const searchableFields = fields.filter(f => f.is_displayed_grid && f.column_name !== 'id');
+
+  const addRow = () => {
+    const first = searchableFields[0];
+    if (!first) return;
+    const cat = getFilterCategory(first.sys_reference_id);
+    onChange([...rows, { id: crypto.randomUUID(), column: first.column_name, operator: FILTER_OPERATORS[cat][0].value, value: '' }]);
+  };
+
+  const updateRow = (id: string, patch: Partial<FilterRow>) => {
+    onChange(rows.map(r => {
+      if (r.id !== id) return r;
+      const updated = { ...r, ...patch };
+      if (patch.column && patch.column !== r.column) {
+        const f = searchableFields.find(f => f.column_name === patch.column);
+        const cat = f ? getFilterCategory(f.sys_reference_id) : 'text';
+        updated.operator = FILTER_OPERATORS[cat][0].value;
+        updated.value = '';
+      }
+      return updated;
+    }));
+  };
+
+  const removeRow = (id: string) => onChange(rows.filter(r => r.id !== id));
+
+  const selectCls = 'h-8 text-sm border border-input rounded-md px-2 bg-background focus:outline-none focus:ring-1 focus:ring-ring';
+
+  return (
+    <div className="border-b border-border bg-muted/10 px-4 py-3 space-y-2">
+      {rows.length === 0 && (
+        <p className="text-xs text-muted-foreground italic py-1">No filters — click Add Filter to narrow results.</p>
+      )}
+      {rows.map(row => {
+        const field = searchableFields.find(f => f.column_name === row.column);
+        const cat = field ? getFilterCategory(field.sys_reference_id) : 'text';
+        const ops = FILTER_OPERATORS[cat] as readonly { value: string; label: string }[];
+        return (
+          <div key={row.id} className="flex items-center gap-2 flex-wrap">
+            <select
+              value={row.column}
+              onChange={e => updateRow(row.id, { column: e.target.value })}
+              className={`${selectCls} min-w-[140px]`}
+            >
+              {searchableFields.map(f => (
+                <option key={f.column_name} value={f.column_name}>{f.name}</option>
+              ))}
+            </select>
+            <select
+              value={row.operator}
+              onChange={e => updateRow(row.id, { operator: e.target.value })}
+              className={`${selectCls} min-w-[110px]`}
+            >
+              {ops.map(op => (
+                <option key={op.value} value={op.value}>{op.label}</option>
+              ))}
+            </select>
+            <FilterValueInput row={row} field={field} onChange={v => updateRow(row.id, { value: v })} />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
+              onClick={() => removeRow(row.id)}
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        );
+      })}
+      <div className="flex items-center gap-2 pt-1">
+        <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={addRow} disabled={searchableFields.length === 0}>
+          <Plus className="h-3 w-3" />
+          Add Filter
+        </Button>
+        <Button size="sm" className="h-7 text-xs gap-1" onClick={onApply} disabled={rows.length === 0}>
+          <Search className="h-3.5 w-3.5" />
+          Apply
+        </Button>
+        {rows.length > 0 && (
+          <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={onClear}>
+            Clear All
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 interface EntityWindowShellProps {
   tableName: string;
@@ -124,7 +275,7 @@ function MetadataPanel({ record, fields, tableName, entityLabel }: {
           </div>
         )}
 
-        {record.id && (
+        {!!record.id && (
           <div className="border-t border-border pt-3 space-y-2">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Record Details</p>
             <div className="flex items-start gap-2">
@@ -134,7 +285,7 @@ function MetadataPanel({ record, fields, tableName, entityLabel }: {
                 <p className="text-xs font-mono text-foreground truncate">{String(record.id)}</p>
               </div>
             </div>
-            {record.created_at && (
+            {!!record.created_at && (
               <div className="flex items-start gap-2">
                 <Calendar className="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0" />
                 <div className="min-w-0">
@@ -143,7 +294,7 @@ function MetadataPanel({ record, fields, tableName, entityLabel }: {
                 </div>
               </div>
             )}
-            {record.updated_at && (
+            {!!record.updated_at && (
               <div className="flex items-start gap-2">
                 <Calendar className="w-3.5 h-3.5 text-blue-500 mt-0.5 flex-shrink-0" />
                 <div className="min-w-0">
@@ -183,8 +334,8 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
   const [currentIndex, setCurrentIndex] = useState(0);
   const [page, setPage] = useState(1);
   const [advancedSearchOpen, setAdvancedSearchOpen] = useState(false);
-  const [advancedFilters, setAdvancedFilters] = useState<Record<string, string>>({});
-  const [pendingFilters, setPendingFilters] = useState<Record<string, string>>({});
+  const [appliedRows, setAppliedRows] = useState<FilterRow[]>([]);
+  const [pendingRows, setPendingRows] = useState<FilterRow[]>([]);
   const [formData, setFormData] = useState<AnyRecord>({});
   const [hasChanges, setHasChanges] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -194,15 +345,15 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
   const { data: formFields, isLoading: isLoadingFields } = useFormFields(tableName);
   const { data: gridFields, isLoading: isLoadingGrid } = useGridFields(tableName);
 
-  const activeFilterCount = Object.values(advancedFilters).filter(Boolean).length;
+  const activeFilterCount = appliedRows.length;
 
   const fetchParams: Record<string, unknown> = {
     page,
     limit: 100,
     ...Object.fromEntries(
-      Object.entries(advancedFilters)
-        .filter(([, v]) => v)
-        .map(([k, v]) => [`filter.${k}`, `contains:${v}`])
+      appliedRows
+        .filter(r => r.column && r.operator && r.value !== '')
+        .map(r => [`filter.${r.column}`, `${r.operator}:${r.value}`])
     ),
   };
 
@@ -328,14 +479,14 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
   };
 
   const handleAdvancedSearchApply = useCallback(() => {
-    setAdvancedFilters({ ...pendingFilters });
+    setAppliedRows([...pendingRows]);
     setPage(1);
     setCurrentIndex(0);
-  }, [pendingFilters]);
+  }, [pendingRows]);
 
   const handleAdvancedSearchClear = useCallback(() => {
-    setPendingFilters({});
-    setAdvancedFilters({});
+    setPendingRows([]);
+    setAppliedRows([]);
     setPage(1);
     setCurrentIndex(0);
   }, []);
@@ -379,36 +530,13 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
       />
 
       {advancedSearchOpen && (
-        <div className="border-b border-border bg-muted/10 px-4 py-3">
-          <div className="flex items-end flex-wrap gap-3">
-            {(gridFields ?? []).filter(f => f.is_displayed_grid && !['id', 'created_at', 'updated_at', 'deleted_at'].includes(f.column_name)).map((field) => (
-              <div key={field.column_name} className="flex flex-col gap-1 min-w-[140px]">
-                <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                  {field.name}
-                </label>
-                <Input
-                  className="h-8 text-sm"
-                  placeholder={`Filter ${field.name}…`}
-                  value={pendingFilters[field.column_name] ?? ''}
-                  onChange={e => setPendingFilters(prev => ({ ...prev, [field.column_name]: e.target.value }))}
-                  onKeyDown={e => e.key === 'Enter' && handleAdvancedSearchApply()}
-                />
-              </div>
-            ))}
-            <div className="flex gap-2 pb-0.5">
-              <Button size="sm" className="h-8" onClick={handleAdvancedSearchApply}>
-                <Search className="h-3.5 w-3.5 mr-1.5" />
-                Search
-              </Button>
-              {activeFilterCount > 0 && (
-                <Button size="sm" variant="outline" className="h-8" onClick={handleAdvancedSearchClear}>
-                  <X className="h-3.5 w-3.5 mr-1.5" />
-                  Clear
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
+        <FilterBuilder
+          fields={gridFields ?? []}
+          rows={pendingRows}
+          onChange={setPendingRows}
+          onApply={handleAdvancedSearchApply}
+          onClear={handleAdvancedSearchClear}
+        />
       )}
 
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-gradient-to-r from-indigo-100 to-sky-50">

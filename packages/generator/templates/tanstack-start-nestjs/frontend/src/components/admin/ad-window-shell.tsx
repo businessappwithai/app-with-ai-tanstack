@@ -1,15 +1,19 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import { toast } from 'sonner';
+import { Search, X, Plus, Home } from 'lucide-react';
 import { apiClient, type PaginatedResponse } from '@/lib/api-client';
 import { DynamicForm } from '@/components/forms/dynamic-form';
 import { DynamicTable } from '@/components/tables/dynamic-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 import { ADToolbar } from './ad-toolbar';
 import { ADBreadcrumb, type BreadcrumbLevel } from './ad-breadcrumb';
 import { ADRecordNav } from './ad-record-nav';
+import type { FieldMetadata } from '@/hooks/use-entities';
 import type { ADWindowConfig, ADLevel, ADChildTabConfig } from './ad-window-configs';
 
 // ============================================================================
@@ -22,6 +26,160 @@ interface DrillState {
   levelIndex: number;
   parentId: string;
   parentName: string;
+}
+
+// ---------------------------------------------------------------------------
+// Filter builder types & helpers
+// ---------------------------------------------------------------------------
+
+interface FilterRow {
+  id: string;
+  column: string;
+  operator: string;
+  value: string;
+}
+
+const FILTER_OPERATORS = {
+  text:    [{ value: 'contains', label: 'contains' }, { value: 'equals', label: 'equals' }, { value: 'startsWith', label: 'starts with' }, { value: 'endsWith', label: 'ends with' }],
+  number:  [{ value: 'equals', label: '=' }, { value: 'gt', label: '>' }, { value: 'gte', label: '>=' }, { value: 'lt', label: '<' }, { value: 'lte', label: '<=' }],
+  date:    [{ value: 'equals', label: 'on' }, { value: 'gt', label: 'after' }, { value: 'gte', label: 'on or after' }, { value: 'lt', label: 'before' }, { value: 'lte', label: 'on or before' }],
+  boolean: [{ value: 'equals', label: 'is' }],
+  lookup:  [{ value: 'contains', label: 'contains' }, { value: 'equals', label: 'equals' }],
+} as const;
+
+type FilterCategory = keyof typeof FILTER_OPERATORS;
+
+function getFilterCategory(sysReferenceId: number): FilterCategory {
+  if (sysReferenceId === 11 || sysReferenceId === 12) return 'number';
+  if (sysReferenceId === 15 || sysReferenceId === 16) return 'date';
+  if (sysReferenceId === 20) return 'boolean';
+  if (sysReferenceId === 17 || sysReferenceId === 18 || sysReferenceId === 19) return 'lookup';
+  return 'text';
+}
+
+
+function FilterValueInput({ row, field, onChange }: { row: FilterRow; field: FieldMetadata | undefined; onChange: (v: string) => void }) {
+  const cls = 'h-8 text-sm border border-input rounded-md px-2 bg-background focus:outline-none focus:ring-1 focus:ring-ring min-w-[160px]';
+  const cat = field ? getFilterCategory(field.sys_reference_id) : 'text';
+  const refId = field?.sys_reference_id ?? 10;
+
+  if (cat === 'boolean') {
+    return (
+      <select value={row.value} onChange={e => onChange(e.target.value)} className={cls} style={{ minWidth: 100 }}>
+        <option value="">Any</option>
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+    );
+  }
+  if (cat === 'date') {
+    return <input type={refId === 16 ? 'datetime-local' : 'date'} value={row.value} onChange={e => onChange(e.target.value)} className={cls} />;
+  }
+  if (cat === 'number') {
+    return <input type="number" value={row.value} onChange={e => onChange(e.target.value)} placeholder="Value…" className={cls} style={{ minWidth: 120 }} />;
+  }
+  return <input type="text" value={row.value} onChange={e => onChange(e.target.value)} placeholder="Value…" className={cls} />;
+}
+
+function FilterBuilder({
+  fields,
+  rows,
+  onChange,
+  onApply,
+  onClear,
+}: {
+  fields: FieldMetadata[];
+  rows: FilterRow[];
+  onChange: (rows: FilterRow[]) => void;
+  onApply: () => void;
+  onClear: () => void;
+}) {
+  const searchableFields = fields.filter(f => f.is_displayed_grid);
+
+  const addRow = () => {
+    const first = searchableFields[0];
+    if (!first) return;
+    const cat = getFilterCategory(first.sys_reference_id);
+    onChange([...rows, { id: crypto.randomUUID(), column: first.column_name, operator: FILTER_OPERATORS[cat][0].value, value: '' }]);
+  };
+
+  const updateRow = (id: string, patch: Partial<FilterRow>) => {
+    onChange(rows.map(r => {
+      if (r.id !== id) return r;
+      const updated = { ...r, ...patch };
+      if (patch.column && patch.column !== r.column) {
+        const f = searchableFields.find(f => f.column_name === patch.column);
+        const cat = f ? getFilterCategory(f.sys_reference_id) : 'text';
+        updated.operator = FILTER_OPERATORS[cat][0].value;
+        updated.value = '';
+      }
+      return updated;
+    }));
+  };
+
+  const removeRow = (id: string) => onChange(rows.filter(r => r.id !== id));
+
+  const selectCls = 'h-8 text-sm border border-input rounded-md px-2 bg-background focus:outline-none focus:ring-1 focus:ring-ring';
+
+  return (
+    <div className="border-b border-border bg-muted/10 px-4 py-3 space-y-2">
+      {rows.length === 0 && (
+        <p className="text-xs text-muted-foreground italic py-1">No filters — click Add Filter to narrow results.</p>
+      )}
+      {rows.map(row => {
+        const field = searchableFields.find(f => f.column_name === row.column);
+        const cat = field ? getFilterCategory(field.sys_reference_id) : 'text';
+        const ops = FILTER_OPERATORS[cat] as readonly { value: string; label: string }[];
+        return (
+          <div key={row.id} className="flex items-center gap-2 flex-wrap">
+            <select
+              value={row.column}
+              onChange={e => updateRow(row.id, { column: e.target.value })}
+              className={`${selectCls} min-w-[140px]`}
+            >
+              {searchableFields.map(f => (
+                <option key={f.column_name} value={f.column_name}>{f.name}</option>
+              ))}
+            </select>
+            <select
+              value={row.operator}
+              onChange={e => updateRow(row.id, { operator: e.target.value })}
+              className={`${selectCls} min-w-[110px]`}
+            >
+              {ops.map(op => (
+                <option key={op.value} value={op.value}>{op.label}</option>
+              ))}
+            </select>
+            <FilterValueInput row={row} field={field} onChange={v => updateRow(row.id, { value: v })} />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
+              onClick={() => removeRow(row.id)}
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        );
+      })}
+      <div className="flex items-center gap-2 pt-1">
+        <Button type="button" variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={addRow} disabled={searchableFields.length === 0}>
+          <Plus className="h-3 w-3" />
+          Add Filter
+        </Button>
+        <Button type="button" size="sm" className="h-7 text-xs gap-1" onClick={onApply} disabled={rows.length === 0}>
+          <Search className="h-3.5 w-3.5" />
+          Apply
+        </Button>
+        {rows.length > 0 && (
+          <Button type="button" variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={onClear}>
+            Clear All
+          </Button>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // ============================================================================
@@ -87,11 +245,15 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
   const [drillStack, setDrillStack] = useState<DrillState[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [page, setPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState<AnyRecord>({});
   const [hasChanges, setHasChanges] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [activeChildTab, setActiveChildTab] = useState<string>('');
+
+  // Filter builder state
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [pendingRows, setPendingRows] = useState<FilterRow[]>([]);
+  const [appliedRows, setAppliedRows] = useState<FilterRow[]>([]);
 
   const currentLevel = drillStack.length > 0
     ? config.levels[drillStack[drillStack.length - 1].levelIndex]
@@ -99,14 +261,16 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
 
   const parentDrill = drillStack.length > 0 ? drillStack[drillStack.length - 1] : null;
 
-  // Fetch records for current level
-  const fetchParams: Record<string, unknown> = {
-    page,
-    limit: 100,
-    ...(searchQuery && currentLevel.searchField ? { search: searchQuery } : {}),
-  };
+  // Fetch records for current level with server-side filters
+  const fetchParams: Record<string, unknown> = { page, limit: 100 };
   if (parentDrill && currentLevel.parentField) {
     fetchParams[currentLevel.parentField] = parentDrill.parentId;
+  }
+  // Add server-side filter params (same format as bus endpoints: filter.column=operator:value)
+  for (const row of appliedRows) {
+    if (row.column && row.operator && row.value !== '') {
+      fetchParams[`filter.${row.column}`] = `${row.operator}:${row.value}`;
+    }
   }
 
   const { data: recordsData, isLoading, refetch } = useQuery({
@@ -136,6 +300,13 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
       setHasChanges(false);
     }
   }, [currentRecord, isCreating]);
+
+  // Reset filters when level changes (e.g. drill down)
+  useEffect(() => {
+    setPendingRows([]);
+    setAppliedRows([]);
+    setIsSearchOpen(false);
+  }, [currentLevel.id]);
 
   // Save mutation
   const saveMutation = useMutation({
@@ -228,14 +399,8 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
     }]);
     setCurrentIndex(0);
     setPage(1);
-    setSearchQuery('');
     setIsCreating(false);
     setHasChanges(false);
-
-    // Find the child record index in its list
-    const childIdField = childLevel.idField;
-    const childId = childRecord[childIdField];
-    // We'll set the index after data loads - for now go to 0
   }, [config.levels, currentRecordId, currentRecordName]);
 
   // Navigate back up the breadcrumb
@@ -247,13 +412,16 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
     }
     setCurrentIndex(0);
     setPage(1);
-    setSearchQuery('');
     setIsCreating(false);
     setHasChanges(false);
   }, []);
 
-  // Build breadcrumb levels
+  // Build breadcrumb levels — always start with Dashboard link
   const breadcrumbLevels: BreadcrumbLevel[] = [
+    {
+      label: 'Dashboard',
+      onClick: undefined, // rendered as Link separately
+    },
     {
       label: rootLevel.label,
       recordName: drillStack.length > 0 ? undefined : currentRecordName,
@@ -305,6 +473,24 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
     saveMutation.mutate(data);
   };
 
+  const handleSearchToggle = () => {
+    setIsSearchOpen(prev => !prev);
+    if (isSearchOpen) {
+      setPendingRows([...appliedRows]);
+    }
+  };
+
+  const handleApplyFilters = () => {
+    setAppliedRows([...pendingRows]);
+    setCurrentIndex(0);
+  };
+
+  const handleClearFilters = () => {
+    setPendingRows([]);
+    setAppliedRows([]);
+    setCurrentIndex(0);
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Toolbar */}
@@ -314,17 +500,25 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
         onDelete={() => deleteMutation.mutate()}
         onUndo={handleUndo}
         onRefresh={() => refetch()}
-        searchValue={searchQuery}
-        onSearchChange={(val) => {
-          setSearchQuery(val);
-          setPage(1);
-          setCurrentIndex(0);
-        }}
+        onAdvancedSearchToggle={handleSearchToggle}
+        isAdvancedSearchOpen={isSearchOpen}
+        advancedFilterCount={appliedRows.filter(r => r.value !== '').length}
         isSaving={saveMutation.isPending}
         isDeleting={deleteMutation.isPending}
         hasChanges={hasChanges || isCreating}
         canDelete={!!currentRecordId && !isCreating}
       />
+
+      {/* Filter Builder Panel */}
+      {isSearchOpen && (
+        <FilterBuilder
+          fields={currentLevel.gridFields}
+          rows={pendingRows}
+          onChange={setPendingRows}
+          onApply={handleApplyFilters}
+          onClear={handleClearFilters}
+        />
+      )}
 
       {/* Breadcrumb + Record Nav */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-background">
@@ -337,7 +531,18 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
               ← Back to List
             </button>
           )}
-          <ADBreadcrumb levels={breadcrumbLevels} />
+          {/* Dashboard home link */}
+          <Link to="/dashboard" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors">
+            <Home className="h-3.5 w-3.5" />
+            <span>Dashboard</span>
+          </Link>
+          <span className="text-muted-foreground text-sm">/</span>
+          <ADBreadcrumb levels={breadcrumbLevels.slice(1)} />
+          {appliedRows.filter(r => r.value !== '').length > 0 && (
+            <span className="text-xs text-muted-foreground ml-2">
+              ({totalCount} filtered)
+            </span>
+          )}
         </div>
         {viewMode === 'detail' && !isCreating && (
           <ADRecordNav
@@ -370,8 +575,14 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
           /* ===== LIST VIEW ===== */
           records.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-              <p className="text-lg">No records found</p>
-              <p className="text-sm mt-1">Click + to create a new {currentLevel.label.toLowerCase()}</p>
+              <p className="text-lg">
+                {appliedRows.filter(r => r.value !== '').length > 0 ? 'No records match your filters' : 'No records found'}
+              </p>
+              <p className="text-sm mt-1">
+                {appliedRows.filter(r => r.value !== '').length > 0
+                  ? 'Try adjusting your filters'
+                  : `Click + to create a new ${currentLevel.label.toLowerCase()}`}
+              </p>
             </div>
           ) : (
             <div className="p-4">
