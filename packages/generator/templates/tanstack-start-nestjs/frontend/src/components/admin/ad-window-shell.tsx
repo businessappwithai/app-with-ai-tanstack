@@ -17,6 +17,33 @@ import type { FieldMetadata } from '@/hooks/use-entities';
 import type { ADWindowConfig, ADLevel, ADChildTabConfig } from './ad-window-configs';
 
 // ============================================================================
+// URL helpers — encode/decode drill state as ?l0=id&l1=id&l2=id search params
+// ============================================================================
+
+function readUrlLevels(): string[] {
+  const params = new URLSearchParams(window.location.search);
+  const levels: string[] = [];
+  for (let i = 0; i < 10; i++) {
+    const v = params.get(`l${i}`);
+    if (!v) break;
+    levels.push(v);
+  }
+  return levels;
+}
+
+function writeUrlLevels(ids: string[]) {
+  const url = new URL(window.location.href);
+  // Rebuild params without any l* keys, then re-add with new values
+  const next = new URLSearchParams();
+  url.searchParams.forEach((value, key) => {
+    if (!/^l\d+$/.test(key)) next.set(key, value);
+  });
+  ids.forEach((id, i) => next.set(`l${i}`, id));
+  url.search = next.toString();
+  window.history.replaceState(null, '', url.toString());
+}
+
+// ============================================================================
 // Types
 // ============================================================================
 
@@ -240,8 +267,13 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
   const queryClient = useQueryClient();
   const rootLevel = config.levels[0];
 
+  // Read URL on first render only — used to restore root-level position
+  const [initUrlLevels] = useState(() => readUrlLevels());
+
   // Navigation state
-  const [viewMode, setViewMode] = useState<'list' | 'detail'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'detail'>(() =>
+    readUrlLevels().length > 0 ? 'detail' : 'list'
+  );
   const [drillStack, setDrillStack] = useState<DrillState[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [page, setPage] = useState(1);
@@ -249,6 +281,10 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
   const [hasChanges, setHasChanges] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [activeChildTab, setActiveChildTab] = useState<string>('');
+  // ID of record to select after records load (used for drill-down targeting & URL restore)
+  const [pendingSelectId, setPendingSelectId] = useState<string | null>(
+    () => initUrlLevels.length > 0 ? initUrlLevels[0] : null
+  );
 
   // Filter builder state
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -307,6 +343,28 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
     setAppliedRows([]);
     setIsSearchOpen(false);
   }, [currentLevel.id]);
+
+  // Resolve pendingSelectId → currentIndex once records load
+  useEffect(() => {
+    if (!pendingSelectId || records.length === 0) return;
+    const idx = records.findIndex(r => r[currentLevel.idField] === pendingSelectId);
+    if (idx !== -1) {
+      setCurrentIndex(idx);
+      setViewMode('detail');
+    }
+    setPendingSelectId(null);
+  }, [pendingSelectId, records, currentLevel.idField]);
+
+  // Sync drill state → URL (l0=rootId, l1=childId, l2=grandchildId …)
+  useEffect(() => {
+    if (viewMode === 'detail' && currentRecordId) {
+      const ids = drillStack.map(d => d.parentId);
+      ids.push(currentRecordId);
+      writeUrlLevels(ids);
+    } else if (viewMode === 'list' && drillStack.length === 0) {
+      writeUrlLevels([]);
+    }
+  }, [viewMode, drillStack, currentRecordId]);
 
   // Save mutation
   const saveMutation = useMutation({
@@ -387,16 +445,19 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
     setIsCreating(false);
   }, [totalPages]);
 
-  // Drill down into child record
+  // Drill down into child record — stores the child's ID so it's selected once records load
   const handleDrillDown = useCallback((childRecord: AnyRecord, childLevel: ADLevel) => {
     const levelIndex = config.levels.findIndex(l => l.id === childLevel.id);
     if (levelIndex === -1) return;
+
+    const childRecordId = childRecord[childLevel.idField] as string;
 
     setDrillStack(prev => [...prev, {
       levelIndex,
       parentId: currentRecordId!,
       parentName: currentRecordName || '',
     }]);
+    setPendingSelectId(childRecordId);
     setCurrentIndex(0);
     setPage(1);
     setIsCreating(false);
@@ -407,6 +468,8 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
   const navigateToLevel = useCallback((targetStackIndex: number) => {
     if (targetStackIndex < 0) {
       setDrillStack([]);
+      setViewMode('list');
+      writeUrlLevels([]);
     } else {
       setDrillStack(prev => prev.slice(0, targetStackIndex + 1));
     }
@@ -414,6 +477,7 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
     setPage(1);
     setIsCreating(false);
     setHasChanges(false);
+    setPendingSelectId(null);
   }, []);
 
   // Build breadcrumb levels — always start with Dashboard link
@@ -525,7 +589,12 @@ export function ADWindowShell({ config }: ADWindowShellProps) {
         <div className="flex items-center gap-2">
           {viewMode === 'detail' && (
             <button
-              onClick={() => { setViewMode('list'); setIsCreating(false); setHasChanges(false); }}
+              onClick={() => {
+                setViewMode('list');
+                setIsCreating(false);
+                setHasChanges(false);
+                if (drillStack.length === 0) writeUrlLevels([]);
+              }}
               className="text-sm text-primary hover:underline font-medium"
             >
               ← Back to List
