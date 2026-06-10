@@ -10,6 +10,7 @@
 import { useState } from 'react';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { signIn } from '@/lib/auth';
+import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -23,6 +24,7 @@ export const Route = createFileRoute('/auth/login')({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { refreshSession } = useAuth();
   const [isPending, setIsPending] = useState(false);
 
   const [email, setEmail] = useState('');
@@ -58,9 +60,8 @@ function LoginPage() {
         description: 'You have been signed in successfully',
       });
 
-      setTimeout(() => {
-        navigate({ to: '/dashboard' });
-      }, 500);
+      await refreshSession();
+      navigate({ to: '/dashboard' });
     } catch (err: any) {
       const errorMessage = err?.message || 'An unexpected error occurred';
       setError(errorMessage);

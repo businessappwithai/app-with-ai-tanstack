@@ -15,6 +15,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   signup: (email: string, password: string, name: string) => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,22 +28,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Check for existing session
-    const checkSession = async () => {
-      try {
-        const response = await fetch('/api/auth/get-session', {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data?.user ?? null);
-        }
-      } catch (error) {
-        console.error('Failed to check session:', error);
-      } finally {
-        setIsLoading(false);
+  const refreshSession = async () => {
+    try {
+      const response = await fetch('/api/auth/get-session', {
+        credentials: 'include',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data?.user ?? null);
       }
+    } catch (error) {
+      console.error('Failed to refresh session:', error);
+    }
+  };
+
+  useEffect(() => {
+    const checkSession = async () => {
+      await refreshSession();
+      setIsLoading(false);
     };
 
     checkSession();
@@ -106,6 +109,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         login,
         logout,
         signup,
+        refreshSession,
       }}
     >
       {children}
