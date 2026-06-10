@@ -486,7 +486,6 @@ Test authentication and authorization on rules API endpoints.
 
 **Description:**
 Unit tests for RulesEngineService methods.
-
 **Test Cases:**
 1. `getRule()` returns rule or null
 2. `createRule()` validates JDM and saves
