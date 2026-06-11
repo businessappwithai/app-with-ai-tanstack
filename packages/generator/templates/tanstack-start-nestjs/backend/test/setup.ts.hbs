@@ -8,10 +8,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { KYSELY_CONNECTION } from '../src/database/database.constants';
-import { Kysely, MemoryDialect } from 'kysely';
+import {
+  Kysely,
+  DummyDriver,
+  PostgresAdapter,
+  PostgresIntrospector,
+  PostgresQueryCompiler,
+} from 'kysely';
 
-// Use in-memory dialect for tests instead of SQLite
-// This avoids native module loading issues in test environments
+// Use a no-op dialect for tests instead of SQLite/PostgreSQL.
+// Queries compile but return empty results, which avoids native module
+// loading and database provisioning in test environments.
 
 // Test database instance
 let testDb: Kysely<any>;
@@ -24,9 +31,14 @@ let testApp: NestFastifyApplication;
  */
 export async function initTestDatabase(): Promise<Kysely<any>> {
   if (!testDb) {
-    // Use in-memory dialect for tests (no native modules required)
+    // No-op dialect (no native modules required)
     testDb = new Kysely({
-      dialect: new MemoryDialect(),
+      dialect: {
+        createAdapter: () => new PostgresAdapter(),
+        createDriver: () => new DummyDriver(),
+        createIntrospector: (db) => new PostgresIntrospector(db),
+        createQueryCompiler: () => new PostgresQueryCompiler(),
+      },
     });
   }
   return testDb;

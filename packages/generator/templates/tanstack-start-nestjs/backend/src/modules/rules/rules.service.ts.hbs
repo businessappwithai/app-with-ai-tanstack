@@ -269,7 +269,7 @@ export class RulesService {
 
     const entityOperations = [
       {{#each entities}}
-      { file: '{{tableName}}.jdm.json', entityName: '{{tableName}}', operation: 'CREATE' },
+      { file: '{{tableName}}.jdm.json', entityName: '{{tableName}}', operation: 'ALL' },
       {{/each}}
     ];
 
@@ -324,29 +324,15 @@ export class RulesService {
     data: Record<string, unknown>,
     action: 'create' | 'update' | 'delete' = 'create',
   ): Promise<{ valid: boolean; errors: string[]; warnings: string[] }> {
-    const rule = await this.db
-      .selectFrom('sys_rule_definitions')
-      .selectAll()
-      .where('entity_name', '=', entityType)
-      .where('operation', '=', action.toUpperCase())
-      .where('is_active', '=', true)
-      .executeTakeFirst();
-
-    if (!rule) {
-      return { valid: true, errors: [], warnings: [] };
-    }
-
-    const results = await this.rulesEngine.evaluateRulesWithJDM(
-      entityType,
-      rule.jdm_content,
-      data,
-      action
-    );
+    const results = await this.evaluate(entityType, data, action);
 
     const errors: string[] = [];
     const warnings: string[] = [];
 
     for (const result of results) {
+      if (result.errors?.length) {
+        warnings.push(`Rules engine error: ${result.errors.join('; ')}`);
+      }
       if (!result.matched) continue;
 
       for (const ruleAction of result.actions) {
@@ -377,24 +363,27 @@ export class RulesService {
     data: Record<string, unknown>,
     action: 'create' | 'update' | 'delete' = 'create',
   ): Promise<RuleEvaluationResult[]> {
-    const rule = await this.db
+    // Rules scoped to the specific operation plus rules that apply to ALL operations
+    const rules = await this.db
       .selectFrom('sys_rule_definitions')
       .selectAll()
       .where('entity_name', '=', entityType)
-      .where('operation', '=', action.toUpperCase())
+      .where('operation', 'in', [action.toUpperCase(), 'ALL'])
       .where('is_active', '=', true)
-      .executeTakeFirst();
+      .execute();
 
-    if (!rule) {
-      return [];
+    const results: RuleEvaluationResult[] = [];
+    for (const rule of rules) {
+      results.push(
+        ...(await this.rulesEngine.evaluateRulesWithJDM(
+          entityType,
+          rule.jdm_content,
+          data,
+          action
+        ))
+      );
     }
-
-    return this.rulesEngine.evaluateRulesWithJDM(
-      entityType,
-      rule.jdm_content,
-      data,
-      action
-    );
+    return results;
   }
 
   private mapDbRuleToRule(record: Record<string, unknown>): Rule {

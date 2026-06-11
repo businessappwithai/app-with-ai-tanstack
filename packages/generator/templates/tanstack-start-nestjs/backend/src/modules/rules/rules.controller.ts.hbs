@@ -56,6 +56,20 @@ export class RulesController {
     return await this.rulesService.findAll(filters as any);
   }
 
+  // NOTE: static routes must be declared before ':id' or they get shadowed
+  @Get('entities')
+  @ApiOperation({ summary: 'Get list of entities that have business rules configured' })
+  @ApiResponse({ status: 200, description: 'Entity list retrieved' })
+  getEntitiesWithRules() {
+    return {
+      entities: [
+        {{#each entities}}
+        { entityType: '{{tableName}}', entityName: '{{name}}' },
+        {{/each}}
+      ],
+    };
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get rule by ID' })
   @ApiResponse({ status: 200, description: 'Rule retrieved successfully' })
@@ -133,7 +147,8 @@ export class RulesController {
   @ApiOperation({ summary: 'Dry run rule with test context' })
   @ApiResponse({ status: 200, description: 'Dry run completed' })
   async dryRun(@Body(new ZodValidationPipe(DryRunSchema)) dto: { ruleId: string; testData: Record<string, unknown> }) {
-    return await this.rulesService.dryRun(dto.ruleId, dto.testData);
+    const rule = await this.rulesService.findById(dto.ruleId);
+    return await this.rulesService.dryRun(rule.jdmContent, dto.testData);
   }
 
   @Post('migrate')
@@ -181,16 +196,4 @@ export class RulesController {
     };
   }
 
-  @Get('entities')
-  @ApiOperation({ summary: 'Get list of entities that have business rules configured' })
-  @ApiResponse({ status: 200, description: 'Entity list retrieved' })
-  getEntitiesWithRules() {
-    return {
-      entities: [
-        {{#each entities}}
-        { entityType: '{{tableName}}', entityName: '{{name}}' },
-        {{/each}}
-      ],
-    };
-  }
 }

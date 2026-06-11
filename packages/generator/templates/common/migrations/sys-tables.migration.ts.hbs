@@ -468,10 +468,33 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await sql`CREATE INDEX IF NOT EXISTS idx_sys_session_user_id ON sys_session (sys_user_id)`.execute(db);
   await sql`CREATE INDEX IF NOT EXISTS idx_sys_session_login_date ON sys_session (login_date)`.execute(db);
+
+  // ============================================================================
+  // sys_rule_definitions - Business Rules (GoRules JDM decision models)
+  // ============================================================================
+  await sql`
+    CREATE TABLE IF NOT EXISTS sys_rule_definitions (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      entity_name VARCHAR(100) NOT NULL,
+      rule_name VARCHAR(100) NOT NULL,
+      operation VARCHAR(20) NOT NULL DEFAULT 'ALL',
+      jdm_content TEXT NOT NULL,
+      version INTEGER NOT NULL DEFAULT 1,
+      is_active BOOLEAN DEFAULT true,
+      created_by TEXT,
+      updated_by TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(entity_name, operation, rule_name)
+    )
+  `.execute(db);
+
+  await sql`CREATE INDEX IF NOT EXISTS idx_sys_rule_definitions_entity ON sys_rule_definitions (entity_name, operation, is_active)`.execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
   // Drop in reverse order of creation
+  await sql`DROP TABLE IF EXISTS sys_rule_definitions CASCADE`.execute(db);
   await sql`DROP TABLE IF EXISTS sys_session CASCADE`.execute(db);
   await sql`DROP TABLE IF EXISTS sys_change_log CASCADE`.execute(db);
   await sql`DROP TABLE IF EXISTS sys_access CASCADE`.execute(db);

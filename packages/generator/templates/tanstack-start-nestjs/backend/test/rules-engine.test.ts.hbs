@@ -1,73 +1,73 @@
 /**
- * Rules Engine Integration Tests
+ * Business Rules Engine Tests
  *
- * Tests for the business rules evaluation service
+ * Verifies that the generated GoRules JDM decision models are valid and that
+ * the RulesEngine enforces them: required-field violations are reported for
+ * empty payloads and clean payloads pass without violations.
  *
  * Generated: {{now}}
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
-import request from 'supertest';
-import { AppModule } from '../src/app.module';
-import {
-  createTestApp,
-  closeTestApp,
-  initTestDatabase,
-} from './setup';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { RulesEngine } from '../src/modules/rules/rules-engine.service';
+import { TestDataFactory } from './setup';
 
-describe('Rules Engine API', () => {
-  let app: ReturnType<typeof createTestApp> extends Promise<infer T> ? T : never;
+const JDM_DIR = join(__dirname, '..', 'src', 'modules', 'rules', 'jdm');
 
-  beforeAll(async () => {
-    await initTestDatabase();
-    app = await createTestApp(AppModule);
+describe('Rules Engine (GoRules JDM)', () => {
+  let engine: RulesEngine;
+
+  beforeAll(() => {
+    engine = new RulesEngine();
   });
 
-  afterAll(async () => {
-    await closeTestApp(app);
+  afterAll(() => {
+    engine.onModuleDestroy();
   });
 
-  describe('Rules Evaluation', () => {
-    it('should evaluate rules for an entity', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/api/rules/evaluate')
-        .send({
-          entityType: '{{#each entities}}{{#if @first}}{{tableName}}{{/if}}{{/each}}',
-          data: {},
-          action: 'create',
-        })
-        .expect(200);
+  it('returns no violations for entities without configured rules', async () => {
+    const results = await engine.evaluateRules('bus_unknown_entity', {}, 'create');
+    expect(results).toEqual([]);
+  });
 
-      expect(response.body).toHaveProperty('results');
-      expect(Array.isArray(response.body.results)).toBe(true);
+  {{#each entities}}
+  describe('{{displayName}} ({{tableName}})', () => {
+    const jdmContent = readFileSync(join(JDM_DIR, '{{tableName}}.jdm.json'), 'utf-8');
+
+    it('has a valid JDM decision model', () => {
+      const parsed = JSON.parse(jdmContent);
+      expect(Array.isArray(parsed.nodes)).toBe(true);
+      expect(Array.isArray(parsed.edges)).toBe(true);
+    });
+
+    it('reports required-field violations for an empty payload', async () => {
+      const results = await engine.evaluateRulesWithJDM('{{tableName}}', jdmContent, {}, 'create');
+
+      expect(results.length).toBeGreaterThan(0);
+      for (const result of results) {
+        expect(result.matched).toBe(true);
+        expect(result.errors).toBeUndefined();
+        expect(result.actions[0].type).toBe('prevent');
+        expect(typeof result.actions[0].config.message).toBe('string');
+        expect((result.actions[0].config.message as string).length).toBeGreaterThan(0);
+      }
+    });
+
+    it('passes a fully populated payload without violations', async () => {
+      const data = TestDataFactory.create{{pascalCase name}}();
+      const results = await engine.evaluateRulesWithJDM('{{tableName}}', jdmContent, data, 'create');
+
+      const violations = results.filter((r) => r.matched);
+      expect(violations).toEqual([]);
+    });
+
+    it('evaluates rules loaded from the JDM file on disk', async () => {
+      const results = await engine.evaluateRules('{{tableName}}', {}, 'create');
+      expect(results.length).toBeGreaterThan(0);
     });
   });
 
-  describe('Rules Validation API', () => {
-    it('should validate data against rules', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/api/rules/validate')
-        .send({
-          entityType: '{{#each entities}}{{#if @first}}{{tableName}}{{/if}}{{/each}}',
-          data: {},
-          action: 'create',
-        })
-        .expect(200);
-
-      expect(response.body).toHaveProperty('valid');
-      expect(typeof response.body.valid).toBe('boolean');
-    });
-  });
-
-  describe('Entities List API', () => {
-    it('should return list of entities with rules', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/api/rules/entities')
-        .expect(200);
-
-      expect(response.body).toHaveProperty('entities');
-      expect(Array.isArray(response.body.entities)).toBe(true);
-      expect(response.body.entities.length).toBeGreaterThan(0);
-    });
-  });
+  {{/each}}
 });

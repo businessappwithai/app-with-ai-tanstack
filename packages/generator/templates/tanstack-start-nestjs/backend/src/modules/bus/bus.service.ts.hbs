@@ -14,6 +14,7 @@ import { KYSELY_CONNECTION } from '../../database/database.constants';
 import { DatabaseService } from '../../database/database.service';
 import type { PaginationOptions, PaginatedResult } from '../../database/database.service';
 import { executeBeforeCreateHooks, executeAfterCreateHooks, executeBeforeUpdateHooks, executeAfterUpdateHooks, executeBeforeDeleteHooks, executeAfterDeleteHooks, executeBeforeReadHooks, executeAfterReadHooks, executeBeforeListHooks, executeAfterListHooks } from '../hooks/hooks';
+import { RulesService } from '../rules/rules.service';
 
 export interface FieldMetadata {
   sys_field_id: string;
@@ -55,8 +56,37 @@ export class BusService {
   constructor(
     @Inject(KYSELY_CONNECTION) private readonly kysely: Kysely<any>,
     private readonly db: DatabaseService,
+    private readonly rulesService: RulesService,
   ) {
     this.logger.log('BusService initialized');
+  }
+
+  /**
+   * Enforce business rules (GoRules JDM) for the given operation.
+   * Rule violations ('prevent' actions) reject the operation with a 400.
+   * Infrastructure failures (rules table missing, engine errors) fail open
+   * with a warning so business rules can never take CRUD fully offline.
+   */
+  private async enforceBusinessRules(
+    tableName: string,
+    data: Record<string, any>,
+    action: 'create' | 'update' | 'delete',
+  ): Promise<void> {
+    let result: { valid: boolean; errors: string[]; warnings: string[] };
+    try {
+      result = await this.rulesService.validate(tableName, data, action);
+    } catch (error: any) {
+      this.logger.warn(`Business rule evaluation unavailable for ${tableName}:${action}: ${error?.message ?? error}`);
+      return;
+    }
+
+    for (const warning of result.warnings) {
+      this.logger.warn(`Business rule warning for ${tableName}:${action}: ${warning}`);
+    }
+
+    if (!result.valid) {
+      throw new BadRequestException({ message: 'Business rule validation failed', errors: result.errors });
+    }
   }
 
   private singularize(word: string): string {
@@ -119,6 +149,8 @@ export class BusService {
       processedData = { ...processedData, id: randomUUID() };
     }
 
+    await this.enforceBusinessRules(tableName, processedData, 'create');
+
     let result: any;
     try {
       result = await this.db.transaction(async (trx) => {
@@ -158,6 +190,14 @@ export class BusService {
     await this.verifyEntity(entity);
 
     const processedData = await executeBeforeUpdateHooks(entity, data);
+
+    // Validate business rules against the record as it would look after the
+    // update, so rules over fields absent from a partial payload still hold.
+    const current = await this.db.findById<Record<string, any>>(tableName, id);
+    if (current) {
+      await this.enforceBusinessRules(tableName, { ...current, ...processedData }, 'update');
+    }
+
     const result = await this.db.transaction(async (trx) => {
       const existing = await trx
         .selectFrom(tableName as any)
@@ -196,6 +236,11 @@ export class BusService {
     const canDelete = await executeBeforeDeleteHooks(entity, id);
     if (!canDelete) {
       throw new BadRequestException(`Cannot delete ${entity}: still referenced`);
+    }
+
+    const current = await this.db.findById<Record<string, any>>(tableName, id);
+    if (current) {
+      await this.enforceBusinessRules(tableName, current, 'delete');
     }
 
     const result = await this.db.transaction(async (trx) => {

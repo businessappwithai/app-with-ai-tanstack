@@ -12,7 +12,7 @@ describe('CRUD Entity Tests', () => {
   {{#each entities}}
   describe('{{pascalCase name}} Operations', () => {
     it('should create {{name}} data with valid fields', () => {
-      const {{camelCase name}}Data = {
+      const {{camelCase displayName}}Data = {
         id: generateTestId(),
         {{#each attributes}}
         {{#unless (eq name "id")}}
@@ -21,16 +21,16 @@ describe('CRUD Entity Tests', () => {
         {{/each}}
       };
 
-      expect({{camelCase name}}Data.id).toBeTruthy();
+      expect({{camelCase displayName}}Data.id).toBeTruthy();
       {{#each attributes}}
       {{#unless (eq name "id")}}
-      expect({{camelCase name}}Data.{{name}}).toBeDefined();
+      expect({{camelCase ../displayName}}Data.{{name}}).toBeDefined();
       {{/unless}}
       {{/each}}
     });
 
     it('should validate {{name}} required fields', () => {
-      const {{camelCase name}}Data = {
+      const {{camelCase displayName}}Data = {
         id: generateTestId(),
         {{#each attributes}}
         {{#unless (eq name "id")}}
@@ -39,35 +39,37 @@ describe('CRUD Entity Tests', () => {
         {{/each}}
       };
 
-      const isValid = {{camelCase name}}Data.id && {{#each attributes}}{{#unless (eq name "id")}}{{camelCase name}}Data.{{name}}{{#unless @last}} && {{/unless}}{{/unless}}{{/each}};
+      const isValid = Boolean({{camelCase displayName}}Data.id{{#each attributes}}{{#unless (eq name "id")}} && {{camelCase ../displayName}}Data.{{name}}{{/unless}}{{/each}});
       expect(isValid).toBe(true);
     });
 
     it('should update {{name}} records', () => {
-      const {{camelCase name}}Data = {
+      const {{camelCase displayName}}Data = {
         id: generateTestId(),
-        {{#eachFirst attributes 1}}
+        {{#eachFirst attributes 2}}
+        {{#unless (eq name "id")}}
         {{name}}: {{#if (eq type "string")}}'Original'{{else if (eq type "integer")}}1{{else}}true{{/if}},
+        {{/unless}}
         {{/eachFirst}}
       };
 
-      const updated = { ...{{camelCase name}}Data };
-      {{#eachFirst attributes 1}}
+      const updated = { ...{{camelCase displayName}}Data };
+      {{#eachFirst attributes 2}}
       {{#unless (eq name "id")}}
       updated.{{name}} = {{#if (eq type "string")}}'Updated'{{else if (eq type "integer")}}2{{else}}false{{/if}};
       {{/unless}}
       {{/eachFirst}}
 
-      expect(updated.id).toBe({{camelCase name}}Data.id);
-      {{#eachFirst attributes 1}}
+      expect(updated.id).toBe({{camelCase displayName}}Data.id);
+      {{#eachFirst attributes 2}}
       {{#unless (eq name "id")}}
-      expect(updated.{{name}}).not.toBe({{camelCase name}}Data.{{name}});
+      expect(updated.{{name}}).not.toBe({{camelCase ../displayName}}Data.{{name}});
       {{/unless}}
       {{/eachFirst}}
     });
 
     it('should handle {{name}} deletion', () => {
-      const {{camelCase name}}Data = {
+      const {{camelCase displayName}}Data = {
         id: generateTestId(),
         {{#each attributes}}
         {{#unless (eq name "id")}}
@@ -75,6 +77,8 @@ describe('CRUD Entity Tests', () => {
         {{/unless}}
         {{/each}}
       };
+
+      expect({{camelCase displayName}}Data.id).toBeTruthy();
 
       let recordExists = true;
       recordExists = false; // Simulate deletion

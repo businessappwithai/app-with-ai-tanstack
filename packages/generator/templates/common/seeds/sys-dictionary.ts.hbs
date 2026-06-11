@@ -20,30 +20,6 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const createdBy = '{{config.createdBy}}';
 
   // ============================================================================
-  // Helper Functions
-  // ============================================================================
-
-  /**
-   * Map entity attribute type to sys_reference_id
-   */
-  function typeToReferenceId(type: string): number {
-    const mapping: Record<string, number> = {
-      'string': 10,
-      'integer': 11,
-      'decimal': 12,
-      'boolean': 20,
-      'date': 15,
-      'datetime': 16,
-      'text': 14,
-      'json': 28,
-      // FK columns linking to other business tables — TABLE_DIRECT (19)
-      // resolveRefTableName() derives bus_{base} from the column name automatically
-      'fk': 19,
-    };
-    return mapping[type] || 10;
-  }
-
-  // ============================================================================
   // Create Default Roles
   // ============================================================================
   const adminRoleId = uuidv4();
@@ -266,7 +242,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: {{camelCase ../name}}TableId,
     column_name: '{{columnName}}',
     name: '{{displayName}}',
-    sys_reference_id: typeToReferenceId('{{type}}'){{#if maxLength}},
+    sys_reference_id: {{referenceId}}{{#if maxLength}},
     field_length: {{maxLength}}{{/if}}{{#if default}},
     default_value: '{{default}}'{{/if}},
     is_key: {{#if (eq name ../primaryKey)}}true{{else}}false{{/if}},

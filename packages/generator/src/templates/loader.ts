@@ -80,6 +80,24 @@ export class TemplateLoader {
     Handlebars.registerHelper("not", (value) => !value);
 
     // ========================================================================
+    // Iteration Helpers
+    // ========================================================================
+    // Like {{#each}} but iterates only over the first N items of the array
+    Handlebars.registerHelper("eachFirst", function (this: unknown, items: unknown, count: number, options: Handlebars.HelperOptions) {
+      if (!Array.isArray(items) || items.length === 0) {
+        return options.inverse(this);
+      }
+      const slice = items.slice(0, count);
+      return slice
+        .map((item, index) =>
+          options.fn(item, {
+            data: { index, first: index === 0, last: index === slice.length - 1 },
+          })
+        )
+        .join("");
+    });
+
+    // ========================================================================
     // Table Naming Helpers (sys_ and bus_ prefixes)
     // ========================================================================
     Handlebars.registerHelper("addBusPrefix", addBusPrefix);

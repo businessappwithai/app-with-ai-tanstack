@@ -9,11 +9,12 @@
 
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../../database/database.module';
+import { RulesModule } from '../rules/rules.module';
 import { BusController } from './bus.controller';
 import { BusService } from './bus.service';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, RulesModule],
   controllers: [BusController],
   providers: [BusService],
   exports: [BusService],

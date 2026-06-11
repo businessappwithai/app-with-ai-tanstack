@@ -65,6 +65,27 @@ function resolveTemplateDir(subpath: string): string {
  * Clean up JSON content by fixing trailing commas and formatting issues
  * from Handlebars template rendering
  */
+/**
+ * Normalize JDM decision tables for GoRules zen-engine: every rule row must
+ * contain a cell for every input column ("" = wildcard). Rows with missing
+ * cells silently never match, so fill any gaps with the wildcard.
+ */
+function normalizeJdmDecisionTables(jdm: any): any {
+  if (!Array.isArray(jdm?.nodes)) return jdm;
+  for (const node of jdm.nodes) {
+    if (node?.type !== "decisionTableNode" || !node.content) continue;
+    const inputIds: string[] = (node.content.inputs ?? []).map((input: any) => input.id);
+    for (const rule of node.content.rules ?? []) {
+      for (const inputId of inputIds) {
+        if (rule[inputId] === undefined) {
+          rule[inputId] = "";
+        }
+      }
+    }
+  }
+  return jdm;
+}
+
 function cleanJsonContent(jsonStr: string): string {
   try {
     // Remove trailing commas before } and ]
@@ -554,6 +575,12 @@ export class NestJsBackendGenerator extends BaseGenerator {
         );
         // Clean up JSON formatting (fix trailing commas, etc.)
         jdmContent = cleanJsonContent(jdmContent);
+        // Fill missing decision-table cells with wildcards (zen-engine requirement)
+        jdmContent = JSON.stringify(
+          normalizeJdmDecisionTables(JSON.parse(jdmContent)),
+          null,
+          2
+        );
         await fs.writeFile(
           path.join(outputDir, `src/modules/rules/jdm/${entity.tableName}.jdm.json`),
           jdmContent
@@ -924,6 +951,13 @@ export async function executeAfterListHooks(
       context
     );
     await fs.writeFile(path.join(outputDir, "seeds/03_business_data.ts"), businessDataContent);
+
+    // Seed business rules (JDM decision models) into sys_rule_definitions
+    const businessRulesContent = await this.renderTemplate(
+      "../../common/seeds/business-rules.ts.hbs",
+      context
+    );
+    await fs.writeFile(path.join(outputDir, "seeds/04_business_rules.ts"), businessRulesContent);
   }
 
   /**
@@ -945,6 +979,14 @@ export async function executeAfterListHooks(
       await fs.writeFile(path.join(outputDir, "tsconfig.json"), tsconfigContent);
     } catch (e) {
       console.warn("Custom tsconfig template not found, keeping NestJS default");
+    }
+
+    // nest-cli.json — ensures JDM rule files are copied to dist as build assets
+    try {
+      const nestCliContent = await this.renderTemplate("nest-cli.json.hbs", context);
+      await fs.writeFile(path.join(outputDir, "nest-cli.json"), nestCliContent);
+    } catch (e) {
+      console.warn("nest-cli.json template not found, keeping NestJS default");
     }
 
     // Generate src/migrate.ts (Kysely migration runner)
@@ -1028,8 +1070,11 @@ export async function executeAfterListHooks(
       const vitestContent = await this.renderTemplate("vitest.config.ts.hbs", context);
       await fs.writeFile(path.join(outputDir, "vitest.config.ts"), vitestContent);
     } catch (e) {
-      // Test templates may not exist, skip silently
-      console.warn("Test templates not found, skipping test generation");
+      // Test templates may not exist, skip — but surface the actual reason so
+      // template rendering errors are not silently swallowed
+      console.warn(
+        `Test generation skipped: ${e instanceof Error ? e.message : String(e)}`
+      );
     }
 
     // Auth tests
@@ -1051,6 +1096,20 @@ export async function executeAfterListHooks(
       } catch (e) {
         console.warn(`Auth test template not found: ${tpl}`);
       }
+    }
+
+    // Rules engine tests
+    try {
+      const rulesEngineTestContent = await this.renderTemplate(
+        "test/rules-engine.test.ts.hbs",
+        context
+      );
+      await fs.writeFile(
+        path.join(outputDir, "test/rules-engine.test.ts"),
+        rulesEngineTestContent
+      );
+    } catch (e) {
+      console.warn("Rules engine test template not found");
     }
 
     // Job queue tests

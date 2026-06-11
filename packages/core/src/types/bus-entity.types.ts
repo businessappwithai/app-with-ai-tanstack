@@ -126,6 +126,18 @@ export function entityToBusEntity(entity: Entity): BusEntity {
 }
 
 /**
+ * Resolves the sys_reference_id for an attribute. The generated physical
+ * schema uses UUID primary keys and UUID foreign keys for *_id columns
+ * regardless of the scalar type declared in the ERD, so key columns must map
+ * to ID/TABLE_DIRECT references rather than the declared type.
+ */
+export function attributeReferenceId(attr: EntityAttribute): number {
+  if (attr.name === "id") return ReferenceType.ID;
+  if (attr.name.endsWith("_id")) return ReferenceType.TABLE_DIRECT;
+  return attributeTypeToReferenceId(attr.type);
+}
+
+/**
  * Converts an EntityAttribute to BusEntityAttribute
  */
 export function attributeToBusAttribute(attr: EntityAttribute, index: number): BusEntityAttribute {
@@ -133,7 +145,7 @@ export function attributeToBusAttribute(attr: EntityAttribute, index: number): B
     ...attr,
     columnName: attr.name,
     displayName: formatDisplayName(attr.name),
-    referenceId: attributeTypeToReferenceId(attr.type),
+    referenceId: attributeReferenceId(attr),
     seqNo: (index + 1) * 10,
   };
 }
