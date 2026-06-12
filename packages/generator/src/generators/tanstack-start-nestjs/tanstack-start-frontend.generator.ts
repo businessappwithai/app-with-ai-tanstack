@@ -606,6 +606,32 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         src: "src/components/skeletons/form-skeleton.tsx",
         dest: "src/components/skeletons/form-skeleton.tsx",
       },
+      // AD shell components
+      {
+        src: "src/components/admin/ad-detail-shell.tsx",
+        dest: "src/components/admin/ad-detail-shell.tsx",
+      },
+      {
+        src: "src/components/admin/ad-list-shell.tsx",
+        dest: "src/components/admin/ad-list-shell.tsx",
+      },
+      {
+        src: "src/components/admin/entity-window-shell.tsx",
+        dest: "src/components/admin/entity-window-shell.tsx",
+      },
+      {
+        src: "src/components/admin/unified-field-layout.tsx",
+        dest: "src/components/admin/unified-field-layout.tsx",
+      },
+      // Dynamic bus entity pages (for runtime-created entities)
+      {
+        src: "src/components/admin/bus-entity-page.tsx",
+        dest: "src/components/admin/bus-entity-page.tsx",
+      },
+      {
+        src: "src/components/admin/bus-entity-detail-page.tsx",
+        dest: "src/components/admin/bus-entity-detail-page.tsx",
+      },
     ];
 
     for (const component of staticComponents) {
@@ -616,6 +642,19 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         );
       } catch (e) {
         console.warn(`Static component not found: ${component.src}`);
+      }
+    }
+
+    // Copy dynamic catch-all routes for runtime-created entities
+    const dynamicRoutes = ["$entity.tsx", "$entity.$id.tsx"];
+    for (const routeFile of dynamicRoutes) {
+      try {
+        await fs.copyFile(
+          path.join(templateDir, "src/routes", routeFile),
+          path.join(outputDir, "src/routes", routeFile)
+        );
+      } catch (e) {
+        console.warn(`Dynamic route not found: ${routeFile}`);
       }
     }
   }
@@ -693,6 +732,49 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       await fs.writeFile(path.join(adminDir, "workflows.tsx"), workflowsContent);
     } catch (e) {
       console.warn("Admin workflows page template not found");
+    }
+
+    // Copy audit page
+    try {
+      await fs.copyFile(
+        path.join(templateDir, "src/routes/admin/audit.tsx"),
+        path.join(adminDir, "audit.tsx")
+      );
+    } catch (e) {
+      console.warn("Admin audit page not found");
+    }
+
+    // Recursively copy admin subdirectories (table/$tableId/, window/$windowId/, etc.)
+    const adminSubdirs = [
+      { src: "src/routes/admin/table", dest: "src/routes/admin/table" },
+      { src: "src/routes/admin/window", dest: "src/routes/admin/window" },
+      { src: "src/routes/admin/element", dest: "src/routes/admin/element" },
+      { src: "src/routes/admin/reference", dest: "src/routes/admin/reference" },
+    ];
+
+    for (const subdir of adminSubdirs) {
+      try {
+        await this.copyDirRecursive(
+          path.join(templateDir, subdir.src),
+          path.join(outputDir, subdir.dest)
+        );
+      } catch (e) {
+        console.warn(`Admin subdir not found: ${subdir.src}`);
+      }
+    }
+  }
+
+  private async copyDirRecursive(src: string, dest: string): Promise<void> {
+    await fs.mkdir(dest, { recursive: true });
+    const entries = await fs.readdir(src, { withFileTypes: true });
+    for (const entry of entries) {
+      const srcPath = path.join(src, entry.name);
+      const destPath = path.join(dest, entry.name);
+      if (entry.isDirectory()) {
+        await this.copyDirRecursive(srcPath, destPath);
+      } else {
+        await fs.copyFile(srcPath, destPath);
+      }
     }
   }
 

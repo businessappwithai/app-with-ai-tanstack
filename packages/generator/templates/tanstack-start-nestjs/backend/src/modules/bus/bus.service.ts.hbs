@@ -484,4 +484,156 @@ export class BusService {
   clearMetadataCache(): void {
     this.metadataCache.clear();
   }
+
+  /**
+   * Auto-creates sys_window, sys_tab, and sys_field records from existing
+   * sys_column records for a given entity. This allows a newly registered
+   * table/column (added via the admin Tables UI) to immediately appear in the
+   * dynamic form renderer without requiring a code-gen cycle.
+   *
+   * Schema relationships:
+   *   sys_table.sys_window_id → sys_window (FK on sys_table side)
+   *   sys_tab.sys_window_id + sys_tab.sys_table_id → links tab to window+table
+   *   sys_field.sys_tab_id + sys_field.sys_column_id → links field to tab+column
+   *
+   * Idempotent — safe to call multiple times.
+   */
+  async setupEntityDictionary(entity: string): Promise<{ created: string[] }> {
+    const tableName = this.getTableName(entity);
+    const methodName = 'setupEntityDictionary';
+    this.logger.log(`[${methodName}] Setting up dictionary for entity: ${entity} (table: ${tableName})`);
+
+    const created: string[] = [];
+    const systemUser = 'system';
+
+    // 1. Find the sys_table record
+    const sysTable = await this.kysely
+      .selectFrom('sys_table')
+      .selectAll()
+      .where('table_name', '=', tableName)
+      .executeTakeFirst();
+
+    if (!sysTable) {
+      throw new NotFoundException(`No sys_table record found for table '${tableName}'. Register the table first via the admin Tables UI.`);
+    }
+
+    const sysTableId = sysTable.sys_table_id;
+    const entityLabel = sysTable.name || entity.charAt(0).toUpperCase() + entity.slice(1);
+
+    // 2. Ensure sys_window exists (sys_table.sys_window_id is the FK)
+    let windowId: string;
+    if (sysTable.sys_window_id) {
+      windowId = sysTable.sys_window_id;
+      this.logger.log(`[${methodName}] sys_window already exists: ${windowId}`);
+    } else {
+      windowId = randomUUID();
+      await this.kysely.insertInto('sys_window').values({
+        sys_window_id: windowId,
+        name: entityLabel,
+        description: `${entityLabel} management window`,
+        window_type: 'M',
+        entity_type: 'U',
+        is_active: true,
+        created_by: systemUser,
+        updated_by: systemUser,
+      } as any).execute();
+
+      // Link window to table via sys_table.sys_window_id
+      await this.kysely.updateTable('sys_table')
+        .set({ sys_window_id: windowId } as any)
+        .where('sys_table_id', '=', sysTableId)
+        .execute();
+
+      created.push(`sys_window: ${windowId}`);
+      this.logger.log(`[${methodName}] Created sys_window ${windowId} for ${tableName}`);
+    }
+
+    // 3. Ensure sys_tab exists
+    const existingTab = await this.kysely
+      .selectFrom('sys_tab')
+      .select(['sys_tab_id'])
+      .where('sys_window_id', '=', windowId)
+      .where('sys_table_id', '=', sysTableId)
+      .executeTakeFirst();
+
+    let tabId: string;
+    if (!existingTab) {
+      tabId = randomUUID();
+      await this.kysely.insertInto('sys_tab').values({
+        sys_tab_id: tabId,
+        sys_window_id: windowId,
+        sys_table_id: sysTableId,
+        name: entityLabel,
+        description: `${entityLabel} details tab`,
+        seq_no: 10,
+        entity_type: 'U',
+        is_active: true,
+        created_by: systemUser,
+        updated_by: systemUser,
+      } as any).execute();
+      created.push(`sys_tab: ${tabId}`);
+      this.logger.log(`[${methodName}] Created sys_tab ${tabId} for ${tableName}`);
+    } else {
+      tabId = existingTab.sys_tab_id;
+      this.logger.log(`[${methodName}] sys_tab already exists: ${tabId}`);
+    }
+
+    // 4. Get all sys_column records for this table
+    const columns = await this.kysely
+      .selectFrom('sys_column')
+      .selectAll()
+      .where('sys_table_id', '=', sysTableId)
+      .orderBy('seq_no', 'asc')
+      .execute();
+
+    this.logger.log(`[${methodName}] Found ${columns.length} columns for ${tableName}`);
+
+    // 5. For each column, ensure a sys_field record exists
+    const SKIP_COLUMNS = new Set(['id', 'created_at', 'updated_at', 'deleted_at', 'version', 'is_active']);
+    let seqNo = 10;
+    let seqNoGrid = 10;
+
+    for (const col of columns) {
+      if (SKIP_COLUMNS.has(col.column_name)) continue;
+
+      const existingField = await this.kysely
+        .selectFrom('sys_field')
+        .select(['sys_field_id'])
+        .where('sys_tab_id', '=', tabId)
+        .where('sys_column_id', '=', col.sys_column_id)
+        .executeTakeFirst();
+
+      if (!existingField) {
+        const fieldId = randomUUID();
+        await this.kysely.insertInto('sys_field').values({
+          sys_field_id: fieldId,
+          sys_tab_id: tabId,
+          sys_column_id: col.sys_column_id,
+          name: col.name || col.column_name,
+          seq_no: seqNo,
+          seq_no_grid: seqNoGrid,
+          is_displayed: true,
+          is_displayed_grid: seqNoGrid <= 50, // show first 5 columns in grid
+          is_read_only: false,
+          entity_type: 'U',
+          is_active: true,
+          created_by: systemUser,
+          updated_by: systemUser,
+        } as any).execute();
+        created.push(`sys_field: ${col.column_name}`);
+        this.logger.log(`[${methodName}] Created sys_field for column ${col.column_name}`);
+        seqNo += 10;
+        seqNoGrid += 10;
+      } else {
+        this.logger.debug(`[${methodName}] sys_field already exists for column ${col.column_name}`);
+      }
+    }
+
+    // 6. Invalidate metadata cache so next request picks up new fields
+    this.metadataCache.delete(entity);
+    this.metadataCache.delete(tableName);
+
+    this.logger.log(`[${methodName}] Complete. Created: ${created.join(', ') || 'nothing (all already existed)'}`);
+    return { created };
+  }
 }
