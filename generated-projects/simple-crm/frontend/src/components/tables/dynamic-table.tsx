@@ -19,6 +19,7 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
+import { useQueries } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
   ArrowDown,
@@ -31,6 +32,7 @@ import {
   Search,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { apiClient, type PaginatedResponse } from "@/lib/api-client";
 import { toast } from "sonner";
 import { DeleteConfirmDialog } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
@@ -152,7 +154,9 @@ function formatCellValue(value: unknown, referenceId: number): string {
 // Column Generator
 // ============================================================================
 
-function generateColumns(fields: FieldMetadata[]): ColumnDef<Record<string, unknown>>[] {
+type LookupMap = Record<string, Record<string, string>>; // refTable → id → displayName
+
+function generateColumns(fields: FieldMetadata[], lookupMap: LookupMap = {}): ColumnDef<Record<string, unknown>>[] {
   return fields.map((field) => ({
     id: field.column_name,
     accessorKey: field.column_name,
@@ -176,6 +180,16 @@ function generateColumns(fields: FieldMetadata[]): ColumnDef<Record<string, unkn
     },
     cell: ({ row }) => {
       const value = row.getValue(field.column_name);
+      const isLookup = field.sys_reference_id === REFERENCE_TYPE.TABLE || field.sys_reference_id === REFERENCE_TYPE.TABLE_DIRECT;
+      if (isLookup && value != null && field.ref_table_name) {
+        const tableMap = lookupMap[field.ref_table_name];
+        const displayName = tableMap?.[String(value)];
+        return (
+          <span className="block truncate max-w-[200px]">
+            {displayName ?? String(value)}
+          </span>
+        );
+      }
       return (
         <span className="block truncate max-w-[200px]">
           {formatCellValue(value, field.sys_reference_id)}
@@ -250,6 +264,60 @@ export function DynamicTable({
   const fields = externalFields || fetchedFields;
   const fieldsLoading = externalFields ? false : fetchFieldsLoading;
 
+  // Collect unique lookup fields from the current data
+  const lookupFieldDefs = useMemo(() => {
+    if (!fields) return [];
+    return fields.filter(
+      f => (f.sys_reference_id === REFERENCE_TYPE.TABLE || f.sys_reference_id === REFERENCE_TYPE.TABLE_DIRECT) && !!f.ref_table_name
+    );
+  }, [fields]);
+
+  // For each lookup field, collect unique FK values from data
+  const lookupQueries = useMemo(() => {
+    return lookupFieldDefs.map(f => {
+      const uniqueIds = Array.from(new Set(data.map(row => row[f.column_name]).filter(v => v != null).map(String)));
+      return { field: f, uniqueIds };
+    }).filter(q => q.uniqueIds.length > 0);
+  }, [lookupFieldDefs, data]);
+
+  // Derive entity name from ref_table_name (strip bus_ prefix)
+  const lookupResults = useQueries({
+    queries: lookupQueries.map(({ field }) => {
+      const entity = field.ref_table_name!.replace(/^bus_/, '');
+      const endpoint = field.ref_endpoint ?? `/bus/${entity}`;
+      return {
+        queryKey: ['lookup', field.ref_table_name, tableName],
+        queryFn: () => apiClient.get<PaginatedResponse<Record<string, unknown>>>(endpoint, { limit: 500 }),
+        staleTime: 60_000,
+      };
+    }),
+  });
+
+  // Build a lookup map: { refTableName: { id: displayName } }
+  const lookupMap = useMemo<LookupMap>(() => {
+    const map: LookupMap = {};
+    lookupQueries.forEach(({ field }, i) => {
+      const result = lookupResults[i];
+      if (!result.data) return;
+      const records = Array.isArray(result.data) ? result.data : (result.data as any).data ?? [];
+      const idField = field.ref_id_field ?? 'id';
+      const labelField = field.ref_label_field ?? 'name';
+      const tableMap: Record<string, string> = {};
+      for (const rec of records) {
+        const id = String((rec as any)[idField] ?? '');
+        // Try configured label, then full-name fallback, then first_name, then id
+        const label = (rec as any)[labelField] != null
+          ? String((rec as any)[labelField])
+          : (rec as any).first_name != null
+            ? [String((rec as any).first_name), String((rec as any).last_name ?? '')].filter(Boolean).join(' ')
+            : id;
+        if (id) tableMap[id] = label;
+      }
+      map[field.ref_table_name!] = tableMap;
+    });
+    return map;
+  }, [lookupQueries, lookupResults]);
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -291,7 +359,7 @@ export function DynamicTable({
 
   // Generate columns from field metadata (ordered by seq_no_grid)
   const columns = useMemo(() => {
-    const baseColumns = !fields ? [] : generateColumns(fields);
+    const baseColumns = !fields ? [] : generateColumns(fields, lookupMap);
 
     // Add actions column FIRST if callbacks are provided
     if (onView || onEdit || _onDelete) {
@@ -337,7 +405,7 @@ export function DynamicTable({
     }
 
     return baseColumns;
-  }, [fields, onView, onEdit, _onDelete, tableName, t]);
+  }, [fields, onView, onEdit, _onDelete, tableName, t, lookupMap]);
 
   const table = useReactTable({
     data,
