@@ -13,6 +13,8 @@ import {
   Columns,
   Layers,
   Settings,
+  Home,
+  ShieldCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -98,6 +100,12 @@ function AdminDashboardPage() {
       icon: Settings,
       to: '/admin/rules' as const,
     },
+    {
+      title: 'Audit Log',
+      description: 'Immutable tamper-proof audit trail of all user and system actions',
+      icon: ShieldCheck,
+      to: '/admin/audit' as const,
+    },
   ];
 
   return (
@@ -107,6 +115,10 @@ function AdminDashboardPage() {
         <header className="border-b border-border bg-card px-8 py-8">
           <div className="flex items-start justify-between">
             <div>
+              <Link to="/dashboard" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors mb-3">
+                <Home className="h-3.5 w-3.5" />
+                Back to Dashboard
+              </Link>
               <h1 className="text-4xl font-bold tracking-tight text-foreground font-display">
                 Application Dictionary
               </h1>

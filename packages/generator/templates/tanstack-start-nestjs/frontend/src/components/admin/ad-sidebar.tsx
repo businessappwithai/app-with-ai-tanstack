@@ -9,6 +9,7 @@ import {
   Menu,
   X,
   FileText,
+  ShieldCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -43,6 +44,11 @@ const MENU_ITEMS = [
     label: 'Business Rules',
     to: '/admin/rules',
     icon: Settings,
+  },
+  {
+    label: 'Audit Log',
+    to: '/admin/audit',
+    icon: ShieldCheck,
   },
 ];
 
