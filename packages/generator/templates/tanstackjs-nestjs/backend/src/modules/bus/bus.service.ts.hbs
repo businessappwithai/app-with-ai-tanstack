@@ -260,6 +260,7 @@ export class BusService {
           .onRef('sys_field.sys_column_id', '=', 'sys_column.sys_column_id')
           .onRef('sys_field.sys_tab_id', '=', 'sys_tab.sys_tab_id'),
       )
+      .leftJoin('sys_field_group', 'sys_field_group.sys_field_group_id', 'sys_field.sys_field_group_id')
       .select([
         'sys_column.sys_column_id',
         'sys_column.column_name',
@@ -277,6 +278,10 @@ export class BusService {
         'sys_field.is_displayed_grid',
         'sys_field.is_read_only as field_is_read_only',
         'sys_field.name as field_name',
+        'sys_field.sys_field_group_id',
+        'sys_field_group.name as group_name',
+        'sys_field_group.columns as group_columns',
+        'sys_field_group.description as group_description',
       ])
       .where('sys_column.sys_table_id', '=', table.sys_table_id)
       .where('sys_column.is_active', '=', true)
@@ -304,6 +309,10 @@ export class BusService {
         is_displayed: col.is_displayed !== false,
         is_displayed_grid: col.is_displayed_grid !== false,
         is_read_only: col.field_is_read_only || false,
+        field_group_id: col.sys_field_group_id || null,
+        group_name: col.group_name || null,
+        group_columns: col.group_columns || null,
+        group_description: col.group_description || null,
       })),
       window: window
         ? { sys_window_id: window.sys_window_id, name: window.name }

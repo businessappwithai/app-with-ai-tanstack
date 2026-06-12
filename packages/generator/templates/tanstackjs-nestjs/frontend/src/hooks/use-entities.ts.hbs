@@ -476,6 +476,7 @@ export function useCreateFieldGroup(entity: string) {
       apiClient.post<FieldGroup>('/sys/field-groups?entity=' + entity, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: fieldGroupKeys.list(entity) });
+      queryClient.invalidateQueries({ queryKey: [...entityKeys.all, 'fields'] });
       toast.success(translate('entities.fieldGroupCreated' as any));
     },
   });
@@ -496,6 +497,7 @@ export function useUpdateFieldGroup(entity: string) {
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: fieldGroupKeys.list(entity) });
+      queryClient.invalidateQueries({ queryKey: [...entityKeys.all, 'fields'] });
       toast.success(translate('entities.fieldGroupUpdated' as any));
     },
   });
@@ -509,6 +511,7 @@ export function useDeleteFieldGroup(entity: string) {
       apiClient.delete('/sys/field-groups/' + id + '?entity=' + entity),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: fieldGroupKeys.list(entity) });
+      queryClient.invalidateQueries({ queryKey: [...entityKeys.all, 'fields'] });
       toast.success(translate('entities.fieldGroupDeleted' as any));
     },
   });

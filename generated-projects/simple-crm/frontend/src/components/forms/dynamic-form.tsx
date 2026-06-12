@@ -275,6 +275,32 @@ function FieldRenderer({
           field.is_mandatory && !error && "border-primary/30"
         );
 
+        // ── VIEW MODE: render clean plain text, no inputs ──────────────
+        const isRefField = field.sys_reference_id === 18 || field.sys_reference_id === 19;
+        if (formMode === "view" && !isRefField) {
+          const displayValue = (() => {
+            if (currentValue === null || currentValue === undefined || currentValue === "") return "—";
+            if (typeof currentValue === "boolean") return currentValue ? "Yes" : "No";
+            if (field.sys_reference_id === 15 || field.sys_reference_id === 16) {
+              const d = new Date(String(currentValue));
+              return isNaN(d.getTime()) ? String(currentValue) : d.toLocaleString();
+            }
+            return String(currentValue);
+          })();
+
+          return (
+            <div>
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="text-xs font-medium text-muted-foreground">{fieldLabel}</span>
+                {field.is_mandatory && <span className="text-red-400 text-xs">*</span>}
+              </div>
+              <div className="text-sm text-foreground font-medium min-h-[1.25rem]">
+                {displayValue}
+              </div>
+            </div>
+          );
+        }
+
         // Static options list (inline enum — no DB fetch required)
         if (field.options && field.options.length > 0) {
           return (

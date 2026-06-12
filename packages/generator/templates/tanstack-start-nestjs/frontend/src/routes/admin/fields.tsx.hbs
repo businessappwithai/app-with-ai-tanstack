@@ -41,6 +41,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { apiClient, PaginatedResponse } from '@/lib/api-client';
+import { entityKeys } from '@/hooks/use-entities';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/admin/fields')({
@@ -404,6 +405,7 @@ function FieldLayoutPageContent() {
     onSuccess: () => {
       setHasChanges(false);
       queryClient.invalidateQueries({ queryKey: ['admin', 'fields', selectedTable] });
+      queryClient.invalidateQueries({ queryKey: [...entityKeys.all, 'fields'] });
       toast.success('Field layout saved successfully');
     },
     onError: () => {

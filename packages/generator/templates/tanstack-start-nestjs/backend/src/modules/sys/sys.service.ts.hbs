@@ -9,6 +9,7 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { sql } from 'kysely';
 import { DatabaseService } from '../../database/database.service';
+import { BusService } from '../bus/bus.service';
 import type { Kysely } from 'kysely';
 
 interface PaginationOptions {
@@ -27,7 +28,10 @@ export class SysService {
   private fieldCache = new Map<string, CacheEntry<unknown>>();
   private readonly CACHE_TTL_MS = 5 * 60 * 1000;
 
-  constructor(private readonly db: DatabaseService) {}
+  constructor(
+    private readonly db: DatabaseService,
+    private readonly busService: BusService,
+  ) {}
 
   private async getCached<T>(key: string, factory: () => Promise<T>): Promise<T> {
     const cached = this.fieldCache.get(key);
@@ -284,6 +288,7 @@ export class SysService {
       .execute();
 
     this.invalidateFieldCache();
+    this.busService.clearMetadataCache();
     return this.findFieldById(id);
   }
 
@@ -298,6 +303,7 @@ export class SysService {
     });
 
     this.invalidateFieldCache();
+    this.busService.clearMetadataCache();
     return { success: true, updated: fields.length };
   }
 
@@ -335,6 +341,7 @@ export class SysService {
       .values({ ...data, created_at: now, updated_at: now, created_by: 'system', updated_by: 'system' } as any)
       .returningAll()
       .execute();
+    this.busService.clearMetadataCache();
     return group;
   }
 
@@ -344,6 +351,7 @@ export class SysService {
       .set({ ...data, updated_at: new Date().toISOString(), updated_by: 'system' } as any)
       .where('sys_field_group_id', '=', id)
       .execute();
+    this.busService.clearMetadataCache();
     return this.findFieldGroupById(id);
   }
 
@@ -353,6 +361,7 @@ export class SysService {
       .set({ is_active: false, updated_at: new Date().toISOString(), updated_by: 'system' } as any)
       .where('sys_field_group_id', '=', id)
       .execute();
+    this.busService.clearMetadataCache();
     return { success: true };
   }
 
