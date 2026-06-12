@@ -13,6 +13,7 @@ import {
   Post,
   Put,
   Patch,
+  Delete,
   Body,
   Param,
   Query,
@@ -156,16 +157,33 @@ export class SysController {
     return this.sysService.batchReorderFields(data.fields);
   }
 
+  @Put('fields/:id')
+  @ApiOperation({ summary: 'Replace field (seq_no, is_displayed, etc.)' })
+  async replaceField(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: Record<string, unknown>,
+    @Headers('if-match') ifMatch?: string,
+  ) {
+    const version = ifMatch ? parseInt(ifMatch.replace(/"/g, ''), 10) : undefined;
+    return this.sysService.updateField(id, data, version);
+  }
+
   @Get('fields/form')
   @ApiOperation({ summary: 'Get fields for form display by table name' })
-  async getFormFields(@Query('entity') entity: string) {
-    return this.sysService.getFormFields(entity);
+  async getFormFields(
+    @Query('entity') entity: string,
+    @Query('includeHidden') includeHidden?: string,
+  ) {
+    return this.sysService.getFormFields(entity, includeHidden === 'true');
   }
 
   @Get('fields/grid')
   @ApiOperation({ summary: 'Get fields for grid display by table name' })
-  async getGridFields(@Query('entity') entity: string) {
-    return this.sysService.getGridFields(entity);
+  async getGridFields(
+    @Query('entity') entity: string,
+    @Query('includeHidden') includeHidden?: string,
+  ) {
+    return this.sysService.getGridFields(entity, includeHidden === 'true');
   }
 
   // ============================================================================
@@ -186,8 +204,11 @@ export class SysController {
 
   @Post('field-groups')
   @ApiOperation({ summary: 'Create field group' })
-  async createFieldGroup(@Body() data: Record<string, unknown>) {
-    return this.sysService.createFieldGroup(data);
+  async createFieldGroup(
+    @Query('entity') entity: string | undefined,
+    @Body() data: Record<string, unknown>,
+  ) {
+    return this.sysService.createFieldGroup(entity, data);
   }
 
   @Patch('field-groups/:id')
@@ -197,6 +218,21 @@ export class SysController {
     @Body() data: Record<string, unknown>,
   ) {
     return this.sysService.updateFieldGroup(id, data);
+  }
+
+  @Put('field-groups/:id')
+  @ApiOperation({ summary: 'Replace field group' })
+  async replaceFieldGroup(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: Record<string, unknown>,
+  ) {
+    return this.sysService.updateFieldGroup(id, data);
+  }
+
+  @Delete('field-groups/:id')
+  @ApiOperation({ summary: 'Delete field group' })
+  async deleteFieldGroup(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.deleteFieldGroup(id);
   }
 
   // ============================================================================

@@ -25,6 +25,12 @@ type AnyRecord = Record<string, unknown>;
 
 interface FilterRow { id: string; column: string; operator: string; value: string; }
 
+function pluralLabel(label: string): string {
+  if (label.endsWith('y') && !/[aeiou]y$/i.test(label)) return label.slice(0, -1) + 'ies';
+  if (label.endsWith('s') || label.endsWith('sh') || label.endsWith('ch') || label.endsWith('x') || label.endsWith('z')) return label + 'es';
+  return label + 's';
+}
+
 const FILTER_OPERATORS = {
   text:    [{ value: 'contains', label: 'contains' }, { value: 'equals', label: 'equals' }, { value: 'startsWith', label: 'starts with' }, { value: 'endsWith', label: 'ends with' }],
   number:  [{ value: 'equals', label: '=' }, { value: 'gt', label: '>' }, { value: 'gte', label: '>=' }, { value: 'lt', label: '<' }, { value: 'lte', label: '<=' }],
@@ -134,9 +140,13 @@ export interface ADListShellProps {
   /** Parent levels with their record IDs — drives URL construction and API filtering */
   parentContext: ParentContext[];
   dashboardHref?: string;
+  /** If true, inserts an "Admin" breadcrumb link between Dashboard and the entity crumbs */
+  showAdminCrumb?: boolean;
+  /** If true, hides Create/Edit actions — list is display-only */
+  viewOnly?: boolean;
 }
 
-export function ADListShell({ level, parentContext, dashboardHref = '/dashboard' }: ADListShellProps) {
+export function ADListShell({ level, parentContext, dashboardHref = '/dashboard', showAdminCrumb = false, viewOnly = false }: ADListShellProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
@@ -153,10 +163,15 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
       enabled: !!id,
     })),
   });
-  const parentNames: string[] = parentNameQueries.map((q, i) =>
-    (q.data as AnyRecord | undefined)?.[parentContext[i].level.nameField] as string
-    ?? parentContext[i].id
-  );
+  const parentNames: string[] = parentNameQueries.map((q, i) => {
+    const rec = q.data as AnyRecord | undefined;
+    if (!rec) return parentContext[i].id;
+    const pl = parentContext[i].level;
+    if (pl.nameField === 'first_name' && rec.last_name) {
+      return `${rec.first_name ?? ''} ${rec.last_name ?? ''}`.trim();
+    }
+    return (rec[pl.nameField] as string) ?? parentContext[i].id;
+  });
 
   // Build fetch params: parent filter + pagination + applied search filters
   const fetchParams: Record<string, unknown> = {
@@ -200,15 +215,15 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
   for (let i = 0; i < parentContext.length; i++) {
     const { level: pl, id } = parentContext[i];
     const grandParentCtx = parentContext.slice(0, i);
-    crumbs.push({ label: pl.label + 's', href: buildAdminListUrl(grandParentCtx, pl) });
+    crumbs.push({ label: pluralLabel(pl.label), href: buildAdminListUrl(grandParentCtx, pl) });
     crumbs.push({ label: parentNames[i] ?? id, href: buildAdminDetailUrl(grandParentCtx, pl, id) });
   }
-  crumbs.push({ label: level.label + 's' }); // current level — no link
+  crumbs.push({ label: pluralLabel(level.label) }); // current level — no link
 
   return (
     <div className="flex flex-col h-full">
       <ADToolbar
-        onNew={() => { setIsCreating(true); setSearchOpen(false); }}
+        onNew={viewOnly ? undefined : () => { setIsCreating(true); setSearchOpen(false); }}
         onRefresh={() => refetch()}
         onAdvancedSearchToggle={() => { setSearchOpen(p => !p); if (searchOpen) setPendingRows([...appliedRows]); }}
         isAdvancedSearchOpen={searchOpen}
@@ -216,6 +231,7 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
         isSaving={createMutation.isPending}
         isDeleting={false}
         hasChanges={isCreating}
+        canCreate={!viewOnly}
         canDelete={false}
         isDetailView={false}
       />
@@ -235,6 +251,12 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
         <Link to={dashboardHref as never} className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
           <Home className="h-3.5 w-3.5" /><span>Dashboard</span>
         </Link>
+        {showAdminCrumb && (
+          <span className="flex items-center gap-1.5">
+            <span className="text-muted-foreground">/</span>
+            <Link to="/admin" className="text-muted-foreground hover:text-primary transition-colors">Admin</Link>
+          </span>
+        )}
         {crumbs.map((c, i) => (
           <span key={i} className="flex items-center gap-1.5">
             <span className="text-muted-foreground">/</span>
@@ -289,7 +311,7 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
               page={page}
               pageSize={100}
               onPageChange={setPage}
-              onRowClick={row => {
+              onRowClick={viewOnly ? undefined : row => {
                 const id = String(row[level.idField]);
                 navigate({ to: buildAdminDetailUrl(parentContext, level, id) as never });
               }}

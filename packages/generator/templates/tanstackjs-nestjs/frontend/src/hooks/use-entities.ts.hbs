@@ -217,7 +217,7 @@ export function useAllFormFields(entity: string) {
   return useQuery<FieldMetadata[]>({
     queryKey: ['fields-all', entity, 'form'],
     queryFn: async () => {
-      const response = await apiClient.get<{ data: FieldMetadata[] }>(`/sys/fields/form?entity=${entity}`);
+      const response = await apiClient.get<{ data: FieldMetadata[] }>(`/sys/fields/form?entity=${entity}&includeHidden=true`);
       return response.data || [];
     },
     staleTime: 30 * 60 * 1000,
@@ -231,7 +231,7 @@ export function useAllGridFields(entity: string) {
   return useQuery<FieldMetadata[]>({
     queryKey: ['fields-all', entity, 'grid'],
     queryFn: async () => {
-      const response = await apiClient.get<{ data: FieldMetadata[] }>(`/sys/fields/grid?entity=${entity}`);
+      const response = await apiClient.get<{ data: FieldMetadata[] }>(`/sys/fields/grid?entity=${entity}&includeHidden=true`);
       return response.data || [];
     },
     staleTime: 30 * 60 * 1000,

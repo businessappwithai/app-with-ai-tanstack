@@ -263,8 +263,11 @@ export class SysService {
       throw new ConflictException('Field was modified by another user');
     }
 
+    // Strip fields that don't exist on sys_field to avoid column-not-found errors
+    const { version: _v, ...safeData } = data as any;
+
     await this.db.kysely.updateTable('sys_field')
-      .set({ ...data, version: ((field as any).version || 0) + 1, updated: new Date().toISOString() } as any)
+      .set({ ...safeData, updated: new Date().toISOString() } as any)
       .where('sys_field_id', '=', id)
       .execute();
 
@@ -293,19 +296,35 @@ export class SysService {
   // ============================================================
 
   async findAllFieldGroups(tableName?: string) {
-    let query = this.db.kysely
-      .selectFrom('sys_field_group')
-      .selectAll()
-      .where('sys_field_group.is_active', '=', true);
-
     if (tableName) {
-      query = (query as any)
-        .innerJoin('sys_tab', 'sys_tab.sys_tab_id', 'sys_field_group.sys_tab_id')
+      const tab = await this.db.kysely
+        .selectFrom('sys_tab')
         .innerJoin('sys_table', 'sys_table.sys_table_id', 'sys_tab.sys_table_id')
-        .where('sys_table.table_name', '=', tableName);
+        .select(['sys_tab.sys_tab_id'])
+        .where('sys_table.table_name', '=', tableName)
+        .executeTakeFirst();
+
+      if (!tab) return { data: [], meta: { total: 0 } };
+
+      const groups = await this.db.kysely
+        .selectFrom('sys_field_group')
+        .selectAll()
+        .where('sys_field_group.is_active', '=', true)
+        .where('sys_field_group.sys_tab_id', '=', tab.sys_tab_id)
+        .orderBy('sys_field_group.seq_no')
+        .orderBy('sys_field_group.name')
+        .execute();
+
+      return { data: groups, meta: { total: groups.length } };
     }
 
-    const groups = await (query as any).orderBy('sys_field_group.name').execute();
+    const groups = await this.db.kysely
+      .selectFrom('sys_field_group')
+      .selectAll()
+      .where('sys_field_group.is_active', '=', true)
+      .orderBy('sys_field_group.name')
+      .execute();
+
     return { data: groups, meta: { total: groups.length } };
   }
 
@@ -316,10 +335,29 @@ export class SysService {
     return group;
   }
 
-  async createFieldGroup(data: Record<string, unknown>) {
+  async createFieldGroup(tableName: string | undefined, data: Record<string, unknown>) {
     const now = new Date().toISOString();
+
+    let sys_tab_id: string | null = null;
+    if (tableName) {
+      const tab = await this.db.kysely
+        .selectFrom('sys_tab')
+        .innerJoin('sys_table', 'sys_table.sys_table_id', 'sys_tab.sys_table_id')
+        .select(['sys_tab.sys_tab_id'])
+        .where('sys_table.table_name', '=', tableName)
+        .executeTakeFirst();
+      sys_tab_id = tab?.sys_tab_id ?? null;
+    }
+
     const [group] = await this.db.kysely.insertInto('sys_field_group')
-      .values({ ...data, created: now, updated: now } as any)
+      .values({
+        ...data,
+        ...(sys_tab_id ? { sys_tab_id } : {}),
+        is_active: true,
+        entity_type: 'U',
+        created: now,
+        updated: now,
+      } as any)
       .returningAll()
       .execute();
     this.busService.clearMetadataCache();
@@ -406,11 +444,12 @@ export class SysService {
     return { table, columns, fields };
   }
 
-  async getFormFields(tableName: string) {
-    return this.getCached(`form_fields:${tableName}`, async () => {
+  async getFormFields(tableName: string, includeHidden = false) {
+    const cacheKey = `form_fields:${tableName}:${includeHidden}`;
+    return this.getCached(cacheKey, async () => {
       const table = await this.findTableByName(tableName);
 
-      return this.db.kysely
+      let query = this.db.kysely
         .selectFrom('sys_field')
         .innerJoin('sys_column', 'sys_column.sys_column_id', 'sys_field.sys_column_id')
         .leftJoin('sys_reference', 'sys_reference.sys_reference_id', 'sys_column.sys_reference_id' as any)
@@ -418,6 +457,7 @@ export class SysService {
         .leftJoin('sys_table as ref_table', 'ref_table.sys_table_id', 'sys_ref_table.sys_table_id')
         .leftJoin('sys_column as key_column', 'key_column.sys_column_id', 'sys_ref_table.key_column_id')
         .leftJoin('sys_column as display_column', 'display_column.sys_column_id', 'sys_ref_table.display_column_id')
+        .leftJoin('sys_field_group', 'sys_field_group.sys_field_group_id', 'sys_field.sys_field_group_id' as any)
         .select([
           'sys_field.sys_field_id',
           'sys_field.name',
@@ -425,6 +465,7 @@ export class SysService {
           'sys_field.is_displayed',
           'sys_field.is_displayed_grid',
           'sys_field.is_read_only',
+          'sys_field.sys_field_group_id as field_group_id',
           'sys_column.column_name',
           'sys_column.name as display_name',
           'sys_column.is_mandatory',
@@ -433,20 +474,27 @@ export class SysService {
           'ref_table.table_name as ref_table_name',
           'key_column.column_name as ref_key_column',
           'display_column.column_name as ref_display_column',
+          'sys_field_group.name as group_name',
+          'sys_field_group.columns as group_columns',
+          'sys_field_group.description as group_description',
         ])
         .where('sys_column.sys_table_id', '=', table.sys_table_id)
-        .where('sys_field.is_active', '=', true)
-        .where('sys_field.is_displayed', '=', true)
-        .orderBy('sys_field.seq_no')
-        .execute();
+        .where('sys_field.is_active', '=', true);
+
+      if (!includeHidden) {
+        query = query.where('sys_field.is_displayed', '=', true);
+      }
+
+      return query.orderBy('sys_field.seq_no').execute();
     });
   }
 
-  async getGridFields(tableName: string) {
-    return this.getCached(`grid_fields:${tableName}`, async () => {
+  async getGridFields(tableName: string, includeHidden = false) {
+    const cacheKey = `grid_fields:${tableName}:${includeHidden}`;
+    return this.getCached(cacheKey, async () => {
       const table = await this.findTableByName(tableName);
 
-      return this.db.kysely
+      let query = this.db.kysely
         .selectFrom('sys_field')
         .innerJoin('sys_column', 'sys_column.sys_column_id', 'sys_field.sys_column_id')
         .leftJoin('sys_reference', 'sys_reference.sys_reference_id', 'sys_column.sys_reference_id' as any)
@@ -459,18 +507,23 @@ export class SysService {
           'sys_field.name',
           'sys_field.seq_no_grid',
           'sys_field.is_displayed_grid',
+          'sys_field.is_read_only',
           'sys_column.column_name',
           'sys_column.name as display_name',
+          'sys_column.is_mandatory',
           'sys_reference.name as reference_name',
           'ref_table.table_name as ref_table_name',
           'key_column.column_name as ref_key_column',
           'display_column.column_name as ref_display_column',
         ])
         .where('sys_column.sys_table_id', '=', table.sys_table_id)
-        .where('sys_field.is_active', '=', true)
-        .where('sys_field.is_displayed_grid', '=', true)
-        .orderBy('sys_field.seq_no_grid')
-        .execute();
+        .where('sys_field.is_active', '=', true);
+
+      if (!includeHidden) {
+        query = query.where('sys_field.is_displayed_grid', '=', true);
+      }
+
+      return query.orderBy('sys_field.seq_no_grid').execute();
     });
   }
 }

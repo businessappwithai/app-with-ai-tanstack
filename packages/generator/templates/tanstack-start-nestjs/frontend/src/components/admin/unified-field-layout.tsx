@@ -410,6 +410,7 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
   const queryClient = useQueryClient();
   const [mode, setMode] = useState<'form' | 'grid'>('form');
   const [groups, setGroups] = useState<WorkingGroup[]>([]);
+  const [gridList, setGridList] = useState<WorkingField[]>([]);
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -417,16 +418,34 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
   const { data: formFields, isLoading: formLoading } = useAllFormFields(entityName);
   const { data: gridFields, isLoading: gridLoading } = useAllGridFields(entityName);
 
-  const rawFields = mode === 'form' ? formFields : gridFields;
   const isLoading = groupsLoading || (mode === 'form' ? formLoading : gridLoading);
 
-  // Build working state when source data changes
+  // Build form working state (grouped)
   useEffect(() => {
-    if (!rawFields || !fieldGroupsData) return;
-    const g = buildGroupedState(rawFields, fieldGroupsData as any[]);
+    if (mode !== 'form' || !formFields || !fieldGroupsData) return;
+    const g = buildGroupedState(formFields, fieldGroupsData as any[]);
     setGroups(g);
     setIsDirty(false);
-  }, [rawFields, fieldGroupsData]);
+  }, [formFields, fieldGroupsData, mode]);
+
+  // Build grid working state (flat list, ordered by seq_no_grid)
+  useEffect(() => {
+    if (mode !== 'grid' || !gridFields) return;
+    const sorted = [...(gridFields as any[])].sort(
+      (a, b) => ((a as any).seq_no_grid ?? a.seq_no ?? 999) - ((b as any).seq_no_grid ?? b.seq_no ?? 999),
+    );
+    setGridList(
+      sorted.map((f: any) => ({
+        ...f,
+        seq_no: f.seq_no_grid ?? f.seq_no ?? 0,
+        is_displayed: f.is_displayed_grid ?? f.is_displayed ?? false,
+        originalGroupId: null,
+        originalSeqNo: f.seq_no_grid ?? f.seq_no ?? 0,
+        dirty: false,
+      })),
+    );
+    setIsDirty(false);
+  }, [gridFields, mode]);
 
   /* ── drag end */
   const onDragEnd = useCallback((result: DropResult) => {
@@ -554,25 +573,67 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
     setIsDirty(true);
   }, [groups]);
 
+  /* ── grid mode: drag-to-reorder flat list */
+  const onGridDragEnd = useCallback((result: DropResult) => {
+    if (!result.destination) return;
+    const { source, destination } = result;
+    if (source.index === destination.index) return;
+    setGridList((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(source.index, 1);
+      next.splice(destination.index, 0, moved);
+      return next.map((f, i) => ({
+        ...f,
+        seq_no: (i + 1) * 10,
+        dirty: f.dirty || f.originalSeqNo !== (i + 1) * 10,
+      }));
+    });
+    setIsDirty(true);
+  }, []);
+
+  /* ── grid mode: visibility toggle */
+  const handleGridToggleVisibility = useCallback((fieldId: string) => {
+    setGridList((prev) =>
+      prev.map((f) =>
+        f.sys_field_id === fieldId ? { ...f, is_displayed: !f.is_displayed, dirty: true } : f,
+      ),
+    );
+    setIsDirty(true);
+  }, []);
+
   /* ── save all */
   const handleSaveAll = useCallback(async () => {
     setIsSaving(true);
     try {
+      // Grid mode: save seq_no_grid and is_displayed_grid only
+      if (mode === 'grid') {
+        const dirty = gridList.filter((f) => f.dirty);
+        await Promise.all(
+          dirty.map((f) =>
+            apiClient.put(`/sys/fields/${f.sys_field_id}`, {
+              seq_no_grid: f.seq_no,
+              is_displayed_grid: f.is_displayed,
+            }),
+          ),
+        );
+        await queryClient.invalidateQueries({ queryKey: ['fields-all', entityName, 'grid'] });
+        toast.success('Grid layout saved successfully');
+        setIsDirty(false);
+        return;
+      }
+
+      // Form mode: save group assignments, seq_no, and is_displayed
       const fieldUpdates: Array<{ id: string; sys_field_group_id: string | null; seq_no: number; is_displayed: boolean }> = [];
       const groupCreates: WorkingGroup[] = [];
       const groupUpdates: WorkingGroup[] = [];
 
       for (const g of groups) {
         if (g.id === 'unassigned') continue;
-
-        // Create new groups first
         if (g.isNew) {
           groupCreates.push(g);
         } else if ((g as any).dirty) {
           groupUpdates.push(g);
         }
-
-        // Collect dirty fields
         for (const f of g.fields) {
           if (f.dirty) {
             fieldUpdates.push({
@@ -585,7 +646,6 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
         }
       }
 
-      // Collect unassigned dirty fields
       const unassigned = groups.find((g) => g.id === 'unassigned');
       if (unassigned) {
         for (const f of unassigned.fields) {
@@ -600,7 +660,6 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
         }
       }
 
-      // 1. Create new groups
       for (const g of groupCreates) {
         await apiClient.post(`/sys/field-groups?entity=${entityName}`, {
           name: g.name,
@@ -611,7 +670,6 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
         });
       }
 
-      // 2. Update existing groups
       for (const g of groupUpdates) {
         await apiClient.put(`/sys/field-groups/${g.id}?entity=${entityName}`, {
           name: g.name,
@@ -622,17 +680,12 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
         });
       }
 
-      // 3. Update fields (batch)
       await Promise.all(
-        fieldUpdates.map(({ id, ...data }) =>
-          apiClient.put(`/sys/fields/${id}`, data),
-        ),
+        fieldUpdates.map(({ id, ...data }) => apiClient.put(`/sys/fields/${id}`, data)),
       );
 
-      // Refresh
       await queryClient.invalidateQueries({ queryKey: ['field-groups', entityName] });
       await queryClient.invalidateQueries({ queryKey: ['fields-all', entityName] });
-      await queryClient.invalidateQueries({ queryKey: ['fields-grid', entityName] });
 
       toast.success('Layout saved successfully');
       setIsDirty(false);
@@ -641,20 +694,39 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
     } finally {
       setIsSaving(false);
     }
-  }, [groups, entityName, queryClient]);
+  }, [mode, groups, gridList, entityName, queryClient]);
 
   /* ── reset */
   const handleReset = useCallback(() => {
-    if (!rawFields || !fieldGroupsData) return;
-    const g = buildGroupedState(rawFields, fieldGroupsData as any[]);
-    setGroups(g);
+    if (mode === 'grid') {
+      if (!gridFields) return;
+      const sorted = [...(gridFields as any[])].sort(
+        (a, b) => ((a as any).seq_no_grid ?? a.seq_no ?? 999) - ((b as any).seq_no_grid ?? b.seq_no ?? 999),
+      );
+      setGridList(
+        sorted.map((f: any) => ({
+          ...f,
+          seq_no: f.seq_no_grid ?? f.seq_no ?? 0,
+          is_displayed: f.is_displayed_grid ?? f.is_displayed ?? false,
+          originalGroupId: null,
+          originalSeqNo: f.seq_no_grid ?? f.seq_no ?? 0,
+          dirty: false,
+        })),
+      );
+    } else {
+      if (!formFields || !fieldGroupsData) return;
+      setGroups(buildGroupedState(formFields, fieldGroupsData as any[]));
+    }
     setIsDirty(false);
-  }, [rawFields, fieldGroupsData]);
+  }, [mode, gridFields, formFields, fieldGroupsData]);
 
   /* ── computed stats */
   const dirtyFieldCount = useMemo(
-    () => groups.flatMap((g) => g.fields).filter((f) => f.dirty).length,
-    [groups],
+    () =>
+      mode === 'grid'
+        ? gridList.filter((f) => f.dirty).length
+        : groups.flatMap((g) => g.fields).filter((f) => f.dirty).length,
+    [mode, groups, gridList],
   );
 
   const visibleGroups = groups.filter((g) => g.id !== 'unassigned');
@@ -730,14 +802,130 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
         </div>
       </div>
 
-      <DragDropContext onDragEnd={onDragEnd}>
-        {/* Named groups — responsive grid */}
-        {visibleGroups.length > 0 ? (
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {visibleGroups.map((group) => (
+      {mode === 'grid' ? (
+        /* ── Grid mode: flat reorderable list, no groups ── */
+        <DragDropContext onDragEnd={onGridDragEnd}>
+          <Droppable droppableId="grid-fields">
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="flex flex-col gap-1.5 max-w-xl"
+              >
+                {gridList.length === 0 && (
+                  <p className="text-sm text-muted-foreground py-4 text-center">No fields found.</p>
+                )}
+                {gridList.map((field, index) => (
+                  <Draggable key={field.sys_field_id} draggableId={field.sys_field_id} index={index}>
+                    {(prov, snap) => (
+                      <div
+                        ref={prov.innerRef}
+                        {...(prov.draggableProps as any)}
+                        className={cn(
+                          'flex items-center gap-2 px-3 py-2.5 rounded-md border text-sm transition-all',
+                          snap.isDragging
+                            ? 'bg-primary/5 border-primary/40 shadow-lg'
+                            : field.dirty
+                            ? 'bg-amber-50 border-amber-200'
+                            : 'bg-white border-border hover:border-primary/30',
+                          !field.is_displayed && 'opacity-50',
+                        )}
+                      >
+                        <span
+                          {...prov.dragHandleProps}
+                          className="text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing flex-shrink-0"
+                        >
+                          <GripVertical className="h-4 w-4" />
+                        </span>
+                        <span className="w-6 text-xs text-muted-foreground font-mono text-center flex-shrink-0">
+                          {index + 1}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-medium truncate">{field.name}</span>
+                            {field.is_mandatory && <span className="text-red-500 text-xs font-bold">*</span>}
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[10px] text-muted-foreground font-mono">{field.column_name}</span>
+                            <Badge variant="secondary" className="text-[10px] h-4 px-1 py-0">
+                              {FIELD_TYPE_LABELS[field.sys_reference_id] ?? field.reference_name ?? String(field.sys_reference_id)}
+                            </Badge>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleGridToggleVisibility(field.sys_field_id)}
+                          className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+                          title={field.is_displayed ? 'Hide column' : 'Show column'}
+                        >
+                          {field.is_displayed ? (
+                            <Eye className="h-3.5 w-3.5 text-primary/70" />
+                          ) : (
+                            <EyeOff className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      ) : (
+        /* ── Form mode: grouped panels ── */
+        <DragDropContext onDragEnd={onDragEnd}>
+          {visibleGroups.length > 0 ? (
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {visibleGroups.map((group) => (
+                <GroupPanel
+                  key={group.id}
+                  group={group}
+                  onEditToggle={handleEditToggle}
+                  onEditSave={handleEditSave}
+                  onEditCancel={handleEditCancel}
+                  onDelete={handleDeleteGroup}
+                  onToggleVisibility={handleToggleVisibility}
+                  onToggleSummary={handleToggleSummary}
+                />
+              ))}
+
+              <button
+                onClick={handleAddGroup}
+                className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-colors min-h-[120px] p-6 text-primary/70 hover:text-primary"
+              >
+                <Plus className="h-6 w-6" />
+                <span className="text-sm font-medium">Add Group</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center py-8">
+              <button
+                onClick={handleAddGroup}
+                className="flex flex-col items-center gap-3 px-8 py-6 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors text-primary"
+              >
+                <Plus className="h-8 w-8" />
+                <div className="text-center">
+                  <p className="font-semibold">No field groups yet</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Create groups to organize fields into multi-column layouts
+                  </p>
+                </div>
+              </button>
+            </div>
+          )}
+
+          {unassignedGroup && (
+            <div className="mt-2">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-xs text-muted-foreground font-medium px-2">
+                  Unassigned ({unassignedGroup.fields.length})
+                </span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
               <GroupPanel
-                key={group.id}
-                group={group}
+                group={unassignedGroup}
                 onEditToggle={handleEditToggle}
                 onEditSave={handleEditSave}
                 onEditCancel={handleEditCancel}
@@ -745,56 +933,10 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
                 onToggleVisibility={handleToggleVisibility}
                 onToggleSummary={handleToggleSummary}
               />
-            ))}
-
-            {/* Add Group button — same size as a group panel */}
-            <button
-              onClick={handleAddGroup}
-              className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-colors min-h-[120px] p-6 text-primary/70 hover:text-primary"
-            >
-              <Plus className="h-6 w-6" />
-              <span className="text-sm font-medium">Add Group</span>
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center justify-center py-8">
-            <button
-              onClick={handleAddGroup}
-              className="flex flex-col items-center gap-3 px-8 py-6 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors text-primary"
-            >
-              <Plus className="h-8 w-8" />
-              <div className="text-center">
-                <p className="font-semibold">No field groups yet</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Create groups to organize fields into multi-column layouts
-                </p>
-              </div>
-            </button>
-          </div>
-        )}
-
-        {/* Unassigned fields */}
-        {unassignedGroup && (
-          <div className="mt-2">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="h-px flex-1 bg-border" />
-              <span className="text-xs text-muted-foreground font-medium px-2">
-                Unassigned ({unassignedGroup.fields.length})
-              </span>
-              <div className="h-px flex-1 bg-border" />
             </div>
-            <GroupPanel
-              group={unassignedGroup}
-              onEditToggle={handleEditToggle}
-              onEditSave={handleEditSave}
-              onEditCancel={handleEditCancel}
-              onDelete={handleDeleteGroup}
-              onToggleVisibility={handleToggleVisibility}
-              onToggleSummary={handleToggleSummary}
-            />
-          </div>
-        )}
-      </DragDropContext>
+          )}
+        </DragDropContext>
+      )}
 
       {/* Legend */}
       <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2 border-t border-border flex-wrap">
