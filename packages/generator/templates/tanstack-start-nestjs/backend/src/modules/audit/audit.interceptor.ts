@@ -73,16 +73,17 @@ export class AuditInterceptor implements NestInterceptor {
       request_id: headers['x-request-id'] as string ?? null,
     };
 
-    // Capture the before-value that may have been attached to the request
-    // by BusService.update/delete (see bus.service.ts)
-    const beforeValue = req.__auditBefore ?? null;
-
     return next.handle().pipe(
       tap((responseData: any) => {
+        // Read __auditBefore here (after handler ran) — controller sets it before its mutation
+        const beforeValue = req.__auditBefore ?? null;
         const after = responseData?.data ?? responseData ?? null;
         const changed = diffFields(beforeValue, after);
+        // For POST (CREATE), extract entity_id from the response body
+        const entityId = base.entity_id ?? after?.id ?? null;
         this.auditService.log({
           ...base,
+          entity_id: entityId,
           before_value: beforeValue,
           after_value: method === 'DELETE' ? null : after,
           changed_fields: changed,
@@ -90,6 +91,7 @@ export class AuditInterceptor implements NestInterceptor {
         } as AuditEvent);
       }),
       catchError(err => {
+        const beforeValue = req.__auditBefore ?? null;
         this.auditService.log({
           ...base,
           before_value: beforeValue,

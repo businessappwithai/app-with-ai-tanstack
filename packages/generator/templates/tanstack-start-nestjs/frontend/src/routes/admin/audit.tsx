@@ -122,8 +122,12 @@ function VerifyButton({ id, immudbKey }: { id: string; immudbKey?: string }) {
   if (!immudbKey) return <span className="text-xs text-muted-foreground">—</span>;
 
   if (result) {
-    return result.verified
-      ? <span className="flex items-center gap-1 text-xs text-green-700"><ShieldCheck className="h-3.5 w-3.5" />Verified</span>
+    if (result.verified) {
+      return <span className="flex items-center gap-1 text-xs text-green-700"><ShieldCheck className="h-3.5 w-3.5" />Verified</span>;
+    }
+    const isOffline = result.reason?.toLowerCase().includes('not connected') || result.reason?.toLowerCase().includes('not found');
+    return isOffline
+      ? <span className="flex items-center gap-1 text-xs text-muted-foreground" title={result.reason}><Shield className="h-3.5 w-3.5" />Offline</span>
       : <span className="flex items-center gap-1 text-xs text-red-600" title={result.reason}><ShieldAlert className="h-3.5 w-3.5" />Tampered?</span>;
   }
 
