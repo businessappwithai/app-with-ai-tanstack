@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getAuthService, getSessionToken, clearSessionCookie } from "@/lib/auth-server";
 
 export const Route = createFileRoute("/api/auth/logout")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const token = getSessionToken(request);
+        const { getAuthService, getSessionToken, clearSessionCookie } = await import("@/lib/auth-server");
+        const token = await getSessionToken(request);
         if (token) {
           try {
             const authService = await getAuthService();

@@ -1,20 +1,21 @@
-import { AuthService } from "@erdwithai/core/auth";
-import { getDatabase, runMigrations } from "@erdwithai/core/services";
 import type { AuthUsersTable } from "@erdwithai/core/config/db.types";
 
-let _authService: AuthService | null = null;
+let _authService: any = null;
 let _dbReady = false;
 
 async function ensureDb() {
   if (!_dbReady) {
     _dbReady = true;
+    const { runMigrations } = await import("@erdwithai/core/services");
     await runMigrations().catch((err) => console.error("[Auth] Migration error:", err));
   }
 }
 
-export async function getAuthService(): Promise<AuthService> {
+export async function getAuthService(): Promise<any> {
   await ensureDb();
   if (!_authService) {
+    const { AuthService } = await import("@erdwithai/core/auth");
+    const { getDatabase } = await import("@erdwithai/core/services");
     const secret =
       process.env.BETTER_AUTH_SECRET ||
       process.env.SESSION_SECRET ||
@@ -50,6 +51,7 @@ export async function getCurrentUser(request: Request): Promise<AuthUsersTable |
   const token = getSessionToken(request);
   if (!token) return null;
 
+  const { getDatabase } = await import("@erdwithai/core/services");
   const db = getDatabase();
   const now = new Date().toISOString();
 

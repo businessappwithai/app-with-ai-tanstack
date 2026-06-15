@@ -127,6 +127,13 @@ export const Route = createFileRoute("/api/projects/$id/")({
             });
           }
 
+          if (user.role === "admin") {
+            return new Response(JSON.stringify({ error: "Admins cannot modify projects" }), {
+              status: 403,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+
           const db = getDatabase();
           const id = params.id as string;
 
@@ -190,6 +197,13 @@ export const Route = createFileRoute("/api/projects/$id/")({
           if (!user) {
             return new Response(JSON.stringify({ error: "Unauthorized" }), {
               status: 401,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+
+          if (user.role === "admin") {
+            return new Response(JSON.stringify({ error: "Admins cannot delete projects" }), {
+              status: 403,
               headers: { "Content-Type": "application/json" },
             });
           }

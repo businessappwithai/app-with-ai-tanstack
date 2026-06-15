@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const config = defineConfig({
   optimizeDeps: {
     // Native .node binaries and Node-only drivers can't be bundled by Rolldown — exclude them
-    exclude: ["@mastra/fastembed", "@anush008/tokenizers", "@anush008/tokenizers-darwin-universal", "mysql2"],
+    exclude: ["@mastra/fastembed", "@anush008/tokenizers", "@anush008/tokenizers-darwin-universal", "mysql2", "@erdwithai/core"],
   },
   ssr: {
     // Treat workspace packages as Node.js externals so their dist/index.js

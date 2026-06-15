@@ -188,34 +188,38 @@ function ProjectsPage() {
                   Rules Admin
                 </Link>
               </div>
-              {/* Desktop create button */}
-              <button
-                onClick={() => setShowNewProjectModal(true)}
-                disabled={isLoading || isCreatingProject}
-                className="hidden sm:flex bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-xl text-sm font-semibold items-center gap-2 shadow-lg shadow-primary/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ backgroundColor: "#FF8400" }}
-              >
-                {isLoading || isCreatingProject ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Plus className="w-4 h-4" />
-                )}
-                {isCreatingProject ? "Creating..." : "Create New Project"}
-              </button>
-              {/* Mobile: icon-only create button + hamburger */}
-              <button
-                onClick={() => setShowNewProjectModal(true)}
-                disabled={isLoading || isCreatingProject}
-                className="sm:hidden w-10 h-10 flex items-center justify-center rounded-xl shadow-lg shadow-primary/25 transition-all disabled:opacity-50"
-                style={{ backgroundColor: "#FF8400" }}
-                aria-label="Create new project"
-              >
-                {isLoading || isCreatingProject ? (
-                  <Loader2 className="w-4 h-4 text-white animate-spin" />
-                ) : (
-                  <Plus className="w-4 h-4 text-white" />
-                )}
-              </button>
+              {/* Desktop create button - admins cannot create projects */}
+              {user?.role !== "admin" && (
+                <button
+                  onClick={() => setShowNewProjectModal(true)}
+                  disabled={isLoading || isCreatingProject}
+                  className="hidden sm:flex bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-xl text-sm font-semibold items-center gap-2 shadow-lg shadow-primary/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: "#FF8400" }}
+                >
+                  {isLoading || isCreatingProject ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Plus className="w-4 h-4" />
+                  )}
+                  {isCreatingProject ? "Creating..." : "Create New Project"}
+                </button>
+              )}
+              {/* Mobile: icon-only create button + hamburger - admins cannot create projects */}
+              {user?.role !== "admin" && (
+                <button
+                  onClick={() => setShowNewProjectModal(true)}
+                  disabled={isLoading || isCreatingProject}
+                  className="sm:hidden w-10 h-10 flex items-center justify-center rounded-xl shadow-lg shadow-primary/25 transition-all disabled:opacity-50"
+                  style={{ backgroundColor: "#FF8400" }}
+                  aria-label="Create new project"
+                >
+                  {isLoading || isCreatingProject ? (
+                    <Loader2 className="w-4 h-4 text-white animate-spin" />
+                  ) : (
+                    <Plus className="w-4 h-4 text-white" />
+                  )}
+                </button>
+              )}
               {/* User menu */}
               <div className="relative" ref={userMenuRef}>
                 <button

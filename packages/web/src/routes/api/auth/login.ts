@@ -1,21 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { setSessionCookie } from "@/lib/auth-server";
-import { getDatabase } from "@erdwithai/core/services";
-
-// Must match the hashing in register endpoint
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password + "salt-key");
-  const hash = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
 
 export const Route = createFileRoute("/api/auth/login")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { setSessionCookie } = await import("@/lib/auth-server");
+        const { getDatabase } = await import("@erdwithai/core/services");
+
+        // Must match the hashing in register endpoint
+        async function hashPassword(password: string): Promise<string> {
+          const encoder = new TextEncoder();
+          const data = encoder.encode(password + "salt-key");
+          const hash = await crypto.subtle.digest("SHA-256", data);
+          return Array.from(new Uint8Array(hash))
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+        }
         try {
           const body = await request.json();
           const { email, password } = body as { email: string; password: string };
@@ -73,9 +73,27 @@ export const Route = createFileRoute("/api/auth/login")({
 
           // Verify password
           const passwordHash = await hashPassword(password);
-          // For now, we're not storing password hashes in auth_users (better-auth handles that)
-          // So we'll just create a session without password verification for development
-          // In production, you should properly implement password hashing
+          const storedPasswordHash = (user as any).passwordHash;
+
+          if (!storedPasswordHash) {
+            return new Response(
+              JSON.stringify({ error: "Invalid email or password" }),
+              {
+                status: 401,
+                headers: { "Content-Type": "application/json" },
+              }
+            );
+          }
+
+          if (passwordHash !== storedPasswordHash) {
+            return new Response(
+              JSON.stringify({ error: "Invalid email or password" }),
+              {
+                status: 401,
+                headers: { "Content-Type": "application/json" },
+              }
+            );
+          }
 
           // Create a session
           const sessionId = crypto.randomUUID();

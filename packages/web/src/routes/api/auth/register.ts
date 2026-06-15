@@ -1,20 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getDatabase, runMigrations } from "@erdwithai/core/services";
-
-// Simple password hashing using Bun's built-in crypto
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password + "salt-key");
-  const hash = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
 
 export const Route = createFileRoute("/api/auth/register")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { getDatabase, runMigrations } = await import("@erdwithai/core/services");
+
+        // Simple password hashing using Bun's built-in crypto
+        async function hashPassword(password: string): Promise<string> {
+          const encoder = new TextEncoder();
+          const data = encoder.encode(password + "salt-key");
+          const hash = await crypto.subtle.digest("SHA-256", data);
+          return Array.from(new Uint8Array(hash))
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+        }
+
         try {
           await runMigrations();
           const db = getDatabase();

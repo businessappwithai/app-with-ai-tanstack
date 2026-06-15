@@ -1,13 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getDatabase } from "@erdwithai/core/services";
-import { getSessionToken } from "@/lib/auth-server";
 
 export const Route = createFileRoute("/api/auth/me")({
   server: {
     handlers: {
       GET: async ({ request }) => {
+        const { getDatabase } = await import("@erdwithai/core/services");
+        const { getSessionToken } = await import("@/lib/auth-server");
+
         try {
-          const token = getSessionToken(request);
+          const token = await getSessionToken(request);
           if (!token) {
             return new Response(JSON.stringify({ user: null }), {
               status: 401,
