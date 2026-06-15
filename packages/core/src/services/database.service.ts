@@ -330,6 +330,13 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
 
   try {
     await db.schema
+      .alterTable("auth_users")
+      .addColumn("passwordHash", "text")
+      .execute();
+  } catch { /* column already exists */ }
+
+  try {
+    await db.schema
       .alterTable("projects")
       .addColumn("owner_user_id", "varchar(128)")
       .execute();
