@@ -818,5 +818,36 @@ export class TemplateLoader {
         return `\`test_${index}\``;
       }
     );
+
+    // Realistic seed value helper for business data seeds
+    Handlebars.registerHelper("seedValue", (fieldName: string, index: number) => {
+      const n = (fieldName ?? "").toLowerCase();
+      const i = typeof index === "number" ? index : 0;
+      const FIRST_NAMES = ["James", "Mary", "Robert", "Patricia", "John", "Jennifer", "Michael", "Linda", "David", "Barbara"];
+      const LAST_NAMES = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Wilson", "Taylor"];
+      const pick = <T>(arr: T[]): T => arr[i % arr.length];
+
+      if (n === "first_name") return pick(FIRST_NAMES);
+      if (n === "last_name") return pick(LAST_NAMES);
+      if (n === "name" || n.endsWith("_name")) return `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`;
+      if (n === "gender") return i % 2 === 0 ? "Male" : "Female";
+      if (n === "relationship" || n === "relationship_type") return pick(["Mother", "Father", "Guardian", "Grandmother", "Grandfather"]);
+      if (n === "grade" || n === "letter_grade") return pick(["A", "B+", "A-", "B", "A"]);
+      if (n === "status") return pick(["Active", "Pending", "Completed", "In Progress", "Scheduled"]);
+      if (n === "subject" || n === "subject_name") return pick(["Mathematics", "Science", "English", "History", "Geography"]);
+      if (n === "department") return pick(["Engineering", "Marketing", "Finance", "Operations", "HR"]);
+      if (n === "address" || n === "street_address") return `${(i + 1) * 100} ${pick(["Main St", "Oak Ave", "Elm Dr", "Park Blvd", "Cedar Ln"])}, ${pick(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"])}`;
+      if (n === "city") return pick(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"]);
+      if (n === "phone" || n === "phone_number" || n === "mobile") return `555-${String(1000 + i * 101).padStart(4, "0")}`;
+      if (n === "description" || n === "notes" || n === "bio") return `Description ${i + 1}`;
+      if (n === "title") return `Title ${i + 1}`;
+      if (n === "code" || n === "reference_code") return `CODE-${String(i + 1).padStart(3, "0")}`;
+      if (n === "score" || n === "grade_value") return String(70 + i * 5);
+      if (n === "capacity" || n === "max_students") return String(20 + i * 5);
+      if (n === "room_number") return `10${i + 1}`;
+      if (n === "year" || n === "academic_year") return String(2024 + i);
+      if (n === "section") return String.fromCharCode(65 + i); // A, B, C, D
+      return `Sample ${i + 1}`;
+    });
   }
 }

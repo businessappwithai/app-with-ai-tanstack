@@ -23,6 +23,7 @@ interface DynamicFormProps {
   fields?: FieldMetadata[];
   initialData?: Record<string, unknown>;
   onSubmit?: (data: Record<string, unknown>) => void | Promise<void>;
+  onChange?: (data: Record<string, unknown>) => void;
   isLoading?: boolean;
   isSaving?: boolean;
   mode?: "create" | "edit" | "view";
@@ -551,6 +552,7 @@ export function DynamicForm({
   fields: externalFields,
   initialData = {},
   onSubmit,
+  onChange,
   isLoading: externalLoading = false,
   isSaving = false,
   mode = "create",
@@ -572,7 +574,7 @@ export function DynamicForm({
       // Zod validation
       if (fields) {
         const displayedFields = fields.filter(f => f.is_displayed && f.column_name !== parentField);
-        const validation = validateFormData(displayedFields, value, mode);
+        const validation = validateFormData(displayedFields, value, mode === 'view' ? 'edit' : mode);
         if (!validation.success) {
           setZodErrors(validation.errors);
           toast.error("Please fix the validation errors");
@@ -602,6 +604,16 @@ export function DynamicForm({
 
   (form as any).readOnly = readOnly;
   (form as any).mode = mode;
+
+  const formValues = form.useStore((state) => state.values);
+  const isInitialMount = useState(true);
+  useEffect(() => {
+    if (isInitialMount[0]) {
+      isInitialMount[1](false);
+      return;
+    }
+    onChange?.(formValues as Record<string, unknown>);
+  }, [formValues]);
 
   useEffect(() => {
     if (Object.keys(initialData).length > 0) {

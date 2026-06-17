@@ -588,6 +588,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         src: "src/hooks/use-window-tabs.ts",
         dest: "src/hooks/use-window-tabs.ts",
       },
+      {
+        src: "src/hooks/use-bus-entity-level.ts",
+        dest: "src/hooks/use-bus-entity-level.ts",
+      },
       // UI components
       {
         src: "src/components/ui/breadcrumb.tsx",

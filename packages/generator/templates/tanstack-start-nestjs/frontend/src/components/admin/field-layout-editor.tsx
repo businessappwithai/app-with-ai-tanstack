@@ -24,7 +24,7 @@ import {
   RotateCcw,
   Save,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -458,6 +458,7 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
+                        style={provided.draggableProps.style as React.CSSProperties}
                         className={cn(
                           "flex items-center gap-4 p-4 border rounded-lg bg-card transition-opacity",
                           snapshot.isDragging && "shadow-lg ring-2 ring-primary",

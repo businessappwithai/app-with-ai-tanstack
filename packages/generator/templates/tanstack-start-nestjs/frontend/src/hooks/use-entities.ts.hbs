@@ -61,6 +61,10 @@ export interface FieldMetadata {
   text_align?: string;
   reference_name?: string; // Human-readable type name returned by the API (e.g. "String", "Integer", "Date")
   ref_table_name?: string; // Referenced table name for TABLE reference types (sys_reference_id = 18)
+  ref_endpoint?: string;   // Custom API endpoint for table references (e.g. '/sys/references')
+  ref_id_field?: string;   // Field to use as option value (default: 'id')
+  ref_label_field?: string; // Field to use as option label (default: 'name')
+  options?: { value: string; label: string }[]; // Static options list for inline enums
   tab_name?: string; // Tab name for i18n field labels
 }
 

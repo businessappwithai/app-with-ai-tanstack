@@ -20,13 +20,19 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const createdBy = '{{config.createdBy}}';
 
   // ============================================================================
-  // Create Default Roles
+  // Create Default Roles (lookup or create for idempotency)
   // ============================================================================
-  const adminRoleId = uuidv4();
-  const userRoleId = uuidv4();
+  let adminRoleId: string;
+  const existingAdminRole = await db.selectFrom('sys_role')
+    .select('sys_role_id')
+    .where('name', '=', 'Administrator')
+    .executeTakeFirst();
 
-  await db.insertInto('sys_role').values([
-    {
+  if (existingAdminRole) {
+    adminRoleId = existingAdminRole.sys_role_id as string;
+  } else {
+    adminRoleId = uuidv4();
+    await db.insertInto('sys_role').values({
       sys_role_id: adminRoleId,
       name: 'Administrator',
       description: 'System administrator with full access',
@@ -44,8 +50,20 @@ export async function seed(db: Kysely<any>): Promise<void> {
       updated_by: createdBy,
       created_at: now,
       updated_at: now,
-    },
-    {
+    }).execute();
+  }
+
+  let userRoleId: string;
+  const existingUserRole = await db.selectFrom('sys_role')
+    .select('sys_role_id')
+    .where('name', '=', 'User')
+    .executeTakeFirst();
+
+  if (existingUserRole) {
+    userRoleId = existingUserRole.sys_role_id as string;
+  } else {
+    userRoleId = uuidv4();
+    await db.insertInto('sys_role').values({
       sys_role_id: userRoleId,
       name: 'User',
       description: 'Standard user with limited access',
@@ -63,35 +81,44 @@ export async function seed(db: Kysely<any>): Promise<void> {
       updated_by: createdBy,
       created_at: now,
       updated_at: now,
-    },
-  ]).execute();
+    }).execute();
+  }
 
   // ============================================================================
-  // Create Default Admin User
+  // Create Default Admin User (lookup or create)
   // ============================================================================
-  const adminUserId = uuidv4();
+  let adminUserId: string;
+  const existingAdminUser = await db.selectFrom('sys_user')
+    .select('sys_user_id')
+    .where('email', '=', 'admin@localhost')
+    .executeTakeFirst();
 
-  await db.insertInto('sys_user').values({
-    sys_user_id: adminUserId,
-    name: 'System Administrator',
-    email: 'admin@localhost',
-    password_hash: '$2b$10$rIC/7qZmzCi9F4g4OKL8wO4k5XYzJ5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5', // placeholder
-    description: 'Default system administrator',
-    is_system_user: true,
-    is_sales_rep: false,
-    login_failure_count: 0,
-    is_locked: false,
-    is_account_verified: true,
-    default_sys_role_id: adminRoleId,
-    entity_type: 'D',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  if (existingAdminUser) {
+    adminUserId = existingAdminUser.sys_user_id as string;
+  } else {
+    adminUserId = uuidv4();
+    await db.insertInto('sys_user').values({
+      sys_user_id: adminUserId,
+      name: 'System Administrator',
+      email: 'admin@localhost',
+      password_hash: '$2b$10$rIC/7qZmzCi9F4g4OKL8wO4k5XYzJ5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5', // placeholder
+      description: 'Default system administrator',
+      is_system_user: true,
+      is_sales_rep: false,
+      login_failure_count: 0,
+      is_locked: false,
+      is_account_verified: true,
+      default_sys_role_id: adminRoleId,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
-  // Assign admin role to admin user
+  // Assign admin role to admin user (skip if already exists)
   await db.insertInto('sys_user_roles').values({
     sys_user_roles_id: uuidv4(),
     sys_user_id: adminUserId,
@@ -102,17 +129,21 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_by: createdBy,
     created_at: now,
     updated_at: now,
-  }).execute();
+  }).onConflict(oc => oc.columns(['sys_user_id', 'sys_role_id']).doNothing()).execute();
 
   // ============================================================================
-  // Create Default Field Groups
+  // Create Default Field Groups (lookup or create)
   // ============================================================================
-  const fieldGroupGeneral = uuidv4();
-  const fieldGroupDetails = uuidv4();
-  const fieldGroupSystem = uuidv4();
-
-  await db.insertInto('sys_field_group').values([
-    {
+  let fieldGroupGeneral: string;
+  const existingFgGeneral = await db.selectFrom('sys_field_group')
+    .select('sys_field_group_id')
+    .where('name', '=', 'General')
+    .executeTakeFirst();
+  if (existingFgGeneral) {
+    fieldGroupGeneral = existingFgGeneral.sys_field_group_id as string;
+  } else {
+    fieldGroupGeneral = uuidv4();
+    await db.insertInto('sys_field_group').values({
       sys_field_group_id: fieldGroupGeneral,
       name: 'General',
       description: 'General information fields',
@@ -124,8 +155,19 @@ export async function seed(db: Kysely<any>): Promise<void> {
       updated_by: createdBy,
       created_at: now,
       updated_at: now,
-    },
-    {
+    }).execute();
+  }
+
+  let fieldGroupDetails: string;
+  const existingFgDetails = await db.selectFrom('sys_field_group')
+    .select('sys_field_group_id')
+    .where('name', '=', 'Details')
+    .executeTakeFirst();
+  if (existingFgDetails) {
+    fieldGroupDetails = existingFgDetails.sys_field_group_id as string;
+  } else {
+    fieldGroupDetails = uuidv4();
+    await db.insertInto('sys_field_group').values({
       sys_field_group_id: fieldGroupDetails,
       name: 'Details',
       description: 'Detailed information fields',
@@ -137,8 +179,19 @@ export async function seed(db: Kysely<any>): Promise<void> {
       updated_by: createdBy,
       created_at: now,
       updated_at: now,
-    },
-    {
+    }).execute();
+  }
+
+  let fieldGroupSystem: string;
+  const existingFgSystem = await db.selectFrom('sys_field_group')
+    .select('sys_field_group_id')
+    .where('name', '=', 'System')
+    .executeTakeFirst();
+  if (existingFgSystem) {
+    fieldGroupSystem = existingFgSystem.sys_field_group_id as string;
+  } else {
+    fieldGroupSystem = uuidv4();
+    await db.insertInto('sys_field_group').values({
       sys_field_group_id: fieldGroupSystem,
       name: 'System',
       description: 'System fields (audit trail)',
@@ -150,8 +203,8 @@ export async function seed(db: Kysely<any>): Promise<void> {
       updated_by: createdBy,
       created_at: now,
       updated_at: now,
-    },
-  ]).execute();
+    }).execute();
+  }
 
   // ============================================================================
   // Business Entities Dictionary Entries
@@ -161,129 +214,28 @@ export async function seed(db: Kysely<any>): Promise<void> {
   // --------------------------------------------------------------------------
   // {{displayName}} ({{tableName}})
   // --------------------------------------------------------------------------
-  const {{camelCase name}}TableId = uuidv4();
-  const {{camelCase name}}WindowId = uuidv4();
-  const {{camelCase name}}TabId = uuidv4();
 
-  // Create sys_window entry FIRST (sys_table references it)
-  await db.insertInto('sys_window').values({
-    sys_window_id: {{camelCase name}}WindowId,
-    name: '{{displayName}}',
-    description: 'Maintain {{displayName}} records',
-    window_type: 'M',
-    is_sales_transaction: false,
-    is_default: true,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Skip if already seeded (idempotent)
+  const existing{{camelCase name}}Table = await db.selectFrom('sys_table')
+    .select('sys_table_id')
+    .where('table_name', '=', '{{tableName}}')
+    .executeTakeFirst();
 
-  // Create sys_table entry AFTER sys_window
-  await db.insertInto('sys_table').values({
-    sys_table_id: {{camelCase name}}TableId,
-    table_name: '{{tableName}}',
-    name: '{{displayName}}',
-    description: '{{#if description}}{{description}}{{else}}Manage {{displayName}} records{{/if}}',
-    access_level: 'A',
-    is_view: false,
-    is_document: false,
-    is_high_volume: false,
-    is_changelog: true,
-    sys_window_id: {{camelCase name}}WindowId,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  if (existing{{camelCase name}}Table) {
+    console.log('⏭ Skipping {{displayName}} (already seeded)');
+  } else {
+    const {{camelCase name}}TableId = uuidv4();
+    const {{camelCase name}}WindowId = uuidv4();
+    const {{camelCase name}}TabId = uuidv4();
 
-  // Create sys_tab entry
-  await db.insertInto('sys_tab').values({
-    sys_tab_id: {{camelCase name}}TabId,
-    sys_window_id: {{camelCase name}}WindowId,
-    sys_table_id: {{camelCase name}}TableId,
-    name: '{{displayName}}',
-    tab_level: 0,
-    seq_no: 10,
-    is_single_row: true,
-    has_tree: false,
-    is_info_tab: false,
-    is_translation_tab: false,
-    is_read_only: false,
-    is_insert_record: true,
-    is_advanced_tab: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
-
-  // Create sys_column entries
-  const {{camelCase name}}Columns: Array<{ id: string; name: string; displayName: string; isKey: boolean }> = [];
-
-  let {{camelCase name}}ColumnSeqNo = 10;
-  {{#each attributes}}
-  const {{camelCase ../name}}_{{camelCase name}}_columnId = uuidv4();
-  {{camelCase ../name}}Columns.push({
-    id: {{camelCase ../name}}_{{camelCase name}}_columnId,
-    name: '{{columnName}}',
-    displayName: '{{displayName}}',
-    isKey: {{#if (eq name ../primaryKey)}}true{{else}}false{{/if}},
-  });
-
-  await db.insertInto('sys_column').values({
-    sys_column_id: {{camelCase ../name}}_{{camelCase name}}_columnId,
-    sys_table_id: {{camelCase ../name}}TableId,
-    column_name: '{{columnName}}',
-    name: '{{displayName}}',
-    sys_reference_id: {{referenceId}}{{#if maxLength}},
-    field_length: {{maxLength}}{{/if}}{{#if default}},
-    default_value: '{{default}}'{{/if}},
-    is_key: {{#if (eq name ../primaryKey)}}true{{else}}false{{/if}},
-    is_parent: false,
-    is_mandatory: {{#if (or (eq columnName 'created_at') (eq columnName 'updated_at') (eq columnName 'deleted_at'))}}false{{else}}{{required}}{{/if}},
-    is_updateable: {{#if (or (eq name ../primaryKey) (eq columnName 'created_at') (eq columnName 'updated_at') (eq columnName 'deleted_at'))}}false{{else}}true{{/if}},
-    is_identifier: {{#if (or (eq name ../primaryKey) (eq name 'name'))}}true{{else}}false{{/if}},
-    is_selection_column: {{#if (or (eq name 'name') unique)}}true{{else}}false{{/if}},
-    is_translated: false,
-    is_encrypted: false,
-    is_allow_logging: true,
-    is_allow_copy: {{#if (eq name ../primaryKey)}}false{{else}}true{{/if}},
-    seq_no: {{camelCase ../name}}ColumnSeqNo,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
-  {{camelCase ../name}}ColumnSeqNo += 10;
-  {{/each}}
-
-  // Create sys_field entries with sequential seq_no
-  for (let i = 0; i < {{camelCase name}}Columns.length; i++) {
-    const col = {{camelCase name}}Columns[i];
-    await db.insertInto('sys_field').values({
-      sys_field_id: uuidv4(),
-      sys_tab_id: {{camelCase name}}TabId,
-      sys_column_id: col.id,
-      sys_field_group_id: i < 3 ? fieldGroupGeneral : fieldGroupDetails,
-      name: col.displayName,
-      seq_no: (i + 1) * 10,
-      seq_no_grid: (i + 1) * 10,
-      is_displayed: !col.isKey,
-      is_displayed_grid: !col.isKey && i < 8, // show first 8 non-pk columns in grid
-      is_read_only: ['created_at', 'updated_at', 'deleted_at'].includes(col.name),
-      is_encrypted: false,
-      is_same_line: false,
-      is_heading: false,
-      is_field_only: false,
+    // Create sys_window entry FIRST (sys_table references it)
+    await db.insertInto('sys_window').values({
+      sys_window_id: {{camelCase name}}WindowId,
+      name: '{{displayName}}',
+      description: 'Maintain {{displayName}} records',
+      window_type: 'M',
+      is_sales_transaction: false,
+      is_default: true,
       entity_type: 'U',
       is_active: true,
       created_by: createdBy,
@@ -291,43 +243,155 @@ export async function seed(db: Kysely<any>): Promise<void> {
       created_at: now,
       updated_at: now,
     }).execute();
+
+    // Create sys_table entry AFTER sys_window
+    await db.insertInto('sys_table').values({
+      sys_table_id: {{camelCase name}}TableId,
+      table_name: '{{tableName}}',
+      name: '{{displayName}}',
+      description: '{{#if description}}{{description}}{{else}}Manage {{displayName}} records{{/if}}',
+      access_level: 'A',
+      is_view: false,
+      is_document: false,
+      is_high_volume: false,
+      is_changelog: true,
+      sys_window_id: {{camelCase name}}WindowId,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+
+    // Create sys_tab entry
+    await db.insertInto('sys_tab').values({
+      sys_tab_id: {{camelCase name}}TabId,
+      sys_window_id: {{camelCase name}}WindowId,
+      sys_table_id: {{camelCase name}}TableId,
+      name: '{{displayName}}',
+      tab_level: 0,
+      seq_no: 10,
+      is_single_row: true,
+      has_tree: false,
+      is_info_tab: false,
+      is_translation_tab: false,
+      is_read_only: false,
+      is_insert_record: true,
+      is_advanced_tab: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+
+    // Create sys_column entries
+    const {{camelCase name}}Columns: Array<{ id: string; name: string; displayName: string; isKey: boolean }> = [];
+
+    let {{camelCase name}}ColumnSeqNo = 10;
+    {{#each attributes}}
+    const {{camelCase ../name}}_{{camelCase name}}_columnId = uuidv4();
+    {{camelCase ../name}}Columns.push({
+      id: {{camelCase ../name}}_{{camelCase name}}_columnId,
+      name: '{{columnName}}',
+      displayName: '{{displayName}}',
+      isKey: {{#if (eq name ../primaryKey)}}true{{else}}false{{/if}},
+    });
+
+    await db.insertInto('sys_column').values({
+      sys_column_id: {{camelCase ../name}}_{{camelCase name}}_columnId,
+      sys_table_id: {{camelCase ../name}}TableId,
+      column_name: '{{columnName}}',
+      name: '{{displayName}}',
+      sys_reference_id: {{referenceId}}{{#if maxLength}},
+      field_length: {{maxLength}}{{/if}}{{#if default}},
+      default_value: '{{default}}'{{/if}},
+      is_key: {{#if (eq name ../primaryKey)}}true{{else}}false{{/if}},
+      is_parent: false,
+      is_mandatory: {{#if (or (eq columnName 'created_at') (eq columnName 'updated_at') (eq columnName 'deleted_at'))}}false{{else}}{{required}}{{/if}},
+      is_updateable: {{#if (or (eq name ../primaryKey) (eq columnName 'created_at') (eq columnName 'updated_at') (eq columnName 'deleted_at'))}}false{{else}}true{{/if}},
+      is_identifier: {{#if (or (eq name ../primaryKey) (eq name 'name'))}}true{{else}}false{{/if}},
+      is_selection_column: {{#if (or (eq name 'name') unique)}}true{{else}}false{{/if}},
+      is_translated: false,
+      is_encrypted: false,
+      is_allow_logging: true,
+      is_allow_copy: {{#if (eq name ../primaryKey)}}false{{else}}true{{/if}},
+      seq_no: {{camelCase ../name}}ColumnSeqNo,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+    {{camelCase ../name}}ColumnSeqNo += 10;
+    {{/each}}
+
+    // Create sys_field entries with sequential seq_no
+    for (let i = 0; i < {{camelCase name}}Columns.length; i++) {
+      const col = {{camelCase name}}Columns[i];
+      await db.insertInto('sys_field').values({
+        sys_field_id: uuidv4(),
+        sys_tab_id: {{camelCase name}}TabId,
+        sys_column_id: col.id,
+        sys_field_group_id: i < 3 ? fieldGroupGeneral : fieldGroupDetails,
+        name: col.displayName,
+        seq_no: (i + 1) * 10,
+        seq_no_grid: (i + 1) * 10,
+        is_displayed: !col.isKey,
+        is_displayed_grid: !col.isKey && i < 8, // show first 8 non-pk columns in grid
+        is_read_only: ['created_at', 'updated_at', 'deleted_at'].includes(col.name),
+        is_encrypted: false,
+        is_same_line: false,
+        is_heading: false,
+        is_field_only: false,
+        entity_type: 'U',
+        is_active: true,
+        created_by: createdBy,
+        updated_by: createdBy,
+        created_at: now,
+        updated_at: now,
+      }).execute();
+    }
+
+    // Grant access to admin role
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: adminRoleId,
+      sys_table_id: {{camelCase name}}TableId,
+      sys_window_id: {{camelCase name}}WindowId,
+      access_type_table: 'W',
+      is_read_only: false,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+
+    // Grant read access to user role
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: userRoleId,
+      sys_table_id: {{camelCase name}}TableId,
+      sys_window_id: {{camelCase name}}WindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+
+    console.log('✓ Created dictionary entries for {{displayName}}');
   }
-
-  // Grant access to admin role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: adminRoleId,
-    sys_table_id: {{camelCase name}}TableId,
-    sys_window_id: {{camelCase name}}WindowId,
-    access_type_table: 'W',
-    is_read_only: false,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
-
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: {{camelCase name}}TableId,
-    sys_window_id: {{camelCase name}}WindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
-
-  console.log('✓ Created dictionary entries for {{displayName}}');
 
   {{/each}}
 
