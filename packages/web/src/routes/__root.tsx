@@ -29,7 +29,6 @@ function RootLayout() {
         <title>ERDwithAI</title>
         <meta name="description" content="AI-Powered ERD Design Platform" />
         <HeadContent />
-        <script src="/form-fallback.js"></script>
       </head>
       <body className="font-sans antialiased" suppressHydrationWarning>
         <Providers>

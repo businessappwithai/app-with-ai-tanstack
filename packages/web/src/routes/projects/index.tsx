@@ -54,9 +54,13 @@ const colorMap: Record<string, string> = {
 
 function ProjectsPage() {
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
+  const { user, logout, checkAuth } = useAuthStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!user) checkAuth();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

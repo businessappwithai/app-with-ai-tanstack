@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { AlertCircle, CheckCircle, LogIn } from "lucide-react";
 
@@ -23,7 +23,6 @@ type RegistrationStatus = "idle" | "pending";
 function LoginPage() {
   const navigate = useNavigate();
   const setUser = useAuthStore((s: any) => s.setUser);
-  const formRef = useRef<HTMLFormElement>(null);
 
   const [tab, setTab] = useState<Tab>("login");
   const [email, setEmail] = useState("");
@@ -101,45 +100,6 @@ function LoginPage() {
     }
   };
 
-  // Fallback: attach form handler if React's event delegation fails during hydration
-  useEffect(() => {
-    const form = formRef.current;
-    if (!form || form.onsubmit) return;
-
-    const handleFormSubmit = async (e: SubmitEvent) => {
-      e.preventDefault();
-      setError("");
-      setIsLoading(true);
-
-      try {
-        const response = await fetch(tab === "login" ? "/api/auth/login" : "/api/auth/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(
-            tab === "login"
-              ? { email, password }
-              : { email, password, name }
-          ),
-        });
-
-        const data = await response.json();
-        if (!response.ok) {
-          setError(data.error ?? (tab === "login" ? "Login failed" : "Registration failed"));
-          setIsLoading(false);
-          return;
-        }
-
-        setUser(data.user);
-        navigate({ to: "/projects" });
-      } catch (err) {
-        setError("Network error. Please try again.");
-        setIsLoading(false);
-      }
-    };
-
-    form.addEventListener("submit", handleFormSubmit);
-    return () => form.removeEventListener("submit", handleFormSubmit);
-  }, [email, password, name, tab]);
 
   if (registrationStatus === "pending") {
     return (
@@ -223,7 +183,7 @@ function LoginPage() {
             </div>
           )}
 
-          <form ref={formRef} onSubmit={tab === "login" ? handleLogin : handleRegister} className="space-y-4">
+          <form onSubmit={tab === "login" ? handleLogin : handleRegister} className="space-y-4">
             {tab === "register" && (
               <div>
                 <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white">Full Name</label>
