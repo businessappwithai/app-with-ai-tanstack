@@ -1,0 +1,116 @@
+%% School Management System Domain Model
+%%
+%% A comprehensive school management system
+%%
+%% Use: bun run generate:tanstack -- -i school-management.mmd -o ./generated-projects -n school-management
+
+erDiagram
+
+    Student {
+        string id PK
+        string first_name
+        string last_name
+        string email UK
+        string phone
+        date date_of_birth
+        string gender
+        string address
+        string enrollment_number UK
+        date enrollment_date
+        string status
+    }
+
+    Teacher {
+        string id PK
+        string first_name
+        string last_name
+        string email UK
+        string phone
+        string subject_specialization
+        date hire_date
+        string status
+    }
+
+    Class {
+        string id PK
+        string name
+        string grade_level
+        string section
+        string academic_year
+        string room_number
+        int capacity
+    }
+
+    Subject {
+        string id PK
+        string name
+        string code UK
+        string description
+        int credit_hours
+        string grade_level
+    }
+
+    Enrollment {
+        string id PK
+        string student_id FK
+        string class_id FK
+        date enrolled_at
+        string status
+    }
+
+    ClassSubject {
+        string id PK
+        string class_id FK
+        string subject_id FK
+        string teacher_id FK
+    }
+
+    Attendance {
+        string id PK
+        string student_id FK
+        string class_id FK
+        date attendance_date
+        string status
+        string notes
+    }
+
+    Grade {
+        string id PK
+        string student_id FK
+        string subject_id FK
+        string class_id FK
+        string term
+        decimal marks_obtained
+        decimal total_marks
+        string grade_letter
+        date assessment_date
+    }
+
+    Parent {
+        string id PK
+        string first_name
+        string last_name
+        string email UK
+        string phone
+        string relationship
+        string address
+    }
+
+    StudentParent {
+        string id PK
+        string student_id FK
+        string parent_id FK
+    }
+
+    Student ||--o{ Enrollment : "enrolls_in"
+    Class ||--o{ Enrollment : "has"
+    Class ||--o{ ClassSubject : "teaches"
+    Subject ||--o{ ClassSubject : "taught_in"
+    Teacher ||--o{ ClassSubject : "teaches"
+    Student ||--o{ Attendance : "has"
+    Class ||--o{ Attendance : "records"
+    Student ||--o{ Grade : "receives"
+    Subject ||--o{ Grade : "assessed_in"
+    Class ||--o{ Grade : "from"
+    Student ||--o{ StudentParent : "has"
+    Parent ||--o{ StudentParent : "belongs_to"
