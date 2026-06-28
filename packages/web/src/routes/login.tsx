@@ -1,19 +1,9 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { AlertCircle, CheckCircle, LogIn } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
-  beforeLoad: async () => {
-    try {
-      const url = `${typeof window !== "undefined" ? window.location.origin : "http://localhost:3000"}/api/auth/me`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (data.user) throw redirect({ to: "/projects" });
-    } catch (e) {
-      if (e && typeof e === "object" && "to" in e) throw e;
-    }
-  },
   component: LoginPage,
 });
 
@@ -31,6 +21,18 @@ function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [registrationStatus, setRegistrationStatus] = useState<RegistrationStatus>("idle");
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.user) {
+          setUser(data.user);
+          navigate({ to: "/projects" });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

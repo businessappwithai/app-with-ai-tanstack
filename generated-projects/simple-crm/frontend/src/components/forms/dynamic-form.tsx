@@ -73,6 +73,23 @@ function getFieldIcon(sysReferenceId: number) {
   }
 }
 
+function TableReferenceViewValue({ field, id }: { field: FieldMetadata; id: string }) {
+  const customEndpoint = field.ref_endpoint || null;
+  const idField = field.ref_id_field || 'id';
+  const labelField = field.ref_label_field || 'name';
+
+  const { data } = useQuery({
+    queryKey: ['table-ref-view', customEndpoint, id],
+    queryFn: () => apiClient.get<{ data: any[] }>(customEndpoint!, { limit: 500 }),
+    enabled: !!customEndpoint && !!id,
+  });
+
+  const records = (data as any)?.data ?? [];
+  const record = records.find((r: any) => String(r[idField]) === String(id));
+  const label = record ? record[labelField] : id;
+  return <span>{label}</span>;
+}
+
 interface TableReferenceFieldProps {
   field: FieldMetadata;
   fieldApi: any;
@@ -277,7 +294,25 @@ function FieldRenderer({
 
         // ── VIEW MODE: render clean plain text, no inputs ──────────────
         const isRefField = field.sys_reference_id === 18 || field.sys_reference_id === 19;
-        if (formMode === "view" && !isRefField) {
+        if (formMode === "view") {
+          // TABLE/TABLE_DIRECT refs: show label lookup or "—"
+          if (isRefField) {
+            return (
+              <div>
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="text-xs font-medium text-muted-foreground">{fieldLabel}</span>
+                  {field.is_mandatory && <span className="text-red-400 text-xs">*</span>}
+                </div>
+                <div className="text-sm text-foreground font-medium min-h-[1.25rem]">
+                  {!currentValue || currentValue === ""
+                    ? <span className="text-muted-foreground/60 italic">—</span>
+                    : <TableReferenceViewValue field={field} id={String(currentValue)} />
+                  }
+                </div>
+              </div>
+            );
+          }
+
           const displayValue = (() => {
             if (currentValue === null || currentValue === undefined || currentValue === "") return "—";
             if (typeof currentValue === "boolean") return currentValue ? "Yes" : "No";
@@ -601,7 +636,7 @@ export function DynamicForm({
   readOnlyFields = [],
 }: DynamicFormProps) {
   const { t } = useTranslations();
-  const { data: fetchedFields, isLoading: fieldsLoading, error } = useFormFields(tableName);
+  const { data: fetchedFields, isLoading: fieldsLoading, error } = useFormFields(tableName, { enabled: !externalFields });
   const fields = externalFields || fetchedFields;
   const [zodErrors, setZodErrors] = useState<Record<string, string>>({});
 

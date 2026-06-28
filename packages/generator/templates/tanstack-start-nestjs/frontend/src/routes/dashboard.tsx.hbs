@@ -30,6 +30,13 @@ import {
   LogOut,
   TrendingUp,
   X,
+  Table2,
+  AppWindow,
+  Tag,
+  BookOpen,
+  LayoutGrid,
+  ShieldCheck,
+  ScrollText,
 } from 'lucide-react';
 import { Icon } from '@/components/ui/icon';
 import { cn } from '@/lib/utils';
@@ -184,6 +191,51 @@ function QuickAccessCard({ table }: { table: TableMetadata }) {
     </a>
   );
 }
+
+const ADMIN_DASHLETS = [
+  {
+    name: 'Table and Column',
+    description: 'Browse database tables and their column definitions in master/detail view',
+    icon: Table2,
+    href: '/admin/tables',
+  },
+  {
+    name: 'Window, Tab and Field',
+    description: 'Manage application windows with nested tabs and field configurations',
+    icon: AppWindow,
+    href: '/admin/windows',
+  },
+  {
+    name: 'Element',
+    description: 'Manage system elements — column names, print names, and descriptions',
+    icon: Tag,
+    href: '/admin/elements',
+  },
+  {
+    name: 'Reference',
+    description: 'Manage data types, validation rules, and lookup definitions',
+    icon: BookOpen,
+    href: '/admin/references',
+  },
+  {
+    name: 'Field Layout Manager',
+    description: 'Customize field order, visibility, and grouping with drag-and-drop',
+    icon: LayoutGrid,
+    href: '/admin/fields',
+  },
+  {
+    name: 'Business Rules',
+    description: 'Configure validation rules, callouts, and business logic',
+    icon: ShieldCheck,
+    href: '/admin/rules',
+  },
+  {
+    name: 'Audit Log',
+    description: 'Immutable tamper-proof audit trail of all user and system actions',
+    icon: ScrollText,
+    href: '/admin/audit',
+  },
+];
 
 function DashboardPage() {
   const { data: tablesData, isLoading: tablesLoading, error: tablesError } = useBusTables();
@@ -347,6 +399,39 @@ function DashboardPage() {
             )}
           </div>
         )}
+
+        {/* Application Dictionary */}
+        <section>
+          <div className="flex items-center gap-2 mb-5">
+            <LayoutGrid className="w-4 h-4 text-primary" />
+            <h2 className="section-header mb-0">Application Dictionary</h2>
+            <span className="font-mono-display text-muted-foreground">({ADMIN_DASHLETS.length})</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {ADMIN_DASHLETS.map((d) => (
+              <Link key={d.href} to={d.href} className="block group">
+                <div className="swiss-card p-5 hover:border-primary/50 transition-all h-full">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+                        <d.icon className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                          {d.name}
+                        </h3>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1" />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3 line-clamp-2 leading-relaxed">
+                    {d.description}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         {/* Footer Info */}
         <div className="swiss-card p-6">

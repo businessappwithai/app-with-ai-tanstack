@@ -1,6 +1,6 @@
 # Compiere Dictionary Generator Enhancement Plan
 
-## Version 6.0 - Complete Multi-Stack Generation with Application Dictionary
+## Version 6.0 - Complete Generation with Application Dictionary
 
 **Document Version**: 1.0
 **Date**: January 17, 2026
@@ -34,38 +34,23 @@ This enhancement transforms ERDwithAI into a complete application generator that
 - **System Tables (sys_ prefix)**: Application Dictionary metadata tables that define the structure, behavior, and layout of the application
 - **Business Tables (bus_ prefix)**: User-defined business entities from the ERD design
 - **Runtime UI Configuration**: Administrators can modify field order, visibility, and layout at runtime without code changes
-- **Two Full-Stack Options**: Choose between Modern Web Stack or Enterprise SAP-Style Stack
+- **Full-Stack Generation**: TanStack Start + Shadcn UI + NestJS stack
 
-### 1.2 Two Full-Stack Generation Options
+### 1.2 Full-Stack Generation
 
-| Option | Frontend | Backend | Use Case |
-|--------|----------|---------|----------|
-| **Option 1: Modern Web Stack** | Next.js + Shadcn UI + TanStack | NestJS + Fastify + Knex.js | Modern web applications |
-| **Option 2: Enterprise SAP-Style Stack** | OpenUI5 | OData V4 Server (jaystack) | SAP-style enterprise apps |
+| Layer | Technology | Use Case |
+|-------|------------|----------|
+| **Frontend** | TanStack Start + Shadcn UI + TanStack Query/Table/Form | Modern web applications |
+| **Backend** | NestJS + Fastify + Knex.js | High-performance REST API |
 
-#### Option 1: Modern Web Stack
-- **Frontend**: Next.js 14+ with Shadcn UI components and TanStack libraries (Query, Table, Form)
+- **Frontend**: TanStack Start with Shadcn UI components and TanStack libraries (Query, Table, Form)
 - **Backend**: NestJS 10+ with Fastify high-performance HTTP server and Knex.js query builder
 - **Key Features**: TanStack Query for caching, TanStack Table for dynamic data tables, modern React patterns
 - **Navigation**: Dashboard → Entity List → Entity Detail (per-entity dedicated routes)
 
-#### Option 2: Enterprise SAP-Style Stack
-- **Frontend**: OpenUI5 with Flexible Column Layout (FCL)
-- **Backend**: OData V4 Server using jaystack/odata-v4-server with $metadata endpoint
-- **Key Features**: OData protocol compliance, automatic UI binding, FCL navigation pattern
-- **Navigation**:
-  - **Column 1**: Searchable list of all entities
-  - **Column 2**: Entity-specific list view
-  - **Column 3**: Entity-specific detail view
-  - Per-entity dedicated views/controllers for Column 2 and Column 3
-
-**IMPORTANT Navigation Differences**:
-- **Next.js**: Dashboard page with per-entity routes (`/entities/[entity]`, `/entities/[entity]/[id]`)
-- **OpenUI5**: FCL with 3 columns:
-  - Column 1 = Entity menu (searchable list of all entities)
-  - Column 2 = Entity-specific list view (e.g., CustomerList.view.xml)
-  - Column 3 = Entity-specific detail view (e.g., CustomerDetail.view.xml)
-- **BOTH stacks**: Generate dedicated list/detail views/controllers for EACH entity (no generic/shared views)
+**Navigation Pattern**:
+- Dashboard page with per-entity routes (`/entities/$entity`, `/entities/$entity/$id`)
+- Each entity has a DEDICATED list page and detail page (no generic/shared views)
 
 ### 1.3 Key Principles
 
@@ -107,8 +92,6 @@ The current ERDwithAI v5.1 includes:
 | UI Configuration | Static code generation | Runtime-configurable via sys_field records |
 | Stack Generators | Only config templates exist | Complete generators for all stacks |
 | Admin Interface | Not implemented | Full admin UI for layout configuration |
-| OData Service | No implementation | Complete odata-v4-server integration |
-| OpenUI5 FCL | No implementation | Full FCL app with entity menu |
 
 ---
 
@@ -120,14 +103,14 @@ The current ERDwithAI v5.1 includes:
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        Generated Application                        │
 ├─────────────────────────────────────────────────────────────────────┤
-│  Frontend Layer (Next.js/Shadcn OR OpenUI5 FCL)                     │
+│  Frontend Layer (TanStack Start + Shadcn UI)                        │
 │  ┌─────────────────────────────────────────────────────────────────┐│
 │  │  - Reads UI layout from sys_field, sys_tab, sys_window         ││
 │  │  - Renders forms, tables, navigation dynamically               ││
 │  │  - Admin screens for layout modification                       ││
 │  └─────────────────────────────────────────────────────────────────┘│
 ├─────────────────────────────────────────────────────────────────────┤
-│  API Layer (Next.js API Routes OR OData V4 Service)                 │
+│  API Layer (NestJS REST API)                                        │
 │  ┌─────────────────────────────────────────────────────────────────┐│
 │  │  - CRUD operations for business entities (bus_*)               ││
 │  │  - CRUD operations for dictionary entities (sys_*)             ││
@@ -598,224 +581,116 @@ The generator produces:
    - Generator creates sys_table, sys_column entries for each entity
    - Generator creates sys_window with sys_tab entries
    - Generator creates sys_field entries with **random seq_no values**
-   - Frontend reads these entries to render forms/tables
+   - Frontend reads these to render forms/tables
 
-2. **At Runtime**:
-   - Administrator accesses the "Dictionary Admin" screen
-   - Administrator can reorder fields by changing seq_no
-   - Administrator can hide/show fields by toggling is_displayed
-   - Administrator can group fields by assigning sys_field_group_id
-   - Changes take effect immediately (no code regeneration needed)
+2. **At Runtime (Administrator)**:
+   - Logs into the generated application's "Dictionary Admin" screen
+   - Can reorder fields by changing seq_no values
+   - Can hide/show fields by toggling is_displayed
+   - Can group fields by assigning sys_field_group_id
 
-### 6.2 Admin Interface Components
-
-#### Dictionary Admin Window
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  Dictionary Administration                                          │
-├─────────────────────────────────────────────────────────────────────┤
-│  ┌─────────────────────────────────────────────────────────────────┐│
-│  │  Tables | Windows | Tabs | Fields | References | Validation     ││
-│  └─────────────────────────────────────────────────────────────────┘│
-│                                                                     │
-│  ┌─────────────────┬───────────────────────────────────────────────┐│
-│  │ Window List     │  Field Layout Editor                          ││
-│  │ ─────────────── │  ────────────────────────────────             ││
-│  │ > Customers     │  Tab: Customer Details                        ││
-│  │   Orders        │  ┌───────────────────────────────────────────┐││
-│  │   Products      │  │ Field           │ Seq │ Visible │ Group  │││
-│  │   Order Lines   │  │ ──────────────  │ ─── │ ─────── │ ────── │││
-│  │                 │  │ ☰ Customer Name │  10 │   ✓     │ Basic  │││
-│  │                 │  │ ☰ Email         │  20 │   ✓     │ Basic  │││
-│  │                 │  │ ☰ Phone         │  30 │   ✓     │ Contact│││
-│  │                 │  │ ☰ Address       │  40 │   ✓     │ Contact│││
-│  │                 │  │ ☰ Created At    │  50 │   ☐     │ Audit  │││
-│  │                 │  └───────────────────────────────────────────┘││
-│  │                 │  [Drag to reorder] [Save Changes]             ││
-│  └─────────────────┴───────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### 6.3 Frontend Rendering Logic
-
-The frontend queries sys_field to determine how to render forms:
+### 6.2 Runtime Query Example
 
 ```typescript
-// Pseudocode for dynamic form rendering
-async function renderEntityForm(entityName: string) {
-  // 1. Get table info
-  const table = await api.get(`/api/sys/tables?name=bus_${entityName}`);
+// Frontend fetches fields ordered by seq_no
+const fields = await api.get(
+  `/api/sys/fields?tab_id=${tabs[0].sys_tab_id}&is_displayed=true&order_by=seq_no`
+);
+const columns = await api.get(`/api/sys/columns?table_id=${table.sys_table_id}`);
 
-  // 2. Get window and tab
-  const window = await api.get(`/api/sys/windows/${table.sys_window_id}`);
-  const tabs = await api.get(`/api/sys/tabs?window_id=${window.sys_window_id}`);
-
-  // 3. Get fields ordered by seq_no
-  const fields = await api.get(
-    `/api/sys/fields?tab_id=${tabs[0].sys_tab_id}&is_displayed=true&order_by=seq_no`
-  );
-
-  // 4. Get columns for type info
-  const columns = await api.get(`/api/sys/columns?table_id=${table.sys_table_id}`);
-
-  // 5. Render form with fields in seq_no order
-  return (
-    <Form>
-      {fields.map(field => {
-        const column = columns.find(c => c.sys_column_id === field.sys_column_id);
-        return <DynamicField key={field.sys_field_id} field={field} column={column} />;
-      })}
-    </Form>
-  );
-}
+// Render fields in seq_no order
+{fields.map(field => {
+  const column = columns.find(c => c.sys_column_id === field.sys_column_id);
+  // render field...
+})}
 ```
 
 ---
 
-## 7. Full-Stack Generation Options
+## 7. Multi-Stack Generation
 
-This generator provides exactly **TWO full-stack options**. Each option includes a complete frontend and backend pairing.
+### 7.1 TanStack Start + NestJS Stack
 
-### 7.1 Stack Options Overview
-
-| Option | Frontend | Backend | Use Case |
-|--------|----------|---------|----------|
-| **Option 1: Modern Web Stack** | Next.js + Shadcn UI + TanStack | NestJS + Fastify + Knex.js | Modern web applications |
-| **Option 2: Enterprise SAP-Style Stack** | OpenUI5 FCL | OData V4 Server (jaystack) | SAP-style enterprise apps |
-
----
-
-## 7.2 Option 1: Modern Web Stack
-
-### Technology Stack
-
-| Layer | Technology | Purpose |
-|-------|------------|---------|
-| **Frontend Framework** | Next.js 14+ | React-based full-stack framework |
-| **UI Components** | Shadcn UI | Beautiful, accessible React components |
-| **Data Fetching** | TanStack Query (React Query) | Server state management, caching |
-| **Tables** | TanStack Table | Powerful headless table library |
-| **Forms** | TanStack Form + Zod | Type-safe form handling with validation |
-| **Backend Framework** | NestJS 10+ | Enterprise-grade Node.js framework |
-| **HTTP Server** | Fastify | High-performance HTTP server |
-| **Database** | Knex.js | SQL query builder |
-| **Validation** | Zod | Runtime type validation |
-
-### Key Libraries from TanStack (https://tanstack.com/)
-
-- **@tanstack/react-query**: Async state management, caching, background updates
-- **@tanstack/react-table**: Headless table with sorting, filtering, pagination
-- **@tanstack/react-form**: Type-safe form state management
-- **@tanstack/react-virtual**: Virtualized lists for large datasets
-
-### Generated Frontend Structure (Next.js + Shadcn + TanStack)
+#### Generated Frontend Structure (TanStack Start + Shadcn UI)
 
 ```
 generated-frontend/
-├── app/
-│   ├── layout.tsx                  # Root layout with providers
-│   ├── page.tsx                    # Landing page
-│   ├── globals.css                 # Global styles (Tailwind)
-│   ├── providers.tsx               # TanStack Query provider
-│   │
-│   ├── (entities)/
-│   │   ├── layout.tsx              # Entity layout with header
-│   │   │
-│   │   ├── page.tsx                # 📊 DASHBOARD - Lists ALL entities
-│   │   │                           # Displays all bus_ entities from sys_table
-│   │   │                           # Each entity card shows record count
-│   │   │                           # Click navigates to entity list page
-│   │   │
-│   │   ├── [entity]/               # Per-entity routes (generated for EACH entity)
-│   │   │   │
-│   │   │   ├── page.tsx            # ENTITY LIST page (e.g., /entities/customers)
-│   │   │   │                       # - Dedicated page for each entity
-│   │   │   │                       # - Back button to dashboard
-│   │   │   │                       # - TanStack Table with entity records
-│   │   │   │                       # - Create button → /entities/[entity]/new
-│   │   │   │                       # - Row click → /entities/[entity]/[id]
-│   │   │   │
-│   │   │   ├── [id]/
-│   │   │   │   └── page.tsx        # ENTITY DETAIL page (e.g., /entities/customers/123)
-│   │   │   │                       # - Dedicated detail page for each entity
-│   │   │   │                       # - Back button to entity list
-│   │   │   │                       # - Shows all fields from sys_field
-│   │   │   │                       # - Edit/Delete buttons
-│   │   │   │
-│   │   │   └── new/
-│   │   │       └── page.tsx        # CREATE NEW page (e.g., /entities/customers/new)
-│   │   │                           # - Dedicated create page for each entity
-│   │   │                           # - Back button to entity list
-│   │   │                           # - Dynamic form from sys_field
-│   │   │
+├── src/
+│   ├── routes/
+│   │   ├── __root.tsx
+│   │   ├── index.tsx
+│   │   ├── entities/
+│   │   │   ├── index.tsx              # Dashboard (lists ALL entities)
+│   │   │   └── $entity/
+│   │   │       ├── index.tsx          # ENTITY LIST page (e.g., /entities/customers)
+│   │   │       └── $id/
+│   │   │           └── index.tsx      # ENTITY DETAIL page (e.g., /entities/customers/123)
 │   │   └── admin/
-│   │       ├── page.tsx            # Admin dashboard
-│   │       ├── dictionary/
-│   │       │   ├── page.tsx        # Dictionary admin
-│   │       │   ├── tables/page.tsx
-│   │       │   ├── windows/page.tsx
-│   │       │   └── fields/page.tsx # Field layout editor (drag-drop)
-│   │       ├── users/page.tsx
-│   │       └── roles/page.tsx
+│   │       ├── index.tsx
+│   │       ├── tables/
+│   │       │   └── index.tsx
+│   │       ├── windows/
+│   │       │   └── index.tsx
+│   │       ├── fields/
+│   │       │   └── index.tsx
+│   │       ├── users/
+│   │       │   └── index.tsx
+│   │       └── roles/
+│   │           └── index.tsx
 │   │
-│   └── api/                        # API routes (proxy to NestJS)
-│       └── [...proxy]/route.ts     # Proxy to NestJS backend
-│
-├── components/
-│   ├── ui/                         # Shadcn UI components
-│   │   ├── button.tsx
-│   │   ├── dialog.tsx
-│   │   ├── form.tsx
-│   │   ├── input.tsx
-│   │   ├── select.tsx
-│   │   ├── table.tsx
-│   │   ├── data-table.tsx          # TanStack Table wrapper
-│   │   ├── skeleton.tsx
-│   │   ├── toast.tsx
-│   │   └── ...
+│   ├── components/
+│   │   ├── ui/                        # Shadcn UI components
+│   │   │   ├── button.tsx
+│   │   │   ├── dialog.tsx
+│   │   │   ├── form.tsx
+│   │   │   ├── input.tsx
+│   │   │   ├── select.tsx
+│   │   │   ├── table.tsx
+│   │   │   ├── data-table.tsx
+│   │   │   ├── skeleton.tsx
+│   │   │   └── toast.tsx
+│   │   │
+│   │   ├── entity/
+│   │   │   ├── dynamic-form.tsx       # TanStack Form integration
+│   │   │   ├── dynamic-table.tsx      # TanStack Table integration
+│   │   │   ├── entity-list.tsx
+│   │   │   ├── entity-detail.tsx
+│   │   │   └── entity-delete-dialog.tsx
+│   │   │
+│   │   ├── dashboard/
+│   │   │   ├── entity-card.tsx
+│   │   │   ├── entity-grid.tsx
+│   │   │   └── record-counter.tsx
+│   │   │
+│   │   ├── admin/
+│   │   │   ├── field-layout-editor.tsx
+│   │   │   ├── table-editor.tsx
+│   │   │   └── window-editor.tsx
+│   │   │
+│   │   ├── providers/
+│   │   │   └── query-provider.tsx
+│   │   │
+│   │   └── layout/
+│   │       ├── sidebar.tsx
+│   │       ├── header.tsx
+│   │       └── navigation.tsx
 │   │
-│   ├── entity/
-│   │   ├── dynamic-form.tsx        # Renders form from sys_field (TanStack Form)
-│   │   ├── dynamic-table.tsx       # Renders table from sys_field (TanStack Table)
-│   │   ├── entity-list.tsx         # Entity list with TanStack Query
-│   │   ├── entity-detail.tsx       # Entity detail with mutations
-│   │   └── entity-delete-dialog.tsx
+│   ├── lib/
+│   │   ├── api-client.ts              # API client with TanStack Query hooks
+│   │   ├── queries/                   # TanStack Query hooks
+│   │   │   ├── use-entities.ts        # Entity queries
+│   │   │   ├── use-dictionary.ts      # Dictionary queries
+│   │   │   └── use-mutations.ts       # CRUD mutations
+│   │   └── utils.ts                   # Utilities
 │   │
-│   ├── dashboard/
-│   │   ├── entity-card.tsx         # Entity card component for dashboard
-│   │   ├── entity-grid.tsx         # Grid of entity cards
-│   │   └── record-counter.tsx      # Shows record count per entity
+│   ├── hooks/
+│   │   ├── use-dynamic-form.ts        # Dynamic form hook
+│   │   └── use-dynamic-columns.ts     # Dynamic table columns hook
 │   │
-│   ├── admin/
-│   │   ├── field-layout-editor.tsx # Drag-drop field reordering
-│   │   ├── table-editor.tsx
-│   │   └── window-editor.tsx
-│   │
-│   ├── providers/
-│   │   └── query-provider.tsx      # TanStack Query provider
-│   │
-│   └── layout/
-│       ├── sidebar.tsx
-│       ├── header.tsx
-│       └── navigation.tsx
-│
-├── lib/
-│   ├── api-client.ts               # API client with TanStack Query hooks
-│   ├── queries/                    # TanStack Query hooks
-│   │   ├── use-entities.ts         # Entity queries
-│   │   ├── use-dictionary.ts       # Dictionary queries
-│   │   └── use-mutations.ts        # CRUD mutations
-│   └── utils.ts                    # Utilities
-│
-├── hooks/
-│   ├── use-dynamic-form.ts         # Dynamic form hook
-│   └── use-dynamic-columns.ts      # Dynamic table columns hook
-│
-├── package.json
-├── tsconfig.json
-├── tailwind.config.ts
-├── next.config.ts
-└── components.json                 # Shadcn UI config
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── tailwind.config.ts
+│   └── components.json                # Shadcn UI config
 ```
 
 **Route Examples** (assuming Customer, Order, Product entities):
@@ -975,21 +850,9 @@ export function DynamicTable({ entityName }: { entityName: string }) {
 
 ---
 
-## 7.3 Option 2: Enterprise SAP-Style Stack
+### 7.2 Navigation Architecture
 
-### Technology Stack
-
-| Layer | Technology | Purpose |
-|-------|------------|---------|
-| **Frontend Framework** | OpenUI5 1.120+ | SAP enterprise UI framework |
-| **Layout** | Flexible Column Layout (FCL) | 3-column master-detail pattern |
-| **Data Binding** | OData V4 Model | Automatic data binding |
-| **Backend** | odata-v4-server (jaystack) | OData V4 protocol implementation |
-| **Database** | Knex.js | SQL query builder |
-
-### Navigation Architecture
-
-#### Option 1: Next.js - Dashboard Navigation
+#### Dashboard Navigation
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -1000,10 +863,10 @@ export function DynamicTable({ entityName }: { entityName: string }) {
 │     ┌───────────────────────────────────────────────────────────┐  │
 │     │  All Entities                                            │  │
 │     │  ───────────────────                                     │  │
-│     │  📊 Customers     (125 records)    [View Records →]       │  │
-│     │  📦 Orders        (342 records)    [View Records →]       │  │
-│     │  🏷️ Products      (89 records)     [View Records →]       │  │
-│     │  📋 Categories    (12 records)     [View Records →]       │  │
+│     │  Customers     (125 records)    [View Records →]         │  │
+│     │  Orders        (342 records)    [View Records →]         │  │
+│     │  Products      (89 records)     [View Records →]         │  │
+│     │  Categories    (12 records)     [View Records →]         │  │
 │     │  ... (all bus_ entities listed)                          │  │
 │     └───────────────────────────────────────────────────────────┘  │
 │                       ↓ Click on any entity                         │
@@ -1044,60 +907,15 @@ export function DynamicTable({ entityName }: { entityName: string }) {
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-**Next.js Key Rules**:
+**Key Rules**:
 - **One Dashboard View**: Single view that lists ALL entities (from sys_table where table_type='business')
-- **Per-Entity List Views**: Each entity has its own dedicated list page at `/entities/[entityName]`
-- **Per-Entity Detail Views**: Each entity has its own dedicated detail page at `/entities/[entityName]/[id]`
+- **Per-Entity List Views**: Each entity has its own dedicated list page at `/entities/$entity`
+- **Per-Entity Detail Views**: Each entity has its own dedicated detail page at `/entities/$entity/$id`
 - **No generic/shared views**: Each entity gets explicitly generated views for maximum customizability
 
-#### Option 2: OpenUI5 - Flexible Column Layout (FCL)
+### Dual Search Feature
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    Flexible Column Layout (FCL)                              │
-├──────────────────┬────────────────────┬───────────────────────────────┤
-│   Column 1       │     Column 2       │         Column 3              │
-│   (Master)       │     (List)         │         (Detail)              │
-│  ───────────     │  ──────────────    │  ───────────────              │
-│                  │                    │                               │
-│  Entity Menu     │  Entity Records    │  Object Page                  │
-│  ───────────     │  ──────────────    │  ───────────────              │
-│  🔍 [Search]     │                    │                               │
-│  ─────────────   │  ┌──────────────┐  │  ┌───────────────────────┐   │
-│  ▼ All Entities  │  │ John Doe     │  │  │ Header: John Doe      │   │
-│  ─────────────   │  │ jane@ex.com  │  │  │ Email: john@ex.com    │   │
-│  > Customers     │  ├──────────────┤  │  ├───────────────────────┤   │
-│    Orders        │  │ Jane Smith   │  │  │ Section: Details      │   │
-│    Products      │  │ jane@ex.com  │  │  │ ┌─────────────────┐   │   │
-│    Categories    │  ├──────────────┤  │  │ │ Field 1         │   │   │
-│    ...           │  │ Bob Wilson   │  │  │ │ Field 2         │   │   │
-│  (from           │  │ bob@ex.com   │  │  │ │ Field 3         │   │   │
-│  $metadata)      │  └──────────────┘  │  │ └─────────────────┘   │   │
-│                  │  🔍 Quick Search    │  │                       │   │
-│                  │  🔍 Adv. Search     │  │                       │   │
-│                  │  [+ Create]        │  │                       │   │
-│                  │  (Growing Table)   │  │ Section: Related      │   │
-│                  │                    │  │ [Edit] [Delete]       │   │
-│                  │                    │  └───────────────────────┘   │
-└──────────────────┴────────────────────┴───────────────────────────────┘
-```
-
-**OpenUI5 Key Rules**:
-- **FCL Layout**: Three-column Flexible Column Layout
-- **Column 1 (Master)**: Searchable list of ALL entities (from $metadata/sys_table)
-- **Column 2 (List)**: Shows entity list view for the SELECTED entity from Column 1
-- **Column 3 (Detail)**: Shows entity detail view for the SELECTED record from Column 2
-- **Per-Entity Views**: Each entity has its own DEDICATED list and detail views/controllers:
-  - `CustomerList.view.xml` + `CustomerList.controller.js`
-  - `CustomerDetail.view.xml` + `CustomerDetail.controller.js`
-  - `OrderList.view.xml` + `OrderList.controller.js`
-  - `OrderDetail.view.xml` + `OrderDetail.controller.js`
-  - etc.
-- **NO generic/shared views**: Column 2 and Column 3 display the entity-specific views
-
-### Dual Search Feature (Both Stacks)
-
-**IMPORTANT**: All entity list views in BOTH Next.js and OpenUI5 include TWO search mechanisms:
+**IMPORTANT**: All entity list views include TWO search mechanisms:
 
 #### 1. Quick Search (Client-Side)
 - **Location**: Text input box at the top of the entity list
@@ -1108,7 +926,7 @@ export function DynamicTable({ entityName }: { entityName: string }) {
 - **Example**: Type "John" → instantly shows all records with "John" in any field from the current page
 
 ```typescript
-// Client-side search pseudocode (Next.js with TanStack Table)
+// Client-side search pseudocode (TanStack Table)
 const [quickSearch, setQuickSearch] = useState('');
 
 const filteredData = useMemo(() => {
@@ -1119,20 +937,6 @@ const filteredData = useMemo(() => {
     )
   );
 }, [data, quickSearch]);
-```
-
-```javascript
-// Client-side search pseudocode (OpenUI5)
-onQuickSearch: function(oEvent) {
-  var sQuery = oEvent.getParameter("query");
-  var oBinding = this.byId("table").getBinding("items");
-  oBinding.filter(new sap.ui.model.Filter({
-    filters: this._getAllFields().map(function(sField) {
-      return new sap.ui.model.Filter(sField, sap.ui.model.FilterOperator.Contains, sQuery);
-    }),
-    and: false
-  }));
-}
 ```
 
 #### 2. Advanced Search (Server-Side)
@@ -1149,7 +953,7 @@ onQuickSearch: function(oEvent) {
   - Support for all searchable fields from sys_column.is_selection_column
 
 ```typescript
-// Server-side search pseudocode (Next.js)
+// Server-side search pseudocode (TanStack Query)
 const [advancedFilters, setAdvancedFilters] = useState({
   fields: ['name', 'email'], // Selected fields from sys_column.is_selection_column
   operator: 'contains',
@@ -1162,26 +966,8 @@ const { data } = useQuery({
 });
 ```
 
-```javascript
-// Server-side search pseudocode (OpenUI5 with OData)
-onAdvancedSearch: function() {
-  var aFilters = [];
-  var sQuery = this.byId("advSearchInput").getValue();
-  var sField = this.byId("advSearchField").getSelectedKey();
-  var sOperator = this.byId("advSearchOperator").getSelectedKey();
-
-  aFilters.push(new sap.ui.model.Filter(sField, sOperator, sQuery));
-
-  this.getView().getModel().read("/" + this.entityName, {
-    filters: aFilters,
-    success: this.onDataReceived.bind(this)
-  });
-}
-```
-
 #### Search UI Components
 
-**Next.js Components**:
 ```
 components/entity/
 ├── quick-search.tsx          # Client-side search input
@@ -1189,18 +975,8 @@ components/entity/
 └── search-toolbar.tsx        # Combined search toolbar
 ```
 
-**OpenUI5 Fragments**:
-```
-fragment/
-├── QuickSearch.fragment.xml   # Client-side search input
-├── AdvancedSearch.fragment.xml # Server-side filter panel
-└── SearchToolbar.fragment.xml  # Combined search toolbar
-```
-
-#### Backend API Support
-
-**NestJS Backend** (Option 1):
 ```typescript
+// NestJS Backend:
 // GET /api/bus/customers?search={"fields":["name","email"],"operator":"contains","value":"john"}
 @Get()
 async findAll(
@@ -1216,281 +992,17 @@ async findAll(
 }
 ```
 
-**OData Backend** (Option 2):
-```typescript
-// OData $search and $filter support
-// GET /odata/bus_customers?$filter=contains(name,'john') or contains(email,'john')
-```
-
-#### Search Configuration from sys_column
-
-The advanced search fields are dynamically generated based on `sys_column.is_selection_column`:
+Searchable fields are determined from `sys_column.is_selection_column`:
 
 ```sql
--- Only columns marked as selection columns appear in advanced search
 SELECT column_name, name
 FROM sys_column
 WHERE sys_table_id = 'customer_table_id'
-  AND is_selection_column = true
+AND is_selection_column = true
 ORDER BY seq_no;
 ```
 
-**Generated Advanced Search Fields**:
-- If Customer has `name`, `email`, `phone` marked as `is_selection_column = true`
-- Advanced search dropdown shows: "Name", "Email", "Phone"
-- User can search across one or all of these fields
-
-### Generated Backend Structure (OData V4 Server)
-
-```
-generated-odata-backend/
-├── src/
-│   ├── server.ts                   # OData server entry point
-│   ├── app.ts                      # Express/OData app setup
-│   │
-│   ├── controllers/
-│   │   ├── base.controller.ts      # Base OData controller with CRUD
-│   │   │
-│   │   ├── sys/                    # System entity controllers
-│   │   │   ├── sys-table.controller.ts
-│   │   │   ├── sys-column.controller.ts
-│   │   │   ├── sys-window.controller.ts
-│   │   │   ├── sys-tab.controller.ts
-│   │   │   ├── sys-field.controller.ts
-│   │   │   ├── sys-reference.controller.ts
-│   │   │   ├── sys-user.controller.ts
-│   │   │   ├── sys-role.controller.ts
-│   │   │   └── index.ts
-│   │   │
-│   │   └── bus/                    # Business entity controllers
-│   │       ├── bus-customer.controller.ts
-│   │       ├── bus-order.controller.ts
-│   │       ├── bus-product.controller.ts
-│   │       └── index.ts            # Generated per entity
-│   │
-│   ├── models/
-│   │   ├── base.model.ts           # Base model with common fields
-│   │   ├── sys/                    # System models
-│   │   │   ├── sys-table.model.ts
-│   │   │   └── ...
-│   │   └── bus/                    # Business models
-│   │       ├── bus-customer.model.ts
-│   │       └── ...
-│   │
-│   ├── metadata/
-│   │   ├── edmx-builder.ts         # Dynamic $metadata generator
-│   │   ├── annotations.ts          # OData annotations for UI5
-│   │   └── entity-sets.ts          # Entity set definitions
-│   │
-│   ├── database/
-│   │   ├── connection.ts           # Knex.js connection
-│   │   ├── migrations/
-│   │   │   ├── 001_sys_tables.ts
-│   │   │   └── 002_bus_tables.ts
-│   │   └── seeds/
-│   │       ├── 001_sys_references.ts
-│   │       └── 002_sys_dictionary.ts
-│   │
-│   └── config/
-│       ├── odata.config.ts         # OData server config
-│       └── database.config.ts      # Database config
-│
-├── knexfile.ts
-├── package.json
-con
-├── tsconfig.json
-└── .env.example
-```
-
-### Generated Frontend Structure (OpenUI5)
-
-```
-generated-ui5-frontend/
-├── webapp/
-│   ├── manifest.json               # UI5 app descriptor with OData model
-│   ├── Component.js                # Main component
-│   ├── index.html                  # Entry point
-│   │
-│   ├── controller/
-│   │   ├── App.controller.js       # Main FCL controller (navigation)
-│   │   │                           # Manages FCL column visibility
-│   │   │                           # Routes to entity-specific views
-│   │   │
-│   │   ├── Master.controller.js    # Column 1: Entity Menu controller
-│   │   │                           # Searchable list of all entities
-│   │   │                           # From $metadata/sys_table
-│   │   │                           # Selection routes to entity list view
-│   │   │
-│   │   └── Admin.controller.js     # Dictionary admin controller
-│   │
-│   │   └── [entity]/               # Entity-specific controllers (generated per entity)
-│   │       ├── [Entity]List.controller.js      # e.g., CustomerList.controller.js
-│   │       │                       # Column 2: Dedicated controller for Customer list
-│   │       │                       # Growing table, search, filter
-│   │       │                       # Row selection → CustomerDetail
-│   │       │
-│   │       ├── [Entity]Detail.controller.js    # e.g., CustomerDetail.controller.js
-│   │       │                       # Column 3: Dedicated controller for Customer detail
-│   │       │                       # Object page with all fields
-│   │       │                       # Edit/Delete functionality
-│   │       │
-│   │       └── [Entity]Create.controller.js    # e.g., CustomerCreate.controller.js
-│   │                           # Create dialog/page for Customer
-│   │
-│   ├── view/
-│   │   ├── App.view.xml            # FCL container (sap.f.FlexibleColumnLayout)
-│   │   │                           # Defines beginColumn, midColumn, endColumn
-│   │   │
-│   │   ├── Master.view.xml         # Column 1: Entity Menu view
-│   │   │                           # Search field + List of entities
-│   │   │                           # From $metadata/sys_table
-│   │   │                           # Entity items with icons + counts
-│   │   │
-│   │   └── [entity]/               # Entity-specific views (generated per entity)
-│   │       ├── [Entity]List.view.xml        # e.g., CustomerList.view.xml
-│   │       │                       # Column 2: Dedicated list view for Customer
-│   │       │                       # Growing table of customer records
-│   │       │                       # Toolbar with Create button
-│   │       │
-│   │       ├── [Entity]Detail.view.xml      # e.g., CustomerDetail.view.xml
-│   │       │                       # Column 3: Dedicated detail view for Customer
-│   │       │                       # Object page with header/sections
-│   │       │                       # All fields from sys_field
-│   │       │                       # Edit/Delete buttons
-│   │       │
-│   │       └── [Entity]Create.view.xml      # e.g., CustomerCreate.view.xml
-│   │                           # Create form for Customer
-│   │
-│   │   └── Admin.view.xml          # Dictionary administration
-│   │
-│   ├── fragment/
-│   │   ├── EntityListItem.fragment.xml    # Entity list item for Master view
-│   │   ├── DeleteDialog.fragment.xml       # Delete confirmation
-│   │   └── FieldGroup.fragment.xml         # Dynamic field group
-│   │
-│   ├── model/
-│   │   ├── models.js               # Model factory
-│   │   ├── formatter.js            # Value formatters
-│   │   └── types.js                # Custom types
-│   │
-│   ├── css/
-│   │   └── style.css               # Custom styles
-│   │
-│   └── i18n/
-│       ├── i18n.properties         # English
-│       └── i18n_de.properties      # German (example)
-│
-├── package.json
-├── ui5.yaml                        # UI5 tooling config
-└── .ui5lintrc.json                 # UI5 linter config
-```
-
-**FCL Navigation Flow**:
-```
-App (FCL Layout)
-│
-├── Column 1: Master (Entity Menu)
-│   ├── 🔍 Search field (filter entities)
-│   ├── List of all entities from $metadata
-│   │   ├── 📊 Customers (125 records)
-│   │   ├── 📦 Orders (342 records)
-│   │   ├── 🏷️ Products (89 records)
-│   │   └── 📋 Categories (12 records)
-│   └── Select entity → Shows Column 2 with that entity's list view
-│
-├── Column 2: List (Entity Records)
-│   ├── Shows when entity selected in Column 1
-│   ├── Displays entity-specific list view (e.g., CustomerList.view.xml)
-│   ├── Toolbar: Entity title + Create button
-│   ├── Growing table of records
-│   │   ├── John Doe    | john@ex.com  | ...
-│   │   ├── Jane Smith  | jane@ex.com  | ...
-│   │   └── Bob Wilson  | bob@ex.com   | ...
-│   └── Select record → Shows Column 3 with that record's detail view
-│
-├── Column 3: Detail (Object Page)
-│   ├── Shows when record selected in Column 2
-│   ├── Displays entity-specific detail view (e.g., CustomerDetail.view.xml)
-│   ├── Header: John Doe
-│   ├── Section: Details
-│   │   ├── Field 1
-│   │   ├── Field 2
-│   │   └── Field 3
-│   ├── Section: Related Entities
-│   └── Actions: Edit | Delete
-│
-└── Admin                         → Dictionary administration (fullscreen)
-```
-
-**Implementation Details**:
-
-#### App.controller.js (FCL Manager)
-- Initializes `sap.f.FlexibleColumnLayout`
-- Manages column visibility (`beginColumn`, `midColumn`, `endColumn`)
-- Routes navigation events:
-  - Select entity in Column 1 → Load entity-specific list view in Column 2
-  - Select record in Column 2 → Load entity-specific detail view in Column 3
-- Handles back navigation between columns
-
-#### Master.controller.js + Master.view.xml (Column 1)
-- Reads all entities from `$metadata` or sys_table
-- Search field to filter entity list
-- List item template: Entity name, icon, record count
-- Selection event triggers navigation to Column 2
-- Highlights currently selected entity
-
-#### Entity-Specific List Views/Controllers (Column 2)
-- **Generated per entity**: `CustomerList`, `OrderList`, `ProductList`, etc.
-- Each extends a base controller (optional) or independent
-- Growing table with automatic pagination
-- Reads sys_field (via OData) for column configuration
-- Columns ordered by sys_field.seq_no_grid
-- Supports search, filter, sort
-- Create button opens create dialog
-- Row selection triggers navigation to Column 3
-
-#### Entity-Specific Detail Views/Controllers (Column 3)
-- **Generated per entity**: `CustomerDetail`, `OrderDetail`, `ProductDetail`, etc.
-- Each extends a base controller (optional) or independent
-- Object page layout with header and sections
-- Sections generated from sys_field_group
-- Fields ordered by sys_field.seq_no
-- Fields read sys_field for:
-  - Display/hide (is_displayed)
-  - Read-only (is_read_only)
-  - Mandatory (is_mandatory)
-  - Field type (sys_reference_id)
-- Edit mode toggle
-- Save with ETag concurrency
-- Delete with confirmation
-- Related entities shown in separate sections
-
-#### Create Views/Controllers
-- **Generated per entity**: `CustomerCreate`, `OrderCreate`, etc.
-- Form with fields from sys_field
-- Validation based on sys_column.is_mandatory
-- Save creates/updates record
-- After save, refresh list in Column 2
-
-### OData V4 Features
-
-#### $metadata Endpoint
-- Dynamically generated from sys_table and sys_column
-- Includes navigation properties from relationships
-- Annotations for UI5 rendering hints
-
-#### Supported OData Operations
-- `$filter` - Filtering with OData syntax
-- `$orderby` - Sorting
-- `$top` / `$skip` - Pagination
-- `$expand` - Related entity expansion
-- `$select` - Field selection
-- `$count` - Record counting
-
-#### ETag Support
-- Optimistic concurrency control
-- Version-timestamp format
-- Automatic conflict detection
+For example, Customer exposes `name`, `email`, `phone` as searchable fields.
 
 ---
 
@@ -1498,11 +1010,11 @@ App (FCL Layout)
 
 ### 8.1 Template Organization
 
-Templates are organized by the two full-stack options:
+Templates are organized for the TanStack Start + NestJS full-stack:
 
 ```
 packages/generator/templates/
-├── common/                                 # Shared templates for both stacks
+├── common/                                 # Shared templates
 │   ├── migrations/
 │   │   ├── sys-tables.migration.ts.hbs     # System tables (Application Dictionary)
 │   │   ├── sys-seeds.ts.hbs                # Reference data seeds
@@ -1513,202 +1025,121 @@ packages/generator/templates/
 │       ├── sys-types.ts.hbs                # System type definitions
 │       └── bus-entity.type.ts.hbs          # Business entity types
 │
-├── option1-modern-web/                     # Option 1: Next.js + NestJS Stack
-│   │
-│   ├── frontend/                           # Next.js + Shadcn + TanStack
-│   │   ├── config/
-│   │   │   ├── package.json.hbs
-│   │   │   ├── tsconfig.json.hbs
-│   │   │   ├── next.config.ts.hbs
-│   │   │   ├── tailwind.config.ts.hbs
-│   │   │   └── components.json.hbs         # Shadcn config
-│   │   │
-│   │   ├── app/
-│   │   │   ├── layout.tsx.hbs
-│   │   │   ├── page.tsx.hbs
-│   │   │   ├── globals.css.hbs
-│   │   │   ├── providers.tsx.hbs           # TanStack Query provider
-│   │   │   ├── dashboard-layout.tsx.hbs
-│   │   │   ├── dashboard-page.tsx.hbs      # 📊 Dashboard - lists ALL entities
-│   │   │   ├── entity-list-page.tsx.hbs    # Per-entity list page template
-│   │   │   ├── entity-detail-page.tsx.hbs  # Per-entity detail page template
-│   │   │   ├── entity-new-page.tsx.hbs     # Per-entity create page template
-│   │   │   └── admin-page.tsx.hbs
-│   │   │
-│   │   ├── components/
-│   │   │   ├── ui/                         # Shadcn UI components
-│   │   │   │   ├── button.tsx.hbs
-│   │   │   │   ├── dialog.tsx.hbs
-│   │   │   │   ├── form.tsx.hbs
-│   │   │   │   ├── input.tsx.hbs
-│   │   │   │   ├── select.tsx.hbs
-│   │   │   │   ├── table.tsx.hbs
-│   │   │   │   ├── data-table.tsx.hbs      # TanStack Table wrapper
-│   │   │   │   ├── skeleton.tsx.hbs
-│   │   │   │   └── toast.tsx.hbs
-│   │   │   │
-│   │   │   ├── entity/
-│   │   │   │   ├── dynamic-form.tsx.hbs    # TanStack Form integration
-│   │   │   │   ├── dynamic-table.tsx.hbs   # TanStack Table integration
-│   │   │   │   ├── entity-list.tsx.hbs
-│   │   │   │   ├── entity-detail.tsx.hbs
-│   │   │   │   └── entity-delete-dialog.tsx.hbs
-│   │   │   │
-│   │   │   ├── admin/
-│   │   │   │   ├── field-layout-editor.tsx.hbs
-│   │   │   │   ├── table-editor.tsx.hbs
-│   │   │   │   └── window-editor.tsx.hbs
-│   │   │   │
-│   │   │   ├── providers/
-│   │   │   │   └── query-provider.tsx.hbs
-│   │   │   │
-│   │   │   └── layout/
-│   │   │       ├── sidebar.tsx.hbs
-│   │   │       ├── header.tsx.hbs
-│   │   │       └── navigation.tsx.hbs
-│   │   │
-│   │   ├── lib/
-│   │   │   ├── api-client.ts.hbs
-│   │   │   └── utils.ts.hbs
-│   │   │
-│   │   └── hooks/
-│   │       ├── use-entities.ts.hbs         # TanStack Query hooks
-│   │       ├── use-dictionary.ts.hbs
-│   │       ├── use-mutations.ts.hbs
-│   │       ├── use-dynamic-form.ts.hbs
-│   │       └── use-dynamic-columns.ts.hbs
-│   │
-│   └── backend/                            # NestJS + Fastify + Knex.js
-│       ├── config/
-│       │   ├── package.json.hbs
-│       │   ├── tsconfig.json.hbs
-│       │   ├── nest-cli.json.hbs
-│       │   └── knexfile.ts.hbs
-│       │
-│       ├── src/
-│       │   ├── main.ts.hbs                 # Fastify adapter entry
-│       │   ├── app.module.ts.hbs
-│       │   │
-│       │   ├── common/
-│       │   │   ├── decorators/
-│       │   │   │   ├── api-etag.decorator.ts.hbs
-│       │   │   │   └── current-user.decorator.ts.hbs
-│       │   │   ├── filters/
-│       │   │   │   └── http-exception.filter.ts.hbs
-│       │   │   ├── guards/
-│       │   │   │   └── auth.guard.ts.hbs
-│       │   │   ├── interceptors/
-│       │   │   │   ├── etag.interceptor.ts.hbs
-│       │   │   │   └── logging.interceptor.ts.hbs
-│       │   │   └── pipes/
-│       │   │       └── zod-validation.pipe.ts.hbs
-│       │   │
-│       │   ├── database/
-│       │   │   ├── database.module.ts.hbs
-│       │   │   └── database.service.ts.hbs
-│       │   │
-│       │   ├── modules/
-│       │   │   ├── sys/
-│       │   │   │   ├── sys.module.ts.hbs
-│       │   │   │   ├── sys-controller.ts.hbs
-│       │   │   │   └── sys-service.ts.hbs
-│       │   │   │
-│       │   │   ├── bus/
-│       │   │   │   ├── bus.module.ts.hbs
-│       │   │   │   ├── bus-controller.ts.hbs
-│       │   │   │   └── bus-service.ts.hbs
-│       │   │   │
-│       │   │   └── auth/
-│       │   │       ├── auth.module.ts.hbs
-│       │   │       ├── auth.controller.ts.hbs
-│       │   │       └── auth.service.ts.hbs
-│       │   │
-│       │   └── config/
-│       │       ├── configuration.ts.hbs
-│       │       └── knex.config.ts.hbs
-│       │
-│       └── dto/
-│           ├── create-entity.dto.ts.hbs
-│           └── update-entity.dto.ts.hbs
-│
-└── option2-enterprise-sap/                 # Option 2: OpenUI5 + OData Stack
+└── tanstack-start-nestjs/                  # TanStack Start + NestJS Stack
     │
-    ├── frontend/                           # OpenUI5 FCL
+    ├── frontend/                           # TanStack Start + Shadcn + TanStack
     │   ├── config/
     │   │   ├── package.json.hbs
-    │   │   ├── ui5.yaml.hbs
-    │   │   └── .ui5lintrc.json.hbs
+    │   │   ├── tsconfig.json.hbs
+    │   │   ├── vite.config.ts.hbs
+    │   │   ├── tailwind.config.ts.hbs
+    │   │   └── components.json.hbs         # Shadcn config
     │   │
-    │   ├── webapp/
-    │   │   ├── manifest.json.hbs           # App descriptor with OData model
-    │   │   ├── Component.js.hbs
-    │   │   ├── index.html.hbs
+    │   ├── src/
+    │   │   ├── routes/
+    │   │   │   ├── __root.tsx.hbs
+    │   │   │   ├── index.tsx.hbs
+    │   │   │   ├── dashboard-page.tsx.hbs      # Dashboard - lists ALL entities
+    │   │   │   ├── entity-list-page.tsx.hbs    # Per-entity list page template
+    │   │   │   ├── entity-detail-page.tsx.hbs  # Per-entity detail page template
+    │   │   │   ├── entity-new-page.tsx.hbs     # Per-entity create page template
+    │   │   │   └── admin-page.tsx.hbs
     │   │   │
-    │   │   ├── controller/
-    │   │   │   ├── App.controller.js.hbs    # Main FCL controller
-    │   │   │   ├── Master.controller.js.hbs # Column 1: Entity Menu
-    │   │   │   ├── Admin.controller.js.hbs
-    │   │   │   └── [entity]/                # Per-entity controllers
-    │   │   │       ├── [Entity]List.controller.js.hbs      # e.g., CustomerList
-    │   │   │       ├── [Entity]Detail.controller.js.hbs    # e.g., CustomerDetail
-    │   │   │       └── [Entity]Create.controller.js.hbs    # e.g., CustomerCreate
+    │   │   ├── components/
+    │   │   │   ├── ui/                         # Shadcn UI components
+    │   │   │   │   ├── button.tsx.hbs
+    │   │   │   │   ├── dialog.tsx.hbs
+    │   │   │   │   ├── form.tsx.hbs
+    │   │   │   │   ├── input.tsx.hbs
+    │   │   │   │   ├── select.tsx.hbs
+    │   │   │   │   ├── table.tsx.hbs
+    │   │   │   │   ├── data-table.tsx.hbs      # TanStack Table wrapper
+    │   │   │   │   ├── skeleton.tsx.hbs
+    │   │   │   │   └── toast.tsx.hbs
+    │   │   │   │
+    │   │   │   ├── entity/
+    │   │   │   │   ├── dynamic-form.tsx.hbs    # TanStack Form integration
+    │   │   │   │   ├── dynamic-table.tsx.hbs   # TanStack Table integration
+    │   │   │   │   ├── entity-list.tsx.hbs
+    │   │   │   │   ├── entity-detail.tsx.hbs
+    │   │   │   │   └── entity-delete-dialog.tsx.hbs
+    │   │   │   │
+    │   │   │   ├── admin/
+    │   │   │   │   ├── field-layout-editor.tsx.hbs
+    │   │   │   │   ├── table-editor.tsx.hbs
+    │   │   │   │   └── window-editor.tsx.hbs
+    │   │   │   │
+    │   │   │   ├── providers/
+    │   │   │   │   └── query-provider.tsx.hbs
+    │   │   │   │
+    │   │   │   └── layout/
+    │   │   │       ├── sidebar.tsx.hbs
+    │   │   │       ├── header.tsx.hbs
+    │   │   │       └── navigation.tsx.hbs
     │   │   │
-    │   │   ├── view/
-    │   │   │   ├── App.view.xml.hbs         # FCL layout (sap.f.FlexibleColumnLayout)
-    │   │   │   ├── Master.view.xml.hbs      # Column 1: Entity Menu view
-    │   │   │   ├── Admin.view.xml.hbs
-    │   │   │   └── [entity]/                # Per-entity views
-    │   │   │       ├── [Entity]List.view.xml.hbs          # e.g., CustomerList
-    │   │   │       ├── [Entity]Detail.view.xml.hbs        # e.g., CustomerDetail
-    │   │   │       └── [Entity]Create.view.xml.hbs        # e.g., CustomerCreate
+    │   │   ├── lib/
+    │   │   │   ├── api-client.ts.hbs
+    │   │   │   └── utils.ts.hbs
     │   │   │
-    │   │   ├── fragment/
-    │   │   │   ├── EntityListItem.fragment.xml.hbs  # Entity list item for Master view
-    │   │   │   ├── DeleteDialog.fragment.xml.hbs
-    │   │   │   └── FieldGroup.fragment.xml.hbs
-    │   │   │
-    │   │   ├── model/
-    │   │   │   ├── models.js.hbs
-    │   │   │   ├── formatter.js.hbs
-    │   │   │   └── types.js.hbs
-    │   │   │
-    │   │   ├── css/
-    │   │   │   └── style.css.hbs
-    │   │   │
-    │   │   └── i18n/
-    │   │       └── i18n.properties.hbs
+    │   │   └── hooks/
+    │   │       ├── use-entities.ts.hbs         # TanStack Query hooks
+    │   │       ├── use-dictionary.ts.hbs
+    │   │       ├── use-mutations.ts.hbs
+    │   │       ├── use-dynamic-form.ts.hbs
+    │   │       └── use-dynamic-columns.ts.hbs
     │
-    └── backend/                            # OData V4 Server (jaystack)
+    └── backend/                            # NestJS + Fastify + Knex.js
         ├── config/
         │   ├── package.json.hbs
         │   ├── tsconfig.json.hbs
+        │   ├── nest-cli.json.hbs
         │   └── knexfile.ts.hbs
         │
         ├── src/
-        │   ├── server.ts.hbs               # OData server entry
-        │   ├── app.ts.hbs                  # Express + OData setup
+        │   ├── main.ts.hbs                 # Fastify adapter entry
+        │   ├── app.module.ts.hbs
         │   │
-        │   ├── controllers/
-        │   │   ├── base.controller.ts.hbs  # Base OData controller
-        │   │   ├── sys-controller.ts.hbs   # System entity controller
-        │   │   └── bus-controller.ts.hbs   # Business entity controller
-        │   │
-        │   ├── models/
-        │   │   ├── base.model.ts.hbs
-        │   │   ├── sys-model.ts.hbs
-        │   │   └── bus-model.ts.hbs
-        │   │
-        │   ├── metadata/
-        │   │   ├── edmx-builder.ts.hbs     # $metadata generator
-        │   │   ├── annotations.ts.hbs      # OData annotations
-        │   │   └── entity-sets.ts.hbs
+        │   ├── common/
+        │   │   ├── decorators/
+        │   │   │   ├── api-etag.decorator.ts.hbs
+        │   │   │   └── current-user.decorator.ts.hbs
+        │   │   ├── filters/
+        │   │   │   └── http-exception.filter.ts.hbs
+        │   │   ├── guards/
+        │   │   │   └── auth.guard.ts.hbs
+        │   │   ├── interceptors/
+        │   │   │   ├── etag.interceptor.ts.hbs
+        │   │   │   └── logging.interceptor.ts.hbs
+        │   │   └── pipes/
+        │   │       └── zod-validation.pipe.ts.hbs
         │   │
         │   ├── database/
-        │   │   └── connection.ts.hbs
+        │   │   ├── database.module.ts.hbs
+        │   │   └── database.service.ts.hbs
+        │   │
+        │   ├── modules/
+        │   │   ├── sys/
+        │   │   │   ├── sys.module.ts.hbs
+        │   │   │   ├── sys-controller.ts.hbs
+        │   │   │   └── sys-service.ts.hbs
+        │   │   │
+        │   │   ├── bus/
+        │   │   │   ├── bus.module.ts.hbs
+        │   │   │   ├── bus-controller.ts.hbs
+        │   │   │   └── bus-service.ts.hbs
+        │   │   │
+        │   │   └── auth/
+        │   │       ├── auth.module.ts.hbs
+        │   │       ├── auth.controller.ts.hbs
+        │   │       └── auth.service.ts.hbs
         │   │
         │   └── config/
-        │       ├── odata.config.ts.hbs
-        │       └── database.config.ts.hbs
+        │       ├── configuration.ts.hbs
+        │       └── knex.config.ts.hbs
+        │
+        └── dto/
+            ├── create-entity.dto.ts.hbs
+            └── update-entity.dto.ts.hbs
 ```
 
 ### 8.2 Template Context Variables
@@ -1727,7 +1158,6 @@ interface TemplateContext {
 
   // Configuration
   config: {
-    stackOption: 'option1-modern-web' | 'option2-enterprise-sap';
     databaseType: 'sqlite' | 'postgres' | 'mysql';
     frontendPort: number;
     backendPort: number;
@@ -1794,65 +1224,14 @@ Handlebars.registerHelper('randomSeq', (index) => (index + 1) * 10 + Math.floor(
 Handlebars.registerHelper('isSystemTable', (name) => name.startsWith('sys_'));
 Handlebars.registerHelper('isBusinessTable', (name) => name.startsWith('bus_'));
 
-// TanStack helpers (Option 1)
+// TanStack helpers
 Handlebars.registerHelper('tanstackQueryKey', (entity) => `['${entity}', 'list']`);
 Handlebars.registerHelper('tanstackMutationKey', (entity, action) => `['${entity}', '${action}']`);
 
-// NestJS helpers (Option 1)
+// NestJS helpers
 Handlebars.registerHelper('nestControllerName', (entity) => `${pascalCase(entity)}Controller`);
 Handlebars.registerHelper('nestServiceName', (entity) => `${pascalCase(entity)}Service`);
 Handlebars.registerHelper('nestModuleName', (entity) => `${pascalCase(entity)}Module`);
-
-// UI5 specific helpers (Option 2)
-Handlebars.registerHelper('ui5Type', (type) => {
-  const mapping = {
-    'string': 'sap.ui.model.type.String',
-    'integer': 'sap.ui.model.type.Integer',
-    'decimal': 'sap.ui.model.odata.type.Decimal',
-    'date': 'sap.ui.model.type.Date',
-    'datetime': 'sap.ui.model.type.DateTime',
-    'boolean': 'sap.ui.model.type.Boolean',
-  };
-  return mapping[type] || 'sap.ui.model.type.String';
-});
-
-Handlebars.registerHelper('ui5ControlType', (referenceId) => {
-  const mapping = {
-    '10': 'sap.m.Input',           // String
-    '11': 'sap.m.Input',           // Integer (with constraints)
-    '12': 'sap.m.Input',           // Amount/Decimal
-    '14': 'sap.m.TextArea',        // Text/Memo
-    '15': 'sap.m.DatePicker',      // Date
-    '16': 'sap.m.DateTimePicker',  // DateTime
-    '20': 'sap.m.CheckBox',        // Yes/No
-    '17': 'sap.m.Select',          // List
-    '18': 'sap.m.Select',          // Table
-  };
-  return mapping[referenceId] || 'sap.m.Input';
-});
-
-// OData EDM type mapping (Option 2)
-Handlebars.registerHelper('edmType', (type) => {
-  const mapping = {
-    'string': 'Edm.String',
-    'integer': 'Edm.Int32',
-    'decimal': 'Edm.Decimal',
-    'date': 'Edm.Date',
-    'datetime': 'Edm.DateTimeOffset',
-    'boolean': 'Edm.Boolean',
-    'text': 'Edm.String',
-    'json': 'Edm.String',
-  };
-  return mapping[type] || 'Edm.String';
-});
-
-// OData navigation helpers
-Handlebars.registerHelper('odataNavigationProperty', (relationship) => {
-  if (relationship.type === 'oneToMany') {
-    return `Collection(${relationship.targetEntity})`;
-  }
-  return relationship.targetEntity;
-});
 ```
 
 ---
@@ -1879,9 +1258,9 @@ Handlebars.registerHelper('odataNavigationProperty', (relationship) => {
 
 ---
 
-### Phase 2: Option 1 - Modern Web Stack (Next.js + NestJS)
+### Phase 2: TanStack Start + NestJS Stack
 
-**Objective**: Complete generation for Option 1 with full CRUD and admin interface.
+**Objective**: Complete generation with full CRUD and admin interface.
 
 #### Phase 2A: NestJS Backend (Fastify + Knex.js)
 
@@ -1900,10 +1279,10 @@ Handlebars.registerHelper('odataNavigationProperty', (relationship) => {
 - NestJsGenerator class
 - Working NestJS + Fastify + Knex.js REST API
 
-#### Phase 2B: Next.js Frontend (Shadcn + TanStack)
+#### Phase 2B: TanStack Start Frontend (Shadcn + TanStack)
 
 **Tasks**:
-1. Create Next.js app layout and providers templates (TanStack Query)
+1. Create TanStack Start root layout and providers templates (TanStack Query)
 2. Create Shadcn UI component templates
 3. Create TanStack Query hooks templates (useEntities, useMutations, etc.)
 4. Create TanStack Table dynamic-table component template
@@ -1911,74 +1290,30 @@ Handlebars.registerHelper('odataNavigationProperty', (relationship) => {
 6. Create entity list, detail, and new page templates
 7. Create admin interface templates (dictionary management)
 8. Create field layout editor template (drag-drop reordering)
-9. Implement NextJsFrontendGenerator class
+9. Implement TanStackFrontendGenerator class
 
 **Deliverables**:
-- 35+ template files for Next.js frontend
-- NextJsFrontendGenerator class
-- Working Next.js + Shadcn + TanStack application
+- 35+ template files for TanStack Start frontend
+- TanStackFrontendGenerator class
+- Working TanStack Start + Shadcn + TanStack application
 
 ---
 
-### Phase 3: Option 2 - Enterprise SAP-Style Stack (OpenUI5 + OData)
-
-**Objective**: Complete generation for Option 2 with full FCL and OData integration.
-
-#### Phase 3A: OData V4 Backend (jaystack/odata-v4-server)
-
-**Tasks**:
-1. Create OData server entry point template
-2. Create base OData controller template with CRUD operations
-3. Create sys_ controllers for Application Dictionary entities
-4. Create bus_ controllers for dynamic business entities
-5. Create $metadata (EDMX) generator template
-6. Create OData annotations template for UI5 hints
-7. Create database connection template (Knex.js)
-8. Implement ODataGenerator class
-
-**Deliverables**:
-- 20+ template files for OData backend
-- ODataGenerator class
-- Working OData V4 service with $metadata endpoint
-
-#### Phase 3B: OpenUI5 FCL Frontend
-
-**Tasks**:
-1. Create manifest.json template with OData V4 model configuration
-2. Create Component.js template
-3. Create App.view.xml FCL layout template
-4. Create Master.view.xml (entity menu from $metadata)
-5. Create List.view.xml (growing table)
-6. Create Detail.view.xml (object page with CRUD)
-7. Create Create/Edit/Delete dialog fragment templates
-8. Create controller templates for all views
-9. Create formatter and model factory templates
-10. Create i18n properties template
-11. Implement OpenUI5Generator class
-
-**Deliverables**:
-- 25+ template files for OpenUI5 frontend
-- OpenUI5Generator class
-- Working OpenUI5 FCL application
-
----
-
-### Phase 4: Integration & Testing
+### Phase 3: Integration & Testing
 
 **Objective**: Integrate all generators and test end-to-end.
 
 **Tasks**:
-1. Create unified generator orchestrator (selects Option 1 or Option 2)
-2. Integration testing of Option 1 (Next.js + NestJS)
-3. Integration testing of Option 2 (OpenUI5 + OData)
-4. Test runtime UI modification via sys_field in both options
-5. Performance optimization
-6. Documentation updates
-7. Example project generation for both options
+1. Create unified generator orchestrator
+2. Integration testing of the full stack (TanStack Start + NestJS)
+3. Test runtime UI modification via sys_field
+4. Performance optimization
+5. Documentation updates
+6. Example project generation
 
 **Deliverables**:
-- Complete test suite for both options
-- Example generated projects (one per option)
+- Complete test suite
+- Example generated project
 - Updated documentation with usage guides
 
 ---
@@ -1995,7 +1330,7 @@ Handlebars.registerHelper('odataNavigationProperty', (relationship) => {
 | `packages/core/src/types/bus-entity.types.ts` | Business entity type helpers | 150 |
 | `packages/core/src/utils/table-naming.ts` | sys_/bus_ naming utilities | 100 |
 
-#### Common Templates (Shared by Both Options)
+#### Common Templates (Shared)
 
 | File Path | Description | Lines (Est.) |
 |-----------|-------------|--------------|
@@ -2006,117 +1341,65 @@ Handlebars.registerHelper('odataNavigationProperty', (relationship) => {
 | `templates/common/types/sys-types.ts.hbs` | System type definitions | 200 |
 | `templates/common/types/bus-entity.type.ts.hbs` | Business entity types | 100 |
 
-#### Option 1: Modern Web Stack Templates
+#### TanStack Start + NestJS Stack Templates
 
 **NestJS Backend (Fastify + Knex.js)**
 
 | File Path | Description | Lines (Est.) |
 |-----------|-------------|--------------|
-| `templates/option1-modern-web/backend/config/package.json.hbs` | Package config | 80 |
-| `templates/option1-modern-web/backend/config/tsconfig.json.hbs` | TypeScript config | 40 |
-| `templates/option1-modern-web/backend/config/nest-cli.json.hbs` | NestJS CLI config | 20 |
-| `templates/option1-modern-web/backend/config/knexfile.ts.hbs` | Knex config | 50 |
-| `templates/option1-modern-web/backend/src/main.ts.hbs` | Fastify adapter entry | 80 |
-| `templates/option1-modern-web/backend/src/app.module.ts.hbs` | Root module | 100 |
-| `templates/option1-modern-web/backend/src/database/database.module.ts.hbs` | DB module | 60 |
-| `templates/option1-modern-web/backend/src/database/database.service.ts.hbs` | DB service | 150 |
-| `templates/option1-modern-web/backend/src/modules/sys/sys.module.ts.hbs` | Sys module | 80 |
-| `templates/option1-modern-web/backend/src/modules/sys/sys-controller.ts.hbs` | Sys controller | 250 |
-| `templates/option1-modern-web/backend/src/modules/sys/sys-service.ts.hbs` | Sys service | 200 |
-| `templates/option1-modern-web/backend/src/modules/bus/bus.module.ts.hbs` | Bus module | 80 |
-| `templates/option1-modern-web/backend/src/modules/bus/bus-controller.ts.hbs` | Bus controller | 300 |
-| `templates/option1-modern-web/backend/src/modules/bus/bus-service.ts.hbs` | Bus service | 250 |
-| `templates/option1-modern-web/backend/src/modules/auth/*.ts.hbs` | Auth module (3 files) | 300 |
-| `templates/option1-modern-web/backend/src/common/**/*.ts.hbs` | Common (8 files) | 400 |
-| `templates/option1-modern-web/backend/dto/*.ts.hbs` | DTOs (2 files) | 150 |
+| `templates/tanstack-start-nestjs/backend/config/package.json.hbs` | Package config | 80 |
+| `templates/tanstack-start-nestjs/backend/config/tsconfig.json.hbs` | TypeScript config | 40 |
+| `templates/tanstack-start-nestjs/backend/config/nest-cli.json.hbs` | NestJS CLI config | 20 |
+| `templates/tanstack-start-nestjs/backend/config/knexfile.ts.hbs` | Knex config | 50 |
+| `templates/tanstack-start-nestjs/backend/src/main.ts.hbs` | Fastify adapter entry | 80 |
+| `templates/tanstack-start-nestjs/backend/src/app.module.ts.hbs` | Root module | 100 |
+| `templates/tanstack-start-nestjs/backend/src/database/database.module.ts.hbs` | DB module | 60 |
+| `templates/tanstack-start-nestjs/backend/src/database/database.service.ts.hbs` | DB service | 150 |
+| `templates/tanstack-start-nestjs/backend/src/modules/sys/sys.module.ts.hbs` | Sys module | 80 |
+| `templates/tanstack-start-nestjs/backend/src/modules/sys/sys-controller.ts.hbs` | Sys controller | 250 |
+| `templates/tanstack-start-nestjs/backend/src/modules/sys/sys-service.ts.hbs` | Sys service | 200 |
+| `templates/tanstack-start-nestjs/backend/src/modules/bus/bus.module.ts.hbs` | Bus module | 80 |
+| `templates/tanstack-start-nestjs/backend/src/modules/bus/bus-controller.ts.hbs` | Bus controller | 300 |
+| `templates/tanstack-start-nestjs/backend/src/modules/bus/bus-service.ts.hbs` | Bus service | 250 |
+| `templates/tanstack-start-nestjs/backend/src/modules/auth/*.ts.hbs` | Auth module (3 files) | 300 |
+| `templates/tanstack-start-nestjs/backend/src/common/**/*.ts.hbs` | Common (8 files) | 400 |
+| `templates/tanstack-start-nestjs/backend/dto/*.ts.hbs` | DTOs (2 files) | 150 |
 
-**Next.js Frontend (Shadcn + TanStack)**
-
-| File Path | Description | Lines (Est.) |
-|-----------|-------------|--------------|
-| `templates/option1-modern-web/frontend/config/package.json.hbs` | Package config | 100 |
-| `templates/option1-modern-web/frontend/config/tsconfig.json.hbs` | TypeScript config | 40 |
-| `templates/option1-modern-web/frontend/config/next.config.ts.hbs` | Next.js config | 30 |
-| `templates/option1-modern-web/frontend/config/tailwind.config.ts.hbs` | Tailwind config | 50 |
-| `templates/option1-modern-web/frontend/config/components.json.hbs` | Shadcn config | 30 |
-| `templates/option1-modern-web/frontend/app/layout.tsx.hbs` | Root layout | 80 |
-| `templates/option1-modern-web/frontend/app/page.tsx.hbs` | Landing page | 50 |
-| `templates/option1-modern-web/frontend/app/globals.css.hbs` | Global styles | 200 |
-| `templates/option1-modern-web/frontend/app/providers.tsx.hbs` | TanStack Query provider | 60 |
-| `templates/option1-modern-web/frontend/app/dashboard-layout.tsx.hbs` | Dashboard layout | 150 |
-| `templates/option1-modern-web/frontend/app/entity-list-page.tsx.hbs` | Entity list page | 200 |
-| `templates/option1-modern-web/frontend/app/entity-detail-page.tsx.hbs` | Entity detail page | 250 |
-| `templates/option1-modern-web/frontend/app/entity-new-page.tsx.hbs` | Create entity page | 150 |
-| `templates/option1-modern-web/frontend/app/admin-page.tsx.hbs` | Admin dashboard | 150 |
-| `templates/option1-modern-web/frontend/components/ui/*.tsx.hbs` | Shadcn components (15+) | 2000 |
-| `templates/option1-modern-web/frontend/components/entity/dynamic-form.tsx.hbs` | TanStack Form | 350 |
-| `templates/option1-modern-web/frontend/components/entity/dynamic-table.tsx.hbs` | TanStack Table | 300 |
-| `templates/option1-modern-web/frontend/components/entity/entity-list.tsx.hbs` | Entity list | 200 |
-| `templates/option1-modern-web/frontend/components/entity/entity-detail.tsx.hbs` | Entity detail | 250 |
-| `templates/option1-modern-web/frontend/components/entity/entity-delete-dialog.tsx.hbs` | Delete dialog | 80 |
-| `templates/option1-modern-web/frontend/components/admin/field-layout-editor.tsx.hbs` | Field editor | 400 |
-| `templates/option1-modern-web/frontend/components/layout/*.tsx.hbs` | Layout (3 files) | 300 |
-| `templates/option1-modern-web/frontend/hooks/*.ts.hbs` | TanStack hooks (5 files) | 400 |
-| `templates/option1-modern-web/frontend/lib/*.ts.hbs` | Utilities (2 files) | 150 |
-
-#### Option 2: Enterprise SAP-Style Stack Templates
-
-**OData V4 Backend (jaystack/odata-v4-server)**
+**TanStack Start Frontend (Shadcn + TanStack)**
 
 | File Path | Description | Lines (Est.) |
 |-----------|-------------|--------------|
-| `templates/option2-enterprise-sap/backend/config/package.json.hbs` | Package config | 60 |
-| `templates/option2-enterprise-sap/backend/config/tsconfig.json.hbs` | TypeScript config | 40 |
-| `templates/option2-enterprise-sap/backend/config/knexfile.ts.hbs` | Knex config | 50 |
-| `templates/option2-enterprise-sap/backend/src/server.ts.hbs` | OData server entry | 100 |
-| `templates/option2-enterprise-sap/backend/src/app.ts.hbs` | Express + OData setup | 150 |
-| `templates/option2-enterprise-sap/backend/src/controllers/base.controller.ts.hbs` | Base controller | 300 |
-| `templates/option2-enterprise-sap/backend/src/controllers/sys-controller.ts.hbs` | Sys controller | 250 |
-| `templates/option2-enterprise-sap/backend/src/controllers/bus-controller.ts.hbs` | Bus controller | 300 |
-| `templates/option2-enterprise-sap/backend/src/models/*.ts.hbs` | Models (3 files) | 300 |
-| `templates/option2-enterprise-sap/backend/src/metadata/edmx-builder.ts.hbs` | $metadata generator | 350 |
-| `templates/option2-enterprise-sap/backend/src/metadata/annotations.ts.hbs` | OData annotations | 200 |
-| `templates/option2-enterprise-sap/backend/src/metadata/entity-sets.ts.hbs` | Entity sets | 150 |
-| `templates/option2-enterprise-sap/backend/src/database/connection.ts.hbs` | DB connection | 80 |
-| `templates/option2-enterprise-sap/backend/src/config/*.ts.hbs` | Config (2 files) | 100 |
-
-**OpenUI5 Frontend**
-
-| File Path | Description | Lines (Est.) |
-|-----------|-------------|--------------|
-| `templates/option2-enterprise-sap/frontend/config/package.json.hbs` | Package config | 50 |
-| `templates/option2-enterprise-sap/frontend/config/ui5.yaml.hbs` | UI5 tooling config | 40 |
-| `templates/option2-enterprise-sap/frontend/config/.ui5lintrc.json.hbs` | UI5 linter config | 20 |
-| `templates/option2-enterprise-sap/frontend/webapp/manifest.json.hbs` | App descriptor | 250 |
-| `templates/option2-enterprise-sap/frontend/webapp/Component.js.hbs` | Main component | 100 |
-| `templates/option2-enterprise-sap/frontend/webapp/index.html.hbs` | Entry point | 50 |
-| `templates/option2-enterprise-sap/frontend/webapp/controller/App.controller.js.hbs` | FCL manager controller | 200 |
-| `templates/option2-enterprise-sap/frontend/webapp/controller/Master.controller.js.hbs` | Column 1: Entity menu | 250 |
-| `templates/option2-enterprise-sap/frontend/webapp/controller/Admin.controller.js.hbs` | Admin controller | 250 |
-| `templates/option2-enterprise-sap/frontend/webapp/controller/[entity]/[Entity]List.controller.js.hbs` | Per-entity list controller | 350 |
-| `templates/option2-enterprise-sap/frontend/webapp/controller/[entity]/[Entity]Detail.controller.js.hbs` | Per-entity detail controller | 450 |
-| `templates/option2-enterprise-sap/frontend/webapp/controller/[entity]/[Entity]Create.controller.js.hbs` | Per-entity create controller | 200 |
-| `templates/option2-enterprise-sap/frontend/webapp/view/App.view.xml.hbs` | FCL layout | 80 |
-| `templates/option2-enterprise-sap/frontend/webapp/view/Master.view.xml.hbs` | Column 1: Entity menu | 150 |
-| `templates/option2-enterprise-sap/frontend/webapp/view/Admin.view.xml.hbs` | Dictionary admin | 200 |
-| `templates/option2-enterprise-sap/frontend/webapp/view/[entity]/[Entity]List.view.xml.hbs` | Per-entity list view | 200 |
-| `templates/option2-enterprise-sap/frontend/webapp/view/[entity]/[Entity]Detail.view.xml.hbs` | Per-entity detail view | 400 |
-| `templates/option2-enterprise-sap/frontend/webapp/view/[entity]/[Entity]Create.view.xml.hbs` | Per-entity create view | 150 |
-| `templates/option2-enterprise-sap/frontend/webapp/fragment/EntityListItem.fragment.xml.hbs` | Entity list item | 80 |
-| `templates/option2-enterprise-sap/frontend/webapp/fragment/DeleteDialog.fragment.xml.hbs` | Delete dialog | 60 |
-| `templates/option2-enterprise-sap/frontend/webapp/fragment/FieldGroup.fragment.xml.hbs` | Field group | 100 |
-| `templates/option2-enterprise-sap/frontend/webapp/model/*.js.hbs` | Models (3 files) | 200 |
-| `templates/option2-enterprise-sap/frontend/webapp/css/style.css.hbs` | Custom styles | 50 |
-| `templates/option2-enterprise-sap/frontend/webapp/i18n/i18n.properties.hbs` | Translations | 100 |
+| `templates/tanstack-start-nestjs/frontend/config/package.json.hbs` | Package config | 100 |
+| `templates/tanstack-start-nestjs/frontend/config/tsconfig.json.hbs` | TypeScript config | 40 |
+| `templates/tanstack-start-nestjs/frontend/config/vite.config.ts.hbs` | Vite config | 30 |
+| `templates/tanstack-start-nestjs/frontend/config/tailwind.config.ts.hbs` | Tailwind config | 50 |
+| `templates/tanstack-start-nestjs/frontend/config/components.json.hbs` | Shadcn config | 30 |
+| `templates/tanstack-start-nestjs/frontend/src/routes/__root.tsx.hbs` | Root layout | 80 |
+| `templates/tanstack-start-nestjs/frontend/src/routes/index.tsx.hbs` | Landing page | 50 |
+| `templates/tanstack-start-nestjs/frontend/src/routes/globals.css.hbs` | Global styles | 200 |
+| `templates/tanstack-start-nestjs/frontend/src/routes/providers.tsx.hbs` | TanStack Query provider | 60 |
+| `templates/tanstack-start-nestjs/frontend/src/routes/dashboard-page.tsx.hbs` | Dashboard layout | 150 |
+| `templates/tanstack-start-nestjs/frontend/src/routes/entity-list-page.tsx.hbs` | Entity list page | 200 |
+| `templates/tanstack-start-nestjs/frontend/src/routes/entity-detail-page.tsx.hbs` | Entity detail page | 250 |
+| `templates/tanstack-start-nestjs/frontend/src/routes/entity-new-page.tsx.hbs` | Create entity page | 150 |
+| `templates/tanstack-start-nestjs/frontend/src/routes/admin-page.tsx.hbs` | Admin dashboard | 150 |
+| `templates/tanstack-start-nestjs/frontend/src/components/ui/*.tsx.hbs` | Shadcn components (15+) | 2000 |
+| `templates/tanstack-start-nestjs/frontend/src/components/entity/dynamic-form.tsx.hbs` | TanStack Form | 350 |
+| `templates/tanstack-start-nestjs/frontend/src/components/entity/dynamic-table.tsx.hbs` | TanStack Table | 300 |
+| `templates/tanstack-start-nestjs/frontend/src/components/entity/entity-list.tsx.hbs` | Entity list | 200 |
+| `templates/tanstack-start-nestjs/frontend/src/components/entity/entity-detail.tsx.hbs` | Entity detail | 250 |
+| `templates/tanstack-start-nestjs/frontend/src/components/entity/entity-delete-dialog.tsx.hbs` | Delete dialog | 80 |
+| `templates/tanstack-start-nestjs/frontend/src/components/admin/field-layout-editor.tsx.hbs` | Field editor | 400 |
+| `templates/tanstack-start-nestjs/frontend/src/components/layout/*.tsx.hbs` | Layout (3 files) | 300 |
+| `templates/tanstack-start-nestjs/frontend/src/hooks/*.ts.hbs` | TanStack hooks (5 files) | 400 |
+| `templates/tanstack-start-nestjs/frontend/src/lib/*.ts.hbs` | Utilities (2 files) | 150 |
 
 #### Generator Classes
 
 | File Path | Description | Lines (Est.) |
 |-----------|-------------|--------------|
 | `packages/generator/src/generators/nestjs.generator.ts` | NestJS generator | 350 |
-| `packages/generator/src/generators/nextjs-frontend.generator.ts` | Next.js frontend generator | 400 |
-| `packages/generator/src/generators/odata.generator.ts` | OData generator | 350 |
-| `packages/generator/src/generators/openui5.generator.ts` | OpenUI5 generator | 350 |
+| `packages/generator/src/generators/tanstack-frontend.generator.ts` | TanStack Start frontend generator | 400 |
 | `packages/generator/src/generators/dictionary.generator.ts` | Dictionary generator | 300 |
 | `packages/generator/src/generators/orchestrator.ts` | Unified orchestrator | 200 |
 | `packages/generator/src/helpers/template-helpers.ts` | Additional helpers | 250 |
@@ -2128,7 +1411,7 @@ Handlebars.registerHelper('odataNavigationProperty', (relationship) => {
 | `packages/generator/src/templates/loader.ts` | Add 30+ new helpers |
 | `packages/generator/src/index.ts` | Export new generators |
 | `packages/core/src/types/index.ts` | Export new types |
-| `packages/web/src/app/api/generate/route.ts` | Support two stack options |
+| `packages/web/src/routes/api/generate.ts` | Support generation options |
 | `packages/web/src/types/project.ts` | Add stackOption type |
 
 ### 10.3 Estimated Totals
@@ -2136,15 +1419,13 @@ Handlebars.registerHelper('odataNavigationProperty', (relationship) => {
 | Category | Count |
 |----------|-------|
 | **Common Templates** | 6 files |
-| **Option 1 Backend Templates** | 25+ files |
-| **Option 1 Frontend Templates** | 35+ files |
-| **Option 2 Backend Templates** | 20+ files |
-| **Option 2 Frontend Templates** | 25+ files |
-| **Generator Classes** | 7 files |
-| **Total New Template Files** | 110+ files |
-| **Total New TypeScript Files** | 15+ files |
-| **Total Lines of Code** | ~15,000+ |
-| **Total Lines of Templates** | ~12,000+ |
+| **Backend Templates** | 25+ files |
+| **Frontend Templates** | 35+ files |
+| **Generator Classes** | 5 files |
+| **Total New Template Files** | 65+ files |
+| **Total New TypeScript Files** | 10+ files |
+| **Total Lines of Code** | ~9,000+ |
+| **Total Lines of Templates** | ~7,500+ |
 
 ---
 
@@ -2160,48 +1441,26 @@ Handlebars.registerHelper('odataNavigationProperty', (relationship) => {
 - [ ] Changes to sys_field are reflected immediately in UI
 - [ ] All code generated from templates (no hardcoded generation)
 
-**Navigation Requirements (Both Stacks)**:
-- [ ] Each entity has a DEDICATED list page/view (not shared/generic)
-- [ ] Each entity has a DEDICATED detail page/view (not shared/generic)
+**Navigation Requirements**:
+- [ ] Each entity has a DEDICATED list page (not shared/generic)
+- [ ] Each entity has a DEDICATED detail page (not shared/generic)
 - [ ] NO generic/shared views for list or detail
-- [ ] Per-entity controllers: [Entity]List and [Entity]Detail
+- [ ] Per-entity routes: `/entities/$entity`, `/entities/$entity/$id`
 
-**Next.js Navigation**:
+**TanStack Start Navigation**:
 - [ ] Dashboard view lists ALL entities from sys_table
-- [ ] Per-entity routes: `/entities/[entity]`, `/entities/[entity]/[id]`
+- [ ] Per-entity routes: `/entities/$entity`, `/entities/$entity/$id`
 - [ ] Back buttons work at each level
 
-**OpenUI5 Navigation (FCL)**:
-- [ ] Three-column Flexible Column Layout implemented
-- [ ] Column 1 (Master): Searchable list of all entities from $metadata
-- [ ] Column 2 (List): Shows entity-specific list view (e.g., CustomerList)
-- [ ] Column 3 (Detail): Shows entity-specific detail view (e.g., CustomerDetail)
-- [ ] Entity selection in Column 1 → Loads that entity's list view in Column 2
-- [ ] Record selection in Column 2 → Loads that record's detail view in Column 3
-
-**Option 1: Modern Web Stack**:
+**TanStack Start + NestJS Stack**:
 - [ ] NestJS backend generates with Fastify adapter
 - [ ] NestJS uses Knex.js for database operations
-- [ ] Next.js frontend generates with TanStack Query integration
+- [ ] TanStack Start frontend generates with TanStack Query integration
 - [ ] Shadcn UI components render correctly
 - [ ] TanStack Table displays dynamic columns from sys_field
 - [ ] TanStack Form handles dynamic form fields
-- [ ] Per-entity routes: `/entities/[entity]`, `/entities/[entity]/[id]`
 - [ ] **Quick Search**: Client-side filtering of loaded data works instantly
 - [ ] **Advanced Search**: Server-side search API with field filters works
-- [ ] Search fields generated from sys_column.is_selection_column
-- [ ] Full CRUD operations work end-to-end
-
-**Option 2: Enterprise SAP-Style Stack**:
-- [ ] OData V4 server generates with $metadata endpoint
-- [ ] All OData operations work ($filter, $orderby, $expand, etc.)
-- [ ] OpenUI5 FCL layout renders with 3 columns
-- [ ] Column 1 shows searchable entity list from $metadata
-- [ ] Column 2 shows entity-specific list views (e.g., CustomerList)
-- [ ] Column 3 shows entity-specific detail views (e.g., CustomerDetail)
-- [ ] Per-entity views: [Entity]List, [Entity]Detail, [Entity]Create
-- [ ] **Quick Search**: Client-side filtering of loaded data works instantly
-- [ ] **Advanced Search**: Server-side OData $filter works with field selection
 - [ ] Search fields generated from sys_column.is_selection_column
 - [ ] Full CRUD operations work end-to-end
 
@@ -2210,9 +1469,7 @@ Handlebars.registerHelper('odataNavigationProperty', (relationship) => {
 - [ ] All templates pass Handlebars syntax validation
 - [ ] Generated TypeScript compiles without errors
 - [ ] Generated NestJS code follows NestJS best practices
-- [ ] Generated Next.js code follows React/Next.js best practices
-- [ ] Generated OData service passes $metadata validation
-- [ ] Generated OpenUI5 app passes UI5 linter checks
+- [ ] Generated TanStack Start code follows React best practices
 - [ ] Generated applications are responsive
 
 ### 11.3 Documentation Requirements
@@ -2221,7 +1478,7 @@ Handlebars.registerHelper('odataNavigationProperty', (relationship) => {
 - [ ] Generated code includes appropriate comments
 - [ ] Example ERD provided for testing
 - [ ] Generated admin interface includes help text
-- [ ] Usage guide for both stack options
+- [ ] Usage guide for the stack
 
 ---
 
@@ -2234,21 +1491,15 @@ Please review all sections and confirm:
 1. **sys_ prefix** naming convention for Application Dictionary tables
 2. **bus_ prefix** naming convention for business entity tables
 3. **Runtime UI modification** approach via sys_field
-4. **Navigation patterns**:
-   - **Next.js**: Dashboard → Entity List → Entity Detail (per-entity dedicated routes)
-   - **OpenUI5**: FCL with 3 columns:
-     - Column 1 = Searchable entity menu
-     - Column 2 = Entity-specific list views (e.g., CustomerList)
-     - Column 3 = Entity-specific detail views (e.g., CustomerDetail)
-   - **BOTH stacks**: Generate DEDICATED list/detail views/controllers for EACH entity (no generic/shared views)
-5. **Dual Search Feature** (BOTH stacks):
+4. **Navigation pattern**:
+   - Dashboard → Entity List → Entity Detail (per-entity dedicated routes)
+   - Each entity gets DEDICATED list and detail pages (no generic/shared views)
+5. **Dual Search Feature**:
    - **Quick Search**: Client-side text input that filters loaded data instantly (no network call)
    - **Advanced Search**: Server-side search with field selection, operators, and filters
    - Search fields dynamically generated from `sys_column.is_selection_column`
    - Both searches available in every entity list view
-6. **Two stack options only**:
-   - **Option 1**: Next.js + Shadcn UI + TanStack (Frontend) + NestJS + Fastify + Knex.js (Backend)
-   - **Option 2**: OpenUI5 FCL (Frontend) + OData V4 Server/jaystack (Backend)
+6. **Stack**: TanStack Start + Shadcn UI + TanStack Query/Table/Form (Frontend) + NestJS + Fastify + Knex.js (Backend)
 7. Template structure and organization
 8. Implementation phases
 

@@ -260,7 +260,7 @@ export function DynamicTable({
   selectedId,
 }: DynamicTableProps) {
   const { t } = useTranslations();
-  const { data: fetchedFields, isLoading: fetchFieldsLoading, error } = useGridFields(tableName);
+  const { data: fetchedFields, isLoading: fetchFieldsLoading, error } = useGridFields(tableName, { enabled: !externalFields });
   const fields = externalFields || fetchedFields;
   const fieldsLoading = externalFields ? false : fetchFieldsLoading;
 
