@@ -208,6 +208,7 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
   ({ className }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const modelerRef = useRef<BpmnModelerInstance>(null);
+    const modelerInitRef = useRef(false);
     const pendingXmlRef = useRef<string | null>(null);
     const pendingScenarioRef = useRef<ScenarioExample | null>(null);
     const [selected, setSelected] = useState<SelectedTask | null>(null);
@@ -218,6 +219,9 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
 
     // Mount bpmn-js modeler
     useEffect(() => {
+      // Guard against React StrictMode double-invocation creating two modeler instances
+      if (modelerInitRef.current) return;
+      modelerInitRef.current = true;
       let modeler: BpmnModelerInstance;
 
       (async () => {
@@ -325,14 +329,14 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
       const canvas = modeler.get('canvas');
       const rootElement = canvas.getRootElement();
 
-      // Position: after the rightmost existing ServiceTask, or at x=300
+      // Position: centre of the current viewport
+      const viewbox = canvas.viewbox();
+      const cx = viewbox.x + viewbox.width / 2;
+      const cy = viewbox.y + viewbox.height / 2;
+      // Offset right if other tasks already exist, so nodes don't stack
       const existingTasks = elementRegistry.filter((el: any) => el.type === 'bpmn:ServiceTask');
-      const lastX = existingTasks.reduce(
-        (max: number, s: any) => Math.max(max, (s.x ?? 0) + (s.width ?? 100)),
-        200,
-      );
-      const x = lastX + 40;
-      const y = 60;
+      const x = cx + existingTasks.length * 120 - 50;
+      const y = cy - 40;
 
       // Create the shape
       const taskShape = modeling.createShape(
@@ -349,7 +353,7 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
 
       // Select it so the properties panel opens, then fit viewport so it's visible
       modeler.get('selection').select(taskShape);
-      setTimeout(() => canvas.zoom('fit-viewport', 'auto'), 50);
+      setTimeout(() => canvas.zoom('fit-viewport'), 100);
     }, []);
 
     const loadScenario = useCallback((scenario: ScenarioExample) => {
