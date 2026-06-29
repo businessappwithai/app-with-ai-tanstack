@@ -105,6 +105,56 @@ function escapeXml(s: string) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+// ── Help scenarios ────────────────────────────────────────────────────────────
+
+interface ScenarioExample {
+  title: string;
+  description: string;
+  nodeType: NodeType;
+  props: Record<string, string>;
+}
+
+const HELP_SCENARIOS: ScenarioExample[] = [
+  // UpdateEntity
+  { nodeType: 'UpdateEntity', title: 'Qualify a Lead',
+    description: 'When a lead is saved, set its status to Qualified. Leave entity blank to update the triggering record.',
+    props: { field: 'status', value: 'Qualified' } },
+  { nodeType: 'UpdateEntity', title: 'Mark Opportunity as Won',
+    description: 'Update a related opportunity\'s stage to Won using the same record ID.',
+    props: { entity: 'bus_opportunity', field: 'stage', value: 'Won' } },
+  { nodeType: 'UpdateEntity', title: 'Write computed score to notes',
+    description: 'After a Formula node stores lead_score in vars, write it to the notes field.',
+    props: { field: 'notes', source: 'lead_score' } },
+  // CreateEntity
+  { nodeType: 'CreateEntity', title: 'Create Follow-up Call activity',
+    description: 'Insert a new bus_activity row each time a lead is saved.',
+    props: { entity: 'bus_activity', fields: '{"type":"Call","subject":"Follow up","status":"Planned"}' } },
+  { nodeType: 'CreateEntity', title: 'Create a Contact from Lead data',
+    description: 'Auto-create a contact record using {{name}} / {{email}} template keys.',
+    props: { entity: 'bus_contact', fields: '{"name":"{{name}}","email":"{{email}}"}' } },
+  // Formula
+  { nodeType: 'Formula', title: 'Lead score = version × 10',
+    description: 'Multiply the version field by 10 and store the result in lead_score for use by the next node.',
+    props: { source: 'version', operation: 'multiply', operand: '10', target: 'lead_score' } },
+  { nodeType: 'Formula', title: 'Discount % = amount ÷ 100',
+    description: 'Divide the amount field by 100 and store the result in discount_pct.',
+    props: { source: 'amount', operation: 'divide', operand: '100', target: 'discount_pct' } },
+  // REST
+  { nodeType: 'REST', title: 'Notify webhook on Lead save',
+    description: 'POST lead id, name and status to an external webhook URL each time a lead is saved.',
+    props: { method: 'POST', url: 'https://hooks.example.com/crm-lead', bodyTemplate: '{"id":"{{id}}","name":"{{name}}","status":"{{status}}"}' } },
+  { nodeType: 'REST', title: 'Sync to external CRM',
+    description: 'Push lead details to a third-party CRM via their REST API.',
+    props: { method: 'POST', url: 'https://api.yourcrm.com/leads', bodyTemplate: '{"leadId":"{{id}}","company":"{{name}}","contact":"{{email}}"}' } },
+  // Agent
+  { nodeType: 'Agent', title: 'AI Lead Qualifier',
+    description: 'Invoke a Mastra AI agent to automatically score and qualify the lead.',
+    props: { agentId: 'lead-qualifier-v1' } },
+  { nodeType: 'Agent', title: 'AI Follow-up Drafter',
+    description: 'Generate a personalised follow-up email draft via an AI agent.',
+    props: { agentId: 'followup-drafter-v1' } },
+];
+
 // ── Dictionary hooks ──────────────────────────────────────────────────────────
 
 interface TableRow { table_name: string; name: string }
@@ -159,10 +209,12 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
     const containerRef = useRef<HTMLDivElement>(null);
     const modelerRef = useRef<BpmnModelerInstance>(null);
     const pendingXmlRef = useRef<string | null>(null);
+    const pendingScenarioRef = useRef<ScenarioExample | null>(null);
     const [selected, setSelected] = useState<SelectedTask | null>(null);
     const [localProps, setLocalProps] = useState<Record<string, string>>({});
     const [localNodeType, setLocalNodeType] = useState<NodeType>('UpdateEntity');
     const [importError, setImportError] = useState<string | null>(null);
+    const [helpOpen, setHelpOpen] = useState(false);
 
     // Mount bpmn-js modeler
     useEffect(() => {
@@ -220,8 +272,16 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
             const nodeType = (existingProps.nodeType as NodeType) ?? 'UpdateEntity';
             const { nodeType: _nt, ...rest } = existingProps;
             setSelected({ id: el.id, name: el.businessObject.name ?? '', nodeType, properties: rest });
-            setLocalNodeType(nodeType);
-            setLocalProps(rest);
+            // If a scenario was queued (from load in empty state), apply it now
+            if (pendingScenarioRef.current) {
+              const s = pendingScenarioRef.current;
+              pendingScenarioRef.current = null;
+              setLocalNodeType(s.nodeType);
+              setLocalProps(s.props);
+            } else {
+              setLocalNodeType(nodeType);
+              setLocalProps(rest);
+            }
           } else {
             setSelected(null);
           }
@@ -287,9 +347,21 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
       const extensionElements = moddle.create('bpmn:ExtensionElements', { values: [propsContainer] });
       modeling.updateProperties(taskShape, { name: nodeType, extensionElements });
 
-      // Select it so the properties panel opens
+      // Select it so the properties panel opens, then fit viewport so it's visible
       modeler.get('selection').select(taskShape);
+      setTimeout(() => canvas.zoom('fit-viewport', 'auto'), 50);
     }, []);
+
+    const loadScenario = useCallback((scenario: ScenarioExample) => {
+      setHelpOpen(false);
+      if (selected) {
+        setLocalNodeType(scenario.nodeType);
+        setLocalProps(scenario.props);
+      } else {
+        pendingScenarioRef.current = scenario;
+        addNodeType(scenario.nodeType);
+      }
+    }, [selected, addNodeType]);
 
     // Apply edited properties back to the selected diagram element
     const applyProperties = useCallback(() => {
@@ -333,12 +405,26 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
         </div>
 
         {/* Properties / node palette panel */}
-        <div className="w-72 flex-shrink-0 border rounded-lg bg-gray-50 overflow-y-auto flex flex-col">
+        <div className="w-72 flex-shrink-0 border rounded-lg bg-gray-50 overflow-y-auto flex flex-col relative">
+          <HelpDrawer
+            open={helpOpen}
+            onClose={() => setHelpOpen(false)}
+            onLoad={loadScenario}
+            currentNodeType={selected ? localNodeType : undefined}
+          />
           {selected ? (
             <div className="p-4 space-y-4">
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="text-xs">{selected.id}</Badge>
-                <span className="text-sm font-medium truncate">{selected.name || 'ServiceTask'}</span>
+                <span className="text-sm font-medium truncate flex-1">{selected.name || 'ServiceTask'}</span>
+                <button
+                  type="button"
+                  onClick={() => setHelpOpen(true)}
+                  className="text-[10px] px-1.5 py-0.5 rounded border border-gray-300 text-gray-500 hover:border-teal-400 hover:text-teal-600 transition-colors whitespace-nowrap"
+                  title="View workflow examples"
+                >
+                  ? Help
+                </button>
               </div>
               <Separator />
 
@@ -375,7 +461,17 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
             </div>
           ) : (
             <div className="p-4 flex flex-col h-full">
-              <div className="text-xs font-semibold text-gray-500 mb-3">Add a node to the diagram:</div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-xs font-semibold text-gray-500">Add a node to the diagram:</div>
+                <button
+                  type="button"
+                  onClick={() => setHelpOpen(true)}
+                  className="text-[10px] px-1.5 py-0.5 rounded border border-gray-300 text-gray-500 hover:border-teal-400 hover:text-teal-600 transition-colors"
+                  title="View workflow examples"
+                >
+                  ? Help
+                </button>
+              </div>
               <div className="space-y-1.5">
                 {NODE_TYPES.map((t) => (
                   <button
@@ -697,6 +793,79 @@ function CreateEntityFields({
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Help Drawer ───────────────────────────────────────────────────────────────
+
+function HelpDrawer({
+  open,
+  onClose,
+  onLoad,
+  currentNodeType,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onLoad: (s: ScenarioExample) => void;
+  currentNodeType?: NodeType;
+}) {
+  if (!open) return null;
+
+  const grouped = NODE_TYPES.reduce<Record<string, ScenarioExample[]>>((acc, t) => {
+    acc[t] = HELP_SCENARIOS.filter((s) => s.nodeType === t && (!currentNodeType || s.nodeType === currentNodeType));
+    return acc;
+  }, {} as Record<string, ScenarioExample[]>);
+
+  return (
+    <div className="absolute inset-0 bg-white z-20 flex flex-col rounded-lg border border-teal-200 shadow-xl">
+      <div className="flex items-center justify-between px-3 py-2.5 border-b bg-teal-50 rounded-t-lg">
+        <span className="text-sm font-semibold text-teal-800">📖 Workflow Examples</span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-teal-500 hover:text-teal-800 text-base leading-none px-1"
+        >
+          ✕
+        </button>
+      </div>
+      <div className="overflow-y-auto flex-1 p-3 space-y-5">
+        {currentNodeType && (
+          <p className="text-[10px] text-gray-400 italic">
+            Showing examples for <strong>{currentNodeType}</strong> — change node type to see others.
+          </p>
+        )}
+        {NODE_TYPES.map((t) => {
+          const scenarios = grouped[t];
+          if (!scenarios?.length) return null;
+          return (
+            <div key={t}>
+              <div className="flex items-center gap-1.5 mb-2">
+                <span className="text-sm">{NODE_TYPE_ICONS[t]}</span>
+                <span className="text-xs font-semibold text-gray-700">{t}</span>
+              </div>
+              <div className="space-y-2">
+                {scenarios.map((s) => (
+                  <div key={s.title} className="bg-gray-50 rounded-md p-2.5 border border-gray-100 hover:border-teal-200 transition-colors">
+                    <div className="text-xs font-medium text-gray-800 mb-0.5">{s.title}</div>
+                    <div className="text-[10px] text-gray-500 mb-2 leading-relaxed">{s.description}</div>
+                    <button
+                      type="button"
+                      onClick={() => onLoad(s)}
+                      className="text-[10px] px-2 py-0.5 rounded bg-teal-600 text-white hover:bg-teal-700 transition-colors"
+                    >
+                      Load →
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="px-3 py-2 border-t text-[10px] text-gray-400 text-center rounded-b-lg bg-gray-50">
+        After loading, click <strong>Apply to Diagram</strong> to save changes to the canvas
+      </div>
     </div>
   );
 }
