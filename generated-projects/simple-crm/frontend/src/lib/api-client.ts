@@ -9,8 +9,8 @@ const API_BASE_URL = (() => {
   if (!url && import.meta.env.MODE === "production") {
     console.warn("[ApiClient] VITE_API_URL is not set in production. API calls may fail.");
   }
-  // Use 127.0.0.1 explicitly to avoid IPv6 resolution picking up other servers on the same port.
-  return url || "http://127.0.0.1:3000";
+  // Empty string → use relative /api path via Vite proxy (same origin, cookies work).
+  return url || "";
 })();
 
 // ============================================================================
@@ -440,6 +440,23 @@ class ApiClient {
 
 // Export singleton instance
 export const apiClient = new ApiClient(API_BASE_URL);
+
+// Restore auth token persisted across hard navigations (window.location.href)
+if (typeof window !== "undefined") {
+  const saved = sessionStorage.getItem("auth_token");
+  if (saved) apiClient.setAuthToken(saved);
+}
+
+/** Call after sign-in to persist token for subsequent page loads. */
+export function persistAuthToken(token: string | null) {
+  if (typeof window === "undefined") return;
+  if (token) {
+    sessionStorage.setItem("auth_token", token);
+  } else {
+    sessionStorage.removeItem("auth_token");
+  }
+  apiClient.setAuthToken(token);
+}
 
 // ============================================================================
 // Error Utilities

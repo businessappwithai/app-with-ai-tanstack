@@ -40,7 +40,7 @@ export class ImmudbService implements OnModuleInit, OnModuleDestroy {
       const ImmudbClient = (await import('immudb-node')).default;
 
       const host = this.config.get<string>('IMMUDB_HOST', '127.0.0.1');
-      const port = this.config.get<number>('IMMUDB_PORT', 3308);
+      const port = this.config.get<number>('IMMUDB_PORT', 3310);
 
       this.client = new ImmudbClient({ host, port, rootPath: '/tmp/immudb-root' });
 
