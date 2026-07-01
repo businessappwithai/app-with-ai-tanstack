@@ -33,7 +33,18 @@ export class AuthController {
   @Get('permissions')
   async getPermissions(@Req() req: FastifyRequest & { user: Record<string, unknown> }) {
     const user = req.user as any;
-    const sysUserId = user?.sysUserId as string | undefined;
+    let sysUserId = user?.sysUserId as string | undefined;
+
+    // Fallback: resolve sysUserId from email when the better-auth user has no sysUserId linked yet
+    if (!sysUserId && user?.email) {
+      const sysUser = await this.db.kysely
+        .selectFrom('sys_user')
+        .select('sys_user_id')
+        .where('email', '=', user.email as string)
+        .where('is_active', '=', true)
+        .executeTakeFirst();
+      sysUserId = sysUser?.sys_user_id;
+    }
 
     if (!sysUserId) {
       return { role: user?.role ?? 'user', isMaster: false, windows: [] };

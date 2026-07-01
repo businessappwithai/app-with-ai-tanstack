@@ -332,6 +332,56 @@ export async function seed(db: Kysely<any>): Promise<void> {
   {{/each}}
 
   // ============================================================================
+  // Admin Windows (entity_type = 'S') — Application Dictionary section on dashboard
+  // ============================================================================
+  const adminWindowDefs = [
+    { name: 'Business Rules',        route: '/admin/rules' },
+    { name: 'Workflow Designer',     route: '/admin/workflow-definitions' },
+    { name: 'Audit Log',             route: '/admin/audit' },
+    { name: 'Table and Column',      route: '/admin/tables' },
+    { name: 'Window, Tab and Field', route: '/admin/windows' },
+    { name: 'User',                  route: '/admin/users' },
+    { name: 'Role',                  route: '/admin/roles' },
+  ];
+
+  for (const wd of adminWindowDefs) {
+    const existing = await db.selectFrom('sys_window').select('sys_window_id').where('name', '=', wd.name).executeTakeFirst();
+    const windowId = existing?.sys_window_id ?? uuidv4();
+    if (!existing) {
+      await db.insertInto('sys_window').values({
+        sys_window_id: windowId,
+        name: wd.name,
+        description: wd.route,
+        entity_type: 'S',
+        is_active: true,
+        created_by: createdBy,
+        updated_by: createdBy,
+        created_at: now,
+        updated_at: now,
+      }).execute();
+    }
+    const existingAccess = await db.selectFrom('sys_access').select('sys_access_id').where('sys_role_id', '=', adminRoleId).where('sys_window_id', '=', windowId).executeTakeFirst();
+    if (!existingAccess) {
+      await db.insertInto('sys_access').values({
+        sys_access_id: uuidv4(),
+        sys_role_id: adminRoleId,
+        sys_window_id: windowId,
+        access_type_table: 'W',
+        is_read_only: false,
+        is_exclude: false,
+        entity_type: 'S',
+        is_active: true,
+        created_by: createdBy,
+        updated_by: createdBy,
+        created_at: now,
+        updated_at: now,
+      }).execute();
+    }
+  }
+
+  console.log('✓ Created admin windows (Business Rules, Workflow Designer, etc.)');
+
+  // ============================================================================
   // Summary
   // ============================================================================
   console.log('');
@@ -340,7 +390,8 @@ export async function seed(db: Kysely<any>): Promise<void> {
   console.log('  - 2 default roles (Administrator, User)');
   console.log('  - 1 admin user (admin@localhost)');
   console.log('  - 3 field groups');
+  console.log('  - 7 admin windows (Application Dictionary)');
   console.log('');
   console.log('NOTE: Field seq_no values are sequential. Administrators can');
-  console.log('      reorder fields via the admin interface (Field Layout Manager).');
+  console.log('      reorder fields via the admin interface.');
 }
