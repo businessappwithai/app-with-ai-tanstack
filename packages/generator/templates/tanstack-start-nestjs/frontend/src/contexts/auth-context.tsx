@@ -1,5 +1,6 @@
 import React, { type ReactNode, createContext, useContext, useState, useEffect } from 'react';
 import { setUnauthorizedCallback } from '@/lib/api-client';
+import { signIn as authSignIn, signOut as authSignOut, signUp as authSignUp, getSession } from '@/lib/auth';
 
 interface User {
   id: string;
@@ -31,13 +32,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const refreshSession = async () => {
     try {
-      const response = await fetch('/api/auth/get-session', {
-        credentials: 'include',
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data?.user ?? null);
-      }
+      const { data } = await getSession();
+      setUser((data as { user?: unknown } | null)?.user ?? null);
     } catch (error) {
       console.error('Failed to refresh session:', error);
     }
@@ -54,7 +50,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Register 401 unauthorized callback for API client
     setUnauthorizedCallback(async () => {
       setUser(null);
-      await fetch('/api/auth/sign-out', { method: 'POST', credentials: 'include' });
+      await authSignOut();
       window.location.href = '/auth/login';
     });
   }, []);
@@ -62,25 +58,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/sign-in', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        let message = 'Login failed';
-        try {
-          const errorData = await response.json();
-          message = errorData?.message || errorData?.error || `Login failed (${response.status})`;
-        } catch {
-          // response was not JSON
-        }
-        throw new Error(message);
-      }
-      const data = await response.json();
-      setUser(data?.user ?? null);
+      const { data, error } = await authSignIn(email, password);
+      if (error) throw new Error(error);
+      setUser((data as { user?: unknown } | null)?.user ?? null);
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +69,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = async () => {
     setIsLoading(true);
     try {
-      await fetch('/api/auth/sign-out', { method: 'POST', credentials: 'include' });
+      await authSignOut();
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -99,25 +79,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signup = async (email: string, password: string, name: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/sign-up', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name }),
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        let message = 'Signup failed';
-        try {
-          const errorData = await response.json();
-          message = errorData?.message || errorData?.error || `Signup failed (${response.status})`;
-        } catch {
-          // response was not JSON
-        }
-        throw new Error(message);
+      const { error } = await authSignUp(email, password, name);
+      if (error) {
+        throw new Error(error);
       }
-      const data = await response.json();
-      setUser(data?.user ?? null);
     } finally {
       setIsLoading(false);
     }

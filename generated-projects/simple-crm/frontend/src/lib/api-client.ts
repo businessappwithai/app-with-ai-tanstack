@@ -9,7 +9,8 @@ const API_BASE_URL = (() => {
   if (!url && import.meta.env.MODE === "production") {
     console.warn("[ApiClient] VITE_API_URL is not set in production. API calls may fail.");
   }
-  return url || "http://localhost:3000";
+  // Use 127.0.0.1 explicitly to avoid IPv6 resolution picking up other servers on the same port.
+  return url || "http://127.0.0.1:3000";
 })();
 
 // ============================================================================

@@ -144,7 +144,22 @@ async function bootstrap() {
   const fastifyInstance = app.getHttpAdapter().getInstance();
   const auth = getAuth();
 
+  // Patch credentials header: @fastify/cors v9 with function-based origin does not reliably
+  // emit Access-Control-Allow-Credentials: true. This onRequest hook fires after the CORS
+  // plugin's own onRequest hook (since we add it after app.enableCors) and overwrites the header.
+  fastifyInstance.addHook('onRequest', async (request, reply) => {
+    const origin = request.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+      reply.header('Access-Control-Allow-Credentials', 'true');
+    }
+  });
+
   fastifyInstance.all('/api/auth/*', async (request, reply) => {
+    // Let @fastify/cors handle OPTIONS preflight — forwarding to better-auth strips credentials header
+    if (request.method === 'OPTIONS') {
+      reply.status(204).send();
+      return;
+    }
     try {
       const url = new URL(request.url, `http://localhost:${port}`);
       const headers = new Headers();

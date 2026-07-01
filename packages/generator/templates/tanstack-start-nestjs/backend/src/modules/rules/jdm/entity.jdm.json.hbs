@@ -31,7 +31,7 @@
           {{#if required}}
           {
             "_id": "{{../tableName}}-{{columnName}}-required",
-            "i{{@index}}": "== null",
+            "i{{@index}}": "{{columnName}} == null",
             "o1": "'prevent'",
             "o2": "'{{displayName}} is required'",
             "o3": "'{{../tableName}}-{{columnName}}-required'"
@@ -40,10 +40,19 @@
           {{#if (eq type "decimal")}}
           {
             "_id": "{{../tableName}}-{{columnName}}-non-negative",
-            "i{{@index}}": "!= null and < 0",
+            "i{{@index}}": "{{columnName}} < 0",
             "o1": "'prevent'",
             "o2": "'{{displayName}} must not be negative'",
             "o3": "'{{../tableName}}-{{columnName}}-non-negative'"
+          },
+          {{/if}}
+          {{#if (eq columnName "email")}}
+          {
+            "_id": "{{../tableName}}-email-format",
+            "i{{@index}}": "!contains(email, \"@\")",
+            "o1": "'prevent'",
+            "o2": "'Email must be a valid email address'",
+            "o3": "'{{../tableName}}-email-format'"
           },
           {{/if}}
           {{/unless}}

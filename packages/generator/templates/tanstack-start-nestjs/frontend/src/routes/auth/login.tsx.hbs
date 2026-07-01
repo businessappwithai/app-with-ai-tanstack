@@ -56,12 +56,8 @@ function LoginPage() {
         return;
       }
 
-      toast.success('Welcome back!', {
-        description: 'You have been signed in successfully',
-      });
-
-      await refreshSession();
-      navigate({ to: '/dashboard' });
+      // Full navigation so auth-context re-initializes with the new session cookie
+      window.location.href = '/dashboard';
     } catch (err: any) {
       const errorMessage = err?.message || 'An unexpected error occurred';
       setError(errorMessage);
