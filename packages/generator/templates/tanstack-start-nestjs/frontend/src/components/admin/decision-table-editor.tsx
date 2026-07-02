@@ -266,6 +266,7 @@ export function DecisionTableEditor({
 
   const [showJson, setShowJson] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   const emitChange = useCallback(
     (t: DecisionTableData) => {
@@ -276,11 +277,14 @@ export function DecisionTableEditor({
   );
 
   useEffect(() => {
-    if (value) {
+    if (value && !initialized) {
       const parsed = parseJdmToTable(value);
-      if (parsed) setTable(parsed);
+      if (parsed) {
+        setTable(parsed);
+        setInitialized(true);
+      }
     }
-  }, []);
+  }, [value, initialized]);
 
   // ----- Condition columns -----
   const addConditionColumn = () => {
