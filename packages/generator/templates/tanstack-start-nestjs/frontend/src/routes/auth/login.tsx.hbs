@@ -56,6 +56,10 @@ function LoginPage() {
         return;
       }
 
+      // Persist token so api-client can send Authorization header after hard nav
+      const token = (data as Record<string, unknown>)?.token as string | undefined;
+      if (token) sessionStorage.setItem('auth_token', token);
+
       // Full navigation so auth-context re-initializes with the new session cookie
       window.location.href = '/dashboard';
     } catch (err: any) {

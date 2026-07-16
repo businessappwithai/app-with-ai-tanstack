@@ -7,5 +7,5 @@ export const Route = createFileRoute('/admin/windows')({
 });
 
 function WindowsListPage() {
-  return <ADListShell level={WINDOW_LEVEL} parentContext={[]} />;
+  return <ADListShell level={WINDOW_LEVEL} parentContext={[]} showAdminCrumb />;
 }

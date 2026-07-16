@@ -2,9 +2,9 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Lock, AlertCircle, Type, Hash, Mail, Link2, Phone, Calendar, ToggleLeft, FileText, List, Table2, KeyRound } from "lucide-react";
+import { Lock, AlertCircle, Type, Hash, Mail, Link2, Phone, Calendar, ToggleLeft, FileText, List, Table2, KeyRound, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,8 @@ interface DynamicFormProps {
   fields?: FieldMetadata[];
   initialData?: Record<string, unknown>;
   onSubmit?: (data: Record<string, unknown>) => void | Promise<void>;
+  /** Called whenever any field value changes — useful for parent to track dirty state */
+  onChange?: (data: Record<string, unknown>) => void;
   isLoading?: boolean;
   isSaving?: boolean;
   mode?: "create" | "edit" | "view";
@@ -30,6 +32,8 @@ interface DynamicFormProps {
   serverErrors?: Record<string, string>;
   parentField?: string;
   readOnlyFields?: string[];
+  /** Data from the immediate parent record — used to filter lookup dropdowns (e.g. filter columns by parent tab's sys_table_id) */
+  parentContext?: Record<string, unknown>;
 }
 
 const REFERENCE_TYPE = {
@@ -71,18 +75,45 @@ function getFieldIcon(sysReferenceId: number) {
   }
 }
 
+function TableReferenceViewValue({ field, id }: { field: FieldMetadata; id: string }) {
+  const customEndpoint = field.ref_endpoint || null;
+  const idField = field.ref_id_field || 'id';
+  const labelField = field.ref_label_field || 'name';
+
+  const { data } = useQuery({
+    queryKey: ['table-ref-view', customEndpoint, id],
+    queryFn: () => apiClient.get<{ data: any[] }>(customEndpoint!, { limit: 500 }),
+    enabled: !!customEndpoint && !!id,
+  });
+
+  const records = (data as any)?.data ?? [];
+  const record = records.find((r: any) => String(r[idField]) === String(id));
+  const label = record ? record[labelField] : id;
+  return <span>{label}</span>;
+}
+
 interface TableReferenceFieldProps {
   field: FieldMetadata;
   fieldApi: any;
   isDisabled: boolean;
   error: string | undefined;
+  parentContext?: Record<string, unknown>;
 }
 
-function TableReferenceField({ field, fieldApi, isDisabled, error }: TableReferenceFieldProps) {
+function TableReferenceField({ field, fieldApi, isDisabled, error, parentContext }: TableReferenceFieldProps) {
   const referencedTableName = field.ref_table_name || null;
-  const customEndpoint = field.ref_endpoint || null;
   const idField = field.ref_id_field || 'id';
   const labelField = field.ref_label_field || 'name';
+
+  // Resolve filtered endpoint: append ref_filter_param=<parentContext[ref_filter_source]> when configured
+  const filterValue = field.ref_filter_source && parentContext
+    ? parentContext[field.ref_filter_source]
+    : undefined;
+  const customEndpoint = field.ref_endpoint
+    ? (field.ref_filter_param && filterValue != null
+        ? `${field.ref_endpoint}?${field.ref_filter_param}=${encodeURIComponent(String(filterValue))}`
+        : field.ref_endpoint)
+    : null;
 
   // Custom endpoint (e.g. /sys/references) — use apiClient directly
   const { data: customData, isLoading: isLoadingCustom } = useQuery({
@@ -166,6 +197,33 @@ function FieldTypeBadge({ field }: { field: FieldMetadata }) {
   );
 }
 
+function FieldHelpPopover({ help, fieldName }: { help: string; fieldName: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative inline-block">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+        aria-label={`Help for ${fieldName}`}
+      >
+        <HelpCircle className="w-3.5 h-3.5" />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 top-5 z-50 w-64 rounded-lg border border-border bg-popover shadow-lg p-3 text-popover-foreground">
+            <div className="flex items-start gap-2">
+              <HelpCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+              <p className="leading-relaxed text-xs whitespace-pre-wrap">{help}</p>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function FieldConstraints({ field, charCount }: { field: FieldMetadata; charCount?: number }) {
   const hints: string[] = [];
   if (field.field_length && field.sys_reference_id !== REFERENCE_TYPE.YES_NO) {
@@ -204,6 +262,7 @@ interface FieldRendererProps {
   zodErrors?: Record<string, string>;
   tableName: string;
   readOnlyFields?: string[];
+  parentContext?: Record<string, unknown>;
 }
 
 function FieldRenderer({
@@ -213,6 +272,7 @@ function FieldRenderer({
   zodErrors = {},
   tableName,
   readOnlyFields = [],
+  parentContext,
 }: FieldRendererProps) {
   const isFormReadOnly = (form as any).readOnly || false;
   const formMode = (form as any).mode || "edit";
@@ -257,6 +317,7 @@ function FieldRenderer({
                 <Lock className="w-2.5 h-2.5" /> Read-only
               </span>
             )}
+            {field.help && <FieldHelpPopover help={field.help} fieldName={fieldLabel} />}
           </div>
         );
 
@@ -272,6 +333,52 @@ function FieldRenderer({
           isDisabled && "bg-muted/50 cursor-not-allowed",
           field.is_mandatory && !error && "border-primary/30"
         );
+
+        // ── VIEW MODE: render clean plain text, no inputs ──────────────
+        const isRefField = field.sys_reference_id === 18 || field.sys_reference_id === 19;
+        if (formMode === "view") {
+          // TABLE/TABLE_DIRECT refs: show label lookup or "—"
+          if (isRefField) {
+            return (
+              <div>
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="text-xs font-medium text-muted-foreground">{fieldLabel}</span>
+                  {field.is_mandatory && <span className="text-red-400 text-xs">*</span>}
+                  {field.help && <FieldHelpPopover help={field.help} fieldName={fieldLabel} />}
+                </div>
+                <div className="text-sm text-foreground font-medium min-h-[1.25rem]">
+                  {!currentValue || currentValue === ""
+                    ? <span className="text-muted-foreground/60 italic">—</span>
+                    : <TableReferenceViewValue field={field} id={String(currentValue)} />
+                  }
+                </div>
+              </div>
+            );
+          }
+
+          const displayValue = (() => {
+            if (currentValue === null || currentValue === undefined || currentValue === "") return "—";
+            if (typeof currentValue === "boolean") return currentValue ? "Yes" : "No";
+            if (field.sys_reference_id === 15 || field.sys_reference_id === 16) {
+              const d = new Date(String(currentValue));
+              return isNaN(d.getTime()) ? String(currentValue) : d.toLocaleString();
+            }
+            return String(currentValue);
+          })();
+
+          return (
+            <div>
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="text-xs font-medium text-muted-foreground">{fieldLabel}</span>
+                {field.is_mandatory && <span className="text-red-400 text-xs">*</span>}
+                {field.help && <FieldHelpPopover help={field.help} fieldName={fieldLabel} />}
+              </div>
+              <div className="text-sm text-foreground font-medium min-h-[1.25rem]">
+                {displayValue}
+              </div>
+            </div>
+          );
+        }
 
         // Static options list (inline enum — no DB fetch required)
         if (field.options && field.options.length > 0) {
@@ -345,6 +452,7 @@ function FieldRenderer({
                 fieldApi={fieldApi}
                 isDisabled={isReadOnly}
                 error={error}
+                parentContext={parentContext}
               />
               {errorBlock}
             </div>
@@ -546,11 +654,24 @@ function FieldRenderer({
   );
 }
 
+/** Subscribes to form value changes and notifies the parent via onChange.
+ *  Skips the initial render so the parent isn't notified with the initial data. */
+function FormChangeNotifier({ form, onChange }: { form: ReturnType<typeof useForm<FormValues>>; onChange: (data: Record<string, unknown>) => void }) {
+  const values = form.useStore((state: any) => state.values);
+  const isFirst = useRef(true);
+  useEffect(() => {
+    if (isFirst.current) { isFirst.current = false; return; }
+    onChange(values);
+  }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
+  return null;
+}
+
 export function DynamicForm({
   tableName,
   fields: externalFields,
   initialData = {},
   onSubmit,
+  onChange,
   isLoading: externalLoading = false,
   isSaving = false,
   mode = "create",
@@ -558,9 +679,10 @@ export function DynamicForm({
   serverErrors = {},
   parentField,
   readOnlyFields = [],
+  parentContext,
 }: DynamicFormProps) {
   const { t } = useTranslations();
-  const { data: fetchedFields, isLoading: fieldsLoading, error } = useFormFields(tableName);
+  const { data: fetchedFields, isLoading: fieldsLoading, error } = useFormFields(tableName, { enabled: !externalFields });
   const fields = externalFields || fetchedFields;
   const [zodErrors, setZodErrors] = useState<Record<string, string>>({});
 
@@ -572,7 +694,7 @@ export function DynamicForm({
       // Zod validation
       if (fields) {
         const displayedFields = fields.filter(f => f.is_displayed && f.column_name !== parentField);
-        const validation = validateFormData(displayedFields, value, mode);
+        const validation = validateFormData(displayedFields, value, mode === 'view' ? 'edit' : mode);
         if (!validation.success) {
           setZodErrors(validation.errors);
           toast.error("Please fix the validation errors");
@@ -664,7 +786,7 @@ export function DynamicForm({
     // Zod validation
     if (fields) {
       const displayedFields = fields.filter(f => f.is_displayed && f.column_name !== parentField);
-      const validation = validateFormData(displayedFields, value, mode);
+      const validation = validateFormData(displayedFields, value, mode === 'view' ? 'edit' : mode);
       if (!validation.success) {
         setZodErrors(validation.errors);
         toast.error("Please fix the validation errors");
@@ -696,6 +818,7 @@ export function DynamicForm({
 
   return (
     <form.Provider>
+      {onChange && <FormChangeNotifier form={form} onChange={onChange} />}
       <form role="form" onSubmit={handleFormSubmit} className="space-y-6">
         {/* Form summary bar */}
         <div className="flex items-center justify-between">
@@ -767,6 +890,7 @@ export function DynamicForm({
                       zodErrors={zodErrors}
                       tableName={tableName}
                       readOnlyFields={readOnlyFields}
+                      parentContext={parentContext}
                     />
                   </div>
                 ))}

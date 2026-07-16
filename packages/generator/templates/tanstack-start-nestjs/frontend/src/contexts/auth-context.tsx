@@ -79,7 +79,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signup = async (email: string, password: string, name: string) => {
     setIsLoading(true);
     try {
-      const { error } = await authSignUp(email, password, name);
+      const { data: _data, error } = await authSignUp(email, password, name);
       if (error) {
         throw new Error(error);
       }

@@ -1,390 +1,181 @@
-/**
- * Admin Dashboard Page - Compiere Application Dictionary
- *
- * Swiss Clean Design - Editorial layout with minimalist aesthetic
- *
- * Generated: {{now}}
- * Project: {{project.name}}
- */
-
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { apiClient, PaginatedResponse } from '@/lib/api-client';
+import { apiClient, type PaginatedResponse } from '@/lib/api-client';
 import {
-  Settings,
-  Table2,
-  Columns,
+  Database,
+  AppWindow,
   Hash,
   LayoutList,
-  AppWindow,
+  FileText,
   ArrowRight,
-  Database,
   RefreshCw,
+  Table2,
+  Columns,
   Layers,
+  Settings,
+  Home,
+  ShieldCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ADSidebar } from '@/components/admin/ad-sidebar';
 
 export const Route = createFileRoute('/admin/')({
   component: AdminDashboardPage,
 });
 
-interface SysTable {
-  sys_table_id: string;
-  name: string;
-  table_name: string;
-  description?: string;
-  is_active?: boolean;
-}
-
-interface SysColumn {
-  sys_column_id: string;
-  name: string;
-  table_name?: string;
-}
-
-interface SysField {
-  sys_field_id: string;
-  name: string;
-  table_name?: string;
-  seq_no?: number;
-  is_displayed?: boolean;
-}
-
-interface SysWindow {
-  sys_window_id: string;
-  name: string;
-  description?: string;
-}
-
-interface SysReference {
-  sys_reference_id: string;
-  name: string;
-}
-
-interface SysTab {
-  sys_tab_id: string;
-  name: string;
+interface CountResponse {
+  meta: { total: number };
 }
 
 function AdminDashboardPage() {
-  const { data: tablesResponse, isLoading: tablesLoading, refetch: refetchTables } = useQuery({
-    queryKey: ['admin', 'tables'],
-    queryFn: () => apiClient.get<PaginatedResponse<SysTable>>('/sys/tables', { limit: 200 }),
+  const { data: tablesRes, isLoading, refetch } = useQuery({
+    queryKey: ['admin', 'tables-count'],
+    queryFn: () => apiClient.get<CountResponse>('/sys/tables', { limit: 1 }),
   });
-
-  const { data: columnsResponse, isLoading: columnsLoading } = useQuery({
+  const { data: columnsRes } = useQuery({
     queryKey: ['admin', 'columns-count'],
-    queryFn: () => apiClient.get<PaginatedResponse<SysColumn>>('/sys/columns', { limit: 1 }),
+    queryFn: () => apiClient.get<CountResponse>('/sys/columns', { limit: 1 }),
   });
-
-  const { data: fieldsResponse, isLoading: fieldsLoading } = useQuery({
-    queryKey: ['admin', 'fields-count'],
-    queryFn: () => apiClient.get<PaginatedResponse<SysField>>('/sys/fields', { limit: 1 }),
-  });
-
-  const { data: windowsResponse, isLoading: windowsLoading } = useQuery({
+  const { data: windowsRes } = useQuery({
     queryKey: ['admin', 'windows-count'],
-    queryFn: () => apiClient.get<PaginatedResponse<SysWindow>>('/sys/windows', { limit: 1 }),
+    queryFn: () => apiClient.get<CountResponse>('/sys/windows', { limit: 1 }),
   });
-
-  const { data: referencesResponse } = useQuery({
-    queryKey: ['admin', 'references-count'],
-    queryFn: () => apiClient.get<PaginatedResponse<SysReference>>('/sys/references', { limit: 1 }),
-  });
-
-  const { data: tabsResponse } = useQuery({
+  const { data: tabsRes } = useQuery({
     queryKey: ['admin', 'tabs-count'],
-    queryFn: () => apiClient.get<PaginatedResponse<SysTab>>('/sys/tabs', { limit: 1 }),
+    queryFn: () => apiClient.get<CountResponse>('/sys/tabs', { limit: 1 }),
+  });
+  const { data: fieldsRes } = useQuery({
+    queryKey: ['admin', 'fields-count'],
+    queryFn: () => apiClient.get<CountResponse>('/sys/fields', { limit: 1 }),
+  });
+  const { data: refsRes } = useQuery({
+    queryKey: ['admin', 'references-count'],
+    queryFn: () => apiClient.get<CountResponse>('/sys/references', { limit: 1 }),
   });
 
-  // Fetch all fields to compute per-entity field counts
-  const { data: allFieldsResponse } = useQuery({
-    queryKey: ['admin', 'all-fields'],
-    queryFn: () => apiClient.get<PaginatedResponse<SysField>>('/sys/fields', { limit: 500 }),
-  });
+  const stats = [
+    { label: 'Tables', count: tablesRes?.meta?.total || 0, icon: Table2, color: 'text-blue-600' },
+    { label: 'Columns', count: columnsRes?.meta?.total || 0, icon: Columns, color: 'text-indigo-600' },
+    { label: 'Windows', count: windowsRes?.meta?.total || 0, icon: AppWindow, color: 'text-violet-600' },
+    { label: 'Tabs', count: tabsRes?.meta?.total || 0, icon: Layers, color: 'text-purple-600' },
+    { label: 'Fields', count: fieldsRes?.meta?.total || 0, icon: LayoutList, color: 'text-pink-600' },
+    { label: 'References', count: refsRes?.meta?.total || 0, icon: Hash, color: 'text-emerald-600' },
+  ];
 
-  const tables = tablesResponse?.data || [];
-  const allFields = allFieldsResponse?.data || [];
-
-  // Compute field count per table
-  const fieldCountByTable: Record<string, number> = {};
-  allFields.forEach((field) => {
-    if (field.table_name) {
-      fieldCountByTable[field.table_name] = (fieldCountByTable[field.table_name] || 0) + 1;
-    }
-  });
-
-  const isLoading = tablesLoading || columnsLoading || fieldsLoading || windowsLoading;
+  const windows = [
+    {
+      title: 'Table and Column',
+      description: 'Browse database tables and their column definitions in master/detail view',
+      icon: Database,
+      to: '/admin/tables' as const,
+    },
+    {
+      title: 'Window, Tab and Field',
+      description: 'Manage application windows with nested tabs and field configurations',
+      icon: AppWindow,
+      to: '/admin/windows' as const,
+    },
+    {
+      title: 'Element',
+      description: 'Manage system elements — column names, print names, and descriptions',
+      icon: FileText,
+      to: '/admin/elements' as const,
+    },
+    {
+      title: 'Reference',
+      description: 'Manage data types, validation rules, and lookup definitions',
+      icon: Hash,
+      to: '/admin/references' as const,
+    },
+    {
+      title: 'Field Layout Manager',
+      description: 'Customize field order, visibility, and grouping with drag-and-drop',
+      icon: LayoutList,
+      to: '/admin/fields' as const,
+    },
+    {
+      title: 'Business Rules',
+      description: 'Configure validation rules, callouts, and business logic',
+      icon: Settings,
+      to: '/admin/rules' as const,
+    },
+    {
+      title: 'Audit Log',
+      description: 'Immutable tamper-proof audit trail of all user and system actions',
+      icon: ShieldCheck,
+      to: '/admin/audit' as const,
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Swiss Clean Header - Editorial Style */}
-      <header className="border-b border-border bg-card">
-        <div className="max-w-7xl mx-auto px-8 py-12">
+    <ADSidebar>
+      <div className="flex flex-col h-full">
+        {/* Header */}
+        <header className="border-b border-border bg-card px-8 py-8">
           <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h1 className="text-6xl font-bold tracking-tight text-foreground mb-4 font-display">
+            <div>
+              <Link to="/dashboard" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors mb-3">
+                <Home className="h-3.5 w-3.5" />
+                Back to Dashboard
+              </Link>
+              <h1 className="text-4xl font-bold tracking-tight text-foreground font-display">
                 Application Dictionary
               </h1>
-              <p className="text-xl text-muted-foreground font-light max-w-2xl leading-relaxed">
-                Manage entities, field layouts, and application configuration for {{project.name}}
+              <p className="text-muted-foreground mt-2 max-w-xl">
+                Manage entities, field layouts, and application configuration
               </p>
             </div>
             <Button
               variant="outline"
               size="default"
-              onClick={() => refetchTables()}
+              onClick={() => refetch()}
               disabled={isLoading}
-              className="border border-border hover:bg-primary hover:text-primary-foreground transition-colors"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="max-w-7xl mx-auto px-8 py-12">
-        {/* Swiss Clean Overview Cards - Grid Layout */}
-        <section className="mb-16">
-          <div className="grid grid-cols-6 gap-0 border-l border-r border-border">
-            {/* Tables Card */}
-            <Link to="/admin/tables" className="border-t border-b border-border border-r p-6 flex flex-col justify-between bg-card hover:bg-muted/30 transition-colors">
-              <div>
-                <Table2 className="h-7 w-7 mb-5 text-primary" />
-                <h2 className="font-mono-display text-muted-foreground mb-2 text-sm">Tables</h2>
-                <p className="text-4xl font-bold text-foreground font-display mb-2">{tablesResponse?.meta?.total || 0}</p>
-              </div>
-              <p className="text-xs text-muted-foreground mt-3">sys_table</p>
-            </Link>
-
-            {/* Columns Card */}
-            <div className="border-t border-b border-border border-r p-6 flex flex-col justify-between bg-card">
-              <div>
-                <Columns className="h-7 w-7 mb-5 text-primary" />
-                <h2 className="font-mono-display text-muted-foreground mb-2 text-sm">Columns</h2>
-                <p className="text-4xl font-bold text-foreground font-display mb-2">{columnsResponse?.meta?.total || 0}</p>
-              </div>
-              <p className="text-xs text-muted-foreground mt-3">sys_column</p>
-            </div>
-
-            {/* Fields Card */}
-            <Link to="/admin/fields" className="border-t border-b border-border border-r p-6 flex flex-col justify-between bg-card hover:bg-muted/30 transition-colors">
-              <div>
-                <LayoutList className="h-7 w-7 mb-5 text-primary" />
-                <h2 className="font-mono-display text-muted-foreground mb-2 text-sm">Fields</h2>
-                <p className="text-4xl font-bold text-foreground font-display mb-2">{fieldsResponse?.meta?.total || 0}</p>
-              </div>
-              <p className="text-xs text-muted-foreground mt-3">sys_field</p>
-            </Link>
-
-            {/* Windows Card */}
-            <Link to="/admin/windows" className="border-t border-b border-border border-r p-6 flex flex-col justify-between bg-card hover:bg-muted/30 transition-colors">
-              <div>
-                <AppWindow className="h-7 w-7 mb-5 text-primary" />
-                <h2 className="font-mono-display text-muted-foreground mb-2 text-sm">Windows</h2>
-                <p className="text-4xl font-bold text-foreground font-display mb-2">{windowsResponse?.meta?.total || 0}</p>
-              </div>
-              <p className="text-xs text-muted-foreground mt-3">sys_window</p>
-            </Link>
-
-            {/* Tabs Card */}
-            <Link to="/admin/tabs" className="border-t border-b border-border border-r p-6 flex flex-col justify-between bg-card hover:bg-muted/30 transition-colors">
-              <div>
-                <Layers className="h-7 w-7 mb-5 text-primary" />
-                <h2 className="font-mono-display text-muted-foreground mb-2 text-sm">Tabs</h2>
-                <p className="text-4xl font-bold text-foreground font-display mb-2">{tabsResponse?.meta?.total || 0}</p>
-              </div>
-              <p className="text-xs text-muted-foreground mt-3">sys_tab</p>
-            </Link>
-
-            {/* References Card */}
-            <Link to="/admin/references" className="border-t border-b border-border p-6 flex flex-col justify-between bg-card hover:bg-muted/30 transition-colors">
-              <div>
-                <Hash className="h-7 w-7 mb-5 text-primary" />
-                <h2 className="font-mono-display text-muted-foreground mb-2 text-sm">References</h2>
-                <p className="text-4xl font-bold text-foreground font-display mb-2">{referencesResponse?.meta?.total || 0}</p>
-              </div>
-              <p className="text-xs text-muted-foreground mt-3">sys_reference</p>
-            </Link>
-          </div>
-        </section>
-
-        {/* Swiss Clean Quick Actions */}
-        <section className="mb-16">
-          <h2 className="section-header">Quick Actions</h2>
-          <div className="grid grid-cols-3 gap-0">
-            {/* Field Layout Manager */}
-            <Link to="/admin/fields" className="group">
-              <div className="swiss-card p-8 hover:border-primary/50 transition-all">
-                <div className="flex items-start justify-between mb-6">
-                  <LayoutList className="h-6 w-6 text-primary" />
-                  <ArrowRight className="h-5 w-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <h3 className="text-2xl font-bold mb-3 font-display text-foreground">Field Layout Manager</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  Customize field order and visibility in forms and grid views. Drag-and-drop reordering.
-                </p>
-              </div>
-            </Link>
-
-            {/* Windows Manager */}
-            <Link to="/admin/windows" className="group">
-              <div className="swiss-card p-8 hover:border-primary/50 transition-all">
-                <div className="flex items-start justify-between mb-6">
-                  <AppWindow className="h-6 w-6 text-primary" />
-                  <ArrowRight className="h-5 w-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <h3 className="text-2xl font-bold mb-3 font-display text-foreground">Windows Manager</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  Create and manage application windows — the top-level containers for entity screens
-                </p>
-              </div>
-            </Link>
-
-            {/* Tabs Manager */}
-            <Link to="/admin/tabs" className="group">
-              <div className="swiss-card p-8 hover:border-primary/50 transition-all">
-                <div className="flex items-start justify-between mb-6">
-                  <Layers className="h-6 w-6 text-primary" />
-                  <ArrowRight className="h-5 w-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <h3 className="text-2xl font-bold mb-3 font-display text-foreground">Tabs Manager</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  Manage tabs within windows — each tab corresponds to an entity data view
-                </p>
-              </div>
-            </Link>
-
-            {/* Table Browser */}
-            <Link to="/admin/tables" className="group">
-              <div className="swiss-card p-8 hover:border-primary/50 transition-all">
-                <div className="flex items-start justify-between mb-6">
-                  <Database className="h-6 w-6 text-primary" />
-                  <ArrowRight className="h-5 w-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <h3 className="text-2xl font-bold mb-3 font-display text-foreground">Table Browser</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  View and manage Application Dictionary tables and their column definitions
-                </p>
-              </div>
-            </Link>
-
-            {/* Reference Types */}
-            <Link to="/admin/references" className="group">
-              <div className="swiss-card p-8 hover:border-primary/50 transition-all">
-                <div className="flex items-start justify-between mb-6">
-                  <Hash className="h-6 w-6 text-primary" />
-                  <ArrowRight className="h-5 w-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <h3 className="text-2xl font-bold mb-3 font-display text-foreground">Reference Types</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  View data type definitions, validation rules, and their column mappings
-                </p>
-              </div>
-            </Link>
-          </div>
-        </section>
-
-        {/* Swiss Clean Entities Table - Editorial Layout */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="section-header mb-1">Registered Entities</h2>
-              <p className="text-sm text-muted-foreground">All entities from sys_table with their field counts and configuration status</p>
-            </div>
-            <Link to="/admin/fields">
-              <Button variant="outline" size="default">
-                <LayoutList className="h-4 w-4 mr-2" />
-                Edit Field Layouts
-              </Button>
-            </Link>
-          </div>
-
-          {tables.length === 0 && !tablesLoading ? (
-            <div className="swiss-card text-center py-16 text-muted-foreground">
-              No entities registered in the Application Dictionary yet.
-            </div>
-          ) : (
-            <div className="swiss-card">
-              <table className="swiss-table">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-4 px-6">Entity Name</th>
-                    <th className="text-left py-4 px-6">Table Name</th>
-                    <th className="text-center py-4 px-6">Fields</th>
-                    <th className="text-center py-4 px-6">Status</th>
-                    <th className="text-right py-4 px-6">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tables.map((table) => (
-                    <tr key={table.sys_table_id} className="border-b border-border hover:bg-muted/30 transition-colors">
-                      <td className="py-4 px-6">
-                        <div className="font-bold text-foreground">{table.name}</div>
-                        {table.description && (
-                          <div className="text-sm text-muted-foreground mt-1">{table.description}</div>
-                        )}
-                      </td>
-                      <td className="py-4 px-6">
-                        <code className="text-xs bg-black text-white px-2 py-1">{table.table_name}</code>
-                      </td>
-                      <td className="py-4 px-6 text-center">
-                        <span className="inline-block bg-background border border-border px-3 py-1 text-xs font-bold">
-                          {fieldCountByTable[table.table_name] || 0} fields
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 text-center">
-                        {table.is_active !== false ? (
-                          <span className="inline-block bg-black text-white px-3 py-1 text-xs font-bold uppercase tracking-wider">
-                            Active
-                          </span>
-                        ) : (
-                          <span className="inline-block border border-border px-3 py-1 text-xs font-bold uppercase tracking-wider">
-                            Inactive
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-4 px-6 text-right">
-                        <Link to="/admin/fields" search=\{{ entity: table.table_name }}>
-                          <Button variant="ghost" size="sm" className="hover:bg-black hover:text-white transition-colors">
-                            Configure Fields
-                            <ArrowRight className="h-3 w-3 ml-1" />
-                          </Button>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Quick Entity Links */}
-          <div className="mt-8 swiss-card p-8">
-            <h3 className="section-header mb-4">Generated Entity Quick Links</h3>
-            <div className="flex flex-wrap gap-2">
-              {tables.map((table) => (
-                <Link key={table.sys_table_id} to="/admin/fields" search=\{{ entity: table.table_name }}>
-                  <span className="inline-flex items-center border border-border px-3 py-1.5 text-sm hover:border-primary hover:text-primary transition-colors cursor-pointer">
-                    {table.name}
-                    <ArrowRight className="h-3 w-3 ml-1" />
+        <div className="flex-1 overflow-auto px-8 py-8 space-y-8">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {stats.map((stat) => (
+              <div key={stat.label} className="border border-border rounded-lg p-4 bg-card">
+                <div className="flex items-center gap-2 mb-2">
+                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    {stat.label}
                   </span>
+                </div>
+                <p className="text-3xl font-bold text-foreground tabular-nums">{stat.count}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Window Cards */}
+          <div>
+            <h2 className="text-lg font-semibold mb-4">Dictionary Windows</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {windows.map((win) => (
+                <Link key={win.to} to={win.to}>
+                  <Card className="group hover:border-primary/50 transition-all cursor-pointer h-full">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <win.icon className="h-6 w-6 text-primary" />
+                        <ArrowRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <CardTitle className="text-lg">{win.title}</CardTitle>
+                      <CardDescription>{win.description}</CardDescription>
+                    </CardHeader>
+                  </Card>
                 </Link>
               ))}
             </div>
           </div>
-        </section>
-      </main>
-
-      {/* Swiss Clean Footer */}
-      <footer className="border-t border-border mt-16">
-        <div className="max-w-7xl mx-auto px-8 py-8">
-          <p className="text-sm text-muted-foreground">
-            {{project.name}} · Generated by ERDwithAI · Swiss Clean Design
-          </p>
         </div>
-      </footer>
-    </div>
+      </div>
+    </ADSidebar>
   );
 }

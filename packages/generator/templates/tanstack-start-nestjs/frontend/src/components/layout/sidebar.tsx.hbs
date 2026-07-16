@@ -57,7 +57,7 @@ const navItems: NavItem[] = [
   {{#each mainEntities}}
   {
     title: '{{title}}',
-    href: '/{{tableName}}',
+    href: '/{{kebabCase name}}',
     icon: {{icon}},
     description: '{{description}}',
   },

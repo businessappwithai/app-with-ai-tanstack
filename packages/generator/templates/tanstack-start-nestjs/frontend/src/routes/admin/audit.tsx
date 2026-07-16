@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Home, Search, X, RefreshCw, ShieldCheck, ShieldAlert, Shield, ChevronDown, ChevronUp, Filter } from 'lucide-react';
@@ -328,8 +328,8 @@ function AuditLogPage() {
             </thead>
             <tbody>
               {records.map(ev => (
-                <>
-                  <tr key={ev.id}
+                <React.Fragment key={ev.id}>
+                  <tr
                     className="border-b border-border hover:bg-muted/30 cursor-pointer"
                     onClick={() => setExpandedId(prev => prev === ev.id ? null : ev.id)}>
                     <td className="px-4 py-2 whitespace-nowrap text-xs text-muted-foreground font-mono">
@@ -365,7 +365,7 @@ function AuditLogPage() {
                     </td>
                   </tr>
                   {expandedId === ev.id && <DetailRow key={`${ev.id}-detail`} event={ev} />}
-                </>
+                </React.Fragment>
               ))}
             </tbody>
           </table>

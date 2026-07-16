@@ -251,6 +251,36 @@ export class SysService {
     return this.findTableById(id);
   }
 
+  async deleteTable(id: string) {
+    const table = await this.findTableById(id);
+    const now = new Date().toISOString();
+
+    const tabs = await (this.db.kysely.selectFrom('sys_tab' as any)
+      .select(['sys_tab_id' as any])
+      .where('sys_table_id' as any, '=', id) as any).execute();
+    for (const tab of tabs as any[]) {
+      await (this.db.kysely.updateTable('sys_field' as any)
+        .set({ is_active: false, updated_at: now, updated_by: 'system' } as any)
+        .where('sys_tab_id' as any, '=', tab.sys_tab_id) as any).execute();
+    }
+    await (this.db.kysely.updateTable('sys_tab' as any)
+      .set({ is_active: false, updated_at: now, updated_by: 'system' } as any)
+      .where('sys_table_id' as any, '=', id) as any).execute();
+    await this.db.kysely.updateTable('sys_column')
+      .set({ is_active: false, updated_at: now, updated_by: 'system' } as any)
+      .where('sys_table_id', '=', id).execute();
+    await this.db.kysely.updateTable('sys_table')
+      .set({ is_active: false, updated_at: now, updated_by: 'system' } as any)
+      .where('sys_table_id', '=', id).execute();
+
+    const dbTableName = `bus_${table.table_name}`;
+    await sql`DROP TABLE IF EXISTS ${sql.id(dbTableName)}`.execute(this.db.kysely);
+
+    this.invalidateFieldCache();
+    this.busService.clearMetadataCache();
+    return { success: true };
+  }
+
   // ============================================================
   // SYS_COLUMN
   // ============================================================
@@ -285,6 +315,25 @@ export class SysService {
       .where('sys_column_id', '=', id)
       .execute();
     return this.findColumnById(id);
+  }
+
+  async deleteColumn(id: string) {
+    const column = await this.findColumnById(id);
+    const parentTable = await this.findTableById(column.sys_table_id as string);
+    const dbTableName = `bus_${parentTable.table_name}`;
+    const now = new Date().toISOString();
+
+    await (this.db.kysely.updateTable('sys_field' as any)
+      .set({ is_active: false, updated_at: now, updated_by: 'system' } as any)
+      .where('sys_column_id' as any, '=', id) as any).execute();
+    await this.db.kysely.updateTable('sys_column')
+      .set({ is_active: false, updated_at: now, updated_by: 'system' } as any)
+      .where('sys_column_id', '=', id).execute();
+    await sql`ALTER TABLE ${sql.id(dbTableName)} DROP COLUMN IF EXISTS ${sql.id(column.column_name as string)}`.execute(this.db.kysely);
+
+    this.invalidateFieldCache();
+    this.busService.clearMetadataCache();
+    return { success: true };
   }
 
   async findColumnsFromSchema(tableName: string) {
@@ -405,6 +454,44 @@ export class SysService {
     this.invalidateFieldCache();
     this.busService.clearMetadataCache();
     return { success: true, updated: fields.length };
+  }
+
+  async createField(data: Record<string, unknown>) {
+    const now = new Date().toISOString();
+    const [field] = await (this.db.kysely.insertInto('sys_field' as any)
+      .values({
+        sys_field_id: randomUUID(),
+        sys_tab_id: data.sys_tab_id ?? null,
+        sys_column_id: data.sys_column_id ?? null,
+        sys_field_group_id: data.sys_field_group_id ?? null,
+        name: data.name ?? null,
+        description: data.description ?? null,
+        seq_no: data.seq_no ?? 999,
+        seq_no_grid: data.seq_no_grid ?? 999,
+        is_displayed: data.is_displayed ?? true,
+        is_displayed_grid: data.is_displayed_grid ?? true,
+        is_read_only: data.is_read_only ?? false,
+        is_active: true,
+        entity_type: 'U',
+        created_at: now,
+        updated_at: now,
+        created_by: 'system',
+        updated_by: 'system',
+      } as any)
+      .returningAll() as any).execute();
+    this.invalidateFieldCache();
+    this.busService.clearMetadataCache();
+    return field;
+  }
+
+  async deleteField(id: string) {
+    await this.findFieldById(id);
+    await (this.db.kysely.updateTable('sys_field' as any)
+      .set({ is_active: false, updated_at: new Date().toISOString(), updated_by: 'system' } as any)
+      .where('sys_field_id' as any, '=', id) as any).execute();
+    this.invalidateFieldCache();
+    this.busService.clearMetadataCache();
+    return { success: true };
   }
 
   // ============================================================
@@ -583,6 +670,28 @@ export class SysService {
     return this.findWindowById(id);
   }
 
+  async deleteWindow(id: string) {
+    await this.findWindowById(id);
+    const now = new Date().toISOString();
+    const tabs = await (this.db.kysely.selectFrom('sys_tab' as any)
+      .select(['sys_tab_id' as any])
+      .where('sys_window_id' as any, '=', id) as any).execute();
+    for (const tab of tabs as any[]) {
+      await (this.db.kysely.updateTable('sys_field' as any)
+        .set({ is_active: false, updated_at: now, updated_by: 'system' } as any)
+        .where('sys_tab_id' as any, '=', tab.sys_tab_id) as any).execute();
+    }
+    await (this.db.kysely.updateTable('sys_tab' as any)
+      .set({ is_active: false, updated_at: now, updated_by: 'system' } as any)
+      .where('sys_window_id' as any, '=', id) as any).execute();
+    await (this.db.kysely.updateTable('sys_window' as any)
+      .set({ is_active: false, updated_at: now, updated_by: 'system' } as any)
+      .where('sys_window_id' as any, '=', id) as any).execute();
+    this.invalidateFieldCache();
+    this.busService.clearMetadataCache();
+    return { success: true };
+  }
+
   // ============================================================
   // SYS_TAB
   // ============================================================
@@ -637,6 +746,20 @@ export class SysService {
       .where('sys_tab_id' as any, '=', id)
       .execute();
     return this.findTabById(id);
+  }
+
+  async deleteTab(id: string) {
+    await this.findTabById(id);
+    const now = new Date().toISOString();
+    await (this.db.kysely.updateTable('sys_field' as any)
+      .set({ is_active: false, updated_at: now, updated_by: 'system' } as any)
+      .where('sys_tab_id' as any, '=', id) as any).execute();
+    await (this.db.kysely.updateTable('sys_tab' as any)
+      .set({ is_active: false, updated_at: now, updated_by: 'system' } as any)
+      .where('sys_tab_id' as any, '=', id) as any).execute();
+    this.invalidateFieldCache();
+    this.busService.clearMetadataCache();
+    return { success: true };
   }
 
   // ============================================================
@@ -697,6 +820,7 @@ export class SysService {
           'sys_field_group.name as group_name',
           'sys_field_group.columns as group_columns',
           'sys_field_group.description as group_description',
+          'sys_field.help',
         ])
         .where('sys_column.sys_table_id', '=', table.sys_table_id)
         .where('sys_field.is_active', '=', true);
@@ -745,6 +869,34 @@ export class SysService {
 
       return query.orderBy('sys_field.seq_no_grid').execute();
     });
+  }
+
+  async getWindowHelp(tableName: string) {
+    const table = await this.db.kysely
+      .selectFrom('sys_table')
+      .select(['sys_table_id', 'sys_window_id'])
+      .where('table_name', '=', tableName)
+      .where('is_active', '=', true)
+      .executeTakeFirst();
+
+    if (!table?.sys_window_id) return null;
+
+    const [window, tabs] = await Promise.all([
+      this.db.kysely
+        .selectFrom('sys_window')
+        .select(['sys_window_id', 'name', 'description', 'help'])
+        .where('sys_window_id', '=', table.sys_window_id)
+        .executeTakeFirst(),
+      this.db.kysely
+        .selectFrom('sys_tab')
+        .select(['sys_tab_id', 'name', 'description', 'help', 'seq_no', 'tab_level'])
+        .where('sys_window_id', '=', table.sys_window_id)
+        .where('is_active', '=', true)
+        .orderBy('seq_no')
+        .execute(),
+    ]);
+
+    return { window, tabs };
   }
 
   async findAllSysUsers() {
@@ -799,5 +951,55 @@ export class SysService {
       .execute();
 
     return { data: roles };
+  }
+
+  // ============================================================
+  // SYS_ELEMENT
+  // ============================================================
+
+  async findAllElements(options: PaginationOptions = {}, filters: Record<string, any> = {}) {
+    const { page = 1, limit = 100 } = options;
+    const offset = (page - 1) * limit;
+
+    let query = (this.db.kysely as any).selectFrom('sys_element').selectAll();
+    if (Object.keys(filters).length > 0) query = this.applyFilters(query, filters);
+
+    const [data, countRow] = await Promise.all([
+      query.orderBy('name').limit(limit).offset(offset).execute(),
+      query.clearSelect().select((eb: any) => eb.fn.countAll().as('count')).executeTakeFirst(),
+    ]);
+
+    return { data, meta: { total: Number(countRow?.count ?? 0), page, pageSize: limit } };
+  }
+
+  async findElementById(id: string) {
+    const el = await (this.db.kysely as any).selectFrom('sys_element').selectAll()
+      .where('sys_element_id', '=', id).executeTakeFirst();
+    if (!el) throw new NotFoundException(`Element with ID ${id} not found`);
+    return el;
+  }
+
+  async createElement(data: Record<string, unknown>) {
+    const row = await (this.db.kysely as any).insertInto('sys_element')
+      .values({ ...data, created_at: new Date(), updated_at: new Date() })
+      .returningAll()
+      .executeTakeFirstOrThrow();
+    return row;
+  }
+
+  async updateElement(id: string, data: Record<string, unknown>) {
+    const row = await (this.db.kysely as any).updateTable('sys_element')
+      .set({ ...data, updated_at: new Date() })
+      .where('sys_element_id', '=', id)
+      .returningAll()
+      .executeTakeFirst();
+    if (!row) throw new NotFoundException(`Element with ID ${id} not found`);
+    return row;
+  }
+
+  async deleteElement(id: string) {
+    await (this.db.kysely as any).deleteFrom('sys_element')
+      .where('sys_element_id', '=', id)
+      .execute();
   }
 }

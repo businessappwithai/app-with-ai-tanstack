@@ -154,6 +154,13 @@ export const SYS_WINDOW_GRID_FIELDS: FieldMetadata[] = [
 
 export const SYS_TAB_FORM_FIELDS: FieldMetadata[] = [
   field('name', 'Name', REF.STRING, { is_mandatory: true, seq_no: 10, field_length: 100 }),
+  field('sys_table_id', 'Table', REF.TABLE, {
+    is_mandatory: true,
+    seq_no: 15,
+    ref_endpoint: '/sys/tables',
+    ref_id_field: 'sys_table_id',
+    ref_label_field: 'name',
+  }),
   field('description', 'Description', REF.TEXT, { seq_no: 20 }),
   field('help', 'Help', REF.TEXT, { seq_no: 30 }),
   field('tab_level', 'Tab Level', REF.INTEGER, { seq_no: 40 }),
@@ -170,6 +177,12 @@ export const SYS_TAB_FORM_FIELDS: FieldMetadata[] = [
 
 export const SYS_TAB_GRID_FIELDS: FieldMetadata[] = [
   field('name', 'Name', REF.STRING, { seq_no_grid: 10 }),
+  field('sys_table_id', 'Table', REF.TABLE, {
+    seq_no_grid: 15,
+    ref_endpoint: '/sys/tables',
+    ref_id_field: 'sys_table_id',
+    ref_label_field: 'name',
+  }),
   field('tab_level', 'Level', REF.INTEGER, { seq_no_grid: 20 }),
   field('seq_no', 'Sequence', REF.INTEGER, { seq_no_grid: 30 }),
   field('is_read_only', 'Read Only', REF.YES_NO, { seq_no_grid: 40 }),
@@ -182,6 +195,15 @@ export const SYS_TAB_GRID_FIELDS: FieldMetadata[] = [
 
 export const SYS_FIELD_FORM_FIELDS: FieldMetadata[] = [
   // Core
+  field('sys_column_id', 'Column', REF.TABLE, {
+    is_mandatory: true,
+    seq_no: 5,
+    ref_endpoint: '/sys/columns',
+    ref_id_field: 'sys_column_id',
+    ref_label_field: 'name',
+    ref_filter_param: 'tableId',
+    ref_filter_source: 'sys_table_id',
+  }),
   field('name', 'Name', REF.STRING, { is_mandatory: true, seq_no: 10, field_length: 100 }),
   field('description', 'Description', REF.TEXT, { seq_no: 20 }),
   field('help', 'Help', REF.TEXT, { seq_no: 30 }),
@@ -191,6 +213,8 @@ export const SYS_FIELD_FORM_FIELDS: FieldMetadata[] = [
   field('seq_no_grid', 'Grid Sequence', REF.INTEGER, { seq_no: 50 }),
   field('display_length', 'Display Length', REF.INTEGER, { seq_no: 60 }),
   field('column_span', 'Column Span', REF.INTEGER, { seq_no: 70 }),
+  field('x_position', 'X Position', REF.INTEGER, { seq_no: 75 }),
+  field('y_position', 'Y Position', REF.INTEGER, { seq_no: 76 }),
   field('num_lines', 'Num Lines', REF.INTEGER, { seq_no: 77 }),
   // Display flags
   field('is_displayed', 'Displayed', REF.YES_NO, { seq_no: 80 }),
@@ -214,6 +238,7 @@ export const SYS_FIELD_FORM_FIELDS: FieldMetadata[] = [
 
 export const SYS_FIELD_GRID_FIELDS: FieldMetadata[] = [
   field('name', 'Name', REF.STRING, { seq_no_grid: 10 }),
+  field('column_name', 'DB Column', REF.STRING, { seq_no_grid: 15 }),
   field('seq_no', 'Sequence', REF.INTEGER, { seq_no_grid: 20 }),
   field('is_displayed', 'Displayed', REF.YES_NO, { seq_no_grid: 30 }),
   field('is_read_only', 'Read Only', REF.YES_NO, { seq_no_grid: 40 }),
@@ -243,7 +268,7 @@ export const SYS_REFERENCE_GRID_FIELDS: FieldMetadata[] = [
 ];
 
 // ============================================================================
-// sys_element (stub - no backend table yet)
+// sys_element
 // ============================================================================
 
 export const SYS_ELEMENT_FORM_FIELDS: FieldMetadata[] = [

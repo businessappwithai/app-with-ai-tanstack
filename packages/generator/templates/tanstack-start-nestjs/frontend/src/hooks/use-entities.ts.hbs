@@ -54,6 +54,7 @@ export interface FieldMetadata {
   group_name?: string;
   group_columns?: number;
   group_description?: string;
+  group_layout_type?: string | null;
   color?: string;
   background_color?: string;
   font_weight?: string;
@@ -61,7 +62,14 @@ export interface FieldMetadata {
   text_align?: string;
   reference_name?: string; // Human-readable type name returned by the API (e.g. "String", "Integer", "Date")
   ref_table_name?: string; // Referenced table name for TABLE reference types (sys_reference_id = 18)
+  ref_endpoint?: string;        // Custom API endpoint for table references (e.g. '/sys/references')
+  ref_id_field?: string;        // Field to use as option value (default: 'id')
+  ref_label_field?: string;     // Field to use as option label (default: 'name')
+  ref_filter_param?: string;    // Query param name to append to ref_endpoint for filtering (e.g. 'tableId')
+  ref_filter_source?: string;   // Key in parentContext whose value is used as the filter (e.g. 'sys_table_id')
+  options?: { value: string; label: string }[]; // Static options list for inline enums
   tab_name?: string; // Tab name for i18n field labels
+  help?: string; // Contextual help text shown via ? icon
 }
 
 export interface TableMetadata {
@@ -160,23 +168,25 @@ export function useTableMetadata(entity: string) {
   });
 }
 
-export function useFormFields(entity: string) {
+export function useFormFields(entity: string, options?: { enabled?: boolean }) {
   return useQuery<FieldMetadata[]>({
     queryKey: entityKeys.fields(entity, 'form'),
     queryFn: async () => {
       return apiClient.get<FieldMetadata[]>(`/bus/${entity}/fields/form`);
     },
     staleTime: 30 * 60 * 1000,
+    enabled: options?.enabled ?? true,
   });
 }
 
-export function useGridFields(entity: string) {
+export function useGridFields(entity: string, options?: { enabled?: boolean }) {
   return useQuery<FieldMetadata[]>({
     queryKey: entityKeys.fields(entity, 'grid'),
     queryFn: async () => {
       return apiClient.get<FieldMetadata[]>(`/bus/${entity}/fields/grid`);
     },
     staleTime: 30 * 60 * 1000,
+    enabled: options?.enabled ?? true,
   });
 }
 
@@ -204,6 +214,20 @@ export function useRefList(sysReferenceId: number) {
     },
     staleTime: 60 * 60 * 1000, // 1 hour - reference data rarely changes
     enabled: !!sysReferenceId && sysReferenceId >= 1000, // Only for our custom references
+  });
+}
+
+export interface WindowHelpData {
+  window: { sys_window_id: string; name: string; description?: string; help?: string } | null | undefined;
+  tabs: Array<{ sys_tab_id: string; name: string; description?: string; help?: string; seq_no: number; tab_level: number }>;
+}
+
+export function useWindowHelp(tableName: string) {
+  return useQuery<WindowHelpData | null>({
+    queryKey: ['window-help', tableName],
+    queryFn: () => apiClient.get<WindowHelpData>(`/sys/window-help/${tableName}`),
+    staleTime: 30 * 60 * 1000,
+    enabled: !!tableName,
   });
 }
 

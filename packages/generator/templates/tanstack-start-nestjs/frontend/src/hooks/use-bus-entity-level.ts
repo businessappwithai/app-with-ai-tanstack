@@ -38,20 +38,25 @@ export function useBusEntityLevel(entityName: string) {
         queryKey: ['sys-window-for-entity', entityName],
         queryFn: async () => {
           const resp = await apiClient.get<{ data: BusWindowMeta[] }>('/sys/windows', { limit: 500 });
-          // Match the window whose name equals the entity label from sys_table
-          const tableResp = await apiClient.get<{ data: BusTableMeta[] }>('/sys/tables', {
-            limit: 500,
-          });
-          const table = tableResp.data.find(
-            (t: BusTableMeta) => t.table_name === `bus_${entityName}`,
-          );
+          const tableResp = await apiClient.get<{ data: BusTableMeta[] }>('/sys/tables', { limit: 500 });
+          // Support both simple (account→bus_account) and kebab-case slugs (sales-order→bus_sales_order)
+          const tableNameCandidates = [
+            `bus_${entityName}`,
+            `bus_${entityName.replace(/-/g, '_')}`,
+          ];
+          const table = tableResp.data.find((t: BusTableMeta) => tableNameCandidates.includes(t.table_name));
           const windowName = table?.name ?? entityName;
+          // Match window by display name or by slug derived from window name
           const win = resp.data.find(
-            (w: BusWindowMeta) => w.name.toLowerCase() === windowName.toLowerCase(),
+            (w: BusWindowMeta) =>
+              w.name.toLowerCase() === windowName.toLowerCase() ||
+              w.name.toLowerCase().replace(/\s+/g, '-') === entityName,
           );
+          const windowSlug = win?.name.toLowerCase().replace(/\s+/g, '-') ?? entityName;
           return {
             label: win?.name ?? table?.name ?? entityName,
             windowId: win?.sys_window_id,
+            windowSlug,
           };
         },
         staleTime: 5 * 60 * 1000,
@@ -65,12 +70,16 @@ export function useBusEntityLevel(entityName: string) {
 
   const formFields: FieldMetadata[] = (formQuery.data as FieldMetadata[]) ?? [];
   const gridFields: FieldMetadata[] = (gridQuery.data as FieldMetadata[]) ?? [];
-  const windowMeta = windowQuery.data as { label: string; windowId?: string } | undefined;
+  const windowMeta = windowQuery.data as { label: string; windowId?: string; windowSlug: string } | undefined;
   const label = windowMeta?.label ?? entityName;
+  const windowSlug = windowMeta?.windowSlug ?? entityName;
 
-  // Derive the name field — the first field that is_identifier, or 'name' as fallback
+  // Derive the name field — first non-id identifier field, then common name fallbacks
+  const NAME_FALLBACKS = ['name', 'title', 'first_name', 'description', 'type'];
   const nameField =
-    formFields.find((f) => (f as any).is_identifier)?.column_name ?? 'name';
+    formFields.find((f) => (f as any).is_identifier && f.column_name !== 'id')?.column_name ??
+    NAME_FALLBACKS.find((candidate) => formFields.some((f) => f.column_name === candidate)) ??
+    'name';
 
   const level: ADLevel | null = isLoading
     ? null
@@ -83,7 +92,8 @@ export function useBusEntityLevel(entityName: string) {
         searchField: nameField,
         formFields,
         gridFields,
-        baseRoutePath: `/bus_${entityName}`,
+        // Route path derived from Window name in Application Dictionary (kebab-case slug)
+        baseRoutePath: `/${windowSlug}`,
       };
 
   return { level, isLoading };

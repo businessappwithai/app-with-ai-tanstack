@@ -2,7 +2,7 @@ import { createRootRoute, Outlet, Link } from '@tanstack/react-router'
 import { Meta, Scripts } from '@tanstack/start'
 import { Providers } from '../providers'
 import { Toaster } from 'sonner'
-import '../styles/globals.css'
+import globalsCssUrl from '../styles/globals.css?url'
 
 function RootErrorComponent({ error }: { error: Error }) {
   return (
@@ -68,6 +68,7 @@ export const Route = createRootRoute({
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
     ],
     links: [
+      { rel: 'stylesheet', href: globalsCssUrl },
       { rel: 'icon', href: '/favicon.ico' },
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
       { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
@@ -92,8 +93,8 @@ function RootLayout() {
           <main className="min-h-screen bg-background">
             <Outlet />
           </main>
-          <Toaster richColors position="top-right" />
         </Providers>
+        <Toaster richColors position="top-right" />
         <Scripts />
       </body>
     </html>

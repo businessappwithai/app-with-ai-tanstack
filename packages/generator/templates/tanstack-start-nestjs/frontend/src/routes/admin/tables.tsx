@@ -7,5 +7,5 @@ export const Route = createFileRoute('/admin/tables')({
 });
 
 function TablesListPage() {
-  return <ADListShell level={TABLE_LEVEL} parentContext={[]} />;
+  return <ADListShell level={TABLE_LEVEL} parentContext={[]} showAdminCrumb />;
 }

@@ -16,6 +16,7 @@ import { BusModule } from './modules/bus/bus.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { RulesModule } from './modules/rules/rules.module';
 import { WorkflowModule } from './modules/workflow/workflow.module';
+import { WorkflowDefinitionsModule } from './modules/workflow-definitions/workflow-definitions.module';
 import { JobQueueModule } from './modules/jobs/job-queue.module';
 import { ElectricModule } from './modules/electric/electric.module';
 import { AuditModule } from './modules/audit/audit.module';
@@ -54,8 +55,11 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
     // Business Rules Engine (GoRules zen-engine)
     RulesModule,
 
-    // Workflow orchestration (Trigger.dev v3 + GoRules)
+    // Workflow orchestration (Trigger.dev v3 + GoRules + BPMN executor)
     WorkflowModule,
+
+    // Visual BPMN workflow definitions (crud for sys_workflow_definitions)
+    WorkflowDefinitionsModule,
 
     // Background job processing (Trigger.dev v3)
     JobQueueModule,

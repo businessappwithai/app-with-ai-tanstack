@@ -660,14 +660,24 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
         }
       }
 
+      const tempToRealId = new Map<string, string>();
       for (const g of groupCreates) {
-        await apiClient.post(`/sys/field-groups?entity=${entityName}`, {
+        const created = await apiClient.post(`/sys/field-groups?entity=${entityName}`, {
           name: g.name,
           columns: g.columns,
           description: g.description,
           layout_type: g.layout_type ?? 'single',
           seq_no: g.seq_no,
         });
+        const realId = (created as any)?.sys_field_group_id;
+        if (realId) tempToRealId.set(g.id, realId);
+      }
+
+      // Remap temp IDs to real UUIDs returned from the server
+      for (const update of fieldUpdates) {
+        if (update.sys_field_group_id && tempToRealId.has(update.sys_field_group_id)) {
+          update.sys_field_group_id = tempToRealId.get(update.sys_field_group_id)!;
+        }
       }
 
       for (const g of groupUpdates) {

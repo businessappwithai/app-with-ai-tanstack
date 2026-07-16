@@ -7,5 +7,5 @@ export const Route = createFileRoute('/admin/references')({
 });
 
 function ReferencesListPage() {
-  return <ADListShell level={REFERENCE_LEVEL} parentContext={[]} />;
+  return <ADListShell level={REFERENCE_LEVEL} parentContext={[]} showAdminCrumb viewOnly />;
 }

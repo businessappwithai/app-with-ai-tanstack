@@ -9,6 +9,7 @@
  * Auto-generated component
  */
 
+import type React from "react";
 import { DragDropContext, Draggable, Droppable, type DropResult } from "@hello-pangea/dnd";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -456,8 +457,8 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
                   >
                     {(provided, snapshot) => (
                       <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
+                        ref={provided.innerRef as React.Ref<HTMLDivElement>}
+                        {...(provided.draggableProps as React.HTMLAttributes<HTMLDivElement>)}
                         className={cn(
                           "flex items-center gap-4 p-4 border rounded-lg bg-card transition-opacity",
                           snapshot.isDragging && "shadow-lg ring-2 ring-primary",

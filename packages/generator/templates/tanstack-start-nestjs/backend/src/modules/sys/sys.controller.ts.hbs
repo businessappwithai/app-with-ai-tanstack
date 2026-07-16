@@ -106,6 +106,12 @@ export class SysController {
     return this.sysService.updateTable(id, data);
   }
 
+  @Delete('tables/:id')
+  @ApiOperation({ summary: 'Delete table (soft-delete + DROP TABLE)' })
+  async deleteTable(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.deleteTable(id);
+  }
+
   // ============================================================================
   // SYS_COLUMN Endpoints
   // ============================================================================
@@ -147,6 +153,12 @@ export class SysController {
     @Body() data: Record<string, unknown>,
   ) {
     return this.sysService.updateColumn(id, data);
+  }
+
+  @Delete('columns/:id')
+  @ApiOperation({ summary: 'Delete column (soft-delete + DROP COLUMN)' })
+  async deleteColumn(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.deleteColumn(id);
   }
 
   // ============================================================================
@@ -193,6 +205,18 @@ export class SysController {
     return this.sysService.batchReorderFields(data.fields);
   }
 
+  @Post('fields')
+  @ApiOperation({ summary: 'Create field' })
+  async createField(@Body() data: Record<string, unknown>) {
+    return this.sysService.createField(data);
+  }
+
+  @Delete('fields/:id')
+  @ApiOperation({ summary: 'Delete field (soft-delete)' })
+  async deleteField(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.deleteField(id);
+  }
+
   @Put('fields/:id')
   @ApiOperation({ summary: 'Replace field (seq_no, is_displayed, etc.)' })
   async replaceField(
@@ -220,6 +244,12 @@ export class SysController {
     @Query('includeHidden') includeHidden?: string,
   ) {
     return this.sysService.getGridFields(entity, includeHidden === 'true');
+  }
+
+  @Get('window-help/:tableName')
+  @ApiOperation({ summary: 'Get window, tab and field help text for a business table' })
+  async getWindowHelp(@Param('tableName') tableName: string) {
+    return this.sysService.getWindowHelp(tableName);
   }
 
   // ============================================================================
@@ -323,6 +353,12 @@ export class SysController {
     return this.sysService.updateWindow(id, data);
   }
 
+  @Delete('windows/:id')
+  @ApiOperation({ summary: 'Delete window (soft-delete, cascades to tabs and fields)' })
+  async deleteWindow(@Param('id') id: string) {
+    return this.sysService.deleteWindow(id);
+  }
+
   // ============================================================================
   // SYS_TAB Endpoints
   // ============================================================================
@@ -361,6 +397,47 @@ export class SysController {
   @ApiOperation({ summary: 'Update tab' })
   async updateTab(@Param('id') id: string, @Body() data: Record<string, unknown>) {
     return this.sysService.updateTab(id, data);
+  }
+
+  @Delete('tabs/:id')
+  @ApiOperation({ summary: 'Delete tab (soft-delete, cascades to fields)' })
+  async deleteTab(@Param('id') id: string) {
+    return this.sysService.deleteTab(id);
+  }
+
+  // ============================================================================
+  // SYS_ELEMENT Endpoints
+  // ============================================================================
+
+  @Get('elements')
+  @ApiOperation({ summary: 'List all elements' })
+  async findAllElements(@Query('page') page?: string, @Query('limit') limit?: string, @Query() query?: Record<string, any>) {
+    const { page: _p, limit: _l, ...rawFilters } = query || {};
+    return this.sysService.findAllElements({ page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 }, parseFilters(rawFilters));
+  }
+
+  @Get('elements/:id')
+  @ApiOperation({ summary: 'Get element by ID' })
+  async findElementById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.findElementById(id);
+  }
+
+  @Post('elements')
+  @ApiOperation({ summary: 'Create element' })
+  async createElement(@Body() data: Record<string, unknown>) {
+    return this.sysService.createElement(data);
+  }
+
+  @Patch('elements/:id')
+  @ApiOperation({ summary: 'Update element' })
+  async updateElement(@Param('id', ParseUUIDPipe) id: string, @Body() data: Record<string, unknown>) {
+    return this.sysService.updateElement(id, data);
+  }
+
+  @Delete('elements/:id')
+  @ApiOperation({ summary: 'Delete element' })
+  async deleteElement(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.deleteElement(id);
   }
 
   // ============================================================================

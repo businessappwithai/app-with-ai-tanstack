@@ -331,6 +331,25 @@ export class BusController {
   }
 
   /**
+   * Bootstrap Application Dictionary for a business entity
+   * Creates sys_window, sys_tab, and sys_field records from sys_column records.
+   * Idempotent — safe to call multiple times; only creates what is missing.
+   * POST /bus/:entity/setup-dictionary
+   */
+  @Post(':entity/setup-dictionary')
+  @ApiOperation({ summary: 'Bootstrap Application Dictionary for an entity (idempotent)' })
+  @ApiParam({ name: 'entity', description: 'Entity name (e.g., lead, project)' })
+  @ApiResponse({ status: 201, description: 'Dictionary records created or already existed' })
+  @ApiResponse({ status: 404, description: 'No sys_table record found — register the table first' })
+  async setupDictionary(@Param('entity') entity: string) {
+    const methodName = 'setupDictionary';
+    this.logger.log(`[${methodName}] Request - entity: ${entity}`);
+    const result = await this.busService.setupEntityDictionary(entity);
+    this.logger.log(`[${methodName}] Success - entity: ${entity}, created: ${result.created.length} records`);
+    return result;
+  }
+
+  /**
    * Delete a record (soft delete)
    * DELETE /bus/:entity/:id
    */

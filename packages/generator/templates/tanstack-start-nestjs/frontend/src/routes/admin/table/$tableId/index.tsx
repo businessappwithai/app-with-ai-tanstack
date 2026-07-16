@@ -14,6 +14,7 @@ function SetupDictionaryButton({ tableId }: { tableId: string }) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
   const [message, setMessage] = useState('');
 
+  // Load the table record to get the entity name
   const { data: tableRecord } = useQuery({
     queryKey: ['sys_table', tableId],
     queryFn: () => apiClient.get<{ table_name: string; name: string }>(`/sys/tables/${tableId}`),
@@ -22,6 +23,7 @@ function SetupDictionaryButton({ tableId }: { tableId: string }) {
   const handleSetup = async () => {
     if (!tableRecord?.table_name) return;
     const tableName = tableRecord.table_name;
+    // strip 'bus_' prefix to get entity name
     const entity = tableName.startsWith('bus_') ? tableName.slice(4) : tableName;
     setStatus('loading');
     try {

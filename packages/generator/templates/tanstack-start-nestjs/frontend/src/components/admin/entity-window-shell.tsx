@@ -3,9 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth-context';
-import { Home, Info, Tag, Hash, Calendar, Shield, FileText, Database, Layers, Search, X, Plus } from 'lucide-react';
+import { Home, Info, Tag, Hash, Calendar, Shield, FileText, Database, Layers, Search, X, Plus, HelpCircle } from 'lucide-react';
 import { apiClient, type PaginatedResponse } from '@/lib/api-client';
-import { useFormFields, useGridFields, useTableMetadata, type FieldMetadata } from '@/hooks/use-entities';
+import { useFormFields, useGridFields, useTableMetadata, useWindowHelp, type FieldMetadata } from '@/hooks/use-entities';
 import { getFieldTypeLabel, getFieldTypeColor } from '@/lib/field-schema';
 import { DynamicForm } from '@/components/forms/dynamic-form';
 import { DynamicTable } from '@/components/tables/dynamic-table';
@@ -140,6 +140,7 @@ function FilterBuilder({
             </select>
             <FilterValueInput row={row} field={field} onChange={v => updateRow(row.id, { value: v })} />
             <Button
+              type="button"
               variant="ghost"
               size="sm"
               className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
@@ -151,21 +152,86 @@ function FilterBuilder({
         );
       })}
       <div className="flex items-center gap-2 pt-1">
-        <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={addRow} disabled={searchableFields.length === 0}>
+        <Button type="button" variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={addRow} disabled={searchableFields.length === 0}>
           <Plus className="h-3 w-3" />
           Add Filter
         </Button>
-        <Button size="sm" className="h-7 text-xs gap-1" onClick={onApply} disabled={rows.length === 0}>
+        <Button type="button" size="sm" className="h-7 text-xs gap-1" onClick={onApply} disabled={rows.length === 0}>
           <Search className="h-3.5 w-3.5" />
           Apply
         </Button>
         {rows.length > 0 && (
-          <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={onClear}>
+          <Button type="button" variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={onClear}>
             Clear All
           </Button>
         )}
       </div>
     </div>
+  );
+}
+
+function WindowHelpDialog({ tableName, entityLabel }: { tableName: string; entityLabel: string }) {
+  const [open, setOpen] = useState(false);
+  const { data: helpData } = useWindowHelp(tableName);
+
+  const windowHelp = helpData?.window;
+  const tabs = helpData?.tabs ?? [];
+  const hasHelp = !!windowHelp?.help || tabs.some(t => t.help);
+  if (!hasHelp) return null;
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/20 transition-colors"
+        title={`Help for ${entityLabel}`}
+      >
+        <HelpCircle className="w-3.5 h-3.5" />
+        Help
+      </button>
+
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setOpen(false)} />
+          <div className="relative z-10 w-full max-w-lg rounded-xl border border-border bg-background shadow-2xl max-h-[80vh] overflow-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-gradient-to-r from-primary/10 to-primary/5">
+              <div className="flex items-center gap-2">
+                <HelpCircle className="w-5 h-5 text-primary" />
+                <h2 className="text-base font-semibold text-foreground">{entityLabel} — Help</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {windowHelp?.help && (
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">Window Overview</h3>
+                  <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{windowHelp.help}</p>
+                </div>
+              )}
+              {tabs.filter(t => t.help).length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">Tabs</h3>
+                  {tabs.filter(t => t.help).map(tab => (
+                    <div key={tab.sys_tab_id} className="rounded-lg border border-border/60 bg-muted/20 p-3">
+                      <p className="text-xs font-semibold text-foreground mb-1">{tab.name}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">{tab.help}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -569,6 +635,7 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
               )}
             </>
           )}
+          <WindowHelpDialog tableName={tableName} entityLabel={entityLabel} />
         </div>
         {viewMode === 'detail' && !isCreating && (
           <ADRecordNav

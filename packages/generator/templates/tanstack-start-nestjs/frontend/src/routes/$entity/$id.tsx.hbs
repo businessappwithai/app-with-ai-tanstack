@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { BusEntityDetailPage } from '@/components/admin/bus-entity-detail-page';
 
-export const Route = createFileRoute('/{{entity.tableName}}/$id')({
+export const Route = createFileRoute('/{{kebabCase entity.name}}/$id')({
   component: {{entity.name}}DetailPage,
 });
 

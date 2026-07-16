@@ -40,39 +40,6 @@ interface ADToolbarProps {
   isAdvancedSearchOpen?: boolean;
 }
 
-function ToolbarButton({
-  icon: Icon,
-  label,
-  onClick,
-  disabled,
-  variant = 'ghost',
-}: {
-  icon: React.ElementType;
-  label: string;
-  onClick?: () => void;
-  disabled?: boolean;
-  variant?: 'ghost' | 'destructive';
-}) {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClick}
-          disabled={disabled}
-          className={`h-8 w-8 p-0 ${variant === 'destructive' ? 'hover:bg-destructive/10 hover:text-destructive' : 'hover:bg-primary/10 hover:text-primary'}`}
-        >
-          <Icon className="h-4 w-4" />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>{label}</p>
-      </TooltipContent>
-    </Tooltip>
-  );
-}
-
 export function ADToolbar({
   onNew,
   onCopy,
@@ -95,17 +62,18 @@ export function ADToolbar({
 }: ADToolbarProps) {
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="flex items-center gap-1 px-4 py-2 border-b border-border bg-muted/30">
-        {/* Advanced Search trigger */}
+      <div className="flex items-center gap-2 px-5 py-3 border-b border-border bg-muted/20 flex-wrap">
+
+        {/* Search button */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant={isAdvancedSearchOpen ? 'secondary' : 'ghost'}
+              variant={isAdvancedSearchOpen ? 'secondary' : 'outline'}
               size="sm"
               onClick={onAdvancedSearchToggle}
-              className="h-8 gap-1.5 px-2.5 text-sm"
+              className="h-9 gap-2 px-3 text-sm font-medium"
             >
-              <SlidersHorizontal className="h-3.5 w-3.5" />
+              <SlidersHorizontal className="h-4 w-4" />
               <span className="hidden sm:inline">Search</span>
               {advancedFilterCount > 0 && (
                 <Badge variant="default" className="h-4 px-1 text-[10px] min-w-[16px]">
@@ -114,46 +82,162 @@ export function ADToolbar({
               )}
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            <p>Advanced Search (server-side, field filters)</p>
-          </TooltipContent>
+          <TooltipContent>Advanced Search</TooltipContent>
         </Tooltip>
 
-        <Separator orientation="vertical" className="h-6 mx-1" />
-
         {canCreate && (
-          <ToolbarButton icon={Plus} label="New Record" onClick={onNew} />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onNew}
+                className="h-9 gap-2 px-3 text-sm font-medium hover:bg-primary/10 hover:text-primary hover:border-primary/30"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">New</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>New Record</TooltipContent>
+          </Tooltip>
         )}
-        <ToolbarButton icon={Copy} label="Copy Record" onClick={onCopy} disabled={!onCopy} />
 
-        <Separator orientation="vertical" className="h-6 mx-1" />
+        {onCopy && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onCopy}
+                className="h-9 gap-2 px-3 text-sm font-medium"
+              >
+                <Copy className="h-4 w-4" />
+                <span className="hidden sm:inline">Copy</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Copy Record</TooltipContent>
+          </Tooltip>
+        )}
 
+        {(isDetailView || isEditing) && <Separator orientation="vertical" className="h-7 mx-1" />}
+
+        {/* Detail view action buttons */}
         {isDetailView && !isEditing && (
-          <ToolbarButton icon={Pencil} label="Edit Record" onClick={onEdit} />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="sm"
+                onClick={onEdit}
+                className="h-9 gap-2 px-4 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-sm"
+              >
+                <Pencil className="h-4 w-4" />
+                Edit
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Edit Record</TooltipContent>
+          </Tooltip>
         )}
+
         {isEditing && (
-          <ToolbarButton icon={X} label="Cancel Edit" onClick={onCancelEdit} />
-        )}
-        <ToolbarButton
-          icon={Save}
-          label={isSaving ? 'Saving...' : 'Save'}
-          onClick={onSave}
-          disabled={isSaving || !hasChanges}
-        />
-        {canDelete && (
-          <ToolbarButton
-            icon={Trash2}
-            label="Delete"
-            onClick={onDelete}
-            disabled={isDeleting}
-            variant="destructive"
-          />
-        )}
-        <ToolbarButton icon={RotateCcw} label="Undo Changes" onClick={onUndo} disabled={!hasChanges} />
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  onClick={onSave}
+                  disabled={isSaving || !hasChanges}
+                  className="h-9 gap-2 px-4 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm disabled:opacity-50"
+                >
+                  <Save className="h-4 w-4" />
+                  {isSaving ? 'Saving…' : 'Save Changes'}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Save Changes</TooltipContent>
+            </Tooltip>
 
-        <Separator orientation="vertical" className="h-6 mx-1" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  onClick={onCancelEdit}
+                  className="h-9 gap-2 px-4 text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-white shadow-sm"
+                >
+                  <X className="h-4 w-4" />
+                  Cancel
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Cancel Editing</TooltipContent>
+            </Tooltip>
 
-        <ToolbarButton icon={RefreshCw} label="Refresh" onClick={onRefresh} />
+            {canDelete && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    onClick={onDelete}
+                    disabled={isDeleting}
+                    className="h-9 gap-2 px-4 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white shadow-sm disabled:opacity-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {isDeleting ? 'Deleting…' : 'Delete'}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Delete Record</TooltipContent>
+              </Tooltip>
+            )}
+
+            {hasChanges && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onUndo}
+                    className="h-9 gap-2 px-3 text-sm font-medium"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    <span className="hidden sm:inline">Undo</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Undo Changes</TooltipContent>
+              </Tooltip>
+            )}
+          </>
+        )}
+
+        {/* Non-editing Save for list view */}
+        {!isDetailView && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="sm"
+                onClick={onSave}
+                disabled={isSaving || !hasChanges}
+                className="h-9 gap-2 px-4 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm disabled:opacity-50"
+              >
+                <Save className="h-4 w-4" />
+                {isSaving ? 'Saving…' : 'Save'}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Save</TooltipContent>
+          </Tooltip>
+        )}
+
+        <div className="ml-auto">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onRefresh}
+                className="h-9 w-9 p-0 hover:bg-primary/10 hover:text-primary"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Refresh</TooltipContent>
+          </Tooltip>
+        </div>
       </div>
     </TooltipProvider>
   );

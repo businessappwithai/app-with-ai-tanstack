@@ -7,5 +7,5 @@ export const Route = createFileRoute('/admin/elements')({
 });
 
 function ElementsListPage() {
-  return <ADListShell level={ELEMENT_LEVEL} parentContext={[]} />;
+  return <ADListShell level={ELEMENT_LEVEL} parentContext={[]} showAdminCrumb />;
 }

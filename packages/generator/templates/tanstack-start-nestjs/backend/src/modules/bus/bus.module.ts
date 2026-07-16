@@ -11,11 +11,12 @@ import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../../database/database.module';
 import { WorkflowModule } from '../workflow/workflow.module';
 import { AuditModule } from '../audit/audit.module';
+import { RulesModule } from '../rules/rules.module';
 import { BusController } from './bus.controller';
 import { BusService } from './bus.service';
 
 @Module({
-  imports: [DatabaseModule, WorkflowModule, AuditModule],
+  imports: [DatabaseModule, WorkflowModule, AuditModule, RulesModule],
   controllers: [BusController],
   providers: [BusService],
   exports: [BusService],

@@ -29,10 +29,12 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { BusService } from './bus.service';
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
+import { AuditInterceptor } from '../audit/audit.interceptor';
 
 @ApiTags('bus')
 @ApiBearerAuth()
 @UseGuards(SessionAuthGuard)
+@UseInterceptors(AuditInterceptor)
 @Controller('bus')
 export class BusController {
   private readonly logger = new Logger(BusController.name);
@@ -55,13 +57,14 @@ export class BusController {
     @Query('limit') limit?: number,
     @Query('orderBy') orderBy?: string,
     @Query('orderDir') orderDir?: 'asc' | 'desc',
+    @Query('search') search?: string,
     @Query() query?: Record<string, any>,
   ) {
     const methodName = 'findAll';
-    this.logger.debug(`[${methodName}] Request - entity: ${entity}, page: ${page}, limit: ${limit}, orderBy: ${orderBy}, orderDir: ${orderDir}`);
+    this.logger.debug(`[${methodName}] Request - entity: ${entity}, page: ${page}, limit: ${limit}, orderBy: ${orderBy}, orderDir: ${orderDir}, search: ${search}`);
 
     // Extract filters from query params (exclude pagination params)
-    const { page: _p, limit: _l, orderBy: _ob, orderDir: _od, ...rawFilters } = query || {};
+    const { page: _p, limit: _l, orderBy: _ob, orderDir: _od, search: _s, ...rawFilters } = query || {};
 
     // Parse filter parameters with format: filter.fieldName=operator:value
     const parsedFilters = this.parseFilters(rawFilters);
@@ -70,7 +73,16 @@ export class BusController {
       this.logger.debug(`[${methodName}] Filters: ${JSON.stringify(parsedFilters)}`);
     }
 
-    const result = await this.busService.findAll(entity, { page, limit, orderBy, orderDir }, parsedFilters);
+    let searchFields: string[] | undefined;
+    if (search) {
+      const meta = await this.busService.getEntityMetadata(entity);
+      const TEXT_REFS = new Set([10, 14, 24, 30, 31]);
+      searchFields = meta.columns
+        .filter(c => TEXT_REFS.has(c.sys_reference_id) && c.is_displayed_grid)
+        .map(c => c.column_name);
+    }
+
+    const result = await this.busService.findAll(entity, { page, limit, orderBy, orderDir, search, searchFields }, parsedFilters);
 
     this.logger.log(`[${methodName}] Success - entity: ${entity}, returned ${result.data.length} records (total: ${result.meta.total})`);
     return result;
@@ -255,6 +267,7 @@ export class BusController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: Record<string, any>,
     @Headers('if-match') ifMatch?: string,
+    @Req() req?: any,
   ) {
     const methodName = 'update';
     // Extract version from If-Match header
@@ -264,6 +277,11 @@ export class BusController {
 
     this.logger.log(`[${methodName}] Request - entity: ${entity}, id: ${id}, expectedVersion: ${version}`);
     this.logger.debug(`[${methodName}] Request body: ${JSON.stringify(data)}`);
+
+    // Capture before-value for audit trail
+    if (req) {
+      try { req.__auditBefore = await this.busService.findById(entity, id); } catch { /* not found is ok */ }
+    }
 
     // Validate data against dictionary metadata
     await this.busService.validateData(entity, data, 'update');
@@ -289,6 +307,7 @@ export class BusController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: Record<string, any>,
     @Headers('if-match') ifMatch?: string,
+    @Req() req?: any,
   ) {
     const methodName = 'patch';
     const version = ifMatch
@@ -297,6 +316,11 @@ export class BusController {
 
     this.logger.log(`[${methodName}] Request - entity: ${entity}, id: ${id}, expectedVersion: ${version}`);
     this.logger.debug(`[${methodName}] Request body: ${JSON.stringify(data)}`);
+
+    // Capture before-value for audit trail
+    if (req) {
+      try { req.__auditBefore = await this.busService.findById(entity, id); } catch { /* not found is ok */ }
+    }
 
     // Validate partial data against dictionary metadata
     await this.busService.validateData(entity, data, 'patch');
@@ -307,7 +331,7 @@ export class BusController {
   }
 
   /**
-   * Bootstrap Application Dictionary for a business entity.
+   * Bootstrap Application Dictionary for a business entity
    * Creates sys_window, sys_tab, and sys_field records from sys_column records.
    * Idempotent — safe to call multiple times; only creates what is missing.
    * POST /bus/:entity/setup-dictionary
@@ -339,9 +363,15 @@ export class BusController {
   async delete(
     @Param('entity') entity: string,
     @Param('id', ParseUUIDPipe) id: string,
+    @Req() req?: any,
   ) {
     const methodName = 'delete';
     this.logger.log(`[${methodName}] Request - entity: ${entity}, id: ${id}`);
+
+    // Capture before-value for audit trail
+    if (req) {
+      try { req.__auditBefore = await this.busService.findById(entity, id); } catch { /* not found is ok */ }
+    }
 
     await this.busService.softDelete(entity, id);
 

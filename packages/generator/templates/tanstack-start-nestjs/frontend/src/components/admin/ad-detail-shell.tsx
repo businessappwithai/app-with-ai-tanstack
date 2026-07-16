@@ -1,13 +1,15 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { Home, ExternalLink } from 'lucide-react';
+import { Home, ExternalLink, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiClient, type PaginatedResponse } from '@/lib/api-client';
+import { useEntityMetadata, type FieldMetadata } from '@/hooks/use-entities';
 import { DynamicForm } from '@/components/forms/dynamic-form';
 import { DynamicTable } from '@/components/tables/dynamic-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { DocStatusBadge } from './doc-status-badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ADToolbar } from './ad-toolbar';
@@ -26,6 +28,12 @@ type AnyRecord = Record<string, unknown>;
 // Inline child tab panel
 // Row clicks navigate to the child's detail URL (metadata-derived)
 // ---------------------------------------------------------------------------
+
+function pluralLabel(label: string): string {
+  if (label.endsWith('y') && !/[aeiou]y$/i.test(label)) return label.slice(0, -1) + 'ies';
+  if (label.endsWith('s') || label.endsWith('sh') || label.endsWith('ch') || label.endsWith('x') || label.endsWith('z')) return label + 'es';
+  return label + 's';
+}
 
 interface ChildPanelProps {
   childTab: ADChildTabConfig;
@@ -121,6 +129,72 @@ function ChildTabTrigger({ childTab, parentId, isActive }: { childTab: ADChildTa
 // ADDetailShell
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Summary Panel — shows highlight fields in the entity detail header
+// ---------------------------------------------------------------------------
+
+function SummaryRefValue({ field, id }: { field: FieldMetadata; id: string }) {
+  const refTableFull = field.ref_table_name ?? '';
+  const entity = refTableFull.startsWith('bus_') ? refTableFull.slice(4) : refTableFull;
+  const { data } = useQuery({
+    queryKey: ['summary-ref', refTableFull, id],
+    queryFn: () => apiClient.get<AnyRecord>(`/bus/${entity}/${id}`),
+    enabled: !!entity && !!id,
+    staleTime: 30_000,
+  });
+
+  if (!data) return <span className="text-muted-foreground/60 text-xs italic">—</span>;
+
+  const displayValue: string = data.first_name
+    ? `${String(data.first_name ?? '')} ${String(data.last_name ?? '')}`.trim()
+    : data.name != null ? String(data.name) : id.slice(0, 8) + '…';
+
+  return <span>{displayValue}</span>;
+}
+
+function SummaryFieldValue({ field, record }: { field: FieldMetadata; record: AnyRecord }) {
+  const value = record[field.column_name];
+
+  if (value === null || value === undefined || value === '') {
+    return <span className="text-muted-foreground/60 italic">—</span>;
+  }
+
+  if (typeof value === 'boolean') return <span>{value ? 'Yes' : 'No'}</span>;
+
+  if (field.sys_reference_id === 15 || field.sys_reference_id === 16) {
+    const d = new Date(String(value));
+    if (!isNaN(d.getTime())) return <span>{d.toLocaleDateString()}</span>;
+  }
+
+  if (field.sys_reference_id === 18 || field.sys_reference_id === 19) {
+    return <SummaryRefValue field={field} id={String(value)} />;
+  }
+
+  return <span>{String(value)}</span>;
+}
+
+function SummaryPanel({ fields, record }: { fields: FieldMetadata[]; record: AnyRecord }) {
+  if (!fields.length) return null;
+  return (
+    <div className="flex-shrink-0 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/80 rounded-xl p-3 min-w-[200px] max-w-[340px] self-start">
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b border-amber-200/60">
+        <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-400" />
+        <span className="text-xs font-semibold text-amber-700 uppercase tracking-wide">Highlights</span>
+      </div>
+      <div className="space-y-1.5">
+        {fields.map(f => (
+          <div key={f.sys_field_id} className="flex items-baseline gap-2 min-w-0">
+            <span className="text-[10px] text-amber-600/70 font-medium shrink-0 uppercase tracking-wide">{f.name}</span>
+            <span className="text-sm font-semibold text-foreground truncate flex-1 text-right">
+              <SummaryFieldValue field={f} record={record} />
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export interface ADDetailShellProps {
   level: ADLevel;
   recordId: string;
@@ -132,7 +206,7 @@ export interface ADDetailShellProps {
   initialMode?: 'view' | 'edit';
 }
 
-export function ADDetailShell({ level, recordId, parentContext, dashboardHref = '/dashboard', initialMode = 'edit' }: ADDetailShellProps) {
+export function ADDetailShell({ level, recordId, parentContext, dashboardHref = '/dashboard', initialMode = 'view' }: ADDetailShellProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
@@ -142,6 +216,12 @@ export function ADDetailShell({ level, recordId, parentContext, dashboardHref = 
   const [activeChildTab, setActiveChildTab] = useState(() => level.childTabs?.[0]?.id ?? '');
   const [isEditing, setIsEditing] = useState(initialMode === 'edit');
 
+  // Fetch entity metadata to resolve summary fields
+  const { data: entityMeta } = useEntityMetadata(level.id);
+  const summaryFields: FieldMetadata[] = (entityMeta?.columns ?? []).filter(
+    (c: any) => c.group_layout_type === 'summary' && c.is_displayed,
+  ) as FieldMetadata[];
+
   // Fetch each parent record's display name for breadcrumbs
   const parentNameQueries = useQueries({
     queries: parentContext.map(({ level: l, id }) => ({
@@ -150,9 +230,19 @@ export function ADDetailShell({ level, recordId, parentContext, dashboardHref = 
       enabled: !!id,
     })),
   });
-  const parentNames: string[] = parentNameQueries.map((q, i) =>
-    (q.data as AnyRecord | undefined)?.[parentContext[i].level.nameField] as string ?? parentContext[i].id
-  );
+  // Immediate parent record data — used to filter child lookup dropdowns
+  const immediateParentData = parentNameQueries.length > 0
+    ? (parentNameQueries[parentNameQueries.length - 1].data as AnyRecord | undefined) ?? {}
+    : {};
+  const parentNames: string[] = parentNameQueries.map((q, i) => {
+    const rec = q.data as AnyRecord | undefined;
+    if (!rec) return parentContext[i].id;
+    const pl = parentContext[i].level;
+    if (pl.nameField === 'first_name' && rec.last_name) {
+      return `${rec.first_name ?? ''} ${rec.last_name ?? ''}`.trim();
+    }
+    return (rec[pl.nameField] as string) ?? parentContext[i].id;
+  });
 
   // Build parent filter from metadata (level.parentField)
   const parentFilter: Record<string, unknown> = {};
@@ -207,9 +297,9 @@ export function ADDetailShell({ level, recordId, parentContext, dashboardHref = 
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => apiClient.patch(`${level.endpoint}/${recordId}`, { is_active: false }),
+    mutationFn: () => apiClient.delete(`${level.endpoint}/${recordId}`),
     onSuccess: () => {
-      toast.success('Deactivated');
+      toast.success('Deleted');
       queryClient.invalidateQueries({ queryKey: ['ad-detail-list', level.endpoint] });
       navigate({ to: buildAdminListUrl(parentContext, level) as never });
     },
@@ -234,11 +324,15 @@ export function ADDetailShell({ level, recordId, parentContext, dashboardHref = 
   for (let i = 0; i < parentContext.length; i++) {
     const { level: pl, id } = parentContext[i];
     const grandParentCtx = parentContext.slice(0, i);
-    crumbs.push({ label: pl.label + 's', href: buildAdminListUrl(grandParentCtx, pl) });
+    crumbs.push({ label: pluralLabel(pl.label), href: buildAdminListUrl(grandParentCtx, pl) });
     crumbs.push({ label: parentNames[i] ?? id, href: buildAdminDetailUrl(grandParentCtx, pl, id) });
   }
-  crumbs.push({ label: level.label + 's', href: buildAdminListUrl(parentContext, level) });
-  const currentName = currentRecord ? (currentRecord[level.nameField] as string) : recordId;
+  crumbs.push({ label: pluralLabel(level.label), href: buildAdminListUrl(parentContext, level) });
+  const currentName = currentRecord
+    ? level.nameField === 'first_name' && currentRecord.last_name
+      ? `${currentRecord.first_name ?? ''} ${currentRecord.last_name ?? ''}`.trim()
+      : (currentRecord[level.nameField] as string) ?? recordId
+    : recordId;
   crumbs.push({ label: currentName }); // current record — no link
 
   const listHref = buildAdminListUrl(parentContext, level);
@@ -261,41 +355,66 @@ export function ADDetailShell({ level, recordId, parentContext, dashboardHref = 
         isDetailView={true}
       />
 
-      {/* Breadcrumb + record nav */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-background">
-        <div className="flex items-center gap-1.5 text-sm flex-wrap">
-          <button
-            onClick={() => navigate({ to: listHref as never })}
-            className="text-primary hover:underline font-medium text-sm flex-shrink-0"
-          >
-            ← List
-          </button>
-          <span className="text-muted-foreground">/</span>
-          <Link to={dashboardHref as never} className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors flex-shrink-0">
+      {/* Header panel — breadcrumb + record identity + nav */}
+      <div className="border-b border-border bg-gradient-to-r from-background to-muted/30">
+        {/* Top row: breadcrumb trail */}
+        <div className="flex items-center gap-1.5 px-6 pt-4 pb-1 text-xs text-muted-foreground">
+          <Link to={dashboardHref as never} className="flex items-center gap-1 hover:text-primary transition-colors">
             <Home className="h-3.5 w-3.5" /><span>Dashboard</span>
           </Link>
-          {crumbs.map((c, i) => (
+          {crumbs.slice(0, -1).map((c, i) => (
             <span key={i} className="flex items-center gap-1.5">
-              <span className="text-muted-foreground">/</span>
+              <span className="text-muted-foreground/50">/</span>
               {c.href
-                ? <Link to={c.href as never} className="text-muted-foreground hover:text-primary transition-colors truncate max-w-[160px]">{c.label}</Link>
-                : <span className="font-medium text-foreground truncate max-w-[200px]">{c.label}</span>
+                ? <Link to={c.href as never} className="hover:text-primary transition-colors truncate max-w-[180px]">{c.label}</Link>
+                : <span className="truncate max-w-[240px]">{c.label}</span>
               }
             </span>
           ))}
         </div>
-        <ADRecordNav
-          currentIndex={currentIndex}
-          totalCount={totalCount}
-          page={page}
-          pageSize={100}
-          canGoPrev={canGoPrev}
-          canGoNext={canGoNext}
-          onFirst={goFirst}
-          onPrev={goPrev}
-          onNext={goNext}
-          onLast={goLast}
-        />
+
+        {/* Bottom row: record name + status + nav + summary panel */}
+        <div className="flex items-start gap-4 px-6 pb-4 pt-1">
+          {/* Left: title + nav */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3 flex-wrap">
+              <button
+                onClick={() => navigate({ to: listHref as never })}
+                className="text-xs text-primary hover:underline font-medium flex-shrink-0 flex items-center gap-1"
+              >
+                ← List
+              </button>
+              <span className="text-muted-foreground/40">|</span>
+              <h1 className="text-xl font-semibold text-foreground truncate">
+                {currentName}
+              </h1>
+              {!!currentRecord?.doc_status && currentRecord.doc_status !== 'none' && (
+                <DocStatusBadge
+                  status={currentRecord.doc_status as string}
+                  message={currentRecord.doc_status_message as string}
+                />
+              )}
+            </div>
+            <div className="mt-1.5">
+              <ADRecordNav
+                currentIndex={currentIndex}
+                totalCount={totalCount}
+                page={page}
+                pageSize={100}
+                canGoPrev={canGoPrev}
+                canGoNext={canGoNext}
+                onFirst={goFirst}
+                onPrev={goPrev}
+                onNext={goNext}
+                onLast={goLast}
+              />
+            </div>
+          </div>
+          {/* Right: Summary Panel */}
+          {summaryFields.length > 0 && currentRecord && (
+            <SummaryPanel fields={summaryFields} record={currentRecord} />
+          )}
+        </div>
       </div>
 
       {/* Content */}
@@ -322,6 +441,7 @@ export function ADDetailShell({ level, recordId, parentContext, dashboardHref = 
                 mode={isEditing ? 'edit' : 'view'}
                 readOnly={!isEditing}
                 isSaving={saveMutation.isPending}
+                parentContext={immediateParentData}
               />
             </div>
 

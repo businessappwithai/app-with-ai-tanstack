@@ -318,6 +318,26 @@ export async function up(db: Kysely<any>): Promise<void> {
   await sql`CREATE INDEX IF NOT EXISTS idx_sys_field_column_id ON sys_field (sys_column_id)`.execute(db);
 
   // ============================================================================
+  // sys_element - Application Dictionary Element (domain-level column definition)
+  // ============================================================================
+  await sql`
+    CREATE TABLE IF NOT EXISTS sys_element (
+      sys_element_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      column_name VARCHAR(100) NOT NULL UNIQUE,
+      name VARCHAR(100) NOT NULL,
+      print_name VARCHAR(100),
+      description TEXT,
+      help TEXT,
+      po_name VARCHAR(100),
+      po_print_name VARCHAR(100),
+      po_description TEXT,
+      is_active BOOLEAN NOT NULL DEFAULT true,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `.execute(db);
+
+  // ============================================================================
   // sys_role - Role Definition
   // ============================================================================
   await sql`
@@ -494,6 +514,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
 export async function down(db: Kysely<any>): Promise<void> {
   // Drop in reverse order of creation
+  await sql`DROP TABLE IF EXISTS sys_element CASCADE`.execute(db);
   await sql`DROP TABLE IF EXISTS sys_rule_definitions CASCADE`.execute(db);
   await sql`DROP TABLE IF EXISTS sys_session CASCADE`.execute(db);
   await sql`DROP TABLE IF EXISTS sys_change_log CASCADE`.execute(db);

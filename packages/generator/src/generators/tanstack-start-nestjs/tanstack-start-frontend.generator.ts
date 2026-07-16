@@ -18,6 +18,7 @@
  */
 
 import { type Entity, entityToBusEntity, type Relationship } from "@erdwithai/core/types";
+import { kebabCase } from "@erdwithai/core/utils";
 import * as fs from "fs/promises";
 import * as path from "path";
 import { CliExecutor } from "../../utils/cli-executor";
@@ -676,16 +677,16 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       // Create the directory for this entity's routes
       await fs.mkdir(entityDir, { recursive: true });
 
-      // List page - renders to src/routes/$entity/index.tsx per entity
-      const listPageFilename = `${entity.tableName}.tsx`;
+      // List page - renders using Window name slug (e.g. /account not /bus_account)
+      const listPageFilename = `${kebabCase(entity.name)}.tsx`;
       const listPageContent = await this.renderTemplate(
         "src/routes/$entity/index.tsx.hbs",
         entityContext
       );
       await fs.writeFile(path.join(outputDir, "src/routes", listPageFilename), listPageContent);
 
-      // Detail page - renders to src/routes/$entity.$id.tsx per entity
-      const detailPageFilename = `${entity.tableName}.$id.tsx`;
+      // Detail page - renders using Window name slug
+      const detailPageFilename = `${kebabCase(entity.name)}.$id.tsx`;
       const detailPageContent = await this.renderTemplate(
         "src/routes/$entity/$id.tsx.hbs",
         entityContext

@@ -12,7 +12,9 @@
  *   POST /api/auth/sign-out
  */
 
-const AUTH_BASE = "/api/auth";
+// Use the Vinxi proxy (relative URL) so cookies are same-origin (localhost:3001).
+// The proxy forwards to VITE_API_URL (http://127.0.0.1:3000) avoiding IPv6 issues.
+const AUTH_BASE = '/api/auth';
 
 async function authFetch<T = unknown>(
   path: string,
