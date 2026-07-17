@@ -114,12 +114,14 @@ export interface NestJsBackendOptions {
 
 export class NestJsBackendGenerator extends BaseGenerator {
   private options: NestJsBackendOptions;
+  private resolvedTemplateDir: string;
 
   constructor(options: NestJsBackendOptions) {
     // Resolve template directory correctly regardless of bundling
     const templateDir = resolveTemplateDir("tanstack-start-nestjs/backend");
     super(templateDir);
     this.options = options;
+    this.resolvedTemplateDir = templateDir;
   }
 
   async generate(
@@ -148,6 +150,12 @@ export class NestJsBackendGenerator extends BaseGenerator {
 
     // Generate bus_ business entities
     await this.generateBusEntities(outputDir, context);
+
+    // Generate audit module (static files)
+    await this.generateAuditModule(outputDir);
+
+    // Generate workflow-definitions module (static files)
+    await this.generateWorkflowDefinitionsModule(outputDir);
 
     // Generate migrations and seeds
     await this.generateMigrations(outputDir, context);
@@ -219,7 +227,9 @@ export class NestJsBackendGenerator extends BaseGenerator {
       "src/modules/jobs",
       "src/modules/rules/dto",
       "src/modules/rules/jdm",
+      "src/modules/audit",
       "src/modules/workflow",
+      "src/modules/workflow-definitions",
       "src/trigger",
       "src/migrations",
       "seeds",
@@ -322,6 +332,19 @@ export class NestJsBackendGenerator extends BaseGenerator {
     // App module
     const appModuleContent = await this.renderTemplate("src/app.module.ts.hbs", context);
     await fs.writeFile(path.join(outputDir, "src/app.module.ts"), appModuleContent);
+
+    // Standard NestJS scaffolded files (static, no templating needed)
+    const staticAppFiles = ["src/app.controller.ts", "src/app.controller.spec.ts", "src/app.service.ts"];
+    for (const file of staticAppFiles) {
+      try {
+        await fs.copyFile(
+          path.join(this.resolvedTemplateDir,file),
+          path.join(outputDir, file)
+        );
+      } catch (e) {
+        console.warn(`Static app file not found: ${file}`);
+      }
+    }
 
     // Common components
     const commonFiles = [
@@ -563,6 +586,20 @@ export class NestJsBackendGenerator extends BaseGenerator {
       } catch (e) {
         console.warn(`Workflow template not found: ${tpl}`);
       }
+    }
+
+    // Copy static bpmn-executor.service.ts (no Handlebars, copy verbatim)
+    try {
+      const bpmnExecutorSrc = path.join(
+        resolveTemplateDir("tanstack-start-nestjs/backend"),
+        "src/modules/workflow/bpmn-executor.service.ts"
+      );
+      await fs.copyFile(
+        bpmnExecutorSrc,
+        path.join(outputDir, "src/modules/workflow/bpmn-executor.service.ts")
+      );
+    } catch (e) {
+      console.warn("bpmn-executor.service.ts template not found, skipping:", (e as Error).message);
     }
 
     // JDM rule files per entity
@@ -931,6 +968,34 @@ export async function executeAfterListHooks(
       busMigrationContent
     );
 
+    // workflow support migration - adds sys_workflow_runs + doc_status columns to bus tables
+    try {
+      const workflowSupportContent = await this.renderTemplate(
+        "src/migrations/003_add_workflow_support.ts.hbs",
+        context
+      );
+      await fs.writeFile(
+        path.join(outputDir, `src/migrations/${timestamp + 2}_add_workflow_support.ts`),
+        workflowSupportContent
+      );
+    } catch (e) {
+      console.warn("Workflow support migration template not found, skipping:", (e as Error).message);
+    }
+
+    // workflow definitions migration - creates sys_workflow_definitions table
+    try {
+      const workflowDefsContent = await this.renderTemplate(
+        "src/migrations/004_create_workflow_definitions.ts.hbs",
+        context
+      );
+      await fs.writeFile(
+        path.join(outputDir, `src/migrations/${timestamp + 3}_create_workflow_definitions.ts`),
+        workflowDefsContent
+      );
+    } catch (e) {
+      console.warn("Workflow definitions migration template not found, skipping:", (e as Error).message);
+    }
+
     // Seed sys_reference data
     const sysRefContent = await this.renderTemplate(
       "../../common/seeds/sys-references.ts.hbs",
@@ -953,11 +1018,15 @@ export async function executeAfterListHooks(
     await fs.writeFile(path.join(outputDir, "seeds/03_business_data.ts"), businessDataContent);
 
     // Seed business rules (JDM decision models) into sys_rule_definitions
-    const businessRulesContent = await this.renderTemplate(
-      "../../common/seeds/business-rules.ts.hbs",
-      context
-    );
-    await fs.writeFile(path.join(outputDir, "seeds/04_business_rules.ts"), businessRulesContent);
+    try {
+      const businessRulesContent = await this.renderTemplate(
+        "../../common/seeds/business-rules.ts.hbs",
+        context
+      );
+      await fs.writeFile(path.join(outputDir, "seeds/04_business_rules.ts"), businessRulesContent);
+    } catch (e) {
+      console.warn("Business rules seed template failed, skipping:", (e as Error).message);
+    }
   }
 
   /**
@@ -987,6 +1056,33 @@ export async function executeAfterListHooks(
       await fs.writeFile(path.join(outputDir, "nest-cli.json"), nestCliContent);
     } catch (e) {
       console.warn("nest-cli.json template not found, keeping NestJS default");
+    }
+
+    // .prettierrc — render from template (static content, no Handlebars vars)
+    try {
+      const prettierContent = await this.renderTemplate(".prettierrc.hbs", context);
+      await fs.writeFile(path.join(outputDir, ".prettierrc"), prettierContent);
+    } catch (e) {
+      console.warn(".prettierrc template not found, skipping");
+    }
+
+    // Static NestJS boilerplate config files (not project-specific)
+    const staticConfigFiles = [
+      "tsconfig.build.json",
+      "eslint.config.mjs",
+      "test/jest-e2e.json",
+      "test/app.e2e-spec.ts",
+    ];
+    await fs.mkdir(path.join(outputDir, "test"), { recursive: true });
+    for (const file of staticConfigFiles) {
+      try {
+        await fs.copyFile(
+          path.join(this.resolvedTemplateDir,file),
+          path.join(outputDir, file)
+        );
+      } catch (e) {
+        console.warn(`Static config file not found: ${file}`);
+      }
     }
 
     // Generate src/migrate.ts (Kysely migration runner)
@@ -1139,6 +1235,65 @@ export async function executeAfterListHooks(
         await fs.writeFile(path.join(outputDir, out), content);
       } catch (e) {
         console.warn(`Trigger test template not found: ${tpl}`);
+      }
+    }
+  }
+
+  /**
+   * Copy static audit module files from templates (no Handlebars variables).
+   */
+  private async generateAuditModule(outputDir: string): Promise<void> {
+    const auditTemplateDir = path.join(
+      resolveTemplateDir("tanstack-start-nestjs/backend"),
+      "src/modules/audit"
+    );
+    const auditOutputDir = path.join(outputDir, "src/modules/audit");
+
+    const auditFiles = [
+      "audit.controller.ts",
+      "audit.interceptor.ts",
+      "audit.module.ts",
+      "audit.service.ts",
+      "audit.types.ts",
+      "immudb.service.ts",
+    ];
+
+    for (const file of auditFiles) {
+      try {
+        await fs.copyFile(
+          path.join(auditTemplateDir, file),
+          path.join(auditOutputDir, file)
+        );
+      } catch (e) {
+        console.warn(`Audit module file not found, skipping: ${file} — ${(e as Error).message}`);
+      }
+    }
+  }
+
+  /**
+   * Copy static workflow-definitions module files from templates (no Handlebars variables).
+   */
+  private async generateWorkflowDefinitionsModule(outputDir: string): Promise<void> {
+    const wdTemplateDir = path.join(
+      resolveTemplateDir("tanstack-start-nestjs/backend"),
+      "src/modules/workflow-definitions"
+    );
+    const wdOutputDir = path.join(outputDir, "src/modules/workflow-definitions");
+
+    const wdFiles = [
+      "workflow-definitions.controller.ts",
+      "workflow-definitions.module.ts",
+      "workflow-definitions.service.ts",
+    ];
+
+    for (const file of wdFiles) {
+      try {
+        await fs.copyFile(
+          path.join(wdTemplateDir, file),
+          path.join(wdOutputDir, file)
+        );
+      } catch (e) {
+        console.warn(`Workflow-definitions file not found, skipping: ${file} — ${(e as Error).message}`);
       }
     }
   }

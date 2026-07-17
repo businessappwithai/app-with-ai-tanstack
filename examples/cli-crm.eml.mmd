@@ -1,0 +1,234 @@
+%% ============================================================================
+%% EML — Simple CRM
+%% Reverse-engineered from generated-projects/simple-crm
+%% Entities: Account, Contact, Opportunity, Activity
+%% All diagrams are valid, renderable Mermaid.
+%% ============================================================================
+
+%% ---- Section 1: ERD --------------------------------------------------------
+%%meta name: Simple CRM
+%%meta kind: erd
+%%meta version: 1.0.0
+%%enum OpportunityStage: prospecting, qualification, proposal, negotiation, closed_won, closed_lost
+%%enum ActivityType: call, email, meeting, task, note
+erDiagram
+    Account {
+        string  id PK
+        string  name
+        string  email UK
+        string  phone
+    }
+
+    Contact {
+        string  id PK
+        string  account_id FK
+        string  first_name
+        string  last_name
+        string  email UK
+        string  phone
+    }
+
+    Opportunity {
+        string   id PK
+        string   account_id FK
+        string   name
+        decimal  amount
+        string   stage
+        datetime close_date
+    }
+
+    Activity {
+        string   id PK
+        string   contact_id FK
+        string   opportunity_id FK
+        string   type
+        string   description
+        datetime activity_date
+    }
+
+    Account     ||--o{ Contact     : "employs"
+    Account     ||--o{ Opportunity : "has"
+    Contact     ||--o{ Activity    : "logged_for"
+    Opportunity ||--o{ Activity    : "tracked_on"
+
+    %%field Opportunity.stage enum: OpportunityStage
+    %%field Activity.type enum: ActivityType
+    %%index Contact(email) unique
+    %%index Opportunity(account_id, stage)
+    %%index Activity(contact_id, activity_date)
+    %%entity Opportunity audited: true
+    %%entity Account prefix: bus
+
+%% ---- Section 2: Business rule — Account validation ------------------------
+%%meta name: Account Validation
+%%meta kind: rules
+%%rule accountValidation on Account event: beforeCreate priority: 10
+flowchart TD
+    S([Start: Account Create]) --> Q1{name == null?}
+    Q1 -->|Yes| E1[Prevent: Name is required]
+    Q1 -->|No| Q2{email == null?}
+    Q2 -->|Yes| E2[Prevent: Email is required]
+    Q2 -->|No| Q3{email format invalid?}
+    Q3 -->|Yes| E3[Prevent: Email must be a valid email address]
+    Q3 -->|No| Q4{phone == null?}
+    Q4 -->|Yes| E4[Prevent: Phone is required]
+    Q4 -->|No| P(Pass Validation)
+    E1 --> END([End: Validated])
+    E2 --> END
+    E3 --> END
+    E4 --> END
+    P --> END
+
+%% ---- Section 3: Business rule — Contact validation ------------------------
+%%meta name: Contact Validation
+%%meta kind: rules
+%%rule contactValidation on Contact event: beforeCreate priority: 10
+flowchart TD
+    S([Start: Contact Create]) --> Q1{first_name == null?}
+    Q1 -->|Yes| E1[Prevent: First name is required]
+    Q1 -->|No| Q2{last_name == null?}
+    Q2 -->|Yes| E2[Prevent: Last name is required]
+    Q2 -->|No| Q3{email == null?}
+    Q3 -->|Yes| E3[Prevent: Email is required]
+    Q3 -->|No| Q4{email format invalid?}
+    Q4 -->|Yes| E4[Prevent: Email must be a valid email address]
+    Q4 -->|No| Q5{phone == null?}
+    Q5 -->|Yes| E5[Prevent: Phone is required]
+    Q5 -->|No| Q6{account_id == null?}
+    Q6 -->|Yes| E6[Prevent: Account is required]
+    Q6 -->|No| P(Pass Validation)
+    E1 --> END([End: Validated])
+    E2 --> END
+    E3 --> END
+    E4 --> END
+    E5 --> END
+    E6 --> END
+    P --> END
+
+%% ---- Section 4: Business rule — Opportunity validation --------------------
+%%meta name: Opportunity Validation
+%%meta kind: rules
+%%rule opportunityValidation on Opportunity event: beforeCreate priority: 10
+flowchart TD
+    S([Start: Opportunity Create]) --> Q1{name == null?}
+    Q1 -->|Yes| E1[Prevent: Name is required]
+    Q1 -->|No| Q2{amount == null?}
+    Q2 -->|Yes| E2[Prevent: Amount is required]
+    Q2 -->|No| Q3{amount <= 0?}
+    Q3 -->|Yes| E3[Prevent: Amount must be greater than zero]
+    Q3 -->|No| Q4{stage == null?}
+    Q4 -->|Yes| E4[Prevent: Stage is required]
+    Q4 -->|No| Q5{stage not in valid enum?}
+    Q5 -->|Yes| E5[Prevent: Stage must be a valid pipeline stage]
+    Q5 -->|No| Q6{account_id == null?}
+    Q6 -->|Yes| E6[Prevent: Account is required]
+    Q6 -->|No| Q7{close_date == null?}
+    Q7 -->|Yes| E7[Prevent: Close date is required]
+    Q7 -->|No| P(Pass Validation)
+    E1 --> END([End: Validated])
+    E2 --> END
+    E3 --> END
+    E4 --> END
+    E5 --> END
+    E6 --> END
+    E7 --> END
+    P --> END
+
+%% ---- Section 5: Business rule — Opportunity probability scoring -----------
+%%meta name: Opportunity Probability Scoring
+%%meta kind: rules
+%%rule opportunityScoring on Opportunity event: beforeUpdate priority: 20
+flowchart TD
+    S([Start: Opportunity Updated]) --> Q1{stage == closed_won?}
+    Q1 -->|Yes| W[Set Probability 100%]
+    Q1 -->|No| Q2{stage == closed_lost?}
+    Q2 -->|Yes| L[Set Probability 0%]
+    Q2 -->|No| Q3{stage == negotiation?}
+    Q3 -->|Yes| H[Set Probability 70%]
+    Q3 -->|No| Q4{stage == proposal?}
+    Q4 -->|Yes| M[Set Probability 50%]
+    Q4 -->|No| D[Set Probability 20%]
+    W --> C((Recompute Forecast))
+    L --> C
+    H --> C
+    M --> C
+    D --> C
+    C --> E([End: Scored])
+
+%% ---- Section 6: Business rule — Activity validation ----------------------
+%%meta name: Activity Validation
+%%meta kind: rules
+%%rule activityValidation on Activity event: beforeCreate priority: 10
+flowchart TD
+    S([Start: Activity Create]) --> Q1{type == null?}
+    Q1 -->|Yes| E1[Prevent: Type is required]
+    Q1 -->|No| Q2{type not in valid enum?}
+    Q2 -->|Yes| E2[Prevent: Type must be one of: call, email, meeting, task, note]
+    Q2 -->|No| Q3{description == null?}
+    Q3 -->|Yes| E3[Prevent: Description is required]
+    Q3 -->|No| Q4{contact_id == null?}
+    Q4 -->|Yes| E4[Prevent: Contact is required]
+    Q4 -->|No| Q5{opportunity_id == null?}
+    Q5 -->|Yes| E5[Prevent: Opportunity is required]
+    Q5 -->|No| Q6{activity_date == null?}
+    Q6 -->|Yes| E6[Prevent: Activity date is required]
+    Q6 -->|No| P(Pass Validation)
+    E1 --> END([End: Validated])
+    E2 --> END
+    E3 --> END
+    E4 --> END
+    E5 --> END
+    E6 --> END
+    P --> END
+
+%% ---- Section 7: Workflow — Opportunity lifecycle (state machine) ----------
+%%meta name: Opportunity Lifecycle
+%%meta kind: workflow
+%%workflow OpportunityLifecycle entity: Opportunity kind: state
+stateDiagram-v2
+    [*]           --> prospecting
+    prospecting   --> qualification : qualify
+    qualification --> proposal      : send_proposal
+    proposal      --> negotiation   : negotiate
+    negotiation   --> closed_won    : close_won
+    negotiation   --> closed_lost   : close_lost
+    closed_won    --> [*]
+    closed_lost   --> [*]
+
+    %%guard role:sales|manager on Opportunity.update
+    %%guard role:manager on Opportunity.close_won
+    %%trigger cron:0 9 * * 1 -> nudgeStaleOpportunities on Opportunity
+
+%% ---- Section 8: Workflow — Contact lifecycle hooks -----------------------
+%%meta name: Contact Hooks
+%%meta kind: workflow
+%%workflow ContactHooks entity: Contact kind: hook
+flowchart TD
+    A[Client Request] --> B[Validate Request]
+    B --> C[beforeCreate: normalizeEmail]
+    C --> D[customValidate: ensureUniqueEmail]
+    D --> E[Process Contact]
+    E --> F[afterCreate: notifyAccountOwner]
+    F --> G[afterUpdate: syncContactData]
+    G --> H[Response]
+
+    %%hook beforeCreate normalizeEmail on Contact[field: email]
+    %%hook customValidate ensureUniqueEmail on Contact[field: email]
+    %%hook afterCreate notifyAccountOwner on Contact
+    %%hook afterUpdate syncContactData on Contact
+
+%% ---- Section 9: Workflow — Activity lifecycle hooks ----------------------
+%%meta name: Activity Hooks
+%%meta kind: workflow
+%%workflow ActivityHooks entity: Activity kind: hook
+flowchart TD
+    A[Client Request] --> B[Validate Request]
+    B --> C[beforeCreate: validateActivityDate]
+    C --> D[Process Activity]
+    D --> E[afterCreate: updateOpportunityLastActivity]
+    E --> F[afterCreate: logActivityAudit]
+    F --> G[Response]
+
+    %%hook beforeCreate validateActivityDate on Activity[field: activity_date]
+    %%hook afterCreate updateOpportunityLastActivity on Activity
+    %%hook afterCreate logActivityAudit on Activity
