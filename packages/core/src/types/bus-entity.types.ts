@@ -121,7 +121,7 @@ export function entityToBusEntity(entity: Entity): BusEntity {
     tableName,
     originalName: entity.name,
     displayName: formatDisplayName(entity.name),
-    attributes: entity.attributes.map((attr, index) => attributeToBusAttribute(attr, index)),
+    attributes: entity.attributes.map((attr, index) => attributeToBusAttribute(attr, index, entity.primaryKey)),
   };
 }
 
@@ -130,9 +130,13 @@ export function entityToBusEntity(entity: Entity): BusEntity {
  * schema uses UUID primary keys and UUID foreign keys for *_id columns
  * regardless of the scalar type declared in the ERD, so key columns must map
  * to ID/TABLE_DIRECT references rather than the declared type.
+ *
+ * PK fields (matched by entityPrimaryKey) get ReferenceType.ID so they render
+ * as read-only UUID displays, not FK dropdowns.
  */
-export function attributeReferenceId(attr: EntityAttribute): number {
+export function attributeReferenceId(attr: EntityAttribute, entityPrimaryKey?: string): number {
   if (attr.name === "id") return ReferenceType.ID;
+  if (entityPrimaryKey && attr.name === entityPrimaryKey) return ReferenceType.ID;
   if (attr.name.endsWith("_id")) return ReferenceType.TABLE_DIRECT;
   return attributeTypeToReferenceId(attr.type);
 }
@@ -140,12 +144,12 @@ export function attributeReferenceId(attr: EntityAttribute): number {
 /**
  * Converts an EntityAttribute to BusEntityAttribute
  */
-export function attributeToBusAttribute(attr: EntityAttribute, index: number): BusEntityAttribute {
+export function attributeToBusAttribute(attr: EntityAttribute, index: number, entityPrimaryKey?: string): BusEntityAttribute {
   return {
     ...attr,
     columnName: attr.name,
     displayName: formatDisplayName(attr.name),
-    referenceId: attributeReferenceId(attr),
+    referenceId: attributeReferenceId(attr, entityPrimaryKey),
     seqNo: (index + 1) * 10,
   };
 }
@@ -633,7 +637,7 @@ export function generateEntityDictionary(
 } {
   const busEntity = entityToBusEntity(entity);
   const busAttributes = entity.attributes.map((attr, index) =>
-    attributeToBusAttribute(attr, index)
+    attributeToBusAttribute(attr, index, entity.primaryKey)
   );
 
   return {
