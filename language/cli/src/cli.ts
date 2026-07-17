@@ -10,6 +10,7 @@ import path from "node:path";
 import { loadLanguageDefinition } from "../../index.ts";
 import { collectionName, generateApp } from "./generate/app.ts";
 import { generateDocker } from "./generate/docker.ts";
+import { generateCiWorkflow } from "./generate/ci.ts";
 import { publishToGithub } from "./generate/github.ts";
 import { generateJdm } from "./generate/jdm.ts";
 import { generateTanStack } from "./generate/tanstack.ts";
@@ -338,11 +339,13 @@ async function cmdGenerate(f: Flags): Promise<number> {
     console.log(c.green(`  wrote ${jdmFiles.length} GoRules JDM file(s) → rules/`));
   }
 
-  // 6. Docker (optional; node-rest app).
+  // 6. Docker + CI/CD workflow (optional; node-rest app).
   if (f.docker) {
     if (stack === "node-rest") {
       const dockerFiles = generateDocker(outDir, appName);
       console.log(c.green(`  wrote ${dockerFiles.length} docker file(s)`));
+      const ciFiles = generateCiWorkflow(outDir, appName);
+      console.log(c.green(`  wrote ${ciFiles.length} GitHub Actions workflow (docker + compose)`));
     } else {
       console.log(c.yellow("  --docker is only supported for the node-rest stack; skipped"));
     }

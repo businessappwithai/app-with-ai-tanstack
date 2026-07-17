@@ -80,6 +80,27 @@ bun run --filter @erdwithai/core build
 bun language/cli/eml.ts generate -i model.mmd -o ./out --stack tanstack-nestjs
 ```
 
+## Docker + CI/CD (`--docker`)
+
+For the `node-rest` stack, `--docker` emits a `Dockerfile`, `.dockerignore`,
+`docker-compose.yml`, **and** a GitHub Actions workflow at
+`.github/workflows/app-ci.yml`. That workflow has everything needed to run the
+generated app via **Docker + docker compose**: it builds the image
+(`docker compose build`), runs it (`docker compose up -d`), health-checks
+`/health`, smoke-tests `/api/_meta`, and — on push — builds and pushes the image
+to GHCR. Because it lives inside the generated app, it travels with the code
+when the app is published to a repository (`--github`).
+
+## Generate from an online model in CI
+
+The repo ships a driver workflow, `.github/workflows/eml-generate-and-publish.yml`
+(`workflow_dispatch`), that points the CLI at an **online `.mmd` URL**, generates
+the app (with Docker + the `app-ci.yml` workflow), and publishes it to a target
+GitHub repository — reusing the CLI's `--github` publisher. Inputs: `mmd_url`,
+`target_repo`, `app_name`, `stack`, `visibility`. It needs an `EML_PUBLISH_TOKEN`
+secret (a PAT with `repo` + `workflow` scopes; the `workflow` scope is required to
+push `app-ci.yml` into the target repo).
+
 ## Business rules → GoRules JDM
 
 For **either** stack, each EML business rule is converted to a **GoRules JDM**
