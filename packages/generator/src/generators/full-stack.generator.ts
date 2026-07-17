@@ -1,9 +1,8 @@
 /**
  * Full Stack Generator
  *
- * Orchestrates generation of complete full-stack applications using:
+ * Orchestrates generation of complete full-stack applications:
  * - tanstackjs-nestjs: NestJS + TanStack Start (Modern Web Stack)
- * - openui5-odatav4: OData + OpenUI5 (Enterprise SAP Stack)
  *
  * Generates both backend and frontend with Application Dictionary
  * infrastructure and runtime UI configuration support.
@@ -13,14 +12,6 @@ import type { Entity, Relationship } from "@erdwithai/core/types";
 import * as fs from "fs/promises";
 import * as path from "path";
 import {
-  ODataBackendGenerator,
-  type ODataBackendOptions,
-} from "./openui5-odatav4/odata-backend.generator";
-import {
-  OpenUI5FrontendGenerator,
-  type OpenUI5FrontendOptions,
-} from "./openui5-odatav4/openui5-frontend.generator";
-import {
   NestJsBackendGenerator,
   type NestJsBackendOptions,
 } from "./tanstack-start-nestjs/nestjs-backend.generator";
@@ -29,7 +20,7 @@ import {
   type TanStackStartFrontendOptions,
 } from "./tanstack-start-nestjs/tanstack-start-frontend.generator";
 
-export type StackOption = "tanstackjs-nestjs" | "tanstack-start-nestjs" | "openui5-odatav4";
+export type StackOption = "tanstackjs-nestjs" | "tanstack-start-nestjs";
 export type AIAddonOption = "none" | "basic" | "advanced";
 
 export interface FullStackGeneratorOptions {
@@ -51,11 +42,8 @@ export interface FullStackGeneratorOptions {
     frontend: Partial<TanStackStartFrontendOptions>;
   };
 
-  // openui5-odatav4 specific
-  openui5Odatav4?: {
-    backend: Partial<ODataBackendOptions>;
-    frontend: Partial<OpenUI5FrontendOptions>;
-  };
+  skipFrontend?: boolean;
+  skipBackend?: boolean;
 }
 
 export class FullStackGenerator {
@@ -75,11 +63,7 @@ export class FullStackGenerator {
     await fs.mkdir(outputDir, { recursive: true });
 
     // Generate based on stack option
-    if (this.options.stackOption === "tanstackjs-nestjs") {
-      await this.generateTanStackStartNestjs(entities, relationships, outputDir);
-    } else {
-      await this.generateOpenui5Odatav4(entities, relationships, outputDir);
-    }
+    await this.generateTanStackStartNestjs(entities, relationships, outputDir);
 
     // Generate shared files
     await this.generateSharedFiles(outputDir);
@@ -130,12 +114,13 @@ export class FullStackGenerator {
       ...this.options.tanstackStartNestjs?.backend,
     };
 
-    console.log("📦 Generating NestJS backend...");
-    const backendGenerator = new NestJsBackendGenerator(backendOptions);
-    await backendGenerator.generate(entities, relationships, backendDir);
+    if (!this.options.skipBackend) {
+      console.log("📦 Generating NestJS backend...");
+      const backendGenerator = new NestJsBackendGenerator(backendOptions);
+      await backendGenerator.generate(entities, relationships, backendDir);
+    }
 
-    if (this.options.stackOption === "tanstackjs-nestjs" || this.options.stackOption === "tanstack-start-nestjs") {
-      // Frontend options for TanStack Start
+    if (!this.options.skipFrontend) {
       const frontendOptions: TanStackStartFrontendOptions = {
         projectName: this.options.projectName,
         projectVersion: this.options.projectVersion,
@@ -150,59 +135,7 @@ export class FullStackGenerator {
       console.log("📦 Generating TanStack Start frontend...");
       const frontendGenerator = new TanStackStartFrontendGenerator(frontendOptions);
       await frontendGenerator.generate(entities, relationships, frontendDir);
-    } else {
-      console.log("📦 Skipping frontend generation (non-TanStack stack selected)");
     }
-  }
-
-  /**
-   * Generate openui5-odatav4: OData + OpenUI5
-   */
-  private async generateOpenui5Odatav4(
-    entities: Entity[],
-    relationships: Relationship[],
-    outputDir: string
-  ): Promise<void> {
-    const backendDir = path.join(outputDir, "backend");
-    const frontendDir = path.join(outputDir, "frontend");
-
-    // AI NL Add-on config (passed to templates)
-    const aiConfig = {
-      aiNlAddon: this.options.aiNlAddon || "none",
-      aiNlProvider: this.options.aiNlProvider || "anthropic",
-      aiNlModel: this.options.aiNlModel || "claude-sonnet-4-20250514",
-    };
-
-    // Backend options
-    const backendOptions: ODataBackendOptions = {
-      projectName: this.options.projectName,
-      projectVersion: this.options.projectVersion,
-      projectDescription: this.options.projectDescription,
-      databaseType: "postgresql",
-      port: this.options.port,
-      odataPath: "/odata",
-      ...aiConfig,
-      ...this.options.openui5Odatav4?.backend,
-    };
-
-    // Frontend options
-    const frontendOptions: OpenUI5FrontendOptions = {
-      projectName: this.options.projectName,
-      projectVersion: this.options.projectVersion,
-      projectDescription: this.options.projectDescription,
-      odataBaseUrl: `http://localhost:${this.options.port}`,
-      ui5Theme: "sap_horizon",
-      ...aiConfig,
-      ...this.options.openui5Odatav4?.frontend,
-    };
-
-    console.log("📦 Generating OData V4 backend...");
-    const backendGenerator = new ODataBackendGenerator(backendOptions);
-    await backendGenerator.generate(entities, relationships, backendDir);
-
-    console.log("📦 Generating OpenUI5 frontend...");
-    const frontendGenerator = new OpenUI5FrontendGenerator(frontendOptions);
-    await frontendGenerator.generate(entities, relationships, frontendDir);
   }
 
   /**
@@ -406,9 +339,7 @@ npm-debug.log*
    */
   private generateReadme(): string {
     const stackInfo =
-      this.options.stackOption === "tanstackjs-nestjs"
-        ? "- **Backend**: NestJS + Fastify + Knex.js\n- **Frontend**: TanStack Start + Shadcn UI + TanStack Query/Table/Form"
-        : "- **Backend**: OData V4 Server (jaystack)\n- **Frontend**: OpenUI5 Flexible Column Layout";
+      "- **Backend**: NestJS + Fastify + Kysely\n- **Frontend**: TanStack Start + Shadcn UI + TanStack Query/Table/Form";
 
     return `# ${this.options.projectName}
 
@@ -459,7 +390,7 @@ bun run dev
 
 # Or start individually
 bun run dev:backend   # Backend on http://localhost:3000
-bun run dev:frontend  # Frontend on http://localhost:${this.options.stackOption === "tanstackjs-nestjs" ? "3001" : "8080"}
+bun run dev:frontend  # Frontend on http://localhost:3001
 \`\`\`
 
 ### Production Build
@@ -472,7 +403,7 @@ bun run build
 
 \`\`\`
 ${this.options.projectName}/
-├── backend/           # ${this.options.stackOption === "tanstackjs-nestjs" ? "NestJS API" : "OData V4 Server"}
+├── backend/           # NestJS API
 │   ├── src/
 │   │   ├── modules/
 │   │   │   ├── sys/   # Application Dictionary modules
@@ -480,8 +411,8 @@ ${this.options.projectName}/
 │   │   └── ...
 │   ├── migrations/    # Database migrations
 │   └── seeds/         # Seed data
-├── frontend/          # ${this.options.stackOption === "tanstackjs-nestjs" ? "TanStack Start App" : "OpenUI5 App"}
-│   ├── ${this.options.stackOption === "tanstackjs-nestjs" || this.options.stackOption === "tanstack-start-nestjs" ? "src/routes/" : "webapp/"}
+├── frontend/          # TanStack Start App
+│   ├── src/routes/
 │   └── ...
 └── package.json       # Root workspace config
 \`\`\`
@@ -490,7 +421,7 @@ ${this.options.projectName}/
 
 The UI layout can be modified at runtime through the admin interface:
 
-1. Navigate to /admin (tanstackjs-nestjs) or #/admin (openui5-odatav4)
+1. Navigate to /admin
 2. Select an entity to configure
 3. Drag and drop fields to reorder
 4. Changes take effect immediately
@@ -522,8 +453,7 @@ MIT
     };
 
     try {
-      if (this.options.stackOption === "tanstackjs-nestjs") {
-        // tanstackjs-nestjs: TanStack Start + NestJS
+      if (!this.options.skipBackend) {
         console.log("\n  📋 Linting NestJS backend...");
         const backendLintPassed = runLint("npm", ["run", "lint"], path.join(outputDir, "backend"));
         if (backendLintPassed) {
@@ -533,7 +463,9 @@ MIT
             '  ⚠️  Backend linting found issues (run "cd backend && npm run lint:fix" to auto-fix)'
           );
         }
+      }
 
+      if (!this.options.skipFrontend) {
         console.log("\n  📋 Linting TanStack Start frontend...");
         const frontendLintPassed = runLint(
           "npm",
@@ -546,25 +478,6 @@ MIT
           console.warn(
             '  ⚠️  Frontend linting found issues (run "cd frontend && npm run lint:fix" to auto-fix)'
           );
-        }
-      } else {
-        // openui5-odatav4: OData + OpenUI5
-        console.log("\n  📋 Linting OData backend...");
-        const backendLintPassed = runLint("npm", ["run", "lint"], path.join(outputDir, "backend"));
-        if (backendLintPassed) {
-          console.log("  ✅ Backend linting passed");
-        } else {
-          console.warn(
-            '  ⚠️  Backend linting found issues (run "cd backend && npm run lint:fix" to auto-fix)'
-          );
-        }
-
-        console.log("\n  📋 Linting OpenUI5 frontend with UI5 linter...");
-        const ui5LintPassed = runLint("npx", ["ui5-lint"], path.join(outputDir, "frontend"));
-        if (ui5LintPassed) {
-          console.log("  ✅ Frontend UI5 linting passed");
-        } else {
-          console.warn("  ⚠️  UI5 linting found issues (check ui5lint.yaml for rules)");
         }
       }
 
@@ -582,9 +495,7 @@ MIT
    * Get human-readable stack description
    */
   private getStackDescription(): string {
-    return this.options.stackOption === "tanstackjs-nestjs"
-      ? "tanstackjs-nestjs - Modern Web (TanStack Start + NestJS)"
-      : "openui5-odatav4 - Enterprise SAP (OData + OpenUI5)";
+    return "tanstackjs-nestjs - Modern Web (TanStack Start + NestJS)";
   }
 }
 

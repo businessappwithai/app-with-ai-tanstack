@@ -132,25 +132,13 @@ export class GeneratorOrchestrator {
       {
         value: "tanstackjs-nestjs",
         label: "Modern Web Stack",
-        description: "TanStack Start + Shadcn UI + TanStack | NestJS + Fastify + Knex.js",
-      },
-      {
-        value: "openui5-odatav4",
-        label: "Enterprise SAP-Style Stack",
-        description: "OpenUI5 FCL | OData V4 Server (jaystack)",
+        description: "TanStack Start + Shadcn UI + TanStack | NestJS + Fastify + Kysely",
       },
     ];
   }
 
   private getStackDescription(): string {
-    switch (this.options.stackOption) {
-      case "tanstackjs-nestjs":
-        return "Modern Web Stack (TanStack Start + NestJS)";
-      case "openui5-odatav4":
-        return "Enterprise SAP-Style Stack (OpenUI5 + OData V4)";
-      default:
-        return this.options.stackOption;
-    }
+    return "Modern Web Stack (TanStack Start + NestJS)";
   }
 
   private async collectGeneratedFiles(dir: string): Promise<string[]> {
