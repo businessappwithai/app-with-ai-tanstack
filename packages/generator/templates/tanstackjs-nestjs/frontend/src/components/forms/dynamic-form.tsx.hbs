@@ -505,6 +505,8 @@ export function DynamicForm({
   const { t } = useTranslations();
   const { data: fetchedFields, isLoading: fieldsLoading, error } = useFormFields(tableName);
   const fields = externalFields || fetchedFields;
+  // Derive the entity PK column name from the table name (bus_lead → lead_id)
+  const pkColumnName = tableName.replace(/^bus_/, '') + '_id';
   const [zodErrors, setZodErrors] = useState<Record<string, string>>({});
 
   const form = useForm<FormValues>({
@@ -560,8 +562,8 @@ export function DynamicForm({
     if (!fields || fields.length === 0) return new Map();
     const displayFields = fields.filter((f) => {
       if (!f.is_displayed || f.column_name === parentField) return false;
-      // Hide ID/UUID primary-key fields in create mode — they are auto-generated on submit
-      if (mode === 'create' && f.sys_reference_id === REFERENCE_TYPE.ID) return false;
+      // Hide the entity's own PK field in create mode — it's auto-generated on submit
+      if (mode === 'create' && f.column_name === pkColumnName) return false;
       return true;
     });
     const groups: Map<string | null, FieldMetadata[]> = new Map();
@@ -609,13 +611,9 @@ export function DynamicForm({
     const currentValues = form.state.values;
     const value = currentValues as Record<string, unknown>;
 
-    // Auto-generate UUIDs for ID fields in create mode (PKs + non-FK UUID refs)
-    if (mode === 'create' && fields) {
-      for (const f of fields) {
-        if (f.sys_reference_id === REFERENCE_TYPE.ID && !value[f.column_name]) {
-          value[f.column_name] = crypto.randomUUID();
-        }
-      }
+    // Auto-generate UUID for the entity PK in create mode
+    if (mode === 'create' && fields && !value[pkColumnName]) {
+      value[pkColumnName] = crypto.randomUUID();
     }
 
     // Coerce untouched boolean fields to false so required validation doesn't reject them
@@ -631,7 +629,7 @@ export function DynamicForm({
     if (fields) {
       const displayedFields = fields.filter(f => {
         if (!f.is_displayed || f.column_name === parentField) return false;
-        if (mode === 'create' && f.sys_reference_id === REFERENCE_TYPE.ID) return false;
+        if (mode === 'create' && f.column_name === pkColumnName) return false;
         return true;
       });
       const validation = validateFormData(displayedFields, value, mode);
@@ -663,12 +661,12 @@ export function DynamicForm({
 
   const requiredCount = fields.filter(f => {
     if (!f.is_displayed || !f.is_mandatory || f.column_name === parentField) return false;
-    if (mode === 'create' && f.sys_reference_id === REFERENCE_TYPE.ID) return false;
+    if (mode === 'create' && f.column_name === pkColumnName) return false;
     return true;
   }).length;
   const totalDisplayed = fields.filter(f => {
     if (!f.is_displayed || f.column_name === parentField) return false;
-    if (mode === 'create' && f.sys_reference_id === REFERENCE_TYPE.ID) return false;
+    if (mode === 'create' && f.column_name === pkColumnName) return false;
     return true;
   }).length;
 
