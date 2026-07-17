@@ -1,0 +1,123 @@
+# EML CLI (`eml`)
+
+A robust, zero-runtime-dependency TypeScript CLI that reads the
+[ERDwithAI Modeling Language](../README.md) definition, parses an `.mmd` EML
+model (ERD + business rules + workflows), validates it **with self-correction**,
+and **generates a complete, runnable application** from it.
+
+Runs under **Bun** (source) or Node (bundled). No project install required.
+
+```bash
+bun language/cli/eml.ts --help
+```
+
+## Commands
+
+| Command | Purpose |
+|---------|---------|
+| `generate` | Parse → validate (self-correct) → generate an app (+Docker, +GitHub) |
+| `validate` | Parse and validate a model; report diagnostics; exit 1 on errors |
+| `info` | Print a summary of the parsed model |
+| `help` | Show usage |
+
+## Options
+
+```
+-i, --input <file>        Input .mmd EML file (or first positional arg)
+-o, --output <dir>        Output directory for the generated app
+-n, --name <name>         Application name (default: derived from the model)
+    --stack <stack>       Target stack (default: node-rest)
+    --docker              Also emit Dockerfile + docker-compose.yml
+    --github <owner/repo> Publish the generated app to a GitHub repository
+    --github-token <tok>  GitHub token (else GITHUB_TOKEN / GH_TOKEN)
+    --private | --public  Visibility of the created GitHub repo (default private)
+    --no-autofix          Disable validation self-correction
+    --force               Overwrite a non-empty output directory
+    --json                Machine-readable output (validate/info)
+-h, --help                Show help
+-v, --version             Show version
+```
+
+## Examples
+
+```bash
+# Validate (with self-correction preview)
+bun language/cli/eml.ts validate -i language/examples/helpdesk.eml.mmd
+
+# Summarize the model
+bun language/cli/eml.ts info -i language/examples/helpdesk.eml.mmd
+
+# Generate a runnable app + Docker files
+bun language/cli/eml.ts generate -i language/examples/helpdesk.eml.mmd -o ./out --docker
+
+# Generate and publish to GitHub (needs GITHUB_TOKEN)
+bun language/cli/eml.ts generate -i model.mmd -o ./out --github me/my-app --public
+
+# Run the generated app (zero dependencies)
+cd out && npm start   # → http://localhost:3000
+```
+
+## What it generates
+
+A complete, dependency-free Node app (`node:http` + a JSON-file datastore):
+
+```
+out/
+  src/
+    server.js      HTTP server + routing (REST CRUD per entity)
+    services.js    per-entity lifecycle: validation → rules → hooks → workflow
+    rules.js       business-rule engine (evaluates the decision flows)
+    workflows.js   state machines (enforces legal status transitions → 409)
+    hooks.js       lifecycle hook handlers (generated stubs to implement)
+    validate.js    request validation (required fields, enums, coercion)
+    db.js          JSON-file datastore
+    model.js       the parsed EML model (source of truth)
+    openapi.js     OpenAPI 3 document builder
+  eml.model.json   parsed-model snapshot
+  package.json  README.md  .gitignore
+  Dockerfile  docker-compose.yml  .dockerignore   (with --docker)
+```
+
+The generated app wires each section of the EML model:
+
+- **ERD** → entities, REST endpoints, persistence, validation, OpenAPI.
+- **Business rules** → evaluated in the create/update lifecycle; the decision
+  trace is returned under `_rules` on the response.
+- **Workflows** → state transitions enforced on update (illegal → HTTP 409);
+  `%%hook` handlers invoked around CRUD as stubs to implement.
+
+## How the pieces fit
+
+```
+.mmd EML ──parser.ts──▶ EmlModel ──validator.ts──▶ (self-corrected) ──generate/*──▶ app
+                 ▲
+     language/erdwithai-language.json  (types, cardinalities, hook types, …)
+```
+
+## Validation & self-correction
+
+`validate` and `generate` share the same validator. With self-correction on
+(default), fixable problems are repaired in place and reported as `fix`
+diagnostics; without it (`--no-autofix`) they are reported as errors/warnings.
+
+| Code | Problem | Auto-fix |
+|------|---------|----------|
+| `EML001` | No document name | derive a name |
+| `EML101` | Duplicate entity | merge attributes |
+| `EML102` | Duplicate attribute | drop the duplicate |
+| `EML103` | Entity has no primary key | add `string id PK` |
+| `EML120` | Relationship endpoint not an entity | synthesize a minimal entity |
+| `EML130` | Field references unknown enum | warn (treated as free string) |
+| `EML202` | Unknown hook type | error (not auto-fixable) |
+| `EML210` | Hook bound to unknown entity | synthesize a minimal entity |
+| `EML300` | Rule missing input/output node | warn |
+| `EML400` | State workflow has no transitions | warn |
+
+## Development
+
+```bash
+cd language/cli
+bun install                 # dev-only: TypeScript + type packages
+bun run typecheck           # tsc --noEmit
+bun run lint                # biome check
+```
