@@ -773,7 +773,7 @@ export function DynamicForm({
                       serverErrors={serverErrors}
                       zodErrors={zodErrors}
                       tableName={tableName}
-                      readOnlyFields={readOnlyFields}
+                      readOnlyFields={mode === 'edit' ? [...readOnlyFields, pkColumnName] : readOnlyFields}
                     />
                   </div>
                 ))}
