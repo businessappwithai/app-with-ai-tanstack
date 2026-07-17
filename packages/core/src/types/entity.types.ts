@@ -7,6 +7,7 @@ export interface EntityAttribute {
   maxLength?: number;
   minLength?: number;
   pattern?: string;
+  isForeignKey?: boolean;
 }
 
 export interface Entity {

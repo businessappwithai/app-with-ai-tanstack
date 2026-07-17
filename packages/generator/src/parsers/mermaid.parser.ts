@@ -272,8 +272,7 @@ export class MermaidParser {
 
     // Parse modifiers
     const isPrimaryKey = modifiers.includes("PK");
-    // Note: FK modifier is used for future reference tracking
-    // const isForeignKey = modifiers.includes('FK');
+    const isForeignKey = modifiers.includes("FK");
     const isUnique = modifiers.includes("UK") || modifiers.includes("UNIQUE");
     const isOptional = modifiers.includes("OPTIONAL") || modifiers.includes("NULL");
 
@@ -287,6 +286,7 @@ export class MermaidParser {
       required: !isOptional && !isPrimaryKey, // PK is auto-generated
       unique: isUnique || isPrimaryKey,
       maxLength,
+      ...(isForeignKey && { isForeignKey: true }),
     };
   }
 
