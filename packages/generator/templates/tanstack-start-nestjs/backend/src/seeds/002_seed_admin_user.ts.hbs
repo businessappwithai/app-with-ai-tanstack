@@ -68,8 +68,8 @@ export async function seed(knex: Knex): Promise<void> {
   // ========================================
 
   // Default credentials
-  const defaultEmail = 'admin@{{project.domain}}';
-  const defaultPassword = 'admin123'; // IMPORTANT: Change after first login!
+  const defaultEmail = process.env.ADMIN_EMAIL || 'admin@admin.com';
+  const defaultPassword = process.env.ADMIN_PASSWORD || 'admin';
 
   // Hash password
   const passwordHash = await bcrypt.hash(defaultPassword, 10);

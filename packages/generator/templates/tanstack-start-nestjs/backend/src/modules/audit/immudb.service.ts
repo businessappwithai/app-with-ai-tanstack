@@ -36,7 +36,8 @@ export class ImmudbService implements OnModuleInit, OnModuleDestroy {
     }
 
     try {
-      // Dynamic import so the app starts even when immudb-node is not installed
+      // Dynamic import — immudb-node is an optional dep; @ts-ignore suppresses the module-not-found lint
+      // @ts-ignore
       const ImmudbClient = (await import('immudb-node')).default;
 
       const host = this.config.get<string>('IMMUDB_HOST', '127.0.0.1');

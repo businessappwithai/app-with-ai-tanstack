@@ -71,11 +71,13 @@ export async function seed(db: Kysely<any>): Promise<void> {
   // ============================================================================
   const adminUserId = uuidv4();
 
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@admin.com';
+
   await db.insertInto('sys_user').values({
     sys_user_id: adminUserId,
     name: 'System Administrator',
-    email: 'admin@localhost',
-    password_hash: '$2b$10$rIC/7qZmzCi9F4g4OKL8wO4k5XYzJ5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5', // placeholder
+    email: adminEmail,
+    password_hash: '$2b$10$rIC/7qZmzCi9F4g4OKL8wO4k5XYzJ5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5', // replaced by ensureAdminUser on first boot
     description: 'Default system administrator',
     is_system_user: true,
     is_sales_rep: false,

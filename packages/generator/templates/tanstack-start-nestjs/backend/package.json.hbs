@@ -17,7 +17,8 @@
     "test:watch": "bun test --watch",
     "migrate": "bun run src/migrate.ts latest",
     "migrate:down": "bun run src/migrate.ts down",
-    "db:setup": "bun run src/migrate.ts latest"
+    "seed": "bun run src/seed.ts",
+    "db:setup": "bun run src/migrate.ts latest && bun run src/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",
@@ -41,6 +42,7 @@
     "fastify": "^4.25.0",
     "uuid": "^9.0.1",
     "bcryptjs": "^2.4.3",
+    "immudb-node": "^1.1.1",
     "zod": "^3.25.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.0",

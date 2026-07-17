@@ -54,6 +54,7 @@ export async function initAuth() {
       emailAndPassword: {
         enabled: true,
         requireEmailVerification: false,
+        minPasswordLength: 4,
         sendResetPassword: async ({ user, url: _url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
           console.log('Password reset requested for:', user.email || user.id);
         },

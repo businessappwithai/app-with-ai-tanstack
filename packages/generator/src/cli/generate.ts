@@ -11,6 +11,7 @@
 
 import type { Entity, Relationship } from "@erdwithai/core/types";
 import { Command } from "commander";
+import { spawnSync } from "child_process";
 import { promises as fs } from "fs";
 import * as path from "path";
 import * as readline from "readline";
@@ -70,6 +71,84 @@ async function outputDirHasContent(outputDir: string): Promise<boolean> {
   }
 }
 
+/**
+ * Post-generation setup: install deps, create DB, run migrations + seeds.
+ * Copies .env.example → .env if .env does not already exist.
+ */
+async function runSetup(opts: {
+  outputDir: string;
+  dbType: string;
+  projectName: string;
+  packageManager: string;
+  quiet: boolean;
+}) {
+  const { outputDir, dbType, packageManager: pm, quiet } = opts;
+  const backendDir = path.join(outputDir, "backend");
+  const frontendDir = path.join(outputDir, "frontend");
+  const dbName = opts.projectName.replace(/-/g, "_").replace(/[^a-z0-9_]/gi, "").toLowerCase();
+
+  const run = (cmd: string, args: string[], cwd: string, label: string) => {
+    log(`   ${label}…`, quiet);
+    const res = spawnSync(cmd, args, { cwd, stdio: quiet ? "pipe" : "inherit", shell: false });
+    if (res.status !== 0) {
+      const stderr = res.stderr?.toString().trim();
+      throw new Error(`${label} failed${stderr ? `: ${stderr}` : ""}`);
+    }
+  };
+
+  // 1. Install deps (root workspace so both backend + frontend get installed)
+  log("\n📦 Installing dependencies…", quiet);
+  run(pm, ["install"], outputDir, `${pm} install`);
+
+  // 2. Copy .env.example → .env in backend (skip if already exists)
+  const envPath = path.join(backendDir, ".env");
+  const envExamplePath = path.join(backendDir, ".env.example");
+  try {
+    await fs.access(envPath);
+  } catch {
+    try {
+      await fs.copyFile(envExamplePath, envPath);
+      log("   ✓ backend/.env created from .env.example", quiet);
+    } catch {
+      // non-fatal — user can copy manually
+    }
+  }
+
+  // 3. Create PostgreSQL database if needed
+  if (dbType === "postgresql") {
+    log(`\n🗄️  Creating database "${dbName}"…`, quiet);
+    const createDb = spawnSync("createdb", [dbName], { stdio: "pipe" });
+    if (createDb.status === 0) {
+      log(`   ✓ Database "${dbName}" created`, quiet);
+    } else {
+      const msg = createDb.stderr?.toString() ?? "";
+      if (msg.includes("already exists")) {
+        log(`   ✓ Database "${dbName}" already exists`, quiet);
+      } else {
+        // Non-fatal — user may be using DATABASE_URL or remote DB
+        console.warn(`   ⚠️  createdb: ${msg.trim() || "could not create database (may already exist or need manual setup)"}`);
+      }
+    }
+  }
+
+  // 4. Run migrations
+  log("\n🔄 Running migrations…", quiet);
+  run(pm, ["run", "migrate"], backendDir, "migrate");
+
+  // 5. Run seeds
+  log("\n🌱 Running seeds…", quiet);
+  run(pm, ["run", "seed"], backendDir, "seed");
+
+  // 6. Install frontend deps separately if it has its own package.json
+  try {
+    await fs.access(path.join(frontendDir, "package.json"));
+    log("\n📦 Installing frontend dependencies…", quiet);
+    run(pm, ["install"], frontendDir, `${pm} install (frontend)`);
+  } catch {
+    // no separate frontend package.json — already installed at root
+  }
+}
+
 // ---------------------------------------------------------------------------
 // CLI setup
 // ---------------------------------------------------------------------------
@@ -122,6 +201,8 @@ program
   // Output verbosity
   .option("--verbose", "Print each file as it is written")
   .option("--quiet", "Suppress all non-error output")
+  // Post-generation setup
+  .option("--no-setup", "Skip automatic install, migrate and seed after generation")
   .action(async (options) => {
     const quiet: boolean = !!options.quiet;
 
@@ -282,18 +363,35 @@ program
         packageManager: options.packageManager,
       });
 
+      // ── Auto-setup (install + migrate + seed) ───────────────────────────
+      if (options.setup !== false) {
+        log("\n⚙️  Running automatic setup…", quiet);
+        await runSetup({
+          outputDir,
+          dbType: options.db,
+          projectName: options.name,
+          packageManager: options.packageManager,
+          quiet,
+        });
+      }
+
       // ── Success ─────────────────────────────────────────────────────────
       if (!quiet) {
         const pm = options.packageManager;
         console.log("\n═══════════════════════════════════════════");
         console.log("✅ Generation complete!\n");
-        console.log("Next steps:");
-        console.log(`   1. cd ${outputDir}`);
-        console.log(`   2. ${pm} install`);
-        console.log("   3. cp backend/.env.example backend/.env");
-        console.log(`   4. ${pm} run db:migrate`);
-        console.log(`   5. ${pm} run db:seed`);
-        console.log(`   6. ${pm} run dev\n`);
+        if (options.setup === false) {
+          console.log("Next steps:");
+          console.log(`   1. cd ${outputDir}`);
+          console.log("   2. cp backend/.env.example backend/.env");
+          console.log(`   3. ${pm} install`);
+          console.log(`   4. ${pm} run db:setup   # migrate + seed`);
+          console.log(`   5. ${pm} run dev\n`);
+        } else {
+          console.log(`   App ready in: ${outputDir}`);
+          console.log(`   cd ${outputDir} && ${pm} run dev\n`);
+          console.log("   Default admin:  admin@admin.com / admin\n");
+        }
       }
     } catch (error: unknown) {
       console.error("\n❌ Error:", error instanceof Error ? error.message : String(error));

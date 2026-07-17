@@ -14,17 +14,17 @@ import { AppModule } from './app.module';
 import { initAuth, getAuth } from './lib/better-auth';
 
 async function ensureAdminUser(logger: Logger) {
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@{{#if project.domain}}{{project.domain}}{{else}}admin.com{{/if}}';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'password123';
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@admin.com';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin';
 
   const pool = process.env.DATABASE_URL
     ? new Pool({ connectionString: process.env.DATABASE_URL })
     : new Pool({
         host: process.env.DB_HOST ?? '127.0.0.1',
         port: Number(process.env.DB_PORT ?? 5432),
-        user: process.env.DB_USER ?? '{{projectSnake}}',
+        user: process.env.DB_USER ?? process.env.USER ?? '{{snakeCase project.name}}',
         password: process.env.DB_PASSWORD ?? '',
-        database: process.env.DB_NAME ?? '{{projectSnake}}',
+        database: process.env.DB_NAME ?? '{{snakeCase project.name}}',
       });
 
   const db = new Kysely<any>({ dialect: new PostgresDialect({ pool }) });
