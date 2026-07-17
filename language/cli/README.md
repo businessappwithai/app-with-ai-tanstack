@@ -26,8 +26,8 @@ bun language/cli/eml.ts --help
 -i, --input <file>        Input .mmd EML file (or first positional arg)
 -o, --output <dir>        Output directory for the generated app
 -n, --name <name>         Application name (default: derived from the model)
-    --stack <stack>       Target stack (default: node-rest)
-    --docker              Also emit Dockerfile + docker-compose.yml
+    --stack <stack>       node-rest (default) | tanstack-nestjs
+    --docker              Also emit Dockerfile + docker-compose.yml (node-rest)
     --github <owner/repo> Publish the generated app to a GitHub repository
     --github-token <tok>  GitHub token (else GITHUB_TOKEN / GH_TOKEN)
     --private | --public  Visibility of the created GitHub repo (default private)
@@ -57,7 +57,38 @@ bun language/cli/eml.ts generate -i model.mmd -o ./out --github me/my-app --publ
 cd out && npm start   # → http://localhost:3000
 ```
 
-## What it generates
+## Stacks
+
+### `node-rest` (default)
+
+A complete, **dependency-free** Node app (`node:http` + a JSON-file datastore) —
+generated entirely by this CLI and runnable with no install.
+
+### `tanstack-nestjs`
+
+Reuses the **shipped** generator (`packages/generator`) — its
+`GeneratorOrchestrator` and the `tanstack-start-nestjs` Handlebars templates —
+to produce a full **TanStack Start frontend + NestJS backend** project
+(`backend/` + `frontend/`). The EML model is mapped to the core
+`Entity[]`/`Relationship[]` the orchestrator consumes, and generation runs in
+template-only mode (no network scaffolding). Requires the workspace deps
+installed and `@erdwithai/core` built once:
+
+```bash
+bun install
+bun run --filter @erdwithai/core build
+bun language/cli/eml.ts generate -i model.mmd -o ./out --stack tanstack-nestjs
+```
+
+## Business rules → GoRules JDM
+
+For **either** stack, each EML business rule is converted to a **GoRules JDM**
+decision document via the shipped converter
+(`packages/web/src/lib/jdm-converter.ts`) and written to `<out>/rules/`
+(`<rule>.jdm.json` + `index.json`). Node shapes map to JDM roles
+(stadium→input/output, diamond→switch, circle→function, rect→expression).
+
+## The node-rest output
 
 A complete, dependency-free Node app (`node:http` + a JSON-file datastore):
 

@@ -8,12 +8,25 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { loadLanguageDefinition } from "../../index.ts";
-import type { Diagnostic, EmlModel } from "./model.ts";
-import { parseEml } from "./parser.ts";
-import { validateModel } from "./validator.ts";
 import { collectionName, generateApp } from "./generate/app.ts";
 import { generateDocker } from "./generate/docker.ts";
 import { publishToGithub } from "./generate/github.ts";
+import { generateJdm } from "./generate/jdm.ts";
+import { generateTanStack } from "./generate/tanstack.ts";
+import type { Diagnostic, EmlModel } from "./model.ts";
+import { parseEml } from "./parser.ts";
+import { validateModel } from "./validator.ts";
+
+const STACKS = ["node-rest", "tanstack-nestjs"] as const;
+const STACK_ALIASES: Record<string, (typeof STACKS)[number]> = {
+  "node-rest": "node-rest",
+  node: "node-rest",
+  rest: "node-rest",
+  "tanstack-nestjs": "tanstack-nestjs",
+  "tanstackjs-nestjs": "tanstack-nestjs",
+  "tanstack-start-nestjs": "tanstack-nestjs",
+  tanstack: "tanstack-nestjs",
+};
 
 const CLI_VERSION = "1.0.0";
 
@@ -145,8 +158,8 @@ ${c.bold("OPTIONS")}
   -i, --input <file>        Input .mmd EML file (or first positional arg)
   -o, --output <dir>        Output directory for the generated app
   -n, --name <name>         Application name (default: derived from the model)
-      --stack <stack>       Target stack (default: node-rest)
-      --docker              Also emit Dockerfile + docker-compose.yml
+      --stack <stack>       Target stack: node-rest (default) | tanstack-nestjs
+      --docker              Also emit Dockerfile + docker-compose.yml (node-rest)
       --github <owner/repo> Publish the generated app to a GitHub repository
       --github-token <tok>  GitHub token (else GITHUB_TOKEN / GH_TOKEN)
       --private             Create the GitHub repo private (default)
@@ -161,6 +174,7 @@ ${c.bold("EXAMPLES")}
   eml validate -i model.mmd
   eml generate -i model.mmd -o ./out -n my-app
   eml generate -i model.mmd -o ./out --docker
+  eml generate -i model.mmd -o ./out --stack tanstack-nestjs
   eml generate -i model.mmd -o ./out --github me/my-app --public
 `;
 
@@ -273,10 +287,11 @@ async function cmdGenerate(f: Flags): Promise<number> {
   const { file, source } = readInput(f);
   const outDir = f.output;
   if (!outDir) throw new CliError("No output directory. Use -o <dir>.");
-  if (f.stack !== "node-rest")
-    throw new CliError(`Unsupported stack "${f.stack}". Available: node-rest.`);
+  const stack = STACK_ALIASES[f.stack];
+  if (!stack)
+    throw new CliError(`Unsupported stack "${f.stack}". Available: ${STACKS.join(", ")}.`);
 
-  console.log(c.bold(`\nGenerating from ${file}`));
+  console.log(c.bold(`\nGenerating from ${file}`) + c.dim(`  [stack: ${stack}]`));
 
   // 1. Parse.
   const model = parseEml(source);
@@ -303,20 +318,37 @@ async function cmdGenerate(f: Flags): Promise<number> {
     f.name ?? model.meta.name ?? path.basename(file, path.extname(file)) ?? "eml-app"
   );
 
-  // 4. Generate app.
-  const written = generateApp(model, { outDir, appName });
-  console.log(c.green(`  wrote ${written.length} app file(s)`));
-
-  // 5. Docker (optional).
-  if (f.docker) {
-    const dockerFiles = generateDocker(outDir, appName);
-    console.log(c.green(`  wrote ${dockerFiles.length} docker file(s)`));
+  // 4. Generate app for the selected stack.
+  let runHint: string;
+  if (stack === "tanstack-nestjs") {
+    const res = await generateTanStack(model, { outDir, appName });
+    console.log(
+      c.green(`  wrote ${res.generatedFiles.length} app file(s) (TanStack Start + NestJS)`)
+    );
+    runHint = `  cd ${outDir}/backend && bun install && bun run dev   # NestJS API\n  cd ${outDir}/frontend && bun install && bun run dev  # TanStack Start`;
+  } else {
+    const written = generateApp(model, { outDir, appName });
+    console.log(c.green(`  wrote ${written.length} app file(s) (Node REST)`));
+    runHint = `  cd ${outDir} && npm start   # then open http://localhost:3000`;
   }
 
-  console.log(
-    `\n${c.green("✓")} Generated ${c.bold(appName)} → ${outDir}\n` +
-      c.dim(`  cd ${outDir} && npm start   # then open http://localhost:3000`)
-  );
+  // 5. Business rules → GoRules JDM (shipped converter).
+  const jdmFiles = generateJdm(model, outDir);
+  if (jdmFiles.length) {
+    console.log(c.green(`  wrote ${jdmFiles.length} GoRules JDM file(s) → rules/`));
+  }
+
+  // 6. Docker (optional; node-rest app).
+  if (f.docker) {
+    if (stack === "node-rest") {
+      const dockerFiles = generateDocker(outDir, appName);
+      console.log(c.green(`  wrote ${dockerFiles.length} docker file(s)`));
+    } else {
+      console.log(c.yellow("  --docker is only supported for the node-rest stack; skipped"));
+    }
+  }
+
+  console.log(`\n${c.green("✓")} Generated ${c.bold(appName)} → ${outDir}\n${c.dim(runHint)}`);
 
   // 6. GitHub (optional).
   if (f.github) {

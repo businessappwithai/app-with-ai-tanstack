@@ -116,6 +116,8 @@ export interface EmlRule {
   priority?: number;
   nodes: RuleNode[];
   edges: RuleEdge[];
+  /** The original Mermaid flowchart source for this rule (fed to the JDM converter). */
+  raw?: string;
 }
 
 export interface EmlHook {

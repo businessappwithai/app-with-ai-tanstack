@@ -453,6 +453,7 @@ function parseFlowSection(section: Section, model: EmlModel): void {
       priority: rule?.priority,
       nodes,
       edges,
+      raw: `flowchart TD\n${section.lines.map((l) => `    ${l.text}`).join("\n")}\n`,
     });
     return;
   }

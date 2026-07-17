@@ -110,6 +110,12 @@ export interface NestJsBackendOptions {
   port: number;
   enableSwagger: boolean;
   enableCors: boolean;
+  /**
+   * Skip the network CLI scaffolding step (`bun x nest new`) and generate the
+   * project purely from the bundled templates. Useful for offline / CI
+   * generation where the NestJS CLI is unavailable.
+   */
+  skipCliScaffold?: boolean;
 }
 
 export class NestJsBackendGenerator extends BaseGenerator {
@@ -127,8 +133,13 @@ export class NestJsBackendGenerator extends BaseGenerator {
     relationships: Relationship[],
     outputDir: string
   ): Promise<void> {
-    console.log(`\n📦 Phase 1: Scaffolding NestJS project...`);
-    await this.scaffoldNestJsProject(outputDir);
+    if (this.options.skipCliScaffold) {
+      console.log(`\n📦 Phase 1: Skipping CLI scaffold (template-only mode)`);
+      await fs.mkdir(outputDir, { recursive: true });
+    } else {
+      console.log(`\n📦 Phase 1: Scaffolding NestJS project...`);
+      await this.scaffoldNestJsProject(outputDir);
+    }
 
     console.log(`\n🎨 Phase 2: Overlaying custom templates...`);
     // Prepare context for templates
