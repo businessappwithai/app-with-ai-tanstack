@@ -15,7 +15,7 @@ import { config } from 'dotenv';
 import * as path from 'path';
 
 // Load .env from backend root regardless of cwd
-config({ path: path.join(__dirname, '..', '..', '.env') });
+config({ path: path.join(__dirname, '..', '..', '.env'), override: true });
 config({ path: path.join(__dirname, '..', '..', '.env.local'), override: true });
 
 let authInstance: any = null;

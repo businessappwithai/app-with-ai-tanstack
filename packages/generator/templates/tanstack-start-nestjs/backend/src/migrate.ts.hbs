@@ -12,7 +12,7 @@ import { Pool } from 'pg';
 import { config } from 'dotenv';
 
 // Load .env from backend root (parent of src/) regardless of cwd
-config({ path: path.join(__dirname, '..', '.env') });
+config({ path: path.join(__dirname, '..', '.env'), override: true });
 config({ path: path.join(__dirname, '..', '.env.local'), override: true });
 
 function buildPool() {

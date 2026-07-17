@@ -1,0 +1,66 @@
+erDiagram
+    Account {
+        uuid account_id PK
+        varchar name
+        varchar industry
+        varchar sla_tier
+        numeric annual_revenue
+        boolean is_active
+    }
+
+    Contact {
+        uuid contact_id PK
+        uuid account_id FK
+        varchar email
+        varchar phone
+        boolean consent_status
+        boolean is_active
+    }
+
+    Lead {
+        uuid lead_id PK
+        varchar email
+        int ai_score
+        varchar status
+        uuid campaign_id
+        boolean is_active
+    }
+
+    Opportunity {
+        uuid opportunity_id PK
+        uuid account_id FK
+        numeric value
+        varchar stage
+        decimal probability
+        boolean is_active
+    }
+
+    Product {
+        uuid product_id PK
+        varchar name
+        varchar sku
+        boolean is_active
+    }
+
+    Ticket {
+        uuid ticket_id PK
+        uuid account_id FK
+        varchar priority
+        varchar status
+        timestamp sla_deadline
+        boolean is_active
+    }
+
+    OpportunityProduct {
+        uuid opportunity_product_id PK
+        uuid opportunity_id FK
+        uuid product_id FK
+        int quantity
+        numeric unit_price
+    }
+
+    Account ||--o{ Contact : "has"
+    Account ||--o{ Opportunity : "has"
+    Account ||--o{ Ticket : "has"
+    Opportunity ||--o{ OpportunityProduct : "includes"
+    Product ||--o{ OpportunityProduct : "included_in"
