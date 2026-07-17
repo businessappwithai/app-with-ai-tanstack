@@ -77,13 +77,15 @@ function getFieldIcon(sysReferenceId: number) {
 
 function TableReferenceViewValue({ field, id }: { field: FieldMetadata; id: string }) {
   const customEndpoint = field.ref_endpoint || null;
+  const tableEndpoint = field.ref_table_name ? `/bus/${field.ref_table_name}` : null;
+  const effectiveEndpoint = customEndpoint || tableEndpoint;
   const idField = field.ref_id_field || 'id';
   const labelField = field.ref_label_field || 'name';
 
   const { data } = useQuery({
-    queryKey: ['table-ref-view', customEndpoint, id],
-    queryFn: () => apiClient.get<{ data: any[] }>(customEndpoint!, { limit: 500 }),
-    enabled: !!customEndpoint && !!id,
+    queryKey: ['table-ref-view', effectiveEndpoint, id],
+    queryFn: () => apiClient.get<{ data: any[] }>(effectiveEndpoint!, { limit: 500 }),
+    enabled: !!effectiveEndpoint && !!id,
   });
 
   const records = (data as any)?.data ?? [];
@@ -684,6 +686,7 @@ export function DynamicForm({
   const { t } = useTranslations();
   const { data: fetchedFields, isLoading: fieldsLoading, error } = useFormFields(tableName, { enabled: !externalFields });
   const fields = externalFields || fetchedFields;
+  const pkColumnName = tableName.replace(/^bus_/, '') + '_id';
   const [zodErrors, setZodErrors] = useState<Record<string, string>>({});
 
   const form = useForm<FormValues>({
@@ -693,7 +696,11 @@ export function DynamicForm({
 
       // Zod validation
       if (fields) {
-        const displayedFields = fields.filter(f => f.is_displayed && f.column_name !== parentField);
+        const displayedFields = fields.filter(f => {
+          if (!f.is_displayed || f.column_name === parentField) return false;
+          if (mode === 'create' && f.column_name === pkColumnName) return false;
+          return true;
+        });
         const validation = validateFormData(displayedFields, value, mode === 'view' ? 'edit' : mode);
         if (!validation.success) {
           setZodErrors(validation.errors);
@@ -737,7 +744,11 @@ export function DynamicForm({
 
   const groupedFields = useMemo(() => {
     if (!fields || fields.length === 0) return new Map();
-    const displayFields = fields.filter((f) => f.is_displayed && f.column_name !== parentField);
+    const displayFields = fields.filter((f) => {
+      if (!f.is_displayed || f.column_name === parentField) return false;
+      if (mode === 'create' && f.column_name === pkColumnName) return false;
+      return true;
+    });
     const groups: Map<string | null, FieldMetadata[]> = new Map();
     displayFields.forEach((field) => {
       const groupName = field.group_name || null;
@@ -783,9 +794,27 @@ export function DynamicForm({
     const currentValues = form.state.values;
     const value = currentValues as Record<string, unknown>;
 
+    // Auto-generate UUID for the entity PK in create mode
+    if (mode === 'create' && fields && !value[pkColumnName]) {
+      value[pkColumnName] = crypto.randomUUID();
+    }
+
+    // Coerce untouched boolean fields to false so required validation doesn't reject them
+    if (fields) {
+      for (const f of fields) {
+        if (f.sys_reference_id === REFERENCE_TYPE.YES_NO && value[f.column_name] === undefined) {
+          value[f.column_name] = false;
+        }
+      }
+    }
+
     // Zod validation
     if (fields) {
-      const displayedFields = fields.filter(f => f.is_displayed && f.column_name !== parentField);
+      const displayedFields = fields.filter(f => {
+        if (!f.is_displayed || f.column_name === parentField) return false;
+        if (mode === 'create' && f.column_name === pkColumnName) return false;
+        return true;
+      });
       const validation = validateFormData(displayedFields, value, mode === 'view' ? 'edit' : mode);
       if (!validation.success) {
         setZodErrors(validation.errors);
@@ -813,8 +842,16 @@ export function DynamicForm({
     await onSubmit(filteredValues);
   };
 
-  const requiredCount = fields.filter(f => f.is_displayed && f.is_mandatory && f.column_name !== parentField).length;
-  const totalDisplayed = fields.filter(f => f.is_displayed && f.column_name !== parentField).length;
+  const requiredCount = fields.filter(f => {
+    if (!f.is_displayed || !f.is_mandatory || f.column_name === parentField) return false;
+    if (mode === 'create' && f.column_name === pkColumnName) return false;
+    return true;
+  }).length;
+  const totalDisplayed = fields.filter(f => {
+    if (!f.is_displayed || f.column_name === parentField) return false;
+    if (mode === 'create' && f.column_name === pkColumnName) return false;
+    return true;
+  }).length;
 
   return (
     <form.Provider>
@@ -889,7 +926,7 @@ export function DynamicForm({
                       serverErrors={serverErrors}
                       zodErrors={zodErrors}
                       tableName={tableName}
-                      readOnlyFields={readOnlyFields}
+                      readOnlyFields={mode === 'edit' ? [...readOnlyFields, pkColumnName] : readOnlyFields}
                       parentContext={parentContext}
                     />
                   </div>

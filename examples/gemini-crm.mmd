@@ -1,0 +1,107 @@
+ %% =========================================================================
+    %% COMPREHENSIVE CLOUD-NATIVE ENTERPRISE CRM BLUEPRINT (.EML.MMD)
+    %% INTEGRATING SCHEMA, ATTRIBUTES, RELATIONS, BUSINESS RULES & WORKFLOWS
+    %% =========================================================================
+
+    %% GLOBAL STYLING DECLARATIONS
+    classDef entityHeader fill:#2B5B84,stroke:#1A365D,color:#FFFFFF,font-weight:bold;
+    classDef ruleNode fill:#FEF3C7,stroke:#D97706,color:#451A03,font-style:italic,font-weight:bold;
+    classDef stateNode fill:#D1FAE5,stroke:#059669,color:#064E3B,font-weight:semibold;
+    classDef transitionConnector stroke:#3B82F6,stroke-width:2px;
+
+    subgraph RelationalCore [SECTION 1: HTAP DATABASE SCHEMA & ENTITY DEFINITIONS]
+        %% Entity Definitions
+        Account["<b>Account Entity</b><hr/>• PK: account_id (UUID)<br/>• name (VARCHAR)<br/>• industry (VARCHAR)<br/>• sla_tier (ENUM)<br/>• annual_revenue (NUMERIC)"]
+        Contact["<b>Contact Entity</b><hr/>• PK: contact_id (UUID)<br/>• FK: account_id (UUID)<br/>• email (VARCHAR_SECURE)<br/>• phone (VARCHAR_SECURE)<br/>• consent_status (BOOL)"]
+        Lead["<b>Lead Entity</b><hr/>• PK: lead_id (UUID)<br/>• email (VARCHAR)<br/>• ai_score (INT)<br/>• status (ENUM)<br/>• campaign_id (UUID)"]
+        Opportunity["<b>Opportunity Entity</b><hr/>• PK: opportunity_id (UUID)<br/>• FK: account_id (UUID)<br/>• value (NUMERIC)<br/>• stage (ENUM)<br/>• probability (DECIMAL)"]
+        Product["<b>Product Entity</b><hr/>• PK: product_id (UUID)<br/>• name (VARCHAR)<br/>• sku (VARCHAR)<br/>• is_active (BOOL)"]
+        Ticket["<b>Ticket Entity</b><hr/>• PK: ticket_id (UUID)<br/>• FK: account_id (UUID)<br/>• priority (ENUM)<br/>• status (ENUM)<br/>• sla_deadline (TIMESTAMP)"]
+        Audit["<b>Audit Log Ledger (Immutable)</b><hr/>• PK: log_id (BIGINT)<br/>• target_table (VARCHAR)<br/>• record_id (UUID)<br/>• changed_by (VARCHAR)<br/>• timestamp (TIMESTAMP)"]
+
+        %% Database Constraints & Entity Relations
+        Account ====>|1:N Relationships| Contact
+        Account ====>|1:N Relationships| Opportunity
+        Account ====>|1:N Relationships| Ticket
+        Opportunity ====>|N:M Mapping via Product_Link| Product
+        
+        %% Audit Log Polymorphic Subsystem
+        Audit -.->|CDC Tracks Changes| Account
+        Audit -.->|CDC Tracks Changes| Opportunity
+        Audit -.->|CDC Tracks Changes| Lead
+        Audit -.->|CDC Tracks Changes| Ticket
+    end
+
+    subgraph DeclarativeRules [SECTION 2: REAL-TIME DECLARATIVE BUSINESS RULES ENGINE]
+        %% Decisional Gateways
+        BR01_LeadRule{"BR_01: Lead Scoring Gateway<br/>(ai_score >= 85)"}
+        BR02_QuoteRule{"BR_02: Quote Active Guard<br/>(Quote == 'ACTIVE')"}
+        BR03_SLARule{"BR_03: SLA Breach Monitoring<br/>(SLA Remaining &lt; 15%)"}
+
+        %% Action Execution Path
+        AE_EnterpriseAssign[Auto-Assign Record to Enterprise AE & Route via Active Campaign Engine]
+        AE_SDR_Nurture[Auto-Assign Record to SDR for Scheduled Lead Nurturing Campaign]
+        AE_FreezeStage[Lock Opportunity Pipeline Fields to Read-Only Mode]
+        AE_SLAEscalation[Set Status to CRITICAL & Page Support Escalation Manager]
+    end
+
+    subgraph ProcessWorkflows [SECTION 3: TEMPORAL OPERATIONAL WORKFLOW ORCHESTRATION]
+        
+        %% Workflow 1
+        subgraph L2R_Workflow [Workflow 1: Inbound Lead-to-Revenue Automation]
+            W1_Start([New Prospect Ingested]) 
+            W1_Score[Asynchronous Sigmoid Intent Scoring]
+            W1_MQL[Lead Qualified as MQL]
+            W1_SDR[Lead Contact established via SDR Outreach]
+            W1_Convert[Convert Prospect to Client Account]
+            W1_Nurture[Transfer to Automated Email Sequence]
+
+            W1_Start --> W1_Score
+            W1_Score --> BR01_LeadRule
+            
+            %% Gateway Branches
+            BR01_LeadRule -->|Predicate Satisfied| W1_MQL
+            BR01_LeadRule -->|Predicate Failed| W1_Nurture
+            
+            W1_MQL --> W1_SDR
+            W1_SDR -->|Discovery Qualification Succeeded| W1_Convert
+            W1_SDR -->|Discovery Qualification Failed| W1_Nurture
+        end
+
+        %% Workflow 2
+        subgraph SLA_Workflow [Workflow 2: Customer Incident Ticket Lifecycle]
+            W2_Open([Customer Support Request Ingested])
+            W2_Routing[Skill-Based Routing Queue]
+            W2_InProg[Case Set to IN_PROGRESS Stage]
+            W2_Pending[SLA Suspended: Case Status PENDING Customer]
+            W2_Resolved[Case Set to RESOLVED Status]
+            W2_Close[Case Set to CLOSED & Audit Log Generated]
+
+            W2_Open --> W2_Routing
+            W2_Routing --> W2_InProg
+            
+            %% Multi-path SLA Lifecycle
+            W2_InProg -->|Request Customer Clarification| W2_Pending
+            W2_Pending -->|Customer Updates Incident Ticket| W2_InProg
+            W2_InProg --> BR03_SLARule
+            
+            BR03_SLARule -->|SLA Breach Warning Triggered| AE_SLAEscalation
+            BR03_SLARule -->|Normal Resolution Sequence| W2_Resolved
+            
+            W2_Resolved --> W2_Close
+        end
+    end
+
+    %% INTER-SUBGRAPH RELATIONS AND DEPENDENCIES
+    Lead -->|Pipeline Source| W1_Start
+    Ticket -->|Execution Context| W2_Open
+    W1_Convert -->|Drives Instantiation of| Opportunity
+    AE_SLAEscalation -->|Overrides Assignment of| Ticket
+    BR02_QuoteRule -->|Triggers Active State Enforcement on| Opportunity
+    AE_FreezeStage -->|Updates Structural Lock on| Opportunity
+
+    %% APPLY VISUAL STYLES
+    class Account,Contact,Lead,Opportunity,Product,Ticket,Audit entityHeader;
+    class BR01_LeadRule,BR02_QuoteRule,BR03_SLARule ruleNode;
+    class W1_Start,W1_MQL,W1_SDR,W1_Convert,W1_Nurture,W2_Open,W2_InProg,W2_Pending,W2_Resolved,W2_Close stateNode;
+    class AE_EnterpriseAssign,AE_SDR_Nurture,AE_FreezeStage,AE_SLAEscalation transitionConnector;
