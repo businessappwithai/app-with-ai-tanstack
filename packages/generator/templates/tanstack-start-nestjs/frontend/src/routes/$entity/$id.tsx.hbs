@@ -9,5 +9,5 @@ export const Route = createFileRoute('/{{kebabCase entity.name}}/$id')({
 // custom detail window for this entity without touching the shared infrastructure.
 function {{entity.name}}DetailPage() {
   const { id } = Route.useParams();
-  return <BusEntityDetailPage entityName="{{lowerCase entity.name}}" recordId={id} />;
+  return <BusEntityDetailPage entityName="{{snakeCase entity.name}}" recordId={id} />;
 }
