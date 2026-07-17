@@ -558,7 +558,12 @@ export function DynamicForm({
 
   const groupedFields = useMemo(() => {
     if (!fields || fields.length === 0) return new Map();
-    const displayFields = fields.filter((f) => f.is_displayed && f.column_name !== parentField);
+    const displayFields = fields.filter((f) => {
+      if (!f.is_displayed || f.column_name === parentField) return false;
+      // Hide ID/UUID primary-key fields in create mode — they are auto-generated on submit
+      if (mode === 'create' && f.sys_reference_id === REFERENCE_TYPE.ID) return false;
+      return true;
+    });
     const groups: Map<string | null, FieldMetadata[]> = new Map();
     displayFields.forEach((field) => {
       const groupName = field.group_name || null;
@@ -604,6 +609,15 @@ export function DynamicForm({
     const currentValues = form.state.values;
     const value = currentValues as Record<string, unknown>;
 
+    // Auto-generate UUIDs for ID fields in create mode (PKs + non-FK UUID refs)
+    if (mode === 'create' && fields) {
+      for (const f of fields) {
+        if (f.sys_reference_id === REFERENCE_TYPE.ID && !value[f.column_name]) {
+          value[f.column_name] = crypto.randomUUID();
+        }
+      }
+    }
+
     // Coerce untouched boolean fields to false so required validation doesn't reject them
     if (fields) {
       for (const f of fields) {
@@ -615,7 +629,11 @@ export function DynamicForm({
 
     // Zod validation
     if (fields) {
-      const displayedFields = fields.filter(f => f.is_displayed && f.column_name !== parentField);
+      const displayedFields = fields.filter(f => {
+        if (!f.is_displayed || f.column_name === parentField) return false;
+        if (mode === 'create' && f.sys_reference_id === REFERENCE_TYPE.ID) return false;
+        return true;
+      });
       const validation = validateFormData(displayedFields, value, mode);
       if (!validation.success) {
         setZodErrors(validation.errors);
@@ -643,8 +661,16 @@ export function DynamicForm({
     await onSubmit(filteredValues);
   };
 
-  const requiredCount = fields.filter(f => f.is_displayed && f.is_mandatory && f.column_name !== parentField).length;
-  const totalDisplayed = fields.filter(f => f.is_displayed && f.column_name !== parentField).length;
+  const requiredCount = fields.filter(f => {
+    if (!f.is_displayed || !f.is_mandatory || f.column_name === parentField) return false;
+    if (mode === 'create' && f.sys_reference_id === REFERENCE_TYPE.ID) return false;
+    return true;
+  }).length;
+  const totalDisplayed = fields.filter(f => {
+    if (!f.is_displayed || f.column_name === parentField) return false;
+    if (mode === 'create' && f.sys_reference_id === REFERENCE_TYPE.ID) return false;
+    return true;
+  }).length;
 
   return (
     <form.Provider>
