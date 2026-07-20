@@ -545,9 +545,18 @@ export function DynamicForm({
     onSubmit: async ({ value }) => {
       if (readOnly || !onSubmit) return;
 
+      // Auto-generate UUID for the entity PK in create mode
+      if (mode === 'create' && fields && !value[pkColumnName]) {
+        value[pkColumnName] = crypto.randomUUID();
+      }
+
       // Zod validation
       if (fields) {
-        const displayedFields = fields.filter(f => f.is_displayed && f.column_name !== parentField);
+        const displayedFields = fields.filter(f => {
+          if (!f.is_displayed || f.column_name === parentField) return false;
+          if (mode === 'create' && f.column_name === pkColumnName) return false;
+          return true;
+        });
         const validation = validateFormData(displayedFields, value, mode);
         if (!validation.success) {
           setZodErrors(validation.errors);

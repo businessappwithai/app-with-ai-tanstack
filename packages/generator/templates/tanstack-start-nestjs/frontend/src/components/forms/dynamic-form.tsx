@@ -686,14 +686,26 @@ export function DynamicForm({
   const fields = externalFields || fetchedFields;
   const [zodErrors, setZodErrors] = useState<Record<string, string>>({});
 
+  // Derive the entity PK column name from the table name (bus_patient → patient_id)
+  const pkColumnName = tableName.replace(/^bus_/, '') + '_id';
+
   const form = useForm<FormValues>({
     defaultValues: initialData,
     onSubmit: async ({ value }) => {
       if (readOnly || !onSubmit) return;
 
+      // Auto-generate UUID for the entity PK in create mode
+      if (mode === 'create' && fields && !value[pkColumnName]) {
+        value[pkColumnName] = crypto.randomUUID();
+      }
+
       // Zod validation
       if (fields) {
-        const displayedFields = fields.filter(f => f.is_displayed && f.column_name !== parentField);
+        const displayedFields = fields.filter(f => {
+          if (!f.is_displayed || f.column_name === parentField) return false;
+          if (mode === 'create' && f.column_name === pkColumnName) return false;
+          return true;
+        });
         const validation = validateFormData(displayedFields, value, mode === 'view' ? 'edit' : mode);
         if (!validation.success) {
           setZodErrors(validation.errors);
@@ -737,7 +749,12 @@ export function DynamicForm({
 
   const groupedFields = useMemo(() => {
     if (!fields || fields.length === 0) return new Map();
-    const displayFields = fields.filter((f) => f.is_displayed && f.column_name !== parentField);
+    const displayFields = fields.filter((f) => {
+      if (!f.is_displayed || f.column_name === parentField) return false;
+      // Hide the entity's own PK field in create mode — it's auto-generated on submit
+      if (mode === 'create' && f.column_name === pkColumnName) return false;
+      return true;
+    });
     const groups: Map<string | null, FieldMetadata[]> = new Map();
     displayFields.forEach((field) => {
       const groupName = field.group_name || null;
@@ -783,9 +800,18 @@ export function DynamicForm({
     const currentValues = form.state.values;
     const value = currentValues as Record<string, unknown>;
 
+    // Auto-generate UUID for the entity PK in create mode
+    if (mode === 'create' && fields && !value[pkColumnName]) {
+      value[pkColumnName] = crypto.randomUUID();
+    }
+
     // Zod validation
     if (fields) {
-      const displayedFields = fields.filter(f => f.is_displayed && f.column_name !== parentField);
+      const displayedFields = fields.filter(f => {
+        if (!f.is_displayed || f.column_name === parentField) return false;
+        if (mode === 'create' && f.column_name === pkColumnName) return false;
+        return true;
+      });
       const validation = validateFormData(displayedFields, value, mode === 'view' ? 'edit' : mode);
       if (!validation.success) {
         setZodErrors(validation.errors);
@@ -813,8 +839,16 @@ export function DynamicForm({
     await onSubmit(filteredValues);
   };
 
-  const requiredCount = fields.filter(f => f.is_displayed && f.is_mandatory && f.column_name !== parentField).length;
-  const totalDisplayed = fields.filter(f => f.is_displayed && f.column_name !== parentField).length;
+  const requiredCount = fields.filter(f => {
+    if (!f.is_displayed || !f.is_mandatory || f.column_name === parentField) return false;
+    if (mode === 'create' && f.column_name === pkColumnName) return false;
+    return true;
+  }).length;
+  const totalDisplayed = fields.filter(f => {
+    if (!f.is_displayed || f.column_name === parentField) return false;
+    if (mode === 'create' && f.column_name === pkColumnName) return false;
+    return true;
+  }).length;
 
   return (
     <form.Provider>
@@ -889,7 +923,7 @@ export function DynamicForm({
                       serverErrors={serverErrors}
                       zodErrors={zodErrors}
                       tableName={tableName}
-                      readOnlyFields={readOnlyFields}
+                      readOnlyFields={mode === 'edit' ? [...readOnlyFields, pkColumnName] : readOnlyFields}
                       parentContext={parentContext}
                     />
                   </div>

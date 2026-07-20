@@ -138,7 +138,6 @@ export function attributeReferenceId(attr: EntityAttribute, entityPrimaryKey?: s
   if (attr.name === "id") return ReferenceType.ID;
   if (entityPrimaryKey && attr.name === entityPrimaryKey) return ReferenceType.ID;
   if (attr.name.endsWith("_id") && attr.isForeignKey) return ReferenceType.TABLE_DIRECT;
-  if (attr.name.endsWith("_id")) return ReferenceType.ID;
   return attributeTypeToReferenceId(attr.type);
 }
 
