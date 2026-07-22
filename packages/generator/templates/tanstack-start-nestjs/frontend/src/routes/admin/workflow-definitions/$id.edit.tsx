@@ -1,4 +1,5 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { ChevronRight } from 'lucide-react';
 import { useRef, useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../../lib/api-client';
@@ -90,9 +91,13 @@ function EditWorkflowDefinition() {
     <div className="h-screen flex flex-col">
       {/* Toolbar */}
       <div className="flex items-center gap-4 px-4 py-3 border-b bg-white shadow-sm">
-        <Button variant="ghost" size="sm" onClick={() => navigate({ to: '/admin/workflow-definitions/' })}>
-          ← Back
-        </Button>
+        <nav aria-label="breadcrumb" className="flex items-center gap-1 text-sm text-gray-500">
+          <Link to="/dashboard" className="hover:text-gray-700 hover:underline">Dashboard</Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <Link to="/admin/workflow-definitions" className="hover:text-gray-700 hover:underline">Workflow Designer</Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="text-gray-900 font-medium">Edit</span>
+        </nav>
         <h1 className="font-semibold text-gray-800">Edit Workflow Definition</h1>
         <div className="flex items-center gap-2 ml-4">
           <Switch checked={isActive} onCheckedChange={setIsActive} id="is-active" />
