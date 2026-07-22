@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { ChevronRight } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { apiClient } from '../../../lib/api-client';
@@ -48,6 +49,13 @@ function WorkflowDefinitionsList() {
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
+      {/* Breadcrumb */}
+      <nav aria-label="breadcrumb" className="flex items-center gap-1 text-sm text-gray-500">
+        <Link to="/dashboard" className="hover:text-gray-700 hover:underline">Dashboard</Link>
+        <ChevronRight className="h-3.5 w-3.5" />
+        <span className="text-gray-900 font-medium">Workflow Designer</span>
+      </nav>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

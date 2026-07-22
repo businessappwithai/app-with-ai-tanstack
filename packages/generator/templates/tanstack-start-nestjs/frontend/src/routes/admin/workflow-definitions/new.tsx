@@ -1,4 +1,5 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { ChevronRight } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../../lib/api-client';
@@ -61,9 +62,13 @@ function NewWorkflowDefinition() {
     <div className="h-screen flex flex-col">
       {/* Toolbar */}
       <div className="flex items-center gap-4 px-4 py-3 border-b bg-white shadow-sm">
-        <Button variant="ghost" size="sm" onClick={() => navigate({ to: '/admin/workflow-definitions/' })}>
-          ← Back
-        </Button>
+        <nav aria-label="breadcrumb" className="flex items-center gap-1 text-sm text-gray-500">
+          <Link to="/dashboard" className="hover:text-gray-700 hover:underline">Dashboard</Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <Link to="/admin/workflow-definitions" className="hover:text-gray-700 hover:underline">Workflow Designer</Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="text-gray-900 font-medium">New</span>
+        </nav>
         <h1 className="font-semibold text-gray-800">New Workflow Definition</h1>
         <div className="flex-1" />
         {error && <span className="text-xs text-red-600">{error}</span>}
