@@ -27,6 +27,11 @@ export const Route = createFileRoute('/admin/rules/$id/edit')({
 });
 
 const ENTITY_FIELDS: Record<string, string[]> = {
+  bus_patient: ['patient_id', 'first_name', 'last_name', 'birth_date', 'gender', 'national_id', 'prov_health_number', 'email', 'phone', 'residence_country'],
+  bus_appointment: ['appointment_id', 'patient_id', 'practitioner_id', 'scheduled_start', 'scheduled_end', 'current_state'],
+  bus_practitioner: ['practitioner_id', 'npi_number', 'billing_number', 'license_number', 'first_name', 'last_name', 'specialty'],
+  bus_encounter: ['encounter_id', 'appointment_id', 'patient_id', 'practitioner_id', 'subjective_notes', 'objective_notes', 'assessment', 'plan_notes'],
+  bus_claim: ['claim_id', 'encounter_id', 'payer_type', 'icd_code', 'procedure_code', 'total_charge', 'claim_state'],
   Account: ['name', 'email', 'phone', 'website', 'industry', 'type', 'status', 'annual_revenue', 'employee_count', 'description', 'is_active'],
   Contact: ['first_name', 'last_name', 'email', 'phone', 'title', 'department', 'status', 'is_active'],
   Opportunity: ['name', 'stage', 'amount', 'probability', 'close_date', 'status', 'type', 'is_active'],
@@ -271,6 +276,7 @@ function EditRulePage() {
               onChange={setJdmContent}
               entityName={rule.entityName}
               entityFields={entityFields}
+              availableWorkflows={availableWorkflows}
             />
             {errors.jdmContent && (
               <p className="text-xs text-red-600 px-4 pb-2">{errors.jdmContent}</p>
@@ -338,16 +344,20 @@ function EditRulePage() {
                                 className={`flex items-start gap-2 p-2 rounded ${
                                   r.actions?.some((a: any) => a.type === 'prevent')
                                     ? 'bg-red-50 text-red-700'
+                                    : r.actions?.some((a: any) => (a.type as string)?.startsWith('cascade'))
+                                    ? 'bg-blue-50 text-blue-700'
                                     : 'bg-amber-50 text-amber-700'
                                 }`}
                               >
                                 {r.actions?.some((a: any) => a.type === 'prevent') ? (
                                   <XCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                ) : r.actions?.some((a: any) => (a.type as string)?.startsWith('cascade')) ? (
+                                  <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                                 ) : (
                                   <HelpCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                                 )}
                                 <div>
-                                  <p className="font-semibold">{r.ruleId}</p>
+                                  <p className="font-semibold">{r.ruleName}</p>
                                   {r.actions?.map((a: any, j: number) => (
                                     <p key={j}>
                                       [{a.type}] {a.config?.message}

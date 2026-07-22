@@ -8,12 +8,13 @@
  * Project: {{project.name}}
  */
 
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import type { Kysely } from 'kysely';
 import { InjectDatabase } from '../../database/database.service.decorator';
 import { RulesEngine } from './rules-engine.service';
 import type { RuleEvaluationResult } from './rules-engine.service';
 import { readFileSync } from 'fs';
+import { WorkflowService } from '../workflow/workflow.service';
 import { join } from 'path';
 
 export interface CreateRuleDto {
@@ -49,6 +50,7 @@ export class RulesService {
   constructor(
     private readonly rulesEngine: RulesEngine,
     @InjectDatabase() private readonly db: Kysely<any>,
+    @Inject(forwardRef(() => WorkflowService)) private readonly workflowService: WorkflowService,
   ) {}
 
   /**
@@ -386,7 +388,67 @@ export class RulesService {
     return results;
   }
 
-  private mapDbRuleToRule(record: Record<string, unknown>): Rule {
+  /**
+   * Execute non-blocking rule actions (cascade, trigger-workflow) after a successful CRUD.
+   * Called fire-and-forget from BusService — never throws.
+   */
+  async executeMatchedActions(
+    entityName: string,
+    entityId: string,
+    data: Record<string, unknown>,
+    operation: 'create' | 'update' | 'delete',
+  ): Promise<void> {
+    let results: RuleEvaluationResult[];
+    try {
+      results = await this.evaluate(entityName, data, operation);
+    } catch (err: any) {
+      this.logger.warn(`executeMatchedActions: evaluate failed for ${entityName}: ${err?.message}`);
+      return;
+    }
+
+    for (const result of results) {
+      if (!result.matched) continue;
+      for (const action of result.actions) {
+        try {
+          if (action.type === 'trigger-workflow') {
+            const wfName = action.config.workflowName as string | undefined;
+            if (!wfName) {
+              this.logger.warn(`trigger-workflow action in rule "${result.ruleName}" has no workflowName — skipping`);
+              continue;
+            }
+            this.logger.log(`Rule "${result.ruleName}" triggering workflow "${wfName}" for ${entityName}:${entityId}`);
+            await this.workflowService.triggerByWorkflowName(wfName, entityName, entityId, operation, data);
+          } else if (action.type === 'cascade-update') {
+            const targetEntity = action.config.targetEntity as string | undefined;
+            const linkField = action.config.linkField as string | undefined;
+            const updateData = action.config.updateData as Record<string, unknown> | undefined;
+            if (targetEntity && linkField && updateData) {
+              await this.db
+                .updateTable(targetEntity as any)
+                .set(updateData as any)
+                .where(linkField as any, '=', entityId)
+                .execute();
+              this.logger.log(`Cascade-update: updated ${targetEntity} where ${linkField}=${entityId}`);
+            }
+          } else if (action.type === 'cascade-delete') {
+            const targetEntity = action.config.targetEntity as string | undefined;
+            const linkField = action.config.linkField as string | undefined;
+            if (targetEntity && linkField) {
+              await this.db
+                .deleteFrom(targetEntity as any)
+                .where(linkField as any, '=', entityId)
+                .execute();
+              this.logger.log(`Cascade-delete: deleted from ${targetEntity} where ${linkField}=${entityId}`);
+            }
+          }
+        } catch (err: any) {
+          this.logger.error(`executeMatchedActions: action "${action.type}" failed for rule "${result.ruleName}": ${err?.message}`);
+        }
+      }
+    }
+  }
+
+    private mapDbRuleToRule(record: Record<string, unknown>): Rule {
     return {
       id: record.id as string,
       entityName: record.entity_name as string,

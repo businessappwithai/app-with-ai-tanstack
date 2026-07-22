@@ -208,4 +208,76 @@ export class WorkflowService {
 
     return await query.orderBy('created_at', 'desc').limit(limit).execute();
   }
+
+  /**
+   * Trigger a specific workflow by name (called by rules engine for trigger-workflow actions).
+   * Fire-and-forget — logs errors but never throws.
+   */
+  async triggerByWorkflowName(
+    workflowName: string,
+    entityName: string,
+    entityId: string,
+    operation: 'create' | 'update' | 'delete',
+    entityData: Record<string, unknown>,
+  ): Promise<void> {
+    let definition: any;
+    try {
+      definition = await this.db
+        .selectFrom('sys_workflow_definitions')
+        .selectAll()
+        .where('name', '=', workflowName)
+        .where('is_active', '=', true)
+        .executeTakeFirst();
+    } catch (err: any) {
+      this.logger.warn(`Could not load workflow "${workflowName}": ${err?.message}`);
+      return;
+    }
+
+    if (!definition) {
+      this.logger.warn(`Workflow "${workflowName}" not found or inactive — skipping trigger`);
+      return;
+    }
+
+    const startMs = Date.now();
+    let runId: string | undefined;
+    try {
+      const runRow = await this.db
+        .insertInto('sys_workflow_runs')
+        .values({
+          entity_name: entityName,
+          entity_id: entityId,
+          operation: operation.toUpperCase(),
+          status: 'draft',
+          created_by: 'rules-engine',
+        } as any)
+        .returningAll()
+        .executeTakeFirst();
+      runId = runRow?.id;
+
+      const mutations = await this.executeBpmn(definition.bpmn_xml, entityName, entityData, {});
+
+      await this.db
+        .updateTable('sys_workflow_runs')
+        .set({
+          status: 'success',
+          mutations_applied: JSON.stringify(mutations),
+          completed_at: new Date(),
+          duration_ms: Date.now() - startMs,
+        } as any)
+        .where('id', '=', runId)
+        .execute();
+
+      this.logger.log(`Rule-triggered workflow "${workflowName}" completed for ${entityName}:${entityId}`);
+    } catch (err: any) {
+      this.logger.error(`Rule-triggered workflow "${workflowName}" failed: ${err?.message}`);
+      if (runId) {
+        await this.db
+          .updateTable('sys_workflow_runs')
+          .set({ status: 'error', completed_at: new Date(), duration_ms: Date.now() - startMs } as any)
+          .where('id', '=', runId)
+          .execute()
+          .catch(() => {});
+      }
+    }
+  }
 }

@@ -390,7 +390,7 @@ function AdminRulesPage() {
       <footer className="border-t-2 border-black mt-16">
         <div className="max-w-7xl mx-auto px-8 py-8">
           <p className="text-sm text-gray-500">
-            simple-crm · Business Rules Management
+            clinic-app · Business Rules Management
           </p>
         </div>
       </footer>

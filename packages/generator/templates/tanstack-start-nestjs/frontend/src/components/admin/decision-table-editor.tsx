@@ -55,12 +55,19 @@ export interface DecisionTableData {
   hitPolicy: 'first' | 'collect';
 }
 
+interface WorkflowOption {
+  id: string;
+  name: string;
+  description?: string;
+}
+
 interface DecisionTableEditorProps {
   value: string;
   onChange: (jdmContent: string) => void;
   entityName?: string;
   entityFields?: string[];
   readOnly?: boolean;
+  availableWorkflows?: WorkflowOption[];
 }
 
 // ---------- Constants ----------
@@ -83,10 +90,14 @@ const OPERATORS = [
 ];
 
 const ACTION_TYPES = [
-  { value: 'validate', label: 'Show Warning', description: 'Display a warning message but allow the operation' },
   { value: 'prevent', label: 'Block Operation', description: 'Prevent the operation and show an error' },
-  { value: 'transform', label: 'Set Value', description: 'Automatically set or modify a field value' },
+  { value: 'validate', label: 'Show Warning', description: 'Display a warning message but allow the operation' },
   { value: 'notify', label: 'Send Notification', description: 'Trigger a notification (email, webhook, etc.)' },
+  { value: 'transform', label: 'Set Value', description: 'Automatically set or modify a field value' },
+  { value: 'cascade-update', label: 'Cascade Update', description: 'Update related records in another entity' },
+  { value: 'cascade-delete', label: 'Cascade Delete', description: 'Delete related records in another entity' },
+  { value: 'cascade-create', label: 'Cascade Create', description: 'Create new records in another entity' },
+  { value: 'trigger-workflow', label: 'Trigger Workflow', description: 'Run a named workflow when this rule matches' },
 ];
 
 const DEFAULT_ENTITY_FIELDS = [
@@ -230,18 +241,20 @@ function getDefaultTable(): DecisionTableData {
   const condId = genId();
   const actActionId = genId();
   const actMsgId = genId();
+  const actWfId = genId();
 
   return {
     conditionColumns: [{ id: condId, field: 'email', operator: '==' }],
     actionColumns: [
       { id: actActionId, field: 'action' },
       { id: actMsgId, field: 'message' },
+      { id: actWfId, field: 'workflowName' },
     ],
     rows: [
       {
         id: genId(),
         conditions: { [condId]: '' },
-        actions: { [actActionId]: '"prevent"', [actMsgId]: '"Email is required"' },
+        actions: { [actActionId]: '"prevent"', [actMsgId]: '"Email is required"', [actWfId]: '' },
       },
     ],
     hitPolicy: 'collect',
@@ -256,6 +269,7 @@ export function DecisionTableEditor({
   entityName,
   entityFields,
   readOnly = false,
+  availableWorkflows = [],
 }: DecisionTableEditorProps) {
   const fields = entityFields ?? DEFAULT_ENTITY_FIELDS;
 
@@ -631,29 +645,106 @@ export function DecisionTableEditor({
                         />
                       </td>
                     ))}
-                    {table.actionColumns.map((col) => (
-                      <td
-                        key={col.id}
-                        className="border-r border-gray-200 px-1 py-0.5"
-                      >
-                        <Input
-                          type="text"
-                          value={row.actions[col.id] || ''}
-                          onChange={(e) =>
-                            updateCellValue(row.id, 'actions', col.id, e.target.value)
-                          }
-                          placeholder={
-                            col.field === 'action'
-                              ? '"prevent" or "validate"'
-                              : col.field === 'message'
-                                ? '"Error message"'
-                                : ''
-                          }
-                          className="h-7 text-xs border-0 bg-transparent shadow-none focus:bg-green-50"
-                          readOnly={readOnly}
-                        />
-                      </td>
-                    ))}
+                    {table.actionColumns.map((col) => {
+                      // Find the action column value for this row (to conditionally render workflow picker)
+                      const actionCol = table.actionColumns.find((c) => c.field === 'action');
+                      const currentActionRaw = actionCol ? (row.actions[actionCol.id] || '') : '';
+                      const currentAction = currentActionRaw.replace(/^["']|["']$/g, '');
+
+                      if (col.field === 'action') {
+                        const selectedAction = ACTION_TYPES.find(
+                          (a) => a.value === currentAction,
+                        );
+                        return (
+                          <td key={col.id} className="border-r border-gray-200 px-1 py-0.5 min-w-[160px]">
+                            {readOnly ? (
+                              <span className="text-xs px-2">
+                                {selectedAction?.label ?? currentAction}
+                              </span>
+                            ) : (
+                              <Select
+                                value={currentAction || ''}
+                                onValueChange={(v) =>
+                                  updateCellValue(row.id, 'actions', col.id, `"${v}"`)
+                                }
+                              >
+                                <SelectTrigger className="h-7 text-xs border-0 bg-transparent shadow-none focus:bg-green-50 w-full">
+                                  <SelectValue placeholder="Select action..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {ACTION_TYPES.map((a) => (
+                                    <SelectItem key={a.value} value={a.value}>
+                                      <div>
+                                        <div className="font-medium text-xs">{a.label}</div>
+                                        <div className="text-[10px] text-gray-500">{a.description}</div>
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          </td>
+                        );
+                      }
+
+                      if (col.field === 'workflowName' && currentAction === 'trigger-workflow') {
+                        const currentWf = (row.actions[col.id] || '').replace(/^["']|["']$/g, '');
+                        return (
+                          <td key={col.id} className="border-r border-gray-200 px-1 py-0.5 min-w-[200px]">
+                            {readOnly ? (
+                              <span className="text-xs px-2">{currentWf}</span>
+                            ) : (
+                              <Select
+                                value={currentWf || ''}
+                                onValueChange={(v) =>
+                                  updateCellValue(row.id, 'actions', col.id, `"${v}"`)
+                                }
+                              >
+                                <SelectTrigger className="h-7 text-xs border-0 bg-transparent shadow-none focus:bg-purple-50 w-full">
+                                  <SelectValue placeholder="Select workflow..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {availableWorkflows.length === 0 ? (
+                                    <SelectItem value="_none" disabled>
+                                      No workflows defined
+                                    </SelectItem>
+                                  ) : (
+                                    availableWorkflows.map((wf) => (
+                                      <SelectItem key={wf.id} value={wf.name}>
+                                        {wf.name}
+                                        {wf.description && (
+                                          <span className="text-[10px] text-gray-500 ml-1">
+                                            — {wf.description}
+                                          </span>
+                                        )}
+                                      </SelectItem>
+                                    ))
+                                  )}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          </td>
+                        );
+                      }
+
+                      return (
+                        <td
+                          key={col.id}
+                          className="border-r border-gray-200 px-1 py-0.5"
+                        >
+                          <Input
+                            type="text"
+                            value={row.actions[col.id] || ''}
+                            onChange={(e) =>
+                              updateCellValue(row.id, 'actions', col.id, e.target.value)
+                            }
+                            placeholder={col.field === 'message' ? '"Description..."' : ''}
+                            className="h-7 text-xs border-0 bg-transparent shadow-none focus:bg-green-50"
+                            readOnly={readOnly}
+                          />
+                        </td>
+                      );
+                    })}
                     <td className="px-1 py-0.5">
                       {!readOnly && (
                         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">

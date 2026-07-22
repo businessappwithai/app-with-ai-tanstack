@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { Scale, ArrowLeft, Save, TestTube2, Loader2, HelpCircle, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,11 @@ export const Route = createFileRoute('/admin/rules/new')({
 });
 
 const ENTITIES = [
+  { value: 'bus_patient', label: 'Patient', table: 'bus_patient' },
+  { value: 'bus_appointment', label: 'Appointment', table: 'bus_appointment' },
+  { value: 'bus_practitioner', label: 'Practitioner', table: 'bus_practitioner' },
+  { value: 'bus_encounter', label: 'Encounter', table: 'bus_encounter' },
+  { value: 'bus_claim', label: 'Claim', table: 'bus_claim' },
   { value: 'Account', label: 'Account', table: 'bus_account' },
   { value: 'Contact', label: 'Contact', table: 'bus_contact' },
   { value: 'Opportunity', label: 'Opportunity', table: 'bus_opportunity' },
@@ -36,6 +41,11 @@ const OPERATIONS = [
 ];
 
 const ENTITY_FIELDS: Record<string, string[]> = {
+  bus_patient: ['patient_id', 'first_name', 'last_name', 'birth_date', 'gender', 'national_id', 'prov_health_number', 'email', 'phone', 'residence_country'],
+  bus_appointment: ['appointment_id', 'patient_id', 'practitioner_id', 'scheduled_start', 'scheduled_end', 'current_state'],
+  bus_practitioner: ['practitioner_id', 'npi_number', 'billing_number', 'license_number', 'first_name', 'last_name', 'specialty'],
+  bus_encounter: ['encounter_id', 'appointment_id', 'patient_id', 'practitioner_id', 'subjective_notes', 'objective_notes', 'assessment', 'plan_notes'],
+  bus_claim: ['claim_id', 'encounter_id', 'payer_type', 'icd_code', 'procedure_code', 'total_charge', 'claim_state'],
   Account: ['name', 'email', 'phone', 'website', 'industry', 'type', 'status', 'annual_revenue', 'employee_count', 'description', 'is_active'],
   Contact: ['first_name', 'last_name', 'email', 'phone', 'title', 'department', 'status', 'is_active'],
   Opportunity: ['name', 'stage', 'amount', 'probability', 'close_date', 'status', 'type', 'is_active'],
@@ -58,8 +68,9 @@ const DEFAULT_JDM = JSON.stringify(
           outputs: [
             { id: 'act-1', name: 'action', field: 'action', type: 'expression' },
             { id: 'act-2', name: 'message', field: 'message', type: 'expression' },
+            { id: 'act-3', name: 'workflowName', field: 'workflowName', type: 'expression' },
           ],
-          rules: [{ 'cond-1': '== null', 'act-1': '"prevent"', 'act-2': '"Email is required"' }],
+          rules: [{ 'cond-1': '== null', 'act-1': '"prevent"', 'act-2': '"Email is required"', 'act-3': '' }],
         },
       },
       { id: 'output-1', name: 'Response', type: 'outputNode', position: { x: 600, y: 200 } },
@@ -98,6 +109,19 @@ function NewRulePage() {
       toast.error(`Failed to create rule: ${error.message}`);
     },
   });
+
+  const { data: workflowsData } = useQuery({
+    queryKey: ['workflow-definitions'],
+    queryFn: async () => {
+      const data = await apiClient.get<any[]>('/workflow-definitions?isActive=true');
+      return Array.isArray(data) ? data : [];
+    },
+  });
+  const availableWorkflows = (workflowsData ?? []).map((wf: any) => ({
+    id: wf.id,
+    name: wf.name,
+    description: wf.description,
+  }));
 
   const dryRunMutation = useMutation({
     mutationFn: async (data: { jdmContent: string; testData: Record<string, unknown> }) => {
@@ -265,6 +289,7 @@ function NewRulePage() {
               onChange={setJdmContent}
               entityName={entityName}
               entityFields={entityFields}
+              availableWorkflows={availableWorkflows}
             />
             {errors.jdmContent && (
               <p className="text-xs text-red-600 px-4 pb-2">{errors.jdmContent}</p>

@@ -15,6 +15,7 @@ import { DatabaseService } from '../../database/database.service';
 import type { PaginationOptions, PaginatedResult } from '../../database/database.service';
 import { executeBeforeCreateHooks, executeAfterCreateHooks, executeBeforeUpdateHooks, executeAfterUpdateHooks, executeBeforeDeleteHooks, executeAfterDeleteHooks, executeBeforeReadHooks, executeAfterReadHooks, executeBeforeListHooks, executeAfterListHooks } from '../hooks/hooks';
 import { RulesService } from '../rules/rules.service';
+import { WorkflowService } from '../workflow/workflow.service';
 
 export interface FieldMetadata {
   sys_field_id: string;
@@ -57,6 +58,7 @@ export class BusService {
     @Inject(KYSELY_CONNECTION) private readonly kysely: Kysely<any>,
     private readonly db: DatabaseService,
     private readonly rulesService: RulesService,
+    private readonly workflowService: WorkflowService,
   ) {
     this.logger.log('BusService initialized');
   }
@@ -176,6 +178,15 @@ export class BusService {
     }
 
     await executeAfterCreateHooks(entity, result);
+
+    this.workflowService
+      .runLocalWorkflows(entity, result.id, 'create', result)
+      .catch((err) => this.logger.error(`Workflow trigger failed for ${entity} create: ${err?.message}`));
+
+    this.rulesService
+      .executeMatchedActions(entity, result.id, result, 'create')
+      .catch((err) => this.logger.error(`Rule actions failed for ${entity} create: ${err?.message}`));
+
     this.logger.log(`create: entity=${entity}, id=${result?.id}`);
     return result;
   }
@@ -226,6 +237,15 @@ export class BusService {
     }
 
     await executeAfterUpdateHooks(entity, result);
+
+    this.workflowService
+      .runLocalWorkflows(entity, id, 'update', result)
+      .catch((err) => this.logger.error(`Workflow trigger failed for ${entity} update: ${err?.message}`));
+
+    this.rulesService
+      .executeMatchedActions(entity, id, result, 'update')
+      .catch((err) => this.logger.error(`Rule actions failed for ${entity} update: ${err?.message}`));
+
     return result;
   }
 
@@ -254,6 +274,17 @@ export class BusService {
       return rows.length > 0;
     });
     await executeAfterDeleteHooks(entity, result);
+
+    if (result) {
+      this.workflowService
+        .runLocalWorkflows(entity, id, 'delete', result)
+        .catch((err) => this.logger.error(`Workflow trigger failed for ${entity} delete: ${err?.message}`));
+
+      this.rulesService
+        .executeMatchedActions(entity, id, result, 'delete')
+        .catch((err) => this.logger.error(`Rule actions failed for ${entity} delete: ${err?.message}`));
+    }
+
     return result;
   }
 

@@ -22,7 +22,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 export interface RuleAction {
-  type: 'validate' | 'notify' | 'prevent' | 'transform';
+  type: 'validate' | 'notify' | 'prevent' | 'transform' | 'cascade-update' | 'cascade-delete' | 'cascade-create' | 'trigger-workflow';
   config: Record<string, unknown>;
 }
 
@@ -40,6 +40,7 @@ interface JdmViolation {
   message: string;
   ruleId: string;
   rule_id?: string;
+  workflowName?: string;
 }
 
 @Injectable()
@@ -100,7 +101,7 @@ export class RulesEngine implements OnModuleDestroy {
         actions: [
           {
             type: v.action as RuleAction['type'],
-            config: { message: v.message },
+            config: { message: v.message, workflowName: v.workflowName },
           },
         ],
       }));
@@ -181,7 +182,7 @@ export class RulesEngine implements OnModuleDestroy {
       actions: [
         {
           type: v.action as RuleAction['type'],
-          config: { message: v.message },
+          config: { message: v.message, workflowName: v.workflowName },
         },
       ],
     }));
