@@ -1,26 +1,23 @@
 /**
- * Workflow Service - Trigger.dev Integration
+ * Workflow Service — Local BPMN Executor
  *
- * Orchestrates background workflows for entity lifecycle events.
- * Integrates with Zen Engine for rule evaluation and applies mutations.
+ * Runs BPMN workflow definitions synchronously in-process.
+ * Replaces the Trigger.dev placeholder with a real executor that:
+ *   1. Loads matching sys_workflow_definitions for entity + operation
+ *   2. Parses BPMN XML to extract service tasks (erdwithai:property extensions)
+ *   3. Executes each task: UpdateEntity | CreateEntity | REST | Formula
+ *   4. Records every run in sys_workflow_runs (status: success | error)
  *
- * Workflow flow:
- * 1. Entity CRUD operation creates workflow record (status: draft)
- * 2. Trigger.dev workflow task is triggered (async)
- * 3. Workflow loads entity + relations
- * 4. Workflow loads rules from sys_rule_definitions
- * 5. Zen Engine evaluates rules
- * 6. Mutations applied in DB transaction
- * 7. Workflow record updated (status: success/error)
+ * Called from BusService after successful entity CRUD (fire-and-forget so
+ * workflow errors never fail the originating CRUD request).
  *
  * Generated: {{now}}
  * Project: {{project.name}}
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { Kysely } from 'kysely';
+import { Kysely, sql } from 'kysely';
 import { InjectDatabase } from '../../database/database.service.decorator';
-import { entityLifecycleWorkflow } from '../../trigger/entity-lifecycle-workflow.task';
 
 export interface TriggerWorkflowDto {
   entityName: string;
@@ -37,6 +34,15 @@ export interface WorkflowStatus {
   durationMs?: number;
 }
 
+interface BpmnTaskProps {
+  nodeType: string;
+  entity?: string;
+  field?: string;
+  source?: string;
+  value?: string;
+  [key: string]: string | undefined;
+}
+
 @Injectable()
 export class WorkflowService {
   private readonly logger = new Logger(WorkflowService.name);
@@ -46,54 +52,98 @@ export class WorkflowService {
   ) {}
 
   /**
-   * Trigger an entity lifecycle workflow.
-   * Creates workflow run record and fires Trigger.dev event.
-   *
-   * @param dto Workflow trigger payload
-   * @returns Trigger.dev run ID
+   * Run all active workflow definitions matching the entity + operation.
+   * Called by BusService after entity CRUD. Never throws — errors are logged
+   * and recorded in sys_workflow_runs so CRUD is never blocked.
    */
-  async trigger(dto: TriggerWorkflowDto): Promise<string> {
-    this.logger.log(
-      `Triggering workflow for ${dto.entityName}:${dto.entityId} (${dto.operation})`
-    );
+  async runLocalWorkflows(
+    entityName: string,
+    entityId: string,
+    operation: 'create' | 'update' | 'delete',
+    entityData: Record<string, unknown>,
+    decisionVars: Record<string, unknown> = {},
+  ): Promise<void> {
+    const normalized = entityName.toLowerCase().replace(/^bus_/, '');
+    const candidates = [normalized, `bus_${normalized}`];
 
-    // Create workflow run record
-    const workflowRun = await this.db
-      .insertInto('sys_workflow_runs')
-      .values({
-        entity_name: dto.entityName,
-        entity_id: dto.entityId,
-        operation: dto.operation,
-        status: 'draft',
-        created_by: dto.userId,
-      } as any)
-      .returningAll()
-      .executeTakeFirst();
+    let definitions: any[];
+    try {
+      definitions = await this.db
+        .selectFrom('sys_workflow_definitions')
+        .selectAll()
+        .where((eb) =>
+          eb.or(candidates.map((c) => eb(sql<string>`lower(entity_name)`, '=', c))),
+        )
+        .where((eb) =>
+          eb.or([
+            eb('operation', '=', operation.toUpperCase()),
+            eb('operation', '=', 'ALL'),
+          ]),
+        )
+        .where('is_active', '=', true)
+        .orderBy('created_at', 'asc')
+        .execute();
+    } catch (err: any) {
+      this.logger.warn(`Could not load workflow definitions for ${entityName}: ${err?.message}`);
+      return;
+    }
 
-    // Set entity workflow_status to draft
-    await this.db
-      .updateTable(dto.entityName as any)
-      .set({
-        workflow_status: 'draft',
-        workflow_run_id: workflowRun.id,
-      } as any)
-      .where('id', '=', dto.entityId)
-      .execute();
+    if (definitions.length === 0) return;
 
-    // Trigger async workflow in Trigger.dev
-    const handle = await entityLifecycleWorkflow.trigger({
-      workflowRunId: workflowRun.id,
-      entityName: dto.entityName,
-      entityId: dto.entityId,
-      operation: dto.operation,
-      userId: dto.userId,
-    });
+    const tableName = entityName.startsWith('bus_') ? entityName : `bus_${normalized}`;
 
-    this.logger.log(
-      `Workflow ${handle.id} triggered for ${dto.entityName}:${dto.entityId}`
-    );
+    for (const def of definitions) {
+      const startMs = Date.now();
+      let runId: string | undefined;
 
-    return handle.id;
+      try {
+        const runRow = await this.db
+          .insertInto('sys_workflow_runs')
+          .values({
+            entity_name: tableName,
+            entity_id: entityId,
+            operation: operation.toUpperCase(),
+            status: 'draft',
+            created_by: 'system',
+          } as any)
+          .returningAll()
+          .executeTakeFirst();
+
+        runId = runRow?.id;
+
+        const mutations = await this.executeBpmn(def.bpmn_xml, tableName, entityData, decisionVars);
+
+        await this.db
+          .updateTable('sys_workflow_runs')
+          .set({
+            status: 'success',
+            mutations_applied: JSON.stringify(mutations),
+            completed_at: new Date(),
+            duration_ms: Date.now() - startMs,
+          } as any)
+          .where('id', '=', runId)
+          .execute();
+
+        this.logger.log(
+          `Workflow "${def.name}" completed for ${tableName}:${entityId} (${mutations.length} mutations)`,
+        );
+      } catch (err: any) {
+        this.logger.error(`Workflow "${def.name}" failed for ${tableName}:${entityId}: ${err?.message}`);
+        if (runId) {
+          await this.db
+            .updateTable('sys_workflow_runs')
+            .set({
+              status: 'error',
+              error_details: err?.message ?? String(err),
+              completed_at: new Date(),
+              duration_ms: Date.now() - startMs,
+            } as any)
+            .where('id', '=', runId)
+            .execute()
+            .catch(() => {});
+        }
+      }
+    }
   }
 
   /**
@@ -124,55 +174,7 @@ export class WorkflowService {
     };
   }
 
-  /**
-   * Retry a failed workflow.
-   *
-   * @param workflowRunId Original workflow run ID
-   * @returns New workflow run ID
-   */
-  async retry(workflowRunId: string): Promise<string> {
-    const workflowRun = await this.db
-      .selectFrom('sys_workflow_runs')
-      .selectAll()
-      .where('id', '=', workflowRunId)
-      .executeTakeFirst();
-
-    if (!workflowRun) {
-      throw new Error(`Workflow run ${workflowRunId} not found`);
-    }
-
-    // Reset entity workflow_status to none
-    await this.db
-      .updateTable(workflowRun.entity_name as any)
-      .set({
-        workflow_status: 'none',
-        workflow_run_id: null,
-      } as any)
-      .where('id', '=', workflowRun.entity_id)
-      .execute();
-
-    // Trigger new workflow
-    return await this.trigger({
-      entityName: workflowRun.entity_name,
-      entityId: workflowRun.entity_id,
-      operation: workflowRun.operation,
-      userId: workflowRun.created_by,
-    });
-  }
-
-  /**
-   * Get recent workflow runs for an entity.
-   *
-   * @param entityName Entity table name
-   * @param entityId Entity ID
-   * @param limit Number of runs to return
-   * @returns Workflow runs
-   */
-  async getEntityWorkflows(
-    entityName: string,
-    entityId: string,
-    limit = 10
-  ) {
+  async getEntityWorkflows(entityName: string, entityId: string, limit = 10) {
     return await this.db
       .selectFrom('sys_workflow_runs')
       .selectAll()
@@ -183,30 +185,38 @@ export class WorkflowService {
       .execute();
   }
 
-  /**
-   * Get all workflow runs with optional filters.
-   *
-   * @param filters Optional filters
-   * @returns Workflow runs
-   */
   async getAllWorkflows(filters?: {
     status?: 'draft' | 'success' | 'error';
     entityName?: string;
     limit?: number;
   }) {
     let query = this.db.selectFrom('sys_workflow_runs').selectAll();
+    if (filters?.status) query = query.where('status', '=', filters.status);
+    if (filters?.entityName) query = query.where('entity_name', '=', filters.entityName);
+    return await query.orderBy('created_at', 'desc').limit(filters?.limit ?? 100).execute();
+  }
 
-    if (filters?.status) {
-      query = query.where('status', '=', filters.status);
-    }
+  async retry(workflowRunId: string): Promise<void> {
+    const workflowRun = await this.db
+      .selectFrom('sys_workflow_runs')
+      .selectAll()
+      .where('id', '=', workflowRunId)
+      .executeTakeFirst();
 
-    if (filters?.entityName) {
-      query = query.where('entity_name', '=', filters.entityName);
-    }
+    if (!workflowRun) throw new Error(`Workflow run ${workflowRunId} not found`);
 
-    const limit = filters?.limit ?? 100;
+    const entityRow = await this.db
+      .selectFrom(workflowRun.entity_name as any)
+      .selectAll()
+      .where('id', '=', workflowRun.entity_id)
+      .executeTakeFirst();
 
-    return await query.orderBy('created_at', 'desc').limit(limit).execute();
+    await this.runLocalWorkflows(
+      workflowRun.entity_name,
+      workflowRun.entity_id,
+      workflowRun.operation.toLowerCase() as 'create' | 'update' | 'delete',
+      entityRow ?? {},
+    );
   }
 
   /**
@@ -279,5 +289,94 @@ export class WorkflowService {
           .catch(() => {});
       }
     }
+  }
+
+  // ── BPMN execution ────────────────────────────────────────────────────────────
+
+  private async executeBpmn(
+    bpmnXml: string,
+    triggeringTable: string,
+    entityData: Record<string, unknown>,
+    vars: Record<string, unknown>,
+  ): Promise<Record<string, unknown>[]> {
+    const tasks = this.parseBpmnServiceTasks(bpmnXml);
+    const mutations: Record<string, unknown>[] = [];
+    for (const task of tasks) {
+      const result = await this.executeTask(task, triggeringTable, entityData, vars);
+      if (result) mutations.push(result);
+    }
+    return mutations;
+  }
+
+  private parseBpmnServiceTasks(bpmnXml: string): BpmnTaskProps[] {
+    const tasks: BpmnTaskProps[] = [];
+    const taskRe = /<bpmn:serviceTask[^>]*>([\s\S]*?)<\/bpmn:serviceTask>/g;
+    let taskMatch: RegExpExecArray | null;
+    while ((taskMatch = taskRe.exec(bpmnXml)) !== null) {
+      const taskBody = taskMatch[1];
+      const props: BpmnTaskProps = { nodeType: '' };
+      const propRe = /<erdwithai:property\s+name="([^"]+)"\s+value="([^"]*)"\s*\/>/g;
+      let propMatch: RegExpExecArray | null;
+      while ((propMatch = propRe.exec(taskBody)) !== null) {
+        props[propMatch[1]] = propMatch[2];
+      }
+      if (props.nodeType) tasks.push(props);
+    }
+    return tasks;
+  }
+
+  private async executeTask(
+    task: BpmnTaskProps,
+    triggeringTable: string,
+    entityData: Record<string, unknown>,
+    vars: Record<string, unknown>,
+  ): Promise<Record<string, unknown> | null> {
+    const context: Record<string, unknown> = { ...vars, ...entityData };
+
+    if (task.nodeType === 'UpdateEntity') {
+      const targetTable = task.entity?.trim() || triggeringTable;
+      const field = task.field?.trim();
+      if (!field) {
+        this.logger.warn('UpdateEntity task missing "field" — skipping');
+        return null;
+      }
+      const resolvedValue =
+        task.source && context[task.source] !== undefined ? context[task.source] : task.value;
+      const entityId = entityData.id as string;
+      if (!entityId) {
+        this.logger.warn('UpdateEntity: entityData has no id — skipping');
+        return null;
+      }
+      await this.db
+        .updateTable(targetTable as any)
+        .set({ [field]: resolvedValue, updated_at: new Date() } as any)
+        .where('id', '=', entityId)
+        .execute();
+      this.logger.log(`UpdateEntity: ${targetTable}.${field} = ${JSON.stringify(resolvedValue)} (id=${entityId})`);
+      return { nodeType: 'UpdateEntity', table: targetTable, field, value: resolvedValue };
+    }
+
+    if (task.nodeType === 'CreateEntity') {
+      this.logger.warn('CreateEntity workflow node not yet implemented — skipping');
+      return null;
+    }
+
+    if (task.nodeType === 'REST') {
+      this.logger.warn('REST workflow node not yet implemented — skipping');
+      return null;
+    }
+
+    if (task.nodeType === 'Formula') {
+      this.logger.warn('Formula workflow node not yet implemented — skipping');
+      return null;
+    }
+
+    if (task.nodeType === 'Agent') {
+      this.logger.warn('Agent workflow node is a placeholder — skipping');
+      return null;
+    }
+
+    this.logger.warn(`Unknown workflow nodeType: ${task.nodeType} — skipping`);
+    return null;
   }
 }

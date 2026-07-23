@@ -32,6 +32,7 @@ export interface FieldMetadata {
   is_displayed_grid: boolean;
   is_read_only: boolean;
   ref_table_name?: string;
+  ref_label_fields?: string[];
 }
 
 export interface EntityMetadata {
@@ -52,6 +53,7 @@ export interface EntityMetadata {
 export class BusService {
   private readonly logger = new Logger(BusService.name);
   private metadataCache: Map<string, EntityMetadata> = new Map();
+  private readonly identifierFieldsCache = new Map<string, string[]>();
   private static readonly AUTO_MANAGED_COLUMNS = new Set(['id', 'created_at', 'updated_at', 'deleted_at', 'version']);
 
   constructor(
@@ -275,13 +277,13 @@ export class BusService {
     });
     await executeAfterDeleteHooks(entity, result);
 
-    if (result) {
+    if (result && current) {
       this.workflowService
-        .runLocalWorkflows(entity, id, 'delete', result)
+        .runLocalWorkflows(entity, id, 'delete', current)
         .catch((err) => this.logger.error(`Workflow trigger failed for ${entity} delete: ${err?.message}`));
 
       this.rulesService
-        .executeMatchedActions(entity, id, result, 'delete')
+        .executeMatchedActions(entity, id, current, 'delete')
         .catch((err) => this.logger.error(`Rule actions failed for ${entity} delete: ${err?.message}`));
     }
 
@@ -385,6 +387,17 @@ export class BusService {
       .orderBy('sys_column.seq_no', 'asc')
       .execute();
 
+    // Pre-resolve identifier fields for all referenced tables in this entity
+    const refTableNames = [...new Set(
+      columns
+        .map((col: any) => this.resolveRefTableName(col.column_name, col.sys_reference_id))
+        .filter(Boolean) as string[]
+    )];
+    const refLabelFieldsMap: Record<string, string[]> = {};
+    await Promise.all(refTableNames.map(async (t) => {
+      refLabelFieldsMap[t] = await this.resolveRefLabelFields(t);
+    }));
+
     const metadata: EntityMetadata = {
       table: {
         sys_table_id: table.sys_table_id,
@@ -392,26 +405,30 @@ export class BusService {
         name: table.name,
         description: table.description,
       },
-      columns: columns.map((col: any) => ({
-        sys_field_id: col.sys_field_id,
-        name: col.field_name || col.name,
-        column_name: col.column_name,
-        sys_reference_id: col.sys_reference_id,
-        is_mandatory: col.is_mandatory,
-        is_updateable: col.is_updateable,
-        field_length: col.field_length,
-        default_value: col.default_value,
-        ref_table_name: this.resolveRefTableName(col.column_name, col.sys_reference_id),
-        seq_no: col.field_seq_no || col.seq_no || 0,
-        seq_no_grid: col.seq_no_grid || 0,
-        is_displayed: col.is_displayed !== false,
-        is_displayed_grid: col.is_displayed_grid !== false,
-        is_read_only: col.field_is_read_only || false,
-        field_group_id: col.sys_field_group_id || null,
-        group_name: col.group_name || null,
-        group_columns: col.group_columns || null,
-        group_description: col.group_description || null,
-      })),
+      columns: columns.map((col: any) => {
+        const refTableName = this.resolveRefTableName(col.column_name, col.sys_reference_id);
+        return {
+          sys_field_id: col.sys_field_id,
+          name: col.field_name || col.name,
+          column_name: col.column_name,
+          sys_reference_id: col.sys_reference_id,
+          is_mandatory: col.is_mandatory,
+          is_updateable: col.is_updateable,
+          field_length: col.field_length,
+          default_value: col.default_value,
+          ref_table_name: refTableName,
+          ref_label_fields: refTableName ? (refLabelFieldsMap[refTableName] ?? []) : undefined,
+          seq_no: col.field_seq_no || col.seq_no || 0,
+          seq_no_grid: col.seq_no_grid || 0,
+          is_displayed: col.is_displayed !== false,
+          is_displayed_grid: col.is_displayed_grid !== false,
+          is_read_only: col.field_is_read_only || false,
+          field_group_id: col.sys_field_group_id || null,
+          group_name: col.group_name || null,
+          group_columns: col.group_columns || null,
+          group_description: col.group_description || null,
+        };
+      }),
       window: window
         ? { sys_window_id: window.sys_window_id, name: window.name }
         : undefined,
@@ -521,6 +538,32 @@ export class BusService {
     assigned_to: 'bus_user',
     created_by: 'bus_user',
   };
+
+  private async resolveRefLabelFields(refTableName: string): Promise<string[]> {
+    if (this.identifierFieldsCache.has(refTableName)) {
+      return this.identifierFieldsCache.get(refTableName)!;
+    }
+    try {
+      const sysTable = await this.kysely
+        .selectFrom('sys_table')
+        .select('sys_table_id')
+        .where('table_name', '=', refTableName)
+        .executeTakeFirst();
+      if (!sysTable) return [];
+      const cols = await this.kysely
+        .selectFrom('sys_column')
+        .select(['column_name', 'seq_no'])
+        .where('sys_table_id', '=', sysTable.sys_table_id)
+        .where('is_identifier', '=', true)
+        .orderBy('seq_no', 'asc')
+        .execute();
+      const fields = cols.map((c: any) => c.column_name);
+      this.identifierFieldsCache.set(refTableName, fields);
+      return fields;
+    } catch {
+      return [];
+    }
+  }
 
   private resolveRefTableName(columnName: string, sysReferenceId: number): string | undefined {
     if (sysReferenceId !== 18 && sysReferenceId !== 19) return undefined;

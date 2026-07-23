@@ -108,6 +108,7 @@ export interface NestJsBackendOptions {
   projectDescription: string;
   databaseType: "postgresql" | "mysql" | "sqlite";
   port: number;
+  frontendPort?: number;
   enableSwagger: boolean;
   enableCors: boolean;
 }
@@ -307,9 +308,11 @@ export class NestJsBackendGenerator extends BaseGenerator {
       config: {
         databaseType: this.options.databaseType,
         port: this.options.port,
+        frontendPort: this.options.frontendPort ?? this.options.port + 1,
         enableSwagger: this.options.enableSwagger,
         enableCors: this.options.enableCors,
         dbUser: dbUser,
+        corsOrigin: `http://localhost:${this.options.frontendPort ?? this.options.port + 1}`,
       },
       databaseType: this.options.databaseType,
       projectName: this.options.projectName,

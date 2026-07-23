@@ -251,7 +251,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     is_parent: false,
     is_mandatory: {{#if (or (eq columnName 'created_at') (eq columnName 'updated_at') (eq columnName 'deleted_at'))}}false{{else}}{{required}}{{/if}},
     is_updateable: {{#if (or (eq name ../primaryKey) (eq columnName 'created_at') (eq columnName 'updated_at') (eq columnName 'deleted_at'))}}false{{else}}true{{/if}},
-    is_identifier: {{#if (or (eq name ../primaryKey) (eq name 'name'))}}true{{else}}false{{/if}},
+    is_identifier: {{#if (or (eq columnName 'name') (eq columnName 'first_name') (eq columnName 'last_name') (eq columnName 'title') (eq columnName 'code') (eq columnName 'label'))}}true{{else}}false{{/if}},
     is_selection_column: {{#if (or (eq name 'name') unique)}}true{{else}}false{{/if}},
     is_translated: false,
     is_encrypted: false,

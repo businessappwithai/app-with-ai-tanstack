@@ -30,6 +30,7 @@ export interface FullStackGeneratorOptions {
   projectDescription: string;
   outputDir: string;
   port: number;
+  frontendPort?: number;
 
   // AI Natural Language Add-on (optional)
   aiNlAddon?: AIAddonOption;
@@ -108,6 +109,7 @@ export class FullStackGenerator {
       projectDescription: this.options.projectDescription,
       databaseType: "postgresql",
       port: this.options.port,
+      frontendPort: this.options.frontendPort ?? this.options.port + 1,
       enableSwagger: true,
       enableCors: true,
       ...aiConfig,

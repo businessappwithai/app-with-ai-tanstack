@@ -327,6 +327,7 @@ program
         projectDescription: options.description,
         outputDir,
         port: backendPort,
+        frontendPort,
         tanstackStartNestjs:
           stackOption === "tanstackjs-nestjs"
             ? {

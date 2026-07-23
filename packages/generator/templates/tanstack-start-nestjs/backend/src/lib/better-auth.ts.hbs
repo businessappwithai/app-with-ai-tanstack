@@ -40,9 +40,10 @@ export async function initAuth() {
 
     authInstance = betterAuth({
       database: kyselyAdapter(kysely),
-      baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+      baseURL: process.env.BETTER_AUTH_URL || `http://localhost:${process.env.PORT || '{{config.port}}'}`,
       trustedOrigins: [
-        process.env.CORS_ORIGIN || 'http://localhost:3001',
+        ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map((o: string) => o.trim()) : []),
+        `http://localhost:${process.env.PORT || '{{config.port}}'}`,
         'http://localhost:3001',
         'http://localhost:3000',
       ],
