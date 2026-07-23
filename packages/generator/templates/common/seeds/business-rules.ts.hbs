@@ -19,6 +19,95 @@ const RULES = [
   {{/each}}
 ];
 
+// Trigger-workflow rules seeded separately per entity (CREATE and UPDATE)
+// These reference workflows that should be defined in the Workflow Designer
+const WORKFLOW_TRIGGER_RULES = [
+  {{#each entities}}
+  {
+    entityName: '{{tableName}}',
+    ruleName: '{{tableName}}_trigger_workflow_on_create',
+    operation: 'CREATE',
+    jdmContent: JSON.stringify({
+      nodes: [
+        { id: 'input', type: 'inputNode', name: 'Input', position: { x: 0, y: 0 } },
+        {
+          id: 'trigger-on-create',
+          type: 'decisionTableNode',
+          name: 'Trigger Create Workflow',
+          position: { x: 300, y: 0 },
+          content: {
+            hitPolicy: 'collect',
+            inputs: [{ id: 'i0', name: 'Action', field: 'action' }],
+            outputs: [
+              { id: 'o1', name: 'Action', field: 'action' },
+              { id: 'o2', name: 'Message', field: 'message' },
+              { id: 'o3', name: 'Rule ID', field: 'ruleId' },
+              { id: 'o4', name: 'Workflow Name', field: 'workflowName' },
+            ],
+            rules: [
+              {
+                _id: '{{tableName}}-on-create-trigger-workflow',
+                i0: 'action == "create"',
+                o1: '"trigger-workflow"',
+                o2: '"{{displayName}} created — triggering post-create workflow"',
+                o3: '"{{tableName}}-on-create-trigger-workflow"',
+                o4: '"{{tableName}}-on-create-workflow"',
+              },
+            ],
+          },
+        },
+        { id: 'output', type: 'outputNode', name: 'Output', position: { x: 600, y: 0 } },
+      ],
+      edges: [
+        { id: 'e1', sourceId: 'input', targetId: 'trigger-on-create' },
+        { id: 'e2', sourceId: 'trigger-on-create', targetId: 'output' },
+      ],
+    }),
+  },
+  {
+    entityName: '{{tableName}}',
+    ruleName: '{{tableName}}_trigger_workflow_on_update',
+    operation: 'UPDATE',
+    jdmContent: JSON.stringify({
+      nodes: [
+        { id: 'input', type: 'inputNode', name: 'Input', position: { x: 0, y: 0 } },
+        {
+          id: 'trigger-on-update',
+          type: 'decisionTableNode',
+          name: 'Trigger Update Workflow',
+          position: { x: 300, y: 0 },
+          content: {
+            hitPolicy: 'collect',
+            inputs: [{ id: 'i0', name: 'Action', field: 'action' }],
+            outputs: [
+              { id: 'o1', name: 'Action', field: 'action' },
+              { id: 'o2', name: 'Message', field: 'message' },
+              { id: 'o3', name: 'Rule ID', field: 'ruleId' },
+              { id: 'o4', name: 'Workflow Name', field: 'workflowName' },
+            ],
+            rules: [
+              {
+                _id: '{{tableName}}-on-update-trigger-workflow',
+                i0: 'action == "update"',
+                o1: '"trigger-workflow"',
+                o2: '"{{displayName}} updated — triggering post-update workflow"',
+                o3: '"{{tableName}}-on-update-trigger-workflow"',
+                o4: '"{{tableName}}-on-update-workflow"',
+              },
+            ],
+          },
+        },
+        { id: 'output', type: 'outputNode', name: 'Output', position: { x: 600, y: 0 } },
+      ],
+      edges: [
+        { id: 'e1', sourceId: 'input', targetId: 'trigger-on-update' },
+        { id: 'e2', sourceId: 'trigger-on-update', targetId: 'output' },
+      ],
+    }),
+  },
+  {{/each}}
+];
+
 export async function seed(db: Kysely<any>): Promise<void> {
   const now = new Date();
 

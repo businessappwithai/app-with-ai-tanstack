@@ -23,7 +23,8 @@
         "outputs": [
           { "id": "o1", "name": "Action", "field": "action" },
           { "id": "o2", "name": "Message", "field": "message" },
-          { "id": "o3", "name": "Rule ID", "field": "ruleId" }
+          { "id": "o3", "name": "Rule ID", "field": "ruleId" },
+          { "id": "o4", "name": "Workflow Name", "field": "workflowName" }
         ],
         "rules": [
           {{#each attributes}}
@@ -34,7 +35,8 @@
             "i{{@index}}": "{{columnName}} == null",
             "o1": "'prevent'",
             "o2": "'{{displayName}} is required'",
-            "o3": "'{{../tableName}}-{{columnName}}-required'"
+            "o3": "'{{../tableName}}-{{columnName}}-required'",
+            "o4": "''"
           },
           {{/if}}
           {{#if (eq type "decimal")}}
@@ -43,7 +45,8 @@
             "i{{@index}}": "{{columnName}} < 0",
             "o1": "'prevent'",
             "o2": "'{{displayName}} must not be negative'",
-            "o3": "'{{../tableName}}-{{columnName}}-non-negative'"
+            "o3": "'{{../tableName}}-{{columnName}}-non-negative'",
+            "o4": "''"
           },
           {{/if}}
           {{#if (eq columnName "email")}}
@@ -52,11 +55,28 @@
             "i{{@index}}": "!contains(email, \"@\")",
             "o1": "'prevent'",
             "o2": "'Email must be a valid email address'",
-            "o3": "'{{../tableName}}-email-format'"
+            "o3": "'{{../tableName}}-email-format'",
+            "o4": "''"
           },
           {{/if}}
           {{/unless}}
           {{/each}}
+          {
+            "_id": "{{tableName}}-on-create-trigger-workflow",
+            "i0": "action == \"create\"",
+            "o1": "'trigger-workflow'",
+            "o2": "'{{displayName}} created — triggering post-create workflow'",
+            "o3": "'{{tableName}}-on-create-trigger-workflow'",
+            "o4": "'{{tableName}}-on-create-workflow'"
+          },
+          {
+            "_id": "{{tableName}}-on-update-trigger-workflow",
+            "i0": "action == \"update\"",
+            "o1": "'trigger-workflow'",
+            "o2": "'{{displayName}} updated — triggering post-update workflow'",
+            "o3": "'{{tableName}}-on-update-trigger-workflow'",
+            "o4": "'{{tableName}}-on-update-workflow'"
+          }
         ]
       }
     },
