@@ -156,4 +156,45 @@ export async function seed(db: Kysely<any>): Promise<void> {
       console.log(`  ✓ Seeded business rule: ${rule.entityName} (${rule.operation})`);
     }
   }
+  await seedWorkflowTriggerRules(db);
+}
+
+export async function seedWorkflowTriggerRules(db: Kysely<any>): Promise<void> {
+  const now = new Date();
+
+  for (const rule of WORKFLOW_TRIGGER_RULES) {
+    const existing = await db
+      .selectFrom('sys_rule_definitions')
+      .select('id')
+      .where('entity_name', '=', rule.entityName)
+      .where('operation', '=', rule.operation as any)
+      .where('rule_name', '=', rule.ruleName)
+      .executeTakeFirst();
+
+    if (existing) {
+      await db
+        .updateTable('sys_rule_definitions')
+        .set({ jdm_content: rule.jdmContent, is_active: true, updated_by: 'seed', updated_at: now })
+        .where('id', '=', (existing as any).id)
+        .execute();
+      console.log(`  ↻ Updated trigger-workflow rule: ${rule.entityName} (${rule.operation})`);
+    } else {
+      await db
+        .insertInto('sys_rule_definitions')
+        .values({
+          id: uuidv4(),
+          entity_name: rule.entityName,
+          rule_name: rule.ruleName,
+          operation: rule.operation as any,
+          jdm_content: rule.jdmContent,
+          version: 1,
+          is_active: true,
+          created_by: 'seed',
+          created_at: now,
+          updated_at: now,
+        } as any)
+        .execute();
+      console.log(`  ✓ Seeded trigger-workflow rule: ${rule.entityName} (${rule.operation})`);
+    }
+  }
 }
