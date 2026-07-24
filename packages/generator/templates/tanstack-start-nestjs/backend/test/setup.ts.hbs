@@ -121,7 +121,7 @@ export const TestDataFactory = {
       id: generateTestId(),
       {{#each attributes}}
       {{#unless (eq name "id")}}
-      {{name}}: {{#if (eq type "string")}}`Test {{displayName}} ${uid}`{{else if (eq type "integer")}}1{{else if (eq type "decimal")}}10.99{{else if (eq type "boolean")}}true{{else if (eq type "datetime")}}new Date().toISOString(){{else if (eq type "date")}}'2024-01-15'{{else if (eq type "text")}}'Test text content'{{else if (eq type "json")}}{}{{else}}'test'{{/if}},
+      {{name}}: {{#if (eq type "string")}}{{#if (eq name "email")}}`test-${uid}@example.com`{{else}}`Test {{displayName}} ${uid}`{{/if}}{{else if (eq type "integer")}}1{{else if (eq type "decimal")}}10.99{{else if (eq type "boolean")}}true{{else if (eq type "datetime")}}new Date().toISOString(){{else if (eq type "date")}}'2024-01-15'{{else if (eq type "text")}}'Test text content'{{else if (eq type "json")}}{}{{else}}'test'{{/if}},
       {{/unless}}
       {{/each}}
       ...overrides,

@@ -79,6 +79,7 @@ export class RulesEngine implements OnModuleDestroy {
     jdmContent: string,
     data: Record<string, unknown>,
     action: 'create' | 'update' | 'delete',
+    dbRuleName?: string,
   ): Promise<RuleEvaluationResult[]> {
     this.logger.log(`Evaluating rules for ${entityType}:${action}`);
 
@@ -95,8 +96,8 @@ export class RulesEngine implements OnModuleDestroy {
       }
 
       return violations.map((v) => ({
-        ruleId: v.ruleId || v.rule_id || 'unknown',
-        ruleName: v.ruleId || v.rule_id || 'unknown',
+        ruleId: dbRuleName || v.ruleId || v.rule_id || 'unknown',
+        ruleName: dbRuleName || v.ruleId || v.rule_id || 'unknown',
         matched: true,
         actions: [
           {

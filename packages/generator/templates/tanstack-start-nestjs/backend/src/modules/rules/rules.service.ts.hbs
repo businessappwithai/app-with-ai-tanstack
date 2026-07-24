@@ -381,7 +381,8 @@ export class RulesService {
           entityType,
           rule.jdm_content,
           data,
-          action
+          action,
+          rule.rule_name as string,
         ))
       );
     }
