@@ -10,7 +10,6 @@
  *
  * Called from BusService after successful entity CRUD (fire-and-forget so
  * workflow errors never fail the originating CRUD request).
- *
  * Generated: {{now}}
  * Project: {{project.name}}
  */
@@ -111,7 +110,12 @@ export class WorkflowService {
 
         runId = runRow?.id;
 
-        const mutations = await this.executeBpmn(def.bpmn_xml, tableName, entityData, decisionVars);
+        const mutations = await this.executeBpmn(
+          def.bpmn_xml,
+          tableName,
+          entityData,
+          decisionVars,
+        );
 
         await this.db
           .updateTable('sys_workflow_runs')
@@ -128,7 +132,9 @@ export class WorkflowService {
           `Workflow "${def.name}" completed for ${tableName}:${entityId} (${mutations.length} mutations)`,
         );
       } catch (err: any) {
-        this.logger.error(`Workflow "${def.name}" failed for ${tableName}:${entityId}: ${err?.message}`);
+        this.logger.error(
+          `Workflow "${def.name}" failed for ${tableName}:${entityId}: ${err?.message}`,
+        );
         if (runId) {
           await this.db
             .updateTable('sys_workflow_runs')
@@ -144,79 +150,6 @@ export class WorkflowService {
         }
       }
     }
-  }
-
-  /**
-   * Get workflow status by run ID.
-   *
-   * @param runId Workflow run ID
-   * @returns Workflow status
-   */
-  async getStatus(runId: string): Promise<WorkflowStatus> {
-    const workflowRun = await this.db
-      .selectFrom('sys_workflow_runs')
-      .selectAll()
-      .where('id', '=', runId)
-      .executeTakeFirst();
-
-    if (!workflowRun) {
-      throw new Error(`Workflow run ${runId} not found`);
-    }
-
-    return {
-      status: workflowRun.status,
-      completedAt: workflowRun.completed_at,
-      error: workflowRun.error_details,
-      mutationsApplied: workflowRun.mutations_applied
-        ? JSON.parse(workflowRun.mutations_applied as string)
-        : undefined,
-      durationMs: workflowRun.duration_ms,
-    };
-  }
-
-  async getEntityWorkflows(entityName: string, entityId: string, limit = 10) {
-    return await this.db
-      .selectFrom('sys_workflow_runs')
-      .selectAll()
-      .where('entity_name', '=', entityName)
-      .where('entity_id', '=', entityId)
-      .orderBy('created_at', 'desc')
-      .limit(limit)
-      .execute();
-  }
-
-  async getAllWorkflows(filters?: {
-    status?: 'draft' | 'success' | 'error';
-    entityName?: string;
-    limit?: number;
-  }) {
-    let query = this.db.selectFrom('sys_workflow_runs').selectAll();
-    if (filters?.status) query = query.where('status', '=', filters.status);
-    if (filters?.entityName) query = query.where('entity_name', '=', filters.entityName);
-    return await query.orderBy('created_at', 'desc').limit(filters?.limit ?? 100).execute();
-  }
-
-  async retry(workflowRunId: string): Promise<void> {
-    const workflowRun = await this.db
-      .selectFrom('sys_workflow_runs')
-      .selectAll()
-      .where('id', '=', workflowRunId)
-      .executeTakeFirst();
-
-    if (!workflowRun) throw new Error(`Workflow run ${workflowRunId} not found`);
-
-    const entityRow = await this.db
-      .selectFrom(workflowRun.entity_name as any)
-      .selectAll()
-      .where('id', '=', workflowRun.entity_id)
-      .executeTakeFirst();
-
-    await this.runLocalWorkflows(
-      workflowRun.entity_name,
-      workflowRun.entity_id,
-      workflowRun.operation.toLowerCase() as 'create' | 'update' | 'delete',
-      entityRow ?? {},
-    );
   }
 
   /**
@@ -291,7 +224,7 @@ export class WorkflowService {
     }
   }
 
-  // ── BPMN execution ────────────────────────────────────────────────────────────
+    // ── BPMN execution ──────────────────────────────────────────────────────────
 
   private async executeBpmn(
     bpmnXml: string,
@@ -301,6 +234,7 @@ export class WorkflowService {
   ): Promise<Record<string, unknown>[]> {
     const tasks = this.parseBpmnServiceTasks(bpmnXml);
     const mutations: Record<string, unknown>[] = [];
+
     for (const task of tasks) {
       const result = await this.executeTask(task, triggeringTable, entityData, vars);
       if (result) mutations.push(result);
@@ -308,10 +242,17 @@ export class WorkflowService {
     return mutations;
   }
 
+  /**
+   * Extract all bpmn:serviceTask elements and their erdwithai:property values.
+   * Executes ALL service tasks found in the XML, regardless of whether they are
+   * wired into the sequence flow — users add nodes via the palette expecting them
+   * to run even when the canvas connection is implicit.
+   */
   private parseBpmnServiceTasks(bpmnXml: string): BpmnTaskProps[] {
     const tasks: BpmnTaskProps[] = [];
     const taskRe = /<bpmn:serviceTask[^>]*>([\s\S]*?)<\/bpmn:serviceTask>/g;
     let taskMatch: RegExpExecArray | null;
+
     while ((taskMatch = taskRe.exec(bpmnXml)) !== null) {
       const taskBody = taskMatch[1];
       const props: BpmnTaskProps = { nodeType: '' };
@@ -340,19 +281,27 @@ export class WorkflowService {
         this.logger.warn('UpdateEntity task missing "field" — skipping');
         return null;
       }
+
       const resolvedValue =
-        task.source && context[task.source] !== undefined ? context[task.source] : task.value;
+        task.source && context[task.source] !== undefined
+          ? context[task.source]
+          : task.value;
+
       const entityId = entityData.id as string;
       if (!entityId) {
         this.logger.warn('UpdateEntity: entityData has no id — skipping');
         return null;
       }
+
       await this.db
         .updateTable(targetTable as any)
         .set({ [field]: resolvedValue, updated_at: new Date() } as any)
         .where('id', '=', entityId)
         .execute();
-      this.logger.log(`UpdateEntity: ${targetTable}.${field} = ${JSON.stringify(resolvedValue)} (id=${entityId})`);
+
+      this.logger.log(
+        `UpdateEntity: ${targetTable}.${field} = ${JSON.stringify(resolvedValue)} (id=${entityId})`,
+      );
       return { nodeType: 'UpdateEntity', table: targetTable, field, value: resolvedValue };
     }
 
@@ -378,5 +327,72 @@ export class WorkflowService {
 
     this.logger.warn(`Unknown workflow nodeType: ${task.nodeType} — skipping`);
     return null;
+  }
+
+  // ── Legacy / monitoring methods ─────────────────────────────────────────────
+
+  async getStatus(runId: string): Promise<WorkflowStatus> {
+    const workflowRun = await this.db
+      .selectFrom('sys_workflow_runs')
+      .selectAll()
+      .where('id', '=', runId)
+      .executeTakeFirst();
+
+    if (!workflowRun) throw new Error(`Workflow run ${runId} not found`);
+
+    return {
+      status: workflowRun.status,
+      completedAt: workflowRun.completed_at,
+      error: workflowRun.error_details,
+      mutationsApplied: workflowRun.mutations_applied
+        ? JSON.parse(workflowRun.mutations_applied as string)
+        : undefined,
+      durationMs: workflowRun.duration_ms,
+    };
+  }
+
+  async getEntityWorkflows(entityName: string, entityId: string, limit = 10) {
+    return await this.db
+      .selectFrom('sys_workflow_runs')
+      .selectAll()
+      .where('entity_name', '=', entityName)
+      .where('entity_id', '=', entityId)
+      .orderBy('created_at', 'desc')
+      .limit(limit)
+      .execute();
+  }
+
+  async getAllWorkflows(filters?: {
+    status?: 'draft' | 'success' | 'error';
+    entityName?: string;
+    limit?: number;
+  }) {
+    let query = this.db.selectFrom('sys_workflow_runs').selectAll();
+    if (filters?.status) query = query.where('status', '=', filters.status);
+    if (filters?.entityName) query = query.where('entity_name', '=', filters.entityName);
+    return await query.orderBy('created_at', 'desc').limit(filters?.limit ?? 100).execute();
+  }
+
+  async retry(workflowRunId: string): Promise<void> {
+    const workflowRun = await this.db
+      .selectFrom('sys_workflow_runs')
+      .selectAll()
+      .where('id', '=', workflowRunId)
+      .executeTakeFirst();
+
+    if (!workflowRun) throw new Error(`Workflow run ${workflowRunId} not found`);
+
+    const entityRow = await this.db
+      .selectFrom(workflowRun.entity_name as any)
+      .selectAll()
+      .where('id', '=', workflowRun.entity_id)
+      .executeTakeFirst();
+
+    await this.runLocalWorkflows(
+      workflowRun.entity_name,
+      workflowRun.entity_id,
+      workflowRun.operation.toLowerCase() as 'create' | 'update' | 'delete',
+      entityRow ?? {},
+    );
   }
 }
