@@ -22,9 +22,42 @@ import {
   tableNameToRoutePath,
   tableNameToServiceName,
 } from "@erdwithai/core/utils";
+import { execSync } from "child_process";
+import { existsSync } from "fs";
 import { promises as fs } from "fs";
 import Handlebars from "handlebars";
 import path from "path";
+
+function resolveOsUser(): string {
+  if (process.env.PGUSER) return process.env.PGUSER;
+  if (process.env.USER) return process.env.USER;
+  if (process.env.LOGNAME) return process.env.LOGNAME;
+  try {
+    return execSync("whoami").toString().trim() || "postgres";
+  } catch {
+    return "postgres";
+  }
+}
+
+// The Node "pg" driver, unlike libpq/psql, never auto-discovers a Unix socket
+// for a bare "localhost" host — it always dials TCP, which many local
+// Postgres installs (e.g. stock Debian/Ubuntu) require a password for. Find
+// the socket directory the generating machine actually uses so the
+// generated DATABASE_URL connects passwordlessly out of the box wherever
+// possible, and degrade to a plain TCP URL (no `host=` param) when no local
+// socket is found.
+function resolvePgSocketDir(): string {
+  const port = process.env.PGPORT || "5432";
+  const candidates = [process.env.PGHOST, "/var/run/postgresql", "/tmp"].filter(
+    (candidate): candidate is string => !!candidate && candidate.startsWith("/")
+  );
+  for (const dir of candidates) {
+    if (existsSync(path.join(dir, `.s.PGSQL.${port}`))) {
+      return dir;
+    }
+  }
+  return "";
+}
 
 export class TemplateLoader {
   private cache: Map<string, HandlebarsTemplateDelegate> = new Map();
@@ -500,6 +533,11 @@ export class TemplateLoader {
     // ========================================================================
     Handlebars.registerHelper("now", () => new Date().toISOString());
     Handlebars.registerHelper("timestamp", () => Date.now());
+    Handlebars.registerHelper("osUser", () => resolveOsUser());
+    Handlebars.registerHelper("pgSocketParam", () => {
+      const dir = resolvePgSocketDir();
+      return dir ? `?host=${encodeURIComponent(dir)}` : "";
+    });
     Handlebars.registerHelper("formatDate", (date: Date | string, format?: string) => {
       const d = new Date(date);
       if (format === "iso") return d.toISOString();

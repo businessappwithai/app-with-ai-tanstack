@@ -19,14 +19,14 @@ export async function up(db: Kysely<any>): Promise<void> {
       {{#unless (or (eq name ../primaryKey) (eq name 'created_at') (eq name 'updated_at') (eq name 'deleted_at'))}}
       {{#switch (typeToReferenceId type)}}
         {{#case 10}}
-      {{#if (endsWith name '_id')}}
+      {{#if isForeignKey}}
       , {{name}} UUID{{#if required}} NOT NULL{{/if}}
       {{else}}
       , {{name}} VARCHAR({{#if maxLength}}{{maxLength}}{{else}}255{{/if}}){{#if required}} NOT NULL{{/if}}{{#if unique}} UNIQUE{{/if}}{{#if default}} DEFAULT '{{default}}'{{/if}}
       {{/if}}
         {{/case}}
         {{#case 11}}
-      {{#if (endsWith name '_id')}}
+      {{#if isForeignKey}}
       , {{name}} UUID{{#if required}} NOT NULL{{/if}}
       {{else}}
       , {{name}} INTEGER{{#if required}} NOT NULL{{/if}}{{#if default}} DEFAULT {{default}}{{/if}}
