@@ -191,7 +191,14 @@ export class WorkflowService {
     }
 
     if (!definition) {
-      this.logger.warn(`Workflow "${workflowName}" not found or inactive — skipping trigger`);
+      // Every entity is seeded with convention rules pointing at
+      // "<table>-on-create-workflow" / "-on-update-workflow", which nothing
+      // creates until someone builds them in the Workflow Designer. That is the
+      // normal state of a fresh app, so it is a debug line, not a warning on
+      // every single write.
+      this.logger.debug(
+        `No active workflow named "${workflowName}" — nothing to trigger for ${entityName}:${entityId}`,
+      );
       return;
     }
 

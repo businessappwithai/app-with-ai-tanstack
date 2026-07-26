@@ -58,6 +58,48 @@ const NODE_TYPE_DESC: Record<NodeType, string> = {
   Agent: 'Invoke an AI agent (placeholder)',
 };
 
+/**
+ * Properties a node cannot run without. The executor skips a node that is
+ * missing these and records why, but a step that silently does nothing is a bad
+ * thing to discover in production — so the canvas refuses to apply it.
+ */
+function missingRequiredProps(nodeType: NodeType, props: Record<string, string>): string[] {
+  const has = (k: string) => (props[k] ?? '').trim().length > 0;
+  const missing: string[] = [];
+
+  if (nodeType === 'UpdateEntity') {
+    if (!has('field')) missing.push('Field to update');
+    if (!has('source') && !has('value')) missing.push('a source key or a literal value');
+    // Targeting another table by row id needs to say which row.
+    if (has('entity') && !has('targetSource') && (props['targetField'] ?? 'id').trim() === 'id') {
+      missing.push('a context key to match against (cross-entity update)');
+    }
+  }
+
+  if (nodeType === 'CreateEntity') {
+    if (!has('entity')) missing.push('Entity table to insert into');
+    let fieldCount = 0;
+    try {
+      fieldCount = Object.keys(JSON.parse(props['fields'] || '{}')).length;
+    } catch {
+      missing.push('a valid JSON field map');
+    }
+    if (fieldCount === 0) missing.push('at least one field to set');
+  }
+
+  if (nodeType === 'Formula') {
+    if (!has('target')) missing.push('Target variable name');
+    if (!has('source')) missing.push('Source key');
+    if (!has('operand')) missing.push('Operand');
+  }
+
+  if (nodeType === 'REST') {
+    if (!has('url')) missing.push('URL');
+  }
+
+  return missing;
+}
+
 const EMPTY_BPMN = `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
   xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
@@ -99,6 +141,45 @@ function readProperties(element: any): Record<string, string> {
     }
   }
   return props;
+}
+
+/**
+ * Insert `taskShape` at the end of the diagram's main sequence flow.
+ *
+ * Walks Start -> … to find the last element before the end event (or the last
+ * element in the chain if there is no end event), then re-points that link
+ * through the new task. Falls back to connecting from the tail element when
+ * there is nothing to splice, and does nothing if the diagram has no start
+ * event — a user who deleted it is building something custom by hand.
+ */
+function chainOntoFlow(modeling: any, elementRegistry: any, taskShape: any): void {
+  const start = elementRegistry.filter((el: any) => el.type === 'bpmn:StartEvent')[0];
+  if (!start) return;
+
+  // Follow outgoing flows to the tail, skipping the task we just created.
+  let tail = start;
+  const visited = new Set<string>([taskShape.id]);
+  while (true) {
+    if (visited.has(tail.id)) break;
+    visited.add(tail.id);
+    const next = (tail.outgoing ?? []).find(
+      (flow: any) => flow.target && !visited.has(flow.target.id) && flow.target.type !== 'bpmn:EndEvent',
+    );
+    if (!next) break;
+    tail = next.target;
+  }
+
+  // If the tail still runs straight into an end event, splice in front of it.
+  const toEnd = (tail.outgoing ?? []).find((flow: any) => flow.target?.type === 'bpmn:EndEvent');
+  if (toEnd) {
+    const endEvent = toEnd.target;
+    modeling.removeConnection(toEnd);
+    modeling.connect(tail, taskShape);
+    modeling.connect(taskShape, endEvent);
+    return;
+  }
+
+  if (tail.id !== taskShape.id) modeling.connect(tail, taskShape);
 }
 
 function escapeXml(s: string) {
@@ -222,6 +303,7 @@ const BpmnCanvas = forwardRef<
     const [selected, setSelected] = useState<SelectedTask | null>(null);
     const [localProps, setLocalProps] = useState<Record<string, string>>({});
     const [localNodeType, setLocalNodeType] = useState<NodeType>('UpdateEntity');
+    const [applyError, setApplyError] = useState<string | null>(null);
     const [importError, setImportError] = useState<string | null>(null);
     const [helpOpen, setHelpOpen] = useState(false);
 
@@ -290,9 +372,11 @@ const BpmnCanvas = forwardRef<
               pendingScenarioRef.current = null;
               setLocalNodeType(s.nodeType);
               setLocalProps(s.props);
+              setApplyError(null);
             } else {
               setLocalNodeType(nodeType);
               setLocalProps(rest);
+              setApplyError(null);
             }
           } else {
             setSelected(null);
@@ -359,6 +443,13 @@ const BpmnCanvas = forwardRef<
       const extensionElements = moddle.create('bpmn:ExtensionElements', { values: [propsContainer] });
       modeling.updateProperties(taskShape, { name: nodeType, extensionElements });
 
+      // Splice the new task into the existing Start -> … -> End chain so the
+      // diagram states the execution order. Adding a node from the palette used
+      // to drop it on the canvas unconnected, which meant a user building a
+      // multi-step flow had to hand-draw every arrow, and the saved order was
+      // whatever the serializer happened to emit.
+      chainOntoFlow(modeling, elementRegistry, taskShape);
+
       // Select it so the properties panel opens, then fit viewport so it's visible
       modeler.get('selection').select(taskShape);
       setTimeout(() => canvas.zoom('fit-viewport'), 100);
@@ -378,6 +469,13 @@ const BpmnCanvas = forwardRef<
     // Apply edited properties back to the selected diagram element
     const applyProperties = useCallback(() => {
       if (!selected || !modelerRef.current) return;
+
+      const missing = missingRequiredProps(localNodeType, localProps);
+      if (missing.length > 0) {
+        setApplyError(`${localNodeType} still needs: ${missing.join(', ')}.`);
+        return;
+      }
+      setApplyError(null);
 
       const modeling = modelerRef.current.get('modeling');
       const elementRegistry = modelerRef.current.get('elementRegistry');
@@ -445,6 +543,7 @@ const BpmnCanvas = forwardRef<
                 <Select value={localNodeType} onValueChange={(v) => {
                   setLocalNodeType(v as NodeType);
                   setLocalProps({});
+                  setApplyError(null);
                 }}>
                   <SelectTrigger className="h-8 text-xs">
                     <SelectValue />
@@ -468,6 +567,9 @@ const BpmnCanvas = forwardRef<
                 triggeringEntity={entityName}
               />
 
+              {applyError && (
+                <p className="text-xs text-red-600" role="alert">{applyError}</p>
+              )}
               <Button size="sm" className="w-full" onClick={applyProperties}>
                 Apply to Diagram
               </Button>
