@@ -12,6 +12,11 @@
  * Decision tables use hitPolicy "collect" so all matching rows are
  * returned, enabling multiple validation errors in a single call.
  *
+ * NOTE: zen-engine silently drops any rule row that does not set a value for
+ * every output column the table declares. When adding an output column to a
+ * decision table, give every existing row an explicit "''" for it, or the whole
+ * table stops matching.
+ *
  * Generated: {{now}}
  * Project: {{project.name}}
  */
@@ -34,13 +39,30 @@ export interface RuleEvaluationResult {
   errors?: string[];
 }
 
-/** Shape of each output row returned by a GoRules decision table */
+/**
+ * Shape of each output row returned by a GoRules decision table.
+ *
+ * Everything past `ruleId` is action configuration: `workflowName` for
+ * trigger-workflow, and `targetEntity` / `linkField` / `updateData` for the
+ * cascade actions. Decision tables only need to emit the columns the action
+ * they select actually uses.
+ */
 interface JdmViolation {
   action: string;
   message: string;
   ruleId: string;
   rule_id?: string;
   workflowName?: string;
+  /** cascade-update | cascade-delete | cascade-create: table to act on */
+  targetEntity?: string;
+  /** cascade-update | cascade-delete: column on targetEntity holding this row's id */
+  linkField?: string;
+  /** cascade-update: column/value pairs to set (JSON object, or a JSON string) */
+  updateData?: Record<string, unknown> | string;
+  /** cascade-create: column/value pairs to insert (JSON object, or a JSON string) */
+  createData?: Record<string, unknown> | string;
+  /** transform: column/value pairs to apply to the row being written */
+  transformData?: Record<string, unknown> | string;
 }
 
 @Injectable()
@@ -99,12 +121,7 @@ export class RulesEngine implements OnModuleDestroy {
         ruleId: dbRuleName || v.ruleId || v.rule_id || 'unknown',
         ruleName: dbRuleName || v.ruleId || v.rule_id || 'unknown',
         matched: true,
-        actions: [
-          {
-            type: v.action as RuleAction['type'],
-            config: { message: v.message, workflowName: v.workflowName },
-          },
-        ],
+        actions: [{ type: v.action as RuleAction['type'], config: this.toActionConfig(v) }],
       }));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -180,12 +197,40 @@ export class RulesEngine implements OnModuleDestroy {
       ruleId: v.ruleId,
       ruleName: v.ruleId,
       matched: true,
-      actions: [
-        {
-          type: v.action as RuleAction['type'],
-          config: { message: v.message, workflowName: v.workflowName },
-        },
-      ],
+      actions: [{ type: v.action as RuleAction['type'], config: this.toActionConfig(v) }],
     }));
+  }
+
+  /**
+   * Carry the whole decision-table output row into the action config.
+   *
+   * Only `message` and `workflowName` used to survive this step, which left the
+   * cascade actions permanently unconfigurable — they read `targetEntity`,
+   * `linkField` and `updateData`, and those were always undefined no matter what
+   * the decision table emitted.
+   */
+  private toActionConfig(v: JdmViolation): Record<string, unknown> {
+    return {
+      message: v.message,
+      workflowName: v.workflowName,
+      targetEntity: v.targetEntity,
+      linkField: v.linkField,
+      updateData: this.asObject(v.updateData),
+      createData: this.asObject(v.createData),
+      transformData: this.asObject(v.transformData),
+    };
+  }
+
+  /** Decision tables can emit an object or a JSON string; accept either. */
+  private asObject(value: Record<string, unknown> | string | undefined): Record<string, unknown> | undefined {
+    if (!value) return undefined;
+    if (typeof value !== 'string') return value;
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : undefined;
+    } catch {
+      this.logger.warn(`Rule action data is not valid JSON: ${value}`);
+      return undefined;
+    }
   }
 }

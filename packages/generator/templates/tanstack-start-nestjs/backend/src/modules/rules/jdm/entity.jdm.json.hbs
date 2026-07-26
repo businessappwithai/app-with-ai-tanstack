@@ -24,7 +24,12 @@
           { "id": "o1", "name": "Action", "field": "action" },
           { "id": "o2", "name": "Message", "field": "message" },
           { "id": "o3", "name": "Rule ID", "field": "ruleId" },
-          { "id": "o4", "name": "Workflow Name", "field": "workflowName" }
+          { "id": "o4", "name": "Workflow Name", "field": "workflowName" },
+          { "id": "o5", "name": "Target Entity", "field": "targetEntity" },
+          { "id": "o6", "name": "Link Field", "field": "linkField" },
+          { "id": "o7", "name": "Update Data", "field": "updateData" },
+          { "id": "o8", "name": "Create Data", "field": "createData" },
+          { "id": "o9", "name": "Transform Data", "field": "transformData" }
         ],
         "rules": [
           {{#each attributes}}
@@ -36,7 +41,12 @@
             "o1": "'prevent'",
             "o2": "'{{displayName}} is required'",
             "o3": "'{{../tableName}}-{{columnName}}-required'",
-            "o4": "''"
+            "o4": "''",
+            "o5": "''",
+            "o6": "''",
+            "o7": "''",
+            "o8": "''",
+            "o9": "''"
           },
           {{/if}}
           {{#if (eq type "decimal")}}
@@ -46,7 +56,12 @@
             "o1": "'prevent'",
             "o2": "'{{displayName}} must not be negative'",
             "o3": "'{{../tableName}}-{{columnName}}-non-negative'",
-            "o4": "''"
+            "o4": "''",
+            "o5": "''",
+            "o6": "''",
+            "o7": "''",
+            "o8": "''",
+            "o9": "''"
           },
           {{/if}}
           {{#if (eq columnName "email")}}
@@ -56,7 +71,12 @@
             "o1": "'prevent'",
             "o2": "'Email must be a valid email address'",
             "o3": "'{{../tableName}}-email-format'",
-            "o4": "''"
+            "o4": "''",
+            "o5": "''",
+            "o6": "''",
+            "o7": "''",
+            "o8": "''",
+            "o9": "''"
           },
           {{/if}}
           {{/unless}}
@@ -67,7 +87,12 @@
             "o1": "'trigger-workflow'",
             "o2": "'{{displayName}} created — triggering post-create workflow'",
             "o3": "'{{tableName}}-on-create-trigger-workflow'",
-            "o4": "'{{tableName}}-on-create-workflow'"
+            "o4": "'{{tableName}}-on-create-workflow'",
+            "o5": "''",
+            "o6": "''",
+            "o7": "''",
+            "o8": "''",
+            "o9": "''"
           },
           {
             "_id": "{{tableName}}-on-update-trigger-workflow",
@@ -75,7 +100,12 @@
             "o1": "'trigger-workflow'",
             "o2": "'{{displayName}} updated — triggering post-update workflow'",
             "o3": "'{{tableName}}-on-update-trigger-workflow'",
-            "o4": "'{{tableName}}-on-update-workflow'"
+            "o4": "'{{tableName}}-on-update-workflow'",
+            "o5": "''",
+            "o6": "''",
+            "o7": "''",
+            "o8": "''",
+            "o9": "''"
           }
         ]
       }

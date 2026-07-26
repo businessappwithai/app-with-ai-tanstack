@@ -440,6 +440,46 @@ export class RulesService {
                 .where(linkField as any, '=', entityId)
                 .execute();
               this.logger.log(`Cascade-delete: deleted from ${targetEntity} where ${linkField}=${entityId}`);
+            } else {
+              this.logger.warn(
+                `cascade-delete in rule "${result.ruleName}" needs targetEntity and linkField — skipping`,
+              );
+            }
+          } else if (action.type === 'cascade-create') {
+            const targetEntity = action.config.targetEntity as string | undefined;
+            const createData = action.config.createData as Record<string, unknown> | undefined;
+            const linkField = action.config.linkField as string | undefined;
+            if (targetEntity && createData) {
+              const now = new Date();
+              await this.db
+                .insertInto(targetEntity as any)
+                .values({
+                  ...createData,
+                  // Link the new row back at the record that triggered the rule.
+                  ...(linkField ? { [linkField]: entityId } : {}),
+                  created_at: now,
+                  updated_at: now,
+                } as any)
+                .execute();
+              this.logger.log(`Cascade-create: inserted into ${targetEntity} for ${entityName}:${entityId}`);
+            } else {
+              this.logger.warn(
+                `cascade-create in rule "${result.ruleName}" needs targetEntity and createData — skipping`,
+              );
+            }
+          } else if (action.type === 'transform') {
+            const transformData = action.config.transformData as Record<string, unknown> | undefined;
+            if (transformData && Object.keys(transformData).length > 0) {
+              await this.db
+                .updateTable(entityName as any)
+                .set({ ...transformData, updated_at: new Date() } as any)
+                .where('id' as any, '=', entityId)
+                .execute();
+              this.logger.log(
+                `Transform: applied ${Object.keys(transformData).join(', ')} to ${entityName}:${entityId}`,
+              );
+            } else {
+              this.logger.warn(`transform in rule "${result.ruleName}" has no transformData — skipping`);
             }
           }
         } catch (err: any) {
