@@ -113,7 +113,7 @@ function NewWorkflowDefinition() {
 
       {/* Canvas */}
       <div className="flex-1 p-4 min-h-0">
-        <BpmnCanvas ref={canvasRef} className="h-full" />
+        <BpmnCanvas ref={canvasRef} className="h-full" entityName={entityName} />
       </div>
     </div>
   );

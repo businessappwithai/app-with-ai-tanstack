@@ -149,6 +149,7 @@ function EditWorkflowDefinition() {
         <BpmnCanvas
           ref={canvasRef}
           className="h-full"
+          entityName={entityName}
         />
       </div>
     </div>

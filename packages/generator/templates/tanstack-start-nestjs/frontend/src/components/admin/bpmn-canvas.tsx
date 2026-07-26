@@ -204,8 +204,16 @@ function useBusColumns(tableName: string): ColumnRow[] {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
-  ({ className }, ref) => {
+const BpmnCanvas = forwardRef<
+  BpmnCanvasHandle,
+  {
+    className?: string;
+    /** Table this workflow is triggered by — used to populate the field pickers
+     *  for nodes that act on the triggering record. */
+    entityName?: string;
+  }
+>(
+  ({ className, entityName }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const modelerRef = useRef<BpmnModelerInstance>(null);
     const modelerInitRef = useRef(false);
@@ -457,6 +465,7 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
                 nodeType={localNodeType}
                 props={localProps}
                 onChange={setLocalProps}
+                triggeringEntity={entityName}
               />
 
               <Button size="sm" className="w-full" onClick={applyProperties}>
@@ -512,16 +521,26 @@ function PropertyFields({
   nodeType,
   props,
   onChange,
+  triggeringEntity,
 }: {
   nodeType: NodeType;
   props: Record<string, string>;
   onChange: (p: Record<string, string>) => void;
+  triggeringEntity?: string;
 }) {
   const set = (k: string, v: string) => onChange({ ...props, [k]: v });
 
   const tables = useBusTables();
   const entityValue = props['entity'] ?? '';
-  const columns = useBusColumns(entityValue);
+  // The workflow's own Entity picker stores a display name ("Appointment"),
+  // while node properties store table names ("bus_appointment"), so resolve
+  // through the dictionary before asking for columns.
+  const triggeringTable = triggeringEntity
+    ? tables.find((t) => t.table_name === triggeringEntity || t.name === triggeringEntity)?.table_name ?? ''
+    : '';
+  // Leaving the entity blank means "the record that triggered this workflow",
+  // so fall back to that table's columns rather than offering nothing.
+  const columns = useBusColumns(entityValue || triggeringTable);
 
   // Shared entity picker (used by UpdateEntity + CreateEntity)
   const EntitySelect = ({ label = 'Entity table' }: { label?: string }) => (
