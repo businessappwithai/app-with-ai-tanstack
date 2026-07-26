@@ -683,3 +683,98 @@ describe('End-to-end: rule fires → workflow runs → entity updated', () => {
     expect(wfCalls.length).toBe(0);
   });
 });
+
+// ── JDM validation: the silent-drop footgun ──────────────────────────────────
+
+describe('RulesService.validateJDM — incomplete decision-table rows', () => {
+  let engine: RulesEngine;
+
+  beforeAll(() => { engine = new RulesEngine(); });
+  afterAll(() => { engine.onModuleDestroy(); });
+
+  function tableWith(outputs: Array<{ id: string; field: string }>, rows: Array<Record<string, unknown>>) {
+    // zen-engine requires a display name on every column.
+    const named = outputs.map((o) => ({ ...o, name: o.field }));
+    return JSON.stringify({
+      nodes: [
+        { id: 'input', type: 'inputNode', name: 'Input', position: { x: 0, y: 0 } },
+        {
+          id: 'table', type: 'decisionTableNode', name: 'Validation', position: { x: 300, y: 0 },
+          content: {
+            hitPolicy: 'collect',
+            inputs: [{ id: 'i0', name: 'Action', field: 'action' }],
+            outputs: named,
+            rules: rows,
+          },
+        },
+        { id: 'output', type: 'outputNode', name: 'Output', position: { x: 600, y: 0 } },
+      ],
+      edges: [
+        { id: 'e1', sourceId: 'input', targetId: 'table' },
+        { id: 'e2', sourceId: 'table', targetId: 'output' },
+      ],
+    });
+  }
+
+  const OUTPUTS = [
+    { id: 'o1', field: 'action' },
+    { id: 'o2', field: 'message' },
+    { id: 'o3', field: 'ruleId' },
+    { id: 'o4', field: 'workflowName' },
+  ];
+
+  function svc() {
+    const { chain } = createMockDb({});
+    return new RulesService(engine, chain, {} as unknown as WorkflowService);
+  }
+
+  // Regression: adding an output column without backfilling existing rows makes
+  // zen-engine discard every row, so evaluate() returns [] with no error — which
+  // reads exactly like "no rules configured". Catch it at save time instead.
+  it('rejects a row that does not set every declared output column', async () => {
+    const jdm = tableWith(OUTPUTS, [
+      { _id: 'incomplete-row', i0: 'action == "create"', o1: "'prevent'", o2: "'Boom'", o3: "'incomplete-row'" },
+    ]);
+
+    const result = await svc().validateJDM(jdm);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors.join(' ')).toContain('incomplete-row');
+    expect(result.errors.join(' ')).toContain('o4');
+  });
+
+  it('names every missing column, not just the first', async () => {
+    const jdm = tableWith(OUTPUTS, [
+      { _id: 'bare-row', i0: 'action == "create"', o1: "'prevent'" },
+    ]);
+
+    const [error] = (await svc().validateJDM(jdm)).errors;
+
+    expect(error).toContain('o2');
+    expect(error).toContain('o3');
+    expect(error).toContain('o4');
+  });
+
+  it('accepts rows that set every column, including empty strings', async () => {
+    const jdm = tableWith(OUTPUTS, [
+      { _id: 'complete-row', i0: 'action == "create"', o1: "'prevent'", o2: "'Boom'", o3: "'complete-row'", o4: "''" },
+    ]);
+
+    const result = await svc().validateJDM(jdm);
+
+    expect(result.errors).toEqual([]);
+    expect(result.valid).toBe(true);
+  });
+
+  it('reports the row identifier so the offending row can be found', async () => {
+    const jdm = tableWith(OUTPUTS, [
+      { _id: 'good', i0: 'action == "create"', o1: "'prevent'", o2: "'a'", o3: "'good'", o4: "''" },
+      { _id: 'bad', i0: 'action == "update"', o1: "'prevent'", o2: "'b'", o3: "'bad'" },
+    ]);
+
+    const { errors } = await svc().validateJDM(jdm);
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('"bad"');
+  });
+});
