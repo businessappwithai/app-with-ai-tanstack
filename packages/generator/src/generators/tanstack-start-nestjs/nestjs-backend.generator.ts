@@ -1225,6 +1225,20 @@ export async function executeAfterListHooks(
       console.warn("Trigger-workflow test template not found");
     }
 
+    // Multi-step / multi-entity workflow executor tests
+    try {
+      const multiEntityTestContent = await this.renderTemplate(
+        "test/workflow-multi-entity.test.ts.hbs",
+        context
+      );
+      await fs.writeFile(
+        path.join(outputDir, "test/workflow-multi-entity.test.ts"),
+        multiEntityTestContent
+      );
+    } catch (e) {
+      console.warn("Multi-entity workflow test template not found");
+    }
+
     // Job queue tests
     try {
       const jobQueueTestContent = await this.renderTemplate(
