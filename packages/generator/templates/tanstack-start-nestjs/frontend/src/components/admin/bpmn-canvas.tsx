@@ -598,6 +598,18 @@ function PropertyFields({
         <FieldSelect label="Field to update" propKey="field" />
         <TextField label="Source key from decision/vars context" k="source" placeholder="lead_score" />
         <TextField label="Literal value (if no source)" k="value" placeholder="Qualified" />
+        <div className="pt-2 border-t space-y-3">
+          <p className="text-xs text-gray-500">
+            Which rows? Leave blank to update the record that triggered the workflow.
+            To update a <em>related</em> entity, say how the two are linked.
+          </p>
+          <FieldSelect label="Match on column (default: id)" propKey="targetField" />
+          <TextField
+            label="…against this context key"
+            k="targetSource"
+            placeholder="patient_id"
+          />
+        </div>
       </div>
     );
   }
