@@ -8,10 +8,38 @@
 import { Kysely, sql } from 'kysely';
 import { v4 as uuidv4 } from 'uuid';
 
+const SAMPLE_COUNT = 4;
+
+/**
+ * Primary keys are generated up front for every table so foreign key columns
+ * can point at rows that actually exist, in either direction, regardless of the
+ * order the tables are seeded in. Without this the sample data has no usable
+ * relationships and nothing that traverses them (lookups, cascade rules,
+ * cross-entity workflows) can be exercised on a freshly generated app.
+ */
+const ids: Record<string, string[]> = {
+  {{#each entities}}
+  '{{tableName}}': Array.from({ length: SAMPLE_COUNT }, () => uuidv4()),
+  {{/each}}
+};
+
+/**
+ * Resolve a foreign key column to a real parent row id, using the same
+ * `<parent>_id -> bus_<parent>.id` convention the migrations build constraints
+ * on. Returns null when the column does not follow the convention, so an
+ * unresolvable FK is left empty rather than pointed at a random UUID.
+ */
+function fk(column: string, index: number): string | null {
+  const parent = `bus_${column.replace(/_id$/, '')}`;
+  const pool = ids[parent];
+  return pool && pool.length > 0 ? pool[index % pool.length] : null;
+}
+
 export async function seed(db: Kysely<any>): Promise<void> {
   const now = new Date();
 
-  // Disable FK constraint checking during bulk seed to allow any insertion order
+  // Constraint checking is disabled so tables can be truncated and repopulated
+  // in any order; the rows themselves are referentially consistent.
   await sql`SET session_replication_role = replica`.execute(db);
 
   {{#each entities}}
@@ -21,20 +49,20 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const {{camelCase name}}Records = [
     {{#each (range 1 4)}}
     {
-      id: uuidv4(),
+      id: ids['{{../tableName}}'][{{@index}}],
       {{#each ../attributes}}
       {{#unless (eq name ../../primaryKey)}}
       {{#unless (eq name 'created_at')}}
       {{#unless (eq name 'updated_at')}}
       {{#unless (eq name 'deleted_at')}}
       {{#switch (typeToReferenceId type)}}
-        {{#case 10}}{{name}}: {{#if (endsWith name '_id')}}uuidv4(){{else}}'{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{#if (eq name "name")}}Test {{../../displayName}} {{@../index}}{{else}}Sample {{name}} {{@../index}}{{/if}}{{/if}}'{{/if}},{{/case}}
-        {{#case 11}}{{name}}: {{#if (endsWith name '_id')}}uuidv4(){{else}}{{@../index}}{{/if}},{{/case}}
+        {{#case 10}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}'{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{#if (eq name "name")}}Test {{../../displayName}} {{@../index}}{{else}}Sample {{name}} {{@../index}}{{/if}}{{/if}}'{{/if}},{{/case}}
+        {{#case 11}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}{{@../index}}{{/if}},{{/case}}
         {{#case 12}}{{name}}: {{@../index}}.50,{{/case}}
         {{#case 15}}{{name}}: new Date(Date.now() + {{@../index}} * 86400000),{{/case}}
         {{#case 16}}{{name}}: new Date(Date.now() + {{@../index}} * 3600000),{{/case}}
         {{#case 20}}{{name}}: {{#if (eq @../index 2)}}false{{else}}true{{/if}},{{/case}}
-        {{#case 13}}{{name}}: uuidv4(),{{/case}}
+        {{#case 13}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}uuidv4(){{/if}},{{/case}}
         {{#case 14}}{{name}}: 'Sample {{name}} text {{@../index}}',{{/case}}
         {{#default}}{{name}}: 'Sample {{name}} {{@../index}}',{{/default}}
       {{/switch}}
