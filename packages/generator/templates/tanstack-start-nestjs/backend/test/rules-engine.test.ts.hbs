@@ -42,14 +42,17 @@ describe('Rules Engine (GoRules JDM)', () => {
       expect(Array.isArray(parsed.edges)).toBe(true);
     });
 
+    // Every entity table also carries unconditional post-create/post-update
+    // trigger-workflow rows, so these assertions look at the 'prevent' actions
+    // specifically rather than at every matched row.
     it('reports required-field violations for an empty payload', async () => {
       const results = await engine.evaluateRulesWithJDM('{{tableName}}', jdmContent, {}, 'create');
 
-      expect(results.length).toBeGreaterThan(0);
-      for (const result of results) {
+      const preventions = results.filter((r) => r.actions[0]?.type === 'prevent');
+      expect(preventions.length).toBeGreaterThan(0);
+      for (const result of preventions) {
         expect(result.matched).toBe(true);
         expect(result.errors).toBeUndefined();
-        expect(result.actions[0].type).toBe('prevent');
         expect(typeof result.actions[0].config.message).toBe('string');
         expect((result.actions[0].config.message as string).length).toBeGreaterThan(0);
       }
@@ -59,8 +62,17 @@ describe('Rules Engine (GoRules JDM)', () => {
       const data = TestDataFactory.create{{pascalCase name}}();
       const results = await engine.evaluateRulesWithJDM('{{tableName}}', jdmContent, data, 'create');
 
-      const violations = results.filter((r) => r.matched);
+      const violations = results.filter((r) => r.matched && r.actions[0]?.type === 'prevent');
       expect(violations).toEqual([]);
+    });
+
+    it('fires the post-create trigger-workflow row on create', async () => {
+      const data = TestDataFactory.create{{pascalCase name}}();
+      const results = await engine.evaluateRulesWithJDM('{{tableName}}', jdmContent, data, 'create');
+
+      const triggers = results.filter((r) => r.actions[0]?.type === 'trigger-workflow');
+      expect(triggers.length).toBeGreaterThan(0);
+      expect(triggers[0].actions[0].config.workflowName).toBe('{{tableName}}-on-create-workflow');
     });
 
     it('evaluates rules loaded from the JDM file on disk', async () => {
