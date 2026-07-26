@@ -273,6 +273,24 @@ describe('WorkflowService — UpdateEntity row targeting', () => {
     expect(mutation.rowsAffected).toBe(0);
   });
 
+  // A node saved without its required property must still appear in the run
+  // record. Returning nothing made the step vanish from mutations_applied, so a
+  // run that silently did nothing was indistinguishable from one that worked.
+  it('records a skipped mutation when the node has no field configured', async () => {
+    const { chain, updates } = createMockDb();
+    const svc = new WorkflowService(chain);
+
+    const [mutation] = await runBpmn(
+      svc,
+      updateTaskBpmn({ nodeType: 'UpdateEntity', value: 'done' }),
+      'bus_appointment',
+      { id: 'appt-1' },
+    );
+
+    expect(updates).toHaveLength(0);
+    expect(mutation.skipped).toContain('field');
+  });
+
   it('skips when the configured targetSource is absent from the context', async () => {
     const { chain, updates } = createMockDb();
     const svc = new WorkflowService(chain);
@@ -427,6 +445,20 @@ describe('WorkflowService — Formula', () => {
 
     expect(vars.out).toBeUndefined();
     expect(mutation.skipped).toContain('non-numeric');
+  });
+
+  it('records a skipped mutation when no target variable is configured', async () => {
+    const { chain } = createMockDb();
+    const svc = new WorkflowService(chain);
+
+    const [mutation] = await runBpmn(
+      svc,
+      updateTaskBpmn({ nodeType: 'Formula', source: 'n', operation: 'multiply', operand: '2' }),
+      'bus_lead',
+      { id: 'lead-1', n: 6 },
+    );
+
+    expect(mutation.skipped).toContain('target');
   });
 
   it('skips division by zero', async () => {

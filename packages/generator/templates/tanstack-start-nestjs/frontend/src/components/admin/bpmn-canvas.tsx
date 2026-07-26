@@ -571,16 +571,25 @@ function PropertyFields({
   );
 
   // Field picker — populates from columns of the selected entity
-  const FieldSelect = ({ label = 'Field to update', propKey = 'field' }: { label?: string; propKey?: string }) => (
+  const FieldSelect = ({
+    label = 'Field to update',
+    propKey = 'field',
+    // 'id' is hidden from the column list because you never *write* to it, but
+    // it is the usual column to *match* a parent row on, so row-targeting
+    // pickers need it back.
+    includeId = false,
+  }: { label?: string; propKey?: string; includeId?: boolean }) => {
+  const options = includeId ? [{ column_name: 'id', name: 'Row id' }, ...columns] : columns;
+  return (
     <div className="space-y-1">
       <Label className="text-xs text-gray-600">{label}</Label>
-      {columns.length > 0 ? (
+      {options.length > 0 ? (
         <Select value={props[propKey] ?? ''} onValueChange={(v) => set(propKey, v)}>
           <SelectTrigger className="h-7 text-xs">
             <SelectValue placeholder="Select field…" />
           </SelectTrigger>
           <SelectContent>
-            {columns.map((c) => (
+            {options.map((c) => (
               <SelectItem key={c.column_name} value={c.column_name} className="text-xs">
                 {c.name} <span className="text-gray-400 ml-1">({c.column_name})</span>
               </SelectItem>
@@ -597,6 +606,7 @@ function PropertyFields({
       )}
     </div>
   );
+  };
 
   const TextField = ({ label, k, placeholder }: { label: string; k: string; placeholder?: string }) => (
     <div className="space-y-1">
@@ -622,7 +632,7 @@ function PropertyFields({
             Which rows? Leave blank to update the record that triggered the workflow.
             To update a <em>related</em> entity, say how the two are linked.
           </p>
-          <FieldSelect label="Match on column (default: id)" propKey="targetField" />
+          <FieldSelect label="Match on column (default: id)" propKey="targetField" includeId />
           <TextField
             label="…against this context key"
             k="targetSource"

@@ -390,7 +390,7 @@ export class WorkflowService {
     const field = task.field?.trim();
     if (!field) {
       this.logger.warn('UpdateEntity task missing "field" — skipping');
-      return null;
+      return { nodeType: 'UpdateEntity', table: targetTable, skipped: 'no "field" configured' };
     }
 
     const entityId = entityData.id as string | undefined;
@@ -418,7 +418,7 @@ export class WorkflowService {
 
     if (targetValue === undefined || targetValue === null) {
       this.logger.warn('UpdateEntity: no value to match rows on — skipping');
-      return null;
+      return { nodeType: 'UpdateEntity', table: targetTable, field, skipped: 'no value to match rows on' };
     }
 
     const resolvedValue =
@@ -514,7 +514,7 @@ export class WorkflowService {
     const target = task.target?.trim();
     if (!target) {
       this.logger.warn('Formula task missing "target" variable name — skipping');
-      return null;
+      return { nodeType: 'Formula', skipped: 'no "target" variable configured' };
     }
 
     const left = Number(context[task.source?.trim() ?? '']);
@@ -557,7 +557,7 @@ export class WorkflowService {
     const url = task.url?.trim();
     if (!url) {
       this.logger.warn('REST task missing "url" — skipping');
-      return null;
+      return { nodeType: 'REST', skipped: 'no "url" configured' };
     }
 
     const method = (task.method?.trim() || 'POST').toUpperCase();
