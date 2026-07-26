@@ -39,6 +39,20 @@ interface BpmnTaskProps {
   field?: string;
   source?: string;
   value?: string;
+  /** Column on the target table to match rows against (default: 'id') */
+  targetField?: string;
+  /** Context key holding the value to match targetField against */
+  targetSource?: string;
+  /** CreateEntity: JSON map of { column: contextKeyOrLiteral } */
+  fields?: string;
+  /** Formula */
+  target?: string;
+  operation?: string;
+  operand?: string;
+  /** REST */
+  url?: string;
+  method?: string;
+  bodyTemplate?: string;
   [key: string]: string | undefined;
 }
 
@@ -177,7 +191,14 @@ export class WorkflowService {
     }
 
     if (!definition) {
-      this.logger.warn(`Workflow "${workflowName}" not found or inactive — skipping trigger`);
+      // Every entity is seeded with convention rules pointing at
+      // "<table>-on-create-workflow" / "-on-update-workflow", which nothing
+      // creates until someone builds them in the Workflow Designer. That is the
+      // normal state of a fresh app, so it is a debug line, not a warning on
+      // every single write.
+      this.logger.debug(
+        `No active workflow named "${workflowName}" — nothing to trigger for ${entityName}:${entityId}`,
+      );
       return;
     }
 
@@ -243,27 +264,80 @@ export class WorkflowService {
   }
 
   /**
-   * Extract all bpmn:serviceTask elements and their erdwithai:property values.
-   * Executes ALL service tasks found in the XML, regardless of whether they are
-   * wired into the sequence flow — users add nodes via the palette expecting them
-   * to run even when the canvas connection is implicit.
+   * Extract all bpmn:serviceTask elements and their erdwithai:property values,
+   * ordered by the diagram's sequence flow.
+   *
+   * Multi-step workflows only mean anything if the steps run in the order the
+   * user drew them, so tasks reachable from a start event are returned in
+   * traversal order. Tasks the user dropped on the canvas without wiring them up
+   * still execute (they are appended in document order afterwards) — the palette
+   * implies they run even when the connection is implicit.
    */
   private parseBpmnServiceTasks(bpmnXml: string): BpmnTaskProps[] {
-    const tasks: BpmnTaskProps[] = [];
-    const taskRe = /<bpmn:serviceTask[^>]*>([\s\S]*?)<\/bpmn:serviceTask>/g;
-    let taskMatch: RegExpExecArray | null;
+    const byId = new Map<string, BpmnTaskProps>();
+    const documentOrder: string[] = [];
 
+    const taskRe = /<bpmn:serviceTask\s+([^>]*?)>([\s\S]*?)<\/bpmn:serviceTask>/g;
+    let taskMatch: RegExpExecArray | null;
     while ((taskMatch = taskRe.exec(bpmnXml)) !== null) {
-      const taskBody = taskMatch[1];
+      const id = /\bid="([^"]+)"/.exec(taskMatch[1])?.[1];
       const props: BpmnTaskProps = { nodeType: '' };
       const propRe = /<erdwithai:property\s+name="([^"]+)"\s+value="([^"]*)"\s*\/>/g;
       let propMatch: RegExpExecArray | null;
-      while ((propMatch = propRe.exec(taskBody)) !== null) {
-        props[propMatch[1]] = propMatch[2];
+      while ((propMatch = propRe.exec(taskMatch[2])) !== null) {
+        props[propMatch[1]] = this.decodeXmlEntities(propMatch[2]);
       }
-      if (props.nodeType) tasks.push(props);
+      if (!props.nodeType || !id) continue;
+      byId.set(id, props);
+      documentOrder.push(id);
     }
-    return tasks;
+
+    // Adjacency from sequence flows: sourceRef -> [targetRef, ...]
+    const next = new Map<string, string[]>();
+    const hasIncoming = new Set<string>();
+    const flowRe = /<bpmn:sequenceFlow\b[^>]*>/g;
+    let flowMatch: RegExpExecArray | null;
+    while ((flowMatch = flowRe.exec(bpmnXml)) !== null) {
+      const source = /\bsourceRef="([^"]+)"/.exec(flowMatch[0])?.[1];
+      const target = /\btargetRef="([^"]+)"/.exec(flowMatch[0])?.[1];
+      if (!source || !target) continue;
+      next.set(source, [...(next.get(source) ?? []), target]);
+      hasIncoming.add(target);
+    }
+
+    // Walk from every node with no incoming flow (start events, orphan roots).
+    const roots = [...new Set([...next.keys()].filter((id) => !hasIncoming.has(id)))];
+    const ordered: string[] = [];
+    const seen = new Set<string>();
+    const walk = (id: string): void => {
+      if (seen.has(id)) return; // sequence flows can loop back
+      seen.add(id);
+      if (byId.has(id)) ordered.push(id);
+      for (const child of next.get(id) ?? []) walk(child);
+    };
+    for (const root of roots) walk(root);
+
+    // Unwired tasks keep running, after the wired ones, in document order.
+    for (const id of documentOrder) {
+      if (!seen.has(id)) ordered.push(id);
+    }
+
+    return ordered.map((id) => byId.get(id)!).filter(Boolean);
+  }
+
+  /**
+   * bpmn-js writes property values as XML attributes, so anything containing
+   * quotes arrives escaped. CreateEntity's field map is JSON — it is always
+   * quoted — so skipping this step makes every CreateEntity node unparseable.
+   */
+  private decodeXmlEntities(value: string): string {
+    return value
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&apos;/g, "'")
+      .replace(/&#(\d+);/g, (_m, code: string) => String.fromCharCode(Number(code)))
+      .replace(/&amp;/g, '&'); // last, so "&amp;quot;" does not become a quote
   }
 
   private async executeTask(
@@ -275,58 +349,255 @@ export class WorkflowService {
     const context: Record<string, unknown> = { ...vars, ...entityData };
 
     if (task.nodeType === 'UpdateEntity') {
-      const targetTable = task.entity?.trim() || triggeringTable;
-      const field = task.field?.trim();
-      if (!field) {
-        this.logger.warn('UpdateEntity task missing "field" — skipping');
-        return null;
-      }
-
-      const resolvedValue =
-        task.source && context[task.source] !== undefined
-          ? context[task.source]
-          : task.value;
-
-      const entityId = entityData.id as string;
-      if (!entityId) {
-        this.logger.warn('UpdateEntity: entityData has no id — skipping');
-        return null;
-      }
-
-      await this.db
-        .updateTable(targetTable as any)
-        .set({ [field]: resolvedValue, updated_at: new Date() } as any)
-        .where('id', '=', entityId)
-        .execute();
-
-      this.logger.log(
-        `UpdateEntity: ${targetTable}.${field} = ${JSON.stringify(resolvedValue)} (id=${entityId})`,
-      );
-      return { nodeType: 'UpdateEntity', table: targetTable, field, value: resolvedValue };
+      return this.executeUpdateEntity(task, triggeringTable, entityData, context);
     }
 
     if (task.nodeType === 'CreateEntity') {
-      this.logger.warn('CreateEntity workflow node not yet implemented — skipping');
-      return null;
-    }
-
-    if (task.nodeType === 'REST') {
-      this.logger.warn('REST workflow node not yet implemented — skipping');
-      return null;
+      return this.executeCreateEntity(task, triggeringTable, context);
     }
 
     if (task.nodeType === 'Formula') {
-      this.logger.warn('Formula workflow node not yet implemented — skipping');
-      return null;
+      return this.executeFormula(task, context, vars);
+    }
+
+    if (task.nodeType === 'REST') {
+      return this.executeRest(task, context);
     }
 
     if (task.nodeType === 'Agent') {
       this.logger.warn('Agent workflow node is a placeholder — skipping');
-      return null;
+      return { nodeType: 'Agent', skipped: 'Agent nodes are a placeholder pending Mastra integration' };
     }
 
     this.logger.warn(`Unknown workflow nodeType: ${task.nodeType} — skipping`);
     return null;
+  }
+
+  /**
+   * Update rows on the triggering entity or on a related entity.
+   *
+   * Row targeting:
+   *   targetField   column on the target table to match (default 'id')
+   *   targetSource  context key holding the value to match against
+   *
+   * Defaults cover the two shapes users actually draw:
+   *   - same table, no targeting        → the row that triggered the workflow
+   *   - targetField = a foreign key     → every child row pointing back at it
+   * Targeting another table by 'id' without a targetSource is refused rather
+   * than silently falling back to the triggering row's id, which would update
+   * an unrelated record or (more often) nothing at all.
+   */
+  private async executeUpdateEntity(
+    task: BpmnTaskProps,
+    triggeringTable: string,
+    entityData: Record<string, unknown>,
+    context: Record<string, unknown>,
+  ): Promise<Record<string, unknown> | null> {
+    const targetTable = task.entity?.trim() || triggeringTable;
+    const field = task.field?.trim();
+    if (!field) {
+      this.logger.warn('UpdateEntity task missing "field" — skipping');
+      return { nodeType: 'UpdateEntity', table: targetTable, skipped: 'no "field" configured' };
+    }
+
+    const entityId = entityData.id as string | undefined;
+    const targetField = task.targetField?.trim() || 'id';
+    const targetSource = task.targetSource?.trim();
+    const isSelf = targetTable === triggeringTable;
+
+    let targetValue: unknown;
+    if (targetSource) {
+      targetValue = context[targetSource];
+      if (targetValue === undefined || targetValue === null) {
+        this.logger.warn(
+          `UpdateEntity: targetSource "${targetSource}" is not present in the workflow context — skipping ${targetTable}.${field}`,
+        );
+        return { nodeType: 'UpdateEntity', table: targetTable, field, skipped: `no value for targetSource "${targetSource}"` };
+      }
+    } else if (!isSelf && targetField === 'id') {
+      this.logger.warn(
+        `UpdateEntity: cannot update ${targetTable} from a ${triggeringTable} workflow without "targetSource" (or a "targetField" foreign key) — skipping`,
+      );
+      return { nodeType: 'UpdateEntity', table: targetTable, field, skipped: 'no row targeting configured for a cross-entity update' };
+    } else {
+      targetValue = entityId;
+    }
+
+    if (targetValue === undefined || targetValue === null) {
+      this.logger.warn('UpdateEntity: no value to match rows on — skipping');
+      return { nodeType: 'UpdateEntity', table: targetTable, field, skipped: 'no value to match rows on' };
+    }
+
+    const resolvedValue =
+      task.source && context[task.source] !== undefined ? context[task.source] : task.value;
+
+    const result = await this.db
+      .updateTable(targetTable as any)
+      .set({ [field]: resolvedValue, updated_at: new Date() } as any)
+      .where(targetField as any, '=', targetValue)
+      .execute();
+
+    const rowsAffected = Number(result?.[0]?.numUpdatedRows ?? 0);
+    if (rowsAffected === 0) {
+      this.logger.warn(
+        `UpdateEntity: ${targetTable}.${field} matched no rows (${targetField}=${String(targetValue)})`,
+      );
+    } else {
+      this.logger.log(
+        `UpdateEntity: ${targetTable}.${field} = ${JSON.stringify(resolvedValue)} (${targetField}=${String(targetValue)}, ${rowsAffected} row(s))`,
+      );
+    }
+
+    return {
+      nodeType: 'UpdateEntity',
+      table: targetTable,
+      field,
+      value: resolvedValue,
+      matchedOn: `${targetField}=${String(targetValue)}`,
+      rowsAffected,
+    };
+  }
+
+  /**
+   * Insert a row into a related entity.
+   * `fields` is a JSON map of { column: contextKeyOrLiteral } — a value that
+   * names a key in the workflow context resolves to that key's value, anything
+   * else is inserted literally. This is the map the designer's CreateEntity
+   * field builder emits.
+   */
+  private async executeCreateEntity(
+    task: BpmnTaskProps,
+    triggeringTable: string,
+    context: Record<string, unknown>,
+  ): Promise<Record<string, unknown> | null> {
+    const targetTable = task.entity?.trim() || triggeringTable;
+
+    let fieldMap: Record<string, string>;
+    try {
+      fieldMap = JSON.parse(task.fields?.trim() || '{}') as Record<string, string>;
+    } catch (err: any) {
+      this.logger.warn(`CreateEntity: "fields" is not valid JSON (${err?.message}) — skipping`);
+      return { nodeType: 'CreateEntity', table: targetTable, skipped: 'invalid fields JSON' };
+    }
+
+    const entries = Object.entries(fieldMap).filter(([column]) => column.trim().length > 0);
+    if (entries.length === 0) {
+      this.logger.warn(`CreateEntity: no fields configured for ${targetTable} — skipping`);
+      return { nodeType: 'CreateEntity', table: targetTable, skipped: 'no fields configured' };
+    }
+
+    const now = new Date();
+    const values: Record<string, unknown> = { created_at: now, updated_at: now };
+    for (const [column, source] of entries) {
+      values[column.trim()] =
+        typeof source === 'string' && context[source] !== undefined ? context[source] : source;
+    }
+
+    const inserted = await this.db
+      .insertInto(targetTable as any)
+      .values(values as any)
+      .returningAll()
+      .executeTakeFirst();
+
+    this.logger.log(`CreateEntity: inserted into ${targetTable} (id=${(inserted as any)?.id})`);
+    return {
+      nodeType: 'CreateEntity',
+      table: targetTable,
+      createdId: (inserted as any)?.id,
+      values,
+    };
+  }
+
+  /**
+   * Compute a number and store it in the workflow's vars so later steps can
+   * reference it via a "source" key. Mutates `vars` in place — that is the
+   * channel multi-step workflows use to pass values between nodes.
+   */
+  private executeFormula(
+    task: BpmnTaskProps,
+    context: Record<string, unknown>,
+    vars: Record<string, unknown>,
+  ): Record<string, unknown> | null {
+    const target = task.target?.trim();
+    if (!target) {
+      this.logger.warn('Formula task missing "target" variable name — skipping');
+      return { nodeType: 'Formula', skipped: 'no "target" variable configured' };
+    }
+
+    const left = Number(context[task.source?.trim() ?? '']);
+    const right = Number(task.operand);
+    if (!Number.isFinite(left) || !Number.isFinite(right)) {
+      this.logger.warn(
+        `Formula: "${task.source}" (${String(context[task.source ?? ''])}) or operand "${task.operand}" is not numeric — skipping`,
+      );
+      return { nodeType: 'Formula', target, skipped: 'non-numeric operand' };
+    }
+
+    const operation = task.operation?.trim() || 'multiply';
+    let value: number;
+    switch (operation) {
+      case 'multiply': value = left * right; break;
+      case 'divide':
+        if (right === 0) {
+          this.logger.warn('Formula: division by zero — skipping');
+          return { nodeType: 'Formula', target, skipped: 'division by zero' };
+        }
+        value = left / right;
+        break;
+      case 'add': value = left + right; break;
+      case 'subtract': value = left - right; break;
+      default:
+        this.logger.warn(`Formula: unknown operation "${operation}" — skipping`);
+        return { nodeType: 'Formula', target, skipped: `unknown operation "${operation}"` };
+    }
+
+    vars[target] = value;
+    this.logger.log(`Formula: ${target} = ${left} ${operation} ${right} = ${value}`);
+    return { nodeType: 'Formula', target, value };
+  }
+
+  /** Call an external HTTP endpoint. Never blocks the workflow for more than 10s. */
+  private async executeRest(
+    task: BpmnTaskProps,
+    context: Record<string, unknown>,
+  ): Promise<Record<string, unknown> | null> {
+    const url = task.url?.trim();
+    if (!url) {
+      this.logger.warn('REST task missing "url" — skipping');
+      return { nodeType: 'REST', skipped: 'no "url" configured' };
+    }
+
+    const method = (task.method?.trim() || 'POST').toUpperCase();
+    const body =
+      method === 'GET' ? undefined : this.interpolate(task.bodyTemplate ?? '', context);
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+        body,
+        signal: controller.signal,
+      });
+      this.logger.log(`REST: ${method} ${url} → ${response.status}`);
+      return { nodeType: 'REST', url, method, status: response.status, ok: response.ok };
+    } catch (err: any) {
+      // A failing webhook must not fail the workflow — record it and move on.
+      this.logger.warn(`REST: ${method} ${url} failed: ${err?.message}`);
+      return { nodeType: 'REST', url, method, error: err?.message ?? String(err) };
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  /** Replace \{{key}} placeholders with values from the workflow context. */
+  private interpolate(template: string, context: Record<string, unknown>): string {
+    return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (_match, key: string) => {
+      const value = context[key];
+      if (value === undefined || value === null) return '';
+      return value instanceof Date ? value.toISOString() : String(value);
+    });
   }
 
   // ── Legacy / monitoring methods ─────────────────────────────────────────────

@@ -58,6 +58,48 @@ const NODE_TYPE_DESC: Record<NodeType, string> = {
   Agent: 'Invoke an AI agent (placeholder)',
 };
 
+/**
+ * Properties a node cannot run without. The executor skips a node that is
+ * missing these and records why, but a step that silently does nothing is a bad
+ * thing to discover in production — so the canvas refuses to apply it.
+ */
+function missingRequiredProps(nodeType: NodeType, props: Record<string, string>): string[] {
+  const has = (k: string) => (props[k] ?? '').trim().length > 0;
+  const missing: string[] = [];
+
+  if (nodeType === 'UpdateEntity') {
+    if (!has('field')) missing.push('Field to update');
+    if (!has('source') && !has('value')) missing.push('a source key or a literal value');
+    // Targeting another table by row id needs to say which row.
+    if (has('entity') && !has('targetSource') && (props['targetField'] ?? 'id').trim() === 'id') {
+      missing.push('a context key to match against (cross-entity update)');
+    }
+  }
+
+  if (nodeType === 'CreateEntity') {
+    if (!has('entity')) missing.push('Entity table to insert into');
+    let fieldCount = 0;
+    try {
+      fieldCount = Object.keys(JSON.parse(props['fields'] || '{}')).length;
+    } catch {
+      missing.push('a valid JSON field map');
+    }
+    if (fieldCount === 0) missing.push('at least one field to set');
+  }
+
+  if (nodeType === 'Formula') {
+    if (!has('target')) missing.push('Target variable name');
+    if (!has('source')) missing.push('Source key');
+    if (!has('operand')) missing.push('Operand');
+  }
+
+  if (nodeType === 'REST') {
+    if (!has('url')) missing.push('URL');
+  }
+
+  return missing;
+}
+
 const EMPTY_BPMN = `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
   xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
@@ -99,6 +141,45 @@ function readProperties(element: any): Record<string, string> {
     }
   }
   return props;
+}
+
+/**
+ * Insert `taskShape` at the end of the diagram's main sequence flow.
+ *
+ * Walks Start -> … to find the last element before the end event (or the last
+ * element in the chain if there is no end event), then re-points that link
+ * through the new task. Falls back to connecting from the tail element when
+ * there is nothing to splice, and does nothing if the diagram has no start
+ * event — a user who deleted it is building something custom by hand.
+ */
+function chainOntoFlow(modeling: any, elementRegistry: any, taskShape: any): void {
+  const start = elementRegistry.filter((el: any) => el.type === 'bpmn:StartEvent')[0];
+  if (!start) return;
+
+  // Follow outgoing flows to the tail, skipping the task we just created.
+  let tail = start;
+  const visited = new Set<string>([taskShape.id]);
+  while (true) {
+    if (visited.has(tail.id)) break;
+    visited.add(tail.id);
+    const next = (tail.outgoing ?? []).find(
+      (flow: any) => flow.target && !visited.has(flow.target.id) && flow.target.type !== 'bpmn:EndEvent',
+    );
+    if (!next) break;
+    tail = next.target;
+  }
+
+  // If the tail still runs straight into an end event, splice in front of it.
+  const toEnd = (tail.outgoing ?? []).find((flow: any) => flow.target?.type === 'bpmn:EndEvent');
+  if (toEnd) {
+    const endEvent = toEnd.target;
+    modeling.removeConnection(toEnd);
+    modeling.connect(tail, taskShape);
+    modeling.connect(taskShape, endEvent);
+    return;
+  }
+
+  if (tail.id !== taskShape.id) modeling.connect(tail, taskShape);
 }
 
 function escapeXml(s: string) {
@@ -204,8 +285,16 @@ function useBusColumns(tableName: string): ColumnRow[] {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
-  ({ className }, ref) => {
+const BpmnCanvas = forwardRef<
+  BpmnCanvasHandle,
+  {
+    className?: string;
+    /** Table this workflow is triggered by — used to populate the field pickers
+     *  for nodes that act on the triggering record. */
+    entityName?: string;
+  }
+>(
+  ({ className, entityName }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const modelerRef = useRef<BpmnModelerInstance>(null);
     const modelerInitRef = useRef(false);
@@ -214,6 +303,7 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
     const [selected, setSelected] = useState<SelectedTask | null>(null);
     const [localProps, setLocalProps] = useState<Record<string, string>>({});
     const [localNodeType, setLocalNodeType] = useState<NodeType>('UpdateEntity');
+    const [applyError, setApplyError] = useState<string | null>(null);
     const [importError, setImportError] = useState<string | null>(null);
     const [helpOpen, setHelpOpen] = useState(false);
 
@@ -282,9 +372,11 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
               pendingScenarioRef.current = null;
               setLocalNodeType(s.nodeType);
               setLocalProps(s.props);
+              setApplyError(null);
             } else {
               setLocalNodeType(nodeType);
               setLocalProps(rest);
+              setApplyError(null);
             }
           } else {
             setSelected(null);
@@ -351,6 +443,13 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
       const extensionElements = moddle.create('bpmn:ExtensionElements', { values: [propsContainer] });
       modeling.updateProperties(taskShape, { name: nodeType, extensionElements });
 
+      // Splice the new task into the existing Start -> … -> End chain so the
+      // diagram states the execution order. Adding a node from the palette used
+      // to drop it on the canvas unconnected, which meant a user building a
+      // multi-step flow had to hand-draw every arrow, and the saved order was
+      // whatever the serializer happened to emit.
+      chainOntoFlow(modeling, elementRegistry, taskShape);
+
       // Select it so the properties panel opens, then fit viewport so it's visible
       modeler.get('selection').select(taskShape);
       setTimeout(() => canvas.zoom('fit-viewport'), 100);
@@ -370,6 +469,13 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
     // Apply edited properties back to the selected diagram element
     const applyProperties = useCallback(() => {
       if (!selected || !modelerRef.current) return;
+
+      const missing = missingRequiredProps(localNodeType, localProps);
+      if (missing.length > 0) {
+        setApplyError(`${localNodeType} still needs: ${missing.join(', ')}.`);
+        return;
+      }
+      setApplyError(null);
 
       const modeling = modelerRef.current.get('modeling');
       const elementRegistry = modelerRef.current.get('elementRegistry');
@@ -437,6 +543,7 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
                 <Select value={localNodeType} onValueChange={(v) => {
                   setLocalNodeType(v as NodeType);
                   setLocalProps({});
+                  setApplyError(null);
                 }}>
                   <SelectTrigger className="h-8 text-xs">
                     <SelectValue />
@@ -457,8 +564,12 @@ const BpmnCanvas = forwardRef<BpmnCanvasHandle, { className?: string }>(
                 nodeType={localNodeType}
                 props={localProps}
                 onChange={setLocalProps}
+                triggeringEntity={entityName}
               />
 
+              {applyError && (
+                <p className="text-xs text-red-600" role="alert">{applyError}</p>
+              )}
               <Button size="sm" className="w-full" onClick={applyProperties}>
                 Apply to Diagram
               </Button>
@@ -512,16 +623,26 @@ function PropertyFields({
   nodeType,
   props,
   onChange,
+  triggeringEntity,
 }: {
   nodeType: NodeType;
   props: Record<string, string>;
   onChange: (p: Record<string, string>) => void;
+  triggeringEntity?: string;
 }) {
   const set = (k: string, v: string) => onChange({ ...props, [k]: v });
 
   const tables = useBusTables();
   const entityValue = props['entity'] ?? '';
-  const columns = useBusColumns(entityValue);
+  // The workflow's own Entity picker stores a display name ("Appointment"),
+  // while node properties store table names ("bus_appointment"), so resolve
+  // through the dictionary before asking for columns.
+  const triggeringTable = triggeringEntity
+    ? tables.find((t) => t.table_name === triggeringEntity || t.name === triggeringEntity)?.table_name ?? ''
+    : '';
+  // Leaving the entity blank means "the record that triggered this workflow",
+  // so fall back to that table's columns rather than offering nothing.
+  const columns = useBusColumns(entityValue || triggeringTable);
 
   // Shared entity picker (used by UpdateEntity + CreateEntity)
   const EntitySelect = ({ label = 'Entity table' }: { label?: string }) => (
@@ -552,16 +673,25 @@ function PropertyFields({
   );
 
   // Field picker — populates from columns of the selected entity
-  const FieldSelect = ({ label = 'Field to update', propKey = 'field' }: { label?: string; propKey?: string }) => (
+  const FieldSelect = ({
+    label = 'Field to update',
+    propKey = 'field',
+    // 'id' is hidden from the column list because you never *write* to it, but
+    // it is the usual column to *match* a parent row on, so row-targeting
+    // pickers need it back.
+    includeId = false,
+  }: { label?: string; propKey?: string; includeId?: boolean }) => {
+  const options = includeId ? [{ column_name: 'id', name: 'Row id' }, ...columns] : columns;
+  return (
     <div className="space-y-1">
       <Label className="text-xs text-gray-600">{label}</Label>
-      {columns.length > 0 ? (
+      {options.length > 0 ? (
         <Select value={props[propKey] ?? ''} onValueChange={(v) => set(propKey, v)}>
           <SelectTrigger className="h-7 text-xs">
             <SelectValue placeholder="Select field…" />
           </SelectTrigger>
           <SelectContent>
-            {columns.map((c) => (
+            {options.map((c) => (
               <SelectItem key={c.column_name} value={c.column_name} className="text-xs">
                 {c.name} <span className="text-gray-400 ml-1">({c.column_name})</span>
               </SelectItem>
@@ -578,6 +708,7 @@ function PropertyFields({
       )}
     </div>
   );
+  };
 
   const TextField = ({ label, k, placeholder }: { label: string; k: string; placeholder?: string }) => (
     <div className="space-y-1">
@@ -598,6 +729,18 @@ function PropertyFields({
         <FieldSelect label="Field to update" propKey="field" />
         <TextField label="Source key from decision/vars context" k="source" placeholder="lead_score" />
         <TextField label="Literal value (if no source)" k="value" placeholder="Qualified" />
+        <div className="pt-2 border-t space-y-3">
+          <p className="text-xs text-gray-500">
+            Which rows? Leave blank to update the record that triggered the workflow.
+            To update a <em>related</em> entity, say how the two are linked.
+          </p>
+          <FieldSelect label="Match on column (default: id)" propKey="targetField" includeId />
+          <TextField
+            label="…against this context key"
+            k="targetSource"
+            placeholder="patient_id"
+          />
+        </div>
       </div>
     );
   }
