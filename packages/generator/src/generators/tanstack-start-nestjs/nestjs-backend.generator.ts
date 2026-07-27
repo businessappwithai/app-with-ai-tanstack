@@ -201,9 +201,11 @@ export class NestJsBackendGenerator extends BaseGenerator {
 
       console.log(`  ✅ NestJS scaffolding complete`);
     } catch (error) {
-      console.error(`Error during NestJS scaffolding:`, error);
-      // Continue anyway - user may have a custom setup
-      console.warn(`  Proceeding without CLI scaffolding - will use template generation`);
+      // Not fatal, and not unusual: `nest new` needs the npm registry, and the
+      // templates below write every file the generated backend needs regardless.
+      console.log(
+        `  Skipping CLI scaffolding (${(error as Error).message.split("\n")[0]}) — generating from templates`
+      );
     }
   }
 
