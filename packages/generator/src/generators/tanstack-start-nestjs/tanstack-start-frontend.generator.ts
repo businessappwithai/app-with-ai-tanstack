@@ -623,6 +623,11 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       },
       // AD shell components
       {
+        // Shared by every shell — the Help button and screen for a window.
+        src: "src/components/admin/window-help-dialog.tsx",
+        dest: "src/components/admin/window-help-dialog.tsx",
+      },
+      {
         src: "src/components/admin/ad-detail-shell.tsx",
         dest: "src/components/admin/ad-detail-shell.tsx",
       },

@@ -10,6 +10,7 @@ import { DynamicTable } from '@/components/tables/dynamic-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { DocStatusBadge } from './doc-status-badge';
+import { WindowHelpDialog, helpTableNameFromEndpoint } from './window-help-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ADToolbar } from './ad-toolbar';
@@ -394,6 +395,7 @@ export function ADDetailShell({ level, recordId, parentContext, dashboardHref = 
                   message={currentRecord.doc_status_message as string}
                 />
               )}
+              <WindowHelpDialog tableName={helpTableNameFromEndpoint(level.endpoint)} entityLabel={level.label} />
             </div>
             <div className="mt-1.5">
               <ADRecordNav
