@@ -157,6 +157,12 @@ export class BusService {
     if (!processedData.id) {
       processedData = { ...processedData, id: randomUUID() };
     }
+    // Strip entity-specific PK field (e.g. compound_id) — the table uses 'id'
+    const entityPkField = tableName.replace(/^bus_/, '') + '_id';
+    if (entityPkField in processedData) {
+      const { [entityPkField]: _pk, ...rest } = processedData;
+      processedData = rest;
+    }
 
     await this.enforceBusinessRules(tableName, processedData, 'create');
 
@@ -573,6 +579,15 @@ export class BusService {
     manager_id: 'bus_user',
     assigned_to: 'bus_user',
     created_by: 'bus_user',
+    pi_id: 'bus_user',
+    lab_manager_id: 'bus_user',
+    reviewed_by: 'bus_user',
+    approved_by: 'bus_user',
+    performed_by: 'bus_user',
+    registered_by: 'bus_user',
+    remediation_owner: 'bus_user',
+    user_id: 'bus_user',
+    created_by_user: 'bus_user',
   };
 
   private async resolveRefLabelFields(refTableName: string): Promise<string[]> {
@@ -606,6 +621,8 @@ export class BusService {
     if (BusService.COLUMN_TABLE_ALIASES[columnName]) {
       return BusService.COLUMN_TABLE_ALIASES[columnName];
     }
+    // Columns ending in _by (e.g. reviewed_by, approved_by, performed_by) → user table
+    if (columnName.endsWith('_by')) return 'bus_user';
     if (!columnName.endsWith('_id') || columnName === 'id') return undefined;
     const baseName = columnName.slice(0, -3);
     return `bus_${baseName}`;

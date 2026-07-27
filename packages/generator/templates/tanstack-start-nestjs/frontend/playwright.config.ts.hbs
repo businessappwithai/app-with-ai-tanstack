@@ -14,7 +14,7 @@ export default defineConfig({
   reporter: [['html'], ['json']],
 
   use: {
-    baseURL: process.env.FRONTEND_URL || 'http://localhost:3001',
+    baseURL: process.env.FRONTEND_URL || 'http://localhost:{{config.frontendPort}}',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -29,8 +29,8 @@ export default defineConfig({
 
   // Start dev server before running tests
   webServer: {
-    command: 'cd ../frontend && bun run dev',
-    url: 'http://localhost:3001',
+    command: 'bun run dev',
+    url: 'http://localhost:{{config.frontendPort}}',
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
   },

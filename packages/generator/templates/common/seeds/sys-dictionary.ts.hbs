@@ -12,7 +12,7 @@
  * - sys_field entries with randomized seq_no for runtime modification demo
  */
 
-import { Kysely } from 'kysely';
+import { Kysely, sql } from 'kysely';
 import { v4 as uuidv4 } from 'uuid';
 
 // ============================================================================
@@ -283,14 +283,19 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const now = new Date();
   const createdBy = '{{config.createdBy}}';
 
-  // ============================================================================
-  // Create Default Roles
-  // ============================================================================
-  const adminRoleId = uuidv4();
-  const userRoleId = uuidv4();
+  // Truncate sys_ tables so the seed is idempotent (safe to re-run)
+  await sql`TRUNCATE sys_field, sys_tab, sys_window, sys_column, sys_table, sys_field_group CASCADE`.execute(db).catch(() => {});
 
-  await db.insertInto('sys_role').values([
-    {
+  // ============================================================================
+  // Create Default Roles (lookup-or-create so re-runs are safe)
+  // ============================================================================
+  let adminRoleId: string;
+  const existingAdminRole = await db.selectFrom('sys_role').select('sys_role_id').where('name', '=', 'Administrator').executeTakeFirst();
+  if (existingAdminRole) {
+    adminRoleId = existingAdminRole.sys_role_id;
+  } else {
+    adminRoleId = uuidv4();
+    await db.insertInto('sys_role').values({
       sys_role_id: adminRoleId,
       name: 'Administrator',
       description: 'System administrator with full access',
@@ -308,8 +313,16 @@ export async function seed(db: Kysely<any>): Promise<void> {
       updated_by: createdBy,
       created_at: now,
       updated_at: now,
-    },
-    {
+    }).execute();
+  }
+
+  let userRoleId: string;
+  const existingUserRole = await db.selectFrom('sys_role').select('sys_role_id').where('name', '=', 'User').executeTakeFirst();
+  if (existingUserRole) {
+    userRoleId = existingUserRole.sys_role_id;
+  } else {
+    userRoleId = uuidv4();
+    await db.insertInto('sys_role').values({
       sys_role_id: userRoleId,
       name: 'User',
       description: 'Standard user with limited access',
@@ -327,37 +340,42 @@ export async function seed(db: Kysely<any>): Promise<void> {
       updated_by: createdBy,
       created_at: now,
       updated_at: now,
-    },
-  ]).execute();
+    }).execute();
+  }
 
   // ============================================================================
-  // Create Default Admin User
+  // Create Default Admin User (lookup-or-create so re-runs are safe)
   // ============================================================================
-  const adminUserId = uuidv4();
-
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@admin.com';
 
-  await db.insertInto('sys_user').values({
-    sys_user_id: adminUserId,
-    name: 'System Administrator',
-    email: adminEmail,
-    password_hash: '$2b$10$rIC/7qZmzCi9F4g4OKL8wO4k5XYzJ5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5', // replaced by ensureAdminUser on first boot
-    description: 'Default system administrator',
-    is_system_user: true,
-    is_sales_rep: false,
-    login_failure_count: 0,
-    is_locked: false,
-    is_account_verified: true,
-    default_sys_role_id: adminRoleId,
-    entity_type: 'D',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  let adminUserId: string;
+  const existingAdmin = await db.selectFrom('sys_user').select('sys_user_id').where('email', '=', adminEmail).executeTakeFirst();
+  if (existingAdmin) {
+    adminUserId = existingAdmin.sys_user_id;
+  } else {
+    adminUserId = uuidv4();
+    await db.insertInto('sys_user').values({
+      sys_user_id: adminUserId,
+      name: 'System Administrator',
+      email: adminEmail,
+      password_hash: '$2b$10$rIC/7qZmzCi9F4g4OKL8wO4k5XYzJ5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5', // replaced by ensureAdminUser on first boot
+      description: 'Default system administrator',
+      is_system_user: true,
+      is_sales_rep: false,
+      login_failure_count: 0,
+      is_locked: false,
+      is_account_verified: true,
+      default_sys_role_id: adminRoleId,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
-  // Assign admin role to admin user
+  // Assign admin role to admin user (idempotent)
   await db.insertInto('sys_user_roles').values({
     sys_user_roles_id: uuidv4(),
     sys_user_id: adminUserId,
@@ -368,7 +386,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_by: createdBy,
     created_at: now,
     updated_at: now,
-  }).execute();
+  }).onConflict((oc) => oc.doNothing()).execute();
 
   // ============================================================================
   // Create Default Field Groups

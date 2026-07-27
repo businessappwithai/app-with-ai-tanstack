@@ -175,6 +175,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       "src/providers",
       "src/styles",
       "src/types",
+      "src/lib/queries",
       "test",
     ];
 
@@ -650,6 +651,38 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       {
         src: "src/components/admin/doc-status-badge.tsx",
         dest: "src/components/admin/doc-status-badge.tsx",
+      },
+      // Missing provider files
+      {
+        src: "src/providers/browser-router-provider.tsx",
+        dest: "src/providers/browser-router-provider.tsx",
+      },
+      // Auth query hooks
+      {
+        src: "src/lib/queries/use-auth.ts",
+        dest: "src/lib/queries/use-auth.ts",
+      },
+      // Extra UI components
+      {
+        src: "src/components/ui/empty-state.tsx",
+        dest: "src/components/ui/empty-state.tsx",
+      },
+      {
+        src: "src/components/ui/mobile-sidebar.tsx",
+        dest: "src/components/ui/mobile-sidebar.tsx",
+      },
+      // Skeleton components
+      {
+        src: "src/components/skeletons/dashboard-skeleton.tsx",
+        dest: "src/components/skeletons/dashboard-skeleton.tsx",
+      },
+      {
+        src: "src/components/skeletons/table-rows-skeleton.tsx",
+        dest: "src/components/skeletons/table-rows-skeleton.tsx",
+      },
+      {
+        src: "src/components/skeletons/stats-card-skeleton.tsx",
+        dest: "src/components/skeletons/stats-card-skeleton.tsx",
       },
     ];
 

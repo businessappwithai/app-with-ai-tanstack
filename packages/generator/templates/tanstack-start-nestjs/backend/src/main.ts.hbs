@@ -124,12 +124,12 @@ async function bootstrap() {
 
   const port = process.env.PORT || {{config.port}};
   // Enable CORS BEFORE raw Fastify routes so all routes get CORS headers
-  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
+  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:{{config.frontendPort}}';
   const allowedOrigins = [...new Set([
     ...corsOrigin.split(','),
+    'http://localhost:{{config.frontendPort}}',
+    'http://localhost:{{config.port}}',
     'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:3050',
     'http://localhost:5173',
   ])];
   app.enableCors({

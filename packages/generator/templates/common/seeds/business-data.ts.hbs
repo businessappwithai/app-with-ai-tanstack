@@ -24,12 +24,35 @@ const ids: Record<string, string[]> = {
 };
 
 /**
- * Resolve a foreign key column to a real parent row id, using the same
- * `<parent>_id -> bus_<parent>.id` convention the migrations build constraints
- * on. Returns null when the column does not follow the convention, so an
- * unresolvable FK is left empty rather than pointed at a random UUID.
+ * Map FK column names that don't follow the standard <entity>_id convention
+ * to the table they actually reference. Add entries here for any domain FK
+ * that uses a role name (pi_id, lab_manager_id) or a verb suffix (_by).
+ */
+const FK_COLUMN_TABLE_MAP: Record<string, string> = {
+  pi_id: 'bus_user',
+  lab_manager_id: 'bus_user',
+  assigned_to: 'bus_user',
+  owner_id: 'bus_user',
+  manager_id: 'bus_user',
+  user_id: 'bus_user',
+  created_by_user: 'bus_user',
+  remediation_owner: 'bus_user',
+};
+
+/**
+ * Resolve a foreign key column to a real parent row id.
+ * Handles: explicit alias map, _by suffix (→ bus_user), standard <entity>_id.
+ * Returns null when unresolvable so the field is left empty, not random.
  */
 function fk(column: string, index: number): string | null {
+  if (FK_COLUMN_TABLE_MAP[column]) {
+    const pool = ids[FK_COLUMN_TABLE_MAP[column]];
+    if (pool && pool.length > 0) return pool[index % pool.length];
+  }
+  if (column.endsWith('_by')) {
+    const pool = ids['bus_user'];
+    if (pool && pool.length > 0) return pool[index % pool.length];
+  }
   const parent = `bus_${column.replace(/_id$/, '')}`;
   const pool = ids[parent];
   return pool && pool.length > 0 ? pool[index % pool.length] : null;

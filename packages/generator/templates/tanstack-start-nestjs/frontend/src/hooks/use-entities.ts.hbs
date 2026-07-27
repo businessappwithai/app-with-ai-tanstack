@@ -142,13 +142,14 @@ export function useEntity<T extends EntityRecord = EntityRecord>(
 // Metadata Hooks
 // ============================================================================
 
-export function useEntityMetadata(entity: string) {
+export function useEntityMetadata(entity: string, enabled = true) {
   return useQuery({
     queryKey: entityKeys.metadata(entity),
     queryFn: async () => {
       return apiClient.get<{ table: any; columns: any[]; window: any }>(`/bus/${entity}/meta`);
     },
     staleTime: 30 * 60 * 1000, // 30 minutes - metadata rarely changes
+    enabled,
   });
 }
 
