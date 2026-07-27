@@ -216,9 +216,11 @@ export function ADDetailShell({ level, recordId, parentContext, dashboardHref = 
   const [hasChanges, setHasChanges] = useState(false);
   const [activeChildTab, setActiveChildTab] = useState(() => level.childTabs?.[0]?.id ?? '');
   const [isEditing, setIsEditing] = useState(initialMode === 'edit');
+  const [saveErrors, setSaveErrors] = useState<string[]>([]);
 
-  // Fetch entity metadata to resolve summary fields
-  const { data: entityMeta } = useEntityMetadata(level.id);
+  // Fetch entity metadata to resolve summary fields — skip for sys-level windows that supply static fields
+  const hasDynamicFields = !level.formFields || level.formFields.length === 0;
+  const { data: entityMeta } = useEntityMetadata(level.id, hasDynamicFields);
   const summaryFields: FieldMetadata[] = (entityMeta?.columns ?? []).filter(
     (c: any) => c.group_layout_type === 'summary' && c.is_displayed,
   ) as FieldMetadata[];
@@ -290,11 +292,17 @@ export function ADDetailShell({ level, recordId, parentContext, dashboardHref = 
     onSuccess: () => {
       toast.success('Saved');
       setHasChanges(false);
+      setSaveErrors([]);
       if (initialMode === 'view') setIsEditing(false);
       queryClient.invalidateQueries({ queryKey: ['ad-detail-list', level.endpoint] });
       refetch();
     },
-    onError: (err: any) => toast.error(Array.isArray(err?.message) ? err.message.join(', ') : (err?.message ?? 'Save failed')),
+    onError: (err: any) => {
+      const specific = Array.isArray(err?.errors) ? (err.errors as string[]) : null;
+      const fallback = Array.isArray(err?.message) ? err.message.join(', ') : (err?.message ?? 'Save failed');
+      setSaveErrors(specific ?? [fallback]);
+      toast.error(specific?.[0] ?? fallback);
+    },
   });
 
   const deleteMutation = useMutation({
@@ -439,12 +447,20 @@ export function ADDetailShell({ level, recordId, parentContext, dashboardHref = 
                 fields={level.formFields}
                 initialData={currentRecord}
                 onSubmit={fd => { setFormData(fd); setHasChanges(false); saveMutation.mutate(fd); }}
-                onChange={fd => { setFormData(fd); setHasChanges(true); }}
+                onChange={fd => { setFormData(fd); setHasChanges(true); setSaveErrors([]); }}
                 mode={isEditing ? 'edit' : 'view'}
                 readOnly={!isEditing}
                 isSaving={saveMutation.isPending}
                 parentContext={immediateParentData}
               />
+              {saveErrors.length > 0 && (
+                <div className="mt-3 rounded-md border border-destructive/50 bg-destructive/10 p-3">
+                  <p className="text-sm font-medium text-destructive mb-1">Validation failed</p>
+                  <ul className="text-xs text-destructive/90 space-y-0.5 list-disc list-inside">
+                    {saveErrors.map((e, i) => <li key={i}>{e}</li>)}
+                  </ul>
+                </div>
+              )}
             </div>
 
             {/* Inline child tabs — row clicks navigate to child detail URL */}

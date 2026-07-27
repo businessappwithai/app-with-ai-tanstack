@@ -155,6 +155,7 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
   const [pendingRows, setPendingRows] = useState<FilterRow[]>([]);
   const [appliedRows, setAppliedRows] = useState<FilterRow[]>([]);
   const [isCreating, setIsCreating] = useState(false);
+  const [createErrors, setCreateErrors] = useState<string[]>([]);
 
   // Fetch each parent record's display name for the breadcrumb
   const parentNameQueries = useQueries({
@@ -206,9 +207,15 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
       toast.success(`${level.label} created`);
       queryClient.invalidateQueries({ queryKey: ['ad-list', level.endpoint] });
       setIsCreating(false);
+      setCreateErrors([]);
       if (newId) navigate({ to: buildAdminDetailUrl(parentContext, level, newId) as never });
     },
-    onError: (err: any) => toast.error(Array.isArray(err?.message) ? err.message.join(', ') : (err?.message ?? 'Failed to create')),
+    onError: (err: any) => {
+      const specific = Array.isArray(err?.errors) ? (err.errors as string[]) : null;
+      const fallback = Array.isArray(err?.message) ? err.message.join(', ') : (err?.message ?? 'Failed to create');
+      setCreateErrors(specific ?? [fallback]);
+      toast.error(specific?.[0] ?? fallback);
+    },
   });
 
   // Breadcrumbs built purely from metadata + fetched parent names
@@ -278,7 +285,7 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
           <div className="p-6 border-b border-border bg-muted/10">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold">New {level.label}</h3>
-              <Button size="sm" variant="ghost" onClick={() => setIsCreating(false)}>
+              <Button size="sm" variant="ghost" onClick={() => { setIsCreating(false); setCreateErrors([]); }}>
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -290,6 +297,14 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
               mode="create"
               isSaving={createMutation.isPending}
             />
+            {createErrors.length > 0 && (
+              <div className="mt-3 rounded-md border border-destructive/50 bg-destructive/10 p-3">
+                <p className="text-sm font-medium text-destructive mb-1">Validation failed</p>
+                <ul className="text-xs text-destructive/90 space-y-0.5 list-disc list-inside">
+                  {createErrors.map((e, i) => <li key={i}>{e}</li>)}
+                </ul>
+              </div>
+            )}
           </div>
         )}
 
