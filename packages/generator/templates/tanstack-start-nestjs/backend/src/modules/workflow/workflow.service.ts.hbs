@@ -25,6 +25,13 @@ export interface TriggerWorkflowDto {
   userId: string;
 }
 
+export interface WorkflowRunOptions {
+  /** Run every write on this connection. Pass a transaction to make the run atomic. */
+  db?: Kysely<any>;
+  /** Throw instead of swallowing a failure, so an enclosing transaction rolls back. */
+  throwOnError?: boolean;
+}
+
 export interface WorkflowStatus {
   status: 'draft' | 'success' | 'error';
   completedAt?: Date;
@@ -75,13 +82,15 @@ export class WorkflowService {
     operation: 'create' | 'update' | 'delete',
     entityData: Record<string, unknown>,
     decisionVars: Record<string, unknown> = {},
+    options: WorkflowRunOptions = {},
   ): Promise<void> {
+    const db = options.db ?? this.db;
     const normalized = entityName.toLowerCase().replace(/^bus_/, '');
     const candidates = [normalized, `bus_${normalized}`];
 
     let definitions: any[];
     try {
-      definitions = await this.db
+      definitions = await db
         .selectFrom('sys_workflow_definitions')
         .selectAll()
         .where((eb) =>
@@ -97,6 +106,9 @@ export class WorkflowService {
         .orderBy('created_at', 'asc')
         .execute();
     } catch (err: any) {
+      if (options.throwOnError) {
+        throw new Error(`Could not load workflow definitions for ${entityName}: ${err?.message ?? err}`);
+      }
       this.logger.warn(`Could not load workflow definitions for ${entityName}: ${err?.message}`);
       return;
     }
@@ -110,7 +122,7 @@ export class WorkflowService {
       let runId: string | undefined;
 
       try {
-        const runRow = await this.db
+        const runRow = await db
           .insertInto('sys_workflow_runs')
           .values({
             entity_name: tableName,
@@ -129,9 +141,10 @@ export class WorkflowService {
           tableName,
           entityData,
           decisionVars,
+          db,
         );
 
-        await this.db
+        await db
           .updateTable('sys_workflow_runs')
           .set({
             status: 'success',
@@ -149,8 +162,13 @@ export class WorkflowService {
         this.logger.error(
           `Workflow "${def.name}" failed for ${tableName}:${entityId}: ${err?.message}`,
         );
+        if (options.throwOnError) {
+          // The caller owns a transaction: let it roll back rather than recording a
+          // half-applied run. The run row dies with the rollback too.
+          throw new Error(`Workflow "${def.name}" failed: ${err?.message ?? err}`);
+        }
         if (runId) {
-          await this.db
+          await db
             .updateTable('sys_workflow_runs')
             .set({
               status: 'error',
@@ -176,16 +194,21 @@ export class WorkflowService {
     entityId: string,
     operation: 'create' | 'update' | 'delete',
     entityData: Record<string, unknown>,
+    options: WorkflowRunOptions = {},
   ): Promise<void> {
+    const db = options.db ?? this.db;
     let definition: any;
     try {
-      definition = await this.db
+      definition = await db
         .selectFrom('sys_workflow_definitions')
         .selectAll()
         .where('name', '=', workflowName)
         .where('is_active', '=', true)
         .executeTakeFirst();
     } catch (err: any) {
+      if (options.throwOnError) {
+        throw new Error(`Could not load workflow "${workflowName}": ${err?.message ?? err}`);
+      }
       this.logger.warn(`Could not load workflow "${workflowName}": ${err?.message}`);
       return;
     }
@@ -205,7 +228,7 @@ export class WorkflowService {
     const startMs = Date.now();
     let runId: string | undefined;
     try {
-      const runRow = await this.db
+      const runRow = await db
         .insertInto('sys_workflow_runs')
         .values({
           entity_name: entityName,
@@ -218,9 +241,9 @@ export class WorkflowService {
         .executeTakeFirst();
       runId = runRow?.id;
 
-      const mutations = await this.executeBpmn(definition.bpmn_xml, entityName, entityData, {});
+      const mutations = await this.executeBpmn(definition.bpmn_xml, entityName, entityData, {}, db);
 
-      await this.db
+      await db
         .updateTable('sys_workflow_runs')
         .set({
           status: 'success',
@@ -234,8 +257,11 @@ export class WorkflowService {
       this.logger.log(`Rule-triggered workflow "${workflowName}" completed for ${entityName}:${entityId}`);
     } catch (err: any) {
       this.logger.error(`Rule-triggered workflow "${workflowName}" failed: ${err?.message}`);
+      if (options.throwOnError) {
+        throw new Error(`Workflow "${workflowName}" failed: ${err?.message ?? err}`);
+      }
       if (runId) {
-        await this.db
+        await db
           .updateTable('sys_workflow_runs')
           .set({ status: 'error', completed_at: new Date(), duration_ms: Date.now() - startMs } as any)
           .where('id', '=', runId)
@@ -252,12 +278,13 @@ export class WorkflowService {
     triggeringTable: string,
     entityData: Record<string, unknown>,
     vars: Record<string, unknown>,
+    db: Kysely<any> = this.db,
   ): Promise<Record<string, unknown>[]> {
     const tasks = this.parseBpmnServiceTasks(bpmnXml);
     const mutations: Record<string, unknown>[] = [];
 
     for (const task of tasks) {
-      const result = await this.executeTask(task, triggeringTable, entityData, vars);
+      const result = await this.executeTask(task, triggeringTable, entityData, vars, db);
       if (result) mutations.push(result);
     }
     return mutations;
@@ -345,15 +372,16 @@ export class WorkflowService {
     triggeringTable: string,
     entityData: Record<string, unknown>,
     vars: Record<string, unknown>,
+    db: Kysely<any> = this.db,
   ): Promise<Record<string, unknown> | null> {
     const context: Record<string, unknown> = { ...vars, ...entityData };
 
     if (task.nodeType === 'UpdateEntity') {
-      return this.executeUpdateEntity(task, triggeringTable, entityData, context);
+      return this.executeUpdateEntity(task, triggeringTable, entityData, context, db);
     }
 
     if (task.nodeType === 'CreateEntity') {
-      return this.executeCreateEntity(task, triggeringTable, context);
+      return this.executeCreateEntity(task, triggeringTable, context, db);
     }
 
     if (task.nodeType === 'Formula') {
@@ -392,6 +420,7 @@ export class WorkflowService {
     triggeringTable: string,
     entityData: Record<string, unknown>,
     context: Record<string, unknown>,
+    db: Kysely<any> = this.db,
   ): Promise<Record<string, unknown> | null> {
     const targetTable = task.entity?.trim() || triggeringTable;
     const field = task.field?.trim();
@@ -431,7 +460,7 @@ export class WorkflowService {
     const resolvedValue =
       task.source && context[task.source] !== undefined ? context[task.source] : task.value;
 
-    const result = await this.db
+    const result = await db
       .updateTable(targetTable as any)
       .set({ [field]: resolvedValue, updated_at: new Date() } as any)
       .where(targetField as any, '=', targetValue)
@@ -469,6 +498,7 @@ export class WorkflowService {
     task: BpmnTaskProps,
     triggeringTable: string,
     context: Record<string, unknown>,
+    db: Kysely<any> = this.db,
   ): Promise<Record<string, unknown> | null> {
     const targetTable = task.entity?.trim() || triggeringTable;
 
@@ -493,7 +523,7 @@ export class WorkflowService {
         typeof source === 'string' && context[source] !== undefined ? context[source] : source;
     }
 
-    const inserted = await this.db
+    const inserted = await db
       .insertInto(targetTable as any)
       .values(values as any)
       .returningAll()

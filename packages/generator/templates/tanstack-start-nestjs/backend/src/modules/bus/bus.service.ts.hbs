@@ -15,6 +15,8 @@ import { DatabaseService } from '../../database/database.service';
 import type { PaginationOptions, PaginatedResult } from '../../database/database.service';
 import { executeBeforeCreateHooks, executeAfterCreateHooks, executeBeforeUpdateHooks, executeAfterUpdateHooks, executeBeforeDeleteHooks, executeAfterDeleteHooks, executeBeforeReadHooks, executeAfterReadHooks, executeBeforeListHooks, executeAfterListHooks } from '../hooks/hooks';
 import { RulesService } from '../rules/rules.service';
+import { PromotionDispatcher } from './promotion-dispatcher.service';
+import type { PromotionResult } from './entity-promotion.service';
 import { WorkflowService } from '../workflow/workflow.service';
 
 export interface FieldMetadata {
@@ -61,6 +63,7 @@ export class BusService {
     private readonly db: DatabaseService,
     private readonly rulesService: RulesService,
     private readonly workflowService: WorkflowService,
+    private readonly promotionDispatcher: PromotionDispatcher,
   ) {
     this.logger.log('BusService initialized');
   }
@@ -181,16 +184,33 @@ export class BusService {
 
     await executeAfterCreateHooks(entity, result);
 
-    this.workflowService
-      .runLocalWorkflows(entity, result.id, 'create', result)
-      .catch((err) => this.logger.error(`Workflow trigger failed for ${entity} create: ${err?.message}`));
+    // The row is committed as a draft. Promotion runs the associated rules and
+    // workflows and decides whether it becomes final — see EntityPromotionService.
+    const promotion = await this.promotionDispatcher.dispatch(entity, result.id, 'create', result);
 
-    this.rulesService
-      .executeMatchedActions(entity, result.id, result, 'create')
-      .catch((err) => this.logger.error(`Rule actions failed for ${entity} create: ${err?.message}`));
+    this.logger.log(`create: entity=${entity}, id=${result?.id}, doc_status=${promotion.docStatus}`);
+    return this.withPromotion(tableName, result.id, result, promotion);
+  }
 
-    this.logger.log(`create: entity=${entity}, id=${result?.id}`);
-    return result;
+  /**
+   * Re-read the row so the caller sees the post-promotion doc_status and message
+   * rather than the draft snapshot taken at insert time, and attach the promotion
+   * outcome so the UI can explain a failure without a second request.
+   */
+  private async withPromotion(
+    tableName: string,
+    id: string,
+    fallback: any,
+    promotion: PromotionResult,
+  ): Promise<any> {
+    let row = fallback;
+    try {
+      const fresh = await this.db.findById<Record<string, any>>(tableName, id);
+      if (fresh) row = fresh;
+    } catch (err: any) {
+      this.logger.warn(`Could not re-read ${tableName}:${id} after promotion: ${err?.message}`);
+    }
+    return { ...row, promotion };
   }
 
   async update(
@@ -240,15 +260,27 @@ export class BusService {
 
     await executeAfterUpdateHooks(entity, result);
 
-    this.workflowService
-      .runLocalWorkflows(entity, id, 'update', result)
-      .catch((err) => this.logger.error(`Workflow trigger failed for ${entity} update: ${err?.message}`));
+    const promotion = await this.promotionDispatcher.dispatch(entity, id, 'update', result);
 
-    this.rulesService
-      .executeMatchedActions(entity, id, result, 'update')
-      .catch((err) => this.logger.error(`Rule actions failed for ${entity} update: ${err?.message}`));
+    this.logger.log(`update: entity=${entity}, id=${id}, doc_status=${promotion.docStatus}`);
+    return this.withPromotion(tableName, id, result, promotion);
+  }
 
-    return result;
+  /**
+   * Re-run promotion for a record the user has since fixed. Same pipeline, same
+   * outcomes — this is the "retry" half of the draft-with-an-error contract.
+   */
+  async retryPromotion(entity: string, id: string): Promise<any> {
+    const tableName = this.getTableName(entity);
+    await this.verifyEntity(entity);
+
+    const current = await this.db.findById<Record<string, any>>(tableName, id);
+    if (!current) {
+      throw new NotFoundException(`Record not found in ${tableName} with id: ${id}`);
+    }
+
+    const promotion = await this.promotionDispatcher.dispatch(entity, id, 'update', current);
+    return this.withPromotion(tableName, id, current, promotion);
   }
 
   async softDelete(entity: string, id: string): Promise<boolean> {

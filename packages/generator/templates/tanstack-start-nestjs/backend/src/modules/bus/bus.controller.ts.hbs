@@ -295,6 +295,19 @@ export class BusController {
    * Partially update a record
    * PATCH /bus/:entity/:id
    */
+  @Post(':entity/:id/promote')
+  @ApiOperation({ summary: 'Retry the draft → final promotion for a record' })
+  @ApiParam({ name: 'entity', description: 'Entity name' })
+  @ApiParam({ name: 'id', description: 'Record UUID' })
+  @ApiResponse({ status: 200, description: 'Promotion re-run; check doc_status and promotion.message' })
+  @ApiResponse({ status: 404, description: 'Record not found' })
+  async retryPromotion(
+    @Param('entity') entity: string,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.busService.retryPromotion(entity, id);
+  }
+
   @Patch(':entity/:id')
   @ApiOperation({ summary: 'Partially update a record' })
   @ApiParam({ name: 'entity', description: 'Entity name' })
