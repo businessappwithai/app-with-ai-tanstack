@@ -15,6 +15,270 @@
 import { Kysely } from 'kysely';
 import { v4 as uuidv4 } from 'uuid';
 
+// ============================================================================
+// Application Dictionary Help Text
+// ============================================================================
+// Help is composed from the dictionary itself rather than hand-written per
+// project, so it cannot drift from the schema it describes: what is mandatory,
+// what has to be unique, which records link to which, and the draft -> final
+// lifecycle every business record goes through.
+//
+// Administrators can overwrite any of this from Window, Tab and Field; the
+// seed only supplies the starting text.
+
+interface HelpColumn {
+  columnName: string;
+  displayName: string;
+  type: string;
+  isMandatory: boolean;
+  isUnique: boolean;
+  isForeignKey: boolean;
+  maxLength?: number;
+  /** Display label of the entity this column points at, once resolved. */
+  fkTarget?: string;
+  /** The entity's own <name>_id column carried over from the ERD. */
+  isBusinessKey?: boolean;
+}
+
+interface HelpEntity {
+  label: string;
+  tableName: string;
+  stem: string;
+  columns: HelpColumn[];
+}
+
+/** Columns the framework maintains; never described as user input. */
+const HELP_AUDIT_COLUMNS = [
+  'created_at',
+  'updated_at',
+  'deleted_at',
+  'created_by',
+  'updated_by',
+  'version',
+];
+
+/** 'a', 'a and b', 'a, b and c' */
+function helpJoin(items: string[]): string {
+  if (items.length === 0) return '';
+  if (items.length === 1) return items[0];
+  return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
+}
+
+/** 'a Patient' / 'an Encounter' */
+function helpArticle(word: string): string {
+  return /^[aeiou]/i.test(word) ? 'an' : 'a';
+}
+
+function isAuditColumn(col: HelpColumn): boolean {
+  return HELP_AUDIT_COLUMNS.includes(col.columnName);
+}
+
+/**
+ * Resolve the cross-references the help text leans on: which columns point at
+ * another entity, and which entities point back at this one.
+ */
+function resolveHelpModel(entities: HelpEntity[]): Map<string, { entity: HelpEntity; children: string[] }> {
+  const byStem = new Map(entities.map((e) => [e.stem, e]));
+  const resolved = new Map<string, { entity: HelpEntity; children: string[] }>();
+
+  for (const entity of entities) {
+    for (const col of entity.columns) {
+      if (!col.columnName.endsWith('_id')) continue;
+      const stem = col.columnName.slice(0, -'_id'.length);
+      const target = byStem.get(stem);
+      if (!target) continue;
+      if (target.tableName === entity.tableName) {
+        // The entity's own identifier from the ERD, not a link to anything.
+        col.isBusinessKey = true;
+      } else if (col.isForeignKey) {
+        col.fkTarget = target.label;
+      }
+    }
+  }
+
+  for (const entity of entities) {
+    const children = entities
+      .filter((other) =>
+        other.tableName !== entity.tableName &&
+        other.columns.some((c) => c.fkTarget === entity.label),
+      )
+      .map((other) => other.label);
+    resolved.set(entity.tableName, { entity, children });
+  }
+
+  return resolved;
+}
+
+function windowHelpText(entity: HelpEntity, children: string[]): string {
+  const label = entity.label;
+  const parents = [...new Set(entity.columns.filter((c) => c.fkTarget).map((c) => c.fkTarget!))];
+  const uniques = entity.columns.filter((c) => c.isUnique).map((c) => c.displayName);
+  const required = entity.columns
+    .filter((c) => c.isMandatory && !isAuditColumn(c))
+    .map((c) => c.displayName);
+
+  const paragraphs: string[] = [];
+
+  paragraphs.push(
+    `Create, find and maintain ${label} records. The list shows every ${label} you have access to — ` +
+      `select a row to open it, or use New to add one. Each row is a single ${label}, described by ` +
+      `${entity.columns.length} field${entity.columns.length === 1 ? '' : 's'}.`,
+  );
+
+  const identity: string[] = [];
+  if (uniques.length > 0) {
+    identity.push(
+      `${helpJoin(uniques)} ${uniques.length === 1 ? 'is unique' : 'are unique'}: no two ${label} records ` +
+        `may share the same value, and a save that would duplicate one is rejected.`,
+    );
+  }
+  if (required.length > 0) {
+    identity.push(`${helpJoin(required)} must be filled in before the record can be saved.`);
+  }
+  if (identity.length > 0) paragraphs.push(identity.join(' '));
+
+  const links: string[] = [];
+  if (parents.length > 0) {
+    links.push(
+      `Every ${label} points at ${helpJoin(parents)}. Choose the linked record from the lookup on those ` +
+        `fields rather than typing an identifier.`,
+    );
+  }
+  if (children.length > 0) {
+    links.push(
+      `${helpJoin(children)} ${children.length === 1 ? 'refers' : 'refer'} back to ${label}, so what you ` +
+        `change here can affect ${children.length === 1 ? 'that record' : 'those records'}.`,
+    );
+  }
+  if (links.length > 0) paragraphs.push(links.join(' '));
+
+  paragraphs.push(
+    `Every save starts as a Draft. The business rules and workflows attached to ${label} then run together ` +
+      `in a single transaction: if all of them succeed the record becomes Final; if any of them fails, ` +
+      `nothing they changed is kept — the record stays Draft and the reason is written onto it so you can ` +
+      `fix the cause and retry. ${helpArticle(label) === 'an' ? 'An' : 'A'} ${label} with no rules or ` +
+      `workflows attached is marked Final immediately.`,
+  );
+
+  return paragraphs.join('\n\n');
+}
+
+function tabHelpText(entity: HelpEntity): string {
+  const label = entity.label;
+  const required = entity.columns.filter((c) => c.isMandatory && !isAuditColumn(c));
+  const lookups = entity.columns.filter((c) => c.fkTarget);
+  const sentences: string[] = [];
+
+  sentences.push(
+    `Shows one ${label} at a time. Fields are grouped: General carries the identifying fields and Details ` +
+      `carries the rest.`,
+  );
+  if (required.length > 0) {
+    sentences.push(
+      `${required.length} field${required.length === 1 ? '' : 's'} marked with a red asterisk (*) must have ` +
+        `a value before Save will accept the record.`,
+    );
+  }
+  if (lookups.length > 0) {
+    sentences.push(
+      `${helpJoin(lookups.map((c) => c.displayName))} ${lookups.length === 1 ? 'is a lookup' : 'are lookups'} — ` +
+        `search the linked records instead of entering an identifier by hand.`,
+    );
+  }
+  sentences.push(
+    `Any field showing a ? beside its label has help of its own; click it for the rules that apply there.`,
+  );
+
+  return sentences.join(' ');
+}
+
+function fieldTypeSentence(entity: HelpEntity, col: HelpColumn): string {
+  const noun = col.displayName.toLowerCase();
+  switch (col.type) {
+    case 'date':
+      return `The ${noun} of this ${entity.label}, as a calendar date.`;
+    case 'datetime':
+      return `The ${noun} of this ${entity.label}, as a date and time.`;
+    case 'integer':
+      return `The ${noun} of this ${entity.label}, as a whole number.`;
+    case 'decimal':
+      return `The ${noun} of this ${entity.label}, as a decimal amount.`;
+    case 'boolean':
+      return `Whether this ${entity.label} is marked as ${noun}.`;
+    case 'text':
+      return `Free-form ${noun} for this ${entity.label}. The box grows as you type.`;
+    case 'json':
+      return `The ${noun} of this ${entity.label}, held as structured JSON.`;
+    default:
+      return `The ${noun} of this ${entity.label}.`;
+  }
+}
+
+function fieldHelpText(entity: HelpEntity, col: HelpColumn): string {
+  const parts: string[] = [];
+
+  if (col.fkTarget) {
+    parts.push(
+      `Links this ${entity.label} to ${helpArticle(col.fkTarget)} ${col.fkTarget} record. Pick the ` +
+        `${col.fkTarget} from the lookup — the identifier is stored for you.`,
+    );
+  } else if (col.isBusinessKey) {
+    parts.push(
+      `The ${entity.label} reference used outside this system. It identifies the ${entity.label} on ` +
+        `documents and in exports, and stays with the record for its whole life.`,
+    );
+  } else if (isAuditColumn(col)) {
+    parts.push(`Maintained by the system as part of the audit trail. It is set automatically, not entered here.`);
+  } else {
+    parts.push(fieldTypeSentence(entity, col));
+  }
+
+  if (col.isMandatory && !isAuditColumn(col)) {
+    parts.push(`Required — the record cannot be saved while this is empty.`);
+  }
+  if (col.isUnique) {
+    parts.push(`Must be unique: a save is rejected if another ${entity.label} already uses this value.`);
+  }
+  if (col.maxLength) {
+    parts.push(`Up to ${col.maxLength} characters.`);
+  }
+
+  return parts.join(' ');
+}
+
+const dictionaryHelpEntities: HelpEntity[] = [
+  {{#each entities}}
+  {
+    label: '{{displayName}}',
+    tableName: '{{tableName}}',
+    stem: '{{snakeCase name}}',
+    columns: [
+      {{#each attributes}}
+      { columnName: '{{columnName}}', displayName: '{{displayName}}', type: '{{type}}', isMandatory: {{#if (or (eq columnName 'created_at') (eq columnName 'updated_at') (eq columnName 'deleted_at'))}}false{{else}}{{#if required}}true{{else}}false{{/if}}{{/if}}, isUnique: {{#if unique}}true{{else}}false{{/if}}, isForeignKey: {{#if isForeignKey}}true{{else}}false{{/if}}{{#if maxLength}}, maxLength: {{maxLength}}{{/if}} },
+      {{/each}}
+    ],
+  },
+  {{/each}}
+];
+
+const dictionaryHelp = resolveHelpModel(dictionaryHelpEntities);
+
+function windowHelpFor(tableName: string): string | null {
+  const found = dictionaryHelp.get(tableName);
+  return found ? windowHelpText(found.entity, found.children) : null;
+}
+
+function tabHelpFor(tableName: string): string | null {
+  const found = dictionaryHelp.get(tableName);
+  return found ? tabHelpText(found.entity) : null;
+}
+
+function fieldHelpFor(tableName: string, columnName: string): string | null {
+  const found = dictionaryHelp.get(tableName);
+  const col = found?.entity.columns.find((c) => c.columnName === columnName);
+  return found && col ? fieldHelpText(found.entity, col) : null;
+}
+
 export async function seed(db: Kysely<any>): Promise<void> {
   const now = new Date();
   const createdBy = '{{config.createdBy}}';
@@ -172,6 +436,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_window_id: {{camelCase name}}WindowId,
     name: '{{displayName}}',
     description: 'Maintain {{displayName}} records',
+    help: windowHelpFor('{{tableName}}'),
     window_type: 'M',
     is_sales_transaction: false,
     is_default: true,
@@ -209,6 +474,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_window_id: {{camelCase name}}WindowId,
     sys_table_id: {{camelCase name}}TableId,
     name: '{{displayName}}',
+    help: tabHelpFor('{{tableName}}'),
     tab_level: 0,
     seq_no: 10,
     is_single_row: true,
@@ -277,6 +543,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       sys_column_id: col.id,
       sys_field_group_id: i < 3 ? fieldGroupGeneral : fieldGroupDetails,
       name: col.displayName,
+      help: fieldHelpFor('{{tableName}}', col.name),
       seq_no: (i + 1) * 10,
       seq_no_grid: (i + 1) * 10,
       is_displayed: !col.isKey,
