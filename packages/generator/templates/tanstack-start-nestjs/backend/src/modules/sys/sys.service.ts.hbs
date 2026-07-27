@@ -881,7 +881,7 @@ export class SysService {
 
     if (!table?.sys_window_id) return null;
 
-    const [window, tabs] = await Promise.all([
+    const [window, tabs, fields] = await Promise.all([
       this.db.kysely
         .selectFrom('sys_window')
         .select(['sys_window_id', 'name', 'description', 'help'])
@@ -894,9 +894,30 @@ export class SysService {
         .where('is_active', '=', true)
         .orderBy('seq_no')
         .execute(),
+      // Field help completes the picture the window and tab text only sketches:
+      // which columns are mandatory, unique, or lookups into another entity.
+      this.db.kysely
+        .selectFrom('sys_field')
+        .innerJoin('sys_tab', 'sys_tab.sys_tab_id', 'sys_field.sys_tab_id')
+        .innerJoin('sys_column', 'sys_column.sys_column_id', 'sys_field.sys_column_id')
+        .select([
+          'sys_field.sys_field_id',
+          'sys_field.sys_tab_id',
+          'sys_field.name',
+          'sys_field.help',
+          'sys_field.seq_no',
+          'sys_column.column_name',
+          'sys_column.is_mandatory',
+        ])
+        .where('sys_tab.sys_window_id', '=', table.sys_window_id)
+        .where('sys_field.is_active', '=', true)
+        .where('sys_field.is_displayed', '=', true)
+        .where('sys_field.help', 'is not', null)
+        .orderBy('sys_field.seq_no')
+        .execute(),
     ]);
 
-    return { window, tabs };
+    return { window, tabs, fields };
   }
 
   async findAllSysUsers() {

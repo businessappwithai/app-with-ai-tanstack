@@ -507,7 +507,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
     }
 
     // Trigger.dev tasks
-    const triggerTasks = ["email", "report", "sync", "entity-lifecycle-workflow"];
+    const triggerTasks = ["email", "report", "sync", "entity-lifecycle-workflow", "entity-promotion"];
     for (const task of triggerTasks) {
       try {
         const taskContent = await this.renderTemplate(`src/trigger/${task}.task.ts.hbs`, context);
@@ -908,6 +908,12 @@ export async function executeAfterListHooks(
     const serviceContent = await this.renderTemplate("src/modules/bus/bus.service.ts.hbs", context);
     await fs.writeFile(path.join(outputDir, "src/modules/bus/bus.service.ts"), serviceContent);
 
+    // Draft → final promotion pipeline
+    for (const name of ["entity-promotion.service", "promotion-dispatcher.service"]) {
+      const content = await this.renderTemplate(`src/modules/bus/${name}.ts.hbs`, context);
+      await fs.writeFile(path.join(outputDir, `src/modules/bus/${name}.ts`), content);
+    }
+
     // Bus module
     const busModuleContent = await this.renderTemplate(
       "src/modules/bus/bus.module.ts.hbs",
@@ -1223,6 +1229,20 @@ export async function executeAfterListHooks(
       );
     } catch (e) {
       console.warn("Trigger-workflow test template not found");
+    }
+
+    // Draft → final promotion tests
+    try {
+      const promotionTestContent = await this.renderTemplate(
+        "test/entity-promotion.test.ts.hbs",
+        context
+      );
+      await fs.writeFile(
+        path.join(outputDir, "test/entity-promotion.test.ts"),
+        promotionTestContent
+      );
+    } catch (e) {
+      console.warn("Entity promotion test template not found");
     }
 
     // Multi-step / multi-entity workflow executor tests

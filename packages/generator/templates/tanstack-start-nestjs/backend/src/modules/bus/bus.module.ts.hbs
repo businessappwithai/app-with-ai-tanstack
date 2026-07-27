@@ -14,11 +14,13 @@ import { AuditModule } from '../audit/audit.module';
 import { RulesModule } from '../rules/rules.module';
 import { BusController } from './bus.controller';
 import { BusService } from './bus.service';
+import { EntityPromotionService } from './entity-promotion.service';
+import { PromotionDispatcher } from './promotion-dispatcher.service';
 
 @Module({
   imports: [DatabaseModule, WorkflowModule, AuditModule, RulesModule],
   controllers: [BusController],
-  providers: [BusService],
-  exports: [BusService],
+  providers: [BusService, EntityPromotionService, PromotionDispatcher],
+  exports: [BusService, EntityPromotionService],
 })
 export class BusModule {}

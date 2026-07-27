@@ -29,6 +29,28 @@ export interface UpdateRuleDto {
   isActive?: boolean;
 }
 
+/** Rule action types that write to the database — the ones a promotion must run atomically. */
+export const SIDE_EFFECTING_ACTIONS = [
+  'cascade-update',
+  'cascade-delete',
+  'cascade-create',
+  'transform',
+  'trigger-workflow',
+] as const;
+
+export interface RuleActionOptions {
+  /** Run every write on this connection. Pass a transaction to make the batch atomic. */
+  db?: Kysely<any>;
+  /** Throw on the first failing action instead of logging it and carrying on. */
+  throwOnError?: boolean;
+}
+
+export interface MatchedAction {
+  ruleName: string;
+  type: string;
+  config: Record<string, unknown>;
+}
+
 export interface Rule {
   id: string;
   entityName: string;
@@ -318,9 +340,11 @@ export class RulesService {
     let migrated = 0;
 
     const entityOperations = [
-      {{#each entities}}
-      { file: '{{tableName}}.jdm.json', entityName: '{{tableName}}', operation: 'ALL' },
-      {{/each}}
+      { file: 'bus_patient.jdm.json', entityName: 'bus_patient', operation: 'ALL' },
+      { file: 'bus_practitioner.jdm.json', entityName: 'bus_practitioner', operation: 'ALL' },
+      { file: 'bus_appointment.jdm.json', entityName: 'bus_appointment', operation: 'ALL' },
+      { file: 'bus_encounter.jdm.json', entityName: 'bus_encounter', operation: 'ALL' },
+      { file: 'bus_claim.jdm.json', entityName: 'bus_claim', operation: 'ALL' },
     ];
 
     for (const { file, entityName, operation } of entityOperations) {
@@ -438,19 +462,54 @@ export class RulesService {
   }
 
   /**
-   * Execute non-blocking rule actions (cascade, trigger-workflow) after a successful CRUD.
-   * Called fire-and-forget from BusService — never throws.
+   * Report the side-effecting actions that would run for this record, without running them.
+   * The promotion pipeline uses this to tell "nothing is associated with this entity" apart
+   * from "something is associated and it succeeded" — the two lead to different doc_status paths.
+   */
+  async collectActionableActions(
+    entityName: string,
+    data: Record<string, unknown>,
+    operation: 'create' | 'update' | 'delete',
+  ): Promise<MatchedAction[]> {
+    const results = await this.evaluate(entityName, data, operation);
+    const actions: MatchedAction[] = [];
+
+    for (const result of results) {
+      if (!result.matched) continue;
+      for (const action of result.actions) {
+        if ((SIDE_EFFECTING_ACTIONS as readonly string[]).includes(action.type)) {
+          actions.push({ ruleName: result.ruleName, type: action.type, config: action.config });
+        }
+      }
+    }
+    return actions;
+  }
+
+  /**
+   * Execute the side-effecting rule actions (cascade, transform, trigger-workflow) for a record.
+   *
+   * Two modes:
+   *   - default: log failures and carry on (the historical fire-and-forget behaviour)
+   *   - options.throwOnError: rethrow the first failure so an enclosing transaction rolls back
+   *
+   * Pass options.db to run every write on a transaction.
    */
   async executeMatchedActions(
     entityName: string,
     entityId: string,
     data: Record<string, unknown>,
     operation: 'create' | 'update' | 'delete',
+    options: RuleActionOptions = {},
   ): Promise<void> {
+    const db = options.db ?? this.db;
+
     let results: RuleEvaluationResult[];
     try {
       results = await this.evaluate(entityName, data, operation);
     } catch (err: any) {
+      if (options.throwOnError) {
+        throw new Error(`Could not evaluate business rules for ${entityName}: ${err?.message ?? err}`);
+      }
       this.logger.warn(`executeMatchedActions: evaluate failed for ${entityName}: ${err?.message}`);
       return;
     }
@@ -466,13 +525,18 @@ export class RulesService {
               continue;
             }
             this.logger.log(`Rule "${result.ruleName}" triggering workflow "${wfName}" for ${entityName}:${entityId}`);
-            await this.workflowService.triggerByWorkflowName(wfName, entityName, entityId, operation, data);
+            // Only hand our connection over when the caller opened a transaction —
+            // otherwise the workflow service uses its own, as it always has.
+            await this.workflowService.triggerByWorkflowName(wfName, entityName, entityId, operation, data, {
+              db: options.db,
+              throwOnError: options.throwOnError,
+            });
           } else if (action.type === 'cascade-update') {
             const targetEntity = action.config.targetEntity as string | undefined;
             const linkField = action.config.linkField as string | undefined;
             const updateData = action.config.updateData as Record<string, unknown> | undefined;
             if (targetEntity && linkField && updateData) {
-              await this.db
+              await db
                 .updateTable(targetEntity as any)
                 .set(updateData as any)
                 .where(linkField as any, '=', entityId)
@@ -483,7 +547,7 @@ export class RulesService {
             const targetEntity = action.config.targetEntity as string | undefined;
             const linkField = action.config.linkField as string | undefined;
             if (targetEntity && linkField) {
-              await this.db
+              await db
                 .deleteFrom(targetEntity as any)
                 .where(linkField as any, '=', entityId)
                 .execute();
@@ -499,7 +563,7 @@ export class RulesService {
             const linkField = action.config.linkField as string | undefined;
             if (targetEntity && createData) {
               const now = new Date();
-              await this.db
+              await db
                 .insertInto(targetEntity as any)
                 .values({
                   ...createData,
@@ -518,7 +582,7 @@ export class RulesService {
           } else if (action.type === 'transform') {
             const transformData = action.config.transformData as Record<string, unknown> | undefined;
             if (transformData && Object.keys(transformData).length > 0) {
-              await this.db
+              await db
                 .updateTable(entityName as any)
                 .set({ ...transformData, updated_at: new Date() } as any)
                 .where('id' as any, '=', entityId)
@@ -531,6 +595,11 @@ export class RulesService {
             }
           }
         } catch (err: any) {
+          if (options.throwOnError) {
+            throw new Error(
+              `Rule "${result.ruleName}" action "${action.type}" failed: ${err?.message ?? err}`,
+            );
+          }
           this.logger.error(`executeMatchedActions: action "${action.type}" failed for rule "${result.ruleName}": ${err?.message}`);
         }
       }

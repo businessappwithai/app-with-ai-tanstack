@@ -9,6 +9,7 @@ import { DynamicTable } from '@/components/tables/dynamic-table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ADToolbar } from './ad-toolbar';
+import { WindowHelpDialog, helpTableNameFromEndpoint } from './window-help-dialog';
 import type { FieldMetadata } from '@/hooks/use-entities';
 import {
   buildAdminDetailUrl,
@@ -267,6 +268,7 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
           </span>
         ))}
         {activeFilterCount > 0 && <span className="text-xs text-muted-foreground ml-1">({totalCount} filtered)</span>}
+        <WindowHelpDialog tableName={helpTableNameFromEndpoint(level.endpoint)} entityLabel={level.label} />
       </div>
 
       {/* Content */}

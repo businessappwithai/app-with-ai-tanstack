@@ -221,6 +221,15 @@ export function useRefList(sysReferenceId: number) {
 export interface WindowHelpData {
   window: { sys_window_id: string; name: string; description?: string; help?: string } | null | undefined;
   tabs: Array<{ sys_tab_id: string; name: string; description?: string; help?: string; seq_no: number; tab_level: number }>;
+  fields: Array<{
+    sys_field_id: string;
+    sys_tab_id: string;
+    name: string;
+    help?: string;
+    seq_no: number;
+    column_name: string;
+    is_mandatory: boolean;
+  }>;
 }
 
 export function useWindowHelp(tableName: string) {
