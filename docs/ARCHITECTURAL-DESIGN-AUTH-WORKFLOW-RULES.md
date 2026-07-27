@@ -12,7 +12,12 @@
 - ENHANCEMENT-AUTH-WORKFLOW-RULES.md (Business Requirements)
 - IMPLEMENTATION-PHASES.md (Implementation Plan)
 - architecture.md (Current System Architecture)
-- HMS-OPENUI5-ODATAV4.md (Generated HMS Reference)
+
+> **Historical note**: this document was written while the generator still
+> targeted two stacks. The OpenUI5 / OData V4 stack has since been removed —
+> TanStack Start + NestJS is the only stack. The auth, workflow and business
+> rules design below still applies; ignore the OpenUI5/OData columns and
+> examples.
 
 ---
 

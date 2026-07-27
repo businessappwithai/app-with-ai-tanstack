@@ -4,9 +4,7 @@
  * ERDwithAI Code Generator CLI
  *
  * Generates full-stack applications from Mermaid ERD / EML diagrams.
- * Supports two stack options:
- * - tanstackjs-nestjs: TanStack Start + NestJS (Modern Web)
- * - openui5-odatav4: OData + OpenUI5 (Enterprise SAP)
+ * One stack is supported: tanstackjs-nestjs (TanStack Start + NestJS).
  */
 
 import type { Entity, Relationship } from "@erdwithai/core/types";
@@ -32,10 +30,8 @@ function log(msg: string, quiet: boolean) {
   if (!quiet) console.log(msg);
 }
 
-function getStackDescription(stack: StackOption): string {
-  return stack === "tanstackjs-nestjs"
-    ? "tanstackjs-nestjs - Modern Web (TanStack Start + NestJS)"
-    : "openui5-odatav4 - Enterprise SAP (OData + OpenUI5)";
+function getStackDescription(_stack: StackOption): string {
+  return "tanstackjs-nestjs - Modern Web (TanStack Start + NestJS)";
 }
 
 /** Parse an ERD / EML / Mermaid file and return entities + relationships. */

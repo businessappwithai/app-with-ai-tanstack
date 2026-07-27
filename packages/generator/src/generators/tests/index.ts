@@ -5,5 +5,4 @@
  */
 
 export { BaseE2ETestGenerator } from "./base-e2e.generator";
-export { OpenUI5OPA5E2ETestGenerator } from "./openui5-e2e.generator";
 export { TanStackStartPlaywrightE2ETestGenerator } from "./tanstack-start-e2e.generator";
