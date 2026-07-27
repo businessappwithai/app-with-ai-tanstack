@@ -33,6 +33,8 @@ export interface FieldMetadata {
   is_displayed: boolean;
   is_displayed_grid: boolean;
   is_read_only: boolean;
+  /** Contextual help from the dictionary, surfaced by the ? icon beside the field label. */
+  help?: string;
   ref_table_name?: string;
   ref_label_fields?: string[];
 }
@@ -409,6 +411,7 @@ export class BusService {
         'sys_field.is_displayed_grid',
         'sys_field.is_read_only as field_is_read_only',
         'sys_field.name as field_name',
+        'sys_field.help as field_help',
         'sys_field.sys_field_group_id',
         'sys_field_group.name as group_name',
         'sys_field_group.columns as group_columns',
@@ -455,6 +458,7 @@ export class BusService {
           is_displayed: col.is_displayed !== false,
           is_displayed_grid: col.is_displayed_grid !== false,
           is_read_only: col.field_is_read_only || false,
+          help: col.field_help || undefined,
           field_group_id: col.sys_field_group_id || null,
           group_name: col.group_name || null,
           group_columns: col.group_columns || null,
