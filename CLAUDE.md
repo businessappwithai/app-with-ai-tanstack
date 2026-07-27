@@ -101,7 +101,6 @@ Key routing rules:
 | `bun run format` | Prettier format all files |
 | `bun run migrate` | Run database migrations |
 | `bun run generate:tanstack` | Generate TanStack Start/NestJS app |
-| `bun run generate:odata` | Generate OData V4 service |
 | `bun run convert` | Run AI conversion CLI |
 | `bun run test` | Run unit tests (Vitest, via `@erdwithai/web`) |
 | `bun run test:e2e:server` | Run E2E tests with auto server startup |
@@ -126,7 +125,7 @@ ERDwithAI transforms natural language descriptions into production-ready full-st
 - AI-powered entity extraction using Claude Sonnet 4 (via Mastra.ai agents)
 - Human-in-the-loop (HITL) approval workflow for ERD design
 - Visual ERD designer with Mermaid diagram rendering
-- Multi-stack code generation: TanStack Start/NestJS and OpenUI5/OData V4
+- Full-stack code generation: TanStack Start frontend + NestJS backend
 - Dictionary-driven architecture inspired by Compiere ERP
 - CopilotKit integration for AI-assisted UI interactions
 - E2B sandbox for code execution in generated projects
@@ -163,7 +162,6 @@ app-with-ai-tanstack/
 ├── tests/             # Playwright E2E test suites
 ├── scripts/           # Shell scripts for setup and test automation
 ├── examples/          # Sample ERD files (.mmd) for CRM, ecommerce, etc.
-├── webapp/            # Pre-built OpenUI5 HMS reference app
 └── backups/           # Database backups
 ```
 
@@ -233,9 +231,8 @@ src/
 │   ├── base.generator.ts      # Abstract base generator
 │   ├── dictionary.generator.ts
 │   ├── full-stack.generator.ts
-│   ├── orchestrator.ts        # Coordinates multi-stack generation
+│   ├── orchestrator.ts        # Coordinates generation
 │   ├── tanstack-start-nestjs/ # TanStack Start frontend + NestJS backend stack
-│   ├── openui5-odatav4/       # OpenUI5 frontend + OData V4 backend stack
 │   └── tests/                 # E2E test generators per stack
 ├── parsers/
 │   └── mermaid.parser.ts      # Parses Mermaid ERD diagrams
@@ -243,12 +240,9 @@ src/
     └── loader.ts              # Handlebars template loader
 templates/
 ├── common/            # Shared: migrations, seeds, AI agents, services
-├── tanstack-start-nestjs/ # Full-stack: NestJS backend + TanStack Start frontend
+└── tanstack-start-nestjs/ # Full-stack: NestJS backend + TanStack Start frontend
 │   ├── backend/       # Controllers, DTOs, Services, Guards, Auth, DB, Tests
 │   └── frontend/      # Routes, Components (Admin/Forms/Tables/UI), Hooks, i18n
-└── openui5-odatav4/   # OpenUI5 + OData V4 stack
-    ├── backend/       # OData config, Controllers, Database, Middleware, Tests
-    └── frontend/      # Controllers, Views (XML), Fragments, i18n, Manifest
 ```
 
 ### @erdwithai/ai (`packages/ai/`)
@@ -761,12 +755,10 @@ await db.deleteFrom('projects').where('id', '=', id).execute();
 | `packages/generator/src/parsers/mermaid.parser.ts` | Mermaid ERD parser |
 | `packages/generator/src/generators/orchestrator.ts` | Generation orchestrator |
 | `packages/generator/templates/tanstack-start-nestjs/` | TanStack Start/NestJS templates |
-| `packages/generator/templates/openui5-odatav4/` | OpenUI5/OData templates |
 | `packages/web/src/routes/__root.tsx` | Root layout (replaces Next.js layout.tsx) |
 | `packages/web/src/routes/api/copilotkit.ts` | CopilotKit runtime endpoint |
 | `packages/web/src/hooks/useHumanInTheLoop.ts` | HITL React hook |
 | `packages/core/src/services/database.service.ts` | Kysely database service (replaces Knex) |
-| `webapp/` | Pre-built OpenUI5 HMS reference application |
 | `docs/architecture.md` | System architecture deep-dive |
 | `docs/DEVELOPMENT.md` | Build system details |
 | `docs/TESTING.md` | E2E test generation guide |
@@ -782,7 +774,6 @@ await db.deleteFrom('projects').where('id', '=', id).execute();
 | [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Build system, commands |
 | [docs/TESTING.md](docs/TESTING.md) | E2E test generation |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Version 6.0 plans |
-| [docs/HMS-OPENUI5-ODATAV4.md](docs/HMS-OPENUI5-ODATAV4.md) | Hospital HMS OpenUI5 guide |
 
 ---
 

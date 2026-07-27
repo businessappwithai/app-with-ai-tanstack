@@ -50,12 +50,12 @@ const features = [
     features: ["Entity Approval", "Relationship Review", "Workflow Control"],
   },
   {
-    title: "Multi-Stack Generation",
-    description: "Generate TanStack Start, NestJS, OData V4, OpenUI5 applications",
+    title: "Full-Stack Generation",
+    description: "Generate a TanStack Start frontend and a NestJS backend from your ERD",
     icon: Code2,
     href: "/generator",
     color: "from-pink-500 to-rose-500",
-    features: ["TanStack Start + Shadcn", "NestJS + Kysely", "OData V4", "OpenUI5 FCL"],
+    features: ["TanStack Start + Shadcn", "NestJS + Kysely", "Application Dictionary", "Business Rules"],
   },
   {
     title: "Database Connection",
