@@ -1,16 +1,19 @@
 /**
- * Seed Default Admin User and Roles
+ * Seed System Reference Data (Roles, Tables, Columns, etc.)
  *
- * Creates the default administrator account and system roles.
- * IMPORTANT: Change the default password after first login!
+ * NOTE: Admin user (admin@admin.com / password: admin) is created by backend bootstrap
+ * in main.ts using auth.api.signUpEmail() to ensure proper better-auth password hashing.
+ *
+ * This seed file creates system reference data only:
+ * - System roles
+ * - Table/Column/Window/Tab/Field definitions
  *
  * Generated: {{now}}
  */
 
-import { Knex } from 'knex';
-import * as bcrypt from 'bcrypt';
+import { Kysely } from 'kysely';
 
-export async function seed(knex: Knex): Promise<void> {
+export async function seed(db: Kysely<any>): Promise<void> {
   // ========================================
   // Create System Roles
   // ========================================
@@ -19,200 +22,51 @@ export async function seed(knex: Knex): Promise<void> {
     {
       name: 'System Administrator',
       description: 'Full system access with all permissions',
-      is_admin: true,
       user_level: 'S',
+      is_master_role: true,
     },
     {
       name: 'Administrator',
       description: 'Administrative access to all modules',
-      is_admin: true,
       user_level: 'C',
+      is_master_role: false,
     },
     {
       name: 'User',
       description: 'Standard user access',
-      is_admin: false,
-      user_level: 'O',
+      user_level: 'C',
+      is_master_role: false,
     },
     {
       name: 'Read Only',
       description: 'Read-only access to data',
-      is_admin: false,
-      user_level: 'O',
+      user_level: 'C',
+      is_master_role: false,
     },
   ];
 
-  const createdRoles: any[] = [];
+  console.log('🔐 Seeding system roles...');
 
   for (const role of roles) {
-    const [roleData] = await knex('sys_role')
-      .insert({
+    await db
+      .insertInto('sys_role')
+      .values({
+        sys_role_id: require('uuid').v4(),
         ...role,
         is_active: true,
+        is_personal_lock: false,
+        is_personal_access: false,
+        max_query_records: 0,
+        is_show_accounting: role.is_master_role,
+        entity_type: 'D',
+        created_by: 'system',
+        updated_by: 'system',
         created_at: new Date(),
         updated_at: new Date(),
       })
-      .returning('*')
-      .onConflict('name')
-      .ignore();
-
-    if (roleData) {
-      createdRoles.push(roleData);
-    }
+      .onConflict((oc) => oc.doNothing())
+      .execute();
   }
 
-  console.log(`✓ Seeded ${createdRoles.length} system roles`);
-
-  // ========================================
-  // Create Default Admin User
-  // ========================================
-
-  // Default credentials
-  const defaultEmail = process.env.ADMIN_EMAIL || 'admin@admin.com';
-  const defaultPassword = process.env.ADMIN_PASSWORD || 'admin';
-
-  // Hash password
-  const passwordHash = await bcrypt.hash(defaultPassword, 10);
-
-  // Create admin user
-  const [adminUser] = await knex('sys_user')
-    .insert({
-      name: 'System Administrator',
-      email: defaultEmail,
-      password_hash: passwordHash,
-      description: 'Default system administrator account',
-      is_active: true,
-      is_locked: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
-    .returning('*')
-    .onConflict('email')
-    .ignore();
-
-  if (adminUser) {
-    console.log(`✓ Created default admin user: ${defaultEmail} / ${defaultPassword}`);
-
-    // Assign System Administrator role to admin user
-    const systemAdminRole = createdRoles.find((r) => r.name === 'System Administrator');
-
-    if (systemAdminRole) {
-      await knex('sys_user_roles')
-        .insert({
-          user_id: adminUser.sys_user_id,
-          role_id: systemAdminRole.sys_role_id,
-          is_active: true,
-          created_at: new Date(),
-          updated_at: new Date(),
-        })
-        .onConflict(['user_id', 'role_id'])
-        .ignore();
-
-      console.log(`✓ Assigned 'System Administrator' role to admin user`);
-    }
-  } else {
-    console.log('⚠ Admin user already exists, skipping creation');
-  }
-
-  // ========================================
-  // Create Sample Users (optional)
-  // ========================================
-
-  const sampleUsers = [
-    {
-      name: 'John Manager',
-      email: 'john.manager@{{project.domain}}',
-      password: 'manager123',
-      role: 'Administrator',
-    },
-    {
-      name: 'Jane User',
-      email: 'jane.user@{{project.domain}}',
-      password: 'user123',
-      role: 'User',
-    },
-  ];
-
-  for (const sample of sampleUsers) {
-    // Check if user already exists
-    const existing = await knex('sys_user')
-      .where('email', sample.email)
-      .first();
-
-    if (!existing) {
-      const hashedPassword = await bcrypt.hash(sample.password, 10);
-
-      const [user] = await knex('sys_user')
-        .insert({
-          name: sample.name,
-          email: sample.email,
-          password_hash: hashedPassword,
-          is_active: true,
-          is_locked: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-        })
-        .returning('*');
-
-      // Assign role
-      const role = createdRoles.find((r) => r.name === sample.role);
-      if (role && user) {
-        await knex('sys_user_roles')
-          .insert({
-            user_id: user.sys_user_id,
-            role_id: role.sys_role_id,
-            is_active: true,
-            created_at: new Date(),
-            updated_at: new Date(),
-          })
-          .onConflict(['user_id', 'role_id'])
-          .ignore();
-
-        console.log(`✓ Created sample user: ${sample.email} / ${sample.password}`);
-      }
-    }
-  }
-
-  // ========================================
-  // Grant Full Access to Admin Role
-  // ========================================
-
-  const systemAdminRole = createdRoles.find((r) => r.name === 'System Administrator');
-
-  if (systemAdminRole) {
-    // Get all sys_table records
-    const tables = await knex('sys_table').select('sys_table_id');
-
-    // Grant full access to all tables for System Administrator
-    for (const table of tables) {
-      await knex('sys_access')
-        .insert({
-          role_id: systemAdminRole.sys_role_id,
-          table_id: table.sys_table_id,
-          access_type: 'ALL',
-          can_read: true,
-          can_write: true,
-          can_delete: true,
-          created_at: new Date(),
-          updated_at: new Date(),
-        })
-        .onConflict(['role_id', 'table_id'])
-        .merge({
-          can_read: true,
-          can_write: true,
-          can_delete: true,
-          updated_at: new Date(),
-        });
-    }
-
-    console.log(`✓ Granted full access to ${tables.length} tables for System Administrator role`);
-  }
-
-  console.log('✓ Admin user and roles seeded successfully');
-  console.log('');
-  console.log('⚠ IMPORTANT: Default admin credentials:');
-  console.log(`   Email: ${defaultEmail}`);
-  console.log(`   Password: ${defaultPassword}`);
-  console.log('   Please change the password after first login!');
-  console.log('');
+  console.log(`✓ System roles seeded (admin user created via bootstrap)`);
 }
