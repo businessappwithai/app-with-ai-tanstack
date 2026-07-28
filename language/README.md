@@ -63,11 +63,38 @@ language/
 │   ├── 03-workflows.md           # Workflow (hooks + state) reference
 │   ├── 04-types-and-modifiers.md # Type vocabulary, modifiers, cardinalities
 │   └── 05-directives.md          # Reserved %% directive reference
+├── cli/                          # The `eml` CLI — parse, validate, generate apps
+│   ├── README.md
+│   ├── eml.ts                    # Executable entrypoint (run with Bun)
+│   ├── src/                      # parser, validator, model, generators
+│   └── runtime/                  # static runtime for generated apps
 └── examples/
     ├── crm.eml.mmd               # Full CRM model (ERD + rules + workflows)
     ├── ecommerce.eml.mmd         # Full e-commerce model
+    ├── helpdesk.eml.mmd          # Support-ticketing model (used by the CLI test)
     └── minimal.eml.mmd           # Smallest complete example
 ```
+
+## The `eml` CLI — build an app from a model
+
+The [`cli/`](cli/README.md) folder holds a zero-dependency TypeScript CLI that
+reads this definition, parses an `.mmd` model, validates it **with
+self-correction**, and **generates a complete, runnable application**:
+
+```bash
+bun language/cli/eml.ts validate -i language/examples/helpdesk.eml.mmd
+bun language/cli/eml.ts generate -i language/examples/helpdesk.eml.mmd -o ./out --docker
+cd out && npm start        # zero-dependency app on http://localhost:3000
+```
+
+It supports `--input`, `--output`, `--name`, `--docker`, `--github <owner/repo>`,
+`--stack`, `--force`, `--no-autofix`, `--json`, and `--help`. See
+[`cli/README.md`](cli/README.md).
+
+The shipped ERD parser
+(`packages/generator/src/parsers/mermaid.parser.ts`) also loads its type and
+cardinality maps from `erdwithai-language.json` at runtime, so the generator and
+the language definition never drift.
 
 ---
 
