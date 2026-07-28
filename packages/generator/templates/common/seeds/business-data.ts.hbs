@@ -78,17 +78,22 @@ export async function seed(db: Kysely<any>): Promise<void> {
       {{#unless (eq name 'created_at')}}
       {{#unless (eq name 'updated_at')}}
       {{#unless (eq name 'deleted_at')}}
+      {{#unless (eq name 'version')}}
       {{#switch (typeToReferenceId type)}}
-        {{#case 10}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}'{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{#if (eq name "name")}}Test {{../../displayName}} {{@../index}}{{else}}Sample {{name}} {{@../index}}{{/if}}{{/if}}'{{/if}},{{/case}}
+        {{#case 10}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}'{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{seedValue name @../index}}{{/if}}'{{/if}},{{/case}}
+        {{#case 30}}{{name}}: 'test{{@../index}}@example.com',{{/case}}
+        {{#case 31}}{{name}}: '555-{{@../index}}101',{{/case}}
         {{#case 11}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}{{@../index}}{{/if}},{{/case}}
         {{#case 12}}{{name}}: {{@../index}}.50,{{/case}}
-        {{#case 15}}{{name}}: new Date(Date.now() + {{@../index}} * 86400000),{{/case}}
+        {{! Numeric args, not a string: '200X-0X-15' produced month 00 for the first record, which Postgres rejects. Month is 0-based here, so % 12 is always valid. }}
+        {{#case 15}}{{name}}: new Date(2000 + {{@../index}}, {{@../index}} % 12, 15),{{/case}}
         {{#case 16}}{{name}}: new Date(Date.now() + {{@../index}} * 3600000),{{/case}}
         {{#case 20}}{{name}}: {{#if (eq @../index 2)}}false{{else}}true{{/if}},{{/case}}
         {{#case 13}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}uuidv4(){{/if}},{{/case}}
         {{#case 14}}{{name}}: 'Sample {{name}} text {{@../index}}',{{/case}}
-        {{#default}}{{name}}: 'Sample {{name}} {{@../index}}',{{/default}}
+        {{#default}}{{name}}: '{{seedValue name @../index}}',{{/default}}
       {{/switch}}
+      {{/unless}}
       {{/unless}}
       {{/unless}}
       {{/unless}}

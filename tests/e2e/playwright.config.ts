@@ -97,6 +97,18 @@ export default defineConfig({
       testMatch: ["crm-tanstack-nestjs.e2e-test.ts"],
       dependencies: [],
     },
+    {
+      name: "school-management",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: "http://localhost:3001",
+        launchOptions: {
+          executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+        },
+      },
+      testMatch: ["school-mgmt-qa.e2e-test.ts"],
+      dependencies: [],
+    },
   ],
 
   // Don't start a web server - we'll use the already-running servers
