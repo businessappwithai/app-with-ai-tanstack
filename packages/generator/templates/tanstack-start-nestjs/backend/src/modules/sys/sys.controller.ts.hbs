@@ -318,10 +318,28 @@ export class SysController {
     return this.sysService.findAllReferences({ page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100 }, parseFilters(rawFilters));
   }
 
+  @Post('references')
+  @ApiOperation({ summary: 'Create reference' })
+  async createReference(@Body() data: Record<string, unknown>) {
+    return this.sysService.createReference(data);
+  }
+
   @Get('references/:id')
   @ApiOperation({ summary: 'Get reference by ID' })
-  async findReferenceById(@Param('id', ParseUUIDPipe) id: string) {
-    return this.sysService.findReferenceById(id);
+  async findReferenceById(@Param('id') id: string) {
+    return this.sysService.findReferenceById(parseInt(id, 10));
+  }
+
+  @Patch('references/:id')
+  @ApiOperation({ summary: 'Update reference' })
+  async updateReference(@Param('id') id: string, @Body() data: Record<string, unknown>) {
+    return this.sysService.updateReference(parseInt(id, 10), data);
+  }
+
+  @Delete('references/:id')
+  @ApiOperation({ summary: 'Delete reference (soft-delete)' })
+  async deleteReference(@Param('id') id: string) {
+    return this.sysService.deleteReference(parseInt(id, 10));
   }
 
   // ============================================================================

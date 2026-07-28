@@ -250,13 +250,13 @@ export const SYS_FIELD_GRID_FIELDS: FieldMetadata[] = [
 // ============================================================================
 
 export const SYS_REFERENCE_FORM_FIELDS: FieldMetadata[] = [
-  field('sys_reference_id', 'Reference ID', REF.INTEGER, { is_mandatory: true, seq_no: 10, is_read_only: true }),
-  field('name', 'Name', REF.STRING, { is_mandatory: true, seq_no: 20, field_length: 100, is_read_only: true }),
-  field('description', 'Description', REF.TEXT, { seq_no: 30, is_read_only: true }),
-  field('validation_type', 'Validation Type', REF.LIST, { seq_no: 40, options: VALIDATION_TYPE_OPTIONS, is_read_only: true }),
-  field('vformat', 'Value Format', REF.STRING, { seq_no: 50, field_length: 40, is_read_only: true }),
-  field('is_active', 'Active', REF.YES_NO, { seq_no: 60, is_read_only: true }),
-  field('entity_type', 'Entity Type', REF.LIST, { seq_no: 70, options: ENTITY_TYPE_OPTIONS, is_read_only: true }),
+  field('sys_reference_id', 'Reference ID', REF.INTEGER, { seq_no: 10, is_read_only: true }),
+  field('name', 'Name', REF.STRING, { is_mandatory: true, seq_no: 20, field_length: 100 }),
+  field('description', 'Description', REF.TEXT, { seq_no: 30 }),
+  field('validation_type', 'Validation Type', REF.LIST, { seq_no: 40, options: VALIDATION_TYPE_OPTIONS }),
+  field('vformat', 'Value Format', REF.STRING, { seq_no: 50, field_length: 40 }),
+  field('is_active', 'Active', REF.YES_NO, { seq_no: 60 }),
+  field('entity_type', 'Entity Type', REF.LIST, { seq_no: 70, options: ENTITY_TYPE_OPTIONS }),
 ];
 
 export const SYS_REFERENCE_GRID_FIELDS: FieldMetadata[] = [

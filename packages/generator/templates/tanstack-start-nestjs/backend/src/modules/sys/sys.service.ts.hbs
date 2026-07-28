@@ -609,11 +609,56 @@ export class SysService {
     return { data, meta: { total: Number(countRow?.count ?? 0), page, pageSize: limit } };
   }
 
-  async findReferenceById(id: string) {
+  async findReferenceById(id: number) {
     const ref = await this.db.kysely.selectFrom('sys_reference').selectAll()
       .where('sys_reference_id', '=', id).executeTakeFirst();
     if (!ref) throw new NotFoundException(`Reference with ID ${id} not found`);
     return ref;
+  }
+
+  async createReference(data: Record<string, unknown>) {
+    const { name, description, entity_type, validation_type, vformat } = data as { name: string; description?: string; entity_type?: string; validation_type?: string; vformat?: string };
+    const maxRow = await this.db.kysely.selectFrom('sys_reference')
+      .select((eb) => eb.fn.max('sys_reference_id').as('max_id'))
+      .executeTakeFirst();
+    const nextId = (Number(maxRow?.max_id ?? 0)) + 1;
+    const values: Record<string, unknown> = { sys_reference_id: nextId, name, is_active: true, created_by: 'admin', updated_by: 'admin', entity_type: entity_type ?? 'U', validation_type: validation_type ?? 'S' };
+    if (description !== undefined) values['description'] = description;
+    if (vformat !== undefined) values['vformat'] = vformat;
+    const [inserted] = await this.db.kysely.insertInto('sys_reference')
+      .values(values as any)
+      .returningAll()
+      .execute();
+    return inserted;
+  }
+
+  async updateReference(id: number, data: Record<string, unknown>) {
+    const ref = await this.findReferenceById(id);
+    if (!ref) throw new NotFoundException(`Reference with ID ${id} not found`);
+    const { name, description, entity_type, is_active, validation_type, vformat } = data as { name?: string; description?: string; entity_type?: string; is_active?: boolean; validation_type?: string; vformat?: string };
+    const updates: Record<string, unknown> = {};
+    if (name !== undefined) updates['name'] = name;
+    if (description !== undefined) updates['description'] = description;
+    if (entity_type !== undefined) updates['entity_type'] = entity_type;
+    if (is_active !== undefined) updates['is_active'] = is_active;
+    if (validation_type !== undefined) updates['validation_type'] = validation_type;
+    if (vformat !== undefined) updates['vformat'] = vformat;
+    if (Object.keys(updates).length === 0) return ref;
+    const [updated] = await this.db.kysely.updateTable('sys_reference')
+      .set(updates as any)
+      .where('sys_reference_id', '=', id)
+      .returningAll()
+      .execute();
+    return updated;
+  }
+
+  async deleteReference(id: number) {
+    await this.findReferenceById(id);
+    await this.db.kysely.updateTable('sys_reference')
+      .set({ is_active: false } as any)
+      .where('sys_reference_id', '=', id)
+      .execute();
+    return { success: true };
   }
 
   async findRefListBySysReferenceId(sysReferenceId: number) {
