@@ -37,6 +37,9 @@ export interface FullStackGeneratorOptions {
   aiNlProvider?: "anthropic" | "openai";
   aiNlModel?: string;
 
+  // Skip network CLI scaffolding; generate purely from bundled templates.
+  skipCliScaffold?: boolean;
+
   // tanstackjs-nestjs specific
   tanstackStartNestjs?: {
     backend: Partial<NestJsBackendOptions>;
@@ -112,6 +115,7 @@ export class FullStackGenerator {
       frontendPort: this.options.frontendPort ?? this.options.port + 1,
       enableSwagger: true,
       enableCors: true,
+      skipCliScaffold: this.options.skipCliScaffold,
       ...aiConfig,
       ...this.options.tanstackStartNestjs?.backend,
     };
@@ -130,6 +134,7 @@ export class FullStackGenerator {
         apiBaseUrl: `http://localhost:${this.options.port}`,
         enableDarkMode: false,
         stackOption: this.options.stackOption as "tanstackjs-nestjs" | "tanstack-start-nestjs",
+        skipCliScaffold: this.options.skipCliScaffold,
         ...aiConfig,
         ...this.options.tanstackStartNestjs?.frontend,
       };

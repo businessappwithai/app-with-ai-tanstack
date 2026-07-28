@@ -29,6 +29,8 @@ export interface OrchestratorOptions {
   aiNlAddon?: "none" | "basic" | "advanced";
   aiNlProvider?: "anthropic" | "openai";
   aiNlModel?: string;
+  /** Skip network CLI scaffolding; generate purely from bundled templates. */
+  skipCliScaffold?: boolean;
 }
 
 export interface GenerationResult {
@@ -94,6 +96,7 @@ export class GeneratorOrchestrator {
       aiNlAddon: this.options.aiNlAddon,
       aiNlProvider: this.options.aiNlProvider,
       aiNlModel: this.options.aiNlModel,
+      skipCliScaffold: this.options.skipCliScaffold,
     };
 
     const fullStackGenerator = new FullStackGenerator(fullStackOptions);

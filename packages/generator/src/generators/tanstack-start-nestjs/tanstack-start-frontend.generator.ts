@@ -65,6 +65,12 @@ export interface TanStackStartFrontendOptions {
   apiBaseUrl: string;
   enableDarkMode: boolean;
   stackOption?: "tanstackjs-nestjs" | "tanstack-start-nestjs";
+  /**
+   * Skip the network CLI scaffolding step (`bun create tanstack-start`) and
+   * generate the project purely from the bundled templates. Useful for offline
+   * / CI generation where the scaffolding CLI is unavailable.
+   */
+  skipCliScaffold?: boolean;
 }
 
 export class TanStackStartFrontendGenerator extends BaseGenerator {
@@ -87,8 +93,13 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     relationships: Relationship[],
     outputDir: string
   ): Promise<void> {
-    console.log(`\n📦 Phase 1: Scaffolding TanStack Start project...`);
-    await this.scaffoldTanStackProject(outputDir);
+    if (this.options.skipCliScaffold) {
+      console.log(`\n📦 Phase 1: Skipping CLI scaffold (template-only mode)`);
+      await fs.mkdir(outputDir, { recursive: true });
+    } else {
+      console.log(`\n📦 Phase 1: Scaffolding TanStack Start project...`);
+      await this.scaffoldTanStackProject(outputDir);
+    }
 
     console.log(`\n🎨 Phase 2: Overlaying custom templates...`);
     // Prepare context for templates

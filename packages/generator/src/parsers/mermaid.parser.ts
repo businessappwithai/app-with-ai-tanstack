@@ -22,47 +22,12 @@
  */
 
 import type { Entity, EntityAttribute, Relationship } from "@erdwithai/core/types";
+import { getDefaultType, getTypeMap } from "./language-maps";
 
-// Type mapping from Mermaid types to our standard types
-const TYPE_MAP: Record<string, EntityAttribute["type"]> = {
-  // String types
-  string: "string",
-  varchar: "string",
-  char: "string",
-  text: "text",
-  longtext: "text",
-
-  // Number types
-  int: "integer",
-  integer: "integer",
-  bigint: "integer",
-  smallint: "integer",
-  number: "decimal",
-  decimal: "decimal",
-  float: "decimal",
-  double: "decimal",
-  money: "decimal",
-
-  // Boolean
-  bool: "boolean",
-  boolean: "boolean",
-
-  // Date/Time
-  date: "date",
-  datetime: "datetime",
-  timestamp: "datetime",
-  time: "datetime",
-
-  // JSON
-  json: "json",
-  jsonb: "json",
-  object: "json",
-  array: "json",
-
-  // UUID
-  uuid: "string",
-  guid: "string",
-};
+// Type mapping from Mermaid types to our standard types.
+// Sourced from language/erdwithai-language.json at runtime (with a built-in
+// fallback) so the parser stays in lockstep with the EML language definition.
+const TYPE_MAP: Record<string, EntityAttribute["type"]> = getTypeMap();
 
 export class MermaidParser {
   /**
@@ -267,8 +232,8 @@ export class MermaidParser {
     if (!name) return null;
     const modifiers = parts.slice(2).map((m) => m.toUpperCase());
 
-    // Map type to standard type
-    const type = TYPE_MAP[rawType] || "string";
+    // Map type to standard type (unknown aliases fall back to the language default)
+    const type = TYPE_MAP[rawType] || getDefaultType();
 
     // Parse modifiers
     const isPrimaryKey = modifiers.includes("PK");
