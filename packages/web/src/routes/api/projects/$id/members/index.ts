@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { getDatabase, runMigrations } from "@erdwithai/core/services";
+import { createFileRoute } from "@tanstack/react-router";
 import { getCurrentUser } from "@/lib/auth-server";
 
 let _dbReady = false;
@@ -111,7 +111,10 @@ export const Route = createFileRoute("/api/projects/$id/members/")({
           }
 
           const body = await request.json();
-          const { email, permission = "read_only" } = body as { email: string; permission?: string };
+          const { email, permission = "read_only" } = body as {
+            email: string;
+            permission?: string;
+          };
 
           if (!email) {
             return new Response(JSON.stringify({ error: "Email is required" }), {

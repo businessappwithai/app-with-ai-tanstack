@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
+  CheckCircle2Icon,
+  CircleIcon,
   EditIcon,
   PlusIcon,
   RefreshCwIcon,
   TrashIcon,
-  CheckCircle2Icon,
-  CircleIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -121,7 +121,9 @@ function RulesListPage() {
           <div className="px-6 py-8">
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-50">Business Rules</h1>
+                <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-50">
+                  Business Rules
+                </h1>
                 <p className="text-slate-600 dark:text-slate-400 mt-2">
                   Manage JDM (JSON Decision Model) rules for entity automation
                 </p>
@@ -143,10 +145,14 @@ function RulesListPage() {
           <div className="w-96 flex-shrink-0">
             {/* Filter Bar */}
             <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-4 mb-4 shadow-sm">
-              <h2 className="text-xs font-semibold text-slate-900 dark:text-slate-50 uppercase tracking-wide mb-3">Filters</h2>
+              <h2 className="text-xs font-semibold text-slate-900 dark:text-slate-50 uppercase tracking-wide mb-3">
+                Filters
+              </h2>
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">Entity</label>
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">
+                    Entity
+                  </label>
                   <select
                     className="w-full px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-1 dark:focus:ring-offset-slate-950 transition-all"
                     value={filter.entity || ""}
@@ -161,11 +167,15 @@ function RulesListPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">Operation</label>
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">
+                    Operation
+                  </label>
                   <select
                     className="w-full px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-1 dark:focus:ring-offset-slate-950 transition-all"
                     value={filter.operation || ""}
-                    onChange={(e) => setFilter({ ...filter, operation: e.target.value || undefined })}
+                    onChange={(e) =>
+                      setFilter({ ...filter, operation: e.target.value || undefined })
+                    }
                   >
                     <option value="">All Operations</option>
                     <option value="CREATE">CREATE</option>
@@ -195,7 +205,9 @@ function RulesListPage() {
             ) : rules.length === 0 ? (
               <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-6 text-center shadow-sm">
                 <div className="text-3xl mb-2">📋</div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-1">No Rules Yet</h3>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-1">
+                  No Rules Yet
+                </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
                   Create your first rule to get started.
                 </p>
@@ -220,7 +232,9 @@ function RulesListPage() {
                   >
                     <div className="flex justify-between items-start gap-2">
                       <div className="flex-1">
-                        <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">{rule.ruleName}</h4>
+                        <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">
+                          {rule.ruleName}
+                        </h4>
                         <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                           {rule.entityName}
                         </p>
@@ -254,7 +268,9 @@ function RulesListPage() {
                 <div className="border-b border-slate-200 dark:border-slate-800 p-4 bg-gradient-to-r from-slate-50 to-transparent dark:from-slate-900 dark:to-transparent">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50">{selectedRule.ruleName}</h2>
+                      <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50">
+                        {selectedRule.ruleName}
+                      </h2>
                       <p className="text-sm text-slate-600 dark:text-slate-400">
                         {selectedRule.entityName} • {selectedRule.operation}
                       </p>
@@ -312,7 +328,9 @@ function RulesListPage() {
                   {activeTab === "properties" ? (
                     <div className="space-y-4 max-w-2xl">
                       <div>
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Rule Name</label>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                          Rule Name
+                        </label>
                         <input
                           type="text"
                           defaultValue={selectedRule.ruleName}
@@ -321,7 +339,9 @@ function RulesListPage() {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Entity</label>
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                            Entity
+                          </label>
                           <input
                             type="text"
                             defaultValue={selectedRule.entityName}
@@ -330,7 +350,9 @@ function RulesListPage() {
                           />
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Operation</label>
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                            Operation
+                          </label>
                           <input
                             type="text"
                             defaultValue={selectedRule.operation}
@@ -340,20 +362,36 @@ function RulesListPage() {
                         </div>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Status</label>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                          Status
+                        </label>
                         <div className="flex gap-4">
                           <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" checked={selectedRule.isActive} className="w-4 h-4" />
-                            <span className="text-sm text-slate-700 dark:text-slate-300">Active</span>
+                            <input
+                              type="radio"
+                              checked={selectedRule.isActive}
+                              className="w-4 h-4"
+                            />
+                            <span className="text-sm text-slate-700 dark:text-slate-300">
+                              Active
+                            </span>
                           </label>
                           <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" checked={!selectedRule.isActive} className="w-4 h-4" />
-                            <span className="text-sm text-slate-700 dark:text-slate-300">Inactive</span>
+                            <input
+                              type="radio"
+                              checked={!selectedRule.isActive}
+                              className="w-4 h-4"
+                            />
+                            <span className="text-sm text-slate-700 dark:text-slate-300">
+                              Inactive
+                            </span>
                           </label>
                         </div>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Version</label>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                          Version
+                        </label>
                         <input
                           type="text"
                           defaultValue={selectedRule.version}
@@ -362,7 +400,9 @@ function RulesListPage() {
                         />
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Last Updated</label>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                          Last Updated
+                        </label>
                         <input
                           type="text"
                           defaultValue={new Date(selectedRule.updatedAt).toLocaleString()}
@@ -373,7 +413,9 @@ function RulesListPage() {
                     </div>
                   ) : (
                     <div>
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Rule Conditions</h3>
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">
+                        Rule Conditions
+                      </h3>
                       {conditions.length === 0 ? (
                         <div className="text-center py-8 text-slate-600 dark:text-slate-400">
                           <p className="text-sm">No conditions defined yet.</p>
@@ -383,20 +425,41 @@ function RulesListPage() {
                           <table className="w-full text-sm">
                             <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
                               <tr>
-                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">#</th>
-                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">Attribute</th>
-                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">Operator</th>
-                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">Value</th>
-                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">Status</th>
+                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">
+                                  #
+                                </th>
+                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">
+                                  Attribute
+                                </th>
+                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">
+                                  Operator
+                                </th>
+                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">
+                                  Value
+                                </th>
+                                <th className="text-left px-4 py-2 font-semibold text-slate-700 dark:text-slate-300">
+                                  Status
+                                </th>
                               </tr>
                             </thead>
                             <tbody>
                               {conditions.map((cond) => (
-                                <tr key={cond.id} className="border-t border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
-                                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{cond.sequence}</td>
-                                  <td className="px-4 py-3 text-slate-900 dark:text-slate-50 font-mono text-xs">{cond.entityAttribute}</td>
-                                  <td className="px-4 py-3 text-slate-900 dark:text-slate-50">{cond.operator}</td>
-                                  <td className="px-4 py-3 text-slate-900 dark:text-slate-50">{cond.value}</td>
+                                <tr
+                                  key={cond.id}
+                                  className="border-t border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors"
+                                >
+                                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
+                                    {cond.sequence}
+                                  </td>
+                                  <td className="px-4 py-3 text-slate-900 dark:text-slate-50 font-mono text-xs">
+                                    {cond.entityAttribute}
+                                  </td>
+                                  <td className="px-4 py-3 text-slate-900 dark:text-slate-50">
+                                    {cond.operator}
+                                  </td>
+                                  <td className="px-4 py-3 text-slate-900 dark:text-slate-50">
+                                    {cond.value}
+                                  </td>
                                   <td className="px-4 py-3">
                                     <span
                                       className={`text-xs font-medium px-2 py-1 rounded ${

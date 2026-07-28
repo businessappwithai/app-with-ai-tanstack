@@ -1,23 +1,18 @@
 import {
-  Plus,
-  Save,
-  Trash2,
-  RotateCcw,
-  RefreshCw,
   Copy,
-  SlidersHorizontal,
   Pencil,
+  Plus,
+  RefreshCw,
+  RotateCcw,
+  Save,
+  SlidersHorizontal,
+  Trash2,
   X,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ADToolbarProps {
   onNew?: () => void;
@@ -63,12 +58,11 @@ export function ADToolbar({
   return (
     <TooltipProvider delayDuration={300}>
       <div className="flex items-center gap-2 px-5 py-3 border-b border-border bg-muted/20 flex-wrap">
-
         {/* Search button */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant={isAdvancedSearchOpen ? 'secondary' : 'outline'}
+              variant={isAdvancedSearchOpen ? "secondary" : "outline"}
               size="sm"
               onClick={onAdvancedSearchToggle}
               className="h-9 gap-2 px-3 text-sm font-medium"
@@ -149,7 +143,7 @@ export function ADToolbar({
                   className="h-9 gap-2 px-4 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm disabled:opacity-50"
                 >
                   <Save className="h-4 w-4" />
-                  {isSaving ? 'Saving…' : 'Save Changes'}
+                  {isSaving ? "Saving…" : "Save Changes"}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Save Changes</TooltipContent>
@@ -179,7 +173,7 @@ export function ADToolbar({
                     className="h-9 gap-2 px-4 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white shadow-sm disabled:opacity-50"
                   >
                     <Trash2 className="h-4 w-4" />
-                    {isDeleting ? 'Deleting…' : 'Delete'}
+                    {isDeleting ? "Deleting…" : "Delete"}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Delete Record</TooltipContent>
@@ -216,7 +210,7 @@ export function ADToolbar({
                 className="h-9 gap-2 px-4 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm disabled:opacity-50"
               >
                 <Save className="h-4 w-4" />
-                {isSaving ? 'Saving…' : 'Save'}
+                {isSaving ? "Saving…" : "Save"}
               </Button>
             </TooltipTrigger>
             <TooltipContent>Save</TooltipContent>

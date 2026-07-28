@@ -27,7 +27,12 @@ export function startActionLog(projectId: string, action: string, message: strin
   return id;
 }
 
-export function addLogEntry(actionId: string, message: string, status: LogStatus, detail?: string): void {
+export function addLogEntry(
+  actionId: string,
+  message: string,
+  status: LogStatus,
+  detail?: string
+): void {
   const log = actionLogs.get(actionId);
   if (!log) return;
   log.entries.push({ message, status, detail, timestamp: new Date().toISOString() });

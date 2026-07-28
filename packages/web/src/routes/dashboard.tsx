@@ -55,7 +55,12 @@ const features = [
     icon: Code2,
     href: "/generator",
     color: "from-pink-500 to-rose-500",
-    features: ["TanStack Start + Shadcn", "NestJS + Kysely", "Application Dictionary", "Business Rules"],
+    features: [
+      "TanStack Start + Shadcn",
+      "NestJS + Kysely",
+      "Application Dictionary",
+      "Business Rules",
+    ],
   },
   {
     title: "Database Connection",

@@ -54,7 +54,14 @@ export interface WorkflowDefinition {
 
 export type ProjectStep = "init" | "design" | "rules" | "generate" | "enhance" | "deploy";
 
-export const STEP_ORDER: ProjectStep[] = ["init", "design", "rules", "generate", "enhance", "deploy"];
+export const STEP_ORDER: ProjectStep[] = [
+  "init",
+  "design",
+  "rules",
+  "generate",
+  "enhance",
+  "deploy",
+];
 
 export const STEP_LABELS: Record<ProjectStep, string> = {
   init: "Init",

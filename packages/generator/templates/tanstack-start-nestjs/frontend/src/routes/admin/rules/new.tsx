@@ -1,109 +1,203 @@
-import { useState } from 'react';
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api-client';
-import { Scale, ArrowLeft, Save, TestTube2, Loader2, HelpCircle, CheckCircle, XCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import {
+  ArrowLeft,
+  CheckCircle,
+  HelpCircle,
+  Loader2,
+  Save,
+  Scale,
+  TestTube2,
+  XCircle,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { DecisionTableEditor } from "@/components/admin/decision-table-editor";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
-import { DecisionTableEditor } from '@/components/admin/decision-table-editor';
+} from "@/components/ui/select";
+import { apiClient } from "@/lib/api-client";
 
-export const Route = createFileRoute('/admin/rules/new')({
+export const Route = createFileRoute("/admin/rules/new")({
   component: NewRulePage,
 });
 
 const ENTITIES = [
-  { value: 'bus_patient', label: 'Patient', table: 'bus_patient' },
-  { value: 'bus_appointment', label: 'Appointment', table: 'bus_appointment' },
-  { value: 'bus_practitioner', label: 'Practitioner', table: 'bus_practitioner' },
-  { value: 'bus_encounter', label: 'Encounter', table: 'bus_encounter' },
-  { value: 'bus_claim', label: 'Claim', table: 'bus_claim' },
-  { value: 'Account', label: 'Account', table: 'bus_account' },
-  { value: 'Contact', label: 'Contact', table: 'bus_contact' },
-  { value: 'Opportunity', label: 'Opportunity', table: 'bus_opportunity' },
-  { value: 'Activity', label: 'Activity', table: 'bus_activity' },
+  { value: "bus_patient", label: "Patient", table: "bus_patient" },
+  { value: "bus_appointment", label: "Appointment", table: "bus_appointment" },
+  { value: "bus_practitioner", label: "Practitioner", table: "bus_practitioner" },
+  { value: "bus_encounter", label: "Encounter", table: "bus_encounter" },
+  { value: "bus_claim", label: "Claim", table: "bus_claim" },
+  { value: "Account", label: "Account", table: "bus_account" },
+  { value: "Contact", label: "Contact", table: "bus_contact" },
+  { value: "Opportunity", label: "Opportunity", table: "bus_opportunity" },
+  { value: "Activity", label: "Activity", table: "bus_activity" },
 ];
 
 const OPERATIONS = [
-  { value: 'CREATE', label: 'Create', description: 'Triggered when a new record is created' },
-  { value: 'UPDATE', label: 'Update', description: 'Triggered when a record is modified' },
-  { value: 'DELETE', label: 'Delete', description: 'Triggered when a record is deleted' },
-  { value: 'ALL', label: 'All Operations', description: 'Triggered on create, update, and delete' },
+  { value: "CREATE", label: "Create", description: "Triggered when a new record is created" },
+  { value: "UPDATE", label: "Update", description: "Triggered when a record is modified" },
+  { value: "DELETE", label: "Delete", description: "Triggered when a record is deleted" },
+  { value: "ALL", label: "All Operations", description: "Triggered on create, update, and delete" },
 ];
 
 const ENTITY_FIELDS: Record<string, string[]> = {
-  bus_patient: ['patient_id', 'first_name', 'last_name', 'birth_date', 'gender', 'national_id', 'prov_health_number', 'email', 'phone', 'residence_country'],
-  bus_appointment: ['appointment_id', 'patient_id', 'practitioner_id', 'scheduled_start', 'scheduled_end', 'current_state'],
-  bus_practitioner: ['practitioner_id', 'npi_number', 'billing_number', 'license_number', 'first_name', 'last_name', 'specialty'],
-  bus_encounter: ['encounter_id', 'appointment_id', 'patient_id', 'practitioner_id', 'subjective_notes', 'objective_notes', 'assessment', 'plan_notes'],
-  bus_claim: ['claim_id', 'encounter_id', 'payer_type', 'icd_code', 'procedure_code', 'total_charge', 'claim_state'],
-  Account: ['name', 'email', 'phone', 'website', 'industry', 'type', 'status', 'annual_revenue', 'employee_count', 'description', 'is_active'],
-  Contact: ['first_name', 'last_name', 'email', 'phone', 'title', 'department', 'status', 'is_active'],
-  Opportunity: ['name', 'stage', 'amount', 'probability', 'close_date', 'status', 'type', 'is_active'],
-  Activity: ['subject', 'type', 'status', 'priority', 'due_date', 'description', 'is_active'],
+  bus_patient: [
+    "patient_id",
+    "first_name",
+    "last_name",
+    "birth_date",
+    "gender",
+    "national_id",
+    "prov_health_number",
+    "email",
+    "phone",
+    "residence_country",
+  ],
+  bus_appointment: [
+    "appointment_id",
+    "patient_id",
+    "practitioner_id",
+    "scheduled_start",
+    "scheduled_end",
+    "current_state",
+  ],
+  bus_practitioner: [
+    "practitioner_id",
+    "npi_number",
+    "billing_number",
+    "license_number",
+    "first_name",
+    "last_name",
+    "specialty",
+  ],
+  bus_encounter: [
+    "encounter_id",
+    "appointment_id",
+    "patient_id",
+    "practitioner_id",
+    "subjective_notes",
+    "objective_notes",
+    "assessment",
+    "plan_notes",
+  ],
+  bus_claim: [
+    "claim_id",
+    "encounter_id",
+    "payer_type",
+    "icd_code",
+    "procedure_code",
+    "total_charge",
+    "claim_state",
+  ],
+  Account: [
+    "name",
+    "email",
+    "phone",
+    "website",
+    "industry",
+    "type",
+    "status",
+    "annual_revenue",
+    "employee_count",
+    "description",
+    "is_active",
+  ],
+  Contact: [
+    "first_name",
+    "last_name",
+    "email",
+    "phone",
+    "title",
+    "department",
+    "status",
+    "is_active",
+  ],
+  Opportunity: [
+    "name",
+    "stage",
+    "amount",
+    "probability",
+    "close_date",
+    "status",
+    "type",
+    "is_active",
+  ],
+  Activity: ["subject", "type", "status", "priority", "due_date", "description", "is_active"],
 };
 
 const DEFAULT_JDM = JSON.stringify(
   {
-    contentType: 'application/vnd.gorules.decision',
+    contentType: "application/vnd.gorules.decision",
     nodes: [
-      { id: 'input-1', name: 'Request', type: 'inputNode', position: { x: 100, y: 200 } },
+      { id: "input-1", name: "Request", type: "inputNode", position: { x: 100, y: 200 } },
       {
-        id: 'dt-1',
-        name: 'Decision Table',
-        type: 'decisionTableNode',
+        id: "dt-1",
+        name: "Decision Table",
+        type: "decisionTableNode",
         position: { x: 350, y: 200 },
         content: {
-          hitPolicy: 'collect',
-          inputs: [{ id: 'cond-1', name: 'email', field: 'email', type: 'expression' }],
+          hitPolicy: "collect",
+          inputs: [{ id: "cond-1", name: "email", field: "email", type: "expression" }],
           outputs: [
-            { id: 'act-1', name: 'action', field: 'action', type: 'expression' },
-            { id: 'act-2', name: 'message', field: 'message', type: 'expression' },
-            { id: 'act-3', name: 'workflowName', field: 'workflowName', type: 'expression' },
+            { id: "act-1", name: "action", field: "action", type: "expression" },
+            { id: "act-2", name: "message", field: "message", type: "expression" },
+            { id: "act-3", name: "workflowName", field: "workflowName", type: "expression" },
           ],
-          rules: [{ 'cond-1': '== null', 'act-1': '"prevent"', 'act-2': '"Email is required"', 'act-3': '' }],
+          rules: [
+            {
+              "cond-1": "== null",
+              "act-1": '"prevent"',
+              "act-2": '"Email is required"',
+              "act-3": "",
+            },
+          ],
         },
       },
-      { id: 'output-1', name: 'Response', type: 'outputNode', position: { x: 600, y: 200 } },
+      { id: "output-1", name: "Response", type: "outputNode", position: { x: 600, y: 200 } },
     ],
     edges: [
-      { id: 'e1', sourceId: 'input-1', targetId: 'dt-1', type: 'edge' },
-      { id: 'e2', sourceId: 'dt-1', targetId: 'output-1', type: 'edge' },
+      { id: "e1", sourceId: "input-1", targetId: "dt-1", type: "edge" },
+      { id: "e2", sourceId: "dt-1", targetId: "output-1", type: "edge" },
     ],
   },
   null,
-  2,
+  2
 );
 
 function NewRulePage() {
   const navigate = useNavigate();
-  const [entityName, setEntityName] = useState('');
-  const [ruleName, setRuleName] = useState('');
-  const [operation, setOperation] = useState('CREATE');
+  const [entityName, setEntityName] = useState("");
+  const [ruleName, setRuleName] = useState("");
+  const [operation, setOperation] = useState("CREATE");
   const [jdmContent, setJdmContent] = useState(DEFAULT_JDM);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Dry run state
-  const [testData, setTestData] = useState('{}');
+  const [testData, setTestData] = useState("{}");
   const [testResult, setTestResult] = useState<any>(null);
   const [showTestPanel, setShowTestPanel] = useState(false);
 
   const createMutation = useMutation({
-    mutationFn: async (data: { entityName: string; ruleName: string; operation: string; jdmContent: string }) => {
-      return await apiClient.post('/rules', data);
+    mutationFn: async (data: {
+      entityName: string;
+      ruleName: string;
+      operation: string;
+      jdmContent: string;
+    }) => {
+      return await apiClient.post("/rules", data);
     },
     onSuccess: () => {
-      toast.success('Rule created successfully');
-      navigate({ to: '/admin/rules' });
+      toast.success("Rule created successfully");
+      navigate({ to: "/admin/rules" });
     },
     onError: (error: Error) => {
       toast.error(`Failed to create rule: ${error.message}`);
@@ -111,9 +205,9 @@ function NewRulePage() {
   });
 
   const { data: workflowsData } = useQuery({
-    queryKey: ['workflow-definitions'],
+    queryKey: ["workflow-definitions"],
     queryFn: async () => {
-      const data = await apiClient.get<any[]>('/workflow-definitions?isActive=true');
+      const data = await apiClient.get<any[]>("/workflow-definitions?isActive=true");
       return Array.isArray(data) ? data : [];
     },
   });
@@ -125,8 +219,8 @@ function NewRulePage() {
 
   const dryRunMutation = useMutation({
     mutationFn: async (data: { jdmContent: string; testData: Record<string, unknown> }) => {
-      return await apiClient.post('/rules/evaluate', {
-        entityName: entityName || 'Account',
+      return await apiClient.post("/rules/evaluate", {
+        entityName: entityName || "Account",
         operation,
         data: data.testData,
       });
@@ -141,13 +235,13 @@ function NewRulePage() {
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!entityName) newErrors.entityName = 'Entity is required';
-    if (!ruleName.trim()) newErrors.ruleName = 'Rule name is required';
-    if (!operation) newErrors.operation = 'Operation is required';
+    if (!entityName) newErrors.entityName = "Entity is required";
+    if (!ruleName.trim()) newErrors.ruleName = "Rule name is required";
+    if (!operation) newErrors.operation = "Operation is required";
     try {
       JSON.parse(jdmContent);
     } catch {
-      newErrors.jdmContent = 'Invalid JDM content';
+      newErrors.jdmContent = "Invalid JDM content";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -164,7 +258,7 @@ function NewRulePage() {
       const parsed = JSON.parse(testData);
       dryRunMutation.mutate({ jdmContent, testData: parsed });
     } catch {
-      toast.error('Invalid test data JSON');
+      toast.error("Invalid test data JSON");
     }
   };
 
@@ -182,11 +276,10 @@ function NewRulePage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-black">
-                Create Business Rule
-              </h1>
+              <h1 className="text-3xl font-bold tracking-tight text-black">Create Business Rule</h1>
               <p className="text-sm text-gray-600 mt-1">
-                Define conditions and actions that run automatically when entity records are created, updated, or deleted.
+                Define conditions and actions that run automatically when entity records are
+                created, updated, or deleted.
               </p>
             </div>
           </div>
@@ -269,9 +362,7 @@ function NewRulePage() {
           <div className="border-2 border-black mb-8">
             <div className="bg-gray-50 px-6 py-3 border-b-2 border-black">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold uppercase tracking-wider">
-                  Decision Logic
-                </h2>
+                <h2 className="text-sm font-semibold uppercase tracking-wider">Decision Logic</h2>
                 <Button
                   type="button"
                   variant="outline"
@@ -280,7 +371,7 @@ function NewRulePage() {
                   onClick={() => setShowTestPanel(!showTestPanel)}
                 >
                   <TestTube2 className="h-3.5 w-3.5 mr-1" />
-                  {showTestPanel ? 'Hide Test' : 'Test Rule'}
+                  {showTestPanel ? "Hide Test" : "Test Rule"}
                 </Button>
               </div>
             </div>
@@ -355,12 +446,12 @@ function NewRulePage() {
                               <div
                                 key={i}
                                 className={`flex items-start gap-2 p-2 rounded ${
-                                  r.actions?.some((a: any) => a.type === 'prevent')
-                                    ? 'bg-red-50 text-red-700'
-                                    : 'bg-amber-50 text-amber-700'
+                                  r.actions?.some((a: any) => a.type === "prevent")
+                                    ? "bg-red-50 text-red-700"
+                                    : "bg-amber-50 text-amber-700"
                                 }`}
                               >
-                                {r.actions?.some((a: any) => a.type === 'prevent') ? (
+                                {r.actions?.some((a: any) => a.type === "prevent") ? (
                                   <XCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                                 ) : (
                                   <HelpCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
@@ -397,7 +488,11 @@ function NewRulePage() {
           {/* Actions */}
           <div className="flex items-center justify-between">
             <Link to="/admin/rules">
-              <Button type="button" variant="outline" className="rounded-none border-2 border-black">
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-none border-2 border-black"
+              >
                 Cancel
               </Button>
             </Link>
@@ -411,7 +506,7 @@ function NewRulePage() {
               ) : (
                 <Save className="h-4 w-4 mr-2" />
               )}
-              {createMutation.isPending ? 'Creating...' : 'Create Rule'}
+              {createMutation.isPending ? "Creating..." : "Create Rule"}
             </Button>
           </div>
         </form>

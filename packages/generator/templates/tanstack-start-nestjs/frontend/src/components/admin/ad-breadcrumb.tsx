@@ -5,7 +5,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
+} from "@/components/ui/breadcrumb";
 
 export interface BreadcrumbLevel {
   label: string;
@@ -35,10 +35,7 @@ export function ADBreadcrumb({ levels }: ADBreadcrumbProps) {
               {isLast ? (
                 <BreadcrumbPage className="font-medium">{displayText}</BreadcrumbPage>
               ) : (
-                <BreadcrumbLink
-                  className="cursor-pointer"
-                  onClick={level.onClick}
-                >
+                <BreadcrumbLink className="cursor-pointer" onClick={level.onClick}>
                   {displayText}
                 </BreadcrumbLink>
               )}

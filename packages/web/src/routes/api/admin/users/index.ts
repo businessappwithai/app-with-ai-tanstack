@@ -1,5 +1,5 @@
-import { createAPIFileRoute } from "@tanstack/start/api";
 import { getDatabase } from "@erdwithai/core/services";
+import { createAPIFileRoute } from "@tanstack/start/api";
 import { getSessionToken } from "@/lib/auth-server";
 
 export const Route = createAPIFileRoute("/api/admin/users")({

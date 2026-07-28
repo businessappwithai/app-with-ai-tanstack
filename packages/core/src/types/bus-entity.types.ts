@@ -121,7 +121,9 @@ export function entityToBusEntity(entity: Entity): BusEntity {
     tableName,
     originalName: entity.name,
     displayName: formatDisplayName(entity.name),
-    attributes: entity.attributes.map((attr, index) => attributeToBusAttribute(attr, index, entity.primaryKey)),
+    attributes: entity.attributes.map((attr, index) =>
+      attributeToBusAttribute(attr, index, entity.primaryKey)
+    ),
   };
 }
 
@@ -144,7 +146,11 @@ export function attributeReferenceId(attr: EntityAttribute, entityPrimaryKey?: s
 /**
  * Converts an EntityAttribute to BusEntityAttribute
  */
-export function attributeToBusAttribute(attr: EntityAttribute, index: number, entityPrimaryKey?: string): BusEntityAttribute {
+export function attributeToBusAttribute(
+  attr: EntityAttribute,
+  index: number,
+  entityPrimaryKey?: string
+): BusEntityAttribute {
   return {
     ...attr,
     columnName: attr.name,

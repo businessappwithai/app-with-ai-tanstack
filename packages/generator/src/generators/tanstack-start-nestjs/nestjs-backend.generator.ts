@@ -350,13 +350,14 @@ export class NestJsBackendGenerator extends BaseGenerator {
     await fs.writeFile(path.join(outputDir, "src/app.module.ts"), appModuleContent);
 
     // Standard NestJS scaffolded files (static, no templating needed)
-    const staticAppFiles = ["src/app.controller.ts", "src/app.controller.spec.ts", "src/app.service.ts"];
+    const staticAppFiles = [
+      "src/app.controller.ts",
+      "src/app.controller.spec.ts",
+      "src/app.service.ts",
+    ];
     for (const file of staticAppFiles) {
       try {
-        await fs.copyFile(
-          path.join(this.resolvedTemplateDir,file),
-          path.join(outputDir, file)
-        );
+        await fs.copyFile(path.join(this.resolvedTemplateDir, file), path.join(outputDir, file));
       } catch (e) {
         console.warn(`Static app file not found: ${file}`);
       }
@@ -520,7 +521,13 @@ export class NestJsBackendGenerator extends BaseGenerator {
     }
 
     // Trigger.dev tasks
-    const triggerTasks = ["email", "report", "sync", "entity-lifecycle-workflow", "entity-promotion"];
+    const triggerTasks = [
+      "email",
+      "report",
+      "sync",
+      "entity-lifecycle-workflow",
+      "entity-promotion",
+    ];
     for (const task of triggerTasks) {
       try {
         const taskContent = await this.renderTemplate(`src/trigger/${task}.task.ts.hbs`, context);
@@ -629,11 +636,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
         // Clean up JSON formatting (fix trailing commas, etc.)
         jdmContent = cleanJsonContent(jdmContent);
         // Fill missing decision-table cells with wildcards (zen-engine requirement)
-        jdmContent = JSON.stringify(
-          normalizeJdmDecisionTables(JSON.parse(jdmContent)),
-          null,
-          2
-        );
+        jdmContent = JSON.stringify(normalizeJdmDecisionTables(JSON.parse(jdmContent)), null, 2);
         await fs.writeFile(
           path.join(outputDir, `src/modules/rules/jdm/${entity.tableName}.jdm.json`),
           jdmContent
@@ -1001,7 +1004,10 @@ export async function executeAfterListHooks(
         workflowSupportContent
       );
     } catch (e) {
-      console.warn("Workflow support migration template not found, skipping:", (e as Error).message);
+      console.warn(
+        "Workflow support migration template not found, skipping:",
+        (e as Error).message
+      );
     }
 
     // workflow definitions migration - creates sys_workflow_definitions table
@@ -1015,7 +1021,10 @@ export async function executeAfterListHooks(
         workflowDefsContent
       );
     } catch (e) {
-      console.warn("Workflow definitions migration template not found, skipping:", (e as Error).message);
+      console.warn(
+        "Workflow definitions migration template not found, skipping:",
+        (e as Error).message
+      );
     }
 
     // Seed sys_reference data
@@ -1098,10 +1107,7 @@ export async function executeAfterListHooks(
     await fs.mkdir(path.join(outputDir, "test"), { recursive: true });
     for (const file of staticConfigFiles) {
       try {
-        await fs.copyFile(
-          path.join(this.resolvedTemplateDir,file),
-          path.join(outputDir, file)
-        );
+        await fs.copyFile(path.join(this.resolvedTemplateDir, file), path.join(outputDir, file));
       } catch (e) {
         console.warn(`Static config file not found: ${file}`);
       }
@@ -1190,9 +1196,7 @@ export async function executeAfterListHooks(
     } catch (e) {
       // Test templates may not exist, skip — but surface the actual reason so
       // template rendering errors are not silently swallowed
-      console.warn(
-        `Test generation skipped: ${e instanceof Error ? e.message : String(e)}`
-      );
+      console.warn(`Test generation skipped: ${e instanceof Error ? e.message : String(e)}`);
     }
 
     // Auth tests
@@ -1222,10 +1226,7 @@ export async function executeAfterListHooks(
         "test/rules-engine.test.ts.hbs",
         context
       );
-      await fs.writeFile(
-        path.join(outputDir, "test/rules-engine.test.ts"),
-        rulesEngineTestContent
-      );
+      await fs.writeFile(path.join(outputDir, "test/rules-engine.test.ts"), rulesEngineTestContent);
     } catch (e) {
       console.warn("Rules engine test template not found");
     }
@@ -1324,10 +1325,7 @@ export async function executeAfterListHooks(
 
     for (const file of auditFiles) {
       try {
-        await fs.copyFile(
-          path.join(auditTemplateDir, file),
-          path.join(auditOutputDir, file)
-        );
+        await fs.copyFile(path.join(auditTemplateDir, file), path.join(auditOutputDir, file));
       } catch (e) {
         console.warn(`Audit module file not found, skipping: ${file} — ${(e as Error).message}`);
       }
@@ -1352,12 +1350,11 @@ export async function executeAfterListHooks(
 
     for (const file of wdFiles) {
       try {
-        await fs.copyFile(
-          path.join(wdTemplateDir, file),
-          path.join(wdOutputDir, file)
-        );
+        await fs.copyFile(path.join(wdTemplateDir, file), path.join(wdOutputDir, file));
       } catch (e) {
-        console.warn(`Workflow-definitions file not found, skipping: ${file} — ${(e as Error).message}`);
+        console.warn(
+          `Workflow-definitions file not found, skipping: ${file} — ${(e as Error).message}`
+        );
       }
     }
   }

@@ -64,11 +64,9 @@ export function makeService(entityName) {
         const from = existing[sm.statusField];
         const to = data[sm.statusField];
         if (!canTransition(entityName, from, to)) {
-          throw new HttpError(
-            409,
-            `Illegal ${entityName} transition "${from}" -> "${to}"`,
-            { allowed: nextStates(entityName, from) }
-          );
+          throw new HttpError(409, `Illegal ${entityName} transition "${from}" -> "${to}"`, {
+            allowed: nextStates(entityName, from),
+          });
         }
       }
 

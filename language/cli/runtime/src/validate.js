@@ -25,7 +25,8 @@ export function validate(entityName, data, op) {
 
   for (const attr of meta.attributes) {
     if (SYSTEM_FIELDS.has(attr.name) || attr.isPrimaryKey) continue;
-    const present = clean[attr.name] !== undefined && clean[attr.name] !== null && clean[attr.name] !== "";
+    const present =
+      clean[attr.name] !== undefined && clean[attr.name] !== null && clean[attr.name] !== "";
 
     if (op === "create" && attr.required && !attr.isForeignKey && !present) {
       errors.push(`"${attr.name}" is required`);
@@ -36,9 +37,7 @@ export function validate(entityName, data, op) {
     // Enum membership
     if (attr.enumRef && ENUMS[attr.enumRef]) {
       if (!ENUMS[attr.enumRef].includes(clean[attr.name])) {
-        errors.push(
-          `"${attr.name}" must be one of: ${ENUMS[attr.enumRef].join(", ")}`
-        );
+        errors.push(`"${attr.name}" must be one of: ${ENUMS[attr.enumRef].join(", ")}`);
       }
     }
 

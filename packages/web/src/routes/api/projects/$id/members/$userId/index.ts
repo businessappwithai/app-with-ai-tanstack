@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { getDatabase, runMigrations } from "@erdwithai/core/services";
+import { createFileRoute } from "@tanstack/react-router";
 import { getCurrentUser } from "@/lib/auth-server";
 
 let _dbReady = false;

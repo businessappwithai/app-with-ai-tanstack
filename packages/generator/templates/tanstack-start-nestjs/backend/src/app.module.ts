@@ -5,24 +5,22 @@
  * Project: simple-crm
  */
 
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER, APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-
-import { DatabaseModule } from './database/database.module';
-import { SysModule } from './modules/sys/sys.module';
-import { BusModule } from './modules/bus/bus.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { RulesModule } from './modules/rules/rules.module';
-import { WorkflowModule } from './modules/workflow/workflow.module';
-import { WorkflowDefinitionsModule } from './modules/workflow-definitions/workflow-definitions.module';
-import { JobQueueModule } from './modules/jobs/job-queue.module';
-import { ElectricModule } from './modules/electric/electric.module';
-import { AuditModule } from './modules/audit/audit.module';
-
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
+import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
+import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
+import { TransformInterceptor } from "./common/interceptors/transform.interceptor";
+import { DatabaseModule } from "./database/database.module";
+import { AuditModule } from "./modules/audit/audit.module";
+import { AuthModule } from "./modules/auth/auth.module";
+import { BusModule } from "./modules/bus/bus.module";
+import { ElectricModule } from "./modules/electric/electric.module";
+import { JobQueueModule } from "./modules/jobs/job-queue.module";
+import { RulesModule } from "./modules/rules/rules.module";
+import { SysModule } from "./modules/sys/sys.module";
+import { WorkflowModule } from "./modules/workflow/workflow.module";
+import { WorkflowDefinitionsModule } from "./modules/workflow-definitions/workflow-definitions.module";
 
 @Module({
   imports: [
@@ -30,19 +28,14 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
     ConfigModule.forRoot({
       isGlobal: true,
       // Use __dirname-relative paths so .env is found regardless of process cwd
-      envFilePath: [
-        `${__dirname}/../.env.local`,
-        `${__dirname}/../.env`,
-        '.env.local',
-        '.env',
-      ],
+      envFilePath: [`${__dirname}/../.env.local`, `${__dirname}/../.env`, ".env.local", ".env"],
     }),
 
     // Rate limiting (permissive in dev/test, strict in production)
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: process.env.NODE_ENV === 'production' ? 100 : 1000,
+        limit: process.env.NODE_ENV === "production" ? 100 : 1000,
       },
     ]),
 

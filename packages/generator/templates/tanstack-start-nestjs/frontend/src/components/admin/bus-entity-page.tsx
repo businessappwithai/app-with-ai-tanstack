@@ -1,6 +1,6 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import { useBusEntityLevel } from '@/hooks/use-bus-entity-level';
-import { ADListShell } from './ad-list-shell';
+import { Skeleton } from "@/components/ui/skeleton";
+import { useBusEntityLevel } from "@/hooks/use-bus-entity-level";
+import { ADListShell } from "./ad-list-shell";
 
 interface BusEntityPageProps {
   entityName: string;

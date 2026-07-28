@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
 import { AlertCircle, Loader2, Shield, Trash2, X } from "lucide-react";
+import type React from "react";
+import { useEffect, useState } from "react";
 
 interface Member {
   id: string;
@@ -166,7 +167,10 @@ export function ShareProjectModal({ projectId, isOpen, onClose }: ShareProjectMo
           </div>
         )}
 
-        <form onSubmit={handleAddMember} className="space-y-4 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+        <form
+          onSubmit={handleAddMember}
+          className="space-y-4 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700"
+        >
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
               Email Address
@@ -237,9 +241,7 @@ export function ShareProjectModal({ projectId, isOpen, onClose }: ShareProjectMo
                   <div className="flex items-center gap-2 ml-3">
                     <select
                       value={member.permission}
-                      onChange={(e) =>
-                        handleChangePermission(member.user_id, e.target.value)
-                      }
+                      onChange={(e) => handleChangePermission(member.user_id, e.target.value)}
                       disabled={isLoading}
                       className="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * ElectricSQL Provider
@@ -12,17 +12,17 @@
  * so the server-side WHERE clause is applied before rows leave the server.
  */
 
+import type { PGlite } from "@electric-sql/pglite";
 import React, {
   createContext,
+  type ReactNode,
   useContext,
   useEffect,
   useRef,
   useState,
-  type ReactNode,
-} from 'react';
-import { syncSysTablesForRole, getDb, type SyncConfig, type UnsubscribeFn } from '@/lib/electric';
-import { reloadSysCollections } from '@/lib/sys-collections';
-import type { PGlite } from '@electric-sql/pglite';
+} from "react";
+import { getDb, type SyncConfig, syncSysTablesForRole, type UnsubscribeFn } from "@/lib/electric";
+import { reloadSysCollections } from "@/lib/sys-collections";
 
 /* -------------------------------------------------------------------------- */
 /*  Context                                                                    */
@@ -82,7 +82,10 @@ export function ElectricProvider({ children, role, token }: ElectricProviderProp
 
         const config: SyncConfig = { role, token };
         const unsub = await syncSysTablesForRole(config);
-        if (cancelled) { unsub(); return; }
+        if (cancelled) {
+          unsub();
+          return;
+        }
         unsubRef.current = unsub;
 
         await reloadSysCollections();
@@ -91,7 +94,7 @@ export function ElectricProvider({ children, role, token }: ElectricProviderProp
         setIsSynced(true);
       } catch (err) {
         if (!cancelled) {
-          console.error('[ElectricProvider] sync error:', err);
+          console.error("[ElectricProvider] sync error:", err);
           setError(err instanceof Error ? err : new Error(String(err)));
         }
       } finally {

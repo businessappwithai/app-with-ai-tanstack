@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { getDatabase, runMigrations } from "@erdwithai/core/services";
+import { createFileRoute } from "@tanstack/react-router";
 import { getCurrentUser } from "@/lib/auth-server";
 
 let _dbReady = false;
@@ -160,22 +160,24 @@ export const Route = createFileRoute("/api/projects/$id/")({
             .where("id", "=", id)
             .executeTakeFirst();
 
-          const project = dbProject ? {
-            id: (dbProject as any).id,
-            name: (dbProject as any).name,
-            description: (dbProject as any).description,
-            icon: (dbProject as any).icon,
-            iconColor: (dbProject as any).icon_color,
-            createdAt: (dbProject as any).created_at,
-            updatedAt: (dbProject as any).updated_at,
-            status: (dbProject as any).status,
-            isDeleted: (dbProject as any).is_deleted,
-            ownerId: (dbProject as any).owner_user_id,
-            stackType: (dbProject as any).stack_type,
-            port: (dbProject as any).port,
-            databaseUrl: (dbProject as any).database_url,
-            generatedPath: (dbProject as any).generated_path,
-          } : null;
+          const project = dbProject
+            ? {
+                id: (dbProject as any).id,
+                name: (dbProject as any).name,
+                description: (dbProject as any).description,
+                icon: (dbProject as any).icon,
+                iconColor: (dbProject as any).icon_color,
+                createdAt: (dbProject as any).created_at,
+                updatedAt: (dbProject as any).updated_at,
+                status: (dbProject as any).status,
+                isDeleted: (dbProject as any).is_deleted,
+                ownerId: (dbProject as any).owner_user_id,
+                stackType: (dbProject as any).stack_type,
+                port: (dbProject as any).port,
+                databaseUrl: (dbProject as any).database_url,
+                generatedPath: (dbProject as any).generated_path,
+              }
+            : null;
 
           return new Response(JSON.stringify({ project }), {
             status: 200,

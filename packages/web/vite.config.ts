@@ -1,19 +1,23 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
-
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-
 import viteReact from "@vitejs/plugin-react";
-import path from "node:path";
 import { defineConfig } from "vite";
-import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const config = defineConfig({
   optimizeDeps: {
     // Native .node binaries and Node-only drivers can't be bundled by Rolldown — exclude them
-    exclude: ["@mastra/fastembed", "@anush008/tokenizers", "@anush008/tokenizers-darwin-universal", "mysql2", "@erdwithai/core"],
+    exclude: [
+      "@mastra/fastembed",
+      "@anush008/tokenizers",
+      "@anush008/tokenizers-darwin-universal",
+      "mysql2",
+      "@erdwithai/core",
+    ],
   },
   ssr: {
     // Treat workspace packages as Node.js externals so their dist/index.js
@@ -28,7 +32,10 @@ const config = defineConfig({
       // Replace @tanstack/start-api-routes@1.120 (Vinxi-based) with a Vite-compatible shim.
       // The original imports 'vinxi/routes' which doesn't exist in @tanstack/react-start@1.167+.
       // The shim also adds .update() to Route objects so routeTree.gen.ts works without error.
-      { find: /^@tanstack\/start-api-routes$/, replacement: path.resolve(__dirname, "src/lib/start-api-routes-compat.js") },
+      {
+        find: /^@tanstack\/start-api-routes$/,
+        replacement: path.resolve(__dirname, "src/lib/start-api-routes-compat.js"),
+      },
       { find: "#", replacement: path.resolve(__dirname, "src") },
       { find: "@", replacement: path.resolve(__dirname, "src") },
     ],

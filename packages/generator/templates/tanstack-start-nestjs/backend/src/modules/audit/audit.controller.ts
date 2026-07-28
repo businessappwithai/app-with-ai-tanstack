@@ -1,18 +1,18 @@
-import { Controller, Get, Param, Query, ParseUUIDPipe, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { AuditService } from './audit.service';
-import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
-import type { AuditSearchParams, AuditSource } from './audit.types';
+import { Controller, Get, Param, ParseUUIDPipe, Query, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { SessionAuthGuard } from "../auth/guards/session-auth.guard";
+import type { AuditService } from "./audit.service";
+import type { AuditSearchParams, AuditSource } from "./audit.types";
 
-@ApiTags('audit')
+@ApiTags("audit")
 @ApiBearerAuth()
 @UseGuards(SessionAuthGuard)
-@Controller('audit')
+@Controller("audit")
 export class AuditController {
   constructor(private readonly auditService: AuditService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Search and filter audit log' })
+  @ApiOperation({ summary: "Search and filter audit log" })
   async search(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -25,7 +25,7 @@ export class AuditController {
     @Query('entity_id') entity_id?: string,
     @Query('source') source?: string,
     @Query('success') success?: string,
-    @Query('search') search?: string,
+    @Query('search') search?: string
   ) {
     const params: AuditSearchParams = {
       page: page ? parseInt(page, 10) : 1,
@@ -38,14 +38,14 @@ export class AuditController {
       entity_type: entity_type || undefined,
       entity_id: entity_id || undefined,
       source: source as AuditSource | undefined,
-      success: success === 'true' ? true : success === 'false' ? false : undefined,
+      success: success === "true" ? true : success === "false" ? false : undefined,
       search: search || undefined,
     };
     return this.auditService.search(params);
   }
 
-  @Get('entity-types')
-  @ApiOperation({ summary: 'List distinct entity types in audit log' })
+  @Get("entity-types")
+  @ApiOperation({ summary: "List distinct entity types in audit log" })
   async getEntityTypes() {
     return this.auditService.getEntityTypes();
   }

@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
-import { useState, useCallback, useMemo } from 'react';
-import { apiClient, type PaginatedResponse } from '@/lib/api-client';
+import { useQuery } from "@tanstack/react-query";
+import { useCallback, useMemo, useState } from "react";
+import { apiClient, type PaginatedResponse } from "@/lib/api-client";
 
 interface UseRecordNavigationOptions {
   endpoint: string;
@@ -39,7 +39,7 @@ export function useRecordNavigation<T = Record<string, unknown>>({
   const [page, setPage] = useState(1);
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['ad-records', endpoint, params, page, limit],
+    queryKey: ["ad-records", endpoint, params, page, limit],
     queryFn: () =>
       apiClient.get<PaginatedResponse<T>>(endpoint, {
         ...params,

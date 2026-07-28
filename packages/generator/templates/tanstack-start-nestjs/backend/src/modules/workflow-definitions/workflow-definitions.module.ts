@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../../database/database.module';
-import { WorkflowDefinitionsController } from './workflow-definitions.controller';
-import { WorkflowDefinitionsService } from './workflow-definitions.service';
+import { Module } from "@nestjs/common";
+import { DatabaseModule } from "../../database/database.module";
+import { WorkflowDefinitionsController } from "./workflow-definitions.controller";
+import { WorkflowDefinitionsService } from "./workflow-definitions.service";
 
 @Module({
   imports: [DatabaseModule],

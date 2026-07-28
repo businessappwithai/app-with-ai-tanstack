@@ -1,6 +1,6 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/admin/table/$tableId')({
+export const Route = createFileRoute("/admin/table/$tableId")({
   component: TableLayout,
 });
 

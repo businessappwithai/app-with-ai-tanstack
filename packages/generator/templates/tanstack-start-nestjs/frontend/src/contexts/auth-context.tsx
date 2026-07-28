@@ -1,6 +1,11 @@
-import React, { type ReactNode, createContext, useContext, useState, useEffect } from 'react';
-import { setUnauthorizedCallback } from '@/lib/api-client';
-import { signIn as authSignIn, signOut as authSignOut, signUp as authSignUp, getSession } from '@/lib/auth';
+import React, { createContext, type ReactNode, useContext, useEffect, useState } from "react";
+import { setUnauthorizedCallback } from "@/lib/api-client";
+import {
+  signIn as authSignIn,
+  signOut as authSignOut,
+  signUp as authSignUp,
+  getSession,
+} from "@/lib/auth";
 
 interface User {
   id: string;
@@ -35,7 +40,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const { data } = await getSession();
       setUser((data as { user?: unknown } | null)?.user ?? null);
     } catch (error) {
-      console.error('Failed to refresh session:', error);
+      console.error("Failed to refresh session:", error);
     }
   };
 
@@ -51,7 +56,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUnauthorizedCallback(async () => {
       setUser(null);
       await authSignOut();
-      window.location.href = '/auth/login';
+      window.location.href = "/auth/login";
     });
   }, []);
 
@@ -88,7 +93,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const isAdmin = () => user?.role === 'admin';
+  const isAdmin = () => user?.role === "admin";
 
   return (
     <AuthContext.Provider
@@ -111,7 +116,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 }

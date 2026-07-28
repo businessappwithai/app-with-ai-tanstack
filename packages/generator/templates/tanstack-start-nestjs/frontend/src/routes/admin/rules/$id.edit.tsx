@@ -1,41 +1,114 @@
-import { useState, useEffect } from 'react';
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api-client';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
+  CheckCircle,
+  HelpCircle,
+  History,
+  Loader2,
   Save,
   TestTube2,
-  Loader2,
-  HelpCircle,
-  CheckCircle,
-  XCircle,
-  History,
   ToggleLeft,
   ToggleRight,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
-import { DecisionTableEditor } from '@/components/admin/decision-table-editor';
+  XCircle,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { DecisionTableEditor } from "@/components/admin/decision-table-editor";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { apiClient } from "@/lib/api-client";
 
-export const Route = createFileRoute('/admin/rules/$id/edit')({
+export const Route = createFileRoute("/admin/rules/$id/edit")({
   component: EditRulePage,
 });
 
 const ENTITY_FIELDS: Record<string, string[]> = {
-  bus_patient: ['patient_id', 'first_name', 'last_name', 'birth_date', 'gender', 'national_id', 'prov_health_number', 'email', 'phone', 'residence_country'],
-  bus_appointment: ['appointment_id', 'patient_id', 'practitioner_id', 'scheduled_start', 'scheduled_end', 'current_state'],
-  bus_practitioner: ['practitioner_id', 'npi_number', 'billing_number', 'license_number', 'first_name', 'last_name', 'specialty'],
-  bus_encounter: ['encounter_id', 'appointment_id', 'patient_id', 'practitioner_id', 'subjective_notes', 'objective_notes', 'assessment', 'plan_notes'],
-  bus_claim: ['claim_id', 'encounter_id', 'payer_type', 'icd_code', 'procedure_code', 'total_charge', 'claim_state'],
-  Account: ['name', 'email', 'phone', 'website', 'industry', 'type', 'status', 'annual_revenue', 'employee_count', 'description', 'is_active'],
-  Contact: ['first_name', 'last_name', 'email', 'phone', 'title', 'department', 'status', 'is_active'],
-  Opportunity: ['name', 'stage', 'amount', 'probability', 'close_date', 'status', 'type', 'is_active'],
-  Activity: ['subject', 'type', 'status', 'priority', 'due_date', 'description', 'is_active'],
+  bus_patient: [
+    "patient_id",
+    "first_name",
+    "last_name",
+    "birth_date",
+    "gender",
+    "national_id",
+    "prov_health_number",
+    "email",
+    "phone",
+    "residence_country",
+  ],
+  bus_appointment: [
+    "appointment_id",
+    "patient_id",
+    "practitioner_id",
+    "scheduled_start",
+    "scheduled_end",
+    "current_state",
+  ],
+  bus_practitioner: [
+    "practitioner_id",
+    "npi_number",
+    "billing_number",
+    "license_number",
+    "first_name",
+    "last_name",
+    "specialty",
+  ],
+  bus_encounter: [
+    "encounter_id",
+    "appointment_id",
+    "patient_id",
+    "practitioner_id",
+    "subjective_notes",
+    "objective_notes",
+    "assessment",
+    "plan_notes",
+  ],
+  bus_claim: [
+    "claim_id",
+    "encounter_id",
+    "payer_type",
+    "icd_code",
+    "procedure_code",
+    "total_charge",
+    "claim_state",
+  ],
+  Account: [
+    "name",
+    "email",
+    "phone",
+    "website",
+    "industry",
+    "type",
+    "status",
+    "annual_revenue",
+    "employee_count",
+    "description",
+    "is_active",
+  ],
+  Contact: [
+    "first_name",
+    "last_name",
+    "email",
+    "phone",
+    "title",
+    "department",
+    "status",
+    "is_active",
+  ],
+  Opportunity: [
+    "name",
+    "stage",
+    "amount",
+    "probability",
+    "close_date",
+    "status",
+    "type",
+    "is_active",
+  ],
+  Activity: ["subject", "type", "status", "priority", "due_date", "description", "is_active"],
 };
 
 interface Rule {
@@ -57,17 +130,17 @@ function EditRulePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [jdmContent, setJdmContent] = useState('');
+  const [jdmContent, setJdmContent] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Dry run state
-  const [testData, setTestData] = useState('{}');
+  const [testData, setTestData] = useState("{}");
   const [testResult, setTestResult] = useState<any>(null);
   const [showTestPanel, setShowTestPanel] = useState(false);
 
   const { data: rule, isLoading } = useQuery({
-    queryKey: ['admin', 'rules', id],
+    queryKey: ["admin", "rules", id],
     queryFn: async () => {
       return await apiClient.get<Rule>(`/rules/${id}`);
     },
@@ -89,9 +162,9 @@ function EditRulePage() {
       return await apiClient.put(`/rules/${id}`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'rules'] });
-      toast.success('Rule updated successfully');
-      navigate({ to: '/admin/rules' });
+      queryClient.invalidateQueries({ queryKey: ["admin", "rules"] });
+      toast.success("Rule updated successfully");
+      navigate({ to: "/admin/rules" });
     },
     onError: (error: Error) => {
       toast.error(`Failed to update rule: ${error.message}`);
@@ -100,9 +173,9 @@ function EditRulePage() {
 
   const dryRunMutation = useMutation({
     mutationFn: async (data: { testData: Record<string, unknown> }) => {
-      return await apiClient.post('/rules/evaluate', {
-        entityName: rule?.entityName || 'Account',
-        operation: rule?.operation || 'CREATE',
+      return await apiClient.post("/rules/evaluate", {
+        entityName: rule?.entityName || "Account",
+        operation: rule?.operation || "CREATE",
         data: data.testData,
       });
     },
@@ -119,7 +192,7 @@ function EditRulePage() {
     try {
       JSON.parse(jdmContent);
     } catch {
-      newErrors.jdmContent = 'Invalid JDM content';
+      newErrors.jdmContent = "Invalid JDM content";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -136,7 +209,7 @@ function EditRulePage() {
       const parsed = JSON.parse(testData);
       dryRunMutation.mutate({ testData: parsed });
     } catch {
-      toast.error('Invalid test data JSON');
+      toast.error("Invalid test data JSON");
     }
   };
 
@@ -154,7 +227,9 @@ function EditRulePage() {
         <div className="text-center">
           <p className="text-gray-600 mb-4">Rule not found</p>
           <Link to="/admin/rules">
-            <Button variant="outline" className="rounded-none">Back to Rules</Button>
+            <Button variant="outline" className="rounded-none">
+              Back to Rules
+            </Button>
           </Link>
         </div>
       </div>
@@ -176,19 +251,18 @@ function EditRulePage() {
                 </Button>
               </Link>
               <div>
-                <h1 className="text-3xl font-bold tracking-tight text-black">
-                  Edit Rule
-                </h1>
-                <p className="text-sm text-gray-600 mt-1">
-                  {rule.ruleName}
-                </p>
+                <h1 className="text-3xl font-bold tracking-tight text-black">Edit Rule</h1>
+                <p className="text-sm text-gray-600 mt-1">{rule.ruleName}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="font-mono text-xs">
                 v{rule.version}
               </Badge>
-              <Badge variant={rule.operation === 'ALL' ? 'default' : 'secondary'} className="text-xs">
+              <Badge
+                variant={rule.operation === "ALL" ? "default" : "secondary"}
+                className="text-xs"
+              >
                 {rule.operation}
               </Badge>
               <Badge variant="secondary" className="text-xs">
@@ -209,40 +283,51 @@ function EditRulePage() {
             <div className="p-6">
               <div className="grid grid-cols-4 gap-6">
                 <div>
-                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Entity</Label>
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Entity
+                  </Label>
                   <p className="mt-1 font-medium">{rule.entityName}</p>
                 </div>
                 <div>
-                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Operation</Label>
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Operation
+                  </Label>
                   <p className="mt-1 font-medium">{rule.operation}</p>
                 </div>
                 <div>
-                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Version</Label>
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Version
+                  </Label>
                   <p className="mt-1 font-medium">v{rule.version}</p>
                 </div>
                 <div>
-                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Status</Label>
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Status
+                  </Label>
                   <div className="mt-1 flex items-center gap-2">
-                    <Switch
-                      checked={isActive}
-                      onCheckedChange={setIsActive}
-                    />
-                    <span className={`text-sm font-medium ${isActive ? 'text-emerald-600' : 'text-gray-400'}`}>
-                      {isActive ? 'Active' : 'Inactive'}
+                    <Switch checked={isActive} onCheckedChange={setIsActive} />
+                    <span
+                      className={`text-sm font-medium ${isActive ? "text-emerald-600" : "text-gray-400"}`}
+                    >
+                      {isActive ? "Active" : "Inactive"}
                     </span>
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-6 mt-4 pt-4 border-t border-gray-100">
                 <div>
-                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Created</Label>
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Created
+                  </Label>
                   <p className="mt-1 text-sm text-gray-600">
                     {new Date(rule.createdAt).toLocaleString()}
                     {rule.createdBy && <span className="text-gray-400"> by {rule.createdBy}</span>}
                   </p>
                 </div>
                 <div>
-                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Last Updated</Label>
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Last Updated
+                  </Label>
                   <p className="mt-1 text-sm text-gray-600">
                     {new Date(rule.updatedAt).toLocaleString()}
                     {rule.updatedBy && <span className="text-gray-400"> by {rule.updatedBy}</span>}
@@ -256,9 +341,7 @@ function EditRulePage() {
           <div className="border-2 border-black mb-8">
             <div className="bg-gray-50 px-6 py-3 border-b-2 border-black">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold uppercase tracking-wider">
-                  Decision Logic
-                </h2>
+                <h2 className="text-sm font-semibold uppercase tracking-wider">Decision Logic</h2>
                 <Button
                   type="button"
                   variant="outline"
@@ -267,7 +350,7 @@ function EditRulePage() {
                   onClick={() => setShowTestPanel(!showTestPanel)}
                 >
                   <TestTube2 className="h-3.5 w-3.5 mr-1" />
-                  {showTestPanel ? 'Hide Test' : 'Test Rule'}
+                  {showTestPanel ? "Hide Test" : "Test Rule"}
                 </Button>
               </div>
             </div>
@@ -342,16 +425,20 @@ function EditRulePage() {
                               <div
                                 key={i}
                                 className={`flex items-start gap-2 p-2 rounded ${
-                                  r.actions?.some((a: any) => a.type === 'prevent')
-                                    ? 'bg-red-50 text-red-700'
-                                    : r.actions?.some((a: any) => (a.type as string)?.startsWith('cascade'))
-                                    ? 'bg-blue-50 text-blue-700'
-                                    : 'bg-amber-50 text-amber-700'
+                                  r.actions?.some((a: any) => a.type === "prevent")
+                                    ? "bg-red-50 text-red-700"
+                                    : r.actions?.some((a: any) =>
+                                          (a.type as string)?.startsWith("cascade")
+                                        )
+                                      ? "bg-blue-50 text-blue-700"
+                                      : "bg-amber-50 text-amber-700"
                                 }`}
                               >
-                                {r.actions?.some((a: any) => a.type === 'prevent') ? (
+                                {r.actions?.some((a: any) => a.type === "prevent") ? (
                                   <XCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                                ) : r.actions?.some((a: any) => (a.type as string)?.startsWith('cascade')) ? (
+                                ) : r.actions?.some((a: any) =>
+                                    (a.type as string)?.startsWith("cascade")
+                                  ) ? (
                                   <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                                 ) : (
                                   <HelpCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
@@ -388,7 +475,11 @@ function EditRulePage() {
           {/* Actions */}
           <div className="flex items-center justify-between">
             <Link to="/admin/rules">
-              <Button type="button" variant="outline" className="rounded-none border-2 border-black">
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-none border-2 border-black"
+              >
                 Cancel
               </Button>
             </Link>
@@ -402,7 +493,7 @@ function EditRulePage() {
               ) : (
                 <Save className="h-4 w-4 mr-2" />
               )}
-              {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
+              {updateMutation.isPending ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         </form>

@@ -7,7 +7,7 @@
  */
 
 import { type Kysely, sql } from "kysely";
-import { getDb, destroyDb, type Database } from "../config/db.config.js";
+import { type Database, destroyDb, getDb } from "../config/db.config.js";
 
 // Re-export types consumed by other packages
 export type { Database };
@@ -19,7 +19,10 @@ async function insertAndReturn<T>(
   table: keyof Database,
   values: Record<string, any>
 ): Promise<T> {
-  await db.insertInto(table as any).values(values).execute();
+  await db
+    .insertInto(table as any)
+    .values(values)
+    .execute();
   return db
     .selectFrom(table as any)
     .selectAll()
@@ -33,7 +36,11 @@ async function updateAndReturn<T>(
   id: string,
   values: Record<string, any>
 ): Promise<T> {
-  await db.updateTable(table as any).set(values).where("id" as any, "=", id).execute();
+  await db
+    .updateTable(table as any)
+    .set(values)
+    .where("id" as any, "=", id)
+    .execute();
   return db
     .selectFrom(table as any)
     .selectAll()
@@ -91,7 +98,9 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("created_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updated_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch { /* already exists */ }
+  } catch {
+    /* already exists */
+  }
 
   try {
     await db.schema
@@ -116,7 +125,9 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("change_summary", "text")
       .addColumn("created_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch { /* already exists */ }
+  } catch {
+    /* already exists */
+  }
 
   try {
     await db.schema
@@ -145,7 +156,9 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("generated_hook_code", sql`LONGTEXT` as any)
       .addColumn("is_draft", "boolean", (col) => col.defaultTo(false))
       .execute();
-  } catch { /* already exists */ }
+  } catch {
+    /* already exists */
+  }
 
   try {
     await db.schema
@@ -180,7 +193,9 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("completed_at", "varchar(64)")
       .addColumn("duration_ms", "integer")
       .execute();
-  } catch { /* already exists */ }
+  } catch {
+    /* already exists */
+  }
 
   try {
     await db.schema
@@ -210,7 +225,9 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("created_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updated_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch { /* already exists */ }
+  } catch {
+    /* already exists */
+  }
 
   try {
     await db.schema
@@ -232,7 +249,9 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("created_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updated_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch { /* already exists */ }
+  } catch {
+    /* already exists */
+  }
 
   try {
     await db.schema
@@ -244,7 +263,9 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("description", "text")
       .addColumn("updated_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch { /* already exists */ }
+  } catch {
+    /* already exists */
+  }
 
   try {
     await db.schema
@@ -258,7 +279,9 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("created_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updated_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch { /* already exists */ }
+  } catch {
+    /* already exists */
+  }
 
   // Auth tables
   try {
@@ -273,7 +296,9 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("createdAt", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updatedAt", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch { /* already exists */ }
+  } catch {
+    /* already exists */
+  }
 
   try {
     await db.schema
@@ -286,7 +311,9 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("createdAt", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updatedAt", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch { /* already exists */ }
+  } catch {
+    /* already exists */
+  }
 
   try {
     await db.schema
@@ -301,7 +328,9 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("expiresAt", "bigint")
       .addColumn("createdAt", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch { /* already exists */ }
+  } catch {
+    /* already exists */
+  }
 
   try {
     await db.schema
@@ -312,35 +341,39 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("expires", "varchar(64)", (col) => col.notNull())
       .addColumn("createdAt", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch { /* already exists */ }
+  } catch {
+    /* already exists */
+  }
 
   try {
     await db.schema
       .alterTable("auth_users")
       .addColumn("status", "varchar(32)", (col) => col.defaultTo("approved"))
       .execute();
-  } catch { /* column already exists */ }
+  } catch {
+    /* column already exists */
+  }
 
   try {
     await db.schema
       .alterTable("auth_users")
       .addColumn("role", "varchar(64)", (col) => col.defaultTo("user"))
       .execute();
-  } catch { /* column already exists */ }
+  } catch {
+    /* column already exists */
+  }
 
   try {
-    await db.schema
-      .alterTable("auth_users")
-      .addColumn("passwordHash", "text")
-      .execute();
-  } catch { /* column already exists */ }
+    await db.schema.alterTable("auth_users").addColumn("passwordHash", "text").execute();
+  } catch {
+    /* column already exists */
+  }
 
   try {
-    await db.schema
-      .alterTable("projects")
-      .addColumn("owner_user_id", "varchar(128)")
-      .execute();
-  } catch { /* column already exists */ }
+    await db.schema.alterTable("projects").addColumn("owner_user_id", "varchar(128)").execute();
+  } catch {
+    /* column already exists */
+  }
 
   try {
     await db.schema
@@ -352,7 +385,9 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("permission", "varchar(32)", (col) => col.notNull().defaultTo("read_only"))
       .addColumn("created_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch { /* already exists */ }
+  } catch {
+    /* already exists */
+  }
 }
 
 // ─── Transform helpers ─────────────────────────────────────────────────────────
@@ -404,9 +439,7 @@ export const projectDb = {
         .selectFrom("projects")
         .selectAll()
         .where("is_deleted", "=", false)
-        .where((eb) =>
-          eb(sql`lower(name)`, "like", term).or(sql`lower(description)`, "like", term)
-        )
+        .where((eb) => eb(sql`lower(name)`, "like", term).or(sql`lower(description)`, "like", term))
         .orderBy("updated_at", "desc")
         .execute();
       return (rows as any[]).map(transformProject);
@@ -515,29 +548,32 @@ export const projectDb = {
     return insertAndReturn(db, "projects", values);
   },
 
-  async update(id: string, data: {
-    name?: string;
-    description?: string;
-    icon?: string;
-    icon_color?: string;
-    status?: string;
-    stack_type?: string;
-    stack_version?: string;
-    port?: number;
-    base_url?: string;
-    database_url?: string;
-    database_type?: string;
-    database_schema?: string;
-    environment_variables?: Record<string, any>;
-    secrets?: Record<string, any>;
-    generated_path?: string;
-    generatedPath?: string;
-    output_directory?: string;
-    build_config?: Record<string, any>;
-    deployment_url?: string;
-    deploymentStatus?: string;
-    uptime?: string;
-  }) {
+  async update(
+    id: string,
+    data: {
+      name?: string;
+      description?: string;
+      icon?: string;
+      icon_color?: string;
+      status?: string;
+      stack_type?: string;
+      stack_version?: string;
+      port?: number;
+      base_url?: string;
+      database_url?: string;
+      database_type?: string;
+      database_schema?: string;
+      environment_variables?: Record<string, any>;
+      secrets?: Record<string, any>;
+      generated_path?: string;
+      generatedPath?: string;
+      output_directory?: string;
+      build_config?: Record<string, any>;
+      deployment_url?: string;
+      deploymentStatus?: string;
+      uptime?: string;
+    }
+  ) {
     const db = getDb();
     const u: any = { updated_at: new Date().toISOString() };
     if (data.name !== undefined) u.name = data.name;
@@ -552,7 +588,8 @@ export const projectDb = {
     if (data.database_url !== undefined) u.database_url = data.database_url;
     if (data.database_type !== undefined) u.database_type = data.database_type;
     if (data.database_schema !== undefined) u.database_schema = data.database_schema;
-    if (data.environment_variables !== undefined) u.environment_variables = JSON.stringify(data.environment_variables);
+    if (data.environment_variables !== undefined)
+      u.environment_variables = JSON.stringify(data.environment_variables);
     if (data.secrets !== undefined) u.secrets = JSON.stringify(data.secrets);
     if (data.generated_path !== undefined) u.generated_path = data.generated_path;
     if (data.generatedPath !== undefined) u.generated_path = data.generatedPath;
@@ -565,7 +602,11 @@ export const projectDb = {
   },
 
   async softDelete(id: string) {
-    await getDb().updateTable("projects").set({ is_deleted: true as any }).where("id", "=", id).execute();
+    await getDb()
+      .updateTable("projects")
+      .set({ is_deleted: true as any })
+      .where("id", "=", id)
+      .execute();
   },
 
   async delete(id: string) {
@@ -621,7 +662,11 @@ export const erdVersionDb = {
     const versionNumber = ((last as any)?.version_number || 0) + 1;
 
     if (data.is_current) {
-      await db.updateTable("erd_versions").set({ is_current: false as any }).where("project_id", "=", data.project_id).execute();
+      await db
+        .updateTable("erd_versions")
+        .set({ is_current: false as any })
+        .where("project_id", "=", data.project_id)
+        .execute();
     }
 
     const id = `erd_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -649,10 +694,22 @@ export const erdVersionDb = {
 
   async setCurrentVersion(versionId: string) {
     const db = getDb();
-    const version = await db.selectFrom("erd_versions").selectAll().where("id", "=", versionId).executeTakeFirst();
+    const version = await db
+      .selectFrom("erd_versions")
+      .selectAll()
+      .where("id", "=", versionId)
+      .executeTakeFirst();
     if (!version) return null;
-    await db.updateTable("erd_versions").set({ is_current: false as any }).where("project_id", "=", (version as any).project_id).execute();
-    await db.updateTable("erd_versions").set({ is_current: true as any }).where("id", "=", versionId).execute();
+    await db
+      .updateTable("erd_versions")
+      .set({ is_current: false as any })
+      .where("project_id", "=", (version as any).project_id)
+      .execute();
+    await db
+      .updateTable("erd_versions")
+      .set({ is_current: true as any })
+      .where("id", "=", versionId)
+      .execute();
     return db.selectFrom("erd_versions").selectAll().where("id", "=", versionId).executeTakeFirst();
   },
 
@@ -713,25 +770,29 @@ export const workflowDb = {
     });
   },
 
-  async update(id: string, data: {
-    name?: string;
-    service_name?: string;
-    mermaid_code?: string;
-    description?: string;
-    status?: string;
-    extension_points?: any;
-    config?: any;
-    triggers?: any;
-    conditions?: any;
-    generated_code?: string;
-  }) {
+  async update(
+    id: string,
+    data: {
+      name?: string;
+      service_name?: string;
+      mermaid_code?: string;
+      description?: string;
+      status?: string;
+      extension_points?: any;
+      config?: any;
+      triggers?: any;
+      conditions?: any;
+      generated_code?: string;
+    }
+  ) {
     const u: any = { updated_at: new Date().toISOString() };
     if (data.name !== undefined) u.name = data.name;
     if (data.service_name !== undefined) u.service_name = data.service_name;
     if (data.mermaid_code !== undefined) u.mermaid_code = data.mermaid_code;
     if (data.description !== undefined) u.description = data.description;
     if (data.status !== undefined) u.status = data.status;
-    if (data.extension_points !== undefined) u.extension_points = JSON.stringify(data.extension_points);
+    if (data.extension_points !== undefined)
+      u.extension_points = JSON.stringify(data.extension_points);
     if (data.config !== undefined) u.config = JSON.stringify(data.config);
     if (data.triggers !== undefined) u.triggers = JSON.stringify(data.triggers);
     if (data.conditions !== undefined) u.conditions = JSON.stringify(data.conditions);
@@ -758,7 +819,9 @@ export const hookWorkflowDb = {
     if (!workflow) return null;
     return {
       ...workflow,
-      hook_definitions: (workflow as any).hook_definitions ? JSON.parse((workflow as any).hook_definitions) : [],
+      hook_definitions: (workflow as any).hook_definitions
+        ? JSON.parse((workflow as any).hook_definitions)
+        : [],
       is_draft: Boolean((workflow as any).is_draft),
     };
   },
@@ -808,7 +871,8 @@ export const hookWorkflowDb = {
     } else {
       const id = `wf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const row = await insertAndReturn<any>(db, "workflows", {
-        id, ...workflowData,
+        id,
+        ...workflowData,
         status: data.isDraft ? "draft" : "active",
         is_enabled: true,
         created_at: new Date().toISOString(),
@@ -818,11 +882,23 @@ export const hookWorkflowDb = {
     }
   },
 
-  async saveDraft(data: { projectId: string; serviceName: string; hooks: any[]; flowchartCode: string }) {
+  async saveDraft(data: {
+    projectId: string;
+    serviceName: string;
+    hooks: any[];
+    flowchartCode: string;
+  }) {
     return this.upsert({ ...data, isDraft: true });
   },
 
-  async apply(data: { projectId: string; serviceName: string; hooks: any[]; flowchartCode: string; generatedHookCode?: string; description?: string }) {
+  async apply(data: {
+    projectId: string;
+    serviceName: string;
+    hooks: any[];
+    flowchartCode: string;
+    generatedHookCode?: string;
+    description?: string;
+  }) {
     return this.upsert({ ...data, isDraft: false });
   },
 
@@ -835,7 +911,13 @@ export const hookWorkflowDb = {
       .execute();
   },
 
-  async saveGoRules(data: { projectId: string; serviceName: string; workflowId: string; hookType: string; rules: string }) {
+  async saveGoRules(data: {
+    projectId: string;
+    serviceName: string;
+    workflowId: string;
+    hookType: string;
+    rules: string;
+  }) {
     const db = getDb();
     const workflow = await this.getByService(data.projectId, data.serviceName);
     if (!workflow) throw new Error(`Workflow not found for service ${data.serviceName}`);
@@ -850,13 +932,23 @@ export const hookWorkflowDb = {
     return { ...row, hook_definitions: defs, is_draft: Boolean(row.is_draft) };
   },
 
-  async getGoRules(data: { projectId: string; serviceName: string; workflowId: string; hookType: string }) {
+  async getGoRules(data: {
+    projectId: string;
+    serviceName: string;
+    workflowId: string;
+    hookType: string;
+  }) {
     const workflow = await this.getByService(data.projectId, data.serviceName);
     if (!workflow) return null;
     const defs = (workflow as any).hook_definitions || [];
     const hook = defs.find((h: any) => h.type === data.hookType);
     if (!hook) return null;
-    return { workflowId: data.workflowId, hookType: data.hookType, rules: hook.goRules || null, updatedAt: (workflow as any).updated_at };
+    return {
+      workflowId: data.workflowId,
+      hookType: data.hookType,
+      rules: hook.goRules || null,
+      updatedAt: (workflow as any).updated_at,
+    };
   },
 };
 
@@ -864,18 +956,40 @@ export const hookWorkflowDb = {
 
 export const generationHistoryDb = {
   async getAll(projectId: string) {
-    return getDb().selectFrom("generation_history").selectAll().where("project_id", "=", projectId).orderBy("started_at", "desc").execute();
+    return getDb()
+      .selectFrom("generation_history")
+      .selectAll()
+      .where("project_id", "=", projectId)
+      .orderBy("started_at", "desc")
+      .execute();
   },
 
   async getLatest(projectId: string) {
-    return getDb().selectFrom("generation_history").selectAll().where("project_id", "=", projectId).orderBy("started_at", "desc").executeTakeFirst();
+    return getDb()
+      .selectFrom("generation_history")
+      .selectAll()
+      .where("project_id", "=", projectId)
+      .orderBy("started_at", "desc")
+      .executeTakeFirst();
   },
 
   async getByStatus(projectId: string, status: string) {
-    return getDb().selectFrom("generation_history").selectAll().where("project_id", "=", projectId).where("status", "=", status).orderBy("started_at", "desc").execute();
+    return getDb()
+      .selectFrom("generation_history")
+      .selectAll()
+      .where("project_id", "=", projectId)
+      .where("status", "=", status)
+      .orderBy("started_at", "desc")
+      .execute();
   },
 
-  async create(data: { project_id: string; stack_type: string; stack_version?: string; generation_options?: any; status: string }) {
+  async create(data: {
+    project_id: string;
+    stack_type: string;
+    stack_version?: string;
+    generation_options?: any;
+    status: string;
+  }) {
     const id = `gen_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     return insertAndReturn(getDb(), "generation_history", {
       id,
@@ -891,7 +1005,19 @@ export const generationHistoryDb = {
     });
   },
 
-  async updateProgress(id: string, data: { progress?: number; current_step?: string; status?: string; logs?: string; error_message?: string; warnings?: any; files_generated?: number; total_size_bytes?: number }) {
+  async updateProgress(
+    id: string,
+    data: {
+      progress?: number;
+      current_step?: string;
+      status?: string;
+      logs?: string;
+      error_message?: string;
+      warnings?: any;
+      files_generated?: number;
+      total_size_bytes?: number;
+    }
+  ) {
     const u: any = {};
     if (data.progress !== undefined) u.progress = data.progress;
     if (data.current_step !== undefined) u.current_step = data.current_step;
@@ -904,19 +1030,41 @@ export const generationHistoryDb = {
     return updateAndReturn(getDb(), "generation_history", id, u);
   },
 
-  async complete(id: string, data: { generated_path: string; output_structure?: any; port?: number; file_manifest?: any; entry_points?: any; build_command?: string; start_command?: string; install_command?: string; dependencies?: any; dev_dependencies?: any; environment_config?: any; docker_config?: any; duration_ms?: number; files_generated?: number; total_size_bytes?: number }) {
+  async complete(
+    id: string,
+    data: {
+      generated_path: string;
+      output_structure?: any;
+      port?: number;
+      file_manifest?: any;
+      entry_points?: any;
+      build_command?: string;
+      start_command?: string;
+      install_command?: string;
+      dependencies?: any;
+      dev_dependencies?: any;
+      environment_config?: any;
+      docker_config?: any;
+      duration_ms?: number;
+      files_generated?: number;
+      total_size_bytes?: number;
+    }
+  ) {
     const u: any = {
       status: "completed",
       progress: 100,
       completed_at: new Date().toISOString(),
       generated_path: data.generated_path,
     };
-    if (data.output_structure !== undefined) u.output_structure = JSON.stringify(data.output_structure);
+    if (data.output_structure !== undefined)
+      u.output_structure = JSON.stringify(data.output_structure);
     if (data.file_manifest !== undefined) u.file_manifest = JSON.stringify(data.file_manifest);
     if (data.entry_points !== undefined) u.entry_points = JSON.stringify(data.entry_points);
     if (data.dependencies !== undefined) u.dependencies = JSON.stringify(data.dependencies);
-    if (data.dev_dependencies !== undefined) u.dev_dependencies = JSON.stringify(data.dev_dependencies);
-    if (data.environment_config !== undefined) u.environment_config = JSON.stringify(data.environment_config);
+    if (data.dev_dependencies !== undefined)
+      u.dev_dependencies = JSON.stringify(data.dev_dependencies);
+    if (data.environment_config !== undefined)
+      u.environment_config = JSON.stringify(data.environment_config);
     if (data.docker_config !== undefined) u.docker_config = JSON.stringify(data.docker_config);
     if (data.port !== undefined) u.port = data.port;
     if (data.duration_ms !== undefined) u.duration_ms = data.duration_ms;
@@ -948,14 +1096,34 @@ export const deploymentDb = {
   },
 
   async getAllDeployments(projectId: string) {
-    return getDb().selectFrom("deployments").selectAll().where("project_id", "=", projectId).orderBy("created_at", "desc").execute();
+    return getDb()
+      .selectFrom("deployments")
+      .selectAll()
+      .where("project_id", "=", projectId)
+      .orderBy("created_at", "desc")
+      .execute();
   },
 
-  async upsert(data: { project_id: string; status: string; environment?: string; deployment_url?: string; port?: number; host?: string; process_id?: string; process_command?: string; uptime?: string; uptime_seconds?: number; deployment_config?: any; stdout_log?: string; stderr_log?: string }) {
+  async upsert(data: {
+    project_id: string;
+    status: string;
+    environment?: string;
+    deployment_url?: string;
+    port?: number;
+    host?: string;
+    process_id?: string;
+    process_command?: string;
+    uptime?: string;
+    uptime_seconds?: number;
+    deployment_config?: any;
+    stdout_log?: string;
+    stderr_log?: string;
+  }) {
     const db = getDb();
     const existing = await this.getDeployment(data.project_id, data.environment || "development");
     const u: any = { ...data, updated_at: new Date().toISOString() };
-    if (data.deployment_config !== undefined) u.deployment_config = JSON.stringify(data.deployment_config);
+    if (data.deployment_config !== undefined)
+      u.deployment_config = JSON.stringify(data.deployment_config);
 
     if (existing) {
       if (data.status === "running" && (existing as any).status !== "running") {
@@ -964,7 +1132,9 @@ export const deploymentDb = {
       } else if (data.status === "stopped" && (existing as any).status === "running") {
         u.stopped_at = new Date().toISOString();
         if ((existing as any).started_at) {
-          u.uptime_seconds = Math.floor((Date.now() - new Date((existing as any).started_at).getTime()) / 1000);
+          u.uptime_seconds = Math.floor(
+            (Date.now() - new Date((existing as any).started_at).getTime()) / 1000
+          );
         }
       }
       return updateAndReturn(db, "deployments", (existing as any).id, u);
@@ -972,7 +1142,8 @@ export const deploymentDb = {
       const id = `dep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       if (data.status === "running") u.started_at = new Date().toISOString();
       return insertAndReturn(db, "deployments", {
-        id, ...u,
+        id,
+        ...u,
         environment: data.environment || "development",
         port: data.port || 4001,
         host: data.host || "localhost",
@@ -983,17 +1154,39 @@ export const deploymentDb = {
     }
   },
 
-  async updateHealth(id: string, healthData: { health_status?: any; resource_usage?: any; last_health_check?: Date; stdout_log?: string; stderr_log?: string; uptime?: string; uptime_seconds?: number }) {
+  async updateHealth(
+    id: string,
+    healthData: {
+      health_status?: any;
+      resource_usage?: any;
+      last_health_check?: Date;
+      stdout_log?: string;
+      stderr_log?: string;
+      uptime?: string;
+      uptime_seconds?: number;
+    }
+  ) {
     const u: any = { ...healthData };
-    if (healthData.health_status !== undefined) u.health_status = JSON.stringify(healthData.health_status);
-    if (healthData.resource_usage !== undefined) u.resource_usage = JSON.stringify(healthData.resource_usage);
+    if (healthData.health_status !== undefined)
+      u.health_status = JSON.stringify(healthData.health_status);
+    if (healthData.resource_usage !== undefined)
+      u.resource_usage = JSON.stringify(healthData.resource_usage);
     return updateAndReturn(getDb(), "deployments", id, u);
   },
 
   async delete(projectId: string, environment = "development") {
     const db = getDb();
-    await db.updateTable("deployments").set({ status: "stopped", stopped_at: new Date().toISOString() }).where("project_id", "=", projectId).where("environment", "=", environment).execute();
-    await db.deleteFrom("deployments").where("project_id", "=", projectId).where("environment", "=", environment).execute();
+    await db
+      .updateTable("deployments")
+      .set({ status: "stopped", stopped_at: new Date().toISOString() })
+      .where("project_id", "=", projectId)
+      .where("environment", "=", environment)
+      .execute();
+    await db
+      .deleteFrom("deployments")
+      .where("project_id", "=", projectId)
+      .where("environment", "=", environment)
+      .execute();
   },
 };
 
@@ -1001,16 +1194,44 @@ export const deploymentDb = {
 
 export const entityDb = {
   async getByProject(projectId: string) {
-    return getDb().selectFrom("entities").selectAll().where("project_id", "=", projectId).orderBy("name").execute();
+    return getDb()
+      .selectFrom("entities")
+      .selectAll()
+      .where("project_id", "=", projectId)
+      .orderBy("name")
+      .execute();
   },
 
   async getByErdVersion(erdVersionId: string) {
-    return getDb().selectFrom("entities").selectAll().where("erd_version_id", "=", erdVersionId).orderBy("name").execute();
+    return getDb()
+      .selectFrom("entities")
+      .selectAll()
+      .where("erd_version_id", "=", erdVersionId)
+      .orderBy("name")
+      .execute();
   },
 
-  async upsert(data: { project_id: string; erd_version_id?: string; name: string; display_name?: string; type?: string; description?: string; schema?: any; fields?: any[]; relationships?: any[]; generate_api?: boolean; generate_ui?: boolean; generate_crud?: boolean }) {
+  async upsert(data: {
+    project_id: string;
+    erd_version_id?: string;
+    name: string;
+    display_name?: string;
+    type?: string;
+    description?: string;
+    schema?: any;
+    fields?: any[];
+    relationships?: any[];
+    generate_api?: boolean;
+    generate_ui?: boolean;
+    generate_crud?: boolean;
+  }) {
     const db = getDb();
-    const existing = await db.selectFrom("entities").selectAll().where("project_id", "=", data.project_id).where("name", "=", data.name).executeTakeFirst();
+    const existing = await db
+      .selectFrom("entities")
+      .selectAll()
+      .where("project_id", "=", data.project_id)
+      .where("name", "=", data.name)
+      .executeTakeFirst();
 
     const vals: any = {
       ...data,
@@ -1037,24 +1258,49 @@ export const entityDb = {
 
 export const settingsDb = {
   async get(key: string) {
-    const setting = await getDb().selectFrom("settings").selectAll().where("key", "=", key).executeTakeFirst();
+    const setting = await getDb()
+      .selectFrom("settings")
+      .selectAll()
+      .where("key", "=", key)
+      .executeTakeFirst();
     if (!setting) return null;
     switch ((setting as any).type) {
-      case "number": return Number((setting as any).value);
-      case "boolean": return (setting as any).value === "true";
-      case "json": return JSON.parse((setting as any).value || "{}");
-      default: return (setting as any).value;
+      case "number":
+        return Number((setting as any).value);
+      case "boolean":
+        return (setting as any).value === "true";
+      case "json":
+        return JSON.parse((setting as any).value || "{}");
+      default:
+        return (setting as any).value;
     }
   },
 
   async set(key: string, value: any, type = "string", description?: string) {
     const db = getDb();
     const stringValue = type === "json" ? JSON.stringify(value) : String(value);
-    const existing = await db.selectFrom("settings").selectAll().where("key", "=", key).executeTakeFirst();
+    const existing = await db
+      .selectFrom("settings")
+      .selectAll()
+      .where("key", "=", key)
+      .executeTakeFirst();
     if (existing) {
-      await db.updateTable("settings").set({ value: stringValue, type, description, updated_at: new Date().toISOString() }).where("key", "=", key).execute();
+      await db
+        .updateTable("settings")
+        .set({ value: stringValue, type, description, updated_at: new Date().toISOString() })
+        .where("key", "=", key)
+        .execute();
     } else {
-      await db.insertInto("settings").values({ key, value: stringValue, type, description, updated_at: new Date().toISOString() } as any).execute();
+      await db
+        .insertInto("settings")
+        .values({
+          key,
+          value: stringValue,
+          type,
+          description,
+          updated_at: new Date().toISOString(),
+        } as any)
+        .execute();
     }
   },
 };
@@ -1094,22 +1340,34 @@ export const rulesDb = {
     };
   },
 
-  async create(data: { id: string; entityName: string; ruleName: string; operation: string; jdmContent: object }) {
+  async create(data: {
+    id: string;
+    entityName: string;
+    ruleName: string;
+    operation: string;
+    jdmContent: object;
+  }) {
     const db = getDb();
     const now = new Date().toISOString();
-    await db.insertInto("rules").values({
-      id: data.id,
-      entity_name: data.entityName,
-      rule_name: data.ruleName,
-      operation: data.operation,
-      jdm_content: JSON.stringify(data.jdmContent),
-      created_at: now,
-      updated_at: now,
-    } as any).execute();
+    await db
+      .insertInto("rules")
+      .values({
+        id: data.id,
+        entity_name: data.entityName,
+        rule_name: data.ruleName,
+        operation: data.operation,
+        jdm_content: JSON.stringify(data.jdmContent),
+        created_at: now,
+        updated_at: now,
+      } as any)
+      .execute();
     return this.findById(data.id);
   },
 
-  async update(id: string, data: { entityName?: string; ruleName?: string; operation?: string; jdmContent?: object }) {
+  async update(
+    id: string,
+    data: { entityName?: string; ruleName?: string; operation?: string; jdmContent?: object }
+  ) {
     const db = getDb();
     const updates: Record<string, any> = { updated_at: new Date().toISOString() };
     if (data.entityName !== undefined) updates.entity_name = data.entityName;

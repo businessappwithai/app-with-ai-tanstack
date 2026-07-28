@@ -8,7 +8,11 @@ function NotFoundPage() {
       <div className="text-6xl font-bold text-muted-foreground">404</div>
       <h1 className="text-2xl font-semibold">Page Not Found</h1>
       <p className="text-muted-foreground">The page you're looking for doesn't exist.</p>
-      <Link to="/projects" className="mt-2 px-4 py-2 rounded-lg text-white text-sm font-semibold" style={{ backgroundColor: "#FF8400" }}>
+      <Link
+        to="/projects"
+        className="mt-2 px-4 py-2 rounded-lg text-white text-sm font-semibold"
+        style={{ backgroundColor: "#FF8400" }}
+      >
         Back to Projects
       </Link>
     </div>

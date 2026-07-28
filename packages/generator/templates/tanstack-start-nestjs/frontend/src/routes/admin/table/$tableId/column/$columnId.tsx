@@ -1,8 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { ADDetailShell } from '@/components/admin/ad-detail-shell';
-import { TABLE_LEVEL, COLUMN_LEVEL } from '@/components/admin/ad-window-configs';
+import { createFileRoute } from "@tanstack/react-router";
+import { ADDetailShell } from "@/components/admin/ad-detail-shell";
+import { COLUMN_LEVEL, TABLE_LEVEL } from "@/components/admin/ad-window-configs";
 
-export const Route = createFileRoute('/admin/table/$tableId/column/$columnId')({
+export const Route = createFileRoute("/admin/table/$tableId/column/$columnId")({
   component: ColumnDetailPage,
 });
 

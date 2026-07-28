@@ -4,7 +4,9 @@ export const Route = createFileRoute("/api/auth/logout")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { getAuthService, getSessionToken, clearSessionCookie } = await import("@/lib/auth-server");
+        const { getAuthService, getSessionToken, clearSessionCookie } = await import(
+          "@/lib/auth-server"
+        );
         const token = await getSessionToken(request);
         if (token) {
           try {

@@ -15,11 +15,7 @@ interface NewProjectModalProps {
   isLoading?: boolean;
 }
 
-export function NewProjectModal({
-  isOpen,
-  onClose,
-  onCreateProject,
-}: NewProjectModalProps) {
+export function NewProjectModal({ isOpen, onClose, onCreateProject }: NewProjectModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -110,7 +106,9 @@ export function NewProjectModal({
             </label>
             <div className="flex items-center p-4 border-2 border-primary bg-primary/5 rounded-xl">
               <div className="flex-1">
-                <p className="font-semibold text-gray-900 dark:text-white">Full Stack: TanStack Start + NestJS</p>
+                <p className="font-semibold text-gray-900 dark:text-white">
+                  Full Stack: TanStack Start + NestJS
+                </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Modern web framework with React, TypeScript, and PostgreSQL
                 </p>

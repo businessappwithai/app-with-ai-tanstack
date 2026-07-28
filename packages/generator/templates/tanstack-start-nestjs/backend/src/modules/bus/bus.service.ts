@@ -7,15 +7,36 @@
  * Generated: 2026-06-09T07:37:08.052Z
  */
 
-import { Injectable, NotFoundException, BadRequestException, ConflictException, Inject, Logger } from '@nestjs/common';
-import type { Kysely } from 'kysely';
-import { randomUUID } from 'crypto';
-import { KYSELY_CONNECTION } from '../../database/database.constants';
-import { DatabaseService } from '../../database/database.service';
-import type { PaginationOptions, PaginatedResult } from '../../database/database.service';
-import { executeBeforeCreateHooks, executeAfterCreateHooks, executeBeforeUpdateHooks, executeAfterUpdateHooks, executeBeforeDeleteHooks, executeAfterDeleteHooks, executeBeforeReadHooks, executeAfterReadHooks, executeBeforeListHooks, executeAfterListHooks } from '../hooks/hooks';
-import { WorkflowService } from '../workflow/workflow.service';
-import { RulesService } from '../rules/rules.service';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from "@nestjs/common";
+import { randomUUID } from "crypto";
+import type { Kysely } from "kysely";
+import { KYSELY_CONNECTION } from "../../database/database.constants";
+import type {
+  DatabaseService,
+  PaginatedResult,
+  PaginationOptions,
+} from "../../database/database.service";
+import {
+  executeAfterCreateHooks,
+  executeAfterDeleteHooks,
+  executeAfterListHooks,
+  executeAfterReadHooks,
+  executeAfterUpdateHooks,
+  executeBeforeCreateHooks,
+  executeBeforeDeleteHooks,
+  executeBeforeListHooks,
+  executeBeforeReadHooks,
+  executeBeforeUpdateHooks,
+} from "../hooks/hooks";
+import type { RulesService } from "../rules/rules.service";
+import type { WorkflowService } from "../workflow/workflow.service";
 
 export interface FieldMetadata {
   sys_field_id: string;
@@ -54,7 +75,13 @@ export interface EntityMetadata {
 export class BusService {
   private readonly logger = new Logger(BusService.name);
   private metadataCache: Map<string, EntityMetadata> = new Map();
-  private static readonly AUTO_MANAGED_COLUMNS = new Set(['id', 'created_at', 'updated_at', 'deleted_at', 'version']);
+  private static readonly AUTO_MANAGED_COLUMNS = new Set([
+    "id",
+    "created_at",
+    "updated_at",
+    "deleted_at",
+    "version",
+  ]);
 
   constructor(
     @Inject(KYSELY_CONNECTION) private readonly kysely: Kysely<any>,
@@ -65,31 +92,44 @@ export class BusService {
     this.logger.log('BusService initialized');
   }
 
-  private async triggerWorkflow(entityName: string, entityId: string, operation: 'create' | 'update' | 'delete', userId?: string): Promise<void> {
+  private async triggerWorkflow(
+    entityName: string,
+    entityId: string,
+    operation: "create" | "update" | "delete",
+    userId?: string
+  ): Promise<void> {
     if (!this.workflowService) return;
     try {
       await this.workflowService.trigger({
         entityName,
         entityId,
         operation,
-        userId: userId || 'system',
+        userId: userId || "system",
       });
     } catch (error) {
-      this.logger.warn(`Workflow trigger failed for ${entityName}:${entityId} (${operation}): ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.warn(
+        `Workflow trigger failed for ${entityName}:${entityId} (${operation}): ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
   private singularize(word: string): string {
-    if (word.endsWith('ies')) return word.slice(0, -3) + 'y';
-    if (word.endsWith('ses') || word.endsWith('xes') || word.endsWith('zes') ||
-        word.endsWith('ches') || word.endsWith('shes')) return word.slice(0, -2);
-    if (word.endsWith('s') && !word.endsWith('ss')) return word.slice(0, -1);
+    if (word.endsWith("ies")) return word.slice(0, -3) + "y";
+    if (
+      word.endsWith("ses") ||
+      word.endsWith("xes") ||
+      word.endsWith("zes") ||
+      word.endsWith("ches") ||
+      word.endsWith("shes")
+    )
+      return word.slice(0, -2);
+    if (word.endsWith("s") && !word.endsWith("ss")) return word.slice(0, -1);
     return word;
   }
 
   private getTableName(entity: string): string {
-    const normalized = entity.toLowerCase().replace(/-/g, '_');
-    if (normalized.startsWith('bus_')) return normalized;
+    const normalized = entity.toLowerCase().replace(/-/g, "_");
+    if (normalized.startsWith("bus_")) return normalized;
     const singular = this.singularize(normalized);
     return `bus_${singular}`;
   }
@@ -97,13 +137,17 @@ export class BusService {
   async findAll(
     entity: string,
     options: PaginationOptions = {},
-    filters: Record<string, any> = {},
+    filters: Record<string, any> = {}
   ): Promise<PaginatedResult<any>> {
     const tableName = this.getTableName(entity);
     await this.verifyEntity(entity);
 
     const processedOptions = await executeBeforeListHooks(entity, { options, filters });
-    const result = await this.db.findAll(tableName, processedOptions.options, processedOptions.filters);
+    const result = await this.db.findAll(
+      tableName,
+      processedOptions.options,
+      processedOptions.filters
+    );
     await executeAfterListHooks(entity, result.data);
 
     this.logger.log(`findAll: entity=${entity}, returned ${result.data.length} records`);
@@ -130,13 +174,19 @@ export class BusService {
 
     for (const column of metadata.columns) {
       if (column.default_value && dataWithDefaults[column.column_name] === undefined) {
-        dataWithDefaults[column.column_name] = this.parseDefaultValue(column.default_value, column.sys_reference_id);
+        dataWithDefaults[column.column_name] = this.parseDefaultValue(
+          column.default_value,
+          column.sys_reference_id
+        );
       }
     }
 
-    const validation = await this.rulesService.validate(tableName, dataWithDefaults, 'create');
+    const validation = await this.rulesService.validate(tableName, dataWithDefaults, "create");
     if (!validation.valid) {
-      throw new BadRequestException({ message: validation.errors.join('; '), errors: validation.errors });
+      throw new BadRequestException({
+        message: validation.errors.join("; "),
+        errors: validation.errors,
+      });
     }
 
     let processedData = await executeBeforeCreateHooks(entity, dataWithDefaults);
@@ -156,14 +206,14 @@ export class BusService {
         return rows[0];
       });
     } catch (error: any) {
-      const msg: string = error?.message ?? '';
+      const msg: string = error?.message ?? "";
       if (
-        error?.code === 'SQLITE_CONSTRAINT' ||
-        error?.code === '23505' ||
-        msg.includes('UNIQUE constraint failed') ||
-        msg.includes('duplicate key value')
+        error?.code === "SQLITE_CONSTRAINT" ||
+        error?.code === "23505" ||
+        msg.includes("UNIQUE constraint failed") ||
+        msg.includes("duplicate key value")
       ) {
-        throw new ConflictException('A record with the same unique field value already exists');
+        throw new ConflictException("A record with the same unique field value already exists");
       }
       throw error;
     }
@@ -174,7 +224,7 @@ export class BusService {
     // Await the workflow so the response reflects the final doc_status.
     // In dev (no TRIGGER_SECRET_KEY) rules run synchronously; in production this
     // fires the async Trigger.dev task but we still await the run-record creation.
-    await this.triggerWorkflow(entity, result?.id, 'create');
+    await this.triggerWorkflow(entity, result?.id, "create");
 
     // Re-read so the response reflects the post-workflow doc_status.
     return (await this.db.findById(tableName, result.id)) ?? result;
@@ -184,7 +234,7 @@ export class BusService {
     entity: string,
     id: string,
     data: Record<string, any>,
-    expectedVersion?: number,
+    expectedVersion?: number
   ): Promise<any> {
     const tableName = this.getTableName(entity);
     await this.verifyEntity(entity);
@@ -194,20 +244,26 @@ export class BusService {
       const existing = await trx
         .selectFrom(tableName as any)
         .selectAll()
-        .where('id' as any, '=', id)
-        .where('deleted_at' as any, 'is', null)
+        .where("id" as any, "=", id)
+        .where("deleted_at" as any, "is", null)
         .executeTakeFirst();
 
       if (!existing) return null;
 
       if (expectedVersion !== undefined && (existing as any).version !== expectedVersion) {
-        throw new ConflictException('Record was modified by another user. Please reload and try again.');
+        throw new ConflictException(
+          "Record was modified by another user. Please reload and try again."
+        );
       }
 
       const rows = await trx
         .updateTable(tableName as any)
-        .set({ ...processedData, updated_at: new Date(), version: ((existing as any).version || 0) + 1 } as any)
-        .where('id' as any, '=', id)
+        .set({
+          ...processedData,
+          updated_at: new Date(),
+          version: ((existing as any).version || 0) + 1,
+        } as any)
+        .where("id" as any, "=", id)
         .returningAll()
         .execute();
       return rows[0] ?? null;
@@ -219,7 +275,7 @@ export class BusService {
 
     await executeAfterUpdateHooks(entity, result);
 
-    await this.triggerWorkflow(entity, id, 'update');
+    await this.triggerWorkflow(entity, id, "update");
 
     // Re-read so the response reflects the post-workflow doc_status.
     return (await this.db.findById(tableName, id)) ?? result;
@@ -238,8 +294,8 @@ export class BusService {
       const rows = await trx
         .updateTable(tableName as any)
         .set({ deleted_at: new Date(), updated_at: new Date() } as any)
-        .where('id' as any, '=', id)
-        .where('deleted_at' as any, 'is', null)
+        .where("id" as any, "=", id)
+        .where("deleted_at" as any, "is", null)
         .returningAll()
         .execute();
       return rows.length > 0;
@@ -247,7 +303,7 @@ export class BusService {
     await executeAfterDeleteHooks(entity, result);
 
     if (result) {
-      await this.triggerWorkflow(entity, id, 'delete');
+      await this.triggerWorkflow(entity, id, "delete");
     }
 
     return result;
@@ -255,22 +311,22 @@ export class BusService {
 
   private async verifyEntity(entity: string): Promise<void> {
     const tableName = this.getTableName(entity);
-    const bareEntity = entity.startsWith('bus_') ? entity.slice(4) : entity;
+    const bareEntity = entity.startsWith("bus_") ? entity.slice(4) : entity;
 
     let tableRecord = await this.kysely
-      .selectFrom('sys_table')
+      .selectFrom("sys_table")
       .selectAll()
-      .where('table_name', '=', tableName)
-      .where('is_active', '=', true)
+      .where("table_name", "=", tableName)
+      .where("is_active", "=", true)
       .executeTakeFirst();
 
     if (!tableRecord) {
       // Also accept user-created tables stored without bus_ prefix
       tableRecord = await this.kysely
-        .selectFrom('sys_table')
+        .selectFrom("sys_table")
         .selectAll()
-        .where('table_name', '=', bareEntity)
-        .where('is_active', '=', true)
+        .where("table_name", "=", bareEntity)
+        .where("is_active", "=", true)
         .executeTakeFirst();
     }
 
@@ -286,19 +342,19 @@ export class BusService {
       return this.metadataCache.get(tableName)!;
     }
 
-    const bareEntity = entity.startsWith('bus_') ? entity.slice(4) : entity;
+    const bareEntity = entity.startsWith("bus_") ? entity.slice(4) : entity;
     let table = await this.kysely
-      .selectFrom('sys_table')
+      .selectFrom("sys_table")
       .selectAll()
-      .where('table_name', '=', tableName)
-      .where('is_active', '=', true)
+      .where("table_name", "=", tableName)
+      .where("is_active", "=", true)
       .executeTakeFirst();
     if (!table) {
       table = await this.kysely
-        .selectFrom('sys_table')
+        .selectFrom("sys_table")
         .selectAll()
-        .where('table_name', '=', bareEntity)
-        .where('is_active', '=', true)
+        .where("table_name", "=", bareEntity)
+        .where("is_active", "=", true)
         .executeTakeFirst();
     }
 
@@ -308,48 +364,52 @@ export class BusService {
 
     const window = table.sys_window_id
       ? await this.kysely
-          .selectFrom('sys_window')
+          .selectFrom("sys_window")
           .selectAll()
-          .where('sys_window_id', '=', table.sys_window_id)
+          .where("sys_window_id", "=", table.sys_window_id)
           .executeTakeFirst()
       : undefined;
 
     const columns = await this.kysely
-      .selectFrom('sys_column')
-      .innerJoin('sys_tab', 'sys_tab.sys_table_id', 'sys_column.sys_table_id')
-      .leftJoin('sys_field', (join) =>
+      .selectFrom("sys_column")
+      .innerJoin("sys_tab", "sys_tab.sys_table_id", "sys_column.sys_table_id")
+      .leftJoin("sys_field", (join) =>
         join
-          .onRef('sys_field.sys_column_id', '=', 'sys_column.sys_column_id')
-          .onRef('sys_field.sys_tab_id', '=', 'sys_tab.sys_tab_id'),
+          .onRef("sys_field.sys_column_id", "=", "sys_column.sys_column_id")
+          .onRef("sys_field.sys_tab_id", "=", "sys_tab.sys_tab_id")
       )
-      .leftJoin('sys_field_group', 'sys_field_group.sys_field_group_id', 'sys_field.sys_field_group_id')
+      .leftJoin(
+        "sys_field_group",
+        "sys_field_group.sys_field_group_id",
+        "sys_field.sys_field_group_id"
+      )
       .select([
-        'sys_column.sys_column_id',
-        'sys_column.column_name',
-        'sys_column.name',
-        'sys_column.sys_reference_id',
-        'sys_column.is_mandatory',
-        'sys_column.is_updateable',
-        'sys_column.field_length',
-        'sys_column.default_value',
-        'sys_column.seq_no',
-        'sys_field.sys_field_id',
-        'sys_field.seq_no as field_seq_no',
-        'sys_field.seq_no_grid',
-        'sys_field.is_displayed',
-        'sys_field.is_displayed_grid',
-        'sys_field.is_read_only as field_is_read_only',
-        'sys_field.name as field_name',
-        'sys_field.sys_field_group_id',
-        'sys_field_group.name as group_name',
-        'sys_field_group.columns as group_columns',
-        'sys_field_group.description as group_description',
-        'sys_field_group.layout_type as group_layout_type',
-        'sys_field.help',
+        "sys_column.sys_column_id",
+        "sys_column.column_name",
+        "sys_column.name",
+        "sys_column.sys_reference_id",
+        "sys_column.is_mandatory",
+        "sys_column.is_updateable",
+        "sys_column.field_length",
+        "sys_column.default_value",
+        "sys_column.seq_no",
+        "sys_field.sys_field_id",
+        "sys_field.seq_no as field_seq_no",
+        "sys_field.seq_no_grid",
+        "sys_field.is_displayed",
+        "sys_field.is_displayed_grid",
+        "sys_field.is_read_only as field_is_read_only",
+        "sys_field.name as field_name",
+        "sys_field.sys_field_group_id",
+        "sys_field_group.name as group_name",
+        "sys_field_group.columns as group_columns",
+        "sys_field_group.description as group_description",
+        "sys_field_group.layout_type as group_layout_type",
+        "sys_field.help",
       ])
-      .where('sys_column.sys_table_id', '=', table.sys_table_id)
-      .where('sys_column.is_active', '=', true)
-      .orderBy('sys_column.seq_no', 'asc')
+      .where("sys_column.sys_table_id", "=", table.sys_table_id)
+      .where("sys_column.is_active", "=", true)
+      .orderBy("sys_column.seq_no", "asc")
       .execute();
 
     const metadata: EntityMetadata = {
@@ -381,9 +441,7 @@ export class BusService {
         group_layout_type: col.group_layout_type || null,
         help: col.help ?? null,
       })),
-      window: window
-        ? { sys_window_id: window.sys_window_id, name: window.name }
-        : undefined,
+      window: window ? { sys_window_id: window.sys_window_id, name: window.name } : undefined,
     };
 
     this.metadataCache.set(tableName, metadata);
@@ -397,35 +455,41 @@ export class BusService {
 
   async getGridFields(entity: string): Promise<FieldMetadata[]> {
     const metadata = await this.getEntityMetadata(entity);
-    return metadata.columns.filter((col) => col.is_displayed_grid).sort((a, b) => a.seq_no_grid - b.seq_no_grid);
+    return metadata.columns
+      .filter((col) => col.is_displayed_grid)
+      .sort((a, b) => a.seq_no_grid - b.seq_no_grid);
   }
 
-  async validateData(entity: string, data: Record<string, any>, mode: 'create' | 'update' | 'patch'): Promise<void> {
+  async validateData(
+    entity: string,
+    data: Record<string, any>,
+    mode: "create" | "update" | "patch"
+  ): Promise<void> {
     const metadata = await this.getEntityMetadata(entity);
     const errors: string[] = [];
 
     for (const column of metadata.columns) {
       // Skip auto-managed system columns in create mode
-      if (mode === 'create' && BusService.AUTO_MANAGED_COLUMNS.has(column.column_name)) continue;
+      if (mode === "create" && BusService.AUTO_MANAGED_COLUMNS.has(column.column_name)) continue;
       const value = data[column.column_name];
 
-      if (mode !== 'patch' && column.is_mandatory && !column.default_value) {
-        if (value === undefined || value === null || value === '') {
+      if (mode !== "patch" && column.is_mandatory && !column.default_value) {
+        if (value === undefined || value === null || value === "") {
           errors.push(`Field '${column.name}' (${column.column_name}) is required`);
         }
       }
 
-      if (value && column.field_length && typeof value === 'string') {
+      if (value && column.field_length && typeof value === "string") {
         if (value.length > column.field_length) {
           errors.push(`Field '${column.name}' exceeds maximum length of ${column.field_length}`);
         }
       }
 
-      if ((mode === 'update' || mode === 'patch') && !column.is_updateable) {
+      if ((mode === "update" || mode === "patch") && !column.is_updateable) {
         // In patch mode: skip non-updateable fields silently (they are stripped before writing)
         // In update mode: only error on non-key non-updateable fields
-        if (mode === 'patch') continue;
-        if (value !== undefined && column.column_name !== 'id') {
+        if (mode === "patch") continue;
+        if (value !== undefined && column.column_name !== "id") {
           errors.push(`Field '${column.name}' is not updateable`);
         }
       }
@@ -437,37 +501,53 @@ export class BusService {
     }
 
     if (errors.length > 0) {
-      throw new BadRequestException({ message: 'Validation failed', errors });
+      throw new BadRequestException({ message: "Validation failed", errors });
     }
   }
 
   private validateType(value: any, referenceId: number, fieldName: string): string | null {
     switch (referenceId) {
-      case 10: case 14: case 24: case 30: case 31:
-        if (typeof value !== 'string') return `Field '${fieldName}' must be a string`;
+      case 10:
+      case 14:
+      case 24:
+      case 30:
+      case 31:
+        if (typeof value !== "string") return `Field '${fieldName}' must be a string`;
         break;
       case 11:
         // Accept numeric strings — PostgreSQL integer columns may serialize as strings in JSON
-        if (typeof value === 'string' && /^-?\d+$/.test(value.trim())) break;
-        if (typeof value !== 'number' || !Number.isInteger(value)) return `Field '${fieldName}' must be an integer`;
+        if (typeof value === "string" && /^-?\d+$/.test(value.trim())) break;
+        if (typeof value !== "number" || !Number.isInteger(value))
+          return `Field '${fieldName}' must be an integer`;
         break;
       case 12:
         // Accept numeric strings — PostgreSQL NUMERIC/DECIMAL columns serialize as strings in JSON
-        if (typeof value === 'string' && !isNaN(parseFloat(value.trim())) && isFinite(Number(value.trim()))) break;
-        if (typeof value !== 'number') return `Field '${fieldName}' must be a number`;
+        if (
+          typeof value === "string" &&
+          !isNaN(parseFloat(value.trim())) &&
+          isFinite(Number(value.trim()))
+        )
+          break;
+        if (typeof value !== "number") return `Field '${fieldName}' must be a number`;
         break;
       case 20:
-        if (typeof value !== 'boolean') return `Field '${fieldName}' must be a boolean`;
+        if (typeof value !== "boolean") return `Field '${fieldName}' must be a boolean`;
         break;
-      case 15: case 16:
-        if (!(value instanceof Date) && isNaN(Date.parse(value))) return `Field '${fieldName}' must be a valid date`;
+      case 15:
+      case 16:
+        if (!(value instanceof Date) && isNaN(Date.parse(value)))
+          return `Field '${fieldName}' must be a valid date`;
         break;
-      case 13: case 18: case 19:
+      case 13:
+      case 18:
+      case 19: {
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-        if (typeof value !== 'string' || !uuidRegex.test(value)) return `Field '${fieldName}' must be a valid UUID`;
+        if (typeof value !== "string" || !uuidRegex.test(value))
+          return `Field '${fieldName}' must be a valid UUID`;
         break;
+      }
       case 28:
-        if (typeof value !== 'object') return `Field '${fieldName}' must be a JSON object`;
+        if (typeof value !== "object") return `Field '${fieldName}' must be a JSON object`;
         break;
     }
     return null;
@@ -475,20 +555,29 @@ export class BusService {
 
   private parseDefaultValue(defaultValue: string, referenceId: number): any {
     switch (referenceId) {
-      case 11: return parseInt(defaultValue, 10);
-      case 12: return parseFloat(defaultValue);
-      case 20: return defaultValue.toLowerCase() === 'true' || defaultValue === 'Y';
-      case 28: try { return JSON.parse(defaultValue); } catch { return {}; }
-      default: return defaultValue;
+      case 11:
+        return parseInt(defaultValue, 10);
+      case 12:
+        return parseFloat(defaultValue);
+      case 20:
+        return defaultValue.toLowerCase() === "true" || defaultValue === "Y";
+      case 28:
+        try {
+          return JSON.parse(defaultValue);
+        } catch {
+          return {};
+        }
+      default:
+        return defaultValue;
     }
   }
 
   private static readonly COLUMN_TABLE_ALIASES: Record<string, string> = {
-    owner_id: 'bus_user',
-    author_id: 'bus_user',
-    manager_id: 'bus_user',
-    assigned_to: 'bus_user',
-    created_by: 'bus_user',
+    owner_id: "bus_user",
+    author_id: "bus_user",
+    manager_id: "bus_user",
+    assigned_to: "bus_user",
+    created_by: "bus_user",
   };
 
   private resolveRefTableName(columnName: string, sysReferenceId: number): string | undefined {
@@ -496,7 +585,7 @@ export class BusService {
     if (BusService.COLUMN_TABLE_ALIASES[columnName]) {
       return BusService.COLUMN_TABLE_ALIASES[columnName];
     }
-    if (!columnName.endsWith('_id') || columnName === 'id') return undefined;
+    if (!columnName.endsWith("_id") || columnName === "id") return undefined;
     const baseName = columnName.slice(0, -3);
     return `bus_${baseName}`;
   }
@@ -517,29 +606,33 @@ export class BusService {
    */
   async setupEntityDictionary(entity: string): Promise<{ created: string[] }> {
     const tableName = this.getTableName(entity);
-    const methodName = 'setupEntityDictionary';
-    this.logger.log(`[${methodName}] Setting up dictionary for entity: ${entity} (table: ${tableName})`);
+    const methodName = "setupEntityDictionary";
+    this.logger.log(
+      `[${methodName}] Setting up dictionary for entity: ${entity} (table: ${tableName})`
+    );
 
     const created: string[] = [];
-    const systemUser = 'system';
+    const systemUser = "system";
 
     // 1. Find the sys_table record — try both bus_entity and entity (user-created tables store plain name)
-    const bareEntity = entity.startsWith('bus_') ? entity.slice(4) : entity;
+    const bareEntity = entity.startsWith("bus_") ? entity.slice(4) : entity;
     let sysTable = await this.kysely
-      .selectFrom('sys_table')
+      .selectFrom("sys_table")
       .selectAll()
-      .where('table_name', '=', tableName)
+      .where("table_name", "=", tableName)
       .executeTakeFirst();
     if (!sysTable) {
       sysTable = await this.kysely
-        .selectFrom('sys_table')
+        .selectFrom("sys_table")
         .selectAll()
-        .where('table_name', '=', bareEntity)
+        .where("table_name", "=", bareEntity)
         .executeTakeFirst();
     }
 
     if (!sysTable) {
-      throw new NotFoundException(`No sys_table record found for table '${tableName}'. Register the table first via the admin Tables UI.`);
+      throw new NotFoundException(
+        `No sys_table record found for table '${tableName}'. Register the table first via the admin Tables UI.`
+      );
     }
 
     const sysTableId = sysTable.sys_table_id;
@@ -552,21 +645,25 @@ export class BusService {
       this.logger.log(`[${methodName}] sys_window already exists: ${windowId}`);
     } else {
       windowId = randomUUID();
-      await this.kysely.insertInto('sys_window').values({
-        sys_window_id: windowId,
-        name: entityLabel,
-        description: `${entityLabel} management window`,
-        window_type: 'M',
-        entity_type: 'U',
-        is_active: true,
-        created_by: systemUser,
-        updated_by: systemUser,
-      } as any).execute();
+      await this.kysely
+        .insertInto("sys_window")
+        .values({
+          sys_window_id: windowId,
+          name: entityLabel,
+          description: `${entityLabel} management window`,
+          window_type: "M",
+          entity_type: "U",
+          is_active: true,
+          created_by: systemUser,
+          updated_by: systemUser,
+        } as any)
+        .execute();
 
       // Link window to table via sys_table.sys_window_id
-      await this.kysely.updateTable('sys_table')
+      await this.kysely
+        .updateTable("sys_table")
         .set({ sys_window_id: windowId } as any)
-        .where('sys_table_id', '=', sysTableId)
+        .where("sys_table_id", "=", sysTableId)
         .execute();
 
       created.push(`sys_window: ${windowId}`);
@@ -575,27 +672,30 @@ export class BusService {
 
     // 3. Ensure sys_tab exists
     const existingTab = await this.kysely
-      .selectFrom('sys_tab')
-      .select(['sys_tab_id'])
-      .where('sys_window_id', '=', windowId)
-      .where('sys_table_id', '=', sysTableId)
+      .selectFrom("sys_tab")
+      .select(["sys_tab_id"])
+      .where("sys_window_id", "=", windowId)
+      .where("sys_table_id", "=", sysTableId)
       .executeTakeFirst();
 
     let tabId: string;
     if (!existingTab) {
       tabId = randomUUID();
-      await this.kysely.insertInto('sys_tab').values({
-        sys_tab_id: tabId,
-        sys_window_id: windowId,
-        sys_table_id: sysTableId,
-        name: entityLabel,
-        description: `${entityLabel} details tab`,
-        seq_no: 10,
-        entity_type: 'U',
-        is_active: true,
-        created_by: systemUser,
-        updated_by: systemUser,
-      } as any).execute();
+      await this.kysely
+        .insertInto("sys_tab")
+        .values({
+          sys_tab_id: tabId,
+          sys_window_id: windowId,
+          sys_table_id: sysTableId,
+          name: entityLabel,
+          description: `${entityLabel} details tab`,
+          seq_no: 10,
+          entity_type: "U",
+          is_active: true,
+          created_by: systemUser,
+          updated_by: systemUser,
+        } as any)
+        .execute();
       created.push(`sys_tab: ${tabId}`);
       this.logger.log(`[${methodName}] Created sys_tab ${tabId} for ${tableName}`);
     } else {
@@ -605,16 +705,23 @@ export class BusService {
 
     // 4. Get all sys_column records for this table
     const columns = await this.kysely
-      .selectFrom('sys_column')
+      .selectFrom("sys_column")
       .selectAll()
-      .where('sys_table_id', '=', sysTableId)
-      .orderBy('seq_no', 'asc')
+      .where("sys_table_id", "=", sysTableId)
+      .orderBy("seq_no", "asc")
       .execute();
 
     this.logger.log(`[${methodName}] Found ${columns.length} columns for ${tableName}`);
 
     // 5. For each column, ensure a sys_field record exists
-    const SKIP_COLUMNS = new Set(['id', 'created_at', 'updated_at', 'deleted_at', 'version', 'is_active']);
+    const SKIP_COLUMNS = new Set([
+      "id",
+      "created_at",
+      "updated_at",
+      "deleted_at",
+      "version",
+      "is_active",
+    ]);
     let seqNo = 10;
     let seqNoGrid = 10;
 
@@ -622,29 +729,32 @@ export class BusService {
       if (SKIP_COLUMNS.has(col.column_name)) continue;
 
       const existingField = await this.kysely
-        .selectFrom('sys_field')
-        .select(['sys_field_id'])
-        .where('sys_tab_id', '=', tabId)
-        .where('sys_column_id', '=', col.sys_column_id)
+        .selectFrom("sys_field")
+        .select(["sys_field_id"])
+        .where("sys_tab_id", "=", tabId)
+        .where("sys_column_id", "=", col.sys_column_id)
         .executeTakeFirst();
 
       if (!existingField) {
         const fieldId = randomUUID();
-        await this.kysely.insertInto('sys_field').values({
-          sys_field_id: fieldId,
-          sys_tab_id: tabId,
-          sys_column_id: col.sys_column_id,
-          name: col.name || col.column_name,
-          seq_no: seqNo,
-          seq_no_grid: seqNoGrid,
-          is_displayed: true,
-          is_displayed_grid: seqNoGrid <= 50, // show first 5 columns in grid
-          is_read_only: false,
-          entity_type: 'U',
-          is_active: true,
-          created_by: systemUser,
-          updated_by: systemUser,
-        } as any).execute();
+        await this.kysely
+          .insertInto("sys_field")
+          .values({
+            sys_field_id: fieldId,
+            sys_tab_id: tabId,
+            sys_column_id: col.sys_column_id,
+            name: col.name || col.column_name,
+            seq_no: seqNo,
+            seq_no_grid: seqNoGrid,
+            is_displayed: true,
+            is_displayed_grid: seqNoGrid <= 50, // show first 5 columns in grid
+            is_read_only: false,
+            entity_type: "U",
+            is_active: true,
+            created_by: systemUser,
+            updated_by: systemUser,
+          } as any)
+          .execute();
         created.push(`sys_field: ${col.column_name}`);
         this.logger.log(`[${methodName}] Created sys_field for column ${col.column_name}`);
         seqNo += 10;
@@ -658,7 +768,9 @@ export class BusService {
     this.metadataCache.delete(entity);
     this.metadataCache.delete(tableName);
 
-    this.logger.log(`[${methodName}] Complete. Created: ${created.join(', ') || 'nothing (all already existed)'}`);
+    this.logger.log(
+      `[${methodName}] Complete. Created: ${created.join(", ") || "nothing (all already existed)"}`
+    );
     return { created };
   }
 }

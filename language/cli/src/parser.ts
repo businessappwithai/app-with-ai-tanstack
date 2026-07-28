@@ -9,7 +9,7 @@
  * stays in lockstep with the language.
  */
 
-import { normalizeType, cardinalityKind, isHookType } from "../../index.ts";
+import { cardinalityKind, isHookType, normalizeType } from "../../index.ts";
 import type {
   CanonicalType,
   Diagnostic,

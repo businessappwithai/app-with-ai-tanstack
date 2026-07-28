@@ -53,12 +53,17 @@ const server = createServer(async (req, res) => {
 
   try {
     if (url.pathname === "/") return send(res, 200, indexHtml(), "text/html");
-    if (url.pathname === "/health") return send(res, 200, { status: "ok", uptime: process.uptime() });
+    if (url.pathname === "/health")
+      return send(res, 200, { status: "ok", uptime: process.uptime() });
     if (url.pathname === "/openapi.json") return send(res, 200, buildOpenApi());
     if (parts[0] === "api" && parts[1] === "_meta") {
       return send(res, 200, {
         name: MODEL.meta?.name,
-        entities: MODEL.entities.map((e) => ({ name: e.name, collection: e.collection, attributes: e.attributes.length })),
+        entities: MODEL.entities.map((e) => ({
+          name: e.name,
+          collection: e.collection,
+          attributes: e.attributes.length,
+        })),
         rules: MODEL.rules.map((r) => ({ name: r.name, entity: r.entity, event: r.event })),
         workflows: MODEL.workflows.map((w) => ({ name: w.name, kind: w.kind, entity: w.entity })),
         stateMachines,
@@ -72,7 +77,8 @@ const server = createServer(async (req, res) => {
       const id = parts[2];
 
       if (req.method === "GET" && !id) return send(res, 200, await svc.list());
-      if (req.method === "POST" && !id) return send(res, 201, await svc.create(await readBody(req)));
+      if (req.method === "POST" && !id)
+        return send(res, 201, await svc.create(await readBody(req)));
       if (req.method === "GET" && id) {
         const row = await svc.get(id);
         return row ? send(res, 200, row) : send(res, 404, { error: "Not found" });
@@ -97,7 +103,9 @@ const server = createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`${MODEL.meta?.name ?? "EML App"} listening on http://localhost:${PORT}`);
-  console.log(`  ${MODEL.entities.length} entities, ${MODEL.rules.length} rules, ${MODEL.workflows.length} workflows`);
+  console.log(
+    `  ${MODEL.entities.length} entities, ${MODEL.rules.length} rules, ${MODEL.workflows.length} workflows`
+  );
 });
 
 function indexHtml() {

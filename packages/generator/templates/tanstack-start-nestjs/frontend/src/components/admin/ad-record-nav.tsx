@@ -1,10 +1,5 @@
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ADRecordNavProps {
   currentIndex: number;
@@ -55,7 +50,7 @@ export function ADRecordNav({
       </Button>
 
       <span className="text-sm text-muted-foreground px-2 min-w-[80px] text-center tabular-nums">
-        {totalCount === 0 ? '0 of 0' : `${globalPosition} of ${totalCount}`}
+        {totalCount === 0 ? "0 of 0" : `${globalPosition} of ${totalCount}`}
       </span>
 
       <Button

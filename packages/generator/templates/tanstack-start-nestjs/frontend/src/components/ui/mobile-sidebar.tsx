@@ -1,8 +1,8 @@
-import type * as React from 'react';
-import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { X } from "lucide-react";
+import type * as React from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface MobileSidebarProps {
   open: boolean;
@@ -17,10 +17,10 @@ export function MobileSidebar({ open, onOpenChange, children }: MobileSidebarPro
         <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-black/50 md:hidden" />
         <DialogPrimitive.Content
           className={cn(
-            'fixed inset-y-0 left-0 z-50 h-full w-64 bg-background border-r border-border shadow-lg',
-            'data-[state=open]:animate-in data-[state=closed]:animate-out',
-            'data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left',
-            'duration-200 md:hidden'
+            "fixed inset-y-0 left-0 z-50 h-full w-64 bg-background border-r border-border shadow-lg",
+            "data-[state=open]:animate-in data-[state=closed]:animate-out",
+            "data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",
+            "duration-200 md:hidden"
           )}
           aria-label="Navigation menu"
         >

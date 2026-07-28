@@ -1,7 +1,7 @@
 "use client";
 
-import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { DragDropContext, Draggable, Droppable, type DropResult } from "@hello-pangea/dnd";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Check,
   ChevronDown,
@@ -18,18 +18,23 @@ import {
   Star,
   Trash2,
   X,
-} from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Switch } from '@/components/ui/switch';
-import { type FieldMetadata, useFieldGroups, useAllFormFields, useAllGridFields } from '@/hooks/use-entities';
-import { apiClient } from '@/lib/api-client';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import {
+  type FieldMetadata,
+  useAllFormFields,
+  useAllGridFields,
+  useFieldGroups,
+} from "@/hooks/use-entities";
+import { apiClient } from "@/lib/api-client";
+import { cn } from "@/lib/utils";
 
 /* ─────────────────────────────────────────────────────────── types */
 
@@ -40,7 +45,7 @@ interface WorkingField extends FieldMetadata {
 }
 
 interface WorkingGroup {
-  id: string;          // 'unassigned' | actual sys_field_group_id
+  id: string; // 'unassigned' | actual sys_field_group_id
   name: string;
   columns: number;
   description: string;
@@ -53,16 +58,34 @@ interface WorkingGroup {
 }
 
 const FIELD_TYPE_LABELS: Record<number, string> = {
-  10: 'String', 11: 'Integer', 12: 'Amount', 13: 'ID', 14: 'Text',
-  15: 'Date', 16: 'DateTime', 17: 'List', 18: 'Table Ref', 19: 'Direct Ref',
-  20: 'Boolean', 24: 'URL', 30: 'Email', 31: 'Phone',
+  10: "String",
+  11: "Integer",
+  12: "Amount",
+  13: "ID",
+  14: "Text",
+  15: "Date",
+  16: "DateTime",
+  17: "List",
+  18: "Table Ref",
+  19: "Direct Ref",
+  20: "Boolean",
+  24: "URL",
+  30: "Email",
+  31: "Phone",
 };
 
 /* ─────────────────────────────────────────────────────────── helpers */
 
 function buildGroupedState(
   fields: FieldMetadata[],
-  groups: { sys_field_group_id: string; name: string; columns: number; description?: string; layout_type?: string; seq_no: number }[],
+  groups: {
+    sys_field_group_id: string;
+    name: string;
+    columns: number;
+    description?: string;
+    layout_type?: string;
+    seq_no: number;
+  }[]
 ): WorkingGroup[] {
   const groupMap = new Map<string, WorkingGroup>();
 
@@ -72,8 +95,8 @@ function buildGroupedState(
       id: g.sys_field_group_id,
       name: g.name,
       columns: g.columns,
-      description: g.description ?? '',
-      layout_type: g.layout_type ?? 'single',
+      description: g.description ?? "",
+      layout_type: g.layout_type ?? "single",
       seq_no: g.seq_no ?? 0,
       isNew: false,
       isEditing: false,
@@ -83,12 +106,12 @@ function buildGroupedState(
   }
 
   // Unassigned bucket
-  groupMap.set('unassigned', {
-    id: 'unassigned',
-    name: 'Unassigned Fields',
+  groupMap.set("unassigned", {
+    id: "unassigned",
+    name: "Unassigned Fields",
     columns: 1,
-    description: 'Fields not yet assigned to a group',
-    layout_type: 'single',
+    description: "Fields not yet assigned to a group",
+    layout_type: "single",
     seq_no: 9999,
     isNew: false,
     isEditing: false,
@@ -98,8 +121,8 @@ function buildGroupedState(
 
   // Place fields into groups
   for (const f of fields) {
-    const groupId = f.field_group_id ?? 'unassigned';
-    const target = groupMap.get(groupId) ?? groupMap.get('unassigned')!;
+    const groupId = f.field_group_id ?? "unassigned";
+    const target = groupMap.get(groupId) ?? groupMap.get("unassigned")!;
     target.fields.push({
       ...f,
       originalGroupId: f.field_group_id ?? null,
@@ -131,7 +154,10 @@ function FieldCard({
   groupId: string;
   onToggleVisibility: (fieldId: string, groupId: string) => void;
 }) {
-  const typeLabel = FIELD_TYPE_LABELS[field.sys_reference_id] ?? field.reference_name ?? String(field.sys_reference_id);
+  const typeLabel =
+    FIELD_TYPE_LABELS[field.sys_reference_id] ??
+    field.reference_name ??
+    String(field.sys_reference_id);
 
   return (
     <Draggable draggableId={field.sys_field_id} index={index}>
@@ -140,13 +166,13 @@ function FieldCard({
           ref={provided.innerRef}
           {...(provided.draggableProps as any)}
           className={cn(
-            'flex items-center gap-2 px-3 py-2.5 rounded-md border text-sm transition-all',
+            "flex items-center gap-2 px-3 py-2.5 rounded-md border text-sm transition-all",
             snapshot.isDragging
-              ? 'bg-primary/5 border-primary/40 shadow-lg ring-1 ring-primary/20'
+              ? "bg-primary/5 border-primary/40 shadow-lg ring-1 ring-primary/20"
               : field.dirty
-              ? 'bg-amber-50 border-amber-200'
-              : 'bg-white border-border hover:border-primary/30 hover:bg-muted/20',
-            !field.is_displayed && 'opacity-50',
+                ? "bg-amber-50 border-amber-200"
+                : "bg-white border-border hover:border-primary/30 hover:bg-muted/20",
+            !field.is_displayed && "opacity-50"
           )}
         >
           {/* Drag handle */}
@@ -161,17 +187,20 @@ function FieldCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="font-medium text-foreground truncate">{field.name}</span>
-              {field.is_mandatory && (
-                <span className="text-red-500 text-xs font-bold">*</span>
-              )}
+              {field.is_mandatory && <span className="text-red-500 text-xs font-bold">*</span>}
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-[10px] text-muted-foreground font-mono">{field.column_name}</span>
+              <span className="text-[10px] text-muted-foreground font-mono">
+                {field.column_name}
+              </span>
               <Badge variant="secondary" className="text-[10px] h-4 px-1 py-0">
                 {typeLabel}
               </Badge>
               {field.is_read_only && (
-                <Badge variant="outline" className="text-[10px] h-4 px-1 py-0 text-muted-foreground">
+                <Badge
+                  variant="outline"
+                  className="text-[10px] h-4 px-1 py-0 text-muted-foreground"
+                >
                   Read-only
                 </Badge>
               )}
@@ -182,7 +211,7 @@ function FieldCard({
           <button
             onClick={() => onToggleVisibility(field.sys_field_id, groupId)}
             className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
-            title={field.is_displayed ? 'Hide field' : 'Show field'}
+            title={field.is_displayed ? "Hide field" : "Show field"}
           >
             {field.is_displayed ? (
               <Eye className="h-3.5 w-3.5 text-primary/70" />
@@ -227,28 +256,34 @@ function GroupPanel({
     }
   }, [group.isEditing, group.name, group.columns, group.description]);
 
-  const isUnassigned = group.id === 'unassigned';
-  const isSummary = group.layout_type === 'summary';
+  const isUnassigned = group.id === "unassigned";
+  const isSummary = group.layout_type === "summary";
 
-  const colsLabel = group.columns === 1 ? '1 column' : `${group.columns} columns`;
+  const colsLabel = group.columns === 1 ? "1 column" : `${group.columns} columns`;
 
   return (
     <div
       className={cn(
-        'flex flex-col rounded-xl border shadow-sm',
+        "flex flex-col rounded-xl border shadow-sm",
         isUnassigned
-          ? 'border-dashed border-muted-foreground/30 bg-muted/20'
+          ? "border-dashed border-muted-foreground/30 bg-muted/20"
           : isSummary
-          ? 'border-amber-300 bg-amber-50/50 shadow-amber-100'
-          : 'border-border bg-card',
-        group.isNew && 'ring-2 ring-primary/40',
+            ? "border-amber-300 bg-amber-50/50 shadow-amber-100"
+            : "border-border bg-card",
+        group.isNew && "ring-2 ring-primary/40"
       )}
     >
       {/* Group header */}
-      <div className={cn(
-        'px-4 py-3 rounded-t-xl border-b',
-        isUnassigned ? 'border-muted-foreground/20 bg-muted/30' : isSummary ? 'border-amber-200 bg-amber-100/60' : 'border-border bg-muted/30',
-      )}>
+      <div
+        className={cn(
+          "px-4 py-3 rounded-t-xl border-b",
+          isUnassigned
+            ? "border-muted-foreground/20 bg-muted/30"
+            : isSummary
+              ? "border-amber-200 bg-amber-100/60"
+              : "border-border bg-muted/30"
+        )}
+      >
         {group.isEditing ? (
           /* Inline edit form */
           <div className="space-y-2">
@@ -288,10 +323,10 @@ function GroupPanel({
                   key={c}
                   onClick={() => setEditCols(c)}
                   className={cn(
-                    'w-7 h-7 rounded text-xs font-semibold border transition-colors',
+                    "w-7 h-7 rounded text-xs font-semibold border transition-colors",
                     editCols === c
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-background border-border hover:border-primary/50',
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background border-border hover:border-primary/50"
                   )}
                 >
                   {c}
@@ -304,25 +339,30 @@ function GroupPanel({
           <div className="flex items-center justify-between gap-2">
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                {isSummary
-                  ? <Star className="h-4 w-4 text-amber-500 flex-shrink-0" />
-                  : <Layers className="h-4 w-4 text-primary/60 flex-shrink-0" />
-                }
-                <span className="font-semibold text-sm text-foreground truncate">
-                  {group.name}
-                </span>
+                {isSummary ? (
+                  <Star className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                ) : (
+                  <Layers className="h-4 w-4 text-primary/60 flex-shrink-0" />
+                )}
+                <span className="font-semibold text-sm text-foreground truncate">{group.name}</span>
                 {!isUnassigned && (
                   <Badge
                     variant="secondary"
                     className={cn(
-                      'text-[10px] h-4 px-1.5 flex-shrink-0',
-                      isSummary && 'bg-amber-100 text-amber-700 border-amber-200',
+                      "text-[10px] h-4 px-1.5 flex-shrink-0",
+                      isSummary && "bg-amber-100 text-amber-700 border-amber-200"
                     )}
                   >
                     {isSummary ? (
-                      <><Star className="h-2.5 w-2.5 mr-0.5" />Summary</>
+                      <>
+                        <Star className="h-2.5 w-2.5 mr-0.5" />
+                        Summary
+                      </>
                     ) : (
-                      <><Columns className="h-2.5 w-2.5 mr-0.5" />{colsLabel}</>
+                      <>
+                        <Columns className="h-2.5 w-2.5 mr-0.5" />
+                        {colsLabel}
+                      </>
                     )}
                   </Badge>
                 )}
@@ -336,12 +376,12 @@ function GroupPanel({
                 <button
                   onClick={() => onToggleSummary(group.id)}
                   className={cn(
-                    'p-1 transition-colors rounded',
+                    "p-1 transition-colors rounded",
                     isSummary
-                      ? 'text-amber-500 hover:text-amber-600'
-                      : 'text-muted-foreground hover:text-amber-500',
+                      ? "text-amber-500 hover:text-amber-600"
+                      : "text-muted-foreground hover:text-amber-500"
                   )}
-                  title={isSummary ? 'Remove from Summary' : 'Mark as Summary section'}
+                  title={isSummary ? "Remove from Summary" : "Mark as Summary section"}
                 >
                   <Star className="h-3.5 w-3.5" />
                 </button>
@@ -372,14 +412,14 @@ function GroupPanel({
             ref={provided.innerRef}
             {...provided.droppableProps}
             className={cn(
-              'flex-1 p-3 space-y-1.5 min-h-[80px] rounded-b-xl transition-colors',
-              snapshot.isDraggingOver && 'bg-primary/5',
-              group.fields.length === 0 && 'flex items-center justify-center',
+              "flex-1 p-3 space-y-1.5 min-h-[80px] rounded-b-xl transition-colors",
+              snapshot.isDraggingOver && "bg-primary/5",
+              group.fields.length === 0 && "flex items-center justify-center"
             )}
           >
             {group.fields.length === 0 && !snapshot.isDraggingOver && (
               <p className="text-xs text-muted-foreground/50 text-center py-2">
-                {isUnassigned ? 'All fields assigned' : 'Drop fields here'}
+                {isUnassigned ? "All fields assigned" : "Drop fields here"}
               </p>
             )}
             {group.fields.map((field, index) => (
@@ -408,7 +448,7 @@ interface UnifiedFieldLayoutProps {
 
 export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
   const queryClient = useQueryClient();
-  const [mode, setMode] = useState<'form' | 'grid'>('form');
+  const [mode, setMode] = useState<"form" | "grid">("form");
   const [groups, setGroups] = useState<WorkingGroup[]>([]);
   const [gridList, setGridList] = useState<WorkingField[]>([]);
   const [isDirty, setIsDirty] = useState(false);
@@ -418,11 +458,11 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
   const { data: formFields, isLoading: formLoading } = useAllFormFields(entityName);
   const { data: gridFields, isLoading: gridLoading } = useAllGridFields(entityName);
 
-  const isLoading = groupsLoading || (mode === 'form' ? formLoading : gridLoading);
+  const isLoading = groupsLoading || (mode === "form" ? formLoading : gridLoading);
 
   // Build form working state (grouped)
   useEffect(() => {
-    if (mode !== 'form' || !formFields || !fieldGroupsData) return;
+    if (mode !== "form" || !formFields || !fieldGroupsData) return;
     const g = buildGroupedState(formFields, fieldGroupsData as any[]);
     setGroups(g);
     setIsDirty(false);
@@ -430,9 +470,10 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
 
   // Build grid working state (flat list, ordered by seq_no_grid)
   useEffect(() => {
-    if (mode !== 'grid' || !gridFields) return;
+    if (mode !== "grid" || !gridFields) return;
     const sorted = [...(gridFields as any[])].sort(
-      (a, b) => ((a as any).seq_no_grid ?? a.seq_no ?? 999) - ((b as any).seq_no_grid ?? b.seq_no ?? 999),
+      (a, b) =>
+        ((a as any).seq_no_grid ?? a.seq_no ?? 999) - ((b as any).seq_no_grid ?? b.seq_no ?? 999)
     );
     setGridList(
       sorted.map((f: any) => ({
@@ -442,7 +483,7 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
         originalGroupId: null,
         originalSeqNo: f.seq_no_grid ?? f.seq_no ?? 0,
         dirty: false,
-      })),
+      }))
     );
     setIsDirty(false);
   }, [gridFields, mode]);
@@ -451,7 +492,8 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
   const onDragEnd = useCallback((result: DropResult) => {
     if (!result.destination) return;
     const { source, destination, draggableId } = result;
-    if (source.droppableId === destination.droppableId && source.index === destination.index) return;
+    if (source.droppableId === destination.droppableId && source.index === destination.index)
+      return;
 
     setGroups((prev) => {
       const next = prev.map((g) => ({ ...g, fields: [...g.fields] }));
@@ -460,11 +502,13 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
 
       const [movedField] = srcGroup.fields.splice(source.index, 1);
 
-      const newGroupId = destination.droppableId === 'unassigned' ? null : destination.droppableId;
+      const newGroupId = destination.droppableId === "unassigned" ? null : destination.droppableId;
       const updatedField: WorkingField = {
         ...movedField,
         field_group_id: newGroupId ?? undefined,
-        dirty: newGroupId !== movedField.originalGroupId || source.droppableId !== destination.droppableId,
+        dirty:
+          newGroupId !== movedField.originalGroupId ||
+          source.droppableId !== destination.droppableId,
       };
 
       dstGroup.fields.splice(destination.index, 0, updatedField);
@@ -489,10 +533,10 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
         return {
           ...g,
           fields: g.fields.map((f) =>
-            f.sys_field_id === fieldId ? { ...f, is_displayed: !f.is_displayed, dirty: true } : f,
+            f.sys_field_id === fieldId ? { ...f, is_displayed: !f.is_displayed, dirty: true } : f
           ),
         };
-      }),
+      })
     );
     setIsDirty(true);
   }, []);
@@ -500,18 +544,25 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
   /* ── group editing */
   const handleEditToggle = useCallback((id: string) => {
     setGroups((prev) =>
-      prev.map((g) => (g.id === id ? { ...g, isEditing: !g.isEditing } : { ...g, isEditing: false })),
+      prev.map((g) =>
+        g.id === id ? { ...g, isEditing: !g.isEditing } : { ...g, isEditing: false }
+      )
     );
   }, []);
 
-  const handleEditSave = useCallback((id: string, name: string, columns: number, description: string) => {
-    setGroups((prev) =>
-      prev.map((g) =>
-        g.id === id ? { ...g, name, columns, description, isEditing: false, dirty: true } as any : g,
-      ),
-    );
-    setIsDirty(true);
-  }, []);
+  const handleEditSave = useCallback(
+    (id: string, name: string, columns: number, description: string) => {
+      setGroups((prev) =>
+        prev.map((g) =>
+          g.id === id
+            ? ({ ...g, name, columns, description, isEditing: false, dirty: true } as any)
+            : g
+        )
+      );
+      setIsDirty(true);
+    },
+    []
+  );
 
   const handleEditCancel = useCallback((id: string) => {
     setGroups((prev) => prev.map((g) => (g.id === id ? { ...g, isEditing: false } : g)));
@@ -529,9 +580,7 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
       }));
       return prev
         .filter((g) => g.id !== id)
-        .map((g) =>
-          g.id === 'unassigned' ? { ...g, fields: [...g.fields, ...movedFields] } : g,
-        );
+        .map((g) => (g.id === "unassigned" ? { ...g, fields: [...g.fields, ...movedFields] } : g));
     });
     setIsDirty(true);
   }, []);
@@ -541,9 +590,13 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
     setGroups((prev) =>
       prev.map((g) =>
         g.id === id
-          ? { ...g, layout_type: g.layout_type === 'summary' ? 'single' : 'summary', dirty: true } as any
-          : g,
-      ),
+          ? ({
+              ...g,
+              layout_type: g.layout_type === "summary" ? "single" : "summary",
+              dirty: true,
+            } as any)
+          : g
+      )
     );
     setIsDirty(true);
   }, []);
@@ -553,11 +606,11 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
     const tempId = `new-${Date.now()}`;
     const newGroup: WorkingGroup = {
       id: tempId,
-      name: 'New Group',
+      name: "New Group",
       columns: 2,
-      description: '',
-      layout_type: 'single',
-      seq_no: (groups.filter((g) => g.id !== 'unassigned').length + 1) * 10,
+      description: "",
+      layout_type: "single",
+      seq_no: (groups.filter((g) => g.id !== "unassigned").length + 1) * 10,
       isNew: true,
       isEditing: true,
       isDeleted: false,
@@ -565,7 +618,7 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
     };
     // Insert before unassigned
     setGroups((prev) => {
-      const idx = prev.findIndex((g) => g.id === 'unassigned');
+      const idx = prev.findIndex((g) => g.id === "unassigned");
       const next = [...prev];
       next.splice(idx, 0, newGroup);
       return next;
@@ -595,8 +648,8 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
   const handleGridToggleVisibility = useCallback((fieldId: string) => {
     setGridList((prev) =>
       prev.map((f) =>
-        f.sys_field_id === fieldId ? { ...f, is_displayed: !f.is_displayed, dirty: true } : f,
-      ),
+        f.sys_field_id === fieldId ? { ...f, is_displayed: !f.is_displayed, dirty: true } : f
+      )
     );
     setIsDirty(true);
   }, []);
@@ -606,29 +659,34 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
     setIsSaving(true);
     try {
       // Grid mode: save seq_no_grid and is_displayed_grid only
-      if (mode === 'grid') {
+      if (mode === "grid") {
         const dirty = gridList.filter((f) => f.dirty);
         await Promise.all(
           dirty.map((f) =>
             apiClient.put(`/sys/fields/${f.sys_field_id}`, {
               seq_no_grid: f.seq_no,
               is_displayed_grid: f.is_displayed,
-            }),
-          ),
+            })
+          )
         );
-        await queryClient.invalidateQueries({ queryKey: ['fields-all', entityName, 'grid'] });
-        toast.success('Grid layout saved successfully');
+        await queryClient.invalidateQueries({ queryKey: ["fields-all", entityName, "grid"] });
+        toast.success("Grid layout saved successfully");
         setIsDirty(false);
         return;
       }
 
       // Form mode: save group assignments, seq_no, and is_displayed
-      const fieldUpdates: Array<{ id: string; sys_field_group_id: string | null; seq_no: number; is_displayed: boolean }> = [];
+      const fieldUpdates: Array<{
+        id: string;
+        sys_field_group_id: string | null;
+        seq_no: number;
+        is_displayed: boolean;
+      }> = [];
       const groupCreates: WorkingGroup[] = [];
       const groupUpdates: WorkingGroup[] = [];
 
       for (const g of groups) {
-        if (g.id === 'unassigned') continue;
+        if (g.id === "unassigned") continue;
         if (g.isNew) {
           groupCreates.push(g);
         } else if ((g as any).dirty) {
@@ -638,7 +696,7 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
           if (f.dirty) {
             fieldUpdates.push({
               id: f.sys_field_id,
-              sys_field_group_id: g.id === 'unassigned' ? null : g.id,
+              sys_field_group_id: g.id === "unassigned" ? null : g.id,
               seq_no: f.seq_no,
               is_displayed: f.is_displayed,
             });
@@ -646,7 +704,7 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
         }
       }
 
-      const unassigned = groups.find((g) => g.id === 'unassigned');
+      const unassigned = groups.find((g) => g.id === "unassigned");
       if (unassigned) {
         for (const f of unassigned.fields) {
           if (f.dirty) {
@@ -666,7 +724,7 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
           name: g.name,
           columns: g.columns,
           description: g.description,
-          layout_type: g.layout_type ?? 'single',
+          layout_type: g.layout_type ?? "single",
           seq_no: g.seq_no,
         });
         const realId = (created as any)?.sys_field_group_id;
@@ -685,22 +743,22 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
           name: g.name,
           columns: g.columns,
           description: g.description,
-          layout_type: g.layout_type ?? 'single',
+          layout_type: g.layout_type ?? "single",
           seq_no: g.seq_no,
         });
       }
 
       await Promise.all(
-        fieldUpdates.map(({ id, ...data }) => apiClient.put(`/sys/fields/${id}`, data)),
+        fieldUpdates.map(({ id, ...data }) => apiClient.put(`/sys/fields/${id}`, data))
       );
 
-      await queryClient.invalidateQueries({ queryKey: ['field-groups', entityName] });
-      await queryClient.invalidateQueries({ queryKey: ['fields-all', entityName] });
+      await queryClient.invalidateQueries({ queryKey: ["field-groups", entityName] });
+      await queryClient.invalidateQueries({ queryKey: ["fields-all", entityName] });
 
-      toast.success('Layout saved successfully');
+      toast.success("Layout saved successfully");
       setIsDirty(false);
     } catch (err: any) {
-      toast.error(`Save failed: ${err.message ?? 'Unknown error'}`);
+      toast.error(`Save failed: ${err.message ?? "Unknown error"}`);
     } finally {
       setIsSaving(false);
     }
@@ -708,10 +766,11 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
 
   /* ── reset */
   const handleReset = useCallback(() => {
-    if (mode === 'grid') {
+    if (mode === "grid") {
       if (!gridFields) return;
       const sorted = [...(gridFields as any[])].sort(
-        (a, b) => ((a as any).seq_no_grid ?? a.seq_no ?? 999) - ((b as any).seq_no_grid ?? b.seq_no ?? 999),
+        (a, b) =>
+          ((a as any).seq_no_grid ?? a.seq_no ?? 999) - ((b as any).seq_no_grid ?? b.seq_no ?? 999)
       );
       setGridList(
         sorted.map((f: any) => ({
@@ -721,7 +780,7 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
           originalGroupId: null,
           originalSeqNo: f.seq_no_grid ?? f.seq_no ?? 0,
           dirty: false,
-        })),
+        }))
       );
     } else {
       if (!formFields || !fieldGroupsData) return;
@@ -733,21 +792,23 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
   /* ── computed stats */
   const dirtyFieldCount = useMemo(
     () =>
-      mode === 'grid'
+      mode === "grid"
         ? gridList.filter((f) => f.dirty).length
         : groups.flatMap((g) => g.fields).filter((f) => f.dirty).length,
-    [mode, groups, gridList],
+    [mode, groups, gridList]
   );
 
-  const visibleGroups = groups.filter((g) => g.id !== 'unassigned');
-  const unassignedGroup = groups.find((g) => g.id === 'unassigned');
+  const visibleGroups = groups.filter((g) => g.id !== "unassigned");
+  const unassignedGroup = groups.find((g) => g.id === "unassigned");
 
   if (isLoading) {
     return (
       <div className="space-y-4 p-6">
         <Skeleton className="h-8 w-64" />
         <div className="grid grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-48" />)}
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-48" />
+          ))}
         </div>
       </div>
     );
@@ -760,23 +821,23 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
         <div className="flex items-center gap-2">
           <div className="flex rounded-lg border border-border overflow-hidden">
             <button
-              onClick={() => setMode('form')}
+              onClick={() => setMode("form")}
               className={cn(
-                'px-4 py-1.5 text-sm font-medium transition-colors',
-                mode === 'form'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-background text-muted-foreground hover:bg-muted',
+                "px-4 py-1.5 text-sm font-medium transition-colors",
+                mode === "form"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-background text-muted-foreground hover:bg-muted"
               )}
             >
               Form Fields
             </button>
             <button
-              onClick={() => setMode('grid')}
+              onClick={() => setMode("grid")}
               className={cn(
-                'px-4 py-1.5 text-sm font-medium transition-colors border-l border-border',
-                mode === 'grid'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-background text-muted-foreground hover:bg-muted',
+                "px-4 py-1.5 text-sm font-medium transition-colors border-l border-border",
+                mode === "grid"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-background text-muted-foreground hover:bg-muted"
               )}
             >
               Grid Fields
@@ -784,7 +845,7 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
           </div>
           {isDirty && (
             <Badge variant="outline" className="text-amber-600 border-amber-300 bg-amber-50">
-              {dirtyFieldCount} unsaved change{dirtyFieldCount !== 1 ? 's' : ''}
+              {dirtyFieldCount} unsaved change{dirtyFieldCount !== 1 ? "s" : ""}
             </Badge>
           )}
         </div>
@@ -807,12 +868,12 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
             className="h-8 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             <Save className="h-3.5 w-3.5" />
-            {isSaving ? 'Saving…' : 'Save Layout'}
+            {isSaving ? "Saving…" : "Save Layout"}
           </Button>
         </div>
       </div>
 
-      {mode === 'grid' ? (
+      {mode === "grid" ? (
         /* ── Grid mode: flat reorderable list, no groups ── */
         <DragDropContext onDragEnd={onGridDragEnd}>
           <Droppable droppableId="grid-fields">
@@ -826,19 +887,23 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
                   <p className="text-sm text-muted-foreground py-4 text-center">No fields found.</p>
                 )}
                 {gridList.map((field, index) => (
-                  <Draggable key={field.sys_field_id} draggableId={field.sys_field_id} index={index}>
+                  <Draggable
+                    key={field.sys_field_id}
+                    draggableId={field.sys_field_id}
+                    index={index}
+                  >
                     {(prov, snap) => (
                       <div
                         ref={prov.innerRef}
                         {...(prov.draggableProps as any)}
                         className={cn(
-                          'flex items-center gap-2 px-3 py-2.5 rounded-md border text-sm transition-all',
+                          "flex items-center gap-2 px-3 py-2.5 rounded-md border text-sm transition-all",
                           snap.isDragging
-                            ? 'bg-primary/5 border-primary/40 shadow-lg'
+                            ? "bg-primary/5 border-primary/40 shadow-lg"
                             : field.dirty
-                            ? 'bg-amber-50 border-amber-200'
-                            : 'bg-white border-border hover:border-primary/30',
-                          !field.is_displayed && 'opacity-50',
+                              ? "bg-amber-50 border-amber-200"
+                              : "bg-white border-border hover:border-primary/30",
+                          !field.is_displayed && "opacity-50"
                         )}
                       >
                         <span
@@ -853,19 +918,25 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5">
                             <span className="font-medium truncate">{field.name}</span>
-                            {field.is_mandatory && <span className="text-red-500 text-xs font-bold">*</span>}
+                            {field.is_mandatory && (
+                              <span className="text-red-500 text-xs font-bold">*</span>
+                            )}
                           </div>
                           <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-[10px] text-muted-foreground font-mono">{field.column_name}</span>
+                            <span className="text-[10px] text-muted-foreground font-mono">
+                              {field.column_name}
+                            </span>
                             <Badge variant="secondary" className="text-[10px] h-4 px-1 py-0">
-                              {FIELD_TYPE_LABELS[field.sys_reference_id] ?? field.reference_name ?? String(field.sys_reference_id)}
+                              {FIELD_TYPE_LABELS[field.sys_reference_id] ??
+                                field.reference_name ??
+                                String(field.sys_reference_id)}
                             </Badge>
                           </div>
                         </div>
                         <button
                           onClick={() => handleGridToggleVisibility(field.sys_field_id)}
                           className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
-                          title={field.is_displayed ? 'Hide column' : 'Show column'}
+                          title={field.is_displayed ? "Hide column" : "Show column"}
                         >
                           {field.is_displayed ? (
                             <Eye className="h-3.5 w-3.5 text-primary/70" />

@@ -23,8 +23,7 @@ import {
   tableNameToServiceName,
 } from "@erdwithai/core/utils";
 import { execSync } from "child_process";
-import { existsSync } from "fs";
-import { promises as fs } from "fs";
+import { existsSync, promises as fs } from "fs";
 import Handlebars from "handlebars";
 import path from "path";
 
@@ -116,19 +115,22 @@ export class TemplateLoader {
     // Iteration Helpers
     // ========================================================================
     // Like {{#each}} but iterates only over the first N items of the array
-    Handlebars.registerHelper("eachFirst", function (this: unknown, items: unknown, count: number, options: Handlebars.HelperOptions) {
-      if (!Array.isArray(items) || items.length === 0) {
-        return options.inverse(this);
+    Handlebars.registerHelper(
+      "eachFirst",
+      function (this: unknown, items: unknown, count: number, options: Handlebars.HelperOptions) {
+        if (!Array.isArray(items) || items.length === 0) {
+          return options.inverse(this);
+        }
+        const slice = items.slice(0, count);
+        return slice
+          .map((item, index) =>
+            options.fn(item, {
+              data: { index, first: index === 0, last: index === slice.length - 1 },
+            })
+          )
+          .join("");
       }
-      const slice = items.slice(0, count);
-      return slice
-        .map((item, index) =>
-          options.fn(item, {
-            data: { index, first: index === 0, last: index === slice.length - 1 },
-          })
-        )
-        .join("");
-    });
+    );
 
     // ========================================================================
     // Table Naming Helpers (sys_ and bus_ prefixes)
@@ -481,8 +483,14 @@ export class TemplateLoader {
       "split",
       (str: string, separator: string) => str?.split(separator) || []
     );
-    Handlebars.registerHelper("endsWith", (str: string, suffix: string) => str?.endsWith(suffix) ?? false);
-    Handlebars.registerHelper("startsWith", (str: string, prefix: string) => str?.startsWith(prefix) ?? false);
+    Handlebars.registerHelper(
+      "endsWith",
+      (str: string, suffix: string) => str?.endsWith(suffix) ?? false
+    );
+    Handlebars.registerHelper(
+      "startsWith",
+      (str: string, prefix: string) => str?.startsWith(prefix) ?? false
+    );
     Handlebars.registerHelper("concat", (...args) => args.slice(0, -1).join(""));
     Handlebars.registerHelper("substring", (str: string, start: number, length?: number) =>
       length ? str?.substring(start, start + length) : str?.substring(start)
@@ -784,8 +792,30 @@ export class TemplateLoader {
     Handlebars.registerHelper("seedValue", (fieldName: string, index: number) => {
       const n = (fieldName ?? "").toLowerCase();
       const i = typeof index === "number" ? index : 0;
-      const FIRST_NAMES = ["James", "Mary", "Robert", "Patricia", "John", "Jennifer", "Michael", "Linda", "David", "Barbara"];
-      const LAST_NAMES = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Wilson", "Taylor"];
+      const FIRST_NAMES = [
+        "James",
+        "Mary",
+        "Robert",
+        "Patricia",
+        "John",
+        "Jennifer",
+        "Michael",
+        "Linda",
+        "David",
+        "Barbara",
+      ];
+      const LAST_NAMES = [
+        "Smith",
+        "Johnson",
+        "Williams",
+        "Brown",
+        "Jones",
+        "Garcia",
+        "Miller",
+        "Davis",
+        "Wilson",
+        "Taylor",
+      ];
       // Every call site passes a non-empty literal, and the modulo keeps the
       // index in range, so the lookup cannot miss.
       const pick = <T>(arr: T[]): T => arr[i % arr.length] as T;
@@ -794,14 +824,20 @@ export class TemplateLoader {
       if (n === "last_name") return pick(LAST_NAMES);
       if (n === "name" || n.endsWith("_name")) return `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`;
       if (n === "gender") return i % 2 === 0 ? "Male" : "Female";
-      if (n === "relationship" || n === "relationship_type") return pick(["Mother", "Father", "Guardian", "Grandmother", "Grandfather"]);
+      if (n === "relationship" || n === "relationship_type")
+        return pick(["Mother", "Father", "Guardian", "Grandmother", "Grandfather"]);
       if (n === "grade" || n === "letter_grade") return pick(["A", "B+", "A-", "B", "A"]);
-      if (n === "status") return pick(["Active", "Pending", "Completed", "In Progress", "Scheduled"]);
-      if (n === "subject" || n === "subject_name") return pick(["Mathematics", "Science", "English", "History", "Geography"]);
-      if (n === "department") return pick(["Engineering", "Marketing", "Finance", "Operations", "HR"]);
-      if (n === "address" || n === "street_address") return `${(i + 1) * 100} ${pick(["Main St", "Oak Ave", "Elm Dr", "Park Blvd", "Cedar Ln"])}, ${pick(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"])}`;
+      if (n === "status")
+        return pick(["Active", "Pending", "Completed", "In Progress", "Scheduled"]);
+      if (n === "subject" || n === "subject_name")
+        return pick(["Mathematics", "Science", "English", "History", "Geography"]);
+      if (n === "department")
+        return pick(["Engineering", "Marketing", "Finance", "Operations", "HR"]);
+      if (n === "address" || n === "street_address")
+        return `${(i + 1) * 100} ${pick(["Main St", "Oak Ave", "Elm Dr", "Park Blvd", "Cedar Ln"])}, ${pick(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"])}`;
       if (n === "city") return pick(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"]);
-      if (n === "phone" || n === "phone_number" || n === "mobile") return `555-${String(1000 + i * 101).padStart(4, "0")}`;
+      if (n === "phone" || n === "phone_number" || n === "mobile")
+        return `555-${String(1000 + i * 101).padStart(4, "0")}`;
       if (n === "description" || n === "notes" || n === "bio") return `Description ${i + 1}`;
       if (n === "title") return `Title ${i + 1}`;
       if (n === "code" || n === "reference_code") return `CODE-${String(i + 1).padStart(3, "0")}`;

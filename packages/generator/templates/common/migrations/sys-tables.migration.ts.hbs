@@ -190,14 +190,14 @@ export async function up(db: Kysely<any>): Promise<void> {
   await sql`CREATE INDEX IF NOT EXISTS idx_sys_window_name ON sys_window (name)`.execute(db);
   await sql`CREATE INDEX IF NOT EXISTS idx_sys_window_is_active ON sys_window (is_active)`.execute(db);
 
-  // Add foreign keys from sys_table to sys_window
+  // Add foreign keys from sys_table to sys_window (idempotent: catches constraint-already-exists)
   await sql`
     ALTER TABLE sys_table
       ADD CONSTRAINT fk_sys_table_sys_window_id
         FOREIGN KEY (sys_window_id) REFERENCES sys_window(sys_window_id) ON DELETE SET NULL,
       ADD CONSTRAINT fk_sys_table_po_window_id
         FOREIGN KEY (po_window_id) REFERENCES sys_window(sys_window_id) ON DELETE SET NULL
-  `.execute(db);
+  `.execute(db).catch(() => {});
 
   // ============================================================================
   // sys_field_group - Field Group Metadata
@@ -263,12 +263,12 @@ export async function up(db: Kysely<any>): Promise<void> {
   await sql`CREATE INDEX IF NOT EXISTS idx_sys_tab_window_seq ON sys_tab (sys_window_id, seq_no)`.execute(db);
   await sql`CREATE INDEX IF NOT EXISTS idx_sys_tab_table_id ON sys_tab (sys_table_id)`.execute(db);
 
-  // Add foreign key from sys_field_group to sys_tab
+  // Add foreign key from sys_field_group to sys_tab (idempotent: catches constraint-already-exists)
   await sql`
     ALTER TABLE sys_field_group
       ADD CONSTRAINT fk_sys_field_group_tab_id
         FOREIGN KEY (sys_tab_id) REFERENCES sys_tab(sys_tab_id) ON DELETE CASCADE
-  `.execute(db);
+  `.execute(db).catch(() => {});
 
   // ============================================================================
   // sys_field - Field Metadata (CRITICAL: seq_no controls UI order)

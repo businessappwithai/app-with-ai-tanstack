@@ -8,1342 +8,1332 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as TestRouteImport } from './routes/test'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as DesignerRouteImport } from './routes/designer'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
-import { Route as ApiHealthRouteImport } from './routes/api/health'
-import { Route as ApiGenerateRouteImport } from './routes/api/generate'
-import { Route as ApiDeployRouteImport } from './routes/api/deploy'
-import { Route as ApiCopilotkitRouteImport } from './routes/api/copilotkit'
-import { Route as AdminUsersRouteImport } from './routes/admin/users'
-import { Route as ApiWorkflowsIndexRouteImport } from './routes/api/workflows/index'
-import { Route as ApiRulesIndexRouteImport } from './routes/api/rules/index'
-import { Route as ApiProjectsIndexRouteImport } from './routes/api/projects/index'
-import { Route as ApiMermaidIndexRouteImport } from './routes/api/mermaid/index'
-import { Route as AdminWorkflowsIndexRouteImport } from './routes/admin/workflows/index'
-import { Route as AdminRulesIndexRouteImport } from './routes/admin/rules/index'
-import { Route as AdminMermaidIndexRouteImport } from './routes/admin/mermaid/index'
-import { Route as ProjectsIdRulesDesignRouteImport } from './routes/projects/$id/rules-design'
-import { Route as ProjectsIdInitRouteImport } from './routes/projects/$id/init'
-import { Route as ProjectsIdGenerateRouteImport } from './routes/projects/$id/generate'
-import { Route as ProjectsIdDesignRouteImport } from './routes/projects/$id/design'
-import { Route as ProjectsIdDeployRouteImport } from './routes/projects/$id/deploy'
-import { Route as ApiRulesValidateRouteImport } from './routes/api/rules/validate'
-import { Route as ApiMermaidParseRouteImport } from './routes/api/mermaid/parse'
-import { Route as ApiMermaidFilenameRouteImport } from './routes/api/mermaid/$filename'
-import { Route as ApiCopilotkitSplatRouteImport } from './routes/api/copilotkit/$'
-import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth/register'
-import { Route as ApiAuthMeRouteImport } from './routes/api/auth/me'
-import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
-import { Route as ApiAuthLoginRouteImport } from './routes/api/auth/login'
-import { Route as ApiAiRulesStreamRouteImport } from './routes/api/ai/rules-stream'
-import { Route as ApiAiConvertStreamRouteImport } from './routes/api/ai/convert-stream'
-import { Route as ApiAiConvertRouteImport } from './routes/api/ai/convert'
-import { Route as ApiAiCodeAgentStreamRouteImport } from './routes/api/ai/code-agent-stream'
-import { Route as ApiAiCodeAgentRouteImport } from './routes/api/ai/code-agent'
-import { Route as AdminWorkflowsWorkflowIdRouteImport } from './routes/admin/workflows/$workflowId'
-import { Route as AdminRulesNewRouteImport } from './routes/admin/rules/new'
-import { Route as ProjectsIdEnhanceIndexRouteImport } from './routes/projects/$id/enhance/index'
-import { Route as ApiWorkflowsWorkflowIdIndexRouteImport } from './routes/api/workflows/$workflowId/index'
-import { Route as ApiRulesRuleIdIndexRouteImport } from './routes/api/rules/$ruleId/index'
-import { Route as ApiProjectsIdIndexRouteImport } from './routes/api/projects/$id/index'
-import { Route as ApiAdminUsersIndexRouteImport } from './routes/api/admin/users/index'
-import { Route as ProjectsIdEnhanceServiceNameRouteImport } from './routes/projects/$id/enhance/$serviceName'
-import { Route as ApiWorkflowsWorkflowIdStatusRouteImport } from './routes/api/workflows/$workflowId/status'
-import { Route as ApiWorkflowsWorkflowIdRetryRouteImport } from './routes/api/workflows/$workflowId/retry'
-import { Route as AdminRulesEntityRuleIdRouteImport } from './routes/admin/rules/$entity/$ruleId'
-import { Route as ApiProjectsIdWorkflowsIndexRouteImport } from './routes/api/projects/$id/workflows/index'
-import { Route as ApiProjectsIdMembersIndexRouteImport } from './routes/api/projects/$id/members/index'
-import { Route as ApiProjectsIdErdVersionsIndexRouteImport } from './routes/api/projects/$id/erd-versions/index'
-import { Route as ApiProjectsIdDeploymentIndexRouteImport } from './routes/api/projects/$id/deployment/index'
-import { Route as ApiAdminUsersIdRejectRouteImport } from './routes/api/admin/users/$id/reject'
-import { Route as ApiAdminUsersIdApproveRouteImport } from './routes/api/admin/users/$id/approve'
-import { Route as ApiProjectsIdWorkflowsServiceNameIndexRouteImport } from './routes/api/projects/$id/workflows/$serviceName/index'
-import { Route as ApiProjectsIdMembersUserIdIndexRouteImport } from './routes/api/projects/$id/members/$userId/index'
-import { Route as ApiProjectsIdWorkflowsServiceNameValidateRouteImport } from './routes/api/projects/$id/workflows/$serviceName/validate'
-import { Route as ApiProjectsIdWorkflowsServiceNameGorulesRouteImport } from './routes/api/projects/$id/workflows/$serviceName/gorules'
-import { Route as ApiProjectsIdWorkflowsServiceNameGenerateRouteImport } from './routes/api/projects/$id/workflows/$serviceName/generate'
-import { Route as ApiProjectsIdWorkflowsServiceNameDraftRouteImport } from './routes/api/projects/$id/workflows/$serviceName/draft'
-import { Route as ApiProjectsIdWorkflowsServiceNameApplyRouteImport } from './routes/api/projects/$id/workflows/$serviceName/apply'
-import { Route as ApiProjectsIdErdVersionsVersionIdRestoreRouteImport } from './routes/api/projects/$id/erd-versions/$versionId/restore'
-import { Route as ApiProjectsIdWorkflowsServiceNameFilesIndexRouteImport } from './routes/api/projects/$id/workflows/$serviceName/files/index'
-import { Route as ApiProjectsIdWorkflowsServiceNameFilesFileNameRouteImport } from './routes/api/projects/$id/workflows/$serviceName/files/$fileName'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as AdminMermaidIndexRouteImport } from "./routes/admin/mermaid/index";
+import { Route as AdminRulesEntityRuleIdRouteImport } from "./routes/admin/rules/$entity/$ruleId";
+import { Route as AdminRulesIndexRouteImport } from "./routes/admin/rules/index";
+import { Route as AdminRulesNewRouteImport } from "./routes/admin/rules/new";
+import { Route as AdminUsersRouteImport } from "./routes/admin/users";
+import { Route as AdminWorkflowsWorkflowIdRouteImport } from "./routes/admin/workflows/$workflowId";
+import { Route as AdminWorkflowsIndexRouteImport } from "./routes/admin/workflows/index";
+import { Route as ApiAdminUsersIdApproveRouteImport } from "./routes/api/admin/users/$id/approve";
+import { Route as ApiAdminUsersIdRejectRouteImport } from "./routes/api/admin/users/$id/reject";
+import { Route as ApiAdminUsersIndexRouteImport } from "./routes/api/admin/users/index";
+import { Route as ApiAiCodeAgentRouteImport } from "./routes/api/ai/code-agent";
+import { Route as ApiAiCodeAgentStreamRouteImport } from "./routes/api/ai/code-agent-stream";
+import { Route as ApiAiConvertRouteImport } from "./routes/api/ai/convert";
+import { Route as ApiAiConvertStreamRouteImport } from "./routes/api/ai/convert-stream";
+import { Route as ApiAiRulesStreamRouteImport } from "./routes/api/ai/rules-stream";
+import { Route as ApiAuthLoginRouteImport } from "./routes/api/auth/login";
+import { Route as ApiAuthLogoutRouteImport } from "./routes/api/auth/logout";
+import { Route as ApiAuthMeRouteImport } from "./routes/api/auth/me";
+import { Route as ApiAuthRegisterRouteImport } from "./routes/api/auth/register";
+import { Route as ApiCopilotkitRouteImport } from "./routes/api/copilotkit";
+import { Route as ApiCopilotkitSplatRouteImport } from "./routes/api/copilotkit/$";
+import { Route as ApiDeployRouteImport } from "./routes/api/deploy";
+import { Route as ApiGenerateRouteImport } from "./routes/api/generate";
+import { Route as ApiHealthRouteImport } from "./routes/api/health";
+import { Route as ApiMermaidFilenameRouteImport } from "./routes/api/mermaid/$filename";
+import { Route as ApiMermaidIndexRouteImport } from "./routes/api/mermaid/index";
+import { Route as ApiMermaidParseRouteImport } from "./routes/api/mermaid/parse";
+import { Route as ApiProjectsIdDeploymentIndexRouteImport } from "./routes/api/projects/$id/deployment/index";
+import { Route as ApiProjectsIdErdVersionsVersionIdRestoreRouteImport } from "./routes/api/projects/$id/erd-versions/$versionId/restore";
+import { Route as ApiProjectsIdErdVersionsIndexRouteImport } from "./routes/api/projects/$id/erd-versions/index";
+import { Route as ApiProjectsIdIndexRouteImport } from "./routes/api/projects/$id/index";
+import { Route as ApiProjectsIdMembersUserIdIndexRouteImport } from "./routes/api/projects/$id/members/$userId/index";
+import { Route as ApiProjectsIdMembersIndexRouteImport } from "./routes/api/projects/$id/members/index";
+import { Route as ApiProjectsIdWorkflowsServiceNameApplyRouteImport } from "./routes/api/projects/$id/workflows/$serviceName/apply";
+import { Route as ApiProjectsIdWorkflowsServiceNameDraftRouteImport } from "./routes/api/projects/$id/workflows/$serviceName/draft";
+import { Route as ApiProjectsIdWorkflowsServiceNameFilesFileNameRouteImport } from "./routes/api/projects/$id/workflows/$serviceName/files/$fileName";
+import { Route as ApiProjectsIdWorkflowsServiceNameFilesIndexRouteImport } from "./routes/api/projects/$id/workflows/$serviceName/files/index";
+import { Route as ApiProjectsIdWorkflowsServiceNameGenerateRouteImport } from "./routes/api/projects/$id/workflows/$serviceName/generate";
+import { Route as ApiProjectsIdWorkflowsServiceNameGorulesRouteImport } from "./routes/api/projects/$id/workflows/$serviceName/gorules";
+import { Route as ApiProjectsIdWorkflowsServiceNameIndexRouteImport } from "./routes/api/projects/$id/workflows/$serviceName/index";
+import { Route as ApiProjectsIdWorkflowsServiceNameValidateRouteImport } from "./routes/api/projects/$id/workflows/$serviceName/validate";
+import { Route as ApiProjectsIdWorkflowsIndexRouteImport } from "./routes/api/projects/$id/workflows/index";
+import { Route as ApiProjectsIndexRouteImport } from "./routes/api/projects/index";
+import { Route as ApiRulesRuleIdIndexRouteImport } from "./routes/api/rules/$ruleId/index";
+import { Route as ApiRulesIndexRouteImport } from "./routes/api/rules/index";
+import { Route as ApiRulesValidateRouteImport } from "./routes/api/rules/validate";
+import { Route as ApiWorkflowsWorkflowIdIndexRouteImport } from "./routes/api/workflows/$workflowId/index";
+import { Route as ApiWorkflowsWorkflowIdRetryRouteImport } from "./routes/api/workflows/$workflowId/retry";
+import { Route as ApiWorkflowsWorkflowIdStatusRouteImport } from "./routes/api/workflows/$workflowId/status";
+import { Route as ApiWorkflowsIndexRouteImport } from "./routes/api/workflows/index";
+import { Route as DashboardRouteImport } from "./routes/dashboard";
+import { Route as DesignerRouteImport } from "./routes/designer";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as LoginRouteImport } from "./routes/login";
+import { Route as ProjectsIdDeployRouteImport } from "./routes/projects/$id/deploy";
+import { Route as ProjectsIdDesignRouteImport } from "./routes/projects/$id/design";
+import { Route as ProjectsIdEnhanceServiceNameRouteImport } from "./routes/projects/$id/enhance/$serviceName";
+import { Route as ProjectsIdEnhanceIndexRouteImport } from "./routes/projects/$id/enhance/index";
+import { Route as ProjectsIdGenerateRouteImport } from "./routes/projects/$id/generate";
+import { Route as ProjectsIdInitRouteImport } from "./routes/projects/$id/init";
+import { Route as ProjectsIdRulesDesignRouteImport } from "./routes/projects/$id/rules-design";
+import { Route as ProjectsIndexRouteImport } from "./routes/projects/index";
+import { Route as SettingsRouteImport } from "./routes/settings";
+import { Route as TestRouteImport } from "./routes/test";
 
 const TestRoute = TestRouteImport.update({
-  id: '/test',
-  path: '/test',
+  id: "/test",
+  path: "/test",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+  id: "/settings",
+  path: "/settings",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+  id: "/login",
+  path: "/login",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const DesignerRoute = DesignerRouteImport.update({
-  id: '/designer',
-  path: '/designer',
+  id: "/designer",
+  path: "/designer",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+  id: "/dashboard",
+  path: "/dashboard",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
-  id: '/projects/',
-  path: '/projects/',
+  id: "/projects/",
+  path: "/projects/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiHealthRoute = ApiHealthRouteImport.update({
-  id: '/api/health',
-  path: '/api/health',
+  id: "/api/health",
+  path: "/api/health",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiGenerateRoute = ApiGenerateRouteImport.update({
-  id: '/api/generate',
-  path: '/api/generate',
+  id: "/api/generate",
+  path: "/api/generate",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiDeployRoute = ApiDeployRouteImport.update({
-  id: '/api/deploy',
-  path: '/api/deploy',
+  id: "/api/deploy",
+  path: "/api/deploy",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiCopilotkitRoute = ApiCopilotkitRouteImport.update({
-  id: '/api/copilotkit',
-  path: '/api/copilotkit',
+  id: "/api/copilotkit",
+  path: "/api/copilotkit",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/admin/users',
-  path: '/admin/users',
+  id: "/admin/users",
+  path: "/admin/users",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiWorkflowsIndexRoute = ApiWorkflowsIndexRouteImport.update({
-  id: '/api/workflows/',
-  path: '/api/workflows/',
+  id: "/api/workflows/",
+  path: "/api/workflows/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiRulesIndexRoute = ApiRulesIndexRouteImport.update({
-  id: '/api/rules/',
-  path: '/api/rules/',
+  id: "/api/rules/",
+  path: "/api/rules/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiProjectsIndexRoute = ApiProjectsIndexRouteImport.update({
-  id: '/api/projects/',
-  path: '/api/projects/',
+  id: "/api/projects/",
+  path: "/api/projects/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiMermaidIndexRoute = ApiMermaidIndexRouteImport.update({
-  id: '/api/mermaid/',
-  path: '/api/mermaid/',
+  id: "/api/mermaid/",
+  path: "/api/mermaid/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AdminWorkflowsIndexRoute = AdminWorkflowsIndexRouteImport.update({
-  id: '/admin/workflows/',
-  path: '/admin/workflows/',
+  id: "/admin/workflows/",
+  path: "/admin/workflows/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AdminRulesIndexRoute = AdminRulesIndexRouteImport.update({
-  id: '/admin/rules/',
-  path: '/admin/rules/',
+  id: "/admin/rules/",
+  path: "/admin/rules/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AdminMermaidIndexRoute = AdminMermaidIndexRouteImport.update({
-  id: '/admin/mermaid/',
-  path: '/admin/mermaid/',
+  id: "/admin/mermaid/",
+  path: "/admin/mermaid/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ProjectsIdRulesDesignRoute = ProjectsIdRulesDesignRouteImport.update({
-  id: '/projects/$id/rules-design',
-  path: '/projects/$id/rules-design',
+  id: "/projects/$id/rules-design",
+  path: "/projects/$id/rules-design",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ProjectsIdInitRoute = ProjectsIdInitRouteImport.update({
-  id: '/projects/$id/init',
-  path: '/projects/$id/init',
+  id: "/projects/$id/init",
+  path: "/projects/$id/init",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ProjectsIdGenerateRoute = ProjectsIdGenerateRouteImport.update({
-  id: '/projects/$id/generate',
-  path: '/projects/$id/generate',
+  id: "/projects/$id/generate",
+  path: "/projects/$id/generate",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ProjectsIdDesignRoute = ProjectsIdDesignRouteImport.update({
-  id: '/projects/$id/design',
-  path: '/projects/$id/design',
+  id: "/projects/$id/design",
+  path: "/projects/$id/design",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ProjectsIdDeployRoute = ProjectsIdDeployRouteImport.update({
-  id: '/projects/$id/deploy',
-  path: '/projects/$id/deploy',
+  id: "/projects/$id/deploy",
+  path: "/projects/$id/deploy",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiRulesValidateRoute = ApiRulesValidateRouteImport.update({
-  id: '/api/rules/validate',
-  path: '/api/rules/validate',
+  id: "/api/rules/validate",
+  path: "/api/rules/validate",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiMermaidParseRoute = ApiMermaidParseRouteImport.update({
-  id: '/api/mermaid/parse',
-  path: '/api/mermaid/parse',
+  id: "/api/mermaid/parse",
+  path: "/api/mermaid/parse",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiMermaidFilenameRoute = ApiMermaidFilenameRouteImport.update({
-  id: '/api/mermaid/$filename',
-  path: '/api/mermaid/$filename',
+  id: "/api/mermaid/$filename",
+  path: "/api/mermaid/$filename",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiCopilotkitSplatRoute = ApiCopilotkitSplatRouteImport.update({
-  id: '/$',
-  path: '/$',
+  id: "/$",
+  path: "/$",
   getParentRoute: () => ApiCopilotkitRoute,
-} as any)
+} as any);
 const ApiAuthRegisterRoute = ApiAuthRegisterRouteImport.update({
-  id: '/api/auth/register',
-  path: '/api/auth/register',
+  id: "/api/auth/register",
+  path: "/api/auth/register",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiAuthMeRoute = ApiAuthMeRouteImport.update({
-  id: '/api/auth/me',
-  path: '/api/auth/me',
+  id: "/api/auth/me",
+  path: "/api/auth/me",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
-  id: '/api/auth/logout',
-  path: '/api/auth/logout',
+  id: "/api/auth/logout",
+  path: "/api/auth/logout",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiAuthLoginRoute = ApiAuthLoginRouteImport.update({
-  id: '/api/auth/login',
-  path: '/api/auth/login',
+  id: "/api/auth/login",
+  path: "/api/auth/login",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiAiRulesStreamRoute = ApiAiRulesStreamRouteImport.update({
-  id: '/api/ai/rules-stream',
-  path: '/api/ai/rules-stream',
+  id: "/api/ai/rules-stream",
+  path: "/api/ai/rules-stream",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiAiConvertStreamRoute = ApiAiConvertStreamRouteImport.update({
-  id: '/api/ai/convert-stream',
-  path: '/api/ai/convert-stream',
+  id: "/api/ai/convert-stream",
+  path: "/api/ai/convert-stream",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiAiConvertRoute = ApiAiConvertRouteImport.update({
-  id: '/api/ai/convert',
-  path: '/api/ai/convert',
+  id: "/api/ai/convert",
+  path: "/api/ai/convert",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiAiCodeAgentStreamRoute = ApiAiCodeAgentStreamRouteImport.update({
-  id: '/api/ai/code-agent-stream',
-  path: '/api/ai/code-agent-stream',
+  id: "/api/ai/code-agent-stream",
+  path: "/api/ai/code-agent-stream",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiAiCodeAgentRoute = ApiAiCodeAgentRouteImport.update({
-  id: '/api/ai/code-agent',
-  path: '/api/ai/code-agent',
+  id: "/api/ai/code-agent",
+  path: "/api/ai/code-agent",
   getParentRoute: () => rootRouteImport,
-} as any)
-const AdminWorkflowsWorkflowIdRoute =
-  AdminWorkflowsWorkflowIdRouteImport.update({
-    id: '/admin/workflows/$workflowId',
-    path: '/admin/workflows/$workflowId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
+} as any);
+const AdminWorkflowsWorkflowIdRoute = AdminWorkflowsWorkflowIdRouteImport.update({
+  id: "/admin/workflows/$workflowId",
+  path: "/admin/workflows/$workflowId",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const AdminRulesNewRoute = AdminRulesNewRouteImport.update({
-  id: '/admin/rules/new',
-  path: '/admin/rules/new',
+  id: "/admin/rules/new",
+  path: "/admin/rules/new",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ProjectsIdEnhanceIndexRoute = ProjectsIdEnhanceIndexRouteImport.update({
-  id: '/projects/$id/enhance/',
-  path: '/projects/$id/enhance/',
+  id: "/projects/$id/enhance/",
+  path: "/projects/$id/enhance/",
   getParentRoute: () => rootRouteImport,
-} as any)
-const ApiWorkflowsWorkflowIdIndexRoute =
-  ApiWorkflowsWorkflowIdIndexRouteImport.update({
-    id: '/api/workflows/$workflowId/',
-    path: '/api/workflows/$workflowId/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
+} as any);
+const ApiWorkflowsWorkflowIdIndexRoute = ApiWorkflowsWorkflowIdIndexRouteImport.update({
+  id: "/api/workflows/$workflowId/",
+  path: "/api/workflows/$workflowId/",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const ApiRulesRuleIdIndexRoute = ApiRulesRuleIdIndexRouteImport.update({
-  id: '/api/rules/$ruleId/',
-  path: '/api/rules/$ruleId/',
+  id: "/api/rules/$ruleId/",
+  path: "/api/rules/$ruleId/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiProjectsIdIndexRoute = ApiProjectsIdIndexRouteImport.update({
-  id: '/api/projects/$id/',
-  path: '/api/projects/$id/',
+  id: "/api/projects/$id/",
+  path: "/api/projects/$id/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiAdminUsersIndexRoute = ApiAdminUsersIndexRouteImport.update({
-  id: '/api/admin/users/',
-  path: '/api/admin/users/',
+  id: "/api/admin/users/",
+  path: "/api/admin/users/",
   getParentRoute: () => rootRouteImport,
-} as any)
-const ProjectsIdEnhanceServiceNameRoute =
-  ProjectsIdEnhanceServiceNameRouteImport.update({
-    id: '/projects/$id/enhance/$serviceName',
-    path: '/projects/$id/enhance/$serviceName',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiWorkflowsWorkflowIdStatusRoute =
-  ApiWorkflowsWorkflowIdStatusRouteImport.update({
-    id: '/api/workflows/$workflowId/status',
-    path: '/api/workflows/$workflowId/status',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiWorkflowsWorkflowIdRetryRoute =
-  ApiWorkflowsWorkflowIdRetryRouteImport.update({
-    id: '/api/workflows/$workflowId/retry',
-    path: '/api/workflows/$workflowId/retry',
-    getParentRoute: () => rootRouteImport,
-  } as any)
+} as any);
+const ProjectsIdEnhanceServiceNameRoute = ProjectsIdEnhanceServiceNameRouteImport.update({
+  id: "/projects/$id/enhance/$serviceName",
+  path: "/projects/$id/enhance/$serviceName",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ApiWorkflowsWorkflowIdStatusRoute = ApiWorkflowsWorkflowIdStatusRouteImport.update({
+  id: "/api/workflows/$workflowId/status",
+  path: "/api/workflows/$workflowId/status",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ApiWorkflowsWorkflowIdRetryRoute = ApiWorkflowsWorkflowIdRetryRouteImport.update({
+  id: "/api/workflows/$workflowId/retry",
+  path: "/api/workflows/$workflowId/retry",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const AdminRulesEntityRuleIdRoute = AdminRulesEntityRuleIdRouteImport.update({
-  id: '/admin/rules/$entity/$ruleId',
-  path: '/admin/rules/$entity/$ruleId',
+  id: "/admin/rules/$entity/$ruleId",
+  path: "/admin/rules/$entity/$ruleId",
   getParentRoute: () => rootRouteImport,
-} as any)
-const ApiProjectsIdWorkflowsIndexRoute =
-  ApiProjectsIdWorkflowsIndexRouteImport.update({
-    id: '/api/projects/$id/workflows/',
-    path: '/api/projects/$id/workflows/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiProjectsIdMembersIndexRoute =
-  ApiProjectsIdMembersIndexRouteImport.update({
-    id: '/api/projects/$id/members/',
-    path: '/api/projects/$id/members/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiProjectsIdErdVersionsIndexRoute =
-  ApiProjectsIdErdVersionsIndexRouteImport.update({
-    id: '/api/projects/$id/erd-versions/',
-    path: '/api/projects/$id/erd-versions/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiProjectsIdDeploymentIndexRoute =
-  ApiProjectsIdDeploymentIndexRouteImport.update({
-    id: '/api/projects/$id/deployment/',
-    path: '/api/projects/$id/deployment/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
+} as any);
+const ApiProjectsIdWorkflowsIndexRoute = ApiProjectsIdWorkflowsIndexRouteImport.update({
+  id: "/api/projects/$id/workflows/",
+  path: "/api/projects/$id/workflows/",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ApiProjectsIdMembersIndexRoute = ApiProjectsIdMembersIndexRouteImport.update({
+  id: "/api/projects/$id/members/",
+  path: "/api/projects/$id/members/",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ApiProjectsIdErdVersionsIndexRoute = ApiProjectsIdErdVersionsIndexRouteImport.update({
+  id: "/api/projects/$id/erd-versions/",
+  path: "/api/projects/$id/erd-versions/",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ApiProjectsIdDeploymentIndexRoute = ApiProjectsIdDeploymentIndexRouteImport.update({
+  id: "/api/projects/$id/deployment/",
+  path: "/api/projects/$id/deployment/",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const ApiAdminUsersIdRejectRoute = ApiAdminUsersIdRejectRouteImport.update({
-  id: '/api/admin/users/$id/reject',
-  path: '/api/admin/users/$id/reject',
+  id: "/api/admin/users/$id/reject",
+  path: "/api/admin/users/$id/reject",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiAdminUsersIdApproveRoute = ApiAdminUsersIdApproveRouteImport.update({
-  id: '/api/admin/users/$id/approve',
-  path: '/api/admin/users/$id/approve',
+  id: "/api/admin/users/$id/approve",
+  path: "/api/admin/users/$id/approve",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiProjectsIdWorkflowsServiceNameIndexRoute =
   ApiProjectsIdWorkflowsServiceNameIndexRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/',
-    path: '/api/projects/$id/workflows/$serviceName/',
+    id: "/api/projects/$id/workflows/$serviceName/",
+    path: "/api/projects/$id/workflows/$serviceName/",
     getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiProjectsIdMembersUserIdIndexRoute =
-  ApiProjectsIdMembersUserIdIndexRouteImport.update({
-    id: '/api/projects/$id/members/$userId/',
-    path: '/api/projects/$id/members/$userId/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
+  } as any);
+const ApiProjectsIdMembersUserIdIndexRoute = ApiProjectsIdMembersUserIdIndexRouteImport.update({
+  id: "/api/projects/$id/members/$userId/",
+  path: "/api/projects/$id/members/$userId/",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const ApiProjectsIdWorkflowsServiceNameValidateRoute =
   ApiProjectsIdWorkflowsServiceNameValidateRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/validate',
-    path: '/api/projects/$id/workflows/$serviceName/validate',
+    id: "/api/projects/$id/workflows/$serviceName/validate",
+    path: "/api/projects/$id/workflows/$serviceName/validate",
     getParentRoute: () => rootRouteImport,
-  } as any)
+  } as any);
 const ApiProjectsIdWorkflowsServiceNameGorulesRoute =
   ApiProjectsIdWorkflowsServiceNameGorulesRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/gorules',
-    path: '/api/projects/$id/workflows/$serviceName/gorules',
+    id: "/api/projects/$id/workflows/$serviceName/gorules",
+    path: "/api/projects/$id/workflows/$serviceName/gorules",
     getParentRoute: () => rootRouteImport,
-  } as any)
+  } as any);
 const ApiProjectsIdWorkflowsServiceNameGenerateRoute =
   ApiProjectsIdWorkflowsServiceNameGenerateRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/generate',
-    path: '/api/projects/$id/workflows/$serviceName/generate',
+    id: "/api/projects/$id/workflows/$serviceName/generate",
+    path: "/api/projects/$id/workflows/$serviceName/generate",
     getParentRoute: () => rootRouteImport,
-  } as any)
+  } as any);
 const ApiProjectsIdWorkflowsServiceNameDraftRoute =
   ApiProjectsIdWorkflowsServiceNameDraftRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/draft',
-    path: '/api/projects/$id/workflows/$serviceName/draft',
+    id: "/api/projects/$id/workflows/$serviceName/draft",
+    path: "/api/projects/$id/workflows/$serviceName/draft",
     getParentRoute: () => rootRouteImport,
-  } as any)
+  } as any);
 const ApiProjectsIdWorkflowsServiceNameApplyRoute =
   ApiProjectsIdWorkflowsServiceNameApplyRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/apply',
-    path: '/api/projects/$id/workflows/$serviceName/apply',
+    id: "/api/projects/$id/workflows/$serviceName/apply",
+    path: "/api/projects/$id/workflows/$serviceName/apply",
     getParentRoute: () => rootRouteImport,
-  } as any)
+  } as any);
 const ApiProjectsIdErdVersionsVersionIdRestoreRoute =
   ApiProjectsIdErdVersionsVersionIdRestoreRouteImport.update({
-    id: '/api/projects/$id/erd-versions/$versionId/restore',
-    path: '/api/projects/$id/erd-versions/$versionId/restore',
+    id: "/api/projects/$id/erd-versions/$versionId/restore",
+    path: "/api/projects/$id/erd-versions/$versionId/restore",
     getParentRoute: () => rootRouteImport,
-  } as any)
+  } as any);
 const ApiProjectsIdWorkflowsServiceNameFilesIndexRoute =
   ApiProjectsIdWorkflowsServiceNameFilesIndexRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/files/',
-    path: '/api/projects/$id/workflows/$serviceName/files/',
+    id: "/api/projects/$id/workflows/$serviceName/files/",
+    path: "/api/projects/$id/workflows/$serviceName/files/",
     getParentRoute: () => rootRouteImport,
-  } as any)
+  } as any);
 const ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute =
   ApiProjectsIdWorkflowsServiceNameFilesFileNameRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/files/$fileName',
-    path: '/api/projects/$id/workflows/$serviceName/files/$fileName',
+    id: "/api/projects/$id/workflows/$serviceName/files/$fileName",
+    path: "/api/projects/$id/workflows/$serviceName/files/$fileName",
     getParentRoute: () => rootRouteImport,
-  } as any)
+  } as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/designer': typeof DesignerRoute
-  '/login': typeof LoginRoute
-  '/settings': typeof SettingsRoute
-  '/test': typeof TestRoute
-  '/admin/users': typeof AdminUsersRoute
-  '/api/copilotkit': typeof ApiCopilotkitRouteWithChildren
-  '/api/deploy': typeof ApiDeployRoute
-  '/api/generate': typeof ApiGenerateRoute
-  '/api/health': typeof ApiHealthRoute
-  '/projects/': typeof ProjectsIndexRoute
-  '/admin/rules/new': typeof AdminRulesNewRoute
-  '/admin/workflows/$workflowId': typeof AdminWorkflowsWorkflowIdRoute
-  '/api/ai/code-agent': typeof ApiAiCodeAgentRoute
-  '/api/ai/code-agent-stream': typeof ApiAiCodeAgentStreamRoute
-  '/api/ai/convert': typeof ApiAiConvertRoute
-  '/api/ai/convert-stream': typeof ApiAiConvertStreamRoute
-  '/api/ai/rules-stream': typeof ApiAiRulesStreamRoute
-  '/api/auth/login': typeof ApiAuthLoginRoute
-  '/api/auth/logout': typeof ApiAuthLogoutRoute
-  '/api/auth/me': typeof ApiAuthMeRoute
-  '/api/auth/register': typeof ApiAuthRegisterRoute
-  '/api/copilotkit/$': typeof ApiCopilotkitSplatRoute
-  '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
-  '/api/mermaid/parse': typeof ApiMermaidParseRoute
-  '/api/rules/validate': typeof ApiRulesValidateRoute
-  '/projects/$id/deploy': typeof ProjectsIdDeployRoute
-  '/projects/$id/design': typeof ProjectsIdDesignRoute
-  '/projects/$id/generate': typeof ProjectsIdGenerateRoute
-  '/projects/$id/init': typeof ProjectsIdInitRoute
-  '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
-  '/admin/mermaid/': typeof AdminMermaidIndexRoute
-  '/admin/rules/': typeof AdminRulesIndexRoute
-  '/admin/workflows/': typeof AdminWorkflowsIndexRoute
-  '/api/mermaid/': typeof ApiMermaidIndexRoute
-  '/api/projects/': typeof ApiProjectsIndexRoute
-  '/api/rules/': typeof ApiRulesIndexRoute
-  '/api/workflows/': typeof ApiWorkflowsIndexRoute
-  '/admin/rules/$entity/$ruleId': typeof AdminRulesEntityRuleIdRoute
-  '/api/workflows/$workflowId/retry': typeof ApiWorkflowsWorkflowIdRetryRoute
-  '/api/workflows/$workflowId/status': typeof ApiWorkflowsWorkflowIdStatusRoute
-  '/projects/$id/enhance/$serviceName': typeof ProjectsIdEnhanceServiceNameRoute
-  '/api/admin/users/': typeof ApiAdminUsersIndexRoute
-  '/api/projects/$id/': typeof ApiProjectsIdIndexRoute
-  '/api/rules/$ruleId/': typeof ApiRulesRuleIdIndexRoute
-  '/api/workflows/$workflowId/': typeof ApiWorkflowsWorkflowIdIndexRoute
-  '/projects/$id/enhance/': typeof ProjectsIdEnhanceIndexRoute
-  '/api/admin/users/$id/approve': typeof ApiAdminUsersIdApproveRoute
-  '/api/admin/users/$id/reject': typeof ApiAdminUsersIdRejectRoute
-  '/api/projects/$id/deployment/': typeof ApiProjectsIdDeploymentIndexRoute
-  '/api/projects/$id/erd-versions/': typeof ApiProjectsIdErdVersionsIndexRoute
-  '/api/projects/$id/members/': typeof ApiProjectsIdMembersIndexRoute
-  '/api/projects/$id/workflows/': typeof ApiProjectsIdWorkflowsIndexRoute
-  '/api/projects/$id/erd-versions/$versionId/restore': typeof ApiProjectsIdErdVersionsVersionIdRestoreRoute
-  '/api/projects/$id/workflows/$serviceName/apply': typeof ApiProjectsIdWorkflowsServiceNameApplyRoute
-  '/api/projects/$id/workflows/$serviceName/draft': typeof ApiProjectsIdWorkflowsServiceNameDraftRoute
-  '/api/projects/$id/workflows/$serviceName/generate': typeof ApiProjectsIdWorkflowsServiceNameGenerateRoute
-  '/api/projects/$id/workflows/$serviceName/gorules': typeof ApiProjectsIdWorkflowsServiceNameGorulesRoute
-  '/api/projects/$id/workflows/$serviceName/validate': typeof ApiProjectsIdWorkflowsServiceNameValidateRoute
-  '/api/projects/$id/members/$userId/': typeof ApiProjectsIdMembersUserIdIndexRoute
-  '/api/projects/$id/workflows/$serviceName/': typeof ApiProjectsIdWorkflowsServiceNameIndexRoute
-  '/api/projects/$id/workflows/$serviceName/files/$fileName': typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute
-  '/api/projects/$id/workflows/$serviceName/files/': typeof ApiProjectsIdWorkflowsServiceNameFilesIndexRoute
+  "/": typeof IndexRoute;
+  "/dashboard": typeof DashboardRoute;
+  "/designer": typeof DesignerRoute;
+  "/login": typeof LoginRoute;
+  "/settings": typeof SettingsRoute;
+  "/test": typeof TestRoute;
+  "/admin/users": typeof AdminUsersRoute;
+  "/api/copilotkit": typeof ApiCopilotkitRouteWithChildren;
+  "/api/deploy": typeof ApiDeployRoute;
+  "/api/generate": typeof ApiGenerateRoute;
+  "/api/health": typeof ApiHealthRoute;
+  "/projects/": typeof ProjectsIndexRoute;
+  "/admin/rules/new": typeof AdminRulesNewRoute;
+  "/admin/workflows/$workflowId": typeof AdminWorkflowsWorkflowIdRoute;
+  "/api/ai/code-agent": typeof ApiAiCodeAgentRoute;
+  "/api/ai/code-agent-stream": typeof ApiAiCodeAgentStreamRoute;
+  "/api/ai/convert": typeof ApiAiConvertRoute;
+  "/api/ai/convert-stream": typeof ApiAiConvertStreamRoute;
+  "/api/ai/rules-stream": typeof ApiAiRulesStreamRoute;
+  "/api/auth/login": typeof ApiAuthLoginRoute;
+  "/api/auth/logout": typeof ApiAuthLogoutRoute;
+  "/api/auth/me": typeof ApiAuthMeRoute;
+  "/api/auth/register": typeof ApiAuthRegisterRoute;
+  "/api/copilotkit/$": typeof ApiCopilotkitSplatRoute;
+  "/api/mermaid/$filename": typeof ApiMermaidFilenameRoute;
+  "/api/mermaid/parse": typeof ApiMermaidParseRoute;
+  "/api/rules/validate": typeof ApiRulesValidateRoute;
+  "/projects/$id/deploy": typeof ProjectsIdDeployRoute;
+  "/projects/$id/design": typeof ProjectsIdDesignRoute;
+  "/projects/$id/generate": typeof ProjectsIdGenerateRoute;
+  "/projects/$id/init": typeof ProjectsIdInitRoute;
+  "/projects/$id/rules-design": typeof ProjectsIdRulesDesignRoute;
+  "/admin/mermaid/": typeof AdminMermaidIndexRoute;
+  "/admin/rules/": typeof AdminRulesIndexRoute;
+  "/admin/workflows/": typeof AdminWorkflowsIndexRoute;
+  "/api/mermaid/": typeof ApiMermaidIndexRoute;
+  "/api/projects/": typeof ApiProjectsIndexRoute;
+  "/api/rules/": typeof ApiRulesIndexRoute;
+  "/api/workflows/": typeof ApiWorkflowsIndexRoute;
+  "/admin/rules/$entity/$ruleId": typeof AdminRulesEntityRuleIdRoute;
+  "/api/workflows/$workflowId/retry": typeof ApiWorkflowsWorkflowIdRetryRoute;
+  "/api/workflows/$workflowId/status": typeof ApiWorkflowsWorkflowIdStatusRoute;
+  "/projects/$id/enhance/$serviceName": typeof ProjectsIdEnhanceServiceNameRoute;
+  "/api/admin/users/": typeof ApiAdminUsersIndexRoute;
+  "/api/projects/$id/": typeof ApiProjectsIdIndexRoute;
+  "/api/rules/$ruleId/": typeof ApiRulesRuleIdIndexRoute;
+  "/api/workflows/$workflowId/": typeof ApiWorkflowsWorkflowIdIndexRoute;
+  "/projects/$id/enhance/": typeof ProjectsIdEnhanceIndexRoute;
+  "/api/admin/users/$id/approve": typeof ApiAdminUsersIdApproveRoute;
+  "/api/admin/users/$id/reject": typeof ApiAdminUsersIdRejectRoute;
+  "/api/projects/$id/deployment/": typeof ApiProjectsIdDeploymentIndexRoute;
+  "/api/projects/$id/erd-versions/": typeof ApiProjectsIdErdVersionsIndexRoute;
+  "/api/projects/$id/members/": typeof ApiProjectsIdMembersIndexRoute;
+  "/api/projects/$id/workflows/": typeof ApiProjectsIdWorkflowsIndexRoute;
+  "/api/projects/$id/erd-versions/$versionId/restore": typeof ApiProjectsIdErdVersionsVersionIdRestoreRoute;
+  "/api/projects/$id/workflows/$serviceName/apply": typeof ApiProjectsIdWorkflowsServiceNameApplyRoute;
+  "/api/projects/$id/workflows/$serviceName/draft": typeof ApiProjectsIdWorkflowsServiceNameDraftRoute;
+  "/api/projects/$id/workflows/$serviceName/generate": typeof ApiProjectsIdWorkflowsServiceNameGenerateRoute;
+  "/api/projects/$id/workflows/$serviceName/gorules": typeof ApiProjectsIdWorkflowsServiceNameGorulesRoute;
+  "/api/projects/$id/workflows/$serviceName/validate": typeof ApiProjectsIdWorkflowsServiceNameValidateRoute;
+  "/api/projects/$id/members/$userId/": typeof ApiProjectsIdMembersUserIdIndexRoute;
+  "/api/projects/$id/workflows/$serviceName/": typeof ApiProjectsIdWorkflowsServiceNameIndexRoute;
+  "/api/projects/$id/workflows/$serviceName/files/$fileName": typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute;
+  "/api/projects/$id/workflows/$serviceName/files/": typeof ApiProjectsIdWorkflowsServiceNameFilesIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/designer': typeof DesignerRoute
-  '/login': typeof LoginRoute
-  '/settings': typeof SettingsRoute
-  '/test': typeof TestRoute
-  '/admin/users': typeof AdminUsersRoute
-  '/api/copilotkit': typeof ApiCopilotkitRouteWithChildren
-  '/api/deploy': typeof ApiDeployRoute
-  '/api/generate': typeof ApiGenerateRoute
-  '/api/health': typeof ApiHealthRoute
-  '/projects': typeof ProjectsIndexRoute
-  '/admin/rules/new': typeof AdminRulesNewRoute
-  '/admin/workflows/$workflowId': typeof AdminWorkflowsWorkflowIdRoute
-  '/api/ai/code-agent': typeof ApiAiCodeAgentRoute
-  '/api/ai/code-agent-stream': typeof ApiAiCodeAgentStreamRoute
-  '/api/ai/convert': typeof ApiAiConvertRoute
-  '/api/ai/convert-stream': typeof ApiAiConvertStreamRoute
-  '/api/ai/rules-stream': typeof ApiAiRulesStreamRoute
-  '/api/auth/login': typeof ApiAuthLoginRoute
-  '/api/auth/logout': typeof ApiAuthLogoutRoute
-  '/api/auth/me': typeof ApiAuthMeRoute
-  '/api/auth/register': typeof ApiAuthRegisterRoute
-  '/api/copilotkit/$': typeof ApiCopilotkitSplatRoute
-  '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
-  '/api/mermaid/parse': typeof ApiMermaidParseRoute
-  '/api/rules/validate': typeof ApiRulesValidateRoute
-  '/projects/$id/deploy': typeof ProjectsIdDeployRoute
-  '/projects/$id/design': typeof ProjectsIdDesignRoute
-  '/projects/$id/generate': typeof ProjectsIdGenerateRoute
-  '/projects/$id/init': typeof ProjectsIdInitRoute
-  '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
-  '/admin/mermaid': typeof AdminMermaidIndexRoute
-  '/admin/rules': typeof AdminRulesIndexRoute
-  '/admin/workflows': typeof AdminWorkflowsIndexRoute
-  '/api/mermaid': typeof ApiMermaidIndexRoute
-  '/api/projects': typeof ApiProjectsIndexRoute
-  '/api/rules': typeof ApiRulesIndexRoute
-  '/api/workflows': typeof ApiWorkflowsIndexRoute
-  '/admin/rules/$entity/$ruleId': typeof AdminRulesEntityRuleIdRoute
-  '/api/workflows/$workflowId/retry': typeof ApiWorkflowsWorkflowIdRetryRoute
-  '/api/workflows/$workflowId/status': typeof ApiWorkflowsWorkflowIdStatusRoute
-  '/projects/$id/enhance/$serviceName': typeof ProjectsIdEnhanceServiceNameRoute
-  '/api/admin/users': typeof ApiAdminUsersIndexRoute
-  '/api/projects/$id': typeof ApiProjectsIdIndexRoute
-  '/api/rules/$ruleId': typeof ApiRulesRuleIdIndexRoute
-  '/api/workflows/$workflowId': typeof ApiWorkflowsWorkflowIdIndexRoute
-  '/projects/$id/enhance': typeof ProjectsIdEnhanceIndexRoute
-  '/api/admin/users/$id/approve': typeof ApiAdminUsersIdApproveRoute
-  '/api/admin/users/$id/reject': typeof ApiAdminUsersIdRejectRoute
-  '/api/projects/$id/deployment': typeof ApiProjectsIdDeploymentIndexRoute
-  '/api/projects/$id/erd-versions': typeof ApiProjectsIdErdVersionsIndexRoute
-  '/api/projects/$id/members': typeof ApiProjectsIdMembersIndexRoute
-  '/api/projects/$id/workflows': typeof ApiProjectsIdWorkflowsIndexRoute
-  '/api/projects/$id/erd-versions/$versionId/restore': typeof ApiProjectsIdErdVersionsVersionIdRestoreRoute
-  '/api/projects/$id/workflows/$serviceName/apply': typeof ApiProjectsIdWorkflowsServiceNameApplyRoute
-  '/api/projects/$id/workflows/$serviceName/draft': typeof ApiProjectsIdWorkflowsServiceNameDraftRoute
-  '/api/projects/$id/workflows/$serviceName/generate': typeof ApiProjectsIdWorkflowsServiceNameGenerateRoute
-  '/api/projects/$id/workflows/$serviceName/gorules': typeof ApiProjectsIdWorkflowsServiceNameGorulesRoute
-  '/api/projects/$id/workflows/$serviceName/validate': typeof ApiProjectsIdWorkflowsServiceNameValidateRoute
-  '/api/projects/$id/members/$userId': typeof ApiProjectsIdMembersUserIdIndexRoute
-  '/api/projects/$id/workflows/$serviceName': typeof ApiProjectsIdWorkflowsServiceNameIndexRoute
-  '/api/projects/$id/workflows/$serviceName/files/$fileName': typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute
-  '/api/projects/$id/workflows/$serviceName/files': typeof ApiProjectsIdWorkflowsServiceNameFilesIndexRoute
+  "/": typeof IndexRoute;
+  "/dashboard": typeof DashboardRoute;
+  "/designer": typeof DesignerRoute;
+  "/login": typeof LoginRoute;
+  "/settings": typeof SettingsRoute;
+  "/test": typeof TestRoute;
+  "/admin/users": typeof AdminUsersRoute;
+  "/api/copilotkit": typeof ApiCopilotkitRouteWithChildren;
+  "/api/deploy": typeof ApiDeployRoute;
+  "/api/generate": typeof ApiGenerateRoute;
+  "/api/health": typeof ApiHealthRoute;
+  "/projects": typeof ProjectsIndexRoute;
+  "/admin/rules/new": typeof AdminRulesNewRoute;
+  "/admin/workflows/$workflowId": typeof AdminWorkflowsWorkflowIdRoute;
+  "/api/ai/code-agent": typeof ApiAiCodeAgentRoute;
+  "/api/ai/code-agent-stream": typeof ApiAiCodeAgentStreamRoute;
+  "/api/ai/convert": typeof ApiAiConvertRoute;
+  "/api/ai/convert-stream": typeof ApiAiConvertStreamRoute;
+  "/api/ai/rules-stream": typeof ApiAiRulesStreamRoute;
+  "/api/auth/login": typeof ApiAuthLoginRoute;
+  "/api/auth/logout": typeof ApiAuthLogoutRoute;
+  "/api/auth/me": typeof ApiAuthMeRoute;
+  "/api/auth/register": typeof ApiAuthRegisterRoute;
+  "/api/copilotkit/$": typeof ApiCopilotkitSplatRoute;
+  "/api/mermaid/$filename": typeof ApiMermaidFilenameRoute;
+  "/api/mermaid/parse": typeof ApiMermaidParseRoute;
+  "/api/rules/validate": typeof ApiRulesValidateRoute;
+  "/projects/$id/deploy": typeof ProjectsIdDeployRoute;
+  "/projects/$id/design": typeof ProjectsIdDesignRoute;
+  "/projects/$id/generate": typeof ProjectsIdGenerateRoute;
+  "/projects/$id/init": typeof ProjectsIdInitRoute;
+  "/projects/$id/rules-design": typeof ProjectsIdRulesDesignRoute;
+  "/admin/mermaid": typeof AdminMermaidIndexRoute;
+  "/admin/rules": typeof AdminRulesIndexRoute;
+  "/admin/workflows": typeof AdminWorkflowsIndexRoute;
+  "/api/mermaid": typeof ApiMermaidIndexRoute;
+  "/api/projects": typeof ApiProjectsIndexRoute;
+  "/api/rules": typeof ApiRulesIndexRoute;
+  "/api/workflows": typeof ApiWorkflowsIndexRoute;
+  "/admin/rules/$entity/$ruleId": typeof AdminRulesEntityRuleIdRoute;
+  "/api/workflows/$workflowId/retry": typeof ApiWorkflowsWorkflowIdRetryRoute;
+  "/api/workflows/$workflowId/status": typeof ApiWorkflowsWorkflowIdStatusRoute;
+  "/projects/$id/enhance/$serviceName": typeof ProjectsIdEnhanceServiceNameRoute;
+  "/api/admin/users": typeof ApiAdminUsersIndexRoute;
+  "/api/projects/$id": typeof ApiProjectsIdIndexRoute;
+  "/api/rules/$ruleId": typeof ApiRulesRuleIdIndexRoute;
+  "/api/workflows/$workflowId": typeof ApiWorkflowsWorkflowIdIndexRoute;
+  "/projects/$id/enhance": typeof ProjectsIdEnhanceIndexRoute;
+  "/api/admin/users/$id/approve": typeof ApiAdminUsersIdApproveRoute;
+  "/api/admin/users/$id/reject": typeof ApiAdminUsersIdRejectRoute;
+  "/api/projects/$id/deployment": typeof ApiProjectsIdDeploymentIndexRoute;
+  "/api/projects/$id/erd-versions": typeof ApiProjectsIdErdVersionsIndexRoute;
+  "/api/projects/$id/members": typeof ApiProjectsIdMembersIndexRoute;
+  "/api/projects/$id/workflows": typeof ApiProjectsIdWorkflowsIndexRoute;
+  "/api/projects/$id/erd-versions/$versionId/restore": typeof ApiProjectsIdErdVersionsVersionIdRestoreRoute;
+  "/api/projects/$id/workflows/$serviceName/apply": typeof ApiProjectsIdWorkflowsServiceNameApplyRoute;
+  "/api/projects/$id/workflows/$serviceName/draft": typeof ApiProjectsIdWorkflowsServiceNameDraftRoute;
+  "/api/projects/$id/workflows/$serviceName/generate": typeof ApiProjectsIdWorkflowsServiceNameGenerateRoute;
+  "/api/projects/$id/workflows/$serviceName/gorules": typeof ApiProjectsIdWorkflowsServiceNameGorulesRoute;
+  "/api/projects/$id/workflows/$serviceName/validate": typeof ApiProjectsIdWorkflowsServiceNameValidateRoute;
+  "/api/projects/$id/members/$userId": typeof ApiProjectsIdMembersUserIdIndexRoute;
+  "/api/projects/$id/workflows/$serviceName": typeof ApiProjectsIdWorkflowsServiceNameIndexRoute;
+  "/api/projects/$id/workflows/$serviceName/files/$fileName": typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute;
+  "/api/projects/$id/workflows/$serviceName/files": typeof ApiProjectsIdWorkflowsServiceNameFilesIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/designer': typeof DesignerRoute
-  '/login': typeof LoginRoute
-  '/settings': typeof SettingsRoute
-  '/test': typeof TestRoute
-  '/admin/users': typeof AdminUsersRoute
-  '/api/copilotkit': typeof ApiCopilotkitRouteWithChildren
-  '/api/deploy': typeof ApiDeployRoute
-  '/api/generate': typeof ApiGenerateRoute
-  '/api/health': typeof ApiHealthRoute
-  '/projects/': typeof ProjectsIndexRoute
-  '/admin/rules/new': typeof AdminRulesNewRoute
-  '/admin/workflows/$workflowId': typeof AdminWorkflowsWorkflowIdRoute
-  '/api/ai/code-agent': typeof ApiAiCodeAgentRoute
-  '/api/ai/code-agent-stream': typeof ApiAiCodeAgentStreamRoute
-  '/api/ai/convert': typeof ApiAiConvertRoute
-  '/api/ai/convert-stream': typeof ApiAiConvertStreamRoute
-  '/api/ai/rules-stream': typeof ApiAiRulesStreamRoute
-  '/api/auth/login': typeof ApiAuthLoginRoute
-  '/api/auth/logout': typeof ApiAuthLogoutRoute
-  '/api/auth/me': typeof ApiAuthMeRoute
-  '/api/auth/register': typeof ApiAuthRegisterRoute
-  '/api/copilotkit/$': typeof ApiCopilotkitSplatRoute
-  '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
-  '/api/mermaid/parse': typeof ApiMermaidParseRoute
-  '/api/rules/validate': typeof ApiRulesValidateRoute
-  '/projects/$id/deploy': typeof ProjectsIdDeployRoute
-  '/projects/$id/design': typeof ProjectsIdDesignRoute
-  '/projects/$id/generate': typeof ProjectsIdGenerateRoute
-  '/projects/$id/init': typeof ProjectsIdInitRoute
-  '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
-  '/admin/mermaid/': typeof AdminMermaidIndexRoute
-  '/admin/rules/': typeof AdminRulesIndexRoute
-  '/admin/workflows/': typeof AdminWorkflowsIndexRoute
-  '/api/mermaid/': typeof ApiMermaidIndexRoute
-  '/api/projects/': typeof ApiProjectsIndexRoute
-  '/api/rules/': typeof ApiRulesIndexRoute
-  '/api/workflows/': typeof ApiWorkflowsIndexRoute
-  '/admin/rules/$entity/$ruleId': typeof AdminRulesEntityRuleIdRoute
-  '/api/workflows/$workflowId/retry': typeof ApiWorkflowsWorkflowIdRetryRoute
-  '/api/workflows/$workflowId/status': typeof ApiWorkflowsWorkflowIdStatusRoute
-  '/projects/$id/enhance/$serviceName': typeof ProjectsIdEnhanceServiceNameRoute
-  '/api/admin/users/': typeof ApiAdminUsersIndexRoute
-  '/api/projects/$id/': typeof ApiProjectsIdIndexRoute
-  '/api/rules/$ruleId/': typeof ApiRulesRuleIdIndexRoute
-  '/api/workflows/$workflowId/': typeof ApiWorkflowsWorkflowIdIndexRoute
-  '/projects/$id/enhance/': typeof ProjectsIdEnhanceIndexRoute
-  '/api/admin/users/$id/approve': typeof ApiAdminUsersIdApproveRoute
-  '/api/admin/users/$id/reject': typeof ApiAdminUsersIdRejectRoute
-  '/api/projects/$id/deployment/': typeof ApiProjectsIdDeploymentIndexRoute
-  '/api/projects/$id/erd-versions/': typeof ApiProjectsIdErdVersionsIndexRoute
-  '/api/projects/$id/members/': typeof ApiProjectsIdMembersIndexRoute
-  '/api/projects/$id/workflows/': typeof ApiProjectsIdWorkflowsIndexRoute
-  '/api/projects/$id/erd-versions/$versionId/restore': typeof ApiProjectsIdErdVersionsVersionIdRestoreRoute
-  '/api/projects/$id/workflows/$serviceName/apply': typeof ApiProjectsIdWorkflowsServiceNameApplyRoute
-  '/api/projects/$id/workflows/$serviceName/draft': typeof ApiProjectsIdWorkflowsServiceNameDraftRoute
-  '/api/projects/$id/workflows/$serviceName/generate': typeof ApiProjectsIdWorkflowsServiceNameGenerateRoute
-  '/api/projects/$id/workflows/$serviceName/gorules': typeof ApiProjectsIdWorkflowsServiceNameGorulesRoute
-  '/api/projects/$id/workflows/$serviceName/validate': typeof ApiProjectsIdWorkflowsServiceNameValidateRoute
-  '/api/projects/$id/members/$userId/': typeof ApiProjectsIdMembersUserIdIndexRoute
-  '/api/projects/$id/workflows/$serviceName/': typeof ApiProjectsIdWorkflowsServiceNameIndexRoute
-  '/api/projects/$id/workflows/$serviceName/files/$fileName': typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute
-  '/api/projects/$id/workflows/$serviceName/files/': typeof ApiProjectsIdWorkflowsServiceNameFilesIndexRoute
+  __root__: typeof rootRouteImport;
+  "/": typeof IndexRoute;
+  "/dashboard": typeof DashboardRoute;
+  "/designer": typeof DesignerRoute;
+  "/login": typeof LoginRoute;
+  "/settings": typeof SettingsRoute;
+  "/test": typeof TestRoute;
+  "/admin/users": typeof AdminUsersRoute;
+  "/api/copilotkit": typeof ApiCopilotkitRouteWithChildren;
+  "/api/deploy": typeof ApiDeployRoute;
+  "/api/generate": typeof ApiGenerateRoute;
+  "/api/health": typeof ApiHealthRoute;
+  "/projects/": typeof ProjectsIndexRoute;
+  "/admin/rules/new": typeof AdminRulesNewRoute;
+  "/admin/workflows/$workflowId": typeof AdminWorkflowsWorkflowIdRoute;
+  "/api/ai/code-agent": typeof ApiAiCodeAgentRoute;
+  "/api/ai/code-agent-stream": typeof ApiAiCodeAgentStreamRoute;
+  "/api/ai/convert": typeof ApiAiConvertRoute;
+  "/api/ai/convert-stream": typeof ApiAiConvertStreamRoute;
+  "/api/ai/rules-stream": typeof ApiAiRulesStreamRoute;
+  "/api/auth/login": typeof ApiAuthLoginRoute;
+  "/api/auth/logout": typeof ApiAuthLogoutRoute;
+  "/api/auth/me": typeof ApiAuthMeRoute;
+  "/api/auth/register": typeof ApiAuthRegisterRoute;
+  "/api/copilotkit/$": typeof ApiCopilotkitSplatRoute;
+  "/api/mermaid/$filename": typeof ApiMermaidFilenameRoute;
+  "/api/mermaid/parse": typeof ApiMermaidParseRoute;
+  "/api/rules/validate": typeof ApiRulesValidateRoute;
+  "/projects/$id/deploy": typeof ProjectsIdDeployRoute;
+  "/projects/$id/design": typeof ProjectsIdDesignRoute;
+  "/projects/$id/generate": typeof ProjectsIdGenerateRoute;
+  "/projects/$id/init": typeof ProjectsIdInitRoute;
+  "/projects/$id/rules-design": typeof ProjectsIdRulesDesignRoute;
+  "/admin/mermaid/": typeof AdminMermaidIndexRoute;
+  "/admin/rules/": typeof AdminRulesIndexRoute;
+  "/admin/workflows/": typeof AdminWorkflowsIndexRoute;
+  "/api/mermaid/": typeof ApiMermaidIndexRoute;
+  "/api/projects/": typeof ApiProjectsIndexRoute;
+  "/api/rules/": typeof ApiRulesIndexRoute;
+  "/api/workflows/": typeof ApiWorkflowsIndexRoute;
+  "/admin/rules/$entity/$ruleId": typeof AdminRulesEntityRuleIdRoute;
+  "/api/workflows/$workflowId/retry": typeof ApiWorkflowsWorkflowIdRetryRoute;
+  "/api/workflows/$workflowId/status": typeof ApiWorkflowsWorkflowIdStatusRoute;
+  "/projects/$id/enhance/$serviceName": typeof ProjectsIdEnhanceServiceNameRoute;
+  "/api/admin/users/": typeof ApiAdminUsersIndexRoute;
+  "/api/projects/$id/": typeof ApiProjectsIdIndexRoute;
+  "/api/rules/$ruleId/": typeof ApiRulesRuleIdIndexRoute;
+  "/api/workflows/$workflowId/": typeof ApiWorkflowsWorkflowIdIndexRoute;
+  "/projects/$id/enhance/": typeof ProjectsIdEnhanceIndexRoute;
+  "/api/admin/users/$id/approve": typeof ApiAdminUsersIdApproveRoute;
+  "/api/admin/users/$id/reject": typeof ApiAdminUsersIdRejectRoute;
+  "/api/projects/$id/deployment/": typeof ApiProjectsIdDeploymentIndexRoute;
+  "/api/projects/$id/erd-versions/": typeof ApiProjectsIdErdVersionsIndexRoute;
+  "/api/projects/$id/members/": typeof ApiProjectsIdMembersIndexRoute;
+  "/api/projects/$id/workflows/": typeof ApiProjectsIdWorkflowsIndexRoute;
+  "/api/projects/$id/erd-versions/$versionId/restore": typeof ApiProjectsIdErdVersionsVersionIdRestoreRoute;
+  "/api/projects/$id/workflows/$serviceName/apply": typeof ApiProjectsIdWorkflowsServiceNameApplyRoute;
+  "/api/projects/$id/workflows/$serviceName/draft": typeof ApiProjectsIdWorkflowsServiceNameDraftRoute;
+  "/api/projects/$id/workflows/$serviceName/generate": typeof ApiProjectsIdWorkflowsServiceNameGenerateRoute;
+  "/api/projects/$id/workflows/$serviceName/gorules": typeof ApiProjectsIdWorkflowsServiceNameGorulesRoute;
+  "/api/projects/$id/workflows/$serviceName/validate": typeof ApiProjectsIdWorkflowsServiceNameValidateRoute;
+  "/api/projects/$id/members/$userId/": typeof ApiProjectsIdMembersUserIdIndexRoute;
+  "/api/projects/$id/workflows/$serviceName/": typeof ApiProjectsIdWorkflowsServiceNameIndexRoute;
+  "/api/projects/$id/workflows/$serviceName/files/$fileName": typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute;
+  "/api/projects/$id/workflows/$serviceName/files/": typeof ApiProjectsIdWorkflowsServiceNameFilesIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
-    | '/dashboard'
-    | '/designer'
-    | '/login'
-    | '/settings'
-    | '/test'
-    | '/admin/users'
-    | '/api/copilotkit'
-    | '/api/deploy'
-    | '/api/generate'
-    | '/api/health'
-    | '/projects/'
-    | '/admin/rules/new'
-    | '/admin/workflows/$workflowId'
-    | '/api/ai/code-agent'
-    | '/api/ai/code-agent-stream'
-    | '/api/ai/convert'
-    | '/api/ai/convert-stream'
-    | '/api/ai/rules-stream'
-    | '/api/auth/login'
-    | '/api/auth/logout'
-    | '/api/auth/me'
-    | '/api/auth/register'
-    | '/api/copilotkit/$'
-    | '/api/mermaid/$filename'
-    | '/api/mermaid/parse'
-    | '/api/rules/validate'
-    | '/projects/$id/deploy'
-    | '/projects/$id/design'
-    | '/projects/$id/generate'
-    | '/projects/$id/init'
-    | '/projects/$id/rules-design'
-    | '/admin/mermaid/'
-    | '/admin/rules/'
-    | '/admin/workflows/'
-    | '/api/mermaid/'
-    | '/api/projects/'
-    | '/api/rules/'
-    | '/api/workflows/'
-    | '/admin/rules/$entity/$ruleId'
-    | '/api/workflows/$workflowId/retry'
-    | '/api/workflows/$workflowId/status'
-    | '/projects/$id/enhance/$serviceName'
-    | '/api/admin/users/'
-    | '/api/projects/$id/'
-    | '/api/rules/$ruleId/'
-    | '/api/workflows/$workflowId/'
-    | '/projects/$id/enhance/'
-    | '/api/admin/users/$id/approve'
-    | '/api/admin/users/$id/reject'
-    | '/api/projects/$id/deployment/'
-    | '/api/projects/$id/erd-versions/'
-    | '/api/projects/$id/members/'
-    | '/api/projects/$id/workflows/'
-    | '/api/projects/$id/erd-versions/$versionId/restore'
-    | '/api/projects/$id/workflows/$serviceName/apply'
-    | '/api/projects/$id/workflows/$serviceName/draft'
-    | '/api/projects/$id/workflows/$serviceName/generate'
-    | '/api/projects/$id/workflows/$serviceName/gorules'
-    | '/api/projects/$id/workflows/$serviceName/validate'
-    | '/api/projects/$id/members/$userId/'
-    | '/api/projects/$id/workflows/$serviceName/'
-    | '/api/projects/$id/workflows/$serviceName/files/$fileName'
-    | '/api/projects/$id/workflows/$serviceName/files/'
-  fileRoutesByTo: FileRoutesByTo
+    | "/"
+    | "/dashboard"
+    | "/designer"
+    | "/login"
+    | "/settings"
+    | "/test"
+    | "/admin/users"
+    | "/api/copilotkit"
+    | "/api/deploy"
+    | "/api/generate"
+    | "/api/health"
+    | "/projects/"
+    | "/admin/rules/new"
+    | "/admin/workflows/$workflowId"
+    | "/api/ai/code-agent"
+    | "/api/ai/code-agent-stream"
+    | "/api/ai/convert"
+    | "/api/ai/convert-stream"
+    | "/api/ai/rules-stream"
+    | "/api/auth/login"
+    | "/api/auth/logout"
+    | "/api/auth/me"
+    | "/api/auth/register"
+    | "/api/copilotkit/$"
+    | "/api/mermaid/$filename"
+    | "/api/mermaid/parse"
+    | "/api/rules/validate"
+    | "/projects/$id/deploy"
+    | "/projects/$id/design"
+    | "/projects/$id/generate"
+    | "/projects/$id/init"
+    | "/projects/$id/rules-design"
+    | "/admin/mermaid/"
+    | "/admin/rules/"
+    | "/admin/workflows/"
+    | "/api/mermaid/"
+    | "/api/projects/"
+    | "/api/rules/"
+    | "/api/workflows/"
+    | "/admin/rules/$entity/$ruleId"
+    | "/api/workflows/$workflowId/retry"
+    | "/api/workflows/$workflowId/status"
+    | "/projects/$id/enhance/$serviceName"
+    | "/api/admin/users/"
+    | "/api/projects/$id/"
+    | "/api/rules/$ruleId/"
+    | "/api/workflows/$workflowId/"
+    | "/projects/$id/enhance/"
+    | "/api/admin/users/$id/approve"
+    | "/api/admin/users/$id/reject"
+    | "/api/projects/$id/deployment/"
+    | "/api/projects/$id/erd-versions/"
+    | "/api/projects/$id/members/"
+    | "/api/projects/$id/workflows/"
+    | "/api/projects/$id/erd-versions/$versionId/restore"
+    | "/api/projects/$id/workflows/$serviceName/apply"
+    | "/api/projects/$id/workflows/$serviceName/draft"
+    | "/api/projects/$id/workflows/$serviceName/generate"
+    | "/api/projects/$id/workflows/$serviceName/gorules"
+    | "/api/projects/$id/workflows/$serviceName/validate"
+    | "/api/projects/$id/members/$userId/"
+    | "/api/projects/$id/workflows/$serviceName/"
+    | "/api/projects/$id/workflows/$serviceName/files/$fileName"
+    | "/api/projects/$id/workflows/$serviceName/files/";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/'
-    | '/dashboard'
-    | '/designer'
-    | '/login'
-    | '/settings'
-    | '/test'
-    | '/admin/users'
-    | '/api/copilotkit'
-    | '/api/deploy'
-    | '/api/generate'
-    | '/api/health'
-    | '/projects'
-    | '/admin/rules/new'
-    | '/admin/workflows/$workflowId'
-    | '/api/ai/code-agent'
-    | '/api/ai/code-agent-stream'
-    | '/api/ai/convert'
-    | '/api/ai/convert-stream'
-    | '/api/ai/rules-stream'
-    | '/api/auth/login'
-    | '/api/auth/logout'
-    | '/api/auth/me'
-    | '/api/auth/register'
-    | '/api/copilotkit/$'
-    | '/api/mermaid/$filename'
-    | '/api/mermaid/parse'
-    | '/api/rules/validate'
-    | '/projects/$id/deploy'
-    | '/projects/$id/design'
-    | '/projects/$id/generate'
-    | '/projects/$id/init'
-    | '/projects/$id/rules-design'
-    | '/admin/mermaid'
-    | '/admin/rules'
-    | '/admin/workflows'
-    | '/api/mermaid'
-    | '/api/projects'
-    | '/api/rules'
-    | '/api/workflows'
-    | '/admin/rules/$entity/$ruleId'
-    | '/api/workflows/$workflowId/retry'
-    | '/api/workflows/$workflowId/status'
-    | '/projects/$id/enhance/$serviceName'
-    | '/api/admin/users'
-    | '/api/projects/$id'
-    | '/api/rules/$ruleId'
-    | '/api/workflows/$workflowId'
-    | '/projects/$id/enhance'
-    | '/api/admin/users/$id/approve'
-    | '/api/admin/users/$id/reject'
-    | '/api/projects/$id/deployment'
-    | '/api/projects/$id/erd-versions'
-    | '/api/projects/$id/members'
-    | '/api/projects/$id/workflows'
-    | '/api/projects/$id/erd-versions/$versionId/restore'
-    | '/api/projects/$id/workflows/$serviceName/apply'
-    | '/api/projects/$id/workflows/$serviceName/draft'
-    | '/api/projects/$id/workflows/$serviceName/generate'
-    | '/api/projects/$id/workflows/$serviceName/gorules'
-    | '/api/projects/$id/workflows/$serviceName/validate'
-    | '/api/projects/$id/members/$userId'
-    | '/api/projects/$id/workflows/$serviceName'
-    | '/api/projects/$id/workflows/$serviceName/files/$fileName'
-    | '/api/projects/$id/workflows/$serviceName/files'
+    | "/"
+    | "/dashboard"
+    | "/designer"
+    | "/login"
+    | "/settings"
+    | "/test"
+    | "/admin/users"
+    | "/api/copilotkit"
+    | "/api/deploy"
+    | "/api/generate"
+    | "/api/health"
+    | "/projects"
+    | "/admin/rules/new"
+    | "/admin/workflows/$workflowId"
+    | "/api/ai/code-agent"
+    | "/api/ai/code-agent-stream"
+    | "/api/ai/convert"
+    | "/api/ai/convert-stream"
+    | "/api/ai/rules-stream"
+    | "/api/auth/login"
+    | "/api/auth/logout"
+    | "/api/auth/me"
+    | "/api/auth/register"
+    | "/api/copilotkit/$"
+    | "/api/mermaid/$filename"
+    | "/api/mermaid/parse"
+    | "/api/rules/validate"
+    | "/projects/$id/deploy"
+    | "/projects/$id/design"
+    | "/projects/$id/generate"
+    | "/projects/$id/init"
+    | "/projects/$id/rules-design"
+    | "/admin/mermaid"
+    | "/admin/rules"
+    | "/admin/workflows"
+    | "/api/mermaid"
+    | "/api/projects"
+    | "/api/rules"
+    | "/api/workflows"
+    | "/admin/rules/$entity/$ruleId"
+    | "/api/workflows/$workflowId/retry"
+    | "/api/workflows/$workflowId/status"
+    | "/projects/$id/enhance/$serviceName"
+    | "/api/admin/users"
+    | "/api/projects/$id"
+    | "/api/rules/$ruleId"
+    | "/api/workflows/$workflowId"
+    | "/projects/$id/enhance"
+    | "/api/admin/users/$id/approve"
+    | "/api/admin/users/$id/reject"
+    | "/api/projects/$id/deployment"
+    | "/api/projects/$id/erd-versions"
+    | "/api/projects/$id/members"
+    | "/api/projects/$id/workflows"
+    | "/api/projects/$id/erd-versions/$versionId/restore"
+    | "/api/projects/$id/workflows/$serviceName/apply"
+    | "/api/projects/$id/workflows/$serviceName/draft"
+    | "/api/projects/$id/workflows/$serviceName/generate"
+    | "/api/projects/$id/workflows/$serviceName/gorules"
+    | "/api/projects/$id/workflows/$serviceName/validate"
+    | "/api/projects/$id/members/$userId"
+    | "/api/projects/$id/workflows/$serviceName"
+    | "/api/projects/$id/workflows/$serviceName/files/$fileName"
+    | "/api/projects/$id/workflows/$serviceName/files";
   id:
-    | '__root__'
-    | '/'
-    | '/dashboard'
-    | '/designer'
-    | '/login'
-    | '/settings'
-    | '/test'
-    | '/admin/users'
-    | '/api/copilotkit'
-    | '/api/deploy'
-    | '/api/generate'
-    | '/api/health'
-    | '/projects/'
-    | '/admin/rules/new'
-    | '/admin/workflows/$workflowId'
-    | '/api/ai/code-agent'
-    | '/api/ai/code-agent-stream'
-    | '/api/ai/convert'
-    | '/api/ai/convert-stream'
-    | '/api/ai/rules-stream'
-    | '/api/auth/login'
-    | '/api/auth/logout'
-    | '/api/auth/me'
-    | '/api/auth/register'
-    | '/api/copilotkit/$'
-    | '/api/mermaid/$filename'
-    | '/api/mermaid/parse'
-    | '/api/rules/validate'
-    | '/projects/$id/deploy'
-    | '/projects/$id/design'
-    | '/projects/$id/generate'
-    | '/projects/$id/init'
-    | '/projects/$id/rules-design'
-    | '/admin/mermaid/'
-    | '/admin/rules/'
-    | '/admin/workflows/'
-    | '/api/mermaid/'
-    | '/api/projects/'
-    | '/api/rules/'
-    | '/api/workflows/'
-    | '/admin/rules/$entity/$ruleId'
-    | '/api/workflows/$workflowId/retry'
-    | '/api/workflows/$workflowId/status'
-    | '/projects/$id/enhance/$serviceName'
-    | '/api/admin/users/'
-    | '/api/projects/$id/'
-    | '/api/rules/$ruleId/'
-    | '/api/workflows/$workflowId/'
-    | '/projects/$id/enhance/'
-    | '/api/admin/users/$id/approve'
-    | '/api/admin/users/$id/reject'
-    | '/api/projects/$id/deployment/'
-    | '/api/projects/$id/erd-versions/'
-    | '/api/projects/$id/members/'
-    | '/api/projects/$id/workflows/'
-    | '/api/projects/$id/erd-versions/$versionId/restore'
-    | '/api/projects/$id/workflows/$serviceName/apply'
-    | '/api/projects/$id/workflows/$serviceName/draft'
-    | '/api/projects/$id/workflows/$serviceName/generate'
-    | '/api/projects/$id/workflows/$serviceName/gorules'
-    | '/api/projects/$id/workflows/$serviceName/validate'
-    | '/api/projects/$id/members/$userId/'
-    | '/api/projects/$id/workflows/$serviceName/'
-    | '/api/projects/$id/workflows/$serviceName/files/$fileName'
-    | '/api/projects/$id/workflows/$serviceName/files/'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/"
+    | "/dashboard"
+    | "/designer"
+    | "/login"
+    | "/settings"
+    | "/test"
+    | "/admin/users"
+    | "/api/copilotkit"
+    | "/api/deploy"
+    | "/api/generate"
+    | "/api/health"
+    | "/projects/"
+    | "/admin/rules/new"
+    | "/admin/workflows/$workflowId"
+    | "/api/ai/code-agent"
+    | "/api/ai/code-agent-stream"
+    | "/api/ai/convert"
+    | "/api/ai/convert-stream"
+    | "/api/ai/rules-stream"
+    | "/api/auth/login"
+    | "/api/auth/logout"
+    | "/api/auth/me"
+    | "/api/auth/register"
+    | "/api/copilotkit/$"
+    | "/api/mermaid/$filename"
+    | "/api/mermaid/parse"
+    | "/api/rules/validate"
+    | "/projects/$id/deploy"
+    | "/projects/$id/design"
+    | "/projects/$id/generate"
+    | "/projects/$id/init"
+    | "/projects/$id/rules-design"
+    | "/admin/mermaid/"
+    | "/admin/rules/"
+    | "/admin/workflows/"
+    | "/api/mermaid/"
+    | "/api/projects/"
+    | "/api/rules/"
+    | "/api/workflows/"
+    | "/admin/rules/$entity/$ruleId"
+    | "/api/workflows/$workflowId/retry"
+    | "/api/workflows/$workflowId/status"
+    | "/projects/$id/enhance/$serviceName"
+    | "/api/admin/users/"
+    | "/api/projects/$id/"
+    | "/api/rules/$ruleId/"
+    | "/api/workflows/$workflowId/"
+    | "/projects/$id/enhance/"
+    | "/api/admin/users/$id/approve"
+    | "/api/admin/users/$id/reject"
+    | "/api/projects/$id/deployment/"
+    | "/api/projects/$id/erd-versions/"
+    | "/api/projects/$id/members/"
+    | "/api/projects/$id/workflows/"
+    | "/api/projects/$id/erd-versions/$versionId/restore"
+    | "/api/projects/$id/workflows/$serviceName/apply"
+    | "/api/projects/$id/workflows/$serviceName/draft"
+    | "/api/projects/$id/workflows/$serviceName/generate"
+    | "/api/projects/$id/workflows/$serviceName/gorules"
+    | "/api/projects/$id/workflows/$serviceName/validate"
+    | "/api/projects/$id/members/$userId/"
+    | "/api/projects/$id/workflows/$serviceName/"
+    | "/api/projects/$id/workflows/$serviceName/files/$fileName"
+    | "/api/projects/$id/workflows/$serviceName/files/";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
-  DesignerRoute: typeof DesignerRoute
-  LoginRoute: typeof LoginRoute
-  SettingsRoute: typeof SettingsRoute
-  TestRoute: typeof TestRoute
-  AdminUsersRoute: typeof AdminUsersRoute
-  ApiCopilotkitRoute: typeof ApiCopilotkitRouteWithChildren
-  ApiDeployRoute: typeof ApiDeployRoute
-  ApiGenerateRoute: typeof ApiGenerateRoute
-  ApiHealthRoute: typeof ApiHealthRoute
-  ProjectsIndexRoute: typeof ProjectsIndexRoute
-  AdminRulesNewRoute: typeof AdminRulesNewRoute
-  AdminWorkflowsWorkflowIdRoute: typeof AdminWorkflowsWorkflowIdRoute
-  ApiAiCodeAgentRoute: typeof ApiAiCodeAgentRoute
-  ApiAiCodeAgentStreamRoute: typeof ApiAiCodeAgentStreamRoute
-  ApiAiConvertRoute: typeof ApiAiConvertRoute
-  ApiAiConvertStreamRoute: typeof ApiAiConvertStreamRoute
-  ApiAiRulesStreamRoute: typeof ApiAiRulesStreamRoute
-  ApiAuthLoginRoute: typeof ApiAuthLoginRoute
-  ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
-  ApiAuthMeRoute: typeof ApiAuthMeRoute
-  ApiAuthRegisterRoute: typeof ApiAuthRegisterRoute
-  ApiMermaidFilenameRoute: typeof ApiMermaidFilenameRoute
-  ApiMermaidParseRoute: typeof ApiMermaidParseRoute
-  ApiRulesValidateRoute: typeof ApiRulesValidateRoute
-  ProjectsIdDeployRoute: typeof ProjectsIdDeployRoute
-  ProjectsIdDesignRoute: typeof ProjectsIdDesignRoute
-  ProjectsIdGenerateRoute: typeof ProjectsIdGenerateRoute
-  ProjectsIdInitRoute: typeof ProjectsIdInitRoute
-  ProjectsIdRulesDesignRoute: typeof ProjectsIdRulesDesignRoute
-  AdminMermaidIndexRoute: typeof AdminMermaidIndexRoute
-  AdminRulesIndexRoute: typeof AdminRulesIndexRoute
-  AdminWorkflowsIndexRoute: typeof AdminWorkflowsIndexRoute
-  ApiMermaidIndexRoute: typeof ApiMermaidIndexRoute
-  ApiProjectsIndexRoute: typeof ApiProjectsIndexRoute
-  ApiRulesIndexRoute: typeof ApiRulesIndexRoute
-  ApiWorkflowsIndexRoute: typeof ApiWorkflowsIndexRoute
-  AdminRulesEntityRuleIdRoute: typeof AdminRulesEntityRuleIdRoute
-  ApiWorkflowsWorkflowIdRetryRoute: typeof ApiWorkflowsWorkflowIdRetryRoute
-  ApiWorkflowsWorkflowIdStatusRoute: typeof ApiWorkflowsWorkflowIdStatusRoute
-  ProjectsIdEnhanceServiceNameRoute: typeof ProjectsIdEnhanceServiceNameRoute
-  ApiAdminUsersIndexRoute: typeof ApiAdminUsersIndexRoute
-  ApiProjectsIdIndexRoute: typeof ApiProjectsIdIndexRoute
-  ApiRulesRuleIdIndexRoute: typeof ApiRulesRuleIdIndexRoute
-  ApiWorkflowsWorkflowIdIndexRoute: typeof ApiWorkflowsWorkflowIdIndexRoute
-  ProjectsIdEnhanceIndexRoute: typeof ProjectsIdEnhanceIndexRoute
-  ApiAdminUsersIdApproveRoute: typeof ApiAdminUsersIdApproveRoute
-  ApiAdminUsersIdRejectRoute: typeof ApiAdminUsersIdRejectRoute
-  ApiProjectsIdDeploymentIndexRoute: typeof ApiProjectsIdDeploymentIndexRoute
-  ApiProjectsIdErdVersionsIndexRoute: typeof ApiProjectsIdErdVersionsIndexRoute
-  ApiProjectsIdMembersIndexRoute: typeof ApiProjectsIdMembersIndexRoute
-  ApiProjectsIdWorkflowsIndexRoute: typeof ApiProjectsIdWorkflowsIndexRoute
-  ApiProjectsIdErdVersionsVersionIdRestoreRoute: typeof ApiProjectsIdErdVersionsVersionIdRestoreRoute
-  ApiProjectsIdWorkflowsServiceNameApplyRoute: typeof ApiProjectsIdWorkflowsServiceNameApplyRoute
-  ApiProjectsIdWorkflowsServiceNameDraftRoute: typeof ApiProjectsIdWorkflowsServiceNameDraftRoute
-  ApiProjectsIdWorkflowsServiceNameGenerateRoute: typeof ApiProjectsIdWorkflowsServiceNameGenerateRoute
-  ApiProjectsIdWorkflowsServiceNameGorulesRoute: typeof ApiProjectsIdWorkflowsServiceNameGorulesRoute
-  ApiProjectsIdWorkflowsServiceNameValidateRoute: typeof ApiProjectsIdWorkflowsServiceNameValidateRoute
-  ApiProjectsIdMembersUserIdIndexRoute: typeof ApiProjectsIdMembersUserIdIndexRoute
-  ApiProjectsIdWorkflowsServiceNameIndexRoute: typeof ApiProjectsIdWorkflowsServiceNameIndexRoute
-  ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute: typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute
-  ApiProjectsIdWorkflowsServiceNameFilesIndexRoute: typeof ApiProjectsIdWorkflowsServiceNameFilesIndexRoute
+  IndexRoute: typeof IndexRoute;
+  DashboardRoute: typeof DashboardRoute;
+  DesignerRoute: typeof DesignerRoute;
+  LoginRoute: typeof LoginRoute;
+  SettingsRoute: typeof SettingsRoute;
+  TestRoute: typeof TestRoute;
+  AdminUsersRoute: typeof AdminUsersRoute;
+  ApiCopilotkitRoute: typeof ApiCopilotkitRouteWithChildren;
+  ApiDeployRoute: typeof ApiDeployRoute;
+  ApiGenerateRoute: typeof ApiGenerateRoute;
+  ApiHealthRoute: typeof ApiHealthRoute;
+  ProjectsIndexRoute: typeof ProjectsIndexRoute;
+  AdminRulesNewRoute: typeof AdminRulesNewRoute;
+  AdminWorkflowsWorkflowIdRoute: typeof AdminWorkflowsWorkflowIdRoute;
+  ApiAiCodeAgentRoute: typeof ApiAiCodeAgentRoute;
+  ApiAiCodeAgentStreamRoute: typeof ApiAiCodeAgentStreamRoute;
+  ApiAiConvertRoute: typeof ApiAiConvertRoute;
+  ApiAiConvertStreamRoute: typeof ApiAiConvertStreamRoute;
+  ApiAiRulesStreamRoute: typeof ApiAiRulesStreamRoute;
+  ApiAuthLoginRoute: typeof ApiAuthLoginRoute;
+  ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute;
+  ApiAuthMeRoute: typeof ApiAuthMeRoute;
+  ApiAuthRegisterRoute: typeof ApiAuthRegisterRoute;
+  ApiMermaidFilenameRoute: typeof ApiMermaidFilenameRoute;
+  ApiMermaidParseRoute: typeof ApiMermaidParseRoute;
+  ApiRulesValidateRoute: typeof ApiRulesValidateRoute;
+  ProjectsIdDeployRoute: typeof ProjectsIdDeployRoute;
+  ProjectsIdDesignRoute: typeof ProjectsIdDesignRoute;
+  ProjectsIdGenerateRoute: typeof ProjectsIdGenerateRoute;
+  ProjectsIdInitRoute: typeof ProjectsIdInitRoute;
+  ProjectsIdRulesDesignRoute: typeof ProjectsIdRulesDesignRoute;
+  AdminMermaidIndexRoute: typeof AdminMermaidIndexRoute;
+  AdminRulesIndexRoute: typeof AdminRulesIndexRoute;
+  AdminWorkflowsIndexRoute: typeof AdminWorkflowsIndexRoute;
+  ApiMermaidIndexRoute: typeof ApiMermaidIndexRoute;
+  ApiProjectsIndexRoute: typeof ApiProjectsIndexRoute;
+  ApiRulesIndexRoute: typeof ApiRulesIndexRoute;
+  ApiWorkflowsIndexRoute: typeof ApiWorkflowsIndexRoute;
+  AdminRulesEntityRuleIdRoute: typeof AdminRulesEntityRuleIdRoute;
+  ApiWorkflowsWorkflowIdRetryRoute: typeof ApiWorkflowsWorkflowIdRetryRoute;
+  ApiWorkflowsWorkflowIdStatusRoute: typeof ApiWorkflowsWorkflowIdStatusRoute;
+  ProjectsIdEnhanceServiceNameRoute: typeof ProjectsIdEnhanceServiceNameRoute;
+  ApiAdminUsersIndexRoute: typeof ApiAdminUsersIndexRoute;
+  ApiProjectsIdIndexRoute: typeof ApiProjectsIdIndexRoute;
+  ApiRulesRuleIdIndexRoute: typeof ApiRulesRuleIdIndexRoute;
+  ApiWorkflowsWorkflowIdIndexRoute: typeof ApiWorkflowsWorkflowIdIndexRoute;
+  ProjectsIdEnhanceIndexRoute: typeof ProjectsIdEnhanceIndexRoute;
+  ApiAdminUsersIdApproveRoute: typeof ApiAdminUsersIdApproveRoute;
+  ApiAdminUsersIdRejectRoute: typeof ApiAdminUsersIdRejectRoute;
+  ApiProjectsIdDeploymentIndexRoute: typeof ApiProjectsIdDeploymentIndexRoute;
+  ApiProjectsIdErdVersionsIndexRoute: typeof ApiProjectsIdErdVersionsIndexRoute;
+  ApiProjectsIdMembersIndexRoute: typeof ApiProjectsIdMembersIndexRoute;
+  ApiProjectsIdWorkflowsIndexRoute: typeof ApiProjectsIdWorkflowsIndexRoute;
+  ApiProjectsIdErdVersionsVersionIdRestoreRoute: typeof ApiProjectsIdErdVersionsVersionIdRestoreRoute;
+  ApiProjectsIdWorkflowsServiceNameApplyRoute: typeof ApiProjectsIdWorkflowsServiceNameApplyRoute;
+  ApiProjectsIdWorkflowsServiceNameDraftRoute: typeof ApiProjectsIdWorkflowsServiceNameDraftRoute;
+  ApiProjectsIdWorkflowsServiceNameGenerateRoute: typeof ApiProjectsIdWorkflowsServiceNameGenerateRoute;
+  ApiProjectsIdWorkflowsServiceNameGorulesRoute: typeof ApiProjectsIdWorkflowsServiceNameGorulesRoute;
+  ApiProjectsIdWorkflowsServiceNameValidateRoute: typeof ApiProjectsIdWorkflowsServiceNameValidateRoute;
+  ApiProjectsIdMembersUserIdIndexRoute: typeof ApiProjectsIdMembersUserIdIndexRoute;
+  ApiProjectsIdWorkflowsServiceNameIndexRoute: typeof ApiProjectsIdWorkflowsServiceNameIndexRoute;
+  ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute: typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute;
+  ApiProjectsIdWorkflowsServiceNameFilesIndexRoute: typeof ApiProjectsIdWorkflowsServiceNameFilesIndexRoute;
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/test': {
-      id: '/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof TestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/designer': {
-      id: '/designer'
-      path: '/designer'
-      fullPath: '/designer'
-      preLoaderRoute: typeof DesignerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/': {
-      id: '/projects/'
-      path: '/projects'
-      fullPath: '/projects/'
-      preLoaderRoute: typeof ProjectsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/health': {
-      id: '/api/health'
-      path: '/api/health'
-      fullPath: '/api/health'
-      preLoaderRoute: typeof ApiHealthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/generate': {
-      id: '/api/generate'
-      path: '/api/generate'
-      fullPath: '/api/generate'
-      preLoaderRoute: typeof ApiGenerateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/deploy': {
-      id: '/api/deploy'
-      path: '/api/deploy'
-      fullPath: '/api/deploy'
-      preLoaderRoute: typeof ApiDeployRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/copilotkit': {
-      id: '/api/copilotkit'
-      path: '/api/copilotkit'
-      fullPath: '/api/copilotkit'
-      preLoaderRoute: typeof ApiCopilotkitRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/admin/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/workflows/': {
-      id: '/api/workflows/'
-      path: '/api/workflows'
-      fullPath: '/api/workflows/'
-      preLoaderRoute: typeof ApiWorkflowsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/rules/': {
-      id: '/api/rules/'
-      path: '/api/rules'
-      fullPath: '/api/rules/'
-      preLoaderRoute: typeof ApiRulesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/': {
-      id: '/api/projects/'
-      path: '/api/projects'
-      fullPath: '/api/projects/'
-      preLoaderRoute: typeof ApiProjectsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/mermaid/': {
-      id: '/api/mermaid/'
-      path: '/api/mermaid'
-      fullPath: '/api/mermaid/'
-      preLoaderRoute: typeof ApiMermaidIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/workflows/': {
-      id: '/admin/workflows/'
-      path: '/admin/workflows'
-      fullPath: '/admin/workflows/'
-      preLoaderRoute: typeof AdminWorkflowsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/rules/': {
-      id: '/admin/rules/'
-      path: '/admin/rules'
-      fullPath: '/admin/rules/'
-      preLoaderRoute: typeof AdminRulesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/mermaid/': {
-      id: '/admin/mermaid/'
-      path: '/admin/mermaid'
-      fullPath: '/admin/mermaid/'
-      preLoaderRoute: typeof AdminMermaidIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$id/rules-design': {
-      id: '/projects/$id/rules-design'
-      path: '/projects/$id/rules-design'
-      fullPath: '/projects/$id/rules-design'
-      preLoaderRoute: typeof ProjectsIdRulesDesignRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$id/init': {
-      id: '/projects/$id/init'
-      path: '/projects/$id/init'
-      fullPath: '/projects/$id/init'
-      preLoaderRoute: typeof ProjectsIdInitRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$id/generate': {
-      id: '/projects/$id/generate'
-      path: '/projects/$id/generate'
-      fullPath: '/projects/$id/generate'
-      preLoaderRoute: typeof ProjectsIdGenerateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$id/design': {
-      id: '/projects/$id/design'
-      path: '/projects/$id/design'
-      fullPath: '/projects/$id/design'
-      preLoaderRoute: typeof ProjectsIdDesignRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$id/deploy': {
-      id: '/projects/$id/deploy'
-      path: '/projects/$id/deploy'
-      fullPath: '/projects/$id/deploy'
-      preLoaderRoute: typeof ProjectsIdDeployRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/rules/validate': {
-      id: '/api/rules/validate'
-      path: '/api/rules/validate'
-      fullPath: '/api/rules/validate'
-      preLoaderRoute: typeof ApiRulesValidateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/mermaid/parse': {
-      id: '/api/mermaid/parse'
-      path: '/api/mermaid/parse'
-      fullPath: '/api/mermaid/parse'
-      preLoaderRoute: typeof ApiMermaidParseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/mermaid/$filename': {
-      id: '/api/mermaid/$filename'
-      path: '/api/mermaid/$filename'
-      fullPath: '/api/mermaid/$filename'
-      preLoaderRoute: typeof ApiMermaidFilenameRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/copilotkit/$': {
-      id: '/api/copilotkit/$'
-      path: '/$'
-      fullPath: '/api/copilotkit/$'
-      preLoaderRoute: typeof ApiCopilotkitSplatRouteImport
-      parentRoute: typeof ApiCopilotkitRoute
-    }
-    '/api/auth/register': {
-      id: '/api/auth/register'
-      path: '/api/auth/register'
-      fullPath: '/api/auth/register'
-      preLoaderRoute: typeof ApiAuthRegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/me': {
-      id: '/api/auth/me'
-      path: '/api/auth/me'
-      fullPath: '/api/auth/me'
-      preLoaderRoute: typeof ApiAuthMeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/logout': {
-      id: '/api/auth/logout'
-      path: '/api/auth/logout'
-      fullPath: '/api/auth/logout'
-      preLoaderRoute: typeof ApiAuthLogoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/login': {
-      id: '/api/auth/login'
-      path: '/api/auth/login'
-      fullPath: '/api/auth/login'
-      preLoaderRoute: typeof ApiAuthLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ai/rules-stream': {
-      id: '/api/ai/rules-stream'
-      path: '/api/ai/rules-stream'
-      fullPath: '/api/ai/rules-stream'
-      preLoaderRoute: typeof ApiAiRulesStreamRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ai/convert-stream': {
-      id: '/api/ai/convert-stream'
-      path: '/api/ai/convert-stream'
-      fullPath: '/api/ai/convert-stream'
-      preLoaderRoute: typeof ApiAiConvertStreamRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ai/convert': {
-      id: '/api/ai/convert'
-      path: '/api/ai/convert'
-      fullPath: '/api/ai/convert'
-      preLoaderRoute: typeof ApiAiConvertRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ai/code-agent-stream': {
-      id: '/api/ai/code-agent-stream'
-      path: '/api/ai/code-agent-stream'
-      fullPath: '/api/ai/code-agent-stream'
-      preLoaderRoute: typeof ApiAiCodeAgentStreamRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ai/code-agent': {
-      id: '/api/ai/code-agent'
-      path: '/api/ai/code-agent'
-      fullPath: '/api/ai/code-agent'
-      preLoaderRoute: typeof ApiAiCodeAgentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/workflows/$workflowId': {
-      id: '/admin/workflows/$workflowId'
-      path: '/admin/workflows/$workflowId'
-      fullPath: '/admin/workflows/$workflowId'
-      preLoaderRoute: typeof AdminWorkflowsWorkflowIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/rules/new': {
-      id: '/admin/rules/new'
-      path: '/admin/rules/new'
-      fullPath: '/admin/rules/new'
-      preLoaderRoute: typeof AdminRulesNewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$id/enhance/': {
-      id: '/projects/$id/enhance/'
-      path: '/projects/$id/enhance'
-      fullPath: '/projects/$id/enhance/'
-      preLoaderRoute: typeof ProjectsIdEnhanceIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/workflows/$workflowId/': {
-      id: '/api/workflows/$workflowId/'
-      path: '/api/workflows/$workflowId'
-      fullPath: '/api/workflows/$workflowId/'
-      preLoaderRoute: typeof ApiWorkflowsWorkflowIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/rules/$ruleId/': {
-      id: '/api/rules/$ruleId/'
-      path: '/api/rules/$ruleId'
-      fullPath: '/api/rules/$ruleId/'
-      preLoaderRoute: typeof ApiRulesRuleIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/': {
-      id: '/api/projects/$id/'
-      path: '/api/projects/$id'
-      fullPath: '/api/projects/$id/'
-      preLoaderRoute: typeof ApiProjectsIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/admin/users/': {
-      id: '/api/admin/users/'
-      path: '/api/admin/users'
-      fullPath: '/api/admin/users/'
-      preLoaderRoute: typeof ApiAdminUsersIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$id/enhance/$serviceName': {
-      id: '/projects/$id/enhance/$serviceName'
-      path: '/projects/$id/enhance/$serviceName'
-      fullPath: '/projects/$id/enhance/$serviceName'
-      preLoaderRoute: typeof ProjectsIdEnhanceServiceNameRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/workflows/$workflowId/status': {
-      id: '/api/workflows/$workflowId/status'
-      path: '/api/workflows/$workflowId/status'
-      fullPath: '/api/workflows/$workflowId/status'
-      preLoaderRoute: typeof ApiWorkflowsWorkflowIdStatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/workflows/$workflowId/retry': {
-      id: '/api/workflows/$workflowId/retry'
-      path: '/api/workflows/$workflowId/retry'
-      fullPath: '/api/workflows/$workflowId/retry'
-      preLoaderRoute: typeof ApiWorkflowsWorkflowIdRetryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/rules/$entity/$ruleId': {
-      id: '/admin/rules/$entity/$ruleId'
-      path: '/admin/rules/$entity/$ruleId'
-      fullPath: '/admin/rules/$entity/$ruleId'
-      preLoaderRoute: typeof AdminRulesEntityRuleIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/': {
-      id: '/api/projects/$id/workflows/'
-      path: '/api/projects/$id/workflows'
-      fullPath: '/api/projects/$id/workflows/'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/members/': {
-      id: '/api/projects/$id/members/'
-      path: '/api/projects/$id/members'
-      fullPath: '/api/projects/$id/members/'
-      preLoaderRoute: typeof ApiProjectsIdMembersIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/erd-versions/': {
-      id: '/api/projects/$id/erd-versions/'
-      path: '/api/projects/$id/erd-versions'
-      fullPath: '/api/projects/$id/erd-versions/'
-      preLoaderRoute: typeof ApiProjectsIdErdVersionsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/deployment/': {
-      id: '/api/projects/$id/deployment/'
-      path: '/api/projects/$id/deployment'
-      fullPath: '/api/projects/$id/deployment/'
-      preLoaderRoute: typeof ApiProjectsIdDeploymentIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/admin/users/$id/reject': {
-      id: '/api/admin/users/$id/reject'
-      path: '/api/admin/users/$id/reject'
-      fullPath: '/api/admin/users/$id/reject'
-      preLoaderRoute: typeof ApiAdminUsersIdRejectRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/admin/users/$id/approve': {
-      id: '/api/admin/users/$id/approve'
-      path: '/api/admin/users/$id/approve'
-      fullPath: '/api/admin/users/$id/approve'
-      preLoaderRoute: typeof ApiAdminUsersIdApproveRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/$serviceName/': {
-      id: '/api/projects/$id/workflows/$serviceName/'
-      path: '/api/projects/$id/workflows/$serviceName'
-      fullPath: '/api/projects/$id/workflows/$serviceName/'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/members/$userId/': {
-      id: '/api/projects/$id/members/$userId/'
-      path: '/api/projects/$id/members/$userId'
-      fullPath: '/api/projects/$id/members/$userId/'
-      preLoaderRoute: typeof ApiProjectsIdMembersUserIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/$serviceName/validate': {
-      id: '/api/projects/$id/workflows/$serviceName/validate'
-      path: '/api/projects/$id/workflows/$serviceName/validate'
-      fullPath: '/api/projects/$id/workflows/$serviceName/validate'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameValidateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/$serviceName/gorules': {
-      id: '/api/projects/$id/workflows/$serviceName/gorules'
-      path: '/api/projects/$id/workflows/$serviceName/gorules'
-      fullPath: '/api/projects/$id/workflows/$serviceName/gorules'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameGorulesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/$serviceName/generate': {
-      id: '/api/projects/$id/workflows/$serviceName/generate'
-      path: '/api/projects/$id/workflows/$serviceName/generate'
-      fullPath: '/api/projects/$id/workflows/$serviceName/generate'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameGenerateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/$serviceName/draft': {
-      id: '/api/projects/$id/workflows/$serviceName/draft'
-      path: '/api/projects/$id/workflows/$serviceName/draft'
-      fullPath: '/api/projects/$id/workflows/$serviceName/draft'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameDraftRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/$serviceName/apply': {
-      id: '/api/projects/$id/workflows/$serviceName/apply'
-      path: '/api/projects/$id/workflows/$serviceName/apply'
-      fullPath: '/api/projects/$id/workflows/$serviceName/apply'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameApplyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/erd-versions/$versionId/restore': {
-      id: '/api/projects/$id/erd-versions/$versionId/restore'
-      path: '/api/projects/$id/erd-versions/$versionId/restore'
-      fullPath: '/api/projects/$id/erd-versions/$versionId/restore'
-      preLoaderRoute: typeof ApiProjectsIdErdVersionsVersionIdRestoreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/$serviceName/files/': {
-      id: '/api/projects/$id/workflows/$serviceName/files/'
-      path: '/api/projects/$id/workflows/$serviceName/files'
-      fullPath: '/api/projects/$id/workflows/$serviceName/files/'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameFilesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/$serviceName/files/$fileName': {
-      id: '/api/projects/$id/workflows/$serviceName/files/$fileName'
-      path: '/api/projects/$id/workflows/$serviceName/files/$fileName'
-      fullPath: '/api/projects/$id/workflows/$serviceName/files/$fileName'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+    "/test": {
+      id: "/test";
+      path: "/test";
+      fullPath: "/test";
+      preLoaderRoute: typeof TestRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/settings": {
+      id: "/settings";
+      path: "/settings";
+      fullPath: "/settings";
+      preLoaderRoute: typeof SettingsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/login": {
+      id: "/login";
+      path: "/login";
+      fullPath: "/login";
+      preLoaderRoute: typeof LoginRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/designer": {
+      id: "/designer";
+      path: "/designer";
+      fullPath: "/designer";
+      preLoaderRoute: typeof DesignerRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/dashboard": {
+      id: "/dashboard";
+      path: "/dashboard";
+      fullPath: "/dashboard";
+      preLoaderRoute: typeof DashboardRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/projects/": {
+      id: "/projects/";
+      path: "/projects";
+      fullPath: "/projects/";
+      preLoaderRoute: typeof ProjectsIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/health": {
+      id: "/api/health";
+      path: "/api/health";
+      fullPath: "/api/health";
+      preLoaderRoute: typeof ApiHealthRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/generate": {
+      id: "/api/generate";
+      path: "/api/generate";
+      fullPath: "/api/generate";
+      preLoaderRoute: typeof ApiGenerateRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/deploy": {
+      id: "/api/deploy";
+      path: "/api/deploy";
+      fullPath: "/api/deploy";
+      preLoaderRoute: typeof ApiDeployRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/copilotkit": {
+      id: "/api/copilotkit";
+      path: "/api/copilotkit";
+      fullPath: "/api/copilotkit";
+      preLoaderRoute: typeof ApiCopilotkitRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/admin/users": {
+      id: "/admin/users";
+      path: "/admin/users";
+      fullPath: "/admin/users";
+      preLoaderRoute: typeof AdminUsersRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/workflows/": {
+      id: "/api/workflows/";
+      path: "/api/workflows";
+      fullPath: "/api/workflows/";
+      preLoaderRoute: typeof ApiWorkflowsIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/rules/": {
+      id: "/api/rules/";
+      path: "/api/rules";
+      fullPath: "/api/rules/";
+      preLoaderRoute: typeof ApiRulesIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/": {
+      id: "/api/projects/";
+      path: "/api/projects";
+      fullPath: "/api/projects/";
+      preLoaderRoute: typeof ApiProjectsIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/mermaid/": {
+      id: "/api/mermaid/";
+      path: "/api/mermaid";
+      fullPath: "/api/mermaid/";
+      preLoaderRoute: typeof ApiMermaidIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/admin/workflows/": {
+      id: "/admin/workflows/";
+      path: "/admin/workflows";
+      fullPath: "/admin/workflows/";
+      preLoaderRoute: typeof AdminWorkflowsIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/admin/rules/": {
+      id: "/admin/rules/";
+      path: "/admin/rules";
+      fullPath: "/admin/rules/";
+      preLoaderRoute: typeof AdminRulesIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/admin/mermaid/": {
+      id: "/admin/mermaid/";
+      path: "/admin/mermaid";
+      fullPath: "/admin/mermaid/";
+      preLoaderRoute: typeof AdminMermaidIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/projects/$id/rules-design": {
+      id: "/projects/$id/rules-design";
+      path: "/projects/$id/rules-design";
+      fullPath: "/projects/$id/rules-design";
+      preLoaderRoute: typeof ProjectsIdRulesDesignRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/projects/$id/init": {
+      id: "/projects/$id/init";
+      path: "/projects/$id/init";
+      fullPath: "/projects/$id/init";
+      preLoaderRoute: typeof ProjectsIdInitRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/projects/$id/generate": {
+      id: "/projects/$id/generate";
+      path: "/projects/$id/generate";
+      fullPath: "/projects/$id/generate";
+      preLoaderRoute: typeof ProjectsIdGenerateRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/projects/$id/design": {
+      id: "/projects/$id/design";
+      path: "/projects/$id/design";
+      fullPath: "/projects/$id/design";
+      preLoaderRoute: typeof ProjectsIdDesignRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/projects/$id/deploy": {
+      id: "/projects/$id/deploy";
+      path: "/projects/$id/deploy";
+      fullPath: "/projects/$id/deploy";
+      preLoaderRoute: typeof ProjectsIdDeployRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/rules/validate": {
+      id: "/api/rules/validate";
+      path: "/api/rules/validate";
+      fullPath: "/api/rules/validate";
+      preLoaderRoute: typeof ApiRulesValidateRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/mermaid/parse": {
+      id: "/api/mermaid/parse";
+      path: "/api/mermaid/parse";
+      fullPath: "/api/mermaid/parse";
+      preLoaderRoute: typeof ApiMermaidParseRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/mermaid/$filename": {
+      id: "/api/mermaid/$filename";
+      path: "/api/mermaid/$filename";
+      fullPath: "/api/mermaid/$filename";
+      preLoaderRoute: typeof ApiMermaidFilenameRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/copilotkit/$": {
+      id: "/api/copilotkit/$";
+      path: "/$";
+      fullPath: "/api/copilotkit/$";
+      preLoaderRoute: typeof ApiCopilotkitSplatRouteImport;
+      parentRoute: typeof ApiCopilotkitRoute;
+    };
+    "/api/auth/register": {
+      id: "/api/auth/register";
+      path: "/api/auth/register";
+      fullPath: "/api/auth/register";
+      preLoaderRoute: typeof ApiAuthRegisterRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/auth/me": {
+      id: "/api/auth/me";
+      path: "/api/auth/me";
+      fullPath: "/api/auth/me";
+      preLoaderRoute: typeof ApiAuthMeRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/auth/logout": {
+      id: "/api/auth/logout";
+      path: "/api/auth/logout";
+      fullPath: "/api/auth/logout";
+      preLoaderRoute: typeof ApiAuthLogoutRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/auth/login": {
+      id: "/api/auth/login";
+      path: "/api/auth/login";
+      fullPath: "/api/auth/login";
+      preLoaderRoute: typeof ApiAuthLoginRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/ai/rules-stream": {
+      id: "/api/ai/rules-stream";
+      path: "/api/ai/rules-stream";
+      fullPath: "/api/ai/rules-stream";
+      preLoaderRoute: typeof ApiAiRulesStreamRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/ai/convert-stream": {
+      id: "/api/ai/convert-stream";
+      path: "/api/ai/convert-stream";
+      fullPath: "/api/ai/convert-stream";
+      preLoaderRoute: typeof ApiAiConvertStreamRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/ai/convert": {
+      id: "/api/ai/convert";
+      path: "/api/ai/convert";
+      fullPath: "/api/ai/convert";
+      preLoaderRoute: typeof ApiAiConvertRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/ai/code-agent-stream": {
+      id: "/api/ai/code-agent-stream";
+      path: "/api/ai/code-agent-stream";
+      fullPath: "/api/ai/code-agent-stream";
+      preLoaderRoute: typeof ApiAiCodeAgentStreamRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/ai/code-agent": {
+      id: "/api/ai/code-agent";
+      path: "/api/ai/code-agent";
+      fullPath: "/api/ai/code-agent";
+      preLoaderRoute: typeof ApiAiCodeAgentRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/admin/workflows/$workflowId": {
+      id: "/admin/workflows/$workflowId";
+      path: "/admin/workflows/$workflowId";
+      fullPath: "/admin/workflows/$workflowId";
+      preLoaderRoute: typeof AdminWorkflowsWorkflowIdRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/admin/rules/new": {
+      id: "/admin/rules/new";
+      path: "/admin/rules/new";
+      fullPath: "/admin/rules/new";
+      preLoaderRoute: typeof AdminRulesNewRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/projects/$id/enhance/": {
+      id: "/projects/$id/enhance/";
+      path: "/projects/$id/enhance";
+      fullPath: "/projects/$id/enhance/";
+      preLoaderRoute: typeof ProjectsIdEnhanceIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/workflows/$workflowId/": {
+      id: "/api/workflows/$workflowId/";
+      path: "/api/workflows/$workflowId";
+      fullPath: "/api/workflows/$workflowId/";
+      preLoaderRoute: typeof ApiWorkflowsWorkflowIdIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/rules/$ruleId/": {
+      id: "/api/rules/$ruleId/";
+      path: "/api/rules/$ruleId";
+      fullPath: "/api/rules/$ruleId/";
+      preLoaderRoute: typeof ApiRulesRuleIdIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/": {
+      id: "/api/projects/$id/";
+      path: "/api/projects/$id";
+      fullPath: "/api/projects/$id/";
+      preLoaderRoute: typeof ApiProjectsIdIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/admin/users/": {
+      id: "/api/admin/users/";
+      path: "/api/admin/users";
+      fullPath: "/api/admin/users/";
+      preLoaderRoute: typeof ApiAdminUsersIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/projects/$id/enhance/$serviceName": {
+      id: "/projects/$id/enhance/$serviceName";
+      path: "/projects/$id/enhance/$serviceName";
+      fullPath: "/projects/$id/enhance/$serviceName";
+      preLoaderRoute: typeof ProjectsIdEnhanceServiceNameRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/workflows/$workflowId/status": {
+      id: "/api/workflows/$workflowId/status";
+      path: "/api/workflows/$workflowId/status";
+      fullPath: "/api/workflows/$workflowId/status";
+      preLoaderRoute: typeof ApiWorkflowsWorkflowIdStatusRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/workflows/$workflowId/retry": {
+      id: "/api/workflows/$workflowId/retry";
+      path: "/api/workflows/$workflowId/retry";
+      fullPath: "/api/workflows/$workflowId/retry";
+      preLoaderRoute: typeof ApiWorkflowsWorkflowIdRetryRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/admin/rules/$entity/$ruleId": {
+      id: "/admin/rules/$entity/$ruleId";
+      path: "/admin/rules/$entity/$ruleId";
+      fullPath: "/admin/rules/$entity/$ruleId";
+      preLoaderRoute: typeof AdminRulesEntityRuleIdRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/workflows/": {
+      id: "/api/projects/$id/workflows/";
+      path: "/api/projects/$id/workflows";
+      fullPath: "/api/projects/$id/workflows/";
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/members/": {
+      id: "/api/projects/$id/members/";
+      path: "/api/projects/$id/members";
+      fullPath: "/api/projects/$id/members/";
+      preLoaderRoute: typeof ApiProjectsIdMembersIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/erd-versions/": {
+      id: "/api/projects/$id/erd-versions/";
+      path: "/api/projects/$id/erd-versions";
+      fullPath: "/api/projects/$id/erd-versions/";
+      preLoaderRoute: typeof ApiProjectsIdErdVersionsIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/deployment/": {
+      id: "/api/projects/$id/deployment/";
+      path: "/api/projects/$id/deployment";
+      fullPath: "/api/projects/$id/deployment/";
+      preLoaderRoute: typeof ApiProjectsIdDeploymentIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/admin/users/$id/reject": {
+      id: "/api/admin/users/$id/reject";
+      path: "/api/admin/users/$id/reject";
+      fullPath: "/api/admin/users/$id/reject";
+      preLoaderRoute: typeof ApiAdminUsersIdRejectRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/admin/users/$id/approve": {
+      id: "/api/admin/users/$id/approve";
+      path: "/api/admin/users/$id/approve";
+      fullPath: "/api/admin/users/$id/approve";
+      preLoaderRoute: typeof ApiAdminUsersIdApproveRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/workflows/$serviceName/": {
+      id: "/api/projects/$id/workflows/$serviceName/";
+      path: "/api/projects/$id/workflows/$serviceName";
+      fullPath: "/api/projects/$id/workflows/$serviceName/";
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/members/$userId/": {
+      id: "/api/projects/$id/members/$userId/";
+      path: "/api/projects/$id/members/$userId";
+      fullPath: "/api/projects/$id/members/$userId/";
+      preLoaderRoute: typeof ApiProjectsIdMembersUserIdIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/workflows/$serviceName/validate": {
+      id: "/api/projects/$id/workflows/$serviceName/validate";
+      path: "/api/projects/$id/workflows/$serviceName/validate";
+      fullPath: "/api/projects/$id/workflows/$serviceName/validate";
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameValidateRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/workflows/$serviceName/gorules": {
+      id: "/api/projects/$id/workflows/$serviceName/gorules";
+      path: "/api/projects/$id/workflows/$serviceName/gorules";
+      fullPath: "/api/projects/$id/workflows/$serviceName/gorules";
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameGorulesRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/workflows/$serviceName/generate": {
+      id: "/api/projects/$id/workflows/$serviceName/generate";
+      path: "/api/projects/$id/workflows/$serviceName/generate";
+      fullPath: "/api/projects/$id/workflows/$serviceName/generate";
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameGenerateRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/workflows/$serviceName/draft": {
+      id: "/api/projects/$id/workflows/$serviceName/draft";
+      path: "/api/projects/$id/workflows/$serviceName/draft";
+      fullPath: "/api/projects/$id/workflows/$serviceName/draft";
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameDraftRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/workflows/$serviceName/apply": {
+      id: "/api/projects/$id/workflows/$serviceName/apply";
+      path: "/api/projects/$id/workflows/$serviceName/apply";
+      fullPath: "/api/projects/$id/workflows/$serviceName/apply";
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameApplyRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/erd-versions/$versionId/restore": {
+      id: "/api/projects/$id/erd-versions/$versionId/restore";
+      path: "/api/projects/$id/erd-versions/$versionId/restore";
+      fullPath: "/api/projects/$id/erd-versions/$versionId/restore";
+      preLoaderRoute: typeof ApiProjectsIdErdVersionsVersionIdRestoreRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/workflows/$serviceName/files/": {
+      id: "/api/projects/$id/workflows/$serviceName/files/";
+      path: "/api/projects/$id/workflows/$serviceName/files";
+      fullPath: "/api/projects/$id/workflows/$serviceName/files/";
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameFilesIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/projects/$id/workflows/$serviceName/files/$fileName": {
+      id: "/api/projects/$id/workflows/$serviceName/files/$fileName";
+      path: "/api/projects/$id/workflows/$serviceName/files/$fileName";
+      fullPath: "/api/projects/$id/workflows/$serviceName/files/$fileName";
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
 interface ApiCopilotkitRouteChildren {
-  ApiCopilotkitSplatRoute: typeof ApiCopilotkitSplatRoute
+  ApiCopilotkitSplatRoute: typeof ApiCopilotkitSplatRoute;
 }
 
 const ApiCopilotkitRouteChildren: ApiCopilotkitRouteChildren = {
   ApiCopilotkitSplatRoute: ApiCopilotkitSplatRoute,
-}
+};
 
 const ApiCopilotkitRouteWithChildren = ApiCopilotkitRoute._addFileChildren(
-  ApiCopilotkitRouteChildren,
-)
+  ApiCopilotkitRouteChildren
+);
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -1399,35 +1389,29 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProjectsIdErdVersionsIndexRoute: ApiProjectsIdErdVersionsIndexRoute,
   ApiProjectsIdMembersIndexRoute: ApiProjectsIdMembersIndexRoute,
   ApiProjectsIdWorkflowsIndexRoute: ApiProjectsIdWorkflowsIndexRoute,
-  ApiProjectsIdErdVersionsVersionIdRestoreRoute:
-    ApiProjectsIdErdVersionsVersionIdRestoreRoute,
-  ApiProjectsIdWorkflowsServiceNameApplyRoute:
-    ApiProjectsIdWorkflowsServiceNameApplyRoute,
-  ApiProjectsIdWorkflowsServiceNameDraftRoute:
-    ApiProjectsIdWorkflowsServiceNameDraftRoute,
-  ApiProjectsIdWorkflowsServiceNameGenerateRoute:
-    ApiProjectsIdWorkflowsServiceNameGenerateRoute,
-  ApiProjectsIdWorkflowsServiceNameGorulesRoute:
-    ApiProjectsIdWorkflowsServiceNameGorulesRoute,
-  ApiProjectsIdWorkflowsServiceNameValidateRoute:
-    ApiProjectsIdWorkflowsServiceNameValidateRoute,
+  ApiProjectsIdErdVersionsVersionIdRestoreRoute: ApiProjectsIdErdVersionsVersionIdRestoreRoute,
+  ApiProjectsIdWorkflowsServiceNameApplyRoute: ApiProjectsIdWorkflowsServiceNameApplyRoute,
+  ApiProjectsIdWorkflowsServiceNameDraftRoute: ApiProjectsIdWorkflowsServiceNameDraftRoute,
+  ApiProjectsIdWorkflowsServiceNameGenerateRoute: ApiProjectsIdWorkflowsServiceNameGenerateRoute,
+  ApiProjectsIdWorkflowsServiceNameGorulesRoute: ApiProjectsIdWorkflowsServiceNameGorulesRoute,
+  ApiProjectsIdWorkflowsServiceNameValidateRoute: ApiProjectsIdWorkflowsServiceNameValidateRoute,
   ApiProjectsIdMembersUserIdIndexRoute: ApiProjectsIdMembersUserIdIndexRoute,
-  ApiProjectsIdWorkflowsServiceNameIndexRoute:
-    ApiProjectsIdWorkflowsServiceNameIndexRoute,
+  ApiProjectsIdWorkflowsServiceNameIndexRoute: ApiProjectsIdWorkflowsServiceNameIndexRoute,
   ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute:
     ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute,
   ApiProjectsIdWorkflowsServiceNameFilesIndexRoute:
     ApiProjectsIdWorkflowsServiceNameFilesIndexRoute,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
+import type { createStart } from "@tanstack/react-start";
+import type { getRouter } from "./router.tsx";
+
+declare module "@tanstack/react-start" {
   interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
+    ssr: true;
+    router: Awaited<ReturnType<typeof getRouter>>;
   }
 }

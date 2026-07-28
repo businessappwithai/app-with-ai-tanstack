@@ -1,53 +1,53 @@
-import { Link, useRouterState } from '@tanstack/react-router';
-import { useState } from 'react';
+import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  Database,
   AppWindow,
+  Database,
+  FileText,
   Hash,
   LayoutList,
-  Settings,
   Menu,
-  X,
-  FileText,
+  Settings,
   ShieldCheck,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+  X,
+} from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const MENU_ITEMS = [
   {
-    label: 'Table and Column',
-    to: '/admin/tables',
+    label: "Table and Column",
+    to: "/admin/tables",
     icon: Database,
   },
   {
-    label: 'Window, Tab and Field',
-    to: '/admin/windows',
+    label: "Window, Tab and Field",
+    to: "/admin/windows",
     icon: AppWindow,
   },
   {
-    label: 'Element',
-    to: '/admin/elements',
+    label: "Element",
+    to: "/admin/elements",
     icon: FileText,
   },
   {
-    label: 'Reference',
-    to: '/admin/references',
+    label: "Reference",
+    to: "/admin/references",
     icon: Hash,
   },
   {
-    label: 'Field Layout Manager',
-    to: '/admin/fields',
+    label: "Field Layout Manager",
+    to: "/admin/fields",
     icon: LayoutList,
   },
   {
-    label: 'Business Rules',
-    to: '/admin/rules',
+    label: "Business Rules",
+    to: "/admin/rules",
     icon: Settings,
   },
   {
-    label: 'Audit Log',
-    to: '/admin/audit',
+    label: "Audit Log",
+    to: "/admin/audit",
     icon: ShieldCheck,
   },
 ];
@@ -66,8 +66,8 @@ export function ADSidebar({ children }: ADSidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'border-r border-border bg-card flex-shrink-0 transition-all duration-200',
-          collapsed ? 'w-0 overflow-hidden lg:w-12' : 'w-64'
+          "border-r border-border bg-card flex-shrink-0 transition-all duration-200",
+          collapsed ? "w-0 overflow-hidden lg:w-12" : "w-64"
         )}
       >
         <div className="flex flex-col h-full">
@@ -93,16 +93,16 @@ export function ADSidebar({ children }: ADSidebarProps) {
           {!collapsed && (
             <nav className="flex-1 py-2">
               {MENU_ITEMS.map((item) => {
-                const isActive = currentPath === item.to || currentPath.startsWith(item.to + '/');
+                const isActive = currentPath === item.to || currentPath.startsWith(item.to + "/");
                 return (
                   <Link
                     key={item.to}
                     to={item.to}
                     className={cn(
-                      'flex items-center gap-3 px-4 py-2.5 text-sm transition-colors',
+                      "flex items-center gap-3 px-4 py-2.5 text-sm transition-colors",
                       isActive
-                        ? 'bg-primary/10 text-primary font-medium border-r-2 border-primary'
-                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                        ? "bg-primary/10 text-primary font-medium border-r-2 border-primary"
+                        : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                     )}
                   >
                     <item.icon className="h-4 w-4 flex-shrink-0" />
@@ -126,9 +126,7 @@ export function ADSidebar({ children }: ADSidebarProps) {
       </Button>
 
       {/* Main Content */}
-      <main className="flex-1 min-w-0 overflow-auto">
-        {children}
-      </main>
+      <main className="flex-1 min-w-0 overflow-auto">{children}</main>
     </div>
   );
 }

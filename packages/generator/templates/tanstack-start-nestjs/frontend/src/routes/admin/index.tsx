@@ -1,26 +1,26 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
-import { apiClient, type PaginatedResponse } from '@/lib/api-client';
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Database,
   AppWindow,
-  Hash,
-  LayoutList,
-  FileText,
   ArrowRight,
-  RefreshCw,
-  Table2,
   Columns,
-  Layers,
-  Settings,
+  Database,
+  FileText,
+  Hash,
   Home,
+  Layers,
+  LayoutList,
+  RefreshCw,
+  Settings,
   ShieldCheck,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ADSidebar } from '@/components/admin/ad-sidebar';
+  Table2,
+} from "lucide-react";
+import { ADSidebar } from "@/components/admin/ad-sidebar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { apiClient, type PaginatedResponse } from "@/lib/api-client";
 
-export const Route = createFileRoute('/admin/')({
+export const Route = createFileRoute("/admin/")({
   component: AdminDashboardPage,
 });
 
@@ -29,82 +29,106 @@ interface CountResponse {
 }
 
 function AdminDashboardPage() {
-  const { data: tablesRes, isLoading, refetch } = useQuery({
-    queryKey: ['admin', 'tables-count'],
-    queryFn: () => apiClient.get<CountResponse>('/sys/tables', { limit: 1 }),
+  const {
+    data: tablesRes,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["admin", "tables-count"],
+    queryFn: () => apiClient.get<CountResponse>("/sys/tables", { limit: 1 }),
   });
   const { data: columnsRes } = useQuery({
-    queryKey: ['admin', 'columns-count'],
-    queryFn: () => apiClient.get<CountResponse>('/sys/columns', { limit: 1 }),
+    queryKey: ["admin", "columns-count"],
+    queryFn: () => apiClient.get<CountResponse>("/sys/columns", { limit: 1 }),
   });
   const { data: windowsRes } = useQuery({
-    queryKey: ['admin', 'windows-count'],
-    queryFn: () => apiClient.get<CountResponse>('/sys/windows', { limit: 1 }),
+    queryKey: ["admin", "windows-count"],
+    queryFn: () => apiClient.get<CountResponse>("/sys/windows", { limit: 1 }),
   });
   const { data: tabsRes } = useQuery({
-    queryKey: ['admin', 'tabs-count'],
-    queryFn: () => apiClient.get<CountResponse>('/sys/tabs', { limit: 1 }),
+    queryKey: ["admin", "tabs-count"],
+    queryFn: () => apiClient.get<CountResponse>("/sys/tabs", { limit: 1 }),
   });
   const { data: fieldsRes } = useQuery({
-    queryKey: ['admin', 'fields-count'],
-    queryFn: () => apiClient.get<CountResponse>('/sys/fields', { limit: 1 }),
+    queryKey: ["admin", "fields-count"],
+    queryFn: () => apiClient.get<CountResponse>("/sys/fields", { limit: 1 }),
   });
   const { data: refsRes } = useQuery({
-    queryKey: ['admin', 'references-count'],
-    queryFn: () => apiClient.get<CountResponse>('/sys/references', { limit: 1 }),
+    queryKey: ["admin", "references-count"],
+    queryFn: () => apiClient.get<CountResponse>("/sys/references", { limit: 1 }),
   });
 
   const stats = [
-    { label: 'Tables', count: tablesRes?.meta?.total || 0, icon: Table2, color: 'text-blue-600' },
-    { label: 'Columns', count: columnsRes?.meta?.total || 0, icon: Columns, color: 'text-indigo-600' },
-    { label: 'Windows', count: windowsRes?.meta?.total || 0, icon: AppWindow, color: 'text-violet-600' },
-    { label: 'Tabs', count: tabsRes?.meta?.total || 0, icon: Layers, color: 'text-purple-600' },
-    { label: 'Fields', count: fieldsRes?.meta?.total || 0, icon: LayoutList, color: 'text-pink-600' },
-    { label: 'References', count: refsRes?.meta?.total || 0, icon: Hash, color: 'text-emerald-600' },
+    { label: "Tables", count: tablesRes?.meta?.total || 0, icon: Table2, color: "text-blue-600" },
+    {
+      label: "Columns",
+      count: columnsRes?.meta?.total || 0,
+      icon: Columns,
+      color: "text-indigo-600",
+    },
+    {
+      label: "Windows",
+      count: windowsRes?.meta?.total || 0,
+      icon: AppWindow,
+      color: "text-violet-600",
+    },
+    { label: "Tabs", count: tabsRes?.meta?.total || 0, icon: Layers, color: "text-purple-600" },
+    {
+      label: "Fields",
+      count: fieldsRes?.meta?.total || 0,
+      icon: LayoutList,
+      color: "text-pink-600",
+    },
+    {
+      label: "References",
+      count: refsRes?.meta?.total || 0,
+      icon: Hash,
+      color: "text-emerald-600",
+    },
   ];
 
   const windows = [
     {
-      title: 'Table and Column',
-      description: 'Browse database tables and their column definitions in master/detail view',
+      title: "Table and Column",
+      description: "Browse database tables and their column definitions in master/detail view",
       icon: Database,
-      to: '/admin/tables' as const,
+      to: "/admin/tables" as const,
     },
     {
-      title: 'Window, Tab and Field',
-      description: 'Manage application windows with nested tabs and field configurations',
+      title: "Window, Tab and Field",
+      description: "Manage application windows with nested tabs and field configurations",
       icon: AppWindow,
-      to: '/admin/windows' as const,
+      to: "/admin/windows" as const,
     },
     {
-      title: 'Element',
-      description: 'Manage system elements — column names, print names, and descriptions',
+      title: "Element",
+      description: "Manage system elements — column names, print names, and descriptions",
       icon: FileText,
-      to: '/admin/elements' as const,
+      to: "/admin/elements" as const,
     },
     {
-      title: 'Reference',
-      description: 'Manage data types, validation rules, and lookup definitions',
+      title: "Reference",
+      description: "Manage data types, validation rules, and lookup definitions",
       icon: Hash,
-      to: '/admin/references' as const,
+      to: "/admin/references" as const,
     },
     {
-      title: 'Field Layout Manager',
-      description: 'Customize field order, visibility, and grouping with drag-and-drop',
+      title: "Field Layout Manager",
+      description: "Customize field order, visibility, and grouping with drag-and-drop",
       icon: LayoutList,
-      to: '/admin/fields' as const,
+      to: "/admin/fields" as const,
     },
     {
-      title: 'Business Rules',
-      description: 'Configure validation rules, callouts, and business logic',
+      title: "Business Rules",
+      description: "Configure validation rules, callouts, and business logic",
       icon: Settings,
-      to: '/admin/rules' as const,
+      to: "/admin/rules" as const,
     },
     {
-      title: 'Audit Log',
-      description: 'Immutable tamper-proof audit trail of all user and system actions',
+      title: "Audit Log",
+      description: "Immutable tamper-proof audit trail of all user and system actions",
       icon: ShieldCheck,
-      to: '/admin/audit' as const,
+      to: "/admin/audit" as const,
     },
   ];
 
@@ -115,7 +139,10 @@ function AdminDashboardPage() {
         <header className="border-b border-border bg-card px-8 py-8">
           <div className="flex items-start justify-between">
             <div>
-              <Link to="/dashboard" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors mb-3">
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors mb-3"
+              >
                 <Home className="h-3.5 w-3.5" />
                 Back to Dashboard
               </Link>
@@ -126,13 +153,8 @@ function AdminDashboardPage() {
                 Manage entities, field layouts, and application configuration
               </p>
             </div>
-            <Button
-              variant="outline"
-              size="default"
-              onClick={() => refetch()}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            <Button variant="outline" size="default" onClick={() => refetch()} disabled={isLoading}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
               Refresh
             </Button>
           </div>

@@ -26,18 +26,36 @@ function makeAPIRouteObject(path, methods) {
       const routePath = options?.path || path;
       this._path = routePath;
       this._id = options?.id || routePath;
-      this._fullPath = parentRoute ? `${parentRoute.fullPath ?? ""}${routePath}`.replace(/\/+/g, "/") : routePath;
+      this._fullPath = parentRoute
+        ? `${parentRoute.fullPath ?? ""}${routePath}`.replace(/\/+/g, "/")
+        : routePath;
       this._to = this._fullPath;
     },
     // Additional Route interface methods TanStack Router may call
-    addChildren(children) { return this; },
-    _addFileChildren(children) { return this; },
-    _addFileTypes() { return this; },
-    updateLoader(opts) { return this; },
-    lazy(fn) { return this; },
-    get id() { return this._id ?? this.options?.id ?? path; },
-    get fullPath() { return this._fullPath ?? path; },
-    get to() { return this._to ?? path; },
+    addChildren(children) {
+      return this;
+    },
+    _addFileChildren(children) {
+      return this;
+    },
+    _addFileTypes() {
+      return this;
+    },
+    updateLoader(opts) {
+      return this;
+    },
+    lazy(fn) {
+      return this;
+    },
+    get id() {
+      return this._id ?? this.options?.id ?? path;
+    },
+    get fullPath() {
+      return this._fullPath ?? path;
+    },
+    get to() {
+      return this._to ?? path;
+    },
   };
   return route;
 }
@@ -55,14 +73,16 @@ export function createStartAPIHandler(cb) {
 
 function findRoute(url, routes) {
   const urlSegments = url.pathname.split("/").filter(Boolean);
-  const sorted = [...routes].sort((a, b) => {
-    const ap = a.routePath.split("/").filter(Boolean);
-    const bp = b.routePath.split("/").filter(Boolean);
-    return bp.length - ap.length;
-  }).filter((r) => {
-    const rs = r.routePath.split("/").filter(Boolean);
-    return urlSegments.length >= rs.length;
-  });
+  const sorted = [...routes]
+    .sort((a, b) => {
+      const ap = a.routePath.split("/").filter(Boolean);
+      const bp = b.routePath.split("/").filter(Boolean);
+      return bp.length - ap.length;
+    })
+    .filter((r) => {
+      const rs = r.routePath.split("/").filter(Boolean);
+      return urlSegments.length >= rs.length;
+    });
   for (const route of sorted) {
     const routeSegments = route.routePath.split("/").filter(Boolean);
     const params = {};
@@ -73,13 +93,19 @@ function findRoute(url, routes) {
       if (rs.startsWith("$")) {
         if (rs === "$") {
           const wild = urlSegments.slice(i).join("/");
-          if (wild !== "") { params["*"] = wild; params["_splat"] = wild; }
-          else { matches = false; break; }
+          if (wild !== "") {
+            params["*"] = wild;
+            params["_splat"] = wild;
+          } else {
+            matches = false;
+            break;
+          }
         } else {
           params[rs.slice(1)] = us;
         }
       } else if (rs !== us) {
-        matches = false; break;
+        matches = false;
+        break;
       }
     }
     if (matches) return { routePath: route.routePath, params, payload: route.payload };
@@ -87,17 +113,22 @@ function findRoute(url, routes) {
   return undefined;
 }
 
-export const defaultAPIRoutesHandler = (opts) => async ({ request }) => {
-  if (!HTTP_API_METHODS.includes(request.method))
-    return new Response("Method not allowed", { status: 405 });
-  const url = new URL(request.url, "http://localhost:3000");
-  const routes = Object.entries(opts.routes).map(([routePath, route]) => ({ routePath, payload: route }));
-  const match = findRoute(url, routes);
-  if (!match) return new Response("Not found", { status: 404 });
-  const handler = match.payload.methods[request.method];
-  if (!handler) return new Response("Method not allowed", { status: 405 });
-  return handler({ request, params: match.params });
-};
+export const defaultAPIRoutesHandler =
+  (opts) =>
+  async ({ request }) => {
+    if (!HTTP_API_METHODS.includes(request.method))
+      return new Response("Method not allowed", { status: 405 });
+    const url = new URL(request.url, "http://localhost:3000");
+    const routes = Object.entries(opts.routes).map(([routePath, route]) => ({
+      routePath,
+      payload: route,
+    }));
+    const match = findRoute(url, routes);
+    if (!match) return new Response("Not found", { status: 404 });
+    const handler = match.payload.methods[request.method];
+    if (!handler) return new Response("Method not allowed", { status: 405 });
+    return handler({ request, params: match.params });
+  };
 
 export const defaultAPIFileRouteHandler = async ({ request }) =>
   new Response("Not found", { status: 404 });

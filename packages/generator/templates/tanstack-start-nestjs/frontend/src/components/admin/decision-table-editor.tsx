@@ -1,33 +1,28 @@
-import { useState, useCallback, useEffect } from 'react';
 import {
-  Plus,
-  Trash2,
-  HelpCircle,
-  GripVertical,
-  Copy,
-  ChevronDown,
-  ChevronRight,
   AlertTriangle,
   CheckCircle,
+  ChevronDown,
+  ChevronRight,
+  Copy,
+  GripVertical,
+  HelpCircle,
   Info,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  Plus,
+  Trash2,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Badge } from '@/components/ui/badge';
+} from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // ---------- Types ----------
 
@@ -52,7 +47,7 @@ export interface DecisionTableData {
   conditionColumns: ConditionColumn[];
   actionColumns: ActionColumn[];
   rows: DecisionRow[];
-  hitPolicy: 'first' | 'collect';
+  hitPolicy: "first" | "collect";
 }
 
 interface WorkflowOption {
@@ -73,36 +68,78 @@ interface DecisionTableEditorProps {
 // ---------- Constants ----------
 
 const OPERATORS = [
-  { value: '==', label: '= (equals)' },
-  { value: '!=', label: '!= (not equals)' },
-  { value: '>', label: '> (greater than)' },
-  { value: '<', label: '< (less than)' },
-  { value: '>=', label: '>= (greater or equal)' },
-  { value: '<=', label: '<= (less or equal)' },
-  { value: 'contains', label: 'contains' },
-  { value: 'startsWith', label: 'starts with' },
-  { value: 'endsWith', label: 'ends with' },
-  { value: 'matches', label: 'matches (regex)' },
-  { value: 'in', label: 'in (list)' },
-  { value: 'notIn', label: 'not in (list)' },
-  { value: 'isNull', label: 'is empty' },
-  { value: 'isNotNull', label: 'is not empty' },
+  { value: "==", label: "= (equals)" },
+  { value: "!=", label: "!= (not equals)" },
+  { value: ">", label: "> (greater than)" },
+  { value: "<", label: "< (less than)" },
+  { value: ">=", label: ">= (greater or equal)" },
+  { value: "<=", label: "<= (less or equal)" },
+  { value: "contains", label: "contains" },
+  { value: "startsWith", label: "starts with" },
+  { value: "endsWith", label: "ends with" },
+  { value: "matches", label: "matches (regex)" },
+  { value: "in", label: "in (list)" },
+  { value: "notIn", label: "not in (list)" },
+  { value: "isNull", label: "is empty" },
+  { value: "isNotNull", label: "is not empty" },
 ];
 
 const ACTION_TYPES = [
-  { value: 'prevent', label: 'Block Operation', description: 'Prevent the operation and show an error' },
-  { value: 'validate', label: 'Show Warning', description: 'Display a warning message but allow the operation' },
-  { value: 'notify', label: 'Send Notification', description: 'Trigger a notification (email, webhook, etc.)' },
-  { value: 'transform', label: 'Set Value', description: 'Automatically set or modify a field value' },
-  { value: 'cascade-update', label: 'Cascade Update', description: 'Update related records in another entity' },
-  { value: 'cascade-delete', label: 'Cascade Delete', description: 'Delete related records in another entity' },
-  { value: 'cascade-create', label: 'Cascade Create', description: 'Create new records in another entity' },
-  { value: 'trigger-workflow', label: 'Trigger Workflow', description: 'Run a named workflow when this rule matches' },
+  {
+    value: "prevent",
+    label: "Block Operation",
+    description: "Prevent the operation and show an error",
+  },
+  {
+    value: "validate",
+    label: "Show Warning",
+    description: "Display a warning message but allow the operation",
+  },
+  {
+    value: "notify",
+    label: "Send Notification",
+    description: "Trigger a notification (email, webhook, etc.)",
+  },
+  {
+    value: "transform",
+    label: "Set Value",
+    description: "Automatically set or modify a field value",
+  },
+  {
+    value: "cascade-update",
+    label: "Cascade Update",
+    description: "Update related records in another entity",
+  },
+  {
+    value: "cascade-delete",
+    label: "Cascade Delete",
+    description: "Delete related records in another entity",
+  },
+  {
+    value: "cascade-create",
+    label: "Cascade Create",
+    description: "Create new records in another entity",
+  },
+  {
+    value: "trigger-workflow",
+    label: "Trigger Workflow",
+    description: "Run a named workflow when this rule matches",
+  },
 ];
 
 const DEFAULT_ENTITY_FIELDS = [
-  'name', 'email', 'phone', 'status', 'type', 'amount', 'description',
-  'is_active', 'created_at', 'updated_at', 'owner_id', 'assigned_to',
+  "name",
+  "email",
+  "phone",
+  "status",
+  "type",
+  "amount",
+  "description",
+  "is_active",
+  "created_at",
+  "updated_at",
+  "owner_id",
+  "assigned_to",
 ];
 
 // ---------- Helpers ----------
@@ -117,17 +154,15 @@ function parseJdmToTable(jdmContent: string): DecisionTableData | null {
     const jdm = JSON.parse(jdmContent);
     if (!jdm?.nodes) return null;
 
-    const dtNode = jdm.nodes.find(
-      (n: any) => n.type === 'decisionTableNode',
-    );
+    const dtNode = jdm.nodes.find((n: any) => n.type === "decisionTableNode");
     if (!dtNode?.content) return null;
 
-    const { inputs = [], outputs = [], rules: rows = [], hitPolicy = 'collect' } = dtNode.content;
+    const { inputs = [], outputs = [], rules: rows = [], hitPolicy = "collect" } = dtNode.content;
 
     const conditionColumns: ConditionColumn[] = inputs.map((inp: any, i: number) => ({
       id: inp.id || genId(),
       field: inp.field || inp.name || `condition_${i}`,
-      operator: '==',
+      operator: "==",
     }));
 
     const actionColumns: ActionColumn[] = outputs.map((out: any, i: number) => ({
@@ -139,12 +174,12 @@ function parseJdmToTable(jdmContent: string): DecisionTableData | null {
       const conditions: Record<string, string> = {};
       const actions: Record<string, string> = {};
 
-      if (typeof row === 'object' && !Array.isArray(row)) {
+      if (typeof row === "object" && !Array.isArray(row)) {
         for (const col of conditionColumns) {
-          conditions[col.id] = row[col.id] ?? '';
+          conditions[col.id] = row[col.id] ?? "";
         }
         for (const col of actionColumns) {
-          actions[col.id] = row[col.id] ?? '';
+          actions[col.id] = row[col.id] ?? "";
         }
       }
 
@@ -155,7 +190,7 @@ function parseJdmToTable(jdmContent: string): DecisionTableData | null {
       conditionColumns,
       actionColumns,
       rows: tableRows.length > 0 ? tableRows : [createEmptyRow(conditionColumns, actionColumns)],
-      hitPolicy: hitPolicy === 'first' ? 'first' : 'collect',
+      hitPolicy: hitPolicy === "first" ? "first" : "collect",
     };
   } catch {
     return null;
@@ -165,54 +200,54 @@ function parseJdmToTable(jdmContent: string): DecisionTableData | null {
 function createEmptyRow(conditions: ConditionColumn[], actions: ActionColumn[]): DecisionRow {
   const c: Record<string, string> = {};
   const a: Record<string, string> = {};
-  conditions.forEach((col) => (c[col.id] = ''));
-  actions.forEach((col) => (a[col.id] = ''));
+  conditions.forEach((col) => (c[col.id] = ""));
+  actions.forEach((col) => (a[col.id] = ""));
   return { id: genId(), conditions: c, actions: a };
 }
 
 function tableToJdm(table: DecisionTableData): string {
-  const inputNodeId = 'input-1';
-  const outputNodeId = 'output-1';
-  const dtNodeId = 'dt-1';
+  const inputNodeId = "input-1";
+  const outputNodeId = "output-1";
+  const dtNodeId = "dt-1";
 
   const inputs = table.conditionColumns.map((col) => ({
     id: col.id,
     name: col.field,
     field: col.field,
-    type: 'expression',
+    type: "expression",
   }));
 
   const outputs = table.actionColumns.map((col) => ({
     id: col.id,
     name: col.field,
     field: col.field,
-    type: 'expression',
+    type: "expression",
   }));
 
   const rules = table.rows.map((row) => {
     const r: Record<string, string> = {};
     for (const col of table.conditionColumns) {
-      r[col.id] = row.conditions[col.id] || '';
+      r[col.id] = row.conditions[col.id] || "";
     }
     for (const col of table.actionColumns) {
-      r[col.id] = row.actions[col.id] || '';
+      r[col.id] = row.actions[col.id] || "";
     }
     return r;
   });
 
   const jdm = {
-    contentType: 'application/vnd.gorules.decision',
+    contentType: "application/vnd.gorules.decision",
     nodes: [
       {
         id: inputNodeId,
-        name: 'Request',
-        type: 'inputNode',
+        name: "Request",
+        type: "inputNode",
         position: { x: 100, y: 200 },
       },
       {
         id: dtNodeId,
-        name: 'Decision Table',
-        type: 'decisionTableNode',
+        name: "Decision Table",
+        type: "decisionTableNode",
         position: { x: 350, y: 200 },
         content: {
           hitPolicy: table.hitPolicy,
@@ -223,14 +258,14 @@ function tableToJdm(table: DecisionTableData): string {
       },
       {
         id: outputNodeId,
-        name: 'Response',
-        type: 'outputNode',
+        name: "Response",
+        type: "outputNode",
         position: { x: 600, y: 200 },
       },
     ],
     edges: [
-      { id: 'e1', sourceId: inputNodeId, targetId: dtNodeId, type: 'edge' },
-      { id: 'e2', sourceId: dtNodeId, targetId: outputNodeId, type: 'edge' },
+      { id: "e1", sourceId: inputNodeId, targetId: dtNodeId, type: "edge" },
+      { id: "e2", sourceId: dtNodeId, targetId: outputNodeId, type: "edge" },
     ],
   };
 
@@ -244,20 +279,20 @@ function getDefaultTable(): DecisionTableData {
   const actWfId = genId();
 
   return {
-    conditionColumns: [{ id: condId, field: 'email', operator: '==' }],
+    conditionColumns: [{ id: condId, field: "email", operator: "==" }],
     actionColumns: [
-      { id: actActionId, field: 'action' },
-      { id: actMsgId, field: 'message' },
-      { id: actWfId, field: 'workflowName' },
+      { id: actActionId, field: "action" },
+      { id: actMsgId, field: "message" },
+      { id: actWfId, field: "workflowName" },
     ],
     rows: [
       {
         id: genId(),
-        conditions: { [condId]: '' },
-        actions: { [actActionId]: '"prevent"', [actMsgId]: '"Email is required"', [actWfId]: '' },
+        conditions: { [condId]: "" },
+        actions: { [actActionId]: '"prevent"', [actMsgId]: '"Email is required"', [actWfId]: "" },
       },
     ],
-    hitPolicy: 'collect',
+    hitPolicy: "collect",
   };
 }
 
@@ -274,7 +309,7 @@ export function DecisionTableEditor({
   const fields = entityFields ?? DEFAULT_ENTITY_FIELDS;
 
   const [table, setTable] = useState<DecisionTableData>(() => {
-    if (!value || value.trim() === '' || value === '{}') return getDefaultTable();
+    if (!value || value.trim() === "" || value === "{}") return getDefaultTable();
     return parseJdmToTable(value) ?? getDefaultTable();
   });
 
@@ -287,7 +322,7 @@ export function DecisionTableEditor({
       setTable(t);
       onChange(tableToJdm(t));
     },
-    [onChange],
+    [onChange]
   );
 
   useEffect(() => {
@@ -303,13 +338,13 @@ export function DecisionTableEditor({
   // ----- Condition columns -----
   const addConditionColumn = () => {
     const id = genId();
-    const newCol: ConditionColumn = { id, field: 'name', operator: '==' };
+    const newCol: ConditionColumn = { id, field: "name", operator: "==" };
     const updated = {
       ...table,
       conditionColumns: [...table.conditionColumns, newCol],
       rows: table.rows.map((r) => ({
         ...r,
-        conditions: { ...r.conditions, [id]: '' },
+        conditions: { ...r.conditions, [id]: "" },
       })),
     };
     emitChange(updated);
@@ -332,9 +367,7 @@ export function DecisionTableEditor({
   const updateConditionColumn = (colId: string, field: string) => {
     const updated = {
       ...table,
-      conditionColumns: table.conditionColumns.map((c) =>
-        c.id === colId ? { ...c, field } : c,
-      ),
+      conditionColumns: table.conditionColumns.map((c) => (c.id === colId ? { ...c, field } : c)),
     };
     emitChange(updated);
   };
@@ -342,13 +375,13 @@ export function DecisionTableEditor({
   // ----- Action columns -----
   const addActionColumn = () => {
     const id = genId();
-    const newCol: ActionColumn = { id, field: 'message' };
+    const newCol: ActionColumn = { id, field: "message" };
     const updated = {
       ...table,
       actionColumns: [...table.actionColumns, newCol],
       rows: table.rows.map((r) => ({
         ...r,
-        actions: { ...r.actions, [id]: '' },
+        actions: { ...r.actions, [id]: "" },
       })),
     };
     emitChange(updated);
@@ -371,9 +404,7 @@ export function DecisionTableEditor({
   const updateActionColumn = (colId: string, field: string) => {
     const updated = {
       ...table,
-      actionColumns: table.actionColumns.map((c) =>
-        c.id === colId ? { ...c, field } : c,
-      ),
+      actionColumns: table.actionColumns.map((c) => (c.id === colId ? { ...c, field } : c)),
     };
     emitChange(updated);
   };
@@ -406,16 +437,14 @@ export function DecisionTableEditor({
 
   const updateCellValue = (
     rowId: string,
-    section: 'conditions' | 'actions',
+    section: "conditions" | "actions",
     colId: string,
-    value: string,
+    value: string
   ) => {
     const updated = {
       ...table,
       rows: table.rows.map((r) =>
-        r.id === rowId
-          ? { ...r, [section]: { ...r[section], [colId]: value } }
-          : r,
+        r.id === rowId ? { ...r, [section]: { ...r[section], [colId]: value } } : r
       ),
     };
     emitChange(updated);
@@ -429,7 +458,7 @@ export function DecisionTableEditor({
           <div className="flex items-center gap-3">
             <h3 className="text-sm font-semibold text-gray-900">Decision Table</h3>
             <Badge variant="outline" className="text-xs">
-              {table.hitPolicy === 'collect' ? 'All matching rows' : 'First match only'}
+              {table.hitPolicy === "collect" ? "All matching rows" : "First match only"}
             </Badge>
             {entityName && (
               <Badge variant="secondary" className="text-xs">
@@ -440,9 +469,7 @@ export function DecisionTableEditor({
           <div className="flex items-center gap-2">
             <Select
               value={table.hitPolicy}
-              onValueChange={(v: 'first' | 'collect') =>
-                emitChange({ ...table, hitPolicy: v })
-              }
+              onValueChange={(v: "first" | "collect") => emitChange({ ...table, hitPolicy: v })}
               disabled={readOnly}
             >
               <SelectTrigger className="h-7 w-36 text-xs">
@@ -470,7 +497,7 @@ export function DecisionTableEditor({
               className="h-7 text-xs"
               onClick={() => setShowJson(!showJson)}
             >
-              {showJson ? 'Table' : 'JSON'}
+              {showJson ? "Table" : "JSON"}
             </Button>
           </div>
         </div>
@@ -492,7 +519,9 @@ export function DecisionTableEditor({
                 try {
                   const parsed = parseJdmToTable(e.target.value);
                   if (parsed) emitChange(parsed);
-                } catch { /* ignore parse errors while typing */ }
+                } catch {
+                  /* ignore parse errors while typing */
+                }
               }}
             />
           </div>
@@ -621,23 +650,17 @@ export function DecisionTableEditor({
               </thead>
               <tbody>
                 {table.rows.map((row, idx) => (
-                  <tr
-                    key={row.id}
-                    className="border-b border-gray-100 hover:bg-gray-50 group"
-                  >
+                  <tr key={row.id} className="border-b border-gray-100 hover:bg-gray-50 group">
                     <td className="bg-gray-50 border-r border-gray-200 px-1 py-1 text-center text-[10px] text-gray-400">
                       {idx + 1}
                     </td>
                     {table.conditionColumns.map((col) => (
-                      <td
-                        key={col.id}
-                        className="border-r border-gray-200 px-1 py-0.5"
-                      >
+                      <td key={col.id} className="border-r border-gray-200 px-1 py-0.5">
                         <Input
                           type="text"
-                          value={row.conditions[col.id] || ''}
+                          value={row.conditions[col.id] || ""}
                           onChange={(e) =>
-                            updateCellValue(row.id, 'conditions', col.id, e.target.value)
+                            updateCellValue(row.id, "conditions", col.id, e.target.value)
                           }
                           placeholder='e.g. == "active"'
                           className="h-7 text-xs border-0 bg-transparent shadow-none focus:bg-blue-50"
@@ -647,25 +670,26 @@ export function DecisionTableEditor({
                     ))}
                     {table.actionColumns.map((col) => {
                       // Find the action column value for this row (to conditionally render workflow picker)
-                      const actionCol = table.actionColumns.find((c) => c.field === 'action');
-                      const currentActionRaw = actionCol ? (row.actions[actionCol.id] || '') : '';
-                      const currentAction = currentActionRaw.replace(/^["']|["']$/g, '');
+                      const actionCol = table.actionColumns.find((c) => c.field === "action");
+                      const currentActionRaw = actionCol ? row.actions[actionCol.id] || "" : "";
+                      const currentAction = currentActionRaw.replace(/^["']|["']$/g, "");
 
-                      if (col.field === 'action') {
-                        const selectedAction = ACTION_TYPES.find(
-                          (a) => a.value === currentAction,
-                        );
+                      if (col.field === "action") {
+                        const selectedAction = ACTION_TYPES.find((a) => a.value === currentAction);
                         return (
-                          <td key={col.id} className="border-r border-gray-200 px-1 py-0.5 min-w-[160px]">
+                          <td
+                            key={col.id}
+                            className="border-r border-gray-200 px-1 py-0.5 min-w-[160px]"
+                          >
                             {readOnly ? (
                               <span className="text-xs px-2">
                                 {selectedAction?.label ?? currentAction}
                               </span>
                             ) : (
                               <Select
-                                value={currentAction || ''}
+                                value={currentAction || ""}
                                 onValueChange={(v) =>
-                                  updateCellValue(row.id, 'actions', col.id, `"${v}"`)
+                                  updateCellValue(row.id, "actions", col.id, `"${v}"`)
                                 }
                               >
                                 <SelectTrigger className="h-7 text-xs border-0 bg-transparent shadow-none focus:bg-green-50 w-full">
@@ -676,7 +700,9 @@ export function DecisionTableEditor({
                                     <SelectItem key={a.value} value={a.value}>
                                       <div>
                                         <div className="font-medium text-xs">{a.label}</div>
-                                        <div className="text-[10px] text-gray-500">{a.description}</div>
+                                        <div className="text-[10px] text-gray-500">
+                                          {a.description}
+                                        </div>
                                       </div>
                                     </SelectItem>
                                   ))}
@@ -687,17 +713,20 @@ export function DecisionTableEditor({
                         );
                       }
 
-                      if (col.field === 'workflowName' && currentAction === 'trigger-workflow') {
-                        const currentWf = (row.actions[col.id] || '').replace(/^["']|["']$/g, '');
+                      if (col.field === "workflowName" && currentAction === "trigger-workflow") {
+                        const currentWf = (row.actions[col.id] || "").replace(/^["']|["']$/g, "");
                         return (
-                          <td key={col.id} className="border-r border-gray-200 px-1 py-0.5 min-w-[200px]">
+                          <td
+                            key={col.id}
+                            className="border-r border-gray-200 px-1 py-0.5 min-w-[200px]"
+                          >
                             {readOnly ? (
                               <span className="text-xs px-2">{currentWf}</span>
                             ) : (
                               <Select
-                                value={currentWf || ''}
+                                value={currentWf || ""}
                                 onValueChange={(v) =>
-                                  updateCellValue(row.id, 'actions', col.id, `"${v}"`)
+                                  updateCellValue(row.id, "actions", col.id, `"${v}"`)
                                 }
                               >
                                 <SelectTrigger className="h-7 text-xs border-0 bg-transparent shadow-none focus:bg-purple-50 w-full">
@@ -728,17 +757,14 @@ export function DecisionTableEditor({
                       }
 
                       return (
-                        <td
-                          key={col.id}
-                          className="border-r border-gray-200 px-1 py-0.5"
-                        >
+                        <td key={col.id} className="border-r border-gray-200 px-1 py-0.5">
                           <Input
                             type="text"
-                            value={row.actions[col.id] || ''}
+                            value={row.actions[col.id] || ""}
                             onChange={(e) =>
-                              updateCellValue(row.id, 'actions', col.id, e.target.value)
+                              updateCellValue(row.id, "actions", col.id, e.target.value)
                             }
-                            placeholder={col.field === 'message' ? '"Description..."' : ''}
+                            placeholder={col.field === "message" ? '"Description..."' : ""}
                             className="h-7 text-xs border-0 bg-transparent shadow-none focus:bg-green-50"
                             readOnly={readOnly}
                           />
@@ -807,18 +833,18 @@ export function DecisionTableEditor({
 // ---------- Help Panel ----------
 
 function HelpPanel({ onClose }: { onClose: () => void }) {
-  const [expanded, setExpanded] = useState<string | null>('basics');
+  const [expanded, setExpanded] = useState<string | null>("basics");
 
   const sections = [
     {
-      id: 'basics',
-      title: 'How Decision Tables Work',
+      id: "basics",
+      title: "How Decision Tables Work",
       icon: <Info className="h-4 w-4 text-blue-500" />,
       content: (
         <div className="space-y-2 text-xs text-gray-600">
           <p>
-            A decision table evaluates entity data against a set of rules. Each <strong>row</strong> is
-            a rule. When entity data matches the <strong>IF</strong> conditions in a row, the
+            A decision table evaluates entity data against a set of rules. Each <strong>row</strong>{" "}
+            is a rule. When entity data matches the <strong>IF</strong> conditions in a row, the
             <strong> THEN</strong> actions are executed.
           </p>
           <div className="bg-blue-50 border border-blue-100 p-2 rounded">
@@ -829,12 +855,15 @@ function HelpPanel({ onClose }: { onClose: () => void }) {
       ),
     },
     {
-      id: 'conditions',
-      title: 'Writing Conditions (IF)',
+      id: "conditions",
+      title: "Writing Conditions (IF)",
       icon: <AlertTriangle className="h-4 w-4 text-amber-500" />,
       content: (
         <div className="space-y-2 text-xs text-gray-600">
-          <p>Conditions use GoRules expression syntax. Each cell is evaluated against the entity field.</p>
+          <p>
+            Conditions use GoRules expression syntax. Each cell is evaluated against the entity
+            field.
+          </p>
           <table className="w-full text-[11px] mt-2">
             <thead>
               <tr className="border-b">
@@ -869,12 +898,14 @@ function HelpPanel({ onClose }: { onClose: () => void }) {
       ),
     },
     {
-      id: 'actions',
-      title: 'Writing Actions (THEN)',
+      id: "actions",
+      title: "Writing Actions (THEN)",
       icon: <CheckCircle className="h-4 w-4 text-green-500" />,
       content: (
         <div className="space-y-2 text-xs text-gray-600">
-          <p>Actions define what happens when conditions match. Always wrap text values in quotes.</p>
+          <p>
+            Actions define what happens when conditions match. Always wrap text values in quotes.
+          </p>
           <table className="w-full text-[11px] mt-2">
             <thead>
               <tr className="border-b">
@@ -910,33 +941,48 @@ function HelpPanel({ onClose }: { onClose: () => void }) {
       ),
     },
     {
-      id: 'hitpolicy',
-      title: 'Hit Policy',
+      id: "hitpolicy",
+      title: "Hit Policy",
       icon: <Info className="h-4 w-4 text-purple-500" />,
       content: (
         <div className="space-y-2 text-xs text-gray-600">
-          <p><strong>Collect All:</strong> All matching rows are evaluated and their actions are collected. Use this when you want to check multiple rules at once (e.g., validate email AND check phone format).</p>
-          <p><strong>First Match:</strong> Only the first matching row is evaluated. Use this when rules are mutually exclusive (e.g., pricing tiers).</p>
+          <p>
+            <strong>Collect All:</strong> All matching rows are evaluated and their actions are
+            collected. Use this when you want to check multiple rules at once (e.g., validate email
+            AND check phone format).
+          </p>
+          <p>
+            <strong>First Match:</strong> Only the first matching row is evaluated. Use this when
+            rules are mutually exclusive (e.g., pricing tiers).
+          </p>
         </div>
       ),
     },
     {
-      id: 'examples',
-      title: 'Common Rule Examples',
+      id: "examples",
+      title: "Common Rule Examples",
       icon: <Info className="h-4 w-4 text-indigo-500" />,
       content: (
         <div className="space-y-3 text-xs text-gray-600">
           <div className="bg-gray-50 p-2 rounded border border-gray-100">
             <p className="font-medium mb-1">Require email on Account creation:</p>
-            <p className="font-mono text-[11px]">IF email == null → THEN action: "prevent", message: "Email is required"</p>
+            <p className="font-mono text-[11px]">
+              IF email == null → THEN action: "prevent", message: "Email is required"
+            </p>
           </div>
           <div className="bg-gray-50 p-2 rounded border border-gray-100">
             <p className="font-medium mb-1">Warn about large deal amounts:</p>
-            <p className="font-mono text-[11px]">IF amount &gt; 100000 → THEN action: "validate", message: "Deals over $100K need manager approval"</p>
+            <p className="font-mono text-[11px]">
+              IF amount &gt; 100000 → THEN action: "validate", message: "Deals over $100K need
+              manager approval"
+            </p>
           </div>
           <div className="bg-gray-50 p-2 rounded border border-gray-100">
             <p className="font-medium mb-1">Prevent deletion of active accounts:</p>
-            <p className="font-mono text-[11px]">IF status == "active" → THEN action: "prevent", message: "Cannot delete active accounts"</p>
+            <p className="font-mono text-[11px]">
+              IF status == "active" → THEN action: "prevent", message: "Cannot delete active
+              accounts"
+            </p>
           </div>
         </div>
       ),
@@ -964,9 +1010,7 @@ function HelpPanel({ onClose }: { onClose: () => void }) {
             <div key={section.id} className="border border-gray-200 rounded bg-white">
               <button
                 type="button"
-                onClick={() =>
-                  setExpanded(expanded === section.id ? null : section.id)
-                }
+                onClick={() => setExpanded(expanded === section.id ? null : section.id)}
                 className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-gray-50"
               >
                 {expanded === section.id ? (
@@ -975,14 +1019,10 @@ function HelpPanel({ onClose }: { onClose: () => void }) {
                   <ChevronRight className="h-3 w-3 text-gray-400" />
                 )}
                 {section.icon}
-                <span className="text-xs font-medium text-gray-700">
-                  {section.title}
-                </span>
+                <span className="text-xs font-medium text-gray-700">{section.title}</span>
               </button>
               {expanded === section.id && (
-                <div className="px-3 pb-3 pt-1 border-t border-gray-100">
-                  {section.content}
-                </div>
+                <div className="px-3 pb-3 pt-1 border-t border-gray-100">{section.content}</div>
               )}
             </div>
           ))}

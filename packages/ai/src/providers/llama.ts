@@ -9,7 +9,6 @@
  *   LLAMA_CPP_MODEL      default: local  (llama-server ignores the name, but it must be set)
  */
 
-
 import type { OpenAICompatibleConfig } from "@mastra/core/llm";
 
 export function getLlamaModel(modelOverride?: string): OpenAICompatibleConfig {

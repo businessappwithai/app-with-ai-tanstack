@@ -54,13 +54,10 @@ export const Route = createFileRoute("/api/auth/register")({
             .executeTakeFirst();
 
           if (existingUser) {
-            return new Response(
-              JSON.stringify({ error: "Email already registered" }),
-              {
-                status: 409,
-                headers: { "Content-Type": "application/json" },
-              }
-            );
+            return new Response(JSON.stringify({ error: "Email already registered" }), {
+              status: 409,
+              headers: { "Content-Type": "application/json" },
+            });
           }
 
           // Create user
@@ -96,13 +93,10 @@ export const Route = createFileRoute("/api/auth/register")({
         } catch (error) {
           console.error("[Register Error]", error);
           const message = error instanceof Error ? error.message : "Registration failed";
-          return new Response(
-            JSON.stringify({ error: message }),
-            {
-              status: 500,
-              headers: { "Content-Type": "application/json" },
-            }
-          );
+          return new Response(JSON.stringify({ error: message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
         }
       },
     },

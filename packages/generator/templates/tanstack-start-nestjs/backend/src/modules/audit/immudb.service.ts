@@ -1,5 +1,5 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger, type OnModuleDestroy, type OnModuleInit } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
 
 interface ImmudbVerifyResult {
   key: string;
@@ -26,39 +26,45 @@ export class ImmudbService implements OnModuleInit, OnModuleDestroy {
   private enabled: boolean;
 
   constructor(private readonly config: ConfigService) {
-    this.enabled = config.get<string>('IMMUDB_ENABLED', 'true') !== 'false';
+    this.enabled = config.get<string>("IMMUDB_ENABLED", "true") !== "false";
   }
 
   async onModuleInit(): Promise<void> {
     if (!this.enabled) {
-      this.logger.warn('immudb disabled via IMMUDB_ENABLED=false — audit writes go to PostgreSQL only');
+      this.logger.warn(
+        "immudb disabled via IMMUDB_ENABLED=false — audit writes go to PostgreSQL only"
+      );
       return;
     }
 
     try {
-      // Dynamic import — immudb-node is an optional dep; @ts-ignore suppresses the module-not-found lint
-      // @ts-ignore
-      const ImmudbClient = (await import('immudb-node')).default;
+      // Dynamic import — immudb-node is an optional dep; @ts-expect-error suppresses the module-not-found lint
+      // @ts-expect-error
+      const ImmudbClient = (await import("immudb-node")).default;
 
-      const host = this.config.get<string>('IMMUDB_HOST', '127.0.0.1');
-      const port = this.config.get<number>('IMMUDB_PORT', 8088);
+      const host = this.config.get<string>("IMMUDB_HOST", "127.0.0.1");
+      const port = this.config.get<number>("IMMUDB_PORT", 8088);
 
-      this.client = new ImmudbClient({ host, port, rootPath: '/tmp/immudb-root' });
+      this.client = new ImmudbClient({ host, port, rootPath: "/tmp/immudb-root" });
 
       await this.client.login({
-        user: this.config.get<string>('IMMUDB_USER', 'immudb'),
-        password: this.config.get<string>('IMMUDB_PASSWORD', 'immudb'),
+        user: this.config.get<string>("IMMUDB_USER", "immudb"),
+        password: this.config.get<string>("IMMUDB_PASSWORD", "immudb"),
       });
 
-      const db = this.config.get<string>('IMMUDB_DATABASE', 'defaultdb');
+      const db = this.config.get<string>("IMMUDB_DATABASE", "defaultdb");
       await this.client.useDatabase({ databasename: db }).catch(() => {
         // Database may already be selected; ignore
       });
 
       this.logger.log(`immudb connected at ${host}:${port} (db: ${db})`);
     } catch (err) {
-      this.logger.error(`immudb connection failed: ${err instanceof Error ? err.message : String(err)}`);
-      this.logger.warn('Continuing without immudb — set IMMUDB_ENABLED=false to suppress this warning');
+      this.logger.error(
+        `immudb connection failed: ${err instanceof Error ? err.message : String(err)}`
+      );
+      this.logger.warn(
+        "Continuing without immudb — set IMMUDB_ENABLED=false to suppress this warning"
+      );
       this.client = null;
     }
   }
@@ -87,7 +93,9 @@ export class ImmudbService implements OnModuleInit, OnModuleDestroy {
       const result = await this.client.verifiedSet({ key, value });
       return String(result?.id ?? result?.index ?? key);
     } catch (err) {
-      this.logger.error(`immudb verifiedSet failed for key ${key}: ${err instanceof Error ? err.message : String(err)}`);
+      this.logger.error(
+        `immudb verifiedSet failed for key ${key}: ${err instanceof Error ? err.message : String(err)}`
+      );
       return key;
     }
   }
@@ -101,15 +109,17 @@ export class ImmudbService implements OnModuleInit, OnModuleDestroy {
       const result = await this.client.verifiedGet({ key });
       return {
         key: result.key ?? key,
-        value: result.value ?? '',
-        txId: result.id ?? result.index ?? '',
+        value: result.value ?? "",
+        txId: result.id ?? result.index ?? "",
         verified: true,
       };
     } catch (err: any) {
-      if (err?.clientErr === 'proof') {
-        return { key, value: '', txId: '', verified: false };
+      if (err?.clientErr === "proof") {
+        return { key, value: "", txId: "", verified: false };
       }
-      this.logger.error(`immudb verifiedGet failed for key ${key}: ${err instanceof Error ? err.message : String(err)}`);
+      this.logger.error(
+        `immudb verifiedGet failed for key ${key}: ${err instanceof Error ? err.message : String(err)}`
+      );
       return null;
     }
   }

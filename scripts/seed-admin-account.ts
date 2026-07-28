@@ -48,7 +48,7 @@ async function seedAdminAccount() {
     // Create new admin user
     const userId = crypto.randomUUID();
     const now = new Date().toISOString();
-    const passwordHash = await hashPassword(password) as any;
+    const passwordHash = (await hashPassword(password)) as any;
 
     // Insert user with password
     await db

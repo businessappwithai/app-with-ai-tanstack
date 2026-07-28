@@ -39,7 +39,10 @@
       "description": "How the generator decides what a diagram block means.",
       "rules": [
         { "openingKeyword": "erDiagram", "section": "erd" },
-        { "openingKeyword": "flowchart", "section": "resolved by %%meta section directive; defaults to 'workflow' unless rule-shaped or marked kind: rules" },
+        {
+          "openingKeyword": "flowchart",
+          "section": "resolved by %%meta section directive; defaults to 'workflow' unless rule-shaped or marked kind: rules"
+        },
         { "openingKeyword": "graph", "section": "alias of flowchart" },
         { "openingKeyword": "stateDiagram-v2", "section": "workflow (state-machine form)" },
         { "openingKeyword": "stateDiagram", "section": "workflow (state-machine form, legacy)" }
@@ -159,15 +162,39 @@
     "description": "Attribute type vocabulary. Aliases are normalized to a canonical type. Canonical types drive TypeScript, Zod, SQL/Kysely, OData EDM, and UI control mapping in the generator.",
     "canonical": ["string", "text", "integer", "decimal", "boolean", "date", "datetime", "json"],
     "map": {
-      "string": "string", "varchar": "string", "char": "string", "uuid": "string", "guid": "string", "id": "string",
-      "email": "string", "url": "string", "phone": "string", "password": "string", "color": "string",
-      "text": "text", "longtext": "text",
-      "int": "integer", "integer": "integer", "bigint": "integer", "smallint": "integer",
-      "number": "decimal", "decimal": "decimal", "float": "decimal", "double": "decimal", "money": "decimal", "amount": "decimal",
-      "bool": "boolean", "boolean": "boolean",
+      "string": "string",
+      "varchar": "string",
+      "char": "string",
+      "uuid": "string",
+      "guid": "string",
+      "id": "string",
+      "email": "string",
+      "url": "string",
+      "phone": "string",
+      "password": "string",
+      "color": "string",
+      "text": "text",
+      "longtext": "text",
+      "int": "integer",
+      "integer": "integer",
+      "bigint": "integer",
+      "smallint": "integer",
+      "number": "decimal",
+      "decimal": "decimal",
+      "float": "decimal",
+      "double": "decimal",
+      "money": "decimal",
+      "amount": "decimal",
+      "bool": "boolean",
+      "boolean": "boolean",
       "date": "date",
-      "datetime": "datetime", "timestamp": "datetime", "time": "datetime",
-      "json": "json", "jsonb": "json", "object": "json", "array": "json"
+      "datetime": "datetime",
+      "timestamp": "datetime",
+      "time": "datetime",
+      "json": "json",
+      "jsonb": "json",
+      "object": "json",
+      "array": "json"
     },
     "semanticHints": {
       "description": "Aliases that normalize to a base type but carry UI/validation intent the generator may honor via naming or the extended %%meta field directive.",
@@ -184,8 +211,18 @@
   "modifiers": {
     "description": "Trailing tokens on an ERD attribute. Normalized to UPPER-case. Unknown modifiers are ignored.",
     "map": {
-      "PK": { "meaning": "Primary key", "effects": ["unique = true", "required handled by generator (auto-generated)", "sets entity.primaryKey"] },
-      "FK": { "meaning": "Foreign key", "effects": ["marks the column as a reference; relationship inference / navigation"] },
+      "PK": {
+        "meaning": "Primary key",
+        "effects": [
+          "unique = true",
+          "required handled by generator (auto-generated)",
+          "sets entity.primaryKey"
+        ]
+      },
+      "FK": {
+        "meaning": "Foreign key",
+        "effects": ["marks the column as a reference; relationship inference / navigation"]
+      },
       "UK": { "meaning": "Unique key", "effects": ["unique = true"] },
       "UNIQUE": { "meaning": "Alias of UK", "effects": ["unique = true"] },
       "OPTIONAL": { "meaning": "Nullable / not required", "effects": ["required = false"] },
@@ -213,29 +250,102 @@
       { "operator": "||--o{", "kind": "oneToMany", "example": "Company ||--o{ Contact : employs" },
       { "operator": "||--|{", "kind": "oneToMany", "example": "Order ||--|{ OrderItem : contains" },
       { "operator": "}o--||", "kind": "manyToOne", "example": "Deal }o--|| DealStage : in_stage" },
-      { "operator": "}|--||", "kind": "manyToOne", "example": "OrderItem }|--|| Order : belongs_to" },
+      {
+        "operator": "}|--||",
+        "kind": "manyToOne",
+        "example": "OrderItem }|--|| Order : belongs_to"
+      },
       { "operator": "}o--o{", "kind": "manyToMany", "example": "Student }o--o{ Course : enrolls" },
       { "operator": "}|--|{", "kind": "manyToMany", "example": "Author }|--|{ Book : writes" },
-      { "operator": "|o--o|", "kind": "oneToOne", "example": "Employee |o--o| ParkingSpot : assigned" }
+      {
+        "operator": "|o--o|",
+        "kind": "oneToOne",
+        "example": "Employee |o--o| ParkingSpot : assigned"
+      }
     ]
   },
 
   "hooks": {
     "description": "Lifecycle event points a workflow hook may bind to. Handlers run in the generated BaseService around CRUD operations (globalHookExecutor).",
     "types": [
-      { "type": "beforeCreate", "phase": "before", "op": "create", "purpose": "Validate/transform an entity before insert (e.g. hash password, generate slug)." },
-      { "type": "afterCreate", "phase": "after", "op": "create", "purpose": "Side effects after insert (e.g. send welcome email, emit event)." },
-      { "type": "beforeUpdate", "phase": "before", "op": "update", "purpose": "Validate/transform before update." },
-      { "type": "afterUpdate", "phase": "after", "op": "update", "purpose": "Side effects after update (e.g. audit, cache invalidation)." },
-      { "type": "beforeDelete", "phase": "before", "op": "delete", "purpose": "Guard/validate before delete (e.g. block if referenced)." },
-      { "type": "afterDelete", "phase": "after", "op": "delete", "purpose": "Cleanup after delete (e.g. remove files)." },
-      { "type": "beforeQuery", "phase": "before", "op": "query", "purpose": "Mutate the query before it runs (e.g. tenant scoping)." },
-      { "type": "afterQuery", "phase": "after", "op": "query", "purpose": "Post-process query results." },
-      { "type": "customValidate", "phase": "validate", "op": "any", "purpose": "Cross-field/business validation independent of a single CRUD verb." },
-      { "type": "beforeRead", "phase": "before", "op": "read", "purpose": "Guard/transform a single-record read." },
-      { "type": "afterRead", "phase": "after", "op": "read", "purpose": "Post-process a single record (e.g. redact fields)." },
-      { "type": "beforeList", "phase": "before", "op": "list", "purpose": "Adjust list parameters (filter/sort/paginate)." },
-      { "type": "afterList", "phase": "after", "op": "list", "purpose": "Post-process a list result set." }
+      {
+        "type": "beforeCreate",
+        "phase": "before",
+        "op": "create",
+        "purpose": "Validate/transform an entity before insert (e.g. hash password, generate slug)."
+      },
+      {
+        "type": "afterCreate",
+        "phase": "after",
+        "op": "create",
+        "purpose": "Side effects after insert (e.g. send welcome email, emit event)."
+      },
+      {
+        "type": "beforeUpdate",
+        "phase": "before",
+        "op": "update",
+        "purpose": "Validate/transform before update."
+      },
+      {
+        "type": "afterUpdate",
+        "phase": "after",
+        "op": "update",
+        "purpose": "Side effects after update (e.g. audit, cache invalidation)."
+      },
+      {
+        "type": "beforeDelete",
+        "phase": "before",
+        "op": "delete",
+        "purpose": "Guard/validate before delete (e.g. block if referenced)."
+      },
+      {
+        "type": "afterDelete",
+        "phase": "after",
+        "op": "delete",
+        "purpose": "Cleanup after delete (e.g. remove files)."
+      },
+      {
+        "type": "beforeQuery",
+        "phase": "before",
+        "op": "query",
+        "purpose": "Mutate the query before it runs (e.g. tenant scoping)."
+      },
+      {
+        "type": "afterQuery",
+        "phase": "after",
+        "op": "query",
+        "purpose": "Post-process query results."
+      },
+      {
+        "type": "customValidate",
+        "phase": "validate",
+        "op": "any",
+        "purpose": "Cross-field/business validation independent of a single CRUD verb."
+      },
+      {
+        "type": "beforeRead",
+        "phase": "before",
+        "op": "read",
+        "purpose": "Guard/transform a single-record read."
+      },
+      {
+        "type": "afterRead",
+        "phase": "after",
+        "op": "read",
+        "purpose": "Post-process a single record (e.g. redact fields)."
+      },
+      {
+        "type": "beforeList",
+        "phase": "before",
+        "op": "list",
+        "purpose": "Adjust list parameters (filter/sort/paginate)."
+      },
+      {
+        "type": "afterList",
+        "phase": "after",
+        "op": "list",
+        "purpose": "Post-process a list result set."
+      }
     ],
     "directive": {
       "pattern": "%%hook <type> <handlerName> on <Entity>[<params>]",
@@ -310,7 +420,12 @@
         "keyword": "%%meta",
         "form": "%%meta <key>: <value>",
         "purpose": "Document/section metadata: name, kind (erd|rules|workflow), version, entity binding, description, stack.",
-        "examples": ["%%meta name: CRM Core", "%%meta kind: rules", "%%meta entity: Order", "%%meta version: 1.0.0"]
+        "examples": [
+          "%%meta name: CRM Core",
+          "%%meta kind: rules",
+          "%%meta entity: Order",
+          "%%meta version: 1.0.0"
+        ]
       },
       {
         "keyword": "%%hook",
@@ -322,13 +437,21 @@
         "keyword": "%%entity",
         "form": "%%entity <Name> <key>: <value>",
         "purpose": "Attach entity-level metadata not expressible in the ERD block: table prefix (bus/sys), soft delete, label, icon, audited.",
-        "examples": ["%%entity Order audited: true", "%%entity Account prefix: bus", "%%entity Session softDelete: false"]
+        "examples": [
+          "%%entity Order audited: true",
+          "%%entity Account prefix: bus",
+          "%%entity Session softDelete: false"
+        ]
       },
       {
         "keyword": "%%field",
         "form": "%%field <Entity>.<attr> <key>: <value>",
         "purpose": "Extended field metadata: ui control, default value, enum reference, min/max, help text, format.",
-        "examples": ["%%field Order.status enum: OrderStatus", "%%field Product.price min: 0", "%%field User.email unique: true"]
+        "examples": [
+          "%%field Order.status enum: OrderStatus",
+          "%%field Product.price min: 0",
+          "%%field User.email unique: true"
+        ]
       },
       {
         "keyword": "%%enum",
@@ -352,13 +475,19 @@
         "keyword": "%%guard",
         "form": "%%guard <roleExpr> on <Entity>.<op>",
         "purpose": "RBAC guard: restrict a workflow step or CRUD op to roles (integrates with core rbac.types).",
-        "examples": ["%%guard role:admin on Order.delete", "%%guard role:sales|manager on Deal.update"]
+        "examples": [
+          "%%guard role:admin on Order.delete",
+          "%%guard role:sales|manager on Deal.update"
+        ]
       },
       {
         "keyword": "%%trigger",
         "form": "%%trigger <source> -> <handler> on <Entity>",
         "purpose": "Declare an event/schedule source that starts a workflow (webhook, cron, message).",
-        "examples": ["%%trigger cron:0 0 * * * -> expireQuotes on Quote", "%%trigger webhook:payment -> markPaid on Order"]
+        "examples": [
+          "%%trigger cron:0 0 * * * -> expireQuotes on Quote",
+          "%%trigger webhook:payment -> markPaid on Order"
+        ]
       },
       {
         "keyword": "%%workflow",

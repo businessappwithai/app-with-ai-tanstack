@@ -1,14 +1,24 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { ChevronRight } from 'lucide-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { apiClient } from '../../../lib/api-client';
-import { Button } from '../../../components/ui/button';
-import { Badge } from '../../../components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../../../components/ui/alert-dialog';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { ChevronRight } from "lucide-react";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../../../components/ui/alert-dialog";
+import { Badge } from "../../../components/ui/badge";
+import { Button } from "../../../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
+import { apiClient } from "../../../lib/api-client";
 
-export const Route = createFileRoute('/admin/workflow-definitions/')({
+export const Route = createFileRoute("/admin/workflow-definitions/")({
   component: WorkflowDefinitionsList,
 });
 
@@ -25,16 +35,16 @@ interface WfDef {
 function WorkflowDefinitionsList() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [filterEntity, setFilterEntity] = useState('');
+  const [filterEntity, setFilterEntity] = useState("");
 
   const { data: defs = [], isLoading } = useQuery<WfDef[]>({
-    queryKey: ['workflow-definitions'],
-    queryFn: () => apiClient.get('/workflow-definitions'),
+    queryKey: ["workflow-definitions"],
+    queryFn: () => apiClient.get("/workflow-definitions"),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiClient.delete(`/workflow-definitions/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workflow-definitions'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["workflow-definitions"] }),
   });
 
   const filtered = filterEntity
@@ -51,7 +61,9 @@ function WorkflowDefinitionsList() {
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       {/* Breadcrumb */}
       <nav aria-label="breadcrumb" className="flex items-center gap-1 text-sm text-gray-500">
-        <Link to="/dashboard" className="hover:text-gray-700 hover:underline">Dashboard</Link>
+        <Link to="/dashboard" className="hover:text-gray-700 hover:underline">
+          Dashboard
+        </Link>
         <ChevronRight className="h-3.5 w-3.5" />
         <span className="text-gray-900 font-medium">Workflow Designer</span>
       </nav>
@@ -64,25 +76,31 @@ function WorkflowDefinitionsList() {
             Visual BPMN action graphs that run after GoRules decisions
           </p>
         </div>
-        <Button onClick={() => navigate({ to: '/admin/workflow-definitions/new' })}>
+        <Button onClick={() => navigate({ to: "/admin/workflow-definitions/new" })}>
           + New Workflow
         </Button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <Card><CardContent className="pt-4">
-          <div className="text-2xl font-bold">{stats.total}</div>
-          <div className="text-xs text-gray-500">Total workflows</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4">
-          <div className="text-2xl font-bold text-green-600">{stats.active}</div>
-          <div className="text-xs text-gray-500">Active</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4">
-          <div className="text-2xl font-bold">{stats.entities}</div>
-          <div className="text-xs text-gray-500">Entities covered</div>
-        </CardContent></Card>
+        <Card>
+          <CardContent className="pt-4">
+            <div className="text-2xl font-bold">{stats.total}</div>
+            <div className="text-xs text-gray-500">Total workflows</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4">
+            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
+            <div className="text-xs text-gray-500">Active</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4">
+            <div className="text-2xl font-bold">{stats.entities}</div>
+            <div className="text-xs text-gray-500">Entities covered</div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Filter */}
@@ -100,7 +118,7 @@ function WorkflowDefinitionsList() {
         <div className="text-center py-12 text-gray-400">Loading…</div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-gray-400">
-          No workflow definitions yet.{' '}
+          No workflow definitions yet.{" "}
           <Link to="/admin/workflow-definitions/new" className="text-teal-600 underline">
             Create one
           </Link>
@@ -136,11 +154,19 @@ function WorkflowDefinitionsList() {
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-gray-600">{d.entity_name}</td>
                     <td className="px-4 py-3">
-                      <Badge variant="outline" className="text-xs">{d.operation}</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {d.operation}
+                      </Badge>
                     </td>
                     <td className="px-4 py-3">
-                      <Badge className={d.is_active ? 'bg-green-100 text-green-700 border-green-200' : 'bg-gray-100 text-gray-500'}>
-                        {d.is_active ? 'Active' : 'Inactive'}
+                      <Badge
+                        className={
+                          d.is_active
+                            ? "bg-green-100 text-green-700 border-green-200"
+                            : "bg-gray-100 text-gray-500"
+                        }
+                      >
+                        {d.is_active ? "Active" : "Inactive"}
                       </Badge>
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-500">
@@ -151,13 +177,22 @@ function WorkflowDefinitionsList() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => navigate({ to: '/admin/workflow-definitions/$id/edit', params: { id: d.id } })}
+                          onClick={() =>
+                            navigate({
+                              to: "/admin/workflow-definitions/$id/edit",
+                              params: { id: d.id },
+                            })
+                          }
                         >
                           Edit
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-500 hover:text-red-700"
+                            >
                               Delete
                             </Button>
                           </AlertDialogTrigger>

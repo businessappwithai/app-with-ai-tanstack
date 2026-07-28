@@ -1,10 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { createFileRoute } from "@tanstack/react-router";
 import {
   AnthropicAdapter,
   CopilotRuntime,
   copilotRuntimeNodeHttpEndpoint,
 } from "@copilotkit/runtime";
+import { createFileRoute } from "@tanstack/react-router";
 
 const runtime = new CopilotRuntime();
 
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/api/copilotkit/$")({
           console.error("CopilotKit subroute GET error:", error);
           return new Response(
             JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-            { status: 500, headers: { "Content-Type": "application/json" } },
+            { status: 500, headers: { "Content-Type": "application/json" } }
           );
         }
       },
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/api/copilotkit/$")({
           console.error("CopilotKit subroute POST error:", error);
           return new Response(
             JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-            { status: 500, headers: { "Content-Type": "application/json" } },
+            { status: 500, headers: { "Content-Type": "application/json" } }
           );
         }
       },

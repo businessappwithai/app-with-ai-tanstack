@@ -60,7 +60,9 @@ export const Route = createFileRoute("/api/auth/me")({
           );
         } catch (error) {
           return new Response(
-            JSON.stringify({ error: error instanceof Error ? error.message : "Failed to get session" }),
+            JSON.stringify({
+              error: error instanceof Error ? error.message : "Failed to get session",
+            }),
             {
               status: 401,
               headers: { "Content-Type": "application/json" },

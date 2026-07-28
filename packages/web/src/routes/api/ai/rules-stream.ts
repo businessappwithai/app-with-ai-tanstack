@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createFileRoute } from "@tanstack/react-router";
-import { parseMermaidFlowchart } from "@/lib/mermaid-flowchart-parser";
 import { convertToJdm } from "@/lib/jdm-converter";
+import { parseMermaidFlowchart } from "@/lib/mermaid-flowchart-parser";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -16,7 +16,10 @@ async function generateFlowchart(
   controller: ReadableStreamDefaultController,
   encoder: TextEncoder
 ) {
-  sse(controller, encoder, { step: "analyzing", message: "Analyzing business rule description..." });
+  sse(controller, encoder, {
+    step: "analyzing",
+    message: "Analyzing business rule description...",
+  });
 
   const systemPrompt = `You are an expert at converting business rules into Mermaid flowchart diagrams.
 Generate ONLY valid Mermaid flowchart syntax using the TD (top-down) direction.
@@ -37,9 +40,10 @@ Rules:
 - Keep labels concise (under 40 characters)
 - Return ONLY the Mermaid code, no markdown fences, no explanation`;
 
-  const userPrompt = currentFlowchartCode?.trim() && currentFlowchartCode !== "flowchart TD"
-    ? `Current flowchart:\n${currentFlowchartCode}\n\nUpdate or extend it based on: ${description}`
-    : `Create a flowchart for: ${description}`;
+  const userPrompt =
+    currentFlowchartCode?.trim() && currentFlowchartCode !== "flowchart TD"
+      ? `Current flowchart:\n${currentFlowchartCode}\n\nUpdate or extend it based on: ${description}`
+      : `Create a flowchart for: ${description}`;
 
   sse(controller, encoder, { step: "generating", message: "Generating Mermaid flowchart..." });
 
@@ -54,7 +58,10 @@ Rules:
   if (!content || content.type !== "text") throw new Error("Unexpected response type");
 
   let flowchartCode = (content as { type: "text"; text: string }).text.trim();
-  flowchartCode = flowchartCode.replace(/^```(?:mermaid)?\n?/m, "").replace(/```$/m, "").trim();
+  flowchartCode = flowchartCode
+    .replace(/^```(?:mermaid)?\n?/m, "")
+    .replace(/```$/m, "")
+    .trim();
 
   if (!flowchartCode.startsWith("flowchart")) {
     flowchartCode = `flowchart TD\n${flowchartCode}`;
@@ -77,67 +84,75 @@ function convertToJdmFromMermaid(
   sse(controller, encoder, { step: "complete", message: "JDM generated!", jdm });
 }
 
-export const Route = createFileRoute("/api/ai/rules-stream")({ server: { handlers: {
-  POST: async ({ request }) => {
-    const encoder = new TextEncoder();
+export const Route = createFileRoute("/api/ai/rules-stream")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        const encoder = new TextEncoder();
 
-    try {
-      const body = (await request.json()) as {
-        action: string;
-        description?: string;
-        currentFlowchartCode?: string;
-        flowchartCode?: string;
-        projectId?: string;
-      };
+        try {
+          const body = (await request.json()) as {
+            action: string;
+            description?: string;
+            currentFlowchartCode?: string;
+            flowchartCode?: string;
+            projectId?: string;
+          };
 
-      const stream = new ReadableStream({
-        async start(controller) {
-          try {
-            if (body.action === "generate-flowchart") {
-              if (!body.description) {
-                sse(controller, encoder, { step: "error", message: "Description is required" });
-              } else {
-                await generateFlowchart(
-                  body.description,
-                  body.currentFlowchartCode ?? "",
-                  controller,
-                  encoder
-                );
+          const stream = new ReadableStream({
+            async start(controller) {
+              try {
+                if (body.action === "generate-flowchart") {
+                  if (!body.description) {
+                    sse(controller, encoder, { step: "error", message: "Description is required" });
+                  } else {
+                    await generateFlowchart(
+                      body.description,
+                      body.currentFlowchartCode ?? "",
+                      controller,
+                      encoder
+                    );
+                  }
+                } else if (body.action === "convert-to-jdm") {
+                  if (!body.flowchartCode) {
+                    sse(controller, encoder, {
+                      step: "error",
+                      message: "Flowchart code is required",
+                    });
+                  } else {
+                    convertToJdmFromMermaid(body.flowchartCode, controller, encoder);
+                  }
+                } else {
+                  sse(controller, encoder, {
+                    step: "error",
+                    message: `Unknown action: ${body.action}`,
+                  });
+                }
+              } catch (err) {
+                sse(controller, encoder, {
+                  step: "error",
+                  message: err instanceof Error ? err.message : "Unknown error",
+                });
+              } finally {
+                controller.close();
               }
-            } else if (body.action === "convert-to-jdm") {
-              if (!body.flowchartCode) {
-                sse(controller, encoder, { step: "error", message: "Flowchart code is required" });
-              } else {
-                convertToJdmFromMermaid(body.flowchartCode, controller, encoder);
-              }
-            } else {
-              sse(controller, encoder, { step: "error", message: `Unknown action: ${body.action}` });
-            }
-          } catch (err) {
-            sse(controller, encoder, {
-              step: "error",
-              message: err instanceof Error ? err.message : "Unknown error",
-            });
-          } finally {
-            controller.close();
-          }
-        },
-      });
+            },
+          });
 
-      return new Response(stream, {
-        headers: {
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          Connection: "keep-alive",
-        },
-      });
-    } catch (err) {
-      return new Response(
-        JSON.stringify({ error: err instanceof Error ? err.message : "Request failed" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
-    }
-  },
-  },
+          return new Response(stream, {
+            headers: {
+              "Content-Type": "text/event-stream",
+              "Cache-Control": "no-cache",
+              Connection: "keep-alive",
+            },
+          });
+        } catch (err) {
+          return new Response(
+            JSON.stringify({ error: err instanceof Error ? err.message : "Request failed" }),
+            { status: 500, headers: { "Content-Type": "application/json" } }
+          );
+        }
+      },
+    },
   },
 });

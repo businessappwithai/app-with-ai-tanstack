@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { CheckCircle2, XCircle, Clock, AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, XCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 
 async function checkAdminAuth() {
   let fetchInit: RequestInit = {};
@@ -46,7 +46,9 @@ interface User {
 function AdminUsersPage() {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
-  const [statusFilter, setStatusFilter] = useState<"pending" | "approved" | "rejected" | "all">("pending");
+  const [statusFilter, setStatusFilter] = useState<"pending" | "approved" | "rejected" | "all">(
+    "pending"
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -59,7 +61,8 @@ function AdminUsersPage() {
     setIsLoading(true);
     setError("");
     try {
-      const url = statusFilter === "all" ? "/api/admin/users" : `/api/admin/users?status=${statusFilter}`;
+      const url =
+        statusFilter === "all" ? "/api/admin/users" : `/api/admin/users?status=${statusFilter}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch users");
       const data = await res.json();
@@ -167,7 +170,9 @@ function AdminUsersPage() {
           {isLoading ? (
             <div className="p-6 text-center text-gray-500 dark:text-gray-400">Loading users...</div>
           ) : users.length === 0 ? (
-            <div className="p-6 text-center text-gray-500 dark:text-gray-400">No users found with this status</div>
+            <div className="p-6 text-center text-gray-500 dark:text-gray-400">
+              No users found with this status
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -182,16 +187,23 @@ function AdminUsersPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                    <tr
+                      key={user.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition"
+                    >
                       <td className="px-6 py-4 text-sm font-medium">{user.name || "—"}</td>
                       <td className="px-6 py-4 text-sm">{user.email}</td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusBadge(user.status)}`}>
+                        <span
+                          className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusBadge(user.status)}`}
+                        >
                           {getStatusIcon(user.status)}
                           {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{new Date(user.createdAt).toLocaleDateString()}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </td>
                       <td className="px-6 py-4 text-sm space-x-2">
                         {user.status === "pending" && (
                           <>

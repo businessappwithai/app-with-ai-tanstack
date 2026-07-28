@@ -64,9 +64,18 @@ function RulesDesignPage() {
   const [isConverting, setIsConverting] = useState(false);
   const [aiInput, setAiInput] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
-  const [aiStatus, setAiStatus] = useState<{ step: string; message: string; progress: number } | null>(null);
+  const [aiStatus, setAiStatus] = useState<{
+    step: string;
+    message: string;
+    progress: number;
+  } | null>(null);
   const [aiStepsLog, setAiStepsLog] = useState<
-    Array<{ id: string; step: string; message: string; status: "in-progress" | "completed" | "error" }>
+    Array<{
+      id: string;
+      step: string;
+      message: string;
+      status: "in-progress" | "completed" | "error";
+    }>
   >([]);
   const [showAiDetails, setShowAiDetails] = useState(false);
 
@@ -208,7 +217,8 @@ function RulesDesignPage() {
           if (line.startsWith("data: ")) {
             const data = JSON.parse(line.slice(6));
             if (data.jdm) {
-              collectedJdm = typeof data.jdm === "string" ? data.jdm : JSON.stringify(data.jdm, null, 2);
+              collectedJdm =
+                typeof data.jdm === "string" ? data.jdm : JSON.stringify(data.jdm, null, 2);
             }
           }
         }
@@ -278,7 +288,10 @@ function RulesDesignPage() {
             const data = JSON.parse(line.slice(6));
 
             if (data.step && data.message) {
-              const progress = { starting: 10, analyzing: 30, generating: 60, complete: 100, error: 0 }[data.step as string] ?? 50;
+              const progress =
+                { starting: 10, analyzing: 30, generating: 60, complete: 100, error: 0 }[
+                  data.step as string
+                ] ?? 50;
               setAiStatus({ step: data.step, message: data.message, progress });
               setAiStepsLog((prev) => [
                 ...prev.filter((s) => s.step !== data.step),
@@ -286,7 +299,12 @@ function RulesDesignPage() {
                   id: `${data.step}-${Date.now()}`,
                   step: data.step,
                   message: data.message,
-                  status: data.step === "complete" ? "completed" : data.step === "error" ? "error" : "in-progress",
+                  status:
+                    data.step === "complete"
+                      ? "completed"
+                      : data.step === "error"
+                        ? "error"
+                        : "in-progress",
                 },
               ]);
             }
@@ -377,7 +395,11 @@ function RulesDesignPage() {
               disabled={isConverting || !flowchartCode.trim()}
               className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors disabled:opacity-50"
             >
-              {isConverting ? <Loader2 className="w-4 h-4 animate-spin" /> : <GitBranch className="w-4 h-4" />}
+              {isConverting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <GitBranch className="w-4 h-4" />
+              )}
               {isConverting ? "Converting..." : "Convert to JDM"}
             </button>
             <button
@@ -394,11 +416,16 @@ function RulesDesignPage() {
             currentStep="rules"
             completedSteps={["init", "design"]}
             onStepClick={(step) => {
-              if (step === "init") navigate({ to: "/projects/$id/init", params: { id: projectId } });
-              else if (step === "design") navigate({ to: "/projects/$id/design", params: { id: projectId } });
-              else if (step === "generate") navigate({ to: "/projects/$id/generate", params: { id: projectId } });
-              else if (step === "enhance") navigate({ to: "/projects/$id/enhance", params: { id: projectId } });
-              else if (step === "deploy") navigate({ to: "/projects/$id/deploy", params: { id: projectId } });
+              if (step === "init")
+                navigate({ to: "/projects/$id/init", params: { id: projectId } });
+              else if (step === "design")
+                navigate({ to: "/projects/$id/design", params: { id: projectId } });
+              else if (step === "generate")
+                navigate({ to: "/projects/$id/generate", params: { id: projectId } });
+              else if (step === "enhance")
+                navigate({ to: "/projects/$id/enhance", params: { id: projectId } });
+              else if (step === "deploy")
+                navigate({ to: "/projects/$id/deploy", params: { id: projectId } });
             }}
           />
         </div>
@@ -429,9 +456,7 @@ function RulesDesignPage() {
             >
               <GitBranch className="w-4 h-4" />
               GoRules JDM
-              {jdmCode && (
-                <span className="ml-1 w-2 h-2 rounded-full bg-emerald-500" />
-              )}
+              {jdmCode && <span className="ml-1 w-2 h-2 rounded-full bg-emerald-500" />}
             </button>
           </div>
 
@@ -484,11 +509,7 @@ function RulesDesignPage() {
 
           <div className="flex-1 overflow-auto p-6 bg-white dark:bg-slate-900">
             {svgBlobUrl ? (
-              <img
-                src={svgBlobUrl}
-                alt="Business rules flowchart"
-                className="w-full h-auto"
-              />
+              <img src={svgBlobUrl} alt="Business rules flowchart" className="w-full h-auto" />
             ) : renderError ? (
               <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl">
                 <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -505,7 +526,8 @@ function RulesDesignPage() {
                   <GitBranch className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-30" />
                   <p className="text-sm font-medium text-muted-foreground">No flowchart yet</p>
                   <p className="text-xs text-muted-foreground mt-1 max-w-xs">
-                    Edit the Mermaid flowchart on the left or use the AI assistant below to generate one
+                    Edit the Mermaid flowchart on the left or use the AI assistant below to generate
+                    one
                   </p>
                 </div>
               </div>
@@ -638,25 +660,39 @@ function RulesDesignPage() {
 
           <div className="flex items-center gap-2 mt-3 flex-wrap">
             <button
-              onClick={() => setAiInput("Order discount: 20% off for orders over $500, 10% for VIP customers")}
+              onClick={() =>
+                setAiInput("Order discount: 20% off for orders over $500, 10% for VIP customers")
+              }
               className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
             >
               Order Discount
             </button>
             <button
-              onClick={() => setAiInput("Patient triage: Emergency if vital signs critical, Urgent if fever above 38.5°C, else Standard")}
+              onClick={() =>
+                setAiInput(
+                  "Patient triage: Emergency if vital signs critical, Urgent if fever above 38.5°C, else Standard"
+                )
+              }
               className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
             >
               Patient Triage
             </button>
             <button
-              onClick={() => setAiInput("Loan approval: Approve if credit score > 700 and income > $50k, else reject or manual review")}
+              onClick={() =>
+                setAiInput(
+                  "Loan approval: Approve if credit score > 700 and income > $50k, else reject or manual review"
+                )
+              }
               className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
             >
               Loan Approval
             </button>
             <button
-              onClick={() => setAiInput("Inventory reorder: If stock below reorder point, create PO. If critical stock, expedite order")}
+              onClick={() =>
+                setAiInput(
+                  "Inventory reorder: If stock below reorder point, create PO. If critical stock, expedite order"
+                )
+              }
               className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
             >
               Inventory Reorder
@@ -666,9 +702,12 @@ function RulesDesignPage() {
           <div className="flex items-center gap-2 mt-3 px-3 py-2 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/30 rounded-lg text-xs text-purple-700 dark:text-purple-300">
             <RefreshCw className="w-4 h-4 flex-shrink-0" />
             <span>
-              Flowchart uses Mermaid <code className="font-mono">flowchart TD</code> syntax.
-              Nodes: <code className="font-mono">A([Start/End])</code>, <code className="font-mono">B{"{"}</code>Decision<code className="font-mono">{"}"}</code>, <code className="font-mono">C[Action]</code>, <code className="font-mono">D((Function))</code>.
-              Convert to GoRules JDM for runtime execution in generated apps.
+              Flowchart uses Mermaid <code className="font-mono">flowchart TD</code> syntax. Nodes:{" "}
+              <code className="font-mono">A([Start/End])</code>,{" "}
+              <code className="font-mono">B{"{"}</code>Decision
+              <code className="font-mono">{"}"}</code>, <code className="font-mono">C[Action]</code>
+              , <code className="font-mono">D((Function))</code>. Convert to GoRules JDM for runtime
+              execution in generated apps.
             </span>
           </div>
         </div>

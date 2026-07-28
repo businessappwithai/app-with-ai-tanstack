@@ -49,7 +49,8 @@ export const Route = createFileRoute("/api/auth/login")({
             return new Response(
               JSON.stringify({
                 error: "PENDING_APPROVAL",
-                message: "Your account is pending admin approval. Please wait for an administrator to review your registration.",
+                message:
+                  "Your account is pending admin approval. Please wait for an administrator to review your registration.",
               }),
               {
                 status: 403,
@@ -76,23 +77,17 @@ export const Route = createFileRoute("/api/auth/login")({
           const storedPasswordHash = (user as any).passwordHash;
 
           if (!storedPasswordHash) {
-            return new Response(
-              JSON.stringify({ error: "Invalid email or password" }),
-              {
-                status: 401,
-                headers: { "Content-Type": "application/json" },
-              }
-            );
+            return new Response(JSON.stringify({ error: "Invalid email or password" }), {
+              status: 401,
+              headers: { "Content-Type": "application/json" },
+            });
           }
 
           if (passwordHash !== storedPasswordHash) {
-            return new Response(
-              JSON.stringify({ error: "Invalid email or password" }),
-              {
-                status: 401,
-                headers: { "Content-Type": "application/json" },
-              }
-            );
+            return new Response(JSON.stringify({ error: "Invalid email or password" }), {
+              status: 401,
+              headers: { "Content-Type": "application/json" },
+            });
           }
 
           // Create a session
@@ -133,13 +128,10 @@ export const Route = createFileRoute("/api/auth/login")({
         } catch (error) {
           console.error("[Login Error]", error);
           const message = error instanceof Error ? error.message : "Login failed";
-          return new Response(
-            JSON.stringify({ error: message }),
-            {
-              status: 500,
-              headers: { "Content-Type": "application/json" },
-            }
-          );
+          return new Response(JSON.stringify({ error: message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
         }
       },
     },

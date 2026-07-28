@@ -22,7 +22,8 @@ export function buildOpenApi() {
     const required = [];
     for (const a of entity.attributes) {
       const base = TYPE_MAP[a.type] ?? { type: "string" };
-      props[a.name] = a.enumRef && ENUMS[a.enumRef] ? { ...base, enum: ENUMS[a.enumRef] } : { ...base };
+      props[a.name] =
+        a.enumRef && ENUMS[a.enumRef] ? { ...base, enum: ENUMS[a.enumRef] } : { ...base };
       if (a.required && !a.isPrimaryKey) required.push(a.name);
     }
     schemas[entity.name] = { type: "object", properties: props, required };
@@ -38,7 +39,10 @@ export function buildOpenApi() {
       },
     };
     paths[`/api/${col}/{id}`] = {
-      get: { summary: `Get ${entity.name}`, responses: { 200: { description: "OK" }, 404: { description: "Not found" } } },
+      get: {
+        summary: `Get ${entity.name}`,
+        responses: { 200: { description: "OK" }, 404: { description: "Not found" } },
+      },
       put: {
         summary: `Update ${entity.name}`,
         requestBody: { content: { "application/json": { schema: ref } } },

@@ -9,7 +9,6 @@
  * Auto-generated component
  */
 
-import type React from "react";
 import { DragDropContext, Draggable, Droppable, type DropResult } from "@hello-pangea/dnd";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -25,6 +24,7 @@ import {
   RotateCcw,
   Save,
 } from "lucide-react";
+import type React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";

@@ -1,11 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  RefreshCwIcon,
-  RotateCwIcon,
-  CheckCircle2Icon,
-  AlertCircle,
-  Clock,
-} from "lucide-react";
+import { AlertCircle, CheckCircle2Icon, Clock, RefreshCwIcon, RotateCwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface WorkflowRun {
@@ -112,13 +106,29 @@ function WorkflowMonitorPage() {
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case "success":
-        return { bg: "bg-green-100 dark:bg-green-950/50", text: "text-green-700 dark:text-green-300", icon: CheckCircle2Icon };
+        return {
+          bg: "bg-green-100 dark:bg-green-950/50",
+          text: "text-green-700 dark:text-green-300",
+          icon: CheckCircle2Icon,
+        };
       case "error":
-        return { bg: "bg-red-100 dark:bg-red-950/50", text: "text-red-700 dark:text-red-300", icon: AlertCircle };
+        return {
+          bg: "bg-red-100 dark:bg-red-950/50",
+          text: "text-red-700 dark:text-red-300",
+          icon: AlertCircle,
+        };
       case "running":
-        return { bg: "bg-blue-100 dark:bg-blue-950/50", text: "text-blue-700 dark:text-blue-300", icon: Clock };
+        return {
+          bg: "bg-blue-100 dark:bg-blue-950/50",
+          text: "text-blue-700 dark:text-blue-300",
+          icon: Clock,
+        };
       default:
-        return { bg: "bg-slate-100 dark:bg-slate-800", text: "text-slate-700 dark:text-slate-300", icon: Clock };
+        return {
+          bg: "bg-slate-100 dark:bg-slate-800",
+          text: "text-slate-700 dark:text-slate-300",
+          icon: Clock,
+        };
     }
   };
 
@@ -154,7 +164,9 @@ function WorkflowMonitorPage() {
           <div className="px-6 py-8">
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-50">Workflow Monitor</h1>
+                <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-50">
+                  Workflow Monitor
+                </h1>
                 <p className="text-slate-600 dark:text-slate-400 mt-2">
                   Monitor and manage workflow executions across entities
                 </p>
@@ -177,10 +189,14 @@ function WorkflowMonitorPage() {
           <div className="w-96 flex-shrink-0">
             {/* Filter Bar */}
             <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-4 mb-4 shadow-sm">
-              <h2 className="text-xs font-semibold text-slate-900 dark:text-slate-50 uppercase tracking-wide mb-3">Filters</h2>
+              <h2 className="text-xs font-semibold text-slate-900 dark:text-slate-50 uppercase tracking-wide mb-3">
+                Filters
+              </h2>
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">Status</label>
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">
+                    Status
+                  </label>
                   <select
                     className="w-full px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-1 dark:focus:ring-offset-slate-950 transition-all"
                     value={filter.status || ""}
@@ -194,7 +210,9 @@ function WorkflowMonitorPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">Entity</label>
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">
+                    Entity
+                  </label>
                   <select
                     className="w-full px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-1 dark:focus:ring-offset-slate-950 transition-all"
                     value={filter.entity || ""}
@@ -220,7 +238,9 @@ function WorkflowMonitorPage() {
             ) : workflows.length === 0 ? (
               <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-6 text-center shadow-sm">
                 <div className="text-3xl mb-2">⚙️</div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50">No Workflows</h3>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                  No Workflows
+                </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                   Workflows will appear as they execute.
                 </p>
@@ -243,12 +263,16 @@ function WorkflowMonitorPage() {
                     >
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1">
-                          <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">{workflow.operation}</h4>
+                          <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">
+                            {workflow.operation}
+                          </h4>
                           <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 truncate">
                             {workflow.entity_name}
                           </p>
                         </div>
-                        <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${statusColors.bg} ${statusColors.text}`}>
+                        <div
+                          className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${statusColors.bg} ${statusColors.text}`}
+                        >
                           <StatusIcon className="h-3 w-3" />
                           {statusLabels[workflow.status]}
                         </div>
@@ -267,7 +291,9 @@ function WorkflowMonitorPage() {
                 {/* Window Header + Tabs */}
                 <div className="border-b border-slate-200 dark:border-slate-800 p-4 bg-gradient-to-r from-slate-50 to-transparent dark:from-slate-900 dark:to-transparent">
                   <div className="mb-3">
-                    <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50">{selectedWorkflow.operation}</h2>
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50">
+                      {selectedWorkflow.operation}
+                    </h2>
                     <p className="text-sm text-slate-600 dark:text-slate-400">
                       {selectedWorkflow.entity_name} • {selectedWorkflow.entity_id}
                     </p>
@@ -327,13 +353,19 @@ function WorkflowMonitorPage() {
                     <div className="space-y-4 max-w-2xl">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">Status</label>
-                          <div className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 ${getStatusBadgeColor(selectedWorkflow.status)}`}>
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                            Status
+                          </label>
+                          <div
+                            className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 ${getStatusBadgeColor(selectedWorkflow.status)}`}
+                          >
                             {statusLabels[selectedWorkflow.status]}
                           </div>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">Entity</label>
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                            Entity
+                          </label>
                           <input
                             type="text"
                             defaultValue={selectedWorkflow.entity_name}
@@ -343,7 +375,9 @@ function WorkflowMonitorPage() {
                         </div>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">Entity ID</label>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                          Entity ID
+                        </label>
                         <input
                           type="text"
                           defaultValue={selectedWorkflow.entity_id}
@@ -353,7 +387,9 @@ function WorkflowMonitorPage() {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">Started</label>
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                            Started
+                          </label>
                           <input
                             type="text"
                             defaultValue={new Date(selectedWorkflow.created_at).toLocaleString()}
@@ -362,7 +398,9 @@ function WorkflowMonitorPage() {
                           />
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">Updated</label>
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                            Updated
+                          </label>
                           <input
                             type="text"
                             defaultValue={new Date(selectedWorkflow.updated_at).toLocaleString()}
@@ -373,7 +411,9 @@ function WorkflowMonitorPage() {
                       </div>
                       {selectedWorkflow.retry_count > 0 && (
                         <div>
-                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">Retries</label>
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                            Retries
+                          </label>
                           <input
                             type="text"
                             defaultValue={selectedWorkflow.retry_count}
@@ -396,7 +436,9 @@ function WorkflowMonitorPage() {
                     </div>
                   ) : activeTab === "steps" ? (
                     <div>
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Workflow Steps</h3>
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">
+                        Workflow Steps
+                      </h3>
                       {steps.length === 0 ? (
                         <div className="text-center py-8 text-slate-600 dark:text-slate-400">
                           <p className="text-sm">No steps defined.</p>
@@ -404,22 +446,33 @@ function WorkflowMonitorPage() {
                       ) : (
                         <div className="space-y-2">
                           {steps.map((step) => (
-                            <div key={step.id} className="border border-slate-200 dark:border-slate-800 rounded-lg p-3">
+                            <div
+                              key={step.id}
+                              className="border border-slate-200 dark:border-slate-800 rounded-lg p-3"
+                            >
                               <div className="flex items-center justify-between mb-1">
                                 <div className="flex items-center gap-3">
                                   <span className="text-xs font-mono font-semibold text-slate-600 dark:text-slate-400 min-w-[20px]">
                                     {step.sequence}
                                   </span>
-                                  <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">{step.name}</span>
+                                  <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                                    {step.name}
+                                  </span>
                                 </div>
-                                <span className={`text-xs font-medium px-2 py-1 rounded ${getStepStatusColor(step.status)}`}>
+                                <span
+                                  className={`text-xs font-medium px-2 py-1 rounded ${getStepStatusColor(step.status)}`}
+                                >
                                   {statusLabels[step.status] || step.status}
                                 </span>
                               </div>
                               <div className="flex items-center justify-between">
-                                <span className="text-xs text-slate-600 dark:text-slate-400 font-mono">{step.type}</span>
+                                <span className="text-xs text-slate-600 dark:text-slate-400 font-mono">
+                                  {step.type}
+                                </span>
                                 {step.duration_ms && (
-                                  <span className="text-xs text-slate-600 dark:text-slate-400">{step.duration_ms}ms</span>
+                                  <span className="text-xs text-slate-600 dark:text-slate-400">
+                                    {step.duration_ms}ms
+                                  </span>
                                 )}
                               </div>
                             </div>
@@ -429,15 +482,29 @@ function WorkflowMonitorPage() {
                     </div>
                   ) : (
                     <div>
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Execution Logs</h3>
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">
+                        Execution Logs
+                      </h3>
                       <div className="bg-slate-900 dark:bg-black text-slate-100 dark:text-slate-200 p-4 rounded-lg font-mono text-xs max-h-96 overflow-y-auto border border-slate-800">
-                        <div className="text-slate-500">[INFO] Workflow started at {new Date(selectedWorkflow.created_at).toISOString()}</div>
-                        <div className="text-slate-500">[INFO] Entity: {selectedWorkflow.entity_name}</div>
-                        <div className="text-slate-500">[INFO] Operation: {selectedWorkflow.operation}</div>
+                        <div className="text-slate-500">
+                          [INFO] Workflow started at{" "}
+                          {new Date(selectedWorkflow.created_at).toISOString()}
+                        </div>
+                        <div className="text-slate-500">
+                          [INFO] Entity: {selectedWorkflow.entity_name}
+                        </div>
+                        <div className="text-slate-500">
+                          [INFO] Operation: {selectedWorkflow.operation}
+                        </div>
                         {selectedWorkflow.status === "error" && (
-                          <div className="text-red-400 mt-2">[ERROR] {selectedWorkflow.error_message}</div>
+                          <div className="text-red-400 mt-2">
+                            [ERROR] {selectedWorkflow.error_message}
+                          </div>
                         )}
-                        <div className="text-slate-500 mt-2">[INFO] Workflow completed at {new Date(selectedWorkflow.updated_at).toISOString()}</div>
+                        <div className="text-slate-500 mt-2">
+                          [INFO] Workflow completed at{" "}
+                          {new Date(selectedWorkflow.updated_at).toISOString()}
+                        </div>
                       </div>
                     </div>
                   )}

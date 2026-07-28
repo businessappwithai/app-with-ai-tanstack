@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { useAuthStore } from "@/store/authStore";
 import { AlertCircle, CheckCircle, LogIn } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useAuthStore } from "@/store/authStore";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -49,7 +49,9 @@ function LoginPage() {
       const data = await res.json();
       if (!res.ok) {
         if (data.error === "PENDING_APPROVAL") {
-          setError("Your account is pending admin approval. Please wait for an administrator to review your registration.");
+          setError(
+            "Your account is pending admin approval. Please wait for an administrator to review your registration."
+          );
         } else if (data.error === "ACCOUNT_REJECTED") {
           setError("Your account has been rejected. Please contact an administrator.");
         } else {
@@ -102,7 +104,6 @@ function LoginPage() {
     }
   };
 
-
   if (registrationStatus === "pending") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white dark:from-gray-950 dark:to-gray-900 p-4">
@@ -111,10 +112,13 @@ function LoginPage() {
             <div className="flex justify-center mb-6">
               <CheckCircle className="w-16 h-16 text-green-500" />
             </div>
-            <h2 className="text-2xl font-bold text-center mb-4 text-gray-900 dark:text-white">Registration Successful!</h2>
+            <h2 className="text-2xl font-bold text-center mb-4 text-gray-900 dark:text-white">
+              Registration Successful!
+            </h2>
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
               <p className="text-blue-900 dark:text-blue-200 text-center">
-                Your account is pending admin approval. An administrator will review your registration and grant you access shortly. You'll be able to log in once approved.
+                Your account is pending admin approval. An administrator will review your
+                registration and grant you access shortly. You'll be able to log in once approved.
               </p>
             </div>
             <button
@@ -138,7 +142,12 @@ function LoginPage() {
       <div className="w-full max-w-md mx-auto flex items-center justify-center min-h-screen">
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 w-full">
           <div className="flex justify-center mb-6">
-            <svg className="w-12 h-12 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <svg
+              className="w-12 h-12 text-orange-500"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
               <rect x="3" y="3" width="7" height="7" rx="1" />
               <rect x="14" y="3" width="7" height="7" rx="1" />
               <rect x="3" y="14" width="7" height="7" rx="1" />
@@ -146,7 +155,9 @@ function LoginPage() {
             </svg>
           </div>
 
-          <h1 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">ERDwithAI</h1>
+          <h1 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
+            ERDwithAI
+          </h1>
 
           <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
             <button
@@ -188,7 +199,9 @@ function LoginPage() {
           <form onSubmit={tab === "login" ? handleLogin : handleRegister} className="space-y-4">
             {tab === "register" && (
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white">Full Name</label>
+                <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   required
@@ -201,7 +214,9 @@ function LoginPage() {
             )}
 
             <div>
-              <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white">Email</label>
+              <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+                Email
+              </label>
               <input
                 type="email"
                 required
@@ -213,7 +228,9 @@ function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white">Password</label>
+              <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+                Password
+              </label>
               <input
                 type="password"
                 required
@@ -230,7 +247,13 @@ function LoginPage() {
               disabled={isLoading}
               className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-semibold py-2 px-4 rounded-lg transition"
             >
-              {isLoading ? (tab === "login" ? "Signing in..." : "Creating account...") : tab === "login" ? "Sign In" : "Create Account"}
+              {isLoading
+                ? tab === "login"
+                  ? "Signing in..."
+                  : "Creating account..."
+                : tab === "login"
+                  ? "Sign In"
+                  : "Create Account"}
             </button>
           </form>
         </div>

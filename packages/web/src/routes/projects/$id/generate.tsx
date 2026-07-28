@@ -1,10 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-  CheckCircle2,
-  Database,
-  Loader2,
-  Zap,
-} from "lucide-react";
+import { CheckCircle2, Database, Loader2, Zap } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { JourneyArc } from "@/components/JourneyArc";

@@ -1,10 +1,10 @@
-import { Injectable, Logger, Inject, OnModuleInit } from '@nestjs/common';
-import { Kysely, sql } from 'kysely';
-import { randomUUID } from 'crypto';
-import { KYSELY_CONNECTION } from '../../database/database.constants';
-import { ImmudbService } from './immudb.service';
-import type { AuditEvent, AuditSearchParams } from './audit.types';
-import { maskSensitive } from './audit.types';
+import { Inject, Injectable, Logger, type OnModuleInit } from "@nestjs/common";
+import { randomUUID } from "crypto";
+import { type Kysely, sql } from "kysely";
+import { KYSELY_CONNECTION } from "../../database/database.constants";
+import type { AuditEvent, AuditSearchParams } from "./audit.types";
+import { maskSensitive } from "./audit.types";
+import type { ImmudbService } from "./immudb.service";
 
 @Injectable()
 export class AuditService implements OnModuleInit {
@@ -48,16 +48,30 @@ export class AuditService implements OnModuleInit {
         )
       `.execute(this.kysely);
 
-      await sql`CREATE INDEX IF NOT EXISTS idx_audit_timestamp   ON audit_log (timestamp DESC)`.execute(this.kysely);
-      await sql`CREATE INDEX IF NOT EXISTS idx_audit_user_id     ON audit_log (user_id)`.execute(this.kysely);
-      await sql`CREATE INDEX IF NOT EXISTS idx_audit_action      ON audit_log (action)`.execute(this.kysely);
-      await sql`CREATE INDEX IF NOT EXISTS idx_audit_entity_type ON audit_log (entity_type)`.execute(this.kysely);
-      await sql`CREATE INDEX IF NOT EXISTS idx_audit_entity_id   ON audit_log (entity_id)`.execute(this.kysely);
-      await sql`CREATE INDEX IF NOT EXISTS idx_audit_success     ON audit_log (success)`.execute(this.kysely);
+      await sql`CREATE INDEX IF NOT EXISTS idx_audit_timestamp   ON audit_log (timestamp DESC)`.execute(
+        this.kysely
+      );
+      await sql`CREATE INDEX IF NOT EXISTS idx_audit_user_id     ON audit_log (user_id)`.execute(
+        this.kysely
+      );
+      await sql`CREATE INDEX IF NOT EXISTS idx_audit_action      ON audit_log (action)`.execute(
+        this.kysely
+      );
+      await sql`CREATE INDEX IF NOT EXISTS idx_audit_entity_type ON audit_log (entity_type)`.execute(
+        this.kysely
+      );
+      await sql`CREATE INDEX IF NOT EXISTS idx_audit_entity_id   ON audit_log (entity_id)`.execute(
+        this.kysely
+      );
+      await sql`CREATE INDEX IF NOT EXISTS idx_audit_success     ON audit_log (success)`.execute(
+        this.kysely
+      );
 
-      this.logger.log('audit_log table ready');
+      this.logger.log("audit_log table ready");
     } catch (err) {
-      this.logger.error(`Failed to create audit_log table: ${err instanceof Error ? err.message : String(err)}`);
+      this.logger.error(
+        `Failed to create audit_log table: ${err instanceof Error ? err.message : String(err)}`
+      );
     }
   }
 
@@ -78,7 +92,7 @@ export class AuditService implements OnModuleInit {
       after_value: maskSensitive(event.after_value ?? null),
       changed_fields: event.changed_fields ?? [],
       success: event.success ?? true,
-      source: event.source ?? 'WEB_UI',
+      source: event.source ?? "WEB_UI",
       immudb_key: immudbKey,
     } as AuditEvent & { id: string; immudb_key: string };
 
@@ -89,17 +103,21 @@ export class AuditService implements OnModuleInit {
         const resolvedKey = txId !== immudbKey ? txId : immudbKey;
         await this.insertPostgres({ ...safeEvent, immudb_key: resolvedKey });
       } catch (err) {
-        this.logger.error(`Audit log write failed: ${err instanceof Error ? err.message : String(err)}`);
-        await this.insertPostgres(safeEvent).catch(e =>
-          this.logger.error(`Audit PG fallback also failed: ${e.message}`),
+        this.logger.error(
+          `Audit log write failed: ${err instanceof Error ? err.message : String(err)}`
+        );
+        await this.insertPostgres(safeEvent).catch((e) =>
+          this.logger.error(`Audit PG fallback also failed: ${e.message}`)
         );
       }
     });
   }
 
-  private async insertPostgres(event: AuditEvent & { id: string; immudb_key?: string }): Promise<void> {
+  private async insertPostgres(
+    event: AuditEvent & { id: string; immudb_key?: string }
+  ): Promise<void> {
     await this.kysely
-      .insertInto('audit_log' as any)
+      .insertInto("audit_log" as any)
       .values({
         id: event.id,
         immudb_key: event.immudb_key ?? null,
@@ -116,7 +134,7 @@ export class AuditService implements OnModuleInit {
         changed_fields: event.changed_fields ?? [],
         ip_address: event.ip_address ?? null,
         user_agent: event.user_agent ?? null,
-        source: event.source ?? 'WEB_UI',
+        source: event.source ?? "WEB_UI",
         success: event.success ?? true,
         error_message: event.error_message ?? null,
         request_id: event.request_id ?? null,
@@ -128,40 +146,44 @@ export class AuditService implements OnModuleInit {
   /**
    * Search audit log with filters. Returns paginated results from PostgreSQL.
    */
-  async search(params: AuditSearchParams): Promise<{ data: AuditEvent[]; meta: { total: number; page: number; limit: number } }> {
+  async search(
+    params: AuditSearchParams
+  ): Promise<{ data: AuditEvent[]; meta: { total: number; page: number; limit: number } }> {
     const page = Math.max(1, params.page ?? 1);
     const limit = Math.min(500, Math.max(1, params.limit ?? 50));
     const offset = (page - 1) * limit;
 
-    let query = this.kysely.selectFrom('audit_log' as any).selectAll();
-    let countQuery = this.kysely.selectFrom('audit_log' as any).select(eb => eb.fn.countAll<string>().as('total'));
+    let query = this.kysely.selectFrom("audit_log" as any).selectAll();
+    let countQuery = this.kysely
+      .selectFrom("audit_log" as any)
+      .select((eb) => eb.fn.countAll<string>().as("total"));
 
     const applyFilters = (q: any) => {
-      if (params.from) q = q.where('timestamp', '>=', params.from);
-      if (params.to) q = q.where('timestamp', '<=', params.to);
-      if (params.user_id) q = q.where('user_id', '=', params.user_id);
-      if (params.user_email) q = q.where('user_email', 'ilike', `%${params.user_email}%`);
-      if (params.action) q = q.where('action', '=', params.action);
-      if (params.entity_type) q = q.where('entity_type', '=', params.entity_type);
-      if (params.entity_id) q = q.where('entity_id', '=', params.entity_id);
-      if (params.source) q = q.where('source', '=', params.source);
-      if (params.success !== undefined) q = q.where('success', '=', params.success);
+      if (params.from) q = q.where("timestamp", ">=", params.from);
+      if (params.to) q = q.where("timestamp", "<=", params.to);
+      if (params.user_id) q = q.where("user_id", "=", params.user_id);
+      if (params.user_email) q = q.where("user_email", "ilike", `%${params.user_email}%`);
+      if (params.action) q = q.where("action", "=", params.action);
+      if (params.entity_type) q = q.where("entity_type", "=", params.entity_type);
+      if (params.entity_id) q = q.where("entity_id", "=", params.entity_id);
+      if (params.source) q = q.where("source", "=", params.source);
+      if (params.success !== undefined) q = q.where("success", "=", params.success);
       if (params.search) {
         const term = `%${params.search}%`;
         q = q.where((eb: any) =>
           eb.or([
-            eb('user_email', 'ilike', term),
-            eb('user_name', 'ilike', term),
-            eb('entity_type', 'ilike', term),
-            eb('entity_id', 'ilike', term),
-            eb('action', 'ilike', term),
-          ]),
+            eb("user_email", "ilike", term),
+            eb("user_name", "ilike", term),
+            eb("entity_type", "ilike", term),
+            eb("entity_id", "ilike", term),
+            eb("action", "ilike", term),
+          ])
         );
       }
       return q;
     };
 
-    query = applyFilters(query).orderBy('timestamp', 'desc').limit(limit).offset(offset);
+    query = applyFilters(query).orderBy("timestamp", "desc").limit(limit).offset(offset);
     countQuery = applyFilters(countQuery);
 
     const [rows, countResult] = await Promise.all([query.execute(), countQuery.executeTakeFirst()]);
@@ -176,31 +198,50 @@ export class AuditService implements OnModuleInit {
    * Verify a single audit record against immudb.
    * Returns { verified: true } when the stored value matches and proof is valid.
    */
-  async verify(id: string): Promise<{ verified: boolean; immudb_key?: string; txId?: string | number; mismatch?: boolean; reason?: string }> {
+  async verify(id: string): Promise<{
+    verified: boolean;
+    immudb_key?: string;
+    txId?: string | number;
+    mismatch?: boolean;
+    reason?: string;
+  }> {
     const row = await this.kysely
-      .selectFrom('audit_log' as any)
+      .selectFrom("audit_log" as any)
       .selectAll()
-      .where('id' as any, '=', id)
+      .where("id" as any, "=", id)
       .executeTakeFirst();
 
-    if (!row) return { verified: false, reason: 'Record not found' };
-    if (!(row as any).immudb_key) return { verified: false, reason: 'No immudb key stored for this record' };
+    if (!row) return { verified: false, reason: "Record not found" };
+    if (!(row as any).immudb_key)
+      return { verified: false, reason: "No immudb key stored for this record" };
 
     if (!this.immudb.isConnected) {
-      return { verified: false, reason: 'immudb not connected' };
+      return { verified: false, reason: "immudb not connected" };
     }
 
     const result = await this.immudb.verifiedGet((row as any).immudb_key);
-    if (!result) return { verified: false, reason: 'immudb lookup failed' };
+    if (!result) return { verified: false, reason: "immudb lookup failed" };
 
-    if (!result.verified) return { verified: false, immudb_key: result.key, txId: result.txId, reason: 'Cryptographic proof failed — data may be tampered' };
+    if (!result.verified)
+      return {
+        verified: false,
+        immudb_key: result.key,
+        txId: result.txId,
+        reason: "Cryptographic proof failed — data may be tampered",
+      };
 
     // Optionally compare stored JSON to what's in PG for a content match
     try {
-      const storedEvent = JSON.parse(result.value ?? '{}');
+      const storedEvent = JSON.parse(result.value ?? "{}");
       const pgEvent = row as any;
       if (storedEvent.action !== pgEvent.action || storedEvent.entity_id !== pgEvent.entity_id) {
-        return { verified: false, immudb_key: result.key, txId: result.txId, mismatch: true, reason: 'Content mismatch between immudb and PostgreSQL' };
+        return {
+          verified: false,
+          immudb_key: result.key,
+          txId: result.txId,
+          mismatch: true,
+          reason: "Content mismatch between immudb and PostgreSQL",
+        };
       }
     } catch {
       // If parse fails, still return the immudb verification result
@@ -212,11 +253,11 @@ export class AuditService implements OnModuleInit {
   /** Return distinct entity_type values for the filter dropdown. */
   async getEntityTypes(): Promise<string[]> {
     const rows = await this.kysely
-      .selectFrom('audit_log' as any)
-      .select('entity_type')
+      .selectFrom("audit_log" as any)
+      .select("entity_type")
       .distinct()
-      .where('entity_type', 'is not', null)
-      .orderBy('entity_type', 'asc')
+      .where("entity_type", "is not", null)
+      .orderBy("entity_type", "asc")
       .execute();
     return rows.map((r: any) => r.entity_type).filter(Boolean);
   }

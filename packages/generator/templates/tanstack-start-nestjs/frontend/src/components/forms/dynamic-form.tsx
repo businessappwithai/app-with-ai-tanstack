@@ -2,9 +2,24 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
+import {
+  AlertCircle,
+  Calendar,
+  FileText,
+  Hash,
+  HelpCircle,
+  KeyRound,
+  Link2,
+  List,
+  Lock,
+  Mail,
+  Phone,
+  Table2,
+  ToggleLeft,
+  Type,
+} from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Lock, AlertCircle, Type, Hash, Mail, Link2, Phone, Calendar, ToggleLeft, FileText, List, Table2, KeyRound, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -13,8 +28,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { type FieldMetadata, useEntities, useFormFields, useRefList } from "@/hooks/use-entities";
 import { apiClient } from "@/lib/api-client";
+import { getFieldTypeColor, getFieldTypeLabel, validateFormData } from "@/lib/field-schema";
 import { getFieldLabel } from "@/lib/i18n-fields";
-import { validateFormData, getFieldTypeLabel, getFieldTypeColor } from "@/lib/field-schema";
 import { useTranslations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
 
@@ -58,30 +73,42 @@ type FormValues = Record<string, unknown>;
 
 function getFieldIcon(sysReferenceId: number) {
   switch (sysReferenceId) {
-    case REFERENCE_TYPE.STRING: return Type;
-    case REFERENCE_TYPE.INTEGER: return Hash;
-    case REFERENCE_TYPE.AMOUNT: return Hash;
-    case REFERENCE_TYPE.EMAIL: return Mail;
-    case REFERENCE_TYPE.URL: return Link2;
-    case REFERENCE_TYPE.PHONE: return Phone;
+    case REFERENCE_TYPE.STRING:
+      return Type;
+    case REFERENCE_TYPE.INTEGER:
+      return Hash;
+    case REFERENCE_TYPE.AMOUNT:
+      return Hash;
+    case REFERENCE_TYPE.EMAIL:
+      return Mail;
+    case REFERENCE_TYPE.URL:
+      return Link2;
+    case REFERENCE_TYPE.PHONE:
+      return Phone;
     case REFERENCE_TYPE.DATE:
-    case REFERENCE_TYPE.DATETIME: return Calendar;
-    case REFERENCE_TYPE.YES_NO: return ToggleLeft;
-    case REFERENCE_TYPE.TEXT: return FileText;
-    case REFERENCE_TYPE.PASSWORD: return KeyRound;
+    case REFERENCE_TYPE.DATETIME:
+      return Calendar;
+    case REFERENCE_TYPE.YES_NO:
+      return ToggleLeft;
+    case REFERENCE_TYPE.TEXT:
+      return FileText;
+    case REFERENCE_TYPE.PASSWORD:
+      return KeyRound;
     case REFERENCE_TYPE.TABLE:
-    case REFERENCE_TYPE.TABLE_DIRECT: return Table2;
-    default: return sysReferenceId >= 1000 ? List : Type;
+    case REFERENCE_TYPE.TABLE_DIRECT:
+      return Table2;
+    default:
+      return sysReferenceId >= 1000 ? List : Type;
   }
 }
 
 function TableReferenceViewValue({ field, id }: { field: FieldMetadata; id: string }) {
   const customEndpoint = field.ref_endpoint || null;
-  const idField = field.ref_id_field || 'id';
-  const labelField = field.ref_label_field || 'name';
+  const idField = field.ref_id_field || "id";
+  const labelField = field.ref_label_field || "name";
 
   const { data } = useQuery({
-    queryKey: ['table-ref-view', customEndpoint, id],
+    queryKey: ["table-ref-view", customEndpoint, id],
     queryFn: () => apiClient.get<{ data: any[] }>(customEndpoint!, { limit: 500 }),
     enabled: !!customEndpoint && !!id,
   });
@@ -100,37 +127,46 @@ interface TableReferenceFieldProps {
   parentContext?: Record<string, unknown>;
 }
 
-function TableReferenceField({ field, fieldApi, isDisabled, error, parentContext }: TableReferenceFieldProps) {
+function TableReferenceField({
+  field,
+  fieldApi,
+  isDisabled,
+  error,
+  parentContext,
+}: TableReferenceFieldProps) {
   const referencedTableName = field.ref_table_name || null;
-  const idField = field.ref_id_field || 'id';
-  const labelField = field.ref_label_field || 'name';
+  const idField = field.ref_id_field || "id";
+  const labelField = field.ref_label_field || "name";
 
   // Resolve filtered endpoint: append ref_filter_param=<parentContext[ref_filter_source]> when configured
-  const filterValue = field.ref_filter_source && parentContext
-    ? parentContext[field.ref_filter_source]
-    : undefined;
+  const filterValue =
+    field.ref_filter_source && parentContext ? parentContext[field.ref_filter_source] : undefined;
   const customEndpoint = field.ref_endpoint
-    ? (field.ref_filter_param && filterValue != null
-        ? `${field.ref_endpoint}?${field.ref_filter_param}=${encodeURIComponent(String(filterValue))}`
-        : field.ref_endpoint)
+    ? field.ref_filter_param && filterValue != null
+      ? `${field.ref_endpoint}?${field.ref_filter_param}=${encodeURIComponent(String(filterValue))}`
+      : field.ref_endpoint
     : null;
 
   // Custom endpoint (e.g. /sys/references) — use apiClient directly
   const { data: customData, isLoading: isLoadingCustom } = useQuery({
-    queryKey: ['table-ref-custom', customEndpoint],
+    queryKey: ["table-ref-custom", customEndpoint],
     queryFn: () => apiClient.get<{ data: any[] }>(customEndpoint!, { limit: 500 }),
     enabled: !!customEndpoint,
   });
 
   // Standard business table endpoint
-  const { data: records, isLoading: isLoadingRecords } = useEntities<any>(referencedTableName || "", undefined, {
-    enabled: !!referencedTableName && !customEndpoint,
-  });
+  const { data: records, isLoading: isLoadingRecords } = useEntities<any>(
+    referencedTableName || "",
+    undefined,
+    {
+      enabled: !!referencedTableName && !customEndpoint,
+    }
+  );
 
   const isLoading = isLoadingCustom || isLoadingRecords;
   const tableRecords: any[] = customEndpoint
-    ? (customData as any)?.data ?? []
-    : records?.data ?? [];
+    ? ((customData as any)?.data ?? [])
+    : (records?.data ?? []);
 
   if (!referencedTableName && !customEndpoint) {
     return (
@@ -171,7 +207,8 @@ function TableReferenceField({ field, fieldApi, isDisabled, error, parentContext
       <option value="">Select {field.name}...</option>
       {tableRecords.map((record: any) => {
         const optValue = record[idField];
-        const optLabel = record[labelField] ||
+        const optLabel =
+          record[labelField] ||
           `${record.first_name || ""} ${record.last_name || ""}`.trim() ||
           String(optValue);
         return (
@@ -190,7 +227,12 @@ function FieldTypeBadge({ field }: { field: FieldMetadata }) {
   const colorClass = getFieldTypeColor(field.sys_reference_id);
 
   return (
-    <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium", colorClass)}>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium",
+        colorClass
+      )}
+    >
       <Icon className="w-3 h-3" />
       {typeLabel}
     </span>
@@ -203,7 +245,7 @@ function FieldHelpPopover({ help, fieldName }: { help: string; fieldName: string
     <div className="relative inline-block">
       <button
         type="button"
-        onClick={() => setOpen(o => !o)}
+        onClick={() => setOpen((o) => !o)}
         className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
         aria-label={`Help for ${fieldName}`}
       >
@@ -238,16 +280,19 @@ function FieldConstraints({ field, charCount }: { field: FieldMetadata; charCoun
   return (
     <div className="flex items-center justify-between mt-1">
       {hints.length > 0 && (
-        <span className="text-[10px] text-muted-foreground">
-          {hints.join(" · ")}
-        </span>
+        <span className="text-[10px] text-muted-foreground">{hints.join(" · ")}</span>
       )}
       {charCount !== undefined && field.field_length && (
-        <span className={cn(
-          "text-[10px] font-mono",
-          charCount > field.field_length ? "text-destructive font-semibold" :
-          charCount > field.field_length * 0.8 ? "text-amber-500" : "text-muted-foreground"
-        )}>
+        <span
+          className={cn(
+            "text-[10px] font-mono",
+            charCount > field.field_length
+              ? "text-destructive font-semibold"
+              : charCount > field.field_length * 0.8
+                ? "text-amber-500"
+                : "text-muted-foreground"
+          )}
+        >
           {charCount}/{field.field_length}
         </span>
       )}
@@ -277,7 +322,8 @@ function FieldRenderer({
   const isFormReadOnly = (form as any).readOnly || false;
   const formMode = (form as any).mode || "edit";
   const fieldLabel = getFieldLabel(tableName, (field as any).tab_name, field.name, field.name);
-  const isDisabled = (field.is_read_only && formMode !== "create") || readOnlyFields.includes(field.column_name);
+  const isDisabled =
+    (field.is_read_only && formMode !== "create") || readOnlyFields.includes(field.column_name);
   const isReadOnly = isDisabled || isFormReadOnly;
 
   const { data: refListValues, isLoading: isLoadingRefList } = useRefList(
@@ -290,7 +336,11 @@ function FieldRenderer({
       validators={{
         onChange: ({ value }: { value: unknown }) => {
           if (field.is_mandatory && !value) return `${fieldLabel} is required`;
-          if (field.field_length && typeof value === "string" && value.length > field.field_length) {
+          if (
+            field.field_length &&
+            typeof value === "string" &&
+            value.length > field.field_length
+          ) {
             return `${fieldLabel} must be at most ${field.field_length} characters`;
           }
           return undefined;
@@ -307,7 +357,10 @@ function FieldRenderer({
 
         const labelBlock = (
           <div className="flex items-center gap-2 mb-1.5">
-            <Label htmlFor={field.column_name} className={cn("text-sm font-medium", error && "text-destructive")}>
+            <Label
+              htmlFor={field.column_name}
+              className={cn("text-sm font-medium", error && "text-destructive")}
+            >
               {fieldLabel}
               {field.is_mandatory && <span className="text-red-500 ml-0.5">*</span>}
             </Label>
@@ -347,17 +400,19 @@ function FieldRenderer({
                   {field.help && <FieldHelpPopover help={field.help} fieldName={fieldLabel} />}
                 </div>
                 <div className="text-sm text-foreground font-medium min-h-[1.25rem]">
-                  {!currentValue || currentValue === ""
-                    ? <span className="text-muted-foreground/60 italic">—</span>
-                    : <TableReferenceViewValue field={field} id={String(currentValue)} />
-                  }
+                  {!currentValue || currentValue === "" ? (
+                    <span className="text-muted-foreground/60 italic">—</span>
+                  ) : (
+                    <TableReferenceViewValue field={field} id={String(currentValue)} />
+                  )}
                 </div>
               </div>
             );
           }
 
           const displayValue = (() => {
-            if (currentValue === null || currentValue === undefined || currentValue === "") return "—";
+            if (currentValue === null || currentValue === undefined || currentValue === "")
+              return "—";
             if (typeof currentValue === "boolean") return currentValue ? "Yes" : "No";
             if (field.sys_reference_id === 15 || field.sys_reference_id === 16) {
               const d = new Date(String(currentValue));
@@ -443,7 +498,10 @@ function FieldRenderer({
         }
 
         // Table or Table Direct reference
-        if (field.sys_reference_id === REFERENCE_TYPE.TABLE || field.sys_reference_id === REFERENCE_TYPE.TABLE_DIRECT) {
+        if (
+          field.sys_reference_id === REFERENCE_TYPE.TABLE ||
+          field.sys_reference_id === REFERENCE_TYPE.TABLE_DIRECT
+        ) {
           return (
             <div>
               {labelBlock}
@@ -490,7 +548,9 @@ function FieldRenderer({
                   className={cn(field.is_mandatory && "border-primary/50")}
                 />
                 <div className="flex items-center gap-2">
-                  <Label htmlFor={field.column_name} className="text-sm">{fieldLabel}</Label>
+                  <Label htmlFor={field.column_name} className="text-sm">
+                    {fieldLabel}
+                  </Label>
                   <FieldTypeBadge field={field} />
                 </div>
               </div>
@@ -656,11 +716,20 @@ function FieldRenderer({
 
 /** Subscribes to form value changes and notifies the parent via onChange.
  *  Skips the initial render so the parent isn't notified with the initial data. */
-function FormChangeNotifier({ form, onChange }: { form: ReturnType<typeof useForm<FormValues>>; onChange: (data: Record<string, unknown>) => void }) {
+function FormChangeNotifier({
+  form,
+  onChange,
+}: {
+  form: ReturnType<typeof useForm<FormValues>>;
+  onChange: (data: Record<string, unknown>) => void;
+}) {
   const values = form.useStore((state: any) => state.values);
   const isFirst = useRef(true);
   useEffect(() => {
-    if (isFirst.current) { isFirst.current = false; return; }
+    if (isFirst.current) {
+      isFirst.current = false;
+      return;
+    }
     onChange(values);
   }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
   return null;
@@ -682,12 +751,16 @@ export function DynamicForm({
   parentContext,
 }: DynamicFormProps) {
   const { t } = useTranslations();
-  const { data: fetchedFields, isLoading: fieldsLoading, error } = useFormFields(tableName, { enabled: !externalFields });
+  const {
+    data: fetchedFields,
+    isLoading: fieldsLoading,
+    error,
+  } = useFormFields(tableName, { enabled: !externalFields });
   const fields = externalFields || fetchedFields;
   const [zodErrors, setZodErrors] = useState<Record<string, string>>({});
 
   // Derive the entity PK column name from the table name (bus_patient → patient_id)
-  const pkColumnName = tableName.replace(/^bus_/, '') + '_id';
+  const pkColumnName = tableName.replace(/^bus_/, "") + "_id";
 
   const form = useForm<FormValues>({
     defaultValues: initialData,
@@ -695,18 +768,22 @@ export function DynamicForm({
       if (readOnly || !onSubmit) return;
 
       // Auto-generate UUID for the entity PK in create mode
-      if (mode === 'create' && fields && !value[pkColumnName]) {
+      if (mode === "create" && fields && !value[pkColumnName]) {
         value[pkColumnName] = crypto.randomUUID();
       }
 
       // Zod validation
       if (fields) {
-        const displayedFields = fields.filter(f => {
+        const displayedFields = fields.filter((f) => {
           if (!f.is_displayed || f.column_name === parentField) return false;
-          if (mode === 'create' && f.column_name === pkColumnName) return false;
+          if (mode === "create" && f.column_name === pkColumnName) return false;
           return true;
         });
-        const validation = validateFormData(displayedFields, value, mode === 'view' ? 'edit' : mode);
+        const validation = validateFormData(
+          displayedFields,
+          value,
+          mode === "view" ? "edit" : mode
+        );
         if (!validation.success) {
           setZodErrors(validation.errors);
           toast.error("Please fix the validation errors");
@@ -719,7 +796,13 @@ export function DynamicForm({
         mode === "edit" && fields
           ? Object.entries(value).reduce(
               (acc, [key, val]) => {
-                if (key === "id" || key === "created_at" || key === "updated_at" || key === "deleted_at") return acc;
+                if (
+                  key === "id" ||
+                  key === "created_at" ||
+                  key === "updated_at" ||
+                  key === "deleted_at"
+                )
+                  return acc;
                 const field = fields.find((f: FieldMetadata) => f.column_name === key);
                 const isUpdateable = field?.is_updateable !== false;
                 const isVersionField = key === "version";
@@ -752,7 +835,7 @@ export function DynamicForm({
     const displayFields = fields.filter((f) => {
       if (!f.is_displayed || f.column_name === parentField) return false;
       // Hide the entity's own PK field in create mode — it's auto-generated on submit
-      if (mode === 'create' && f.column_name === pkColumnName) return false;
+      if (mode === "create" && f.column_name === pkColumnName) return false;
       return true;
     });
     const groups: Map<string | null, FieldMetadata[]> = new Map();
@@ -801,18 +884,18 @@ export function DynamicForm({
     const value = currentValues as Record<string, unknown>;
 
     // Auto-generate UUID for the entity PK in create mode
-    if (mode === 'create' && fields && !value[pkColumnName]) {
+    if (mode === "create" && fields && !value[pkColumnName]) {
       value[pkColumnName] = crypto.randomUUID();
     }
 
     // Zod validation
     if (fields) {
-      const displayedFields = fields.filter(f => {
+      const displayedFields = fields.filter((f) => {
         if (!f.is_displayed || f.column_name === parentField) return false;
-        if (mode === 'create' && f.column_name === pkColumnName) return false;
+        if (mode === "create" && f.column_name === pkColumnName) return false;
         return true;
       });
-      const validation = validateFormData(displayedFields, value, mode === 'view' ? 'edit' : mode);
+      const validation = validateFormData(displayedFields, value, mode === "view" ? "edit" : mode);
       if (!validation.success) {
         setZodErrors(validation.errors);
         toast.error("Please fix the validation errors");
@@ -825,7 +908,13 @@ export function DynamicForm({
       mode === "edit" && fields
         ? Object.entries(value).reduce(
             (acc, [key, val]) => {
-              if (key === "id" || key === "created_at" || key === "updated_at" || key === "deleted_at") return acc;
+              if (
+                key === "id" ||
+                key === "created_at" ||
+                key === "updated_at" ||
+                key === "deleted_at"
+              )
+                return acc;
               const field = fields.find((f: FieldMetadata) => f.column_name === key);
               const isUpdateable = !field?.is_read_only;
               const isVersionField = key === "version";
@@ -839,14 +928,14 @@ export function DynamicForm({
     await onSubmit(filteredValues);
   };
 
-  const requiredCount = fields.filter(f => {
+  const requiredCount = fields.filter((f) => {
     if (!f.is_displayed || !f.is_mandatory || f.column_name === parentField) return false;
-    if (mode === 'create' && f.column_name === pkColumnName) return false;
+    if (mode === "create" && f.column_name === pkColumnName) return false;
     return true;
   }).length;
-  const totalDisplayed = fields.filter(f => {
+  const totalDisplayed = fields.filter((f) => {
     if (!f.is_displayed || f.column_name === parentField) return false;
-    if (mode === 'create' && f.column_name === pkColumnName) return false;
+    if (mode === "create" && f.column_name === pkColumnName) return false;
     return true;
   }).length;
 
@@ -857,13 +946,13 @@ export function DynamicForm({
         {/* Form summary bar */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground">
-              {totalDisplayed} fields
-            </span>
+            <span className="text-xs text-muted-foreground">{totalDisplayed} fields</span>
             {requiredCount > 0 && (
               <>
                 <span className="text-muted-foreground/30">|</span>
-                <span className="text-xs text-red-500/80 font-medium">{requiredCount} required</span>
+                <span className="text-xs text-red-500/80 font-medium">
+                  {requiredCount} required
+                </span>
               </>
             )}
             {Object.keys(zodErrors).length > 0 && (
@@ -871,7 +960,8 @@ export function DynamicForm({
                 <span className="text-muted-foreground/30">|</span>
                 <span className="inline-flex items-center gap-1 text-xs text-destructive font-medium">
                   <AlertCircle className="w-3 h-3" />
-                  {Object.keys(zodErrors).length} validation {Object.keys(zodErrors).length === 1 ? 'error' : 'errors'}
+                  {Object.keys(zodErrors).length} validation{" "}
+                  {Object.keys(zodErrors).length === 1 ? "error" : "errors"}
                 </span>
               </>
             )}
@@ -879,8 +969,17 @@ export function DynamicForm({
           {!readOnly && onSubmit && (
             <form.Subscribe selector={(state: any) => [state.isSubmitting]}>
               {([isFormSubmitting]: any) => (
-                <Button type="submit" disabled={isSaving || isFormSubmitting} size="sm" className="bg-primary hover:bg-primary/90">
-                  {isSaving || isFormSubmitting ? "Saving..." : mode === "create" ? "Create" : "Save"}
+                <Button
+                  type="submit"
+                  disabled={isSaving || isFormSubmitting}
+                  size="sm"
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  {isSaving || isFormSubmitting
+                    ? "Saving..."
+                    : mode === "create"
+                      ? "Create"
+                      : "Save"}
                 </Button>
               )}
             </form.Subscribe>
@@ -896,7 +995,9 @@ export function DynamicForm({
                 <div className="border-b border-primary/20 pb-2">
                   <h3 className="text-sm font-semibold text-primary">{groupName}</h3>
                   {fieldsInGroup[0]?.group_description && (
-                    <p className="text-xs text-muted-foreground mt-0.5">{fieldsInGroup[0].group_description}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {fieldsInGroup[0].group_description}
+                    </p>
                   )}
                 </div>
               )}
@@ -914,7 +1015,9 @@ export function DynamicForm({
                   <div
                     key={field.sys_field_id}
                     className={cn(
-                      field.col_span && field.col_span > 1 && `md:col-span-${Math.min(groupColumns, field.col_span)}`
+                      field.col_span &&
+                        field.col_span > 1 &&
+                        `md:col-span-${Math.min(groupColumns, field.col_span)}`
                     )}
                   >
                     <FieldRenderer
@@ -923,7 +1026,9 @@ export function DynamicForm({
                       serverErrors={serverErrors}
                       zodErrors={zodErrors}
                       tableName={tableName}
-                      readOnlyFields={mode === 'edit' ? [...readOnlyFields, pkColumnName] : readOnlyFields}
+                      readOnlyFields={
+                        mode === "edit" ? [...readOnlyFields, pkColumnName] : readOnlyFields
+                      }
                       parentContext={parentContext}
                     />
                   </div>
@@ -937,8 +1042,16 @@ export function DynamicForm({
           <div className="flex justify-end gap-4 pt-2 border-t border-border">
             <form.Subscribe selector={(state: any) => [state.isSubmitting]}>
               {([isFormSubmitting]: any) => (
-                <Button type="submit" disabled={isSaving || isFormSubmitting} className="bg-primary hover:bg-primary/90">
-                  {isSaving || isFormSubmitting ? "Saving..." : mode === "create" ? "Create" : "Save"}
+                <Button
+                  type="submit"
+                  disabled={isSaving || isFormSubmitting}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  {isSaving || isFormSubmitting
+                    ? "Saving..."
+                    : mode === "create"
+                      ? "Create"
+                      : "Save"}
                 </Button>
               )}
             </form.Subscribe>

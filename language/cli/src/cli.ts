@@ -9,8 +9,8 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node
 import path from "node:path";
 import { loadLanguageDefinition } from "../../index.ts";
 import { collectionName, generateApp } from "./generate/app.ts";
-import { generateDocker } from "./generate/docker.ts";
 import { generateCiWorkflow } from "./generate/ci.ts";
+import { generateDocker } from "./generate/docker.ts";
 import { publishToGithub } from "./generate/github.ts";
 import { generateJdm } from "./generate/jdm.ts";
 import { generateTanStack } from "./generate/tanstack.ts";

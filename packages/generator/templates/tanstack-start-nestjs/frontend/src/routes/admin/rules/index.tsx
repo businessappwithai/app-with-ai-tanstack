@@ -7,23 +7,21 @@
  * Project: simple-crm
  */
 
-import { useState } from 'react'
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiClient } from '@/lib/api-client'
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Scale,
-  Plus,
-  Edit,
-  Trash2,
-  RefreshCw,
-  Search,
   CheckCircle,
-  XCircle,
   ChevronLeft,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+  Edit,
+  Plus,
+  RefreshCw,
+  Scale,
+  Search,
+  Trash2,
+  XCircle,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,95 +31,91 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { toast } from 'sonner'
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { apiClient } from "@/lib/api-client";
 
-export const Route = createFileRoute('/admin/rules/')({
+export const Route = createFileRoute("/admin/rules/")({
   component: AdminRulesPage,
-})
+});
 
 interface Rule {
-  id: string
-  entityName: string
-  ruleName: string
-  operation: string
-  version: number
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
+  id: string;
+  entityName: string;
+  ruleName: string;
+  operation: string;
+  version: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 function AdminRulesPage() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [entityFilter, setEntityFilter] = useState<string>('')
-  const [operationFilter, setOperationFilter] = useState<string>('')
-  const [activeFilter, setActiveFilter] = useState<string>('')
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [ruleToDelete, setRuleToDelete] = useState<Rule | null>(null)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [entityFilter, setEntityFilter] = useState<string>("");
+  const [operationFilter, setOperationFilter] = useState<string>("");
+  const [activeFilter, setActiveFilter] = useState<string>("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [ruleToDelete, setRuleToDelete] = useState<Rule | null>(null);
 
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const {
     data: rules,
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: [
-      'admin',
-      'rules',
-      { entityFilter, operationFilter, activeFilter },
-    ],
+    queryKey: ["admin", "rules", { entityFilter, operationFilter, activeFilter }],
     queryFn: async () => {
-      const params = new URLSearchParams()
-      if (entityFilter) params.append('entityName', entityFilter)
-      if (operationFilter) params.append('operation', operationFilter)
-      if (activeFilter !== '') params.append('isActive', activeFilter)
+      const params = new URLSearchParams();
+      if (entityFilter) params.append("entityName", entityFilter);
+      if (operationFilter) params.append("operation", operationFilter);
+      if (activeFilter !== "") params.append("isActive", activeFilter);
 
-      const response = await apiClient.get<Rule[]>(
-        `/rules?${params.toString()}`,
-      )
-      return response
+      const response = await apiClient.get<Rule[]>(`/rules?${params.toString()}`);
+      return response;
     },
-  })
+  });
 
   const deleteMutation = useMutation({
     mutationFn: async (ruleId: string) => {
-      await apiClient.delete(`/rules/${ruleId}`)
+      await apiClient.delete(`/rules/${ruleId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'rules'] })
-      toast.success('Rule deactivated successfully')
-      setDeleteDialogOpen(false)
-      setRuleToDelete(null)
+      queryClient.invalidateQueries({ queryKey: ["admin", "rules"] });
+      toast.success("Rule deactivated successfully");
+      setDeleteDialogOpen(false);
+      setRuleToDelete(null);
     },
     onError: (error: Error) => {
-      toast.error(`Failed to deactivate rule: ${error.message}`)
+      toast.error(`Failed to deactivate rule: ${error.message}`);
     },
-  })
+  });
 
   const filteredRules =
     rules?.filter((rule) => {
       const matchesSearch =
-        searchQuery === '' ||
+        searchQuery === "" ||
         rule.ruleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        rule.entityName.toLowerCase().includes(searchQuery.toLowerCase())
+        rule.entityName.toLowerCase().includes(searchQuery.toLowerCase());
 
-      return matchesSearch
-    }) || []
+      return matchesSearch;
+    }) || [];
 
-  const entityNames = Array.from(new Set(rules?.map((r) => r.entityName) || []))
-  const operations = Array.from(new Set(rules?.map((r) => r.operation) || []))
+  const entityNames = Array.from(new Set(rules?.map((r) => r.entityName) || []));
+  const operations = Array.from(new Set(rules?.map((r) => r.operation) || []));
 
   const handleDelete = (rule: Rule) => {
-    setRuleToDelete(rule)
-    setDeleteDialogOpen(true)
-  }
+    setRuleToDelete(rule);
+    setDeleteDialogOpen(true);
+  };
 
   const confirmDelete = () => {
     if (ruleToDelete) {
-      deleteMutation.mutate(ruleToDelete.id)
+      deleteMutation.mutate(ruleToDelete.id);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -129,16 +123,17 @@ function AdminRulesPage() {
         <div className="max-w-7xl mx-auto px-8 py-12">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <Link to="/admin" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-black transition-colors mb-4">
+              <Link
+                to="/admin"
+                className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-black transition-colors mb-4"
+              >
                 <ChevronLeft className="h-3.5 w-3.5" />
                 Back to Admin
               </Link>
               <div className="flex items-center gap-4 mb-4">
                 <Scale className="h-8 w-8 text-black" />
                 <div>
-                  <h1 className="text-6xl font-bold tracking-tight text-black">
-                    Business Rules
-                  </h1>
+                  <h1 className="text-6xl font-bold tracking-tight text-black">Business Rules</h1>
                   <p className="text-xl text-gray-600 font-light mt-2">
                     Manage validation rules and business logic with JDM Editor
                   </p>
@@ -153,9 +148,7 @@ function AdminRulesPage() {
                 disabled={isLoading}
                 className="border-2 border-black hover:bg-black hover:text-white transition-colors rounded-none"
               >
-                <RefreshCw
-                  className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}
-                />
+                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
                 Refresh
               </Button>
               <Link to="/admin/rules/new">
@@ -174,36 +167,24 @@ function AdminRulesPage() {
         <section className="mb-12">
           <div className="grid grid-cols-4 gap-0 border-l border-r border-black">
             <div className="border-t border-b border-black border-r p-6 bg-gray-50">
-              <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">
-                Total Rules
-              </p>
-              <p className="text-4xl font-bold text-black">
-                {rules?.length || 0}
-              </p>
+              <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">Total Rules</p>
+              <p className="text-4xl font-bold text-black">{rules?.length || 0}</p>
             </div>
             <div className="border-t border-b border-black border-r p-6 bg-gray-50">
-              <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">
-                Active
-              </p>
+              <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">Active</p>
               <p className="text-4xl font-bold text-emerald-700">
                 {rules?.filter((r) => r.isActive).length || 0}
               </p>
             </div>
             <div className="border-t border-b border-black border-r p-6 bg-gray-50">
-              <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">
-                Inactive
-              </p>
+              <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">Inactive</p>
               <p className="text-4xl font-bold text-gray-400">
                 {rules?.filter((r) => !r.isActive).length || 0}
               </p>
             </div>
             <div className="border-t border-b border-black p-6 bg-gray-50">
-              <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">
-                Entities
-              </p>
-              <p className="text-4xl font-bold text-black">
-                {entityNames.length}
-              </p>
+              <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">Entities</p>
+              <p className="text-4xl font-bold text-black">{entityNames.length}</p>
             </div>
           </div>
         </section>
@@ -267,12 +248,9 @@ function AdminRulesPage() {
           </div>
         ) : filteredRules.length === 0 ? (
           <div className="text-center py-16 text-gray-500 border-2 border-black">
-            {searchQuery ||
-            entityFilter ||
-            operationFilter ||
-            activeFilter !== ''
-              ? 'No rules match your search criteria.'
-              : 'No rules found. Create your first rule to get started.'}
+            {searchQuery || entityFilter || operationFilter || activeFilter !== ""
+              ? "No rules match your search criteria."
+              : "No rules found. Create your first rule to get started."}
           </div>
         ) : (
           <div className="border-2 border-black">
@@ -292,18 +270,12 @@ function AdminRulesPage() {
                 className="grid grid-cols-12 gap-4 px-6 py-4 border-t border-gray-200 hover:bg-gray-50 items-center"
               >
                 <div className="col-span-3">
-                  <div className="font-semibold text-black">
-                    {rule.ruleName}
-                  </div>
-                  <div className="text-xs text-gray-500 font-mono">
-                    {rule.id.slice(0, 8)}
-                  </div>
+                  <div className="font-semibold text-black">{rule.ruleName}</div>
+                  <div className="text-xs text-gray-500 font-mono">{rule.id.slice(0, 8)}</div>
                 </div>
 
                 <div className="col-span-2">
-                  <code className="text-sm bg-gray-100 px-2 py-1 font-mono">
-                    {rule.entityName}
-                  </code>
+                  <code className="text-sm bg-gray-100 px-2 py-1 font-mono">{rule.entityName}</code>
                 </div>
 
                 <div className="col-span-2">
@@ -368,15 +340,12 @@ function AdminRulesPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Deactivate Rule</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to deactivate the rule{' '}
-              <strong>{ruleToDelete?.ruleName}</strong>? This will disable the
-              rule but keep its history. You can reactivate it later.
+              Are you sure you want to deactivate the rule <strong>{ruleToDelete?.ruleName}</strong>
+              ? This will disable the rule but keep its history. You can reactivate it later.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-none">
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel className="rounded-none">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               className="bg-red-600 hover:bg-red-700 rounded-none"
@@ -389,11 +358,9 @@ function AdminRulesPage() {
 
       <footer className="border-t-2 border-black mt-16">
         <div className="max-w-7xl mx-auto px-8 py-8">
-          <p className="text-sm text-gray-500">
-            clinic-app · Business Rules Management
-          </p>
+          <p className="text-sm text-gray-500">clinic-app · Business Rules Management</p>
         </div>
       </footer>
     </div>
-  )
+  );
 }

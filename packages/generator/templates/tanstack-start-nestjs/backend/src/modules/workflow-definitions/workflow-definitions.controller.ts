@@ -1,10 +1,21 @@
 import {
-  Controller, Get, Post, Put, Delete, Body, Param, Query, HttpCode, HttpStatus,
-} from '@nestjs/common';
-import type { WorkflowDefinitionDto } from './workflow-definitions.service';
-import { WorkflowDefinitionsService } from './workflow-definitions.service';
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  Query,
+} from "@nestjs/common";
+import type {
+  WorkflowDefinitionDto,
+  WorkflowDefinitionsService,
+} from "./workflow-definitions.service";
 
-@Controller('workflow-definitions')
+@Controller("workflow-definitions")
 export class WorkflowDefinitionsController {
   constructor(private readonly service: WorkflowDefinitionsService) {}
 
@@ -12,12 +23,12 @@ export class WorkflowDefinitionsController {
   findAll(
     @Query('entityName') entityName?: string,
     @Query('operation') operation?: string,
-    @Query('isActive') isActive?: string,
+    @Query('isActive') isActive?: string
   ) {
     return this.service.findAll({
       entityName,
       operation,
-      isActive: isActive !== undefined ? isActive === 'true' : undefined,
+      isActive: isActive !== undefined ? isActive === "true" : undefined,
     });
   }
 
@@ -31,7 +42,7 @@ export class WorkflowDefinitionsController {
     return this.service.create(dto);
   }
 
-  @Put(':id')
+  @Put(":id")
   update(@Param('id') id: string, @Body() dto: Partial<WorkflowDefinitionDto>) {
     return this.service.update(id, dto);
   }

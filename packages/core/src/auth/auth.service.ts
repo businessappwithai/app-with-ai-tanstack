@@ -262,9 +262,7 @@ export class AuthService implements IAuthService {
   async getUserRoles(userId: string): Promise<UserRole[]> {
     const roles = await this.db
       .selectFrom("ad_user_roles as ur" as any)
-      .innerJoin("ad_role as r", (eb) =>
-        eb.on("ur.ad_role_id" as any, "=", "r.ad_role_id" as any)
-      )
+      .innerJoin("ad_role as r", (eb) => eb.on("ur.ad_role_id" as any, "=", "r.ad_role_id" as any))
       .where("ur.ad_user_id" as any, "=", userId)
       .select("r.name" as any)
       .execute();

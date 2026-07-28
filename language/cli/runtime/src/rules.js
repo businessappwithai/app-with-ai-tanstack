@@ -68,13 +68,16 @@ export function evaluateRule(rule, record) {
       const result = evalCondition(node.condition, record);
       if (result !== null) {
         const want = result ? TRUE_LABELS : FALSE_LABELS;
-        next =
-          edges.find((e) => e.label && want.has(e.label.trim().toLowerCase())) ?? null;
+        next = edges.find((e) => e.label && want.has(e.label.trim().toLowerCase())) ?? null;
         decisions.push({ node: node.id, condition: node.condition?.raw, result });
       }
       if (!next) {
         next = edges[0];
-        decisions.push({ node: node.id, condition: node.label, result: "unresolved (took first branch)" });
+        decisions.push({
+          node: node.id,
+          condition: node.label,
+          result: "unresolved (took first branch)",
+        });
       }
     } else {
       next = edges[0];

@@ -3,12 +3,7 @@
 
 import type { FlowAST, NodeShape } from "./mermaid-flowchart-parser";
 
-type JdmNodeType =
-  | "inputNode"
-  | "outputNode"
-  | "switchNode"
-  | "expressionNode"
-  | "functionNode";
+type JdmNodeType = "inputNode" | "outputNode" | "switchNode" | "expressionNode" | "functionNode";
 
 interface JdmNode {
   id: string;

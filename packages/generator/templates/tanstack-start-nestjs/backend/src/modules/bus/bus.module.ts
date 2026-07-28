@@ -7,13 +7,13 @@
  * Generated: 2026-06-09T07:37:08.052Z
  */
 
-import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../../database/database.module';
-import { WorkflowModule } from '../workflow/workflow.module';
-import { AuditModule } from '../audit/audit.module';
-import { RulesModule } from '../rules/rules.module';
-import { BusController } from './bus.controller';
-import { BusService } from './bus.service';
+import { Module } from "@nestjs/common";
+import { DatabaseModule } from "../../database/database.module";
+import { AuditModule } from "../audit/audit.module";
+import { RulesModule } from "../rules/rules.module";
+import { WorkflowModule } from "../workflow/workflow.module";
+import { BusController } from "./bus.controller";
+import { BusService } from "./bus.service";
 
 @Module({
   imports: [DatabaseModule, WorkflowModule, AuditModule, RulesModule],

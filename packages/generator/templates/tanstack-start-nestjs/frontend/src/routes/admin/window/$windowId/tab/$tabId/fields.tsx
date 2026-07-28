@@ -1,8 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { ADListShell } from '@/components/admin/ad-list-shell';
-import { WINDOW_LEVEL, TAB_LEVEL, FIELD_LEVEL } from '@/components/admin/ad-window-configs';
+import { createFileRoute } from "@tanstack/react-router";
+import { ADListShell } from "@/components/admin/ad-list-shell";
+import { FIELD_LEVEL, TAB_LEVEL, WINDOW_LEVEL } from "@/components/admin/ad-window-configs";
 
-export const Route = createFileRoute('/admin/window/$windowId/tab/$tabId/fields')({
+export const Route = createFileRoute("/admin/window/$windowId/tab/$tabId/fields")({
   component: TabFieldsListPage,
 });
 

@@ -42,7 +42,10 @@ function ensureNode(ast: FlowAST, id: string, suffix: string | undefined) {
   if (ast.nodes.has(id)) return;
   if (suffix) {
     const node = parseNodeDef(id, suffix);
-    if (node) { ast.nodes.set(id, node); return; }
+    if (node) {
+      ast.nodes.set(id, node);
+      return;
+    }
   }
   ast.nodes.set(id, { id, label: id, shape: "rect" });
 }
@@ -56,7 +59,8 @@ export function parseMermaidFlowchart(code: string): FlowAST {
 
   for (const rawLine of code.split("\n")) {
     const line = rawLine.trim();
-    if (!line || line.startsWith("flowchart") || line.startsWith("graph") || line.startsWith("%%")) continue;
+    if (!line || line.startsWith("flowchart") || line.startsWith("graph") || line.startsWith("%%"))
+      continue;
 
     const em = line.match(EDGE_RE);
     if (em) {

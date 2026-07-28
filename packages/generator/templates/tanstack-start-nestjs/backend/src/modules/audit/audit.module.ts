@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common';
-import { ImmudbService } from './immudb.service';
-import { AuditService } from './audit.service';
-import { AuditController } from './audit.controller';
-import { AuditInterceptor } from './audit.interceptor';
+import { Module } from "@nestjs/common";
+import { AuditController } from "./audit.controller";
+import { AuditInterceptor } from "./audit.interceptor";
+import { AuditService } from "./audit.service";
+import { ImmudbService } from "./immudb.service";
 
 @Module({
   providers: [ImmudbService, AuditService, AuditInterceptor],

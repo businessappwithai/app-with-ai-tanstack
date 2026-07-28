@@ -16,7 +16,7 @@ async function login(page: any) {
   await page.fill('input[type="email"], input[name="email"]', LOGIN_EMAIL);
   await page.fill('input[type="password"], input[name="password"]', LOGIN_PASSWORD);
   await page.click('button[type="submit"]');
-  await page.waitForURL((url: URL) => !url.pathname.includes('/auth/login'), { timeout: 15000 });
+  await page.waitForURL((url: URL) => !url.pathname.includes("/auth/login"), { timeout: 15000 });
   await page.waitForLoadState("load");
   await page.waitForTimeout(1500);
 }
@@ -31,9 +31,9 @@ test.describe("School Management System QA", () => {
     await emailInput.fill(LOGIN_EMAIL);
     await page.fill('input[type="password"], input[name="password"]', LOGIN_PASSWORD);
     await page.click('button[type="submit"]');
-    await page.waitForURL((url: URL) => !url.pathname.includes('/auth/login'), { timeout: 15000 });
+    await page.waitForURL((url: URL) => !url.pathname.includes("/auth/login"), { timeout: 15000 });
     console.log("Redirected to:", page.url());
-    expect(page.url()).toContain('localhost:3001');
+    expect(page.url()).toContain("localhost:3001");
     await page.screenshot({ path: "/tmp/qa-01-login.png" });
   });
 
@@ -54,7 +54,7 @@ test.describe("School Management System QA", () => {
     await page.goto(`${FRONTEND}/bus_student`);
     await page.waitForLoadState("load");
     await page.waitForTimeout(3000);
-    const rows = page.locator('tbody tr');
+    const rows = page.locator("tbody tr");
     const count = await rows.count();
     console.log(`Student rows: ${count}`);
     expect(count).toBeGreaterThan(0);
@@ -70,7 +70,7 @@ test.describe("School Management System QA", () => {
     // List toolbar buttons (canCreate=true):
     // 0: Search, 1: Plus/New, 2: Copy, 3: Separator, 4: Save, 5: Delete, 6: Undo, 7: Refresh
     // The Plus button is at index 1 (first h-8 w-8 button after Search)
-    const toolbarButtons = page.locator('div.border-b button');
+    const toolbarButtons = page.locator("div.border-b button");
     const btnCount = await toolbarButtons.count();
     console.log(`Toolbar buttons in list: ${btnCount}`);
 
@@ -78,10 +78,10 @@ test.describe("School Management System QA", () => {
     let newBtnIndex = -1;
     for (let i = 0; i < btnCount; i++) {
       const btn = toolbarButtons.nth(i);
-      const text = ((await btn.textContent()) ?? '').trim();
-      const disabled = await btn.getAttribute('disabled');
+      const text = ((await btn.textContent()) ?? "").trim();
+      const disabled = await btn.getAttribute("disabled");
       if (disabled !== null) continue;
-      if (text.includes('Search')) continue;
+      if (text.includes("Search")) continue;
       // Icon-only button with no text content (just SVG)
       newBtnIndex = i;
       break;
@@ -97,8 +97,8 @@ test.describe("School Management System QA", () => {
 
     // Check if new record form or row appeared
     const newFormIndicators = [
-      page.locator('h3').filter({ hasText: /New|Create/ }),
-      page.locator('form'),
+      page.locator("h3").filter({ hasText: /New|Create/ }),
+      page.locator("form"),
       page.locator('input[name="first_name"]'),
       page.locator('input[name="email"]'),
     ];
@@ -120,7 +120,9 @@ test.describe("School Management System QA", () => {
     await page.goto(`${FRONTEND}/admin`);
     await page.waitForLoadState("load");
     await page.waitForTimeout(2000);
-    await expect(page.locator('text=Application Dictionary').first()).toBeVisible({ timeout: 8000 });
+    await expect(page.locator("text=Application Dictionary").first()).toBeVisible({
+      timeout: 8000,
+    });
     await page.screenshot({ path: "/tmp/qa-05-admin.png" });
     console.log("✅ Admin panel loaded");
   });
@@ -128,13 +130,13 @@ test.describe("School Management System QA", () => {
   test("6. All entity pages navigate correctly", async ({ page }) => {
     await login(page);
     const paths = [
-      '/bus_student',
-      '/bus_teacher',
-      '/bus_class',
-      '/bus_enrollment',
-      '/bus_attendance',
-      '/bus_grade',
-      '/bus_parent',
+      "/bus_student",
+      "/bus_teacher",
+      "/bus_class",
+      "/bus_enrollment",
+      "/bus_attendance",
+      "/bus_grade",
+      "/bus_parent",
     ];
     for (const p of paths) {
       await page.goto(`${FRONTEND}${p}`);
@@ -142,8 +144,8 @@ test.describe("School Management System QA", () => {
       await page.waitForLoadState("load");
       await page.waitForTimeout(3000);
       const url = page.url();
-      expect(url).not.toContain('/auth/login');
-      const rows = await page.locator('tbody tr').count();
+      expect(url).not.toContain("/auth/login");
+      const rows = await page.locator("tbody tr").count();
       console.log(`${p}: ${rows} rows, url=${url}`);
     }
     await page.screenshot({ path: "/tmp/qa-06-entities.png" });
@@ -156,7 +158,7 @@ test.describe("School Management System QA", () => {
     await page.waitForLoadState("load");
     await page.waitForTimeout(3000);
 
-    const rows = page.locator('tbody tr');
+    const rows = page.locator("tbody tr");
     const rowCount = await rows.count();
     console.log(`Student list has ${rowCount} rows`);
     expect(rowCount).toBeGreaterThan(0);
@@ -172,7 +174,7 @@ test.describe("School Management System QA", () => {
     expect(url).toMatch(/\/bus_student\/[a-z0-9-]+/);
 
     // Detail page should show form fields
-    const allInputs = await page.locator('input').count();
+    const allInputs = await page.locator("input").count();
     console.log(`Detail form inputs: ${allInputs}`);
     expect(allInputs).toBeGreaterThan(0);
 
@@ -186,7 +188,7 @@ test.describe("School Management System QA", () => {
     await page.waitForTimeout(3000);
 
     // Navigate to first student
-    const rows = page.locator('tbody tr');
+    const rows = page.locator("tbody tr");
     expect(await rows.count()).toBeGreaterThan(0);
     await rows.first().click();
     await page.waitForURL(/\/bus_student\/.+/, { timeout: 10000 });
@@ -196,15 +198,15 @@ test.describe("School Management System QA", () => {
     // Detail view toolbar (canCreate=false):
     // 0: Search, 1: Copy(disabled), 2: Edit/Pencil, 3: Save(disabled), 4: Undo(disabled), 5: Refresh
     // Click the Edit (Pencil) button at index 2
-    const toolbarButtons = page.locator('div.border-b button');
+    const toolbarButtons = page.locator("div.border-b button");
     const btnCount = await toolbarButtons.count();
     console.log(`Detail toolbar buttons: ${btnCount}`);
 
     for (let i = 0; i < btnCount; i++) {
       const btn = toolbarButtons.nth(i);
-      const cls = (await btn.getAttribute('class')) ?? '';
-      const disabled = await btn.getAttribute('disabled');
-      const text = ((await btn.textContent()) ?? '').trim();
+      const cls = (await btn.getAttribute("class")) ?? "";
+      const disabled = await btn.getAttribute("disabled");
+      const text = ((await btn.textContent()) ?? "").trim();
       console.log(`  Btn ${i}: disabled=${disabled} text="${text}" cls="${cls.substring(0, 60)}"`);
     }
 
@@ -213,9 +215,9 @@ test.describe("School Management System QA", () => {
     let editBtnIndex = -1;
     for (let i = 0; i < btnCount; i++) {
       const btn = toolbarButtons.nth(i);
-      const text = ((await btn.textContent()) ?? '').trim();
-      const disabled = await btn.getAttribute('disabled');
-      if (text.includes('Search')) continue; // Skip Search button
+      const text = ((await btn.textContent()) ?? "").trim();
+      const disabled = await btn.getAttribute("disabled");
+      if (text.includes("Search")) continue; // Skip Search button
       if (disabled !== null) continue; // Skip disabled buttons
       editBtnIndex = i;
       break;
@@ -249,8 +251,8 @@ test.describe("School Management System QA", () => {
       // After entering edit mode: Cancel(0*), Save(1*), Delete(2*), Undo(3*), Refresh(4*)
       // where * = relative to position after searching
       // Actually just find an enabled Save by looking for the button that became enabled
-      const saveBtn = page.locator('div.border-b button:not([disabled])').nth(1); // Second enabled btn
-      const saveBtnCount = await page.locator('div.border-b button:not([disabled])').count();
+      const saveBtn = page.locator("div.border-b button:not([disabled])").nth(1); // Second enabled btn
+      const saveBtnCount = await page.locator("div.border-b button:not([disabled])").count();
       console.log(`Enabled toolbar buttons after edit: ${saveBtnCount}`);
 
       if (saveBtnCount > 1) {

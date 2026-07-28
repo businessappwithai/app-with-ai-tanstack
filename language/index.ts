@@ -22,8 +22,8 @@
  */
 
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 // ---------------------------------------------------------------------------
 // Types describing the shape of erdwithai-language.json
@@ -155,7 +155,10 @@ export function loadLanguageDefinition(force = false): LanguageDefinition {
 /** Normalize an attribute type alias to its canonical type (default: "string"). */
 export function normalizeType(rawType: string): CanonicalType {
   const def = loadLanguageDefinition();
-  const key = (rawType || "").toLowerCase().replace(/\(\d+\)/, "").trim();
+  const key = (rawType || "")
+    .toLowerCase()
+    .replace(/\(\d+\)/, "")
+    .trim();
   return def.types.map[key] ?? def.types.default;
 }
 

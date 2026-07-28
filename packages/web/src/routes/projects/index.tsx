@@ -1,5 +1,17 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
-import { Database, FileCode2, Loader2, LogOut, Menu, Plus, Search, Share2, Trash2, User, X } from "lucide-react";
+import {
+  Database,
+  FileCode2,
+  Loader2,
+  LogOut,
+  Menu,
+  Plus,
+  Search,
+  Share2,
+  Trash2,
+  User,
+  X,
+} from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { LogsViewer } from "@/components/logs/LogsViewer";
 import { NewProjectModal } from "@/components/project";
@@ -107,10 +119,10 @@ function ProjectsPage() {
     const matchesSearch =
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()));
-    const computedStatus = p.deploymentStatus === "running" ? "active" : p.generatedPath ? "complete" : "draft";
+    const computedStatus =
+      p.deploymentStatus === "running" ? "active" : p.generatedPath ? "complete" : "draft";
     const matchesStatus =
-      statusFilter === "All Status" ||
-      computedStatus === statusFilter.toLowerCase();
+      statusFilter === "All Status" || computedStatus === statusFilter.toLowerCase();
     const matchesType =
       typeFilter === "All Types" ||
       (typeFilter === "TanStack Start/NestJS" && p.stackType === "tanstackjs-nestjs");
@@ -486,9 +498,7 @@ function ProjectsPage() {
                         <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
                         <polyline points="14,2 14,8 20,8" />
                       </svg>
-                      <span>
-                        TanStack Start
-                      </span>
+                      <span>TanStack Start</span>
                     </div>
                   </div>
 

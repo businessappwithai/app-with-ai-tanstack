@@ -17,8 +17,8 @@
  */
 
 import { existsSync, readFileSync } from "fs";
-import { fileURLToPath } from "url";
 import path from "path";
+import { fileURLToPath } from "url";
 
 export type CanonicalType =
   | "string"

@@ -268,7 +268,9 @@ export class MermaidParser {
     const tableName = this.toSnakeCase(name);
 
     // Check if id attribute exists, otherwise auto-add
-    const hasIdAttribute = attributes.some((a) => a.name === "id" || (a.unique && a.name.endsWith("_id")));
+    const hasIdAttribute = attributes.some(
+      (a) => a.name === "id" || (a.unique && a.name.endsWith("_id"))
+    );
 
     if (!hasIdAttribute) {
       // Add id as first attribute

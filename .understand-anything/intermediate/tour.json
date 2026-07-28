@@ -3,11 +3,7 @@
     "order": 1,
     "title": "Project Overview & What ERDwithAI Does",
     "description": "Understand the big picture: ERDwithAI transforms natural language descriptions into production-ready full-stack applications. Learn the end-to-end workflow from business domain to deployed code. This is your north star for understanding why each component exists.",
-    "nodeIds": [
-      "README.md",
-      "docs/architecture.md",
-      "docs/DEVELOPMENT.md"
-    ]
+    "nodeIds": ["README.md", "docs/architecture.md", "docs/DEVELOPMENT.md"]
   },
   {
     "order": 2,
@@ -208,22 +204,13 @@
     "order": 20,
     "title": "Testing: E2E Tests with Playwright",
     "description": "Learn how to write Playwright E2E tests that exercise the full UI flow. Understand the test structure, base URL setup, and how to test complete workflows. Run bun run test:playwright to validate the entire application.",
-    "nodeIds": [
-      "playwright.config.ts",
-      "tests/e2e/",
-      "docs/TESTING.md"
-    ]
+    "nodeIds": ["playwright.config.ts", "tests/e2e/", "docs/TESTING.md"]
   },
   {
     "order": 21,
     "title": "Development Workflow: Build, Type-Check, Lint",
     "description": "Master the development commands: bun run build (compile all packages), bun run type-check (TypeScript validation), bun run lint (ESLint), bun run format (Prettier). These are run before every commit to maintain code quality.",
-    "nodeIds": [
-      "package.json",
-      "tsconfig.json",
-      ".eslintrc.js",
-      "prettier.config.js"
-    ]
+    "nodeIds": ["package.json", "tsconfig.json", ".eslintrc.js", "prettier.config.js"]
   },
   {
     "order": 22,
@@ -249,20 +236,12 @@
     "order": 24,
     "title": "Architecture Decisions & Design Patterns",
     "description": "Read the DESIGN.md document to understand key architecture decisions: why hooks, why dictionary metadata, why Mastra.ai, why Kysely. Understand the tradeoffs made and the philosophy behind the system design.",
-    "nodeIds": [
-      "DESIGN.md",
-      "docs/architecture.md",
-      "HOOKS_GUIDE.md"
-    ]
+    "nodeIds": ["DESIGN.md", "docs/architecture.md", "HOOKS_GUIDE.md"]
   },
   {
     "order": 25,
     "title": "Next Steps: Contributing & Extending",
     "description": "Now that you understand the system, learn how to contribute: adding new agents, creating generator templates, adding API routes, and writing tests. Check TODOS.md for current work items and opportunities to extend the system.",
-    "nodeIds": [
-      "TODOS.md",
-      "CONTRIBUTING.md",
-      "docs/ROADMAP.md"
-    ]
+    "nodeIds": ["TODOS.md", "CONTRIBUTING.md", "docs/ROADMAP.md"]
   }
 ]

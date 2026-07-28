@@ -224,9 +224,9 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         baseUrl: this.options.apiBaseUrl,
         backendPort: (() => {
           try {
-            return new URL(this.options.apiBaseUrl || 'http://localhost:3001').port || '3001';
+            return new URL(this.options.apiBaseUrl || "http://localhost:3001").port || "3001";
           } catch {
-            return '3001';
+            return "3001";
           }
         })(),
         enableDarkMode: this.options.enableDarkMode,
@@ -316,9 +316,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     }
 
     // Copy provider files (only query-provider; index.tsx comes from the .hbs template)
-    const providerFiles = [
-      "src/providers/query-provider.tsx",
-    ];
+    const providerFiles = ["src/providers/query-provider.tsx"];
 
     for (const file of providerFiles) {
       try {
@@ -406,7 +404,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
 
     // TanStack DB collections backed by PGlite
     try {
-      const collectionsContent = await this.renderTemplate("src/lib/sys-collections.ts.hbs", context);
+      const collectionsContent = await this.renderTemplate(
+        "src/lib/sys-collections.ts.hbs",
+        context
+      );
       await fs.writeFile(path.join(outputDir, "src/lib/sys-collections.ts"), collectionsContent);
     } catch (e) {
       console.warn("sys-collections template not found, skipping:", (e as Error).message);
@@ -735,8 +736,13 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
 
   private async generateEntityPages(outputDir: string, context: any): Promise<void> {
     for (const entity of context.entities) {
-      const displayName = entity.displayName ||
-        entity.name.charAt(0).toUpperCase() + entity.name.slice(1).toLowerCase().replace(/_([a-z])/g, (_: string, c: string) => ' ' + c.toUpperCase());
+      const displayName =
+        entity.displayName ||
+        entity.name.charAt(0).toUpperCase() +
+          entity.name
+            .slice(1)
+            .toLowerCase()
+            .replace(/_([a-z])/g, (_: string, c: string) => " " + c.toUpperCase());
       const entityContext = { ...context, entity: { ...entity, displayName } };
       const entityDir = path.join(outputDir, `src/routes/$entity`);
       // Create the directory for this entity's routes
@@ -841,7 +847,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       { src: "src/routes/admin/element", dest: "src/routes/admin/element" },
       { src: "src/routes/admin/reference", dest: "src/routes/admin/reference" },
       { src: "src/routes/admin/rules", dest: "src/routes/admin/rules" },
-      { src: "src/routes/admin/workflow-definitions", dest: "src/routes/admin/workflow-definitions" },
+      {
+        src: "src/routes/admin/workflow-definitions",
+        dest: "src/routes/admin/workflow-definitions",
+      },
     ];
 
     for (const subdir of adminSubdirs) {

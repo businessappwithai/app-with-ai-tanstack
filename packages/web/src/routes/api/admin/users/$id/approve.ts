@@ -1,5 +1,5 @@
-import { createAPIFileRoute } from "@tanstack/start/api";
 import { getDatabase } from "@erdwithai/core/services";
+import { createAPIFileRoute } from "@tanstack/start/api";
 import { getSessionToken } from "@/lib/auth-server";
 
 export const Route = createAPIFileRoute("/api/admin/users/$id/approve")({
@@ -71,7 +71,9 @@ export const Route = createAPIFileRoute("/api/admin/users/$id/approve")({
       );
     } catch (error) {
       return new Response(
-        JSON.stringify({ error: error instanceof Error ? error.message : "Failed to approve user" }),
+        JSON.stringify({
+          error: error instanceof Error ? error.message : "Failed to approve user",
+        }),
         {
           status: 500,
           headers: { "Content-Type": "application/json" },

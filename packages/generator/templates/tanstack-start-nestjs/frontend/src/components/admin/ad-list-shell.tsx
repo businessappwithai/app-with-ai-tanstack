@@ -1,22 +1,22 @@
-import { useState } from 'react';
-import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate } from '@tanstack/react-router';
-import { Home, Plus, Search, X } from 'lucide-react';
-import { toast } from 'sonner';
-import { apiClient, type PaginatedResponse } from '@/lib/api-client';
-import { DynamicForm } from '@/components/forms/dynamic-form';
-import { DynamicTable } from '@/components/tables/dynamic-table';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { ADToolbar } from './ad-toolbar';
-import { WindowHelpDialog, helpTableNameFromEndpoint } from './window-help-dialog';
-import type { FieldMetadata } from '@/hooks/use-entities';
+import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Home, Plus, Search, X } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { DynamicForm } from "@/components/forms/dynamic-form";
+import { DynamicTable } from "@/components/tables/dynamic-table";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { FieldMetadata } from "@/hooks/use-entities";
+import { apiClient, type PaginatedResponse } from "@/lib/api-client";
+import { ADToolbar } from "./ad-toolbar";
 import {
+  type ADLevel,
   buildAdminDetailUrl,
   buildAdminListUrl,
-  type ADLevel,
   type ParentContext,
-} from './ad-window-configs';
+} from "./ad-window-configs";
+import { helpTableNameFromEndpoint, WindowHelpDialog } from "./window-help-dialog";
 
 type AnyRecord = Record<string, unknown>;
 
@@ -24,98 +24,250 @@ type AnyRecord = Record<string, unknown>;
 // Filter builder — operators derived from field metadata (sys_reference_id)
 // ---------------------------------------------------------------------------
 
-interface FilterRow { id: string; column: string; operator: string; value: string; }
+interface FilterRow {
+  id: string;
+  column: string;
+  operator: string;
+  value: string;
+}
 
 function pluralLabel(label: string): string {
-  if (label.endsWith('y') && !/[aeiou]y$/i.test(label)) return label.slice(0, -1) + 'ies';
-  if (label.endsWith('s') || label.endsWith('sh') || label.endsWith('ch') || label.endsWith('x') || label.endsWith('z')) return label + 'es';
-  return label + 's';
+  if (label.endsWith("y") && !/[aeiou]y$/i.test(label)) return label.slice(0, -1) + "ies";
+  if (
+    label.endsWith("s") ||
+    label.endsWith("sh") ||
+    label.endsWith("ch") ||
+    label.endsWith("x") ||
+    label.endsWith("z")
+  )
+    return label + "es";
+  return label + "s";
 }
 
 const FILTER_OPERATORS = {
-  text:    [{ value: 'contains', label: 'contains' }, { value: 'equals', label: 'equals' }, { value: 'startsWith', label: 'starts with' }, { value: 'endsWith', label: 'ends with' }],
-  number:  [{ value: 'equals', label: '=' }, { value: 'gt', label: '>' }, { value: 'gte', label: '>=' }, { value: 'lt', label: '<' }, { value: 'lte', label: '<=' }],
-  date:    [{ value: 'equals', label: 'on' }, { value: 'gt', label: 'after' }, { value: 'gte', label: 'on or after' }, { value: 'lt', label: 'before' }, { value: 'lte', label: 'on or before' }],
-  boolean: [{ value: 'equals', label: 'is' }],
-  lookup:  [{ value: 'contains', label: 'contains' }, { value: 'equals', label: 'equals' }],
+  text: [
+    { value: "contains", label: "contains" },
+    { value: "equals", label: "equals" },
+    { value: "startsWith", label: "starts with" },
+    { value: "endsWith", label: "ends with" },
+  ],
+  number: [
+    { value: "equals", label: "=" },
+    { value: "gt", label: ">" },
+    { value: "gte", label: ">=" },
+    { value: "lt", label: "<" },
+    { value: "lte", label: "<=" },
+  ],
+  date: [
+    { value: "equals", label: "on" },
+    { value: "gt", label: "after" },
+    { value: "gte", label: "on or after" },
+    { value: "lt", label: "before" },
+    { value: "lte", label: "on or before" },
+  ],
+  boolean: [{ value: "equals", label: "is" }],
+  lookup: [
+    { value: "contains", label: "contains" },
+    { value: "equals", label: "equals" },
+  ],
 } as const;
 
 type FilterCategory = keyof typeof FILTER_OPERATORS;
 
 function filterCategory(refId: number): FilterCategory {
-  if (refId === 11 || refId === 12) return 'number';
-  if (refId === 15 || refId === 16) return 'date';
-  if (refId === 20) return 'boolean';
-  if (refId === 17 || refId === 18 || refId === 19) return 'lookup';
-  return 'text';
+  if (refId === 11 || refId === 12) return "number";
+  if (refId === 15 || refId === 16) return "date";
+  if (refId === 20) return "boolean";
+  if (refId === 17 || refId === 18 || refId === 19) return "lookup";
+  return "text";
 }
 
-function FilterValueInput({ row, field, onChange }: { row: FilterRow; field: FieldMetadata | undefined; onChange: (v: string) => void }) {
-  const cls = 'h-8 text-sm border border-input rounded-md px-2 bg-background focus:outline-none focus:ring-1 focus:ring-ring min-w-[160px]';
-  const cat = field ? filterCategory(field.sys_reference_id) : 'text';
-  if (cat === 'boolean') return (
-    <select value={row.value} onChange={e => onChange(e.target.value)} className={cls} style={{ minWidth: 100 }}>
-      <option value="">Any</option><option value="true">Yes</option><option value="false">No</option>
-    </select>
-  );
-  if (cat === 'date') return <input type={field?.sys_reference_id === 16 ? 'datetime-local' : 'date'} value={row.value} onChange={e => onChange(e.target.value)} className={cls} />;
-  if (cat === 'number') return <input type="number" value={row.value} onChange={e => onChange(e.target.value)} placeholder="Value…" className={cls} style={{ minWidth: 120 }} />;
-  return <input type="text" value={row.value} onChange={e => onChange(e.target.value)} placeholder="Value…" className={cls} />;
-}
-
-function FilterBuilder({ fields, rows, onChange, onApply, onClear }: {
-  fields: FieldMetadata[]; rows: FilterRow[];
-  onChange: (rows: FilterRow[]) => void; onApply: () => void; onClear: () => void;
+function FilterValueInput({
+  row,
+  field,
+  onChange,
+}: {
+  row: FilterRow;
+  field: FieldMetadata | undefined;
+  onChange: (v: string) => void;
 }) {
-  const searchable = fields.filter(f => f.is_displayed_grid);
+  const cls =
+    "h-8 text-sm border border-input rounded-md px-2 bg-background focus:outline-none focus:ring-1 focus:ring-ring min-w-[160px]";
+  const cat = field ? filterCategory(field.sys_reference_id) : "text";
+  if (cat === "boolean")
+    return (
+      <select
+        value={row.value}
+        onChange={(e) => onChange(e.target.value)}
+        className={cls}
+        style={{ minWidth: 100 }}
+      >
+        <option value="">Any</option>
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+    );
+  if (cat === "date")
+    return (
+      <input
+        type={field?.sys_reference_id === 16 ? "datetime-local" : "date"}
+        value={row.value}
+        onChange={(e) => onChange(e.target.value)}
+        className={cls}
+      />
+    );
+  if (cat === "number")
+    return (
+      <input
+        type="number"
+        value={row.value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Value…"
+        className={cls}
+        style={{ minWidth: 120 }}
+      />
+    );
+  return (
+    <input
+      type="text"
+      value={row.value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder="Value…"
+      className={cls}
+    />
+  );
+}
+
+function FilterBuilder({
+  fields,
+  rows,
+  onChange,
+  onApply,
+  onClear,
+}: {
+  fields: FieldMetadata[];
+  rows: FilterRow[];
+  onChange: (rows: FilterRow[]) => void;
+  onApply: () => void;
+  onClear: () => void;
+}) {
+  const searchable = fields.filter((f) => f.is_displayed_grid);
   const addRow = () => {
-    const f = searchable[0]; if (!f) return;
+    const f = searchable[0];
+    if (!f) return;
     const cat = filterCategory(f.sys_reference_id);
-    onChange([...rows, { id: crypto.randomUUID(), column: f.column_name, operator: FILTER_OPERATORS[cat][0].value, value: '' }]);
+    onChange([
+      ...rows,
+      {
+        id: crypto.randomUUID(),
+        column: f.column_name,
+        operator: FILTER_OPERATORS[cat][0].value,
+        value: "",
+      },
+    ]);
   };
   const updateRow = (id: string, patch: Partial<FilterRow>) =>
-    onChange(rows.map(r => {
-      if (r.id !== id) return r;
-      const u = { ...r, ...patch };
-      if (patch.column && patch.column !== r.column) {
-        const f2 = searchable.find(f => f.column_name === patch.column);
-        const cat = f2 ? filterCategory(f2.sys_reference_id) : 'text';
-        u.operator = FILTER_OPERATORS[cat][0].value; u.value = '';
-      }
-      return u;
-    }));
-  const removeRow = (id: string) => onChange(rows.filter(r => r.id !== id));
-  const sel = 'h-8 text-sm border border-input rounded-md px-2 bg-background focus:outline-none focus:ring-1 focus:ring-ring';
+    onChange(
+      rows.map((r) => {
+        if (r.id !== id) return r;
+        const u = { ...r, ...patch };
+        if (patch.column && patch.column !== r.column) {
+          const f2 = searchable.find((f) => f.column_name === patch.column);
+          const cat = f2 ? filterCategory(f2.sys_reference_id) : "text";
+          u.operator = FILTER_OPERATORS[cat][0].value;
+          u.value = "";
+        }
+        return u;
+      })
+    );
+  const removeRow = (id: string) => onChange(rows.filter((r) => r.id !== id));
+  const sel =
+    "h-8 text-sm border border-input rounded-md px-2 bg-background focus:outline-none focus:ring-1 focus:ring-ring";
   return (
     <div className="border-b border-border bg-muted/10 px-4 py-3 space-y-2">
-      {rows.length === 0 && <p className="text-xs text-muted-foreground italic py-1">No filters — click Add Filter to narrow results.</p>}
-      {rows.map(row => {
-        const field = searchable.find(f => f.column_name === row.column);
-        const cat = field ? filterCategory(field.sys_reference_id) : 'text';
+      {rows.length === 0 && (
+        <p className="text-xs text-muted-foreground italic py-1">
+          No filters — click Add Filter to narrow results.
+        </p>
+      )}
+      {rows.map((row) => {
+        const field = searchable.find((f) => f.column_name === row.column);
+        const cat = field ? filterCategory(field.sys_reference_id) : "text";
         const ops = FILTER_OPERATORS[cat] as readonly { value: string; label: string }[];
         return (
           <div key={row.id} className="flex items-center gap-2 flex-wrap">
-            <select value={row.column} onChange={e => updateRow(row.id, { column: e.target.value })} className={`${sel} min-w-[140px]`}>
-              {searchable.map(f => <option key={f.column_name} value={f.column_name}>{f.name}</option>)}
+            <select
+              value={row.column}
+              onChange={(e) => updateRow(row.id, { column: e.target.value })}
+              className={`${sel} min-w-[140px]`}
+            >
+              {searchable.map((f) => (
+                <option key={f.column_name} value={f.column_name}>
+                  {f.name}
+                </option>
+              ))}
             </select>
-            <select value={row.operator} onChange={e => updateRow(row.id, { operator: e.target.value })} className={`${sel} min-w-[110px]`}>
-              {ops.map(op => <option key={op.value} value={op.value}>{op.label}</option>)}
+            <select
+              value={row.operator}
+              onChange={(e) => updateRow(row.id, { operator: e.target.value })}
+              className={`${sel} min-w-[110px]`}
+            >
+              {ops.map((op) => (
+                <option key={op.value} value={op.value}>
+                  {op.label}
+                </option>
+              ))}
             </select>
-            <FilterValueInput row={row} field={field} onChange={v => updateRow(row.id, { value: v })} />
-            <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={() => removeRow(row.id)}>
+            <FilterValueInput
+              row={row}
+              field={field}
+              onChange={(v) => updateRow(row.id, { value: v })}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              onClick={() => removeRow(row.id)}
+            >
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
         );
       })}
       <div className="flex items-center gap-2 pt-1">
-        <Button type="button" variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={addRow} disabled={!searchable.length}>
-          <Plus className="h-3 w-3" />Add Filter
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-7 gap-1.5 text-xs"
+          onClick={addRow}
+          disabled={!searchable.length}
+        >
+          <Plus className="h-3 w-3" />
+          Add Filter
         </Button>
-        <Button type="button" size="sm" className="h-7 text-xs gap-1" onClick={onApply} disabled={!rows.length}>
-          <Search className="h-3.5 w-3.5" />Apply
+        <Button
+          type="button"
+          size="sm"
+          className="h-7 text-xs gap-1"
+          onClick={onApply}
+          disabled={!rows.length}
+        >
+          <Search className="h-3.5 w-3.5" />
+          Apply
         </Button>
-        {rows.length > 0 && <Button type="button" variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={onClear}>Clear All</Button>}
+        {rows.length > 0 && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs text-muted-foreground"
+            onClick={onClear}
+          >
+            Clear All
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -147,7 +299,13 @@ export interface ADListShellProps {
   viewOnly?: boolean;
 }
 
-export function ADListShell({ level, parentContext, dashboardHref = '/dashboard', showAdminCrumb = false, viewOnly = false }: ADListShellProps) {
+export function ADListShell({
+  level,
+  parentContext,
+  dashboardHref = "/dashboard",
+  showAdminCrumb = false,
+  viewOnly = false,
+}: ADListShellProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
@@ -160,7 +318,7 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
   // Fetch each parent record's display name for the breadcrumb
   const parentNameQueries = useQueries({
     queries: parentContext.map(({ level: l, id }) => ({
-      queryKey: ['ad-parent-name', l.endpoint, id],
+      queryKey: ["ad-parent-name", l.endpoint, id],
       queryFn: () => apiClient.get<AnyRecord>(`${l.endpoint}/${id}`),
       enabled: !!id,
     })),
@@ -169,8 +327,8 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
     const rec = q.data as AnyRecord | undefined;
     if (!rec) return parentContext[i].id;
     const pl = parentContext[i].level;
-    if (pl.nameField === 'first_name' && rec.last_name) {
-      return `${rec.first_name ?? ''} ${rec.last_name ?? ''}`.trim();
+    if (pl.nameField === "first_name" && rec.last_name) {
+      return `${rec.first_name ?? ""} ${rec.last_name ?? ""}`.trim();
     }
     return (rec[pl.nameField] as string) ?? parentContext[i].id;
   });
@@ -182,19 +340,19 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
     ...parentFilterParams(parentContext, level),
   };
   for (const row of appliedRows) {
-    if (row.column && row.operator && row.value !== '') {
+    if (row.column && row.operator && row.value !== "") {
       fetchParams[`filter.${row.column}`] = `${row.operator}:${row.value}`;
     }
   }
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['ad-list', level.endpoint, fetchParams],
+    queryKey: ["ad-list", level.endpoint, fetchParams],
     queryFn: () => apiClient.get<PaginatedResponse<AnyRecord>>(level.endpoint, fetchParams),
   });
 
   const records = data?.data ?? [];
   const totalCount = data?.meta?.total ?? 0;
-  const activeFilterCount = appliedRows.filter(r => r.value !== '').length;
+  const activeFilterCount = appliedRows.filter((r) => r.value !== "").length;
 
   const createMutation = useMutation({
     mutationFn: (formData: AnyRecord) =>
@@ -202,17 +360,19 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
         ...formData,
         ...parentFilterParams(parentContext, level),
       }),
-    onSuccess: newRecord => {
+    onSuccess: (newRecord) => {
       const newId = newRecord[level.idField] as string;
       toast.success(`${level.label} created`);
-      queryClient.invalidateQueries({ queryKey: ['ad-list', level.endpoint] });
+      queryClient.invalidateQueries({ queryKey: ["ad-list", level.endpoint] });
       setIsCreating(false);
       setCreateErrors([]);
       if (newId) navigate({ to: buildAdminDetailUrl(parentContext, level, newId) as never });
     },
     onError: (err: any) => {
       const specific = Array.isArray(err?.errors) ? (err.errors as string[]) : null;
-      const fallback = Array.isArray(err?.message) ? err.message.join(', ') : (err?.message ?? 'Failed to create');
+      const fallback = Array.isArray(err?.message)
+        ? err.message.join(", ")
+        : (err?.message ?? "Failed to create");
       setCreateErrors(specific ?? [fallback]);
       toast.error(specific?.[0] ?? fallback);
     },
@@ -231,9 +391,19 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
   return (
     <div className="flex flex-col h-full">
       <ADToolbar
-        onNew={viewOnly ? undefined : () => { setIsCreating(true); setSearchOpen(false); }}
+        onNew={
+          viewOnly
+            ? undefined
+            : () => {
+                setIsCreating(true);
+                setSearchOpen(false);
+              }
+        }
         onRefresh={() => refetch()}
-        onAdvancedSearchToggle={() => { setSearchOpen(p => !p); if (searchOpen) setPendingRows([...appliedRows]); }}
+        onAdvancedSearchToggle={() => {
+          setSearchOpen((p) => !p);
+          if (searchOpen) setPendingRows([...appliedRows]);
+        }}
         isAdvancedSearchOpen={searchOpen}
         advancedFilterCount={activeFilterCount}
         isSaving={createMutation.isPending}
@@ -249,33 +419,60 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
           fields={level.gridFields}
           rows={pendingRows}
           onChange={setPendingRows}
-          onApply={() => { setAppliedRows([...pendingRows]); setPage(1); }}
-          onClear={() => { setPendingRows([]); setAppliedRows([]); setPage(1); }}
+          onApply={() => {
+            setAppliedRows([...pendingRows]);
+            setPage(1);
+          }}
+          onClear={() => {
+            setPendingRows([]);
+            setAppliedRows([]);
+            setPage(1);
+          }}
         />
       )}
 
       {/* Breadcrumb bar */}
       <div className="flex items-center gap-1.5 px-4 py-2 border-b border-border bg-background text-sm flex-wrap">
-        <Link to={dashboardHref as never} className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
-          <Home className="h-3.5 w-3.5" /><span>Dashboard</span>
+        <Link
+          to={dashboardHref as never}
+          className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
+        >
+          <Home className="h-3.5 w-3.5" />
+          <span>Dashboard</span>
         </Link>
         {showAdminCrumb && (
           <span className="flex items-center gap-1.5">
             <span className="text-muted-foreground">/</span>
-            <Link to="/admin" className="text-muted-foreground hover:text-primary transition-colors">Admin</Link>
+            <Link
+              to="/admin"
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
+              Admin
+            </Link>
           </span>
         )}
         {crumbs.map((c, i) => (
           <span key={i} className="flex items-center gap-1.5">
             <span className="text-muted-foreground">/</span>
-            {c.href
-              ? <Link to={c.href as never} className="text-muted-foreground hover:text-primary transition-colors truncate max-w-[180px]">{c.label}</Link>
-              : <span className="font-medium text-foreground">{c.label}</span>
-            }
+            {c.href ? (
+              <Link
+                to={c.href as never}
+                className="text-muted-foreground hover:text-primary transition-colors truncate max-w-[180px]"
+              >
+                {c.label}
+              </Link>
+            ) : (
+              <span className="font-medium text-foreground">{c.label}</span>
+            )}
           </span>
         ))}
-        {activeFilterCount > 0 && <span className="text-xs text-muted-foreground ml-1">({totalCount} filtered)</span>}
-        <WindowHelpDialog tableName={helpTableNameFromEndpoint(level.endpoint)} entityLabel={level.label} />
+        {activeFilterCount > 0 && (
+          <span className="text-xs text-muted-foreground ml-1">({totalCount} filtered)</span>
+        )}
+        <WindowHelpDialog
+          tableName={helpTableNameFromEndpoint(level.endpoint)}
+          entityLabel={level.label}
+        />
       </div>
 
       {/* Content */}
@@ -285,7 +482,14 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
           <div className="p-6 border-b border-border bg-muted/10">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold">New {level.label}</h3>
-              <Button size="sm" variant="ghost" onClick={() => { setIsCreating(false); setCreateErrors([]); }}>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setIsCreating(false);
+                  setCreateErrors([]);
+                }}
+              >
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -293,7 +497,7 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
               tableName={level.id}
               fields={level.formFields}
               initialData={{}}
-              onSubmit={fd => createMutation.mutate(fd)}
+              onSubmit={(fd) => createMutation.mutate(fd)}
               mode="create"
               isSaving={createMutation.isPending}
             />
@@ -301,7 +505,9 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
               <div className="mt-3 rounded-md border border-destructive/50 bg-destructive/10 p-3">
                 <p className="text-sm font-medium text-destructive mb-1">Validation failed</p>
                 <ul className="text-xs text-destructive/90 space-y-0.5 list-disc list-inside">
-                  {createErrors.map((e, i) => <li key={i}>{e}</li>)}
+                  {createErrors.map((e, i) => (
+                    <li key={i}>{e}</li>
+                  ))}
                 </ul>
               </div>
             )}
@@ -310,12 +516,23 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
 
         {isLoading ? (
           <div className="p-6 space-y-4">
-            {[1,2,3,4].map(i => <div key={i} className="space-y-2"><Skeleton className="h-4 w-24" /><Skeleton className="h-10 w-full" /></div>)}
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ))}
           </div>
         ) : records.length === 0 && !isCreating ? (
           <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-            <p className="text-lg">{activeFilterCount > 0 ? 'No records match your filters' : 'No records found'}</p>
-            <p className="text-sm mt-1">{activeFilterCount > 0 ? 'Try adjusting your filters' : `Click + to create a new ${level.label.toLowerCase()}`}</p>
+            <p className="text-lg">
+              {activeFilterCount > 0 ? "No records match your filters" : "No records found"}
+            </p>
+            <p className="text-sm mt-1">
+              {activeFilterCount > 0
+                ? "Try adjusting your filters"
+                : `Click + to create a new ${level.label.toLowerCase()}`}
+            </p>
           </div>
         ) : (
           <div className="p-4">
@@ -328,10 +545,14 @@ export function ADListShell({ level, parentContext, dashboardHref = '/dashboard'
               page={page}
               pageSize={100}
               onPageChange={setPage}
-              onRowClick={viewOnly ? undefined : row => {
-                const id = String(row[level.idField]);
-                navigate({ to: buildAdminDetailUrl(parentContext, level, id) as never });
-              }}
+              onRowClick={
+                viewOnly
+                  ? undefined
+                  : (row) => {
+                      const id = String(row[level.idField]);
+                      navigate({ to: buildAdminDetailUrl(parentContext, level, id) as never });
+                    }
+              }
             />
           </div>
         )}
