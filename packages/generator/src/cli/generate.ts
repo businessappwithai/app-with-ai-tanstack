@@ -936,7 +936,8 @@ program
     console.log("  validate <file>   Validate ERD for errors");
     console.log("  diff <a> <b>      Compare two ERD files");
     console.log("  info <dir>        Show generated project metadata");
-    console.log("  wizard            Interactive guided wizard\n");
+    console.log("  wizard            Interactive guided wizard");
+    console.log("  deploy <dir>      Deploy project to Hostinger/VPS via SSH\n");
   });
 
 // ---------------------------------------------------------------------------
@@ -999,6 +1000,193 @@ async function listTemplateFiles(
     // directory may not exist for this stack variant
   }
 }
+
+// ---------------------------------------------------------------------------
+// deploy — build Docker images and deploy to a remote host via SSH
+// ---------------------------------------------------------------------------
+
+program
+  .command("deploy <project-dir>")
+  .description("Deploy a generated project to a remote host (e.g. Hostinger VPS) via SSH")
+  .option("--host <host>", "SSH host (IP or hostname)")
+  .option("--user <user>", "SSH username", "root")
+  .option("--password <password>", "SSH password")
+  .option("--port <port>", "SSH port", "22")
+  .option("--remote-dir <dir>", "Remote directory to deploy into", "/opt/erdwithai")
+  .option("--image-tag <tag>", "Docker image tag", "latest")
+  .option("--skip-build", "Skip docker build, only sync files and restart")
+  .option("--env-file <file>", "Path to .env file to upload (default: <project-dir>/.env.production)")
+  .action(async (projectDir: string, opts: {
+    host?: string;
+    user: string;
+    password?: string;
+    port: string;
+    remoteDir: string;
+    imageTag: string;
+    skipBuild?: boolean;
+    envFile?: string;
+  }) => {
+    const { NodeSSH } = await import("node-ssh");
+
+    const absProjectDir = resolvePath(projectDir);
+
+    // ── Read project manifest ──────────────────────────────────────────────
+    const manifestPath = path.join(absProjectDir, ".erdwithai.json");
+    let manifest: Record<string, unknown>;
+    try {
+      manifest = JSON.parse(await fs.readFile(manifestPath, "utf-8"));
+    } catch {
+      console.error(`✗ No .erdwithai.json found in ${absProjectDir}`);
+      console.error("  Run 'erdwithai generate' first to create the project.");
+      process.exit(1);
+    }
+
+    const projectName = String(manifest.name ?? path.basename(absProjectDir));
+    const remoteProjectDir = path.posix.join(opts.remoteDir, projectName);
+
+    // ── Prompt for missing credentials ────────────────────────────────────
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    const askInput = (q: string) => new Promise<string>((res) => rl.question(q, res));
+
+    if (!opts.host) {
+      opts.host = await askInput("SSH host (IP or hostname): ");
+    }
+    if (!opts.password) {
+      opts.password = await askInput(`SSH password for ${opts.user}@${opts.host}: `);
+    }
+    rl.close();
+
+    console.log(`\n🚀 Deploying ${projectName} → ${opts.user}@${opts.host}:${remoteProjectDir}\n`);
+
+    // ── Determine env file ─────────────────────────────────────────────────
+    const envFilePath = opts.envFile
+      ? resolvePath(opts.envFile)
+      : path.join(absProjectDir, ".env.production");
+    let hasEnvFile = false;
+    try {
+      await fs.access(envFilePath);
+      hasEnvFile = true;
+    } catch {
+      // no env file — user must configure env vars on the server
+    }
+
+    // ── Connect via SSH ────────────────────────────────────────────────────
+    const ssh = new NodeSSH();
+    try {
+      await ssh.connect({
+        host: opts.host,
+        username: opts.user,
+        password: opts.password,
+        port: parseInt(opts.port, 10),
+        readyTimeout: 30_000,
+      });
+    } catch (err) {
+      console.error(`✗ SSH connection failed: ${err instanceof Error ? err.message : err}`);
+      process.exit(1);
+    }
+
+    console.log(`✓ Connected to ${opts.host}\n`);
+
+    // Helper: run a command on the remote server via SSH
+    const sshExec = async (cmd: string, label?: string) => {
+      if (label) process.stdout.write(`  ${label}... `);
+      const result = await ssh.execCommand(cmd, { cwd: remoteProjectDir });
+      if (result.code !== 0) {
+        if (label) console.log("✗");
+        console.error(`\nRemote command failed on ${opts.host}`);
+        if (result.stderr) console.error(result.stderr);
+        ssh.dispose();
+        process.exit(1);
+      }
+      if (label) console.log("✓");
+      return result.stdout;
+    };
+
+    try {
+      // ── Ensure remote directory exists ───────────────────────────────────
+      await ssh.execCommand(`mkdir -p ${remoteProjectDir}`);
+
+      // ── Upload files via SFTP ────────────────────────────────────────────
+      console.log("📦 Uploading project files...");
+
+      const excludes = new Set(["node_modules", "dist", ".output", ".git"]);
+      const uploadDir = async (localDir: string, remoteBase: string) => {
+        await ssh.execCommand(`mkdir -p ${remoteBase}`);
+        const entries = await fs.readdir(localDir, { withFileTypes: true });
+        for (const entry of entries) {
+          if (excludes.has(entry.name)) continue;
+          if (entry.name.startsWith(".") && !entry.name.startsWith(".env")) continue;
+          const localPath = path.join(localDir, entry.name);
+          const remotePath = path.posix.join(remoteBase, entry.name);
+          if (entry.isDirectory()) {
+            await uploadDir(localPath, remotePath);
+          } else {
+            await ssh.putFile(localPath, remotePath);
+          }
+        }
+      };
+
+      await uploadDir(path.join(absProjectDir, "backend"), path.posix.join(remoteProjectDir, "backend"));
+      console.log("  ✓ backend/");
+      await uploadDir(path.join(absProjectDir, "frontend"), path.posix.join(remoteProjectDir, "frontend"));
+      console.log("  ✓ frontend/");
+
+      // Upload root files
+      for (const f of [".erdwithai.json", "package.json", "bun.lockb", "docker-compose.yml"]) {
+        const localFile = path.join(absProjectDir, f);
+        try {
+          await fs.access(localFile);
+          await ssh.putFile(localFile, path.posix.join(remoteProjectDir, f));
+        } catch { /* optional */ }
+      }
+
+      if (hasEnvFile) {
+        await ssh.putFile(envFilePath, path.posix.join(remoteProjectDir, ".env"));
+        console.log("  ✓ .env");
+      } else {
+        console.log("  ⚠  No .env.production found — make sure env vars are set on the server.");
+      }
+
+      // ── Ensure Docker is available ───────────────────────────────────────
+      console.log("\n🐳 Checking Docker on server...");
+      const dockerCheck = await ssh.execCommand("docker --version 2>/dev/null || echo MISSING");
+      if (dockerCheck.stdout.includes("MISSING")) {
+        console.log("  Installing Docker...");
+        await sshExec("curl -fsSL https://get.docker.com | sh", "docker install");
+      } else {
+        console.log(`  ✓ ${dockerCheck.stdout.trim()}`);
+      }
+
+      const composeCheck = await ssh.execCommand("docker compose version 2>/dev/null || echo MISSING");
+      if (composeCheck.stdout.includes("MISSING")) {
+        await sshExec("apt-get install -y docker-compose-plugin 2>/dev/null || true", "compose install");
+      } else {
+        console.log(`  ✓ ${composeCheck.stdout.trim()}`);
+      }
+
+      // ── Build & start containers ─────────────────────────────────────────
+      console.log("\n🏗  Building and starting containers...");
+
+      if (!opts.skipBuild) {
+        await sshExec("docker compose build --parallel 2>&1", "docker build");
+      }
+
+      await sshExec("docker compose up -d --remove-orphans 2>&1", "docker compose up");
+
+      // ── Show status ──────────────────────────────────────────────────────
+      const ps = await ssh.execCommand("docker compose ps --format table 2>&1", { cwd: remoteProjectDir });
+      console.log("\n📊 Running containers:\n");
+      console.log(ps.stdout);
+
+      const backendPort = manifest.backendPort ?? 3001;
+      const frontendPort = manifest.frontendPort ?? 3002;
+      console.log(`\n✅ ${projectName} deployed successfully!`);
+      console.log(`   Frontend: http://${opts.host}:${frontendPort}`);
+      console.log(`   Backend:  http://${opts.host}:${backendPort}/api`);
+    } finally {
+      ssh.dispose();
+    }
+  });
 
 // ---------------------------------------------------------------------------
 program.parse();
