@@ -3,7 +3,6 @@
  * Handles CRUD operations for projects
  */
 
-import { getDatabase, runMigrations } from "@erdwithai/core/services";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCurrentUser } from "@/lib/auth-server";
 
@@ -12,6 +11,7 @@ let _dbReady = false;
 async function ensureDb() {
   if (!_dbReady) {
     _dbReady = true;
+    const { runMigrations } = await import("@erdwithai/core/services");
     await runMigrations().catch((err) => console.error("[DB] Migration error:", err));
   }
 }
@@ -22,6 +22,7 @@ export const Route = createFileRoute("/api/projects/")({
       GET: async ({ request }) => {
         await ensureDb();
         try {
+          const { getDatabase } = await import("@erdwithai/core/services");
           const user = await getCurrentUser(request);
           if (!user) {
             return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -154,6 +155,7 @@ export const Route = createFileRoute("/api/projects/")({
 
           const projectId = `proj_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
           const now = new Date().toISOString();
+          const { getDatabase } = await import("@erdwithai/core/services");
           const db = getDatabase();
 
           await db

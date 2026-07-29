@@ -1,4 +1,3 @@
-import { projectDb } from "@erdwithai/core/services";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/api/deploy")({
@@ -34,6 +33,7 @@ export const Route = createFileRoute("/api/deploy")({
                 return;
               }
 
+              const { projectDb } = await import("@erdwithai/core/services");
               const project = await projectDb.findById(projectId);
               if (!project) {
                 sendError("Project not found");

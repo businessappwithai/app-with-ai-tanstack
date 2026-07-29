@@ -15,7 +15,7 @@ const config = defineConfig({
       "@mastra/fastembed",
       "@anush008/tokenizers",
       "@anush008/tokenizers-darwin-universal",
-      "mysql2",
+      "pg",
       "@erdwithai/core",
     ],
   },

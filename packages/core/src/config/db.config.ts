@@ -1,51 +1,35 @@
 /**
  * DATABASE CONFIGURATION — single place to change DB connection.
  *
- * To switch databases: update createPool() call and dialect below.
- * All env vars read here only; nothing else in the codebase reads DB env vars.
- *
  * Supported env vars:
- *   DATABASE_URL          mysql://user:pass@host:3306/dbname  (takes precedence)
- *   MARIADB_HOST          default: 127.0.0.1
- *   MARIADB_PORT          default: 3306
- *   MARIADB_USER          default: erdwithai
- *   MARIADB_PASSWORD      default: (empty)
- *   MARIADB_DATABASE      default: erdwithai
- *   MARIADB_CONNECTION_LIMIT  default: 10
+ *   DATABASE_URL   postgresql://user:pass@host:5432/dbname  (takes precedence)
+ *   PGHOST         default: localhost
+ *   PGPORT         default: 5432
+ *   PGUSER         default: current OS user
+ *   PGPASSWORD     default: (empty)
+ *   PGDATABASE     default: erdwithai
  */
 
-import { Kysely, MysqlDialect } from "kysely";
-import { createPool } from "mysql2/promise";
+import { Kysely, PostgresDialect } from "kysely";
+import pg from "pg";
 import type { Database } from "./db.types.js";
 
 export type { Database };
 
-function buildPoolConfig() {
+function buildPoolConfig(): pg.PoolConfig {
   const url = process.env.DATABASE_URL;
 
-  if (url && (url.startsWith("mysql://") || url.startsWith("mariadb://"))) {
-    const parsed = new URL(url.replace(/^mariadb:\/\//, "mysql://"));
-    return {
-      host: parsed.hostname || "127.0.0.1",
-      port: parsed.port ? Number(parsed.port) : 3306,
-      user: parsed.username || "erdwithai",
-      password: parsed.password || "",
-      database: parsed.pathname.replace(/^\//, "") || "erdwithai",
-      connectionLimit: Number(process.env.MARIADB_CONNECTION_LIMIT ?? 10),
-      waitForConnections: true,
-      enableKeepAlive: true,
-    };
+  if (url && (url.startsWith("postgresql://") || url.startsWith("postgres://"))) {
+    return { connectionString: url, max: 10 };
   }
 
   return {
-    host: process.env.MARIADB_HOST ?? "127.0.0.1",
-    port: Number(process.env.MARIADB_PORT ?? 3306),
-    user: process.env.MARIADB_USER ?? "erdwithai",
-    password: process.env.MARIADB_PASSWORD ?? "",
-    database: process.env.MARIADB_DATABASE ?? "erdwithai",
-    connectionLimit: Number(process.env.MARIADB_CONNECTION_LIMIT ?? 10),
-    waitForConnections: true,
-    enableKeepAlive: true,
+    host: process.env.PGHOST ?? "localhost",
+    port: Number(process.env.PGPORT ?? 5432),
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD ?? "",
+    database: process.env.PGDATABASE ?? "erdwithai",
+    max: 10,
   };
 }
 
@@ -53,13 +37,12 @@ let _db: Kysely<Database> | null = null;
 
 /**
  * Returns the shared Kysely<Database> instance (lazy singleton).
- * Call this anywhere you need a DB handle.
  */
 export function getDb(): Kysely<Database> {
   if (!_db) {
     _db = new Kysely<Database>({
-      dialect: new MysqlDialect({
-        pool: createPool(buildPoolConfig()),
+      dialect: new PostgresDialect({
+        pool: new pg.Pool(buildPoolConfig()),
       }),
     });
   }

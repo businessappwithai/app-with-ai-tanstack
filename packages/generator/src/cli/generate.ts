@@ -483,7 +483,7 @@ program
         } else {
           console.log(`   App ready in: ${outputDir}`);
           console.log(`   cd ${outputDir} && ${pm} run dev\n`);
-          console.log("   Default admin:  admin@admin.com / admin\n");
+          console.log("   Default admin:  admin@admin.com / administrator\n");
         }
       }
     } catch (error: unknown) {

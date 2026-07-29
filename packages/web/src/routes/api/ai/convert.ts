@@ -1,4 +1,3 @@
-import { convertToMermaid } from "@erdwithai/ai";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/api/ai/convert")({
@@ -22,6 +21,7 @@ export const Route = createFileRoute("/api/ai/convert")({
             );
           }
 
+          const { convertToMermaid } = await import("@erdwithai/ai");
           const mermaidSyntax = await convertToMermaid(description);
 
           if (!mermaidSyntax) {

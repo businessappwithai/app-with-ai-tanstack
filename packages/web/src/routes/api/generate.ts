@@ -1,5 +1,3 @@
-import { projectDb } from "@erdwithai/core/services";
-import { FullStackGenerator, MermaidParser } from "@erdwithai/generator";
 import { createFileRoute } from "@tanstack/react-router";
 import fs from "fs/promises";
 import path from "path";
@@ -43,6 +41,9 @@ export const Route = createFileRoute("/api/generate")({
                 controller.close();
                 return;
               }
+
+              const { projectDb } = await import("@erdwithai/core/services");
+              const { FullStackGenerator, MermaidParser } = await import("@erdwithai/generator");
 
               sendLog("info", "Loading project details...");
               const project = await projectDb.findById(projectId);

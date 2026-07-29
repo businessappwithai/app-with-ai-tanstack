@@ -1,10 +1,10 @@
-import { getDatabase } from "@erdwithai/core/services";
 import { createAPIFileRoute } from "@tanstack/start/api";
 import { getSessionToken } from "@/lib/auth-server";
 
 export const Route = createAPIFileRoute("/api/admin/users")({
   GET: async ({ request }) => {
     try {
+      const { getDatabase } = await import("@erdwithai/core/services");
       const token = getSessionToken(request);
       if (!token) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {

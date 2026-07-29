@@ -1,4 +1,3 @@
-import { getDatabase } from "@erdwithai/core/services";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/api/workflows/$workflowId/")({
@@ -6,6 +5,7 @@ export const Route = createFileRoute("/api/workflows/$workflowId/")({
     handlers: {
       GET: async ({ params }) => {
         try {
+          const { getDatabase } = await import("@erdwithai/core/services");
           const workflowId = params.workflowId as string;
           const db = await getDatabase();
           const workflow = await db

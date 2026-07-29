@@ -61,7 +61,7 @@ function LoginPage() {
       }
 
       setUser(data.user);
-      navigate({ to: "/projects" });
+      window.location.href = "/projects";
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -96,7 +96,7 @@ function LoginPage() {
       }
 
       setUser(data.user);
-      navigate({ to: "/projects" });
+      window.location.href = "/projects";
     } catch {
       setError("Network error. Please try again.");
     } finally {

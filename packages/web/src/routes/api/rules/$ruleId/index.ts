@@ -1,10 +1,10 @@
-import { rulesDb, runMigrations } from "@erdwithai/core/services";
 import { createFileRoute } from "@tanstack/react-router";
 
 let _dbReady = false;
 async function ensureDb() {
   if (!_dbReady) {
     _dbReady = true;
+    const { runMigrations } = await import("@erdwithai/core/services");
     await runMigrations().catch((err) => console.error("[DB] Migration error:", err));
   }
 }
@@ -15,6 +15,7 @@ export const Route = createFileRoute("/api/rules/$ruleId/")({
       GET: async ({ params }) => {
         await ensureDb();
         try {
+          const { rulesDb } = await import("@erdwithai/core/services");
           const rule = await rulesDb.findById(params.ruleId);
           if (!rule) {
             return new Response(JSON.stringify({ error: "Rule not found" }), {
@@ -37,6 +38,7 @@ export const Route = createFileRoute("/api/rules/$ruleId/")({
       PUT: async ({ request, params }) => {
         await ensureDb();
         try {
+          const { rulesDb } = await import("@erdwithai/core/services");
           const body = await request.json();
           const { entityName, ruleName, operation, jdmContent } = body;
 
@@ -69,6 +71,7 @@ export const Route = createFileRoute("/api/rules/$ruleId/")({
       DELETE: async ({ params }) => {
         await ensureDb();
         try {
+          const { rulesDb } = await import("@erdwithai/core/services");
           const existing = await rulesDb.findById(params.ruleId);
           if (!existing) {
             return new Response(JSON.stringify({ error: "Rule not found" }), {
