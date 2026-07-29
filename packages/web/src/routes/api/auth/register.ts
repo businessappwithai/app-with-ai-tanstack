@@ -71,6 +71,7 @@ export const Route = createFileRoute("/api/auth/register")({
               id: userId,
               email,
               name,
+              passwordHash,
               emailVerified: false,
               status: "pending",
               role: "user",
