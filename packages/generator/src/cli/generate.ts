@@ -151,6 +151,75 @@ async function runSetup(opts: {
 }
 
 // ---------------------------------------------------------------------------
+// EML checker + fixer pre-flight
+// ---------------------------------------------------------------------------
+
+/**
+ * Run the language/checker.ts on a .mmd file, then auto-fix with fixer.ts,
+ * then re-check. Throws if errors remain after fixing.
+ */
+async function runCheckerFixer(mmdPath: string, quiet: boolean): Promise<void> {
+  // Workspace root is 4 levels above packages/generator/src/cli/
+  const workspaceRoot = path.resolve(__dirname, "../../../../");
+  const checkerScript = path.join(workspaceRoot, "language", "checker.ts");
+  const fixerScript = path.join(workspaceRoot, "language", "fixer.ts");
+
+  // If language tooling isn't present in this installation, skip silently
+  try {
+    await fs.access(checkerScript);
+  } catch {
+    return;
+  }
+
+  const runBun = (script: string, args: string[]) =>
+    spawnSync("bun", [script, ...args], {
+      stdio: "pipe",
+      cwd: workspaceRoot,
+    });
+
+  // Step 1: Run checker
+  log(`\n🔍 Checking ${path.basename(mmdPath)} for EML errors…`, quiet);
+  const check1 = runBun(checkerScript, [mmdPath, "--no-color"]);
+
+  if (check1.status === 0) {
+    log("   ✓ No EML errors found.", quiet);
+    return;
+  }
+
+  // Print checker output so the developer sees what's wrong
+  if (check1.stdout) process.stdout.write(check1.stdout.toString());
+
+  // Step 2: Auto-fix (if fixer exists)
+  let fixerExists = false;
+  try {
+    await fs.access(fixerScript);
+    fixerExists = true;
+  } catch { /* not installed */ }
+
+  if (fixerExists) {
+    log(`\n🔧 Auto-fixing EML issues in ${path.basename(mmdPath)}…`, quiet);
+    const fix = runBun(fixerScript, [mmdPath, "--no-recheck"]);
+    if (fix.stdout) process.stdout.write(fix.stdout.toString());
+  }
+
+  // Step 3: Re-check after fixes
+  log(`\n🔍 Re-checking ${path.basename(mmdPath)} after fixes…`, quiet);
+  const check2 = runBun(checkerScript, [mmdPath, "--no-color"]);
+  if (check2.stdout) process.stdout.write(check2.stdout.toString());
+
+  if (check2.status === 0) {
+    log("   ✓ All EML errors resolved.", quiet);
+    return;
+  }
+
+  // Still errors — block generation
+  throw new Error(
+    `EML validation failed for "${path.basename(mmdPath)}".\n` +
+      `  Fix the errors shown above and re-run generation.`
+  );
+}
+
+// ---------------------------------------------------------------------------
 // CLI setup
 // ---------------------------------------------------------------------------
 
@@ -228,6 +297,15 @@ program
         throw new Error(
           "Specify --input <file> or at least one of --sys-file / --bus-file / --ref-file."
         );
+      }
+
+      // ── EML check + auto-fix (pre-flight) ──────────────────────────────
+      if (isMultiFileMode) {
+        for (const flag of [options.sysFile, options.busFile, options.refFile]) {
+          if (flag) await runCheckerFixer(resolvePath(flag), quiet);
+        }
+      } else {
+        await runCheckerFixer(resolvePath(options.input), quiet);
       }
 
       // ── Parse ERD ───────────────────────────────────────────────────────
@@ -513,6 +591,179 @@ program
   });
 
 // ---------------------------------------------------------------------------
+// generate:entity — add / regenerate a single entity in an existing project
+// ---------------------------------------------------------------------------
+
+program
+  .command("generate:entity")
+  .description(
+    "Add or regenerate a single entity from an .mmd / .eml file into an existing generated project"
+  )
+  .requiredOption("-i, --input <file>", "Input .mmd / .eml file containing the entity")
+  .requiredOption(
+    "-e, --entity <name>",
+    "Entity name to generate (PascalCase, e.g. 'Compound')"
+  )
+  .requiredOption(
+    "-o, --output <dir>",
+    "Root of the generated project directory (must contain backend/ and/or frontend/)"
+  )
+  .option("--backend-only", "Generate backend files only (JDM + migration)")
+  .option("--frontend-only", "Generate frontend files only (list + detail routes)")
+  .option(
+    "--backend-dir <dir>",
+    "Explicit path to the backend directory (overrides <output>/backend)"
+  )
+  .option(
+    "--frontend-dir <dir>",
+    "Explicit path to the frontend directory (overrides <output>/frontend)"
+  )
+  .option("--force", "Overwrite existing generated files without prompting")
+  .option("--dry-run", "Print what would be generated without writing files")
+  .option("--quiet", "Suppress non-error output")
+  .action(async (options) => {
+    const quiet: boolean = !!options.quiet;
+
+    try {
+      if (!quiet) {
+        console.log("\n🧩 ERDwithAI — Generate Single Entity");
+        console.log("═══════════════════════════════════════════\n");
+      }
+
+      // ── EML pre-flight check + auto-fix ──────────────────────────────────
+      await runCheckerFixer(resolvePath(options.input), quiet);
+
+      // ── Parse the input file ─────────────────────────────────────────────
+      const { entities, relationships } = await parseFile(options.input);
+
+      // ── Find the entity ──────────────────────────────────────────────────
+      const entityName = options.entity as string;
+      const entity = entities.find(
+        (e) => e.name.toLowerCase() === entityName.toLowerCase()
+      );
+      if (!entity) {
+        const available = entities.map((e) => e.name).join(", ");
+        throw new Error(
+          `Entity "${entityName}" not found in ${path.basename(options.input)}.\n` +
+            `  Available entities: ${available}`
+        );
+      }
+
+      // ── Resolve project directories ──────────────────────────────────────
+      const projectRoot = resolvePath(options.output);
+      const backendDir = options.backendDir
+        ? resolvePath(options.backendDir)
+        : path.join(projectRoot, "backend");
+      const frontendDir = options.frontendDir
+        ? resolvePath(options.frontendDir)
+        : path.join(projectRoot, "frontend");
+
+      // ── Read project manifest for config ────────────────────────────────
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let manifest: Record<string, any> = {};
+      try {
+        const raw = await fs.readFile(path.join(projectRoot, ".erdwithai.json"), "utf-8");
+        manifest = JSON.parse(raw);
+      } catch {
+        /* no manifest — use defaults */
+      }
+
+      if (!quiet) {
+        console.log(`📋 Entity:  ${entity.name}`);
+        console.log(`📄 Source:  ${path.basename(options.input)}`);
+        console.log(`📁 Project: ${projectRoot}\n`);
+      }
+
+      // ── Dry-run: just print what would be generated ──────────────────────
+      if (options.dryRun) {
+        const snake = entity.name
+          .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+          .replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2")
+          .toLowerCase();
+        const kebab = snake.replace(/_/g, "-");
+        const tableName = `bus_${snake}`;
+        console.log("📂 Files that would be generated (dry-run):");
+        if (!options.frontendOnly) {
+          console.log(`  backend/src/modules/rules/jdm/${tableName}.jdm.json`);
+          console.log(`  backend/src/migrations/<ts>_add_${snake}.ts`);
+        }
+        if (!options.backendOnly) {
+          console.log(`  frontend/src/routes/${kebab}.tsx`);
+          console.log(`  frontend/src/routes/${kebab}.$id.tsx`);
+        }
+        return;
+      }
+
+      // ── Backend ──────────────────────────────────────────────────────────
+      if (!options.frontendOnly) {
+        let backendExists = false;
+        try {
+          await fs.access(backendDir);
+          backendExists = true;
+        } catch {
+          /* skip */
+        }
+        if (backendExists) {
+          if (!quiet) console.log("⚙️  Generating backend files…");
+          const backendGen = new NestJsBackendGenerator({
+            projectName: String(manifest.name ?? "my-app"),
+            projectVersion: String(manifest.version ?? "1.0.0"),
+            projectDescription: String(manifest.description ?? ""),
+            databaseType: (manifest.database ?? "postgresql") as "postgresql" | "sqlite",
+            port: Number(manifest.backendPort ?? 3000),
+            frontendPort: Number(manifest.frontendPort ?? 3001),
+            enableSwagger: true,
+            enableCors: true,
+            skipCliScaffold: true,
+          });
+          await backendGen.generateSingleEntity(entity, relationships, backendDir, entities);
+        } else {
+          console.warn(`  ⚠️  backend/ not found at ${backendDir} — skipping backend`);
+        }
+      }
+
+      // ── Frontend ─────────────────────────────────────────────────────────
+      if (!options.backendOnly) {
+        let frontendExists = false;
+        try {
+          await fs.access(frontendDir);
+          frontendExists = true;
+        } catch {
+          /* skip */
+        }
+        if (frontendExists) {
+          if (!quiet) console.log("\n🎨 Generating frontend files…");
+          const frontendGen = new TanStackStartFrontendGenerator({
+            projectName: String(manifest.name ?? "my-app"),
+            projectVersion: String(manifest.version ?? "1.0.0"),
+            projectDescription: String(manifest.description ?? ""),
+            apiBaseUrl: String(manifest.apiUrl ?? "http://localhost:3000"),
+            enableDarkMode: false,
+            skipCliScaffold: true,
+          });
+          await frontendGen.generateSingleEntity(entity, relationships, frontendDir, entities);
+        } else {
+          console.warn(`  ⚠️  frontend/ not found at ${frontendDir} — skipping frontend`);
+        }
+      }
+
+      if (!quiet) {
+        console.log(`\n✅ Entity "${entity.name}" generated successfully!`);
+        console.log(
+          "   Re-run migrations to apply the schema change:\n" +
+            `   cd ${path.join(projectRoot, "backend")} && bun run migrate\n`
+        );
+      }
+    } catch (error: unknown) {
+      console.error(
+        "\n❌ Error:",
+        error instanceof Error ? error.message : String(error)
+      );
+      process.exit(1);
+    }
+  });
+
+// ---------------------------------------------------------------------------
 // validate — check ERD for common problems
 // ---------------------------------------------------------------------------
 
@@ -776,6 +1027,7 @@ program
     console.log("\n🚀 Generating Backend...\n");
 
     try {
+      await runCheckerFixer(resolvePath(options.input), false);
       const { entities, relationships } = await parseFile(options.input);
       const outputDir = resolvePath(options.output);
 
@@ -825,6 +1077,7 @@ program
     console.log("\n🚀 Generating Frontend...\n");
 
     try {
+      await runCheckerFixer(resolvePath(options.input), false);
       const { entities, relationships } = await parseFile(options.input);
       const outputDir = resolvePath(options.output);
 

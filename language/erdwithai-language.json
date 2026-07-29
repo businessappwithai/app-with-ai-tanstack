@@ -410,6 +410,28 @@
       "end": "LastState --> [*]",
       "transition": "StateA --> StateB : eventName",
       "mappingHint": "States are treated as a status enum for the bound entity; transitions define the allowed status changes."
+    },
+    "workflowKinds": {
+      "hook": {
+        "form": "%%workflow <name> entity: <Entity> kind: hook",
+        "description": "A flowchart whose steps represent operations on a single entity. %%hook directives bind named handlers to the entity's CRUD lifecycle events. Fully parsed by the shipped hook-parser.",
+        "diagram": "flowchart",
+        "shipped": true
+      },
+      "state": {
+        "form": "%%workflow <name> entity: <Entity> kind: state",
+        "description": "A stateDiagram-v2 whose states map to a status enum for the bound entity. Transitions define allowed status changes; %%guard directives add RBAC checks; %%trigger directives declare external event sources. Fully parsed by the shipped hook-parser.",
+        "diagram": "stateDiagram-v2",
+        "shipped": true
+      },
+      "saga": {
+        "form": "%%workflow <name> entity: <PrimaryEntity> kind: saga",
+        "description": "A flowchart representing a multi-entity, multi-step process that may span several services or require compensating transactions (e.g. checkout, patient admission, loan approval). Each step node may carry a %%hook directive targeting its specific entity. The visual flow renders in any Mermaid viewer; hook directives are parsed today; orchestration of compensating transactions is extended conformance.",
+        "diagram": "flowchart",
+        "shipped": false,
+        "compensatingPattern": "Pair each forward step with a compensating hook (afterDelete or customValidate) to enable rollback on failure.",
+        "example": "%%workflow CheckoutSaga entity: Order kind: saga"
+      }
     }
   },
 
@@ -527,10 +549,10 @@
 
   "conformance": {
     "levels": {
-      "core": "erDiagram entities, attributes with PK/FK/UK/OPTIONAL, and relationship cardinalities. Fully parsed by the shipped ERD parser.",
+      "core": "erDiagram entities, attributes with PK/FK/UK/OPTIONAL/NULL/UNIQUE, relationship cardinalities (all 8 operators). Fully parsed by the shipped ERD parser (mermaid.parser.ts). Directives inside an erDiagram block (%%field, %%enum, %%index, %%entity) are silently skipped by the ERD parser — they are reserved for future use.",
       "rules": "flowchart decision flows convertible to JDM via shape semantics. Fully parsed by the shipped flowchart parser + JDM converter.",
-      "workflow-hooks": "%%hook directives. Fully parsed by the shipped hook parser.",
-      "extended": "All %%meta/%%entity/%%field/%%enum/%%index/%%rule/%%guard/%%trigger/%%workflow directives and stateDiagram-v2 workflows. Reserved and documented; renderer-safe; adopted incrementally by the generator."
+      "workflow-hooks": "%%hook directives (all 13 hook types) and stateDiagram-v2 state transitions. Fully parsed by the shipped hook-parser (hook-parser.ts). kind: hook and kind: state are shipped; kind: saga visual diagram renders but compensating-transaction orchestration is extended.",
+      "extended": "%%meta, %%entity, %%field, %%enum, %%index, %%rule, %%guard, %%trigger, %%workflow directives beyond what the shipped parsers consume. Reserved and documented; renderer-safe; adopted incrementally by the generator."
     },
     "validationRules": [
       "Every entity name must match ^[a-zA-Z][a-zA-Z0-9_]*$ and be unique within the document.",

@@ -672,15 +672,38 @@ export class TemplateLoader {
     Handlebars.registerHelper("typeToReferenceId", (type: string) => {
       const mapping: Record<string, number> = {
         string: 10,
+        varchar: 10,
+        char: 10,
         integer: 11,
+        int: 11,
+        bigint: 11,
+        smallint: 11,
         decimal: 12,
+        numeric: 12,
+        float: 12,
+        double: 12,
+        number: 12,
+        real: 12,
         boolean: 20,
+        bool: 20,
         date: 15,
         datetime: 16,
+        timestamp: 16,
+        timestamptz: 16,
         text: 14,
         json: 28,
+        jsonb: 28,
+        uuid: 13,
+        id: 13,
+        email: 29,
+        url: 24,
+        image: 25,
+        file: 26,
+        phone: 31,
+        password: 30,
+        color: 27,
       };
-      return mapping[type] || 10;
+      return mapping[type?.toLowerCase()] ?? 10;
     });
 
     Handlebars.registerHelper("isExcludedField", (fieldName: string) => {

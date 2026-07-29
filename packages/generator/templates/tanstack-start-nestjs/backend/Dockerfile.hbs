@@ -32,6 +32,6 @@ COPY backend/tsconfig.json ./backend/
 COPY backend/run-app.sh ./backend/
 RUN chmod +x ./backend/run-app.sh
 
-EXPOSE {{project.backendPort}}
+EXPOSE {{config.port}}
 
 CMD ["/app/backend/run-app.sh"]

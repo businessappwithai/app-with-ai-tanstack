@@ -526,7 +526,6 @@ export class NestJsBackendGenerator extends BaseGenerator {
       "report",
       "sync",
       "entity-lifecycle-workflow",
-      "entity-promotion",
     ];
     for (const task of triggerTasks) {
       try {
@@ -625,25 +624,27 @@ export class NestJsBackendGenerator extends BaseGenerator {
       console.warn("bpmn-executor.service.ts template not found, skipping:", (e as Error).message);
     }
 
-    // JDM rule files per entity
-    for (const entity of context.entities) {
-      try {
-        const entityContext = { ...entity };
-        let jdmContent = await this.renderTemplate(
-          "src/modules/rules/jdm/entity.jdm.json.hbs",
-          entityContext
-        );
-        // Clean up JSON formatting (fix trailing commas, etc.)
-        jdmContent = cleanJsonContent(jdmContent);
-        // Fill missing decision-table cells with wildcards (zen-engine requirement)
-        jdmContent = JSON.stringify(normalizeJdmDecisionTables(JSON.parse(jdmContent)), null, 2);
-        await fs.writeFile(
-          path.join(outputDir, `src/modules/rules/jdm/${entity.tableName}.jdm.json`),
-          jdmContent
-        );
-      } catch (e) {
-        console.warn(`JDM template not found for entity: ${entity.tableName}`);
-      }
+    // JDM rule files per entity — delegates to shared private helper
+    for (const busEntity of context.entities) {
+      await this.writeEntityJdm(busEntity, outputDir);
+    }
+  }
+
+  /** Shared JDM file writer — used by both full generation and generateSingleEntity. */
+  private async writeEntityJdm(busEntity: any, outputDir: string): Promise<void> {
+    try {
+      let jdmContent = await this.renderTemplate(
+        "src/modules/rules/jdm/entity.jdm.json.hbs",
+        { ...busEntity }
+      );
+      jdmContent = cleanJsonContent(jdmContent);
+      jdmContent = JSON.stringify(normalizeJdmDecisionTables(JSON.parse(jdmContent)), null, 2);
+      await fs.writeFile(
+        path.join(outputDir, `src/modules/rules/jdm/${busEntity.tableName}.jdm.json`),
+        jdmContent
+      );
+    } catch {
+      console.warn(`JDM template not found for entity: ${busEntity.tableName}`);
     }
   }
 
@@ -1027,6 +1028,34 @@ export async function executeAfterListHooks(
       );
     }
 
+    // fix_numeric_columns migration — corrects any DECIMAL columns mistyped as VARCHAR
+    try {
+      const fixNumericContent = await this.renderTemplate(
+        "../../common/migrations/fix_numeric_columns.migration.ts.hbs",
+        context
+      );
+      await fs.writeFile(
+        path.join(outputDir, `src/migrations/${timestamp + 4}_fix_numeric_columns.ts`),
+        fixNumericContent
+      );
+    } catch (e) {
+      console.warn(
+        "fix_numeric_columns migration template not found, skipping:",
+        (e as Error).message
+      );
+    }
+
+    // Seed users and roles with Better-Auth integration
+    try {
+      const usersAndRolesContent = await this.renderTemplate(
+        "../../common/seeds/users-and-roles.ts.hbs",
+        context
+      );
+      await fs.writeFile(path.join(outputDir, "seeds/00_users_and_roles.ts"), usersAndRolesContent);
+    } catch (e) {
+      console.warn("Users and roles seed template failed, skipping:", (e as Error).message);
+    }
+
     // Seed sys_reference data
     const sysRefContent = await this.renderTemplate(
       "../../common/seeds/sys-references.ts.hbs",
@@ -1097,12 +1126,21 @@ export async function executeAfterListHooks(
       console.warn(".prettierrc template not found, skipping");
     }
 
+    // bunfig.toml — bun path alias config
+    try {
+      const bunfigContent = await this.renderTemplate("bunfig.toml.hbs", context);
+      await fs.writeFile(path.join(outputDir, "bunfig.toml"), bunfigContent);
+    } catch {
+      console.warn("bunfig.toml template not found, skipping");
+    }
+
     // Static NestJS boilerplate config files (not project-specific)
     const staticConfigFiles = [
       "tsconfig.build.json",
       "eslint.config.mjs",
       "test/jest-e2e.json",
       "test/app.e2e-spec.ts",
+      "run-app.sh",
     ];
     await fs.mkdir(path.join(outputDir, "test"), { recursive: true });
     for (const file of staticConfigFiles) {
@@ -1111,6 +1149,14 @@ export async function executeAfterListHooks(
       } catch (e) {
         console.warn(`Static config file not found: ${file}`);
       }
+    }
+
+    // Dockerfile — rendered from template
+    try {
+      const dockerfileContent = await this.renderTemplate("Dockerfile.hbs", context);
+      await fs.writeFile(path.join(outputDir, "Dockerfile"), dockerfileContent);
+    } catch (e) {
+      console.warn("Dockerfile template not found, skipping");
     }
 
     // Generate src/migrate.ts (Kysely migration runner)
@@ -1245,34 +1291,6 @@ export async function executeAfterListHooks(
       console.warn("Trigger-workflow test template not found");
     }
 
-    // Draft → final promotion tests
-    try {
-      const promotionTestContent = await this.renderTemplate(
-        "test/entity-promotion.test.ts.hbs",
-        context
-      );
-      await fs.writeFile(
-        path.join(outputDir, "test/entity-promotion.test.ts"),
-        promotionTestContent
-      );
-    } catch (e) {
-      console.warn("Entity promotion test template not found");
-    }
-
-    // Multi-step / multi-entity workflow executor tests
-    try {
-      const multiEntityTestContent = await this.renderTemplate(
-        "test/workflow-multi-entity.test.ts.hbs",
-        context
-      );
-      await fs.writeFile(
-        path.join(outputDir, "test/workflow-multi-entity.test.ts"),
-        multiEntityTestContent
-      );
-    } catch (e) {
-      console.warn("Multi-entity workflow test template not found");
-    }
-
     // Job queue tests
     try {
       const jobQueueTestContent = await this.renderTemplate(
@@ -1328,6 +1346,84 @@ export async function executeAfterListHooks(
         await fs.copyFile(path.join(auditTemplateDir, file), path.join(auditOutputDir, file));
       } catch (e) {
         console.warn(`Audit module file not found, skipping: ${file} — ${(e as Error).message}`);
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Single-entity generation (for generate:entity CLI command)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Generate only the files that belong to a single entity:
+   *   • src/modules/rules/jdm/<tableName>.jdm.json
+   *   • src/migrations/<ts>_add_<snake>.ts  (additive migration)
+   *
+   * @param entity      The target entity (from the .mmd file)
+   * @param relationships  All relationships in the model (filtered internally)
+   * @param outputDir   Backend project root (e.g. <project>/backend)
+   * @param allEntities All entities in the model (for full context, if needed)
+   */
+  /**
+   * Generate only the files that belong to a single entity.
+   *
+   *   Always generated:
+   *     • src/modules/rules/jdm/<tableName>.jdm.json
+   *
+   *   Generated unless opts.skipMigration = true:
+   *     • src/migrations/<ts>_add_<snake>.ts  (additive migration)
+   *
+   * @param opts.skipMigration  Set true during full project generation (the bulk
+   *                            migration handles schema creation); leave false
+   *                            (default) when adding a single entity to an
+   *                            existing project via `generate:entity`.
+   */
+  public async generateSingleEntity(
+    entity: Entity,
+    relationships: Relationship[],
+    outputDir: string,
+    _allEntities: Entity[],
+    opts?: { skipMigration?: boolean }
+  ): Promise<void> {
+    const busEntity = entityToBusEntity(entity);
+
+    const toSnake = (name: string) =>
+      name
+        .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+        .replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2")
+        .toLowerCase();
+
+    // 1. JDM rule file (delegates to shared helper)
+    await fs.mkdir(path.join(outputDir, "src/modules/rules/jdm"), { recursive: true });
+    await this.writeEntityJdm(busEntity, outputDir);
+    console.log(`  ✓ backend/src/modules/rules/jdm/${busEntity.tableName}.jdm.json`);
+
+    // 2. Additive migration (only when adding an entity to an existing project)
+    if (!opts?.skipMigration) {
+      const entityRels = relationships
+        .filter((r) => r.sourceEntity === entity.name || r.targetEntity === entity.name)
+        .map((r) => ({
+          ...r,
+          sourceTableName: `bus_${toSnake(r.sourceEntity)}`,
+          targetTableName: `bus_${toSnake(r.targetEntity)}`,
+        }));
+
+      const migrationsDir = path.join(outputDir, "src/migrations");
+      await fs.mkdir(migrationsDir, { recursive: true });
+      try {
+        const timestamp = Date.now();
+        const snake = toSnake(entity.name);
+        const migrationContent = await this.renderTemplate(
+          "../../common/migrations/bus-table.migration.ts.hbs",
+          { ...busEntity, relationships: entityRels, timestamps: true, now: new Date().toISOString() }
+        );
+        const migrationFile = `${timestamp}_add_${snake}.ts`;
+        await fs.writeFile(path.join(migrationsDir, migrationFile), migrationContent);
+        console.log(`  ✓ backend/src/migrations/${migrationFile}`);
+      } catch (e) {
+        console.warn(
+          `  ⚠️  Migration template failed for ${entity.name}: ${(e as Error).message}`
+        );
       }
     }
   }

@@ -22,7 +22,7 @@
  */
 
 import type { Entity, EntityAttribute, Relationship } from "@erdwithai/core/types";
-import { getDefaultType, getTypeMap } from "./language-maps";
+import { getCardinalityKind, getDefaultType, getTypeMap } from "./language-maps";
 
 // Type mapping from Mermaid types to our standard types.
 // Sourced from language/erdwithai-language.json at runtime (with a built-in
@@ -108,102 +108,39 @@ export class MermaidParser {
   }
 
   /**
-   * Parse a relationship line
+   * Parse a relationship line.
    *
-   * Mermaid relationship syntax:
-   * - ||--|| : one-to-one
-   * - ||--o{ : one-to-many
-   * - }o--|| : many-to-one
-   * - }o--o{ : many-to-many
-   * - |o--o| : zero-or-one to zero-or-one
+   * Supports all 8 Mermaid ER cardinality operators defined in the EML language
+   * spec by delegating operator→kind resolution to getCardinalityKind() so the
+   * parser stays in lockstep with erdwithai-language.json.
+   *
+   * Left side glyphs:  ||  |o  }o  }|
+   * Right side glyphs: ||  o|  o{  |{
    */
   private parseRelationship(line: string): Relationship | null {
-    // Patterns for different relationship types
-    const patterns: Array<{
-      regex: RegExp;
-      cardinality: Relationship["cardinality"];
-    }> = [
-      // one-to-one: ||--||
-      {
-        regex:
-          /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\|\|--\|\|\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*"?([^"]+)"?$/,
-        cardinality: "oneToOne",
-      },
-      // one-to-many: ||--o{ or ||--|{
-      {
-        regex:
-          /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\|\|--o?\{\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*"?([^"]+)"?$/,
-        cardinality: "oneToMany",
-      },
-      // many-to-one: }o--|| or }{--||
-      {
-        regex:
-          /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\}o?--\|\|\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*"?([^"]+)"?$/,
-        cardinality: "manyToOne",
-      },
-      // many-to-many: }o--o{ or }{--|{
-      {
-        regex:
-          /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\}o?--o?\{\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*"?([^"]+)"?$/,
-        cardinality: "manyToMany",
-      },
-      // Also support zero-or-one patterns
-      {
-        regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\|o--o\|\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*"?([^"]+)"?$/,
-        cardinality: "oneToOne",
-      },
-    ];
+    // Captures: entity  left--right  entity  optional-label
+    const rel =
+      /^([a-zA-Z_][a-zA-Z0-9_]*)\s+(\|[\|o]|\}[o|])--(o[\|{]|\|[\|{])\s+([a-zA-Z_][a-zA-Z0-9_]*)(?:\s*:\s*"?([^"]*)"?)?$/;
+    const match = line.match(rel);
+    if (!match || !match[1] || !match[4]) return null;
 
-    for (const { regex, cardinality } of patterns) {
-      const match = line.match(regex);
-      if (match && match[1] && match[2] && match[3]) {
-        return {
-          name: this.normalizeRelationshipName(match[3]),
-          sourceEntity: match[1],
-          targetEntity: match[2],
-          cardinality,
-          foreignKey: this.generateForeignKey(match[2], cardinality),
-        };
-      }
-    }
+    const [, sourceEntity, left, right, targetEntity, rawLabel] = match;
+    const operator = `${left}--${right}`;
+    const cardinality = getCardinalityKind(operator);
+    if (!cardinality) return null;
 
-    // Try simpler pattern without relationship name
-    const simplePatterns: Array<{
-      regex: RegExp;
-      cardinality: Relationship["cardinality"];
-    }> = [
-      {
-        regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\|\|--\|\|\s+([a-zA-Z_][a-zA-Z0-9_]*)$/,
-        cardinality: "oneToOne",
-      },
-      {
-        regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\|\|--o?\{\s+([a-zA-Z_][a-zA-Z0-9_]*)$/,
-        cardinality: "oneToMany",
-      },
-      {
-        regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\}o?--\|\|\s+([a-zA-Z_][a-zA-Z0-9_]*)$/,
-        cardinality: "manyToOne",
-      },
-      {
-        regex: /^([a-zA-Z_][a-zA-Z0-9_]*)\s+\}o?--o?\{\s+([a-zA-Z_][a-zA-Z0-9_]*)$/,
-        cardinality: "manyToMany",
-      },
-    ];
+    const name =
+      rawLabel?.trim()
+        ? this.normalizeRelationshipName(rawLabel.trim())
+        : `${sourceEntity.toLowerCase()}_${targetEntity.toLowerCase()}`;
 
-    for (const { regex, cardinality } of simplePatterns) {
-      const match = line.match(regex);
-      if (match && match[1] && match[2]) {
-        return {
-          name: `${match[1].toLowerCase()}_${match[2].toLowerCase()}`,
-          sourceEntity: match[1],
-          targetEntity: match[2],
-          cardinality,
-          foreignKey: this.generateForeignKey(match[2], cardinality),
-        };
-      }
-    }
-
-    return null;
+    return {
+      name,
+      sourceEntity: sourceEntity!,
+      targetEntity: targetEntity!,
+      cardinality,
+      foreignKey: this.generateForeignKey(targetEntity!, cardinality),
+    };
   }
 
   /**

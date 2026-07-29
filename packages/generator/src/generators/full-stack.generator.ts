@@ -231,8 +231,51 @@ npm-debug.log*
 `;
     await fs.writeFile(path.join(outputDir, ".gitignore"), gitignore);
 
+    // docker-compose.yml
+    try {
+      const templateDir = await this.findTemplatesDir();
+      const dockerComposeTpl = path.join(templateDir, "tanstack-start-nestjs/docker-compose.yml.hbs");
+      const tplContent = await fs.readFile(dockerComposeTpl, "utf-8");
+      const backendPort = this.options.port;
+      const frontendPort = this.options.frontendPort ?? this.options.port + 1;
+      const projectId = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      const projectSnake = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+      const dockerCompose = tplContent
+        .replace(/\{\{project\.name\}\}/g, this.options.projectName)
+        .replace(/\{\{project\.id\}\}/g, projectId)
+        .replace(/\{\{project\.name \| replace '-' '_'\}\}/g, projectSnake)
+        .replace(/\{\{project\.backendPort\}\}/g, String(backendPort))
+        .replace(/\{\{project\.frontendPort\}\}/g, String(frontendPort));
+      await fs.writeFile(path.join(outputDir, "docker-compose.yml"), dockerCompose);
+    } catch (e) {
+      console.warn(`docker-compose.yml generation skipped: ${(e as Error).message}`);
+    }
+
     // Copy GitHub Actions workflows
     await this.copyGitHubWorkflows(outputDir);
+  }
+
+  private async findTemplatesDir(): Promise<string> {
+    const cwd = process.cwd();
+    const candidates = [
+      // When cwd is the generator package (bun --filter mode)
+      path.join(cwd, "templates"),
+      // When cwd is workspace root
+      path.join(cwd, "packages/generator/templates"),
+      // Navigate up 3 from packages/generator to workspace root, then back
+      path.join(cwd, "../../../packages/generator/templates"),
+      path.join(cwd, "../../packages/generator/templates"),
+      // __dirname relative (dist/cli/ → up to package root → templates)
+      path.join(__dirname, "../../templates"),
+      path.join(__dirname, "../../../templates"),
+    ];
+    for (const c of candidates) {
+      try {
+        const s = await fs.stat(c);
+        if (s.isDirectory()) return c;
+      } catch { /* continue */ }
+    }
+    return candidates[0]!;
   }
 
   /**

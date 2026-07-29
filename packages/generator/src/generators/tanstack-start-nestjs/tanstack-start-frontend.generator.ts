@@ -734,35 +734,78 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     // every generated project. It is gitignored for the same reason.
   }
 
+  // ---------------------------------------------------------------------------
+  // Single-entity generation (reused by full generator + generate:entity CLI)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Generate only the route files that belong to a single entity:
+   *   • src/routes/<entity-kebab>.tsx          (list page)
+   *   • src/routes/<entity-kebab>.$id.tsx      (detail page)
+   *
+   * @param busEntity   The busEntity entry (already inside context.entities)
+   * @param context     Full project context (needed for sidebar, project config, etc.)
+   * @param outputDir   Frontend project root
+   */
+  public async generateSingleEntityRoutes(
+    busEntity: any,
+    context: any,
+    outputDir: string
+  ): Promise<void> {
+    const displayName =
+      busEntity.displayName ||
+      busEntity.name.charAt(0).toUpperCase() +
+        busEntity.name
+          .slice(1)
+          .toLowerCase()
+          .replace(/_([a-z])/g, (_: string, c: string) => " " + c.toUpperCase());
+    const entityContext = { ...context, entity: { ...busEntity, displayName } };
+    await fs.mkdir(path.join(outputDir, "src/routes"), { recursive: true });
+
+    const listPageFilename = `${kebabCase(busEntity.name)}.tsx`;
+    const listPageContent = await this.renderTemplate(
+      "src/routes/$entity/index.tsx.hbs",
+      entityContext
+    );
+    await fs.writeFile(path.join(outputDir, "src/routes", listPageFilename), listPageContent);
+
+    const detailPageFilename = `${kebabCase(busEntity.name)}.$id.tsx`;
+    const detailPageContent = await this.renderTemplate(
+      "src/routes/$entity/$id.tsx.hbs",
+      entityContext
+    );
+    await fs.writeFile(path.join(outputDir, "src/routes", detailPageFilename), detailPageContent);
+  }
+
+  /**
+   * Public entry-point for the generate:entity CLI command.
+   * Builds the full project context (needed for sidebar/nav) then generates
+   * the two route files for the named entity.
+   */
+  public async generateSingleEntity(
+    entity: Entity,
+    relationships: Relationship[],
+    outputDir: string,
+    allEntities: Entity[]
+  ): Promise<void> {
+    const context = this.prepareContext(allEntities, relationships);
+    const busEntities = context.entities as any[];
+    const busEntity =
+      busEntities.find(
+        (e) => e.originalName === entity.name || e.name === entity.name
+      ) ?? busEntities[0];
+
+    await this.generateSingleEntityRoutes(busEntity, context, outputDir);
+
+    const listFile = `${kebabCase(entity.name)}.tsx`;
+    const detailFile = `${kebabCase(entity.name)}.$id.tsx`;
+    console.log(`  ✓ frontend/src/routes/${listFile}`);
+    console.log(`  ✓ frontend/src/routes/${detailFile}`);
+  }
+
   private async generateEntityPages(outputDir: string, context: any): Promise<void> {
-    for (const entity of context.entities) {
-      const displayName =
-        entity.displayName ||
-        entity.name.charAt(0).toUpperCase() +
-          entity.name
-            .slice(1)
-            .toLowerCase()
-            .replace(/_([a-z])/g, (_: string, c: string) => " " + c.toUpperCase());
-      const entityContext = { ...context, entity: { ...entity, displayName } };
-      const entityDir = path.join(outputDir, `src/routes/$entity`);
-      // Create the directory for this entity's routes
-      await fs.mkdir(entityDir, { recursive: true });
-
-      // List page - renders using Window name slug (e.g. /account not /bus_account)
-      const listPageFilename = `${kebabCase(entity.name)}.tsx`;
-      const listPageContent = await this.renderTemplate(
-        "src/routes/$entity/index.tsx.hbs",
-        entityContext
-      );
-      await fs.writeFile(path.join(outputDir, "src/routes", listPageFilename), listPageContent);
-
-      // Detail page - renders using Window name slug
-      const detailPageFilename = `${kebabCase(entity.name)}.$id.tsx`;
-      const detailPageContent = await this.renderTemplate(
-        "src/routes/$entity/$id.tsx.hbs",
-        entityContext
-      );
-      await fs.writeFile(path.join(outputDir, "src/routes", detailPageFilename), detailPageContent);
+    for (const busEntity of context.entities) {
+      await this.generateSingleEntityRoutes(busEntity, context, outputDir);
     }
   }
 
@@ -948,6 +991,14 @@ VITE_ELECTRIC_URL=
 PORT=3001
 `;
     await fs.writeFile(path.join(outputDir, ".env.local"), envLocalContent);
+
+    // Dockerfile for production container builds
+    try {
+      const dockerfileContent = await this.renderTemplate("Dockerfile.hbs", context);
+      await fs.writeFile(path.join(outputDir, "Dockerfile"), dockerfileContent);
+    } catch (e) {
+      console.warn("Frontend Dockerfile template not found, skipping");
+    }
   }
 
   private async generateTestFiles(outputDir: string, context: any): Promise<void> {

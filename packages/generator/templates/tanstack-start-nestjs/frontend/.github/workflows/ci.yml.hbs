@@ -102,8 +102,8 @@ jobs:
       - name: Build application
         run: bun run build
         env:
-          VITE_APP_URL: http://localhost:{{config.frontendPort}}
-          VITE_API_URL: http://localhost:{{config.port}}/api
+          VITE_APP_URL: http://localhost:5000
+          VITE_API_URL: http://localhost:{{config.backendPort}}/api
 
       - name: Run Playwright tests (${{ matrix.browser }})
         run: bun run test:playwright -- --project=${{ matrix.browser }}

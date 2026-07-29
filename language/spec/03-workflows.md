@@ -113,6 +113,43 @@ stateDiagram-v2
     %%trigger webhook:carrier -> markShipped on Order
 ```
 
+## 3. Saga workflows
+
+Use `%%workflow ... kind: saga` for multi-entity, multi-step processes that span
+several services or require compensating transactions (e.g. order checkout,
+patient admission, loan approval).
+
+A saga is expressed as a `flowchart` whose nodes represent steps involving
+**different entities**; each step can carry a `%%hook` directive that fires on
+the relevant entity.
+
+```mermaid
+%%meta name: Checkout Saga
+%%meta kind: workflow
+%%workflow CheckoutSaga entity: Order kind: saga
+flowchart TD
+    A([Start: Checkout Initiated]) --> B[reserveInventory on OrderItem]
+    B --> C[capturePayment on Payment]
+    C --> D{Payment OK?}
+    D -->|Yes| E[confirmOrder on Order]
+    D -->|No| F[releaseInventory on OrderItem]
+    E --> G([End: Order Confirmed])
+    F --> H([End: Checkout Failed])
+
+    %%hook beforeCreate reserveInventory on OrderItem
+    %%hook afterCreate capturePayment on Payment
+    %%hook afterUpdate confirmOrder on Order
+    %%hook afterDelete releaseInventory on OrderItem
+```
+
+Saga nodes that need compensation (rollback) should be paired: one forward hook
+and one compensating hook (typically `afterDelete` or a `customValidate`).
+
+> **Status:** saga is a reserved `kind` value — the visual diagram renders today
+> and the `%%hook` directives are parsed, but orchestration of compensating
+> transactions is part of the generator's extended conformance surface and adopted
+> incrementally.
+
 ## Combining hooks, rules, and state
 
 A single entity can carry all three: an ERD block (structure), `%%rule`

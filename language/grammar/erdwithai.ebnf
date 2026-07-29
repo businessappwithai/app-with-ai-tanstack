@@ -79,7 +79,14 @@ hookType        = "beforeCreate" | "afterCreate" | "beforeUpdate"
                 | "beforeRead"   | "afterRead"   | "beforeList" | "afterList" ;
 
 (* --------------------------------------------------------------------------
-   Flowchart section (business rules OR hook workflow)
+   Flowchart section (business rules OR hook/saga workflow)
+
+   Disambiguation (applied by the generator, not captured in this grammar):
+     - A flowSection preceded by `%%meta kind: rules`                 → rules section
+     - A flowSection containing only decision/expression/function/io
+       node shapes with no %%hook directives                          → rules section
+     - A flowSection with %%hook directives or %%meta kind: workflow  → workflow section
+     - A flowSection bound to a %%workflow ... kind: saga directive   → saga workflow
    -------------------------------------------------------------------------- *)
 flowSection     = ( "flowchart" | "graph" ) , WS , direction , NEWLINE ,
                   { flowStmt } ;

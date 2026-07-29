@@ -1,0 +1,444 @@
+%% ============================================================================
+%% Drug Discovery Experiment Operations Platform
+%% EML — complete model: ERD · business rules · workflows
+%% All diagrams are valid, renderable Mermaid.
+%%
+%% Entities: Compound, CompoundAlias, Experiment, ExperimentMetadata,
+%%           User, Team, Sample, ChemicalInventory, Instrument, InstrumentBooking,
+%%           Vendor, VendorRequest, WorkflowEvent, DeviationReport, CAPA,
+%%           StabilityTest, StabilityPull
+%%
+%% Generate: bun run generate:tanstack -- -i examples/drug-discovery.eml.mmd \
+%%            -o generated-projects/drug-discovery-clone -n drug-discovery-clone
+%% ============================================================================
+
+%% ---- Section 1: ERD --------------------------------------------------------
+%%meta name: Drug Discovery Core
+%%meta kind: erd
+%%meta version: 1.0.0
+
+%% ---- Enumerations ----------------------------------------------------------
+%%enum CompoundRegistrationStatus: draft, pending_review, approved, rejected, withdrawn
+%%enum CompoundClass: small_molecule, biologic, peptide, nucleotide, natural_product
+%%enum CompoundAliasType: iupac, common_name, tradename, cas_number, cas_name, inchi
+%%enum ExperimentStatus: draft, submitted, in_review, approved, in_progress, completed, cancelled, on_hold
+%%enum ExperimentFormType: protocol, result, amendment, deviation_note
+%%enum SampleStatus: available, reserved, consumed, exhausted, disposed
+%%enum SamplePhysicalState: solid, liquid, solution, suspension, lyophilized
+%%enum ChemicalStatus: in_stock, low_stock, ordered, out_of_stock, quarantined, disposed
+%%enum HazardClass: flammable, toxic, corrosive, oxidizer, carcinogen, none
+%%enum InstrumentType: hplc, mass_spectrometer, nmr, microscope, centrifuge, flow_cytometer
+%%enum CalibrationStatus: calibrated, due_soon, overdue, under_maintenance, decommissioned
+%%enum BookingStatus: pending, confirmed, in_use, completed, cancelled
+%%enum VendorType: cro, supplier, testing_lab, logistics, consultant
+%%enum SlaTier: standard, priority, enterprise
+%%enum VendorRequestStatus: draft, submitted, under_review, approved, in_progress, delivered, cancelled
+%%enum DeviationSeverity: minor, major, critical, catastrophic
+%%enum DeviationStatus: open, under_investigation, resolved, closed
+%%enum CapaStatus: open, in_progress, pending_verification, closed, cancelled
+%%enum CapaRootCauseCategory: equipment_failure, process_deviation, human_error, environmental, supplier_issue, unknown
+%%enum StabilityTestStatus: planned, in_progress, completed, aborted
+%%enum StabilityPullStatus: scheduled, completed, missed, cancelled
+%%enum UserRole: lab_manager, researcher, quality_assurance, compliance_officer, technician, administrator
+
+erDiagram
+
+    Compound {
+        string id PK
+        string smiles UK
+        decimal molecular_weight OPTIONAL
+        string inchi_key OPTIONAL
+        string formula OPTIONAL
+        string compound_class OPTIONAL
+        string registration_status
+        string registered_by FK
+    }
+
+    CompoundAlias {
+        string id PK
+        string compound_id FK
+        string alias_name
+        string alias_type
+    }
+
+    Experiment {
+        string id PK
+        string title
+        string status
+        string pi_id FK
+        string lab_manager_id FK OPTIONAL
+        string therapeutic_area OPTIONAL
+        string project_code OPTIONAL
+        string schema_version
+        integer estimated_duration_days OPTIONAL
+        datetime submitted_at OPTIONAL
+        datetime completed_at OPTIONAL
+    }
+
+    ExperimentMetadata {
+        string id PK
+        string experiment_id FK
+        string form_type
+        json payload
+        string schema_ref
+        integer schema_version_number
+    }
+
+    User {
+        string id PK
+        string email UK
+        string first_name
+        string last_name
+        string role
+        string department OPTIONAL
+        string team_id FK OPTIONAL
+        boolean is_active
+        datetime last_login OPTIONAL
+    }
+
+    Team {
+        string id PK
+        string name
+        string manager_id FK OPTIONAL
+        string department OPTIONAL
+    }
+
+    Sample {
+        string id PK
+        string compound_id FK OPTIONAL
+        string parent_sample_id FK OPTIONAL
+        string experiment_id FK OPTIONAL
+        decimal volume_ul OPTIONAL
+        decimal mass_mg OPTIONAL
+        string physical_state
+        string storage_location OPTIONAL
+        string location_barcode UK OPTIONAL
+        date expiration_date OPTIONAL
+        string status
+    }
+
+    ChemicalInventory {
+        string id PK
+        string cas_number OPTIONAL
+        string name
+        string formula OPTIONAL
+        decimal current_mass_g
+        decimal current_volume_ml OPTIONAL
+        string storage_location
+        string storage_temperature OPTIONAL
+        date expiration_date OPTIONAL
+        string hazard_class OPTIONAL
+        string status
+    }
+
+    Instrument {
+        string id PK
+        string name
+        string instrument_type
+        string calibration_status
+        date last_calibration_date OPTIONAL
+        date next_calibration_date OPTIONAL
+        string location OPTIONAL
+        string operator_certification_level OPTIONAL
+        boolean is_active
+    }
+
+    InstrumentBooking {
+        string id PK
+        string instrument_id FK
+        string experiment_id FK
+        string booked_by FK
+        datetime start_time
+        datetime end_time
+        string status
+        string cancellation_reason OPTIONAL
+    }
+
+    Vendor {
+        string id PK
+        string name
+        string vendor_type
+        string sla_tier OPTIONAL
+        string api_endpoint OPTIONAL
+        boolean has_portal_access
+        boolean is_active
+    }
+
+    VendorRequest {
+        string id PK
+        string experiment_id FK
+        string vendor_id FK
+        string requested_by FK
+        string service_type
+        string status
+        string budget_code OPTIONAL
+        date required_return_date OPTIONAL
+        json payload OPTIONAL
+        datetime submitted_at OPTIONAL
+        datetime delivered_at OPTIONAL
+    }
+
+    WorkflowEvent {
+        string id PK
+        string experiment_id FK
+        string action
+        json old_value OPTIONAL
+        json new_value
+        string user_id FK
+        datetime event_timestamp
+        string reason OPTIONAL
+        string cryptographic_signature OPTIONAL
+        string signature_meaning OPTIONAL
+    }
+
+    DeviationReport {
+        string id PK
+        string experiment_id FK
+        string reported_by FK
+        datetime anomaly_timestamp
+        text anomaly_description
+        text corrective_action OPTIONAL
+        text root_cause OPTIONAL
+        string severity
+        string status
+    }
+
+    CAPA {
+        string id PK
+        string deviation_report_id FK OPTIONAL
+        string title
+        string root_cause_category
+        string remediation_owner FK
+        date required_resolution_date
+        text effectiveness_metric OPTIONAL
+        string status
+        datetime verified_at OPTIONAL
+    }
+
+    StabilityTest {
+        string id PK
+        string compound_id FK
+        string condition_temperature OPTIONAL
+        string condition_humidity OPTIONAL
+        string status
+        datetime initiated_at
+        date expected_end_date OPTIONAL
+    }
+
+    StabilityPull {
+        string id PK
+        string stability_test_id FK
+        string experiment_id FK OPTIONAL
+        date scheduled_pull_date
+        date actual_pull_date OPTIONAL
+        text analytical_readouts OPTIONAL
+        string pull_status
+    }
+
+    Compound          ||--o{ CompoundAlias      : "has aliases"
+    Compound          ||--o{ Sample             : "has samples"
+    Compound          ||--o{ StabilityTest      : "undergoes"
+    Team              ||--o{ User               : "has members"
+    User              ||--o{ Experiment         : "leads as PI"
+    Experiment        ||--o{ ExperimentMetadata : "has metadata"
+    Experiment        ||--o{ Sample             : "uses"
+    Experiment        ||--o{ InstrumentBooking  : "books"
+    Experiment        ||--o{ VendorRequest      : "requests"
+    Experiment        ||--o{ WorkflowEvent      : "tracks"
+    Experiment        ||--o{ DeviationReport    : "reports"
+    Experiment        ||--o{ StabilityPull      : "includes"
+    Instrument        ||--o{ InstrumentBooking  : "is booked"
+    Vendor            ||--o{ VendorRequest      : "fulfills"
+    DeviationReport   ||--o{ CAPA               : "triggers"
+    StabilityTest     ||--o{ StabilityPull      : "has pulls"
+
+    %%field Compound.registration_status        enum: CompoundRegistrationStatus
+    %%field Compound.compound_class             enum: CompoundClass
+    %%field CompoundAlias.alias_type            enum: CompoundAliasType
+    %%field Experiment.status                   enum: ExperimentStatus
+    %%field ExperimentMetadata.form_type        enum: ExperimentFormType
+    %%field Sample.status                       enum: SampleStatus
+    %%field Sample.physical_state              enum: SamplePhysicalState
+    %%field ChemicalInventory.status            enum: ChemicalStatus
+    %%field ChemicalInventory.hazard_class      enum: HazardClass
+    %%field Instrument.instrument_type          enum: InstrumentType
+    %%field Instrument.calibration_status       enum: CalibrationStatus
+    %%field InstrumentBooking.status            enum: BookingStatus
+    %%field Vendor.vendor_type                  enum: VendorType
+    %%field Vendor.sla_tier                     enum: SlaTier
+    %%field VendorRequest.status               enum: VendorRequestStatus
+    %%field DeviationReport.severity            enum: DeviationSeverity
+    %%field DeviationReport.status              enum: DeviationStatus
+    %%field CAPA.status                         enum: CapaStatus
+    %%field CAPA.root_cause_category           enum: CapaRootCauseCategory
+    %%field StabilityTest.status               enum: StabilityTestStatus
+    %%field StabilityPull.pull_status          enum: StabilityPullStatus
+    %%field User.role                           enum: UserRole
+
+    %%index Compound(smiles) unique
+    %%index Sample(location_barcode) unique
+    %%index User(email) unique
+    %%index Experiment(project_code)
+    %%index InstrumentBooking(instrument_id, start_time)
+    %%index WorkflowEvent(experiment_id, event_timestamp)
+
+    %%entity Experiment  audited: true
+    %%entity WorkflowEvent audited: true
+    %%entity DeviationReport audited: true
+    %%entity CAPA audited: true
+
+%% ---- Section 2: Business rule — experiment submission gate -----------------
+%%meta name: Experiment Submission Gate
+%%meta kind: rules
+%%rule experimentSubmitGate on Experiment event: beforeUpdate priority: 10
+flowchart TD
+    A([Start: Submit Requested]) --> B{Status == draft?}
+    B -->|No| X1[Reject: Not in Draft]
+    B -->|Yes| C{Title provided?}
+    C -->|No| X2[Reject: Title Required]
+    C -->|Yes| D{PI assigned?}
+    D -->|No| X3[Reject: PI Required]
+    D -->|Yes| E{Estimated duration >= 1?}
+    E -->|No| X4[Reject: Duration Required]
+    E -->|Yes| P[Set status: submitted]
+    X1 --> Z([End])
+    X2 --> Z
+    X3 --> Z
+    X4 --> Z
+    P --> Z
+
+%% ---- Section 3: Business rule — deviation severity routing -----------------
+%%meta name: Deviation Severity Routing
+%%meta kind: rules
+%%rule deviationSeverity on DeviationReport event: beforeCreate priority: 10
+flowchart TD
+    A([Start: Deviation Reported]) --> B{GMP-critical experiment?}
+    B -->|Yes| C{anomaly_description length >= 100?}
+    C -->|Yes| H[Set severity: critical]
+    C -->|No| M[Set severity: major]
+    B -->|No| D{Instrument failure involved?}
+    D -->|Yes| M2[Set severity: major]
+    D -->|No| L[Set severity: minor]
+    H --> N((Notify QA))
+    M --> N
+    M2 --> N
+    L --> K((Notify Supervisor))
+    N --> E([End: Routed])
+    K --> E
+
+%% ---- Section 4: Business rule — instrument booking conflict check ----------
+%%meta name: Instrument Booking Conflict
+%%meta kind: rules
+%%rule bookingConflict on InstrumentBooking event: beforeCreate priority: 5
+flowchart TD
+    A([Start: Booking Requested]) --> B{Instrument is_active?}
+    B -->|No| X1[Reject: Instrument Inactive]
+    B -->|Yes| C{calibration_status == overdue?}
+    C -->|Yes| X2[Reject: Calibration Overdue]
+    C -->|No| D{Timeslot available?}
+    D -->|No| X3[Reject: Booking Conflict]
+    D -->|Yes| P[Confirm Booking]
+    X1 --> Z([End])
+    X2 --> Z
+    X3 --> Z
+    P --> Z
+
+%% ---- Section 5: Workflow — experiment lifecycle (state machine) -------------
+%%meta name: Experiment Lifecycle
+%%meta kind: workflow
+%%workflow ExperimentLifecycle entity: Experiment kind: state
+%%enum ExperimentStatus: draft, submitted, in_review, approved, in_progress, completed, cancelled, on_hold
+stateDiagram-v2
+    [*] --> draft
+    draft        --> submitted   : submit
+    submitted    --> in_review   : assign_reviewer
+    submitted    --> draft       : return_to_draft
+    in_review    --> approved    : approve
+    in_review    --> draft       : reject
+    approved     --> in_progress : start
+    in_progress  --> completed   : complete
+    in_progress  --> on_hold     : pause
+    on_hold      --> in_progress : resume
+    in_progress  --> cancelled   : cancel
+    approved     --> cancelled   : cancel
+    completed    --> [*]
+    cancelled    --> [*]
+
+    %%guard role:researcher|lab_manager on Experiment.submit
+    %%guard role:quality_assurance|compliance_officer on Experiment.approve
+    %%guard role:lab_manager|compliance_officer on Experiment.cancel
+    %%trigger webhook:lims -> syncExperimentStatus on Experiment
+
+%% ---- Section 6: Workflow — CAPA lifecycle (state machine) ------------------
+%%meta name: CAPA Lifecycle
+%%meta kind: workflow
+%%workflow CapaLifecycle entity: CAPA kind: state
+stateDiagram-v2
+    [*] --> open
+    open              --> in_progress          : assign
+    in_progress       --> pending_verification : submit_for_review
+    pending_verification --> closed            : verify_effective
+    pending_verification --> in_progress       : reopen
+    in_progress       --> cancelled            : cancel
+    closed            --> [*]
+    cancelled         --> [*]
+
+    %%guard role:quality_assurance|compliance_officer on CAPA.verify_effective
+    %%guard role:compliance_officer on CAPA.cancel
+    %%trigger cron:0 8 * * * -> escalateOverdueCapa on CAPA
+
+%% ---- Section 7: Workflow — compound registration hooks ---------------------
+%%meta name: Compound Registration
+%%meta kind: workflow
+%%workflow CompoundRegistration entity: Compound kind: hook
+flowchart TD
+    A[Client Request] --> B[Validate SMILES]
+    B --> C[customValidate: validateSmilesFormat]
+    C --> D[beforeCreate: generateInchiKey]
+    D --> E[beforeCreate: computeMolecularWeight]
+    E --> F[Process Compound]
+    F --> G[afterCreate: indexForSearch]
+    G --> H[afterCreate: notifyRegistrationTeam]
+    H --> I[Response]
+
+    %%hook customValidate validateSmilesFormat on Compound[field: smiles]
+    %%hook beforeCreate generateInchiKey on Compound[field: inchi_key]
+    %%hook beforeCreate computeMolecularWeight on Compound[field: molecular_weight]
+    %%hook afterCreate indexForSearch on Compound
+    %%hook afterCreate notifyRegistrationTeam on Compound
+
+%% ---- Section 8: Workflow — experiment audit trail hooks --------------------
+%%meta name: Experiment Audit Trail
+%%meta kind: workflow
+%%workflow ExperimentAuditTrail entity: Experiment kind: hook
+flowchart TD
+    A[Client Request] --> B[Validate Request]
+    B --> C[beforeUpdate: snapshotPreviousState]
+    C --> D[customValidate: enforceGmpFields]
+    D --> E[Process Experiment]
+    E --> F[afterUpdate: emitWorkflowEvent]
+    F --> G[afterUpdate: generateCryptographicSignature]
+    G --> H[Response]
+
+    %%hook beforeUpdate snapshotPreviousState on Experiment
+    %%hook customValidate enforceGmpFields on Experiment
+    %%hook afterUpdate emitWorkflowEvent on Experiment
+    %%hook afterUpdate generateCryptographicSignature on Experiment
+
+%% ---- Section 9: Workflow — deviation report hooks -------------------------
+%%meta name: Deviation Report Hooks
+%%meta kind: workflow
+%%workflow DeviationReportHooks entity: DeviationReport kind: hook
+flowchart TD
+    A[Client Request] --> B[Validate]
+    B --> C[beforeCreate: timestampAnomaly]
+    C --> D[customValidate: requireDescription]
+    D --> E[Process Deviation]
+    E --> F[afterCreate: triggerCapaIfCritical]
+    F --> G[afterCreate: notifyQualityTeam]
+    G --> H[Response]
+
+    %%hook beforeCreate timestampAnomaly on DeviationReport[field: anomaly_timestamp]
+    %%hook customValidate requireDescription on DeviationReport[field: anomaly_description]
+    %%hook afterCreate triggerCapaIfCritical on DeviationReport
+    %%hook afterCreate notifyQualityTeam on DeviationReport

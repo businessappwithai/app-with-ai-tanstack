@@ -27,6 +27,8 @@ services:
       DATABASE_URL: postgres://${DB_USER:-app}:${DB_PASSWORD}@postgres:5432/{{project.name | replace '-' '_'}}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:{{project.frontendPort}}}
       PORT: {{project.backendPort}}
     depends_on:
       postgres:

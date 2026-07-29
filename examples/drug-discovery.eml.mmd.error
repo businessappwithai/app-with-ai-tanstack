@@ -1,0 +1,95 @@
+{
+  "file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai-tanstack/examples/drug-discovery.eml.mmd",
+  "checkedAt": "2026-07-29T10:07:40.056Z",
+  "languageVersion": "1.0.0",
+  "summary": {
+    "errors": 0,
+    "warnings": 5,
+    "infos": 6,
+    "ok": true
+  },
+  "issues": [
+    {
+      "severity": "warning",
+      "code": "EML114",
+      "message": "Foreign key \"DeviationReport.reported_by\" does not end with \"_id\".",
+      "line": 197,
+      "hint": "Convention: rename to \"reported_by_id\" so the generator can derive the referenced table.",
+      "autoFixable": false
+    },
+    {
+      "severity": "warning",
+      "code": "EML114",
+      "message": "Foreign key \"CAPA.remediation_owner\" does not end with \"_id\".",
+      "line": 211,
+      "hint": "Convention: rename to \"remediation_owner_id\" so the generator can derive the referenced table.",
+      "autoFixable": false
+    },
+    {
+      "severity": "warning",
+      "code": "EML114",
+      "message": "Foreign key \"Compound.registered_by\" does not end with \"_id\".",
+      "line": 54,
+      "hint": "Convention: rename to \"registered_by_id\" so the generator can derive the referenced table.",
+      "autoFixable": false
+    },
+    {
+      "severity": "warning",
+      "code": "EML114",
+      "message": "Foreign key \"InstrumentBooking.booked_by\" does not end with \"_id\".",
+      "line": 150,
+      "hint": "Convention: rename to \"booked_by_id\" so the generator can derive the referenced table.",
+      "autoFixable": false
+    },
+    {
+      "severity": "warning",
+      "code": "EML114",
+      "message": "Foreign key \"VendorRequest.requested_by\" does not end with \"_id\".",
+      "line": 171,
+      "hint": "Convention: rename to \"requested_by_id\" so the generator can derive the referenced table.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML502",
+      "message": "FK attribute \"Experiment.pi_id\" has no relationship to \"Pi\".",
+      "hint": "Add:  Pi ||--o{ Experiment : \"...\"  (or reverse for manyToOne).",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML502",
+      "message": "FK attribute \"Experiment.lab_manager_id\" has no relationship to \"LabManager\".",
+      "hint": "Add:  LabManager ||--o{ Experiment : \"...\"  (or reverse for manyToOne).",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML502",
+      "message": "FK attribute \"WorkflowEvent.user_id\" has no relationship to \"User\".",
+      "hint": "Add:  User ||--o{ WorkflowEvent : \"...\"  (or reverse for manyToOne).",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML502",
+      "message": "FK attribute \"Team.manager_id\" has no relationship to \"Manager\".",
+      "hint": "Add:  Manager ||--o{ Team : \"...\"  (or reverse for manyToOne).",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML502",
+      "message": "FK attribute \"Sample.parent_sample_id\" has no relationship to \"ParentSample\".",
+      "hint": "Add:  ParentSample ||--o{ Sample : \"...\"  (or reverse for manyToOne).",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML503",
+      "message": "Entity \"ChemicalInventory\" has no relationships to other entities.",
+      "hint": "Is this intentional? Isolated entities are valid but may indicate a missing relationship.",
+      "autoFixable": false
+    }
+  ]
+}
