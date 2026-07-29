@@ -1,5 +1,4 @@
 import { createAPIFileRoute } from "@tanstack/start/api";
-import { MermaidParser } from "@erdwithai/generator";
 
 export const Route = createAPIFileRoute("/api/db/generate-schema")({
   POST: async ({ request }) => {
@@ -24,6 +23,7 @@ export const Route = createAPIFileRoute("/api/db/generate-schema")({
       }
 
       // Parse ERD
+      const { MermaidParser } = await import("@erdwithai/generator");
       const parser = new MermaidParser();
       const schema = parser.parse(mermaidCode);
 

@@ -9,91 +9,76 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TestRouteImport } from './routes/test'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as DesignerRouteImport } from './routes/designer'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
-import { Route as ApiHealthRouteImport } from './routes/api/health'
-import { Route as ApiGenerateRouteImport } from './routes/api/generate'
-import { Route as ApiDeployRouteImport } from './routes/api/deploy'
-import { Route as ApiCopilotkitRouteImport } from './routes/api/copilotkit'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as DesignerRouteImport } from './routes/designer'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as TestRouteImport } from './routes/test'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
-import { Route as ApiWorkflowsIndexRouteImport } from './routes/api/workflows/index'
-import { Route as ApiRulesIndexRouteImport } from './routes/api/rules/index'
-import { Route as ApiProjectsIndexRouteImport } from './routes/api/projects/index'
-import { Route as ApiMermaidIndexRouteImport } from './routes/api/mermaid/index'
-import { Route as AdminWorkflowsIndexRouteImport } from './routes/admin/workflows/index'
-import { Route as AdminRulesIndexRouteImport } from './routes/admin/rules/index'
+import { Route as ApiCopilotkitRouteImport } from './routes/api/copilotkit'
+import { Route as ApiDeployRouteImport } from './routes/api/deploy'
+import { Route as ApiGenerateRouteImport } from './routes/api/generate'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
+import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as AdminMermaidIndexRouteImport } from './routes/admin/mermaid/index'
-import { Route as ProjectsIdRulesDesignRouteImport } from './routes/projects/$id/rules-design'
-import { Route as ProjectsIdInitRouteImport } from './routes/projects/$id/init'
-import { Route as ProjectsIdGenerateRouteImport } from './routes/projects/$id/generate'
-import { Route as ProjectsIdDesignRouteImport } from './routes/projects/$id/design'
-import { Route as ProjectsIdDeployRouteImport } from './routes/projects/$id/deploy'
-import { Route as ApiRulesValidateRouteImport } from './routes/api/rules/validate'
-import { Route as ApiMermaidParseRouteImport } from './routes/api/mermaid/parse'
-import { Route as ApiMermaidFilenameRouteImport } from './routes/api/mermaid/$filename'
-import { Route as ApiDbReverseEngineerRouteImport } from './routes/api/db/reverse-engineer'
-import { Route as ApiDbGenerateSchemaRouteImport } from './routes/api/db/generate-schema'
-import { Route as ApiCopilotkitSplatRouteImport } from './routes/api/copilotkit/$'
-import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth/register'
-import { Route as ApiAuthMeRouteImport } from './routes/api/auth/me'
-import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
-import { Route as ApiAuthLoginRouteImport } from './routes/api/auth/login'
-import { Route as ApiAiRulesStreamRouteImport } from './routes/api/ai/rules-stream'
-import { Route as ApiAiConvertStreamRouteImport } from './routes/api/ai/convert-stream'
-import { Route as ApiAiConvertRouteImport } from './routes/api/ai/convert'
-import { Route as ApiAiCodeAgentStreamRouteImport } from './routes/api/ai/code-agent-stream'
-import { Route as ApiAiCodeAgentRouteImport } from './routes/api/ai/code-agent'
-import { Route as AdminWorkflowsWorkflowIdRouteImport } from './routes/admin/workflows/$workflowId'
+import { Route as AdminRulesIndexRouteImport } from './routes/admin/rules/index'
 import { Route as AdminRulesNewRouteImport } from './routes/admin/rules/new'
-import { Route as ProjectsIdEnhanceIndexRouteImport } from './routes/projects/$id/enhance/index'
-import { Route as ApiWorkflowsWorkflowIdIndexRouteImport } from './routes/api/workflows/$workflowId/index'
-import { Route as ApiRulesRuleIdIndexRouteImport } from './routes/api/rules/$ruleId/index'
-import { Route as ApiProjectsIdIndexRouteImport } from './routes/api/projects/$id/index'
-import { Route as ApiAdminUsersIndexRouteImport } from './routes/api/admin/users/index'
-import { Route as ProjectsIdEnhanceServiceNameRouteImport } from './routes/projects/$id/enhance/$serviceName'
-import { Route as ApiWorkflowsWorkflowIdStatusRouteImport } from './routes/api/workflows/$workflowId/status'
-import { Route as ApiWorkflowsWorkflowIdRetryRouteImport } from './routes/api/workflows/$workflowId/retry'
+import { Route as AdminWorkflowsIndexRouteImport } from './routes/admin/workflows/index'
+import { Route as AdminWorkflowsWorkflowIdRouteImport } from './routes/admin/workflows/$workflowId'
+import { Route as ApiAiCodeAgentRouteImport } from './routes/api/ai/code-agent'
+import { Route as ApiAiCodeAgentStreamRouteImport } from './routes/api/ai/code-agent-stream'
+import { Route as ApiAiConvertRouteImport } from './routes/api/ai/convert'
+import { Route as ApiAiConvertStreamRouteImport } from './routes/api/ai/convert-stream'
+import { Route as ApiAiRulesStreamRouteImport } from './routes/api/ai/rules-stream'
+import { Route as ApiAuthLoginRouteImport } from './routes/api/auth/login'
+import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
+import { Route as ApiAuthMeRouteImport } from './routes/api/auth/me'
+import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth/register'
+import { Route as ApiCopilotkitSplatRouteImport } from './routes/api/copilotkit/$'
+import { Route as ApiDbGenerateSchemaRouteImport } from './routes/api/db/generate-schema'
+import { Route as ApiDbReverseEngineerRouteImport } from './routes/api/db/reverse-engineer'
+import { Route as ApiMermaidIndexRouteImport } from './routes/api/mermaid/index'
+import { Route as ApiMermaidFilenameRouteImport } from './routes/api/mermaid/$filename'
+import { Route as ApiMermaidParseRouteImport } from './routes/api/mermaid/parse'
+import { Route as ApiProjectsIndexRouteImport } from './routes/api/projects/index'
+import { Route as ApiRulesIndexRouteImport } from './routes/api/rules/index'
+import { Route as ApiRulesValidateRouteImport } from './routes/api/rules/validate'
+import { Route as ApiWorkflowsIndexRouteImport } from './routes/api/workflows/index'
+import { Route as ProjectsIdDeployRouteImport } from './routes/projects/$id/deploy'
+import { Route as ProjectsIdDesignRouteImport } from './routes/projects/$id/design'
+import { Route as ProjectsIdGenerateRouteImport } from './routes/projects/$id/generate'
+import { Route as ProjectsIdInitRouteImport } from './routes/projects/$id/init'
+import { Route as ProjectsIdRulesDesignRouteImport } from './routes/projects/$id/rules-design'
 import { Route as AdminRulesEntityRuleIdRouteImport } from './routes/admin/rules/$entity/$ruleId'
-import { Route as ApiProjectsIdWorkflowsIndexRouteImport } from './routes/api/projects/$id/workflows/index'
-import { Route as ApiProjectsIdMembersIndexRouteImport } from './routes/api/projects/$id/members/index'
-import { Route as ApiProjectsIdErdVersionsIndexRouteImport } from './routes/api/projects/$id/erd-versions/index'
-import { Route as ApiProjectsIdDeploymentIndexRouteImport } from './routes/api/projects/$id/deployment/index'
-import { Route as ApiAdminUsersIdRejectRouteImport } from './routes/api/admin/users/$id/reject'
+import { Route as ApiAdminUsersIndexRouteImport } from './routes/api/admin/users/index'
+import { Route as ApiProjectsIdIndexRouteImport } from './routes/api/projects/$id/index'
+import { Route as ApiRulesRuleIdIndexRouteImport } from './routes/api/rules/$ruleId/index'
+import { Route as ApiWorkflowsWorkflowIdIndexRouteImport } from './routes/api/workflows/$workflowId/index'
+import { Route as ApiWorkflowsWorkflowIdRetryRouteImport } from './routes/api/workflows/$workflowId/retry'
+import { Route as ApiWorkflowsWorkflowIdStatusRouteImport } from './routes/api/workflows/$workflowId/status'
+import { Route as ProjectsIdEnhanceIndexRouteImport } from './routes/projects/$id/enhance/index'
+import { Route as ProjectsIdEnhanceServiceNameRouteImport } from './routes/projects/$id/enhance/$serviceName'
 import { Route as ApiAdminUsersIdApproveRouteImport } from './routes/api/admin/users/$id/approve'
-import { Route as ApiProjectsIdWorkflowsServiceNameIndexRouteImport } from './routes/api/projects/$id/workflows/$serviceName/index'
-import { Route as ApiProjectsIdMembersUserIdIndexRouteImport } from './routes/api/projects/$id/members/$userId/index'
-import { Route as ApiProjectsIdWorkflowsServiceNameValidateRouteImport } from './routes/api/projects/$id/workflows/$serviceName/validate'
-import { Route as ApiProjectsIdWorkflowsServiceNameGorulesRouteImport } from './routes/api/projects/$id/workflows/$serviceName/gorules'
-import { Route as ApiProjectsIdWorkflowsServiceNameGenerateRouteImport } from './routes/api/projects/$id/workflows/$serviceName/generate'
-import { Route as ApiProjectsIdWorkflowsServiceNameDraftRouteImport } from './routes/api/projects/$id/workflows/$serviceName/draft'
-import { Route as ApiProjectsIdWorkflowsServiceNameApplyRouteImport } from './routes/api/projects/$id/workflows/$serviceName/apply'
+import { Route as ApiAdminUsersIdRejectRouteImport } from './routes/api/admin/users/$id/reject'
+import { Route as ApiProjectsIdDeploymentIndexRouteImport } from './routes/api/projects/$id/deployment/index'
+import { Route as ApiProjectsIdErdVersionsIndexRouteImport } from './routes/api/projects/$id/erd-versions/index'
+import { Route as ApiProjectsIdMembersIndexRouteImport } from './routes/api/projects/$id/members/index'
+import { Route as ApiProjectsIdWorkflowsIndexRouteImport } from './routes/api/projects/$id/workflows/index'
 import { Route as ApiProjectsIdErdVersionsVersionIdRestoreRouteImport } from './routes/api/projects/$id/erd-versions/$versionId/restore'
+import { Route as ApiProjectsIdMembersUserIdIndexRouteImport } from './routes/api/projects/$id/members/$userId/index'
+import { Route as ApiProjectsIdWorkflowsServiceNameIndexRouteImport } from './routes/api/projects/$id/workflows/$serviceName/index'
+import { Route as ApiProjectsIdWorkflowsServiceNameApplyRouteImport } from './routes/api/projects/$id/workflows/$serviceName/apply'
+import { Route as ApiProjectsIdWorkflowsServiceNameDraftRouteImport } from './routes/api/projects/$id/workflows/$serviceName/draft'
+import { Route as ApiProjectsIdWorkflowsServiceNameGenerateRouteImport } from './routes/api/projects/$id/workflows/$serviceName/generate'
+import { Route as ApiProjectsIdWorkflowsServiceNameGorulesRouteImport } from './routes/api/projects/$id/workflows/$serviceName/gorules'
+import { Route as ApiProjectsIdWorkflowsServiceNameValidateRouteImport } from './routes/api/projects/$id/workflows/$serviceName/validate'
 import { Route as ApiProjectsIdWorkflowsServiceNameFilesIndexRouteImport } from './routes/api/projects/$id/workflows/$serviceName/files/index'
 import { Route as ApiProjectsIdWorkflowsServiceNameFilesFileNameRouteImport } from './routes/api/projects/$id/workflows/$serviceName/files/$fileName'
 
-const TestRoute = TestRouteImport.update({
-  id: '/test',
-  path: '/test',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DesignerRoute = DesignerRouteImport.update({
-  id: '/designer',
-  path: '/designer',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -101,34 +86,24 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const DesignerRoute = DesignerRouteImport.update({
+  id: '/designer',
+  path: '/designer',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
-  id: '/projects/',
-  path: '/projects/',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiHealthRoute = ApiHealthRouteImport.update({
-  id: '/api/health',
-  path: '/api/health',
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiGenerateRoute = ApiGenerateRouteImport.update({
-  id: '/api/generate',
-  path: '/api/generate',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDeployRoute = ApiDeployRouteImport.update({
-  id: '/api/deploy',
-  path: '/api/deploy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiCopilotkitRoute = ApiCopilotkitRouteImport.update({
-  id: '/api/copilotkit',
-  path: '/api/copilotkit',
+const TestRoute = TestRouteImport.update({
+  id: '/test',
+  path: '/test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -136,34 +111,29 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/admin/users',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiWorkflowsIndexRoute = ApiWorkflowsIndexRouteImport.update({
-  id: '/api/workflows/',
-  path: '/api/workflows/',
+const ApiCopilotkitRoute = ApiCopilotkitRouteImport.update({
+  id: '/api/copilotkit',
+  path: '/api/copilotkit',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiRulesIndexRoute = ApiRulesIndexRouteImport.update({
-  id: '/api/rules/',
-  path: '/api/rules/',
+const ApiDeployRoute = ApiDeployRouteImport.update({
+  id: '/api/deploy',
+  path: '/api/deploy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiProjectsIndexRoute = ApiProjectsIndexRouteImport.update({
-  id: '/api/projects/',
-  path: '/api/projects/',
+const ApiGenerateRoute = ApiGenerateRouteImport.update({
+  id: '/api/generate',
+  path: '/api/generate',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiMermaidIndexRoute = ApiMermaidIndexRouteImport.update({
-  id: '/api/mermaid/',
-  path: '/api/mermaid/',
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminWorkflowsIndexRoute = AdminWorkflowsIndexRouteImport.update({
-  id: '/admin/workflows/',
-  path: '/admin/workflows/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRulesIndexRoute = AdminRulesIndexRouteImport.update({
-  id: '/admin/rules/',
-  path: '/admin/rules/',
+const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminMermaidIndexRoute = AdminMermaidIndexRouteImport.update({
@@ -171,104 +141,19 @@ const AdminMermaidIndexRoute = AdminMermaidIndexRouteImport.update({
   path: '/admin/mermaid/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsIdRulesDesignRoute = ProjectsIdRulesDesignRouteImport.update({
-  id: '/projects/$id/rules-design',
-  path: '/projects/$id/rules-design',
+const AdminRulesIndexRoute = AdminRulesIndexRouteImport.update({
+  id: '/admin/rules/',
+  path: '/admin/rules/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsIdInitRoute = ProjectsIdInitRouteImport.update({
-  id: '/projects/$id/init',
-  path: '/projects/$id/init',
+const AdminRulesNewRoute = AdminRulesNewRouteImport.update({
+  id: '/admin/rules/new',
+  path: '/admin/rules/new',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsIdGenerateRoute = ProjectsIdGenerateRouteImport.update({
-  id: '/projects/$id/generate',
-  path: '/projects/$id/generate',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProjectsIdDesignRoute = ProjectsIdDesignRouteImport.update({
-  id: '/projects/$id/design',
-  path: '/projects/$id/design',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProjectsIdDeployRoute = ProjectsIdDeployRouteImport.update({
-  id: '/projects/$id/deploy',
-  path: '/projects/$id/deploy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiRulesValidateRoute = ApiRulesValidateRouteImport.update({
-  id: '/api/rules/validate',
-  path: '/api/rules/validate',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiMermaidParseRoute = ApiMermaidParseRouteImport.update({
-  id: '/api/mermaid/parse',
-  path: '/api/mermaid/parse',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiMermaidFilenameRoute = ApiMermaidFilenameRouteImport.update({
-  id: '/api/mermaid/$filename',
-  path: '/api/mermaid/$filename',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDbReverseEngineerRoute = ApiDbReverseEngineerRouteImport.update({
-  id: '/api/db/reverse-engineer',
-  path: '/api/db/reverse-engineer',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDbGenerateSchemaRoute = ApiDbGenerateSchemaRouteImport.update({
-  id: '/api/db/generate-schema',
-  path: '/api/db/generate-schema',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiCopilotkitSplatRoute = ApiCopilotkitSplatRouteImport.update({
-  id: '/$',
-  path: '/$',
-  getParentRoute: () => ApiCopilotkitRoute,
-} as any)
-const ApiAuthRegisterRoute = ApiAuthRegisterRouteImport.update({
-  id: '/api/auth/register',
-  path: '/api/auth/register',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthMeRoute = ApiAuthMeRouteImport.update({
-  id: '/api/auth/me',
-  path: '/api/auth/me',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
-  id: '/api/auth/logout',
-  path: '/api/auth/logout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthLoginRoute = ApiAuthLoginRouteImport.update({
-  id: '/api/auth/login',
-  path: '/api/auth/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAiRulesStreamRoute = ApiAiRulesStreamRouteImport.update({
-  id: '/api/ai/rules-stream',
-  path: '/api/ai/rules-stream',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAiConvertStreamRoute = ApiAiConvertStreamRouteImport.update({
-  id: '/api/ai/convert-stream',
-  path: '/api/ai/convert-stream',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAiConvertRoute = ApiAiConvertRouteImport.update({
-  id: '/api/ai/convert',
-  path: '/api/ai/convert',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAiCodeAgentStreamRoute = ApiAiCodeAgentStreamRouteImport.update({
-  id: '/api/ai/code-agent-stream',
-  path: '/api/ai/code-agent-stream',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAiCodeAgentRoute = ApiAiCodeAgentRouteImport.update({
-  id: '/api/ai/code-agent',
-  path: '/api/ai/code-agent',
+const AdminWorkflowsIndexRoute = AdminWorkflowsIndexRouteImport.update({
+  id: '/admin/workflows/',
+  path: '/admin/workflows/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminWorkflowsWorkflowIdRoute =
@@ -277,14 +162,144 @@ const AdminWorkflowsWorkflowIdRoute =
     path: '/admin/workflows/$workflowId',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AdminRulesNewRoute = AdminRulesNewRouteImport.update({
-  id: '/admin/rules/new',
-  path: '/admin/rules/new',
+const ApiAiCodeAgentRoute = ApiAiCodeAgentRouteImport.update({
+  id: '/api/ai/code-agent',
+  path: '/api/ai/code-agent',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsIdEnhanceIndexRoute = ProjectsIdEnhanceIndexRouteImport.update({
-  id: '/projects/$id/enhance/',
-  path: '/projects/$id/enhance/',
+const ApiAiCodeAgentStreamRoute = ApiAiCodeAgentStreamRouteImport.update({
+  id: '/api/ai/code-agent-stream',
+  path: '/api/ai/code-agent-stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiConvertRoute = ApiAiConvertRouteImport.update({
+  id: '/api/ai/convert',
+  path: '/api/ai/convert',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiConvertStreamRoute = ApiAiConvertStreamRouteImport.update({
+  id: '/api/ai/convert-stream',
+  path: '/api/ai/convert-stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiRulesStreamRoute = ApiAiRulesStreamRouteImport.update({
+  id: '/api/ai/rules-stream',
+  path: '/api/ai/rules-stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthLoginRoute = ApiAuthLoginRouteImport.update({
+  id: '/api/auth/login',
+  path: '/api/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
+  id: '/api/auth/logout',
+  path: '/api/auth/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthMeRoute = ApiAuthMeRouteImport.update({
+  id: '/api/auth/me',
+  path: '/api/auth/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthRegisterRoute = ApiAuthRegisterRouteImport.update({
+  id: '/api/auth/register',
+  path: '/api/auth/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCopilotkitSplatRoute = ApiCopilotkitSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => ApiCopilotkitRoute,
+} as any)
+const ApiDbGenerateSchemaRoute = ApiDbGenerateSchemaRouteImport.update({
+  id: '/api/db/generate-schema',
+  path: '/api/db/generate-schema',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDbReverseEngineerRoute = ApiDbReverseEngineerRouteImport.update({
+  id: '/api/db/reverse-engineer',
+  path: '/api/db/reverse-engineer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMermaidIndexRoute = ApiMermaidIndexRouteImport.update({
+  id: '/api/mermaid/',
+  path: '/api/mermaid/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMermaidFilenameRoute = ApiMermaidFilenameRouteImport.update({
+  id: '/api/mermaid/$filename',
+  path: '/api/mermaid/$filename',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMermaidParseRoute = ApiMermaidParseRouteImport.update({
+  id: '/api/mermaid/parse',
+  path: '/api/mermaid/parse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProjectsIndexRoute = ApiProjectsIndexRouteImport.update({
+  id: '/api/projects/',
+  path: '/api/projects/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRulesIndexRoute = ApiRulesIndexRouteImport.update({
+  id: '/api/rules/',
+  path: '/api/rules/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRulesValidateRoute = ApiRulesValidateRouteImport.update({
+  id: '/api/rules/validate',
+  path: '/api/rules/validate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWorkflowsIndexRoute = ApiWorkflowsIndexRouteImport.update({
+  id: '/api/workflows/',
+  path: '/api/workflows/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsIdDeployRoute = ProjectsIdDeployRouteImport.update({
+  id: '/projects/$id/deploy',
+  path: '/projects/$id/deploy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsIdDesignRoute = ProjectsIdDesignRouteImport.update({
+  id: '/projects/$id/design',
+  path: '/projects/$id/design',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsIdGenerateRoute = ProjectsIdGenerateRouteImport.update({
+  id: '/projects/$id/generate',
+  path: '/projects/$id/generate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsIdInitRoute = ProjectsIdInitRouteImport.update({
+  id: '/projects/$id/init',
+  path: '/projects/$id/init',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsIdRulesDesignRoute = ProjectsIdRulesDesignRouteImport.update({
+  id: '/projects/$id/rules-design',
+  path: '/projects/$id/rules-design',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRulesEntityRuleIdRoute = AdminRulesEntityRuleIdRouteImport.update({
+  id: '/admin/rules/$entity/$ruleId',
+  path: '/admin/rules/$entity/$ruleId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminUsersIndexRoute = ApiAdminUsersIndexRouteImport.update({
+  id: '/api/admin/users/',
+  path: '/api/admin/users/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProjectsIdIndexRoute = ApiProjectsIdIndexRouteImport.update({
+  id: '/api/projects/$id/',
+  path: '/api/projects/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRulesRuleIdIndexRoute = ApiRulesRuleIdIndexRouteImport.update({
+  id: '/api/rules/$ruleId/',
+  path: '/api/rules/$ruleId/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiWorkflowsWorkflowIdIndexRoute =
@@ -293,25 +308,10 @@ const ApiWorkflowsWorkflowIdIndexRoute =
     path: '/api/workflows/$workflowId/',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiRulesRuleIdIndexRoute = ApiRulesRuleIdIndexRouteImport.update({
-  id: '/api/rules/$ruleId/',
-  path: '/api/rules/$ruleId/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiProjectsIdIndexRoute = ApiProjectsIdIndexRouteImport.update({
-  id: '/api/projects/$id/',
-  path: '/api/projects/$id/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAdminUsersIndexRoute = ApiAdminUsersIndexRouteImport.update({
-  id: '/api/admin/users/',
-  path: '/api/admin/users/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProjectsIdEnhanceServiceNameRoute =
-  ProjectsIdEnhanceServiceNameRouteImport.update({
-    id: '/projects/$id/enhance/$serviceName',
-    path: '/projects/$id/enhance/$serviceName',
+const ApiWorkflowsWorkflowIdRetryRoute =
+  ApiWorkflowsWorkflowIdRetryRouteImport.update({
+    id: '/api/workflows/$workflowId/retry',
+    path: '/api/workflows/$workflowId/retry',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiWorkflowsWorkflowIdStatusRoute =
@@ -320,27 +320,31 @@ const ApiWorkflowsWorkflowIdStatusRoute =
     path: '/api/workflows/$workflowId/status',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiWorkflowsWorkflowIdRetryRoute =
-  ApiWorkflowsWorkflowIdRetryRouteImport.update({
-    id: '/api/workflows/$workflowId/retry',
-    path: '/api/workflows/$workflowId/retry',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const AdminRulesEntityRuleIdRoute = AdminRulesEntityRuleIdRouteImport.update({
-  id: '/admin/rules/$entity/$ruleId',
-  path: '/admin/rules/$entity/$ruleId',
+const ProjectsIdEnhanceIndexRoute = ProjectsIdEnhanceIndexRouteImport.update({
+  id: '/projects/$id/enhance/',
+  path: '/projects/$id/enhance/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiProjectsIdWorkflowsIndexRoute =
-  ApiProjectsIdWorkflowsIndexRouteImport.update({
-    id: '/api/projects/$id/workflows/',
-    path: '/api/projects/$id/workflows/',
+const ProjectsIdEnhanceServiceNameRoute =
+  ProjectsIdEnhanceServiceNameRouteImport.update({
+    id: '/projects/$id/enhance/$serviceName',
+    path: '/projects/$id/enhance/$serviceName',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiProjectsIdMembersIndexRoute =
-  ApiProjectsIdMembersIndexRouteImport.update({
-    id: '/api/projects/$id/members/',
-    path: '/api/projects/$id/members/',
+const ApiAdminUsersIdApproveRoute = ApiAdminUsersIdApproveRouteImport.update({
+  id: '/api/admin/users/$id/approve',
+  path: '/api/admin/users/$id/approve',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminUsersIdRejectRoute = ApiAdminUsersIdRejectRouteImport.update({
+  id: '/api/admin/users/$id/reject',
+  path: '/api/admin/users/$id/reject',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProjectsIdDeploymentIndexRoute =
+  ApiProjectsIdDeploymentIndexRouteImport.update({
+    id: '/api/projects/$id/deployment/',
+    path: '/api/projects/$id/deployment/',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiProjectsIdErdVersionsIndexRoute =
@@ -349,26 +353,22 @@ const ApiProjectsIdErdVersionsIndexRoute =
     path: '/api/projects/$id/erd-versions/',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiProjectsIdDeploymentIndexRoute =
-  ApiProjectsIdDeploymentIndexRouteImport.update({
-    id: '/api/projects/$id/deployment/',
-    path: '/api/projects/$id/deployment/',
+const ApiProjectsIdMembersIndexRoute =
+  ApiProjectsIdMembersIndexRouteImport.update({
+    id: '/api/projects/$id/members/',
+    path: '/api/projects/$id/members/',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiAdminUsersIdRejectRoute = ApiAdminUsersIdRejectRouteImport.update({
-  id: '/api/admin/users/$id/reject',
-  path: '/api/admin/users/$id/reject',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAdminUsersIdApproveRoute = ApiAdminUsersIdApproveRouteImport.update({
-  id: '/api/admin/users/$id/approve',
-  path: '/api/admin/users/$id/approve',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiProjectsIdWorkflowsServiceNameIndexRoute =
-  ApiProjectsIdWorkflowsServiceNameIndexRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/',
-    path: '/api/projects/$id/workflows/$serviceName/',
+const ApiProjectsIdWorkflowsIndexRoute =
+  ApiProjectsIdWorkflowsIndexRouteImport.update({
+    id: '/api/projects/$id/workflows/',
+    path: '/api/projects/$id/workflows/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiProjectsIdErdVersionsVersionIdRestoreRoute =
+  ApiProjectsIdErdVersionsVersionIdRestoreRouteImport.update({
+    id: '/api/projects/$id/erd-versions/$versionId/restore',
+    path: '/api/projects/$id/erd-versions/$versionId/restore',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiProjectsIdMembersUserIdIndexRoute =
@@ -377,28 +377,10 @@ const ApiProjectsIdMembersUserIdIndexRoute =
     path: '/api/projects/$id/members/$userId/',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiProjectsIdWorkflowsServiceNameValidateRoute =
-  ApiProjectsIdWorkflowsServiceNameValidateRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/validate',
-    path: '/api/projects/$id/workflows/$serviceName/validate',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiProjectsIdWorkflowsServiceNameGorulesRoute =
-  ApiProjectsIdWorkflowsServiceNameGorulesRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/gorules',
-    path: '/api/projects/$id/workflows/$serviceName/gorules',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiProjectsIdWorkflowsServiceNameGenerateRoute =
-  ApiProjectsIdWorkflowsServiceNameGenerateRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/generate',
-    path: '/api/projects/$id/workflows/$serviceName/generate',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiProjectsIdWorkflowsServiceNameDraftRoute =
-  ApiProjectsIdWorkflowsServiceNameDraftRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/draft',
-    path: '/api/projects/$id/workflows/$serviceName/draft',
+const ApiProjectsIdWorkflowsServiceNameIndexRoute =
+  ApiProjectsIdWorkflowsServiceNameIndexRouteImport.update({
+    id: '/api/projects/$id/workflows/$serviceName/',
+    path: '/api/projects/$id/workflows/$serviceName/',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiProjectsIdWorkflowsServiceNameApplyRoute =
@@ -407,10 +389,28 @@ const ApiProjectsIdWorkflowsServiceNameApplyRoute =
     path: '/api/projects/$id/workflows/$serviceName/apply',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiProjectsIdErdVersionsVersionIdRestoreRoute =
-  ApiProjectsIdErdVersionsVersionIdRestoreRouteImport.update({
-    id: '/api/projects/$id/erd-versions/$versionId/restore',
-    path: '/api/projects/$id/erd-versions/$versionId/restore',
+const ApiProjectsIdWorkflowsServiceNameDraftRoute =
+  ApiProjectsIdWorkflowsServiceNameDraftRouteImport.update({
+    id: '/api/projects/$id/workflows/$serviceName/draft',
+    path: '/api/projects/$id/workflows/$serviceName/draft',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiProjectsIdWorkflowsServiceNameGenerateRoute =
+  ApiProjectsIdWorkflowsServiceNameGenerateRouteImport.update({
+    id: '/api/projects/$id/workflows/$serviceName/generate',
+    path: '/api/projects/$id/workflows/$serviceName/generate',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiProjectsIdWorkflowsServiceNameGorulesRoute =
+  ApiProjectsIdWorkflowsServiceNameGorulesRouteImport.update({
+    id: '/api/projects/$id/workflows/$serviceName/gorules',
+    path: '/api/projects/$id/workflows/$serviceName/gorules',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiProjectsIdWorkflowsServiceNameValidateRoute =
+  ApiProjectsIdWorkflowsServiceNameValidateRouteImport.update({
+    id: '/api/projects/$id/workflows/$serviceName/validate',
+    path: '/api/projects/$id/workflows/$serviceName/validate',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiProjectsIdWorkflowsServiceNameFilesIndexRoute =
@@ -908,32 +908,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/test': {
-      id: '/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof TestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/designer': {
-      id: '/designer'
-      path: '/designer'
-      fullPath: '/designer'
-      preLoaderRoute: typeof DesignerRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -943,46 +922,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/designer': {
+      id: '/designer'
+      path: '/designer'
+      fullPath: '/designer'
+      preLoaderRoute: typeof DesignerRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/projects/': {
-      id: '/projects/'
-      path: '/projects'
-      fullPath: '/projects/'
-      preLoaderRoute: typeof ProjectsIndexRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/health': {
-      id: '/api/health'
-      path: '/api/health'
-      fullPath: '/api/health'
-      preLoaderRoute: typeof ApiHealthRouteImport
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/generate': {
-      id: '/api/generate'
-      path: '/api/generate'
-      fullPath: '/api/generate'
-      preLoaderRoute: typeof ApiGenerateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/deploy': {
-      id: '/api/deploy'
-      path: '/api/deploy'
-      fullPath: '/api/deploy'
-      preLoaderRoute: typeof ApiDeployRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/copilotkit': {
-      id: '/api/copilotkit'
-      path: '/api/copilotkit'
-      fullPath: '/api/copilotkit'
-      preLoaderRoute: typeof ApiCopilotkitRouteImport
+    '/test': {
+      id: '/test'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof TestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/users': {
@@ -992,46 +957,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/workflows/': {
-      id: '/api/workflows/'
-      path: '/api/workflows'
-      fullPath: '/api/workflows/'
-      preLoaderRoute: typeof ApiWorkflowsIndexRouteImport
+    '/api/copilotkit': {
+      id: '/api/copilotkit'
+      path: '/api/copilotkit'
+      fullPath: '/api/copilotkit'
+      preLoaderRoute: typeof ApiCopilotkitRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/rules/': {
-      id: '/api/rules/'
-      path: '/api/rules'
-      fullPath: '/api/rules/'
-      preLoaderRoute: typeof ApiRulesIndexRouteImport
+    '/api/deploy': {
+      id: '/api/deploy'
+      path: '/api/deploy'
+      fullPath: '/api/deploy'
+      preLoaderRoute: typeof ApiDeployRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/projects/': {
-      id: '/api/projects/'
-      path: '/api/projects'
-      fullPath: '/api/projects/'
-      preLoaderRoute: typeof ApiProjectsIndexRouteImport
+    '/api/generate': {
+      id: '/api/generate'
+      path: '/api/generate'
+      fullPath: '/api/generate'
+      preLoaderRoute: typeof ApiGenerateRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/mermaid/': {
-      id: '/api/mermaid/'
-      path: '/api/mermaid'
-      fullPath: '/api/mermaid/'
-      preLoaderRoute: typeof ApiMermaidIndexRouteImport
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/workflows/': {
-      id: '/admin/workflows/'
-      path: '/admin/workflows'
-      fullPath: '/admin/workflows/'
-      preLoaderRoute: typeof AdminWorkflowsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/rules/': {
-      id: '/admin/rules/'
-      path: '/admin/rules'
-      fullPath: '/admin/rules/'
-      preLoaderRoute: typeof AdminRulesIndexRouteImport
+    '/projects/': {
+      id: '/projects/'
+      path: '/projects'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof ProjectsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/mermaid/': {
@@ -1041,151 +999,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMermaidIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/projects/$id/rules-design': {
-      id: '/projects/$id/rules-design'
-      path: '/projects/$id/rules-design'
-      fullPath: '/projects/$id/rules-design'
-      preLoaderRoute: typeof ProjectsIdRulesDesignRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$id/init': {
-      id: '/projects/$id/init'
-      path: '/projects/$id/init'
-      fullPath: '/projects/$id/init'
-      preLoaderRoute: typeof ProjectsIdInitRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$id/generate': {
-      id: '/projects/$id/generate'
-      path: '/projects/$id/generate'
-      fullPath: '/projects/$id/generate'
-      preLoaderRoute: typeof ProjectsIdGenerateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$id/design': {
-      id: '/projects/$id/design'
-      path: '/projects/$id/design'
-      fullPath: '/projects/$id/design'
-      preLoaderRoute: typeof ProjectsIdDesignRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$id/deploy': {
-      id: '/projects/$id/deploy'
-      path: '/projects/$id/deploy'
-      fullPath: '/projects/$id/deploy'
-      preLoaderRoute: typeof ProjectsIdDeployRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/rules/validate': {
-      id: '/api/rules/validate'
-      path: '/api/rules/validate'
-      fullPath: '/api/rules/validate'
-      preLoaderRoute: typeof ApiRulesValidateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/mermaid/parse': {
-      id: '/api/mermaid/parse'
-      path: '/api/mermaid/parse'
-      fullPath: '/api/mermaid/parse'
-      preLoaderRoute: typeof ApiMermaidParseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/mermaid/$filename': {
-      id: '/api/mermaid/$filename'
-      path: '/api/mermaid/$filename'
-      fullPath: '/api/mermaid/$filename'
-      preLoaderRoute: typeof ApiMermaidFilenameRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/db/reverse-engineer': {
-      id: '/api/db/reverse-engineer'
-      path: '/api/db/reverse-engineer'
-      fullPath: '/api/db/reverse-engineer'
-      preLoaderRoute: typeof ApiDbReverseEngineerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/db/generate-schema': {
-      id: '/api/db/generate-schema'
-      path: '/api/db/generate-schema'
-      fullPath: '/api/db/generate-schema'
-      preLoaderRoute: typeof ApiDbGenerateSchemaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/copilotkit/$': {
-      id: '/api/copilotkit/$'
-      path: '/$'
-      fullPath: '/api/copilotkit/$'
-      preLoaderRoute: typeof ApiCopilotkitSplatRouteImport
-      parentRoute: typeof ApiCopilotkitRoute
-    }
-    '/api/auth/register': {
-      id: '/api/auth/register'
-      path: '/api/auth/register'
-      fullPath: '/api/auth/register'
-      preLoaderRoute: typeof ApiAuthRegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/me': {
-      id: '/api/auth/me'
-      path: '/api/auth/me'
-      fullPath: '/api/auth/me'
-      preLoaderRoute: typeof ApiAuthMeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/logout': {
-      id: '/api/auth/logout'
-      path: '/api/auth/logout'
-      fullPath: '/api/auth/logout'
-      preLoaderRoute: typeof ApiAuthLogoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/login': {
-      id: '/api/auth/login'
-      path: '/api/auth/login'
-      fullPath: '/api/auth/login'
-      preLoaderRoute: typeof ApiAuthLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ai/rules-stream': {
-      id: '/api/ai/rules-stream'
-      path: '/api/ai/rules-stream'
-      fullPath: '/api/ai/rules-stream'
-      preLoaderRoute: typeof ApiAiRulesStreamRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ai/convert-stream': {
-      id: '/api/ai/convert-stream'
-      path: '/api/ai/convert-stream'
-      fullPath: '/api/ai/convert-stream'
-      preLoaderRoute: typeof ApiAiConvertStreamRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ai/convert': {
-      id: '/api/ai/convert'
-      path: '/api/ai/convert'
-      fullPath: '/api/ai/convert'
-      preLoaderRoute: typeof ApiAiConvertRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ai/code-agent-stream': {
-      id: '/api/ai/code-agent-stream'
-      path: '/api/ai/code-agent-stream'
-      fullPath: '/api/ai/code-agent-stream'
-      preLoaderRoute: typeof ApiAiCodeAgentStreamRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ai/code-agent': {
-      id: '/api/ai/code-agent'
-      path: '/api/ai/code-agent'
-      fullPath: '/api/ai/code-agent'
-      preLoaderRoute: typeof ApiAiCodeAgentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/workflows/$workflowId': {
-      id: '/admin/workflows/$workflowId'
-      path: '/admin/workflows/$workflowId'
-      fullPath: '/admin/workflows/$workflowId'
-      preLoaderRoute: typeof AdminWorkflowsWorkflowIdRouteImport
+    '/admin/rules/': {
+      id: '/admin/rules/'
+      path: '/admin/rules'
+      fullPath: '/admin/rules/'
+      preLoaderRoute: typeof AdminRulesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/rules/new': {
@@ -1195,60 +1013,186 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRulesNewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/projects/$id/enhance/': {
-      id: '/projects/$id/enhance/'
-      path: '/projects/$id/enhance'
-      fullPath: '/projects/$id/enhance/'
-      preLoaderRoute: typeof ProjectsIdEnhanceIndexRouteImport
+    '/admin/workflows/': {
+      id: '/admin/workflows/'
+      path: '/admin/workflows'
+      fullPath: '/admin/workflows/'
+      preLoaderRoute: typeof AdminWorkflowsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/workflows/$workflowId/': {
-      id: '/api/workflows/$workflowId/'
-      path: '/api/workflows/$workflowId'
-      fullPath: '/api/workflows/$workflowId/'
-      preLoaderRoute: typeof ApiWorkflowsWorkflowIdIndexRouteImport
+    '/admin/workflows/$workflowId': {
+      id: '/admin/workflows/$workflowId'
+      path: '/admin/workflows/$workflowId'
+      fullPath: '/admin/workflows/$workflowId'
+      preLoaderRoute: typeof AdminWorkflowsWorkflowIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/rules/$ruleId/': {
-      id: '/api/rules/$ruleId/'
-      path: '/api/rules/$ruleId'
-      fullPath: '/api/rules/$ruleId/'
-      preLoaderRoute: typeof ApiRulesRuleIdIndexRouteImport
+    '/api/ai/code-agent': {
+      id: '/api/ai/code-agent'
+      path: '/api/ai/code-agent'
+      fullPath: '/api/ai/code-agent'
+      preLoaderRoute: typeof ApiAiCodeAgentRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/projects/$id/': {
-      id: '/api/projects/$id/'
-      path: '/api/projects/$id'
-      fullPath: '/api/projects/$id/'
-      preLoaderRoute: typeof ApiProjectsIdIndexRouteImport
+    '/api/ai/code-agent-stream': {
+      id: '/api/ai/code-agent-stream'
+      path: '/api/ai/code-agent-stream'
+      fullPath: '/api/ai/code-agent-stream'
+      preLoaderRoute: typeof ApiAiCodeAgentStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/admin/users/': {
-      id: '/api/admin/users/'
-      path: '/api/admin/users'
-      fullPath: '/api/admin/users/'
-      preLoaderRoute: typeof ApiAdminUsersIndexRouteImport
+    '/api/ai/convert': {
+      id: '/api/ai/convert'
+      path: '/api/ai/convert'
+      fullPath: '/api/ai/convert'
+      preLoaderRoute: typeof ApiAiConvertRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/projects/$id/enhance/$serviceName': {
-      id: '/projects/$id/enhance/$serviceName'
-      path: '/projects/$id/enhance/$serviceName'
-      fullPath: '/projects/$id/enhance/$serviceName'
-      preLoaderRoute: typeof ProjectsIdEnhanceServiceNameRouteImport
+    '/api/ai/convert-stream': {
+      id: '/api/ai/convert-stream'
+      path: '/api/ai/convert-stream'
+      fullPath: '/api/ai/convert-stream'
+      preLoaderRoute: typeof ApiAiConvertStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/workflows/$workflowId/status': {
-      id: '/api/workflows/$workflowId/status'
-      path: '/api/workflows/$workflowId/status'
-      fullPath: '/api/workflows/$workflowId/status'
-      preLoaderRoute: typeof ApiWorkflowsWorkflowIdStatusRouteImport
+    '/api/ai/rules-stream': {
+      id: '/api/ai/rules-stream'
+      path: '/api/ai/rules-stream'
+      fullPath: '/api/ai/rules-stream'
+      preLoaderRoute: typeof ApiAiRulesStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/workflows/$workflowId/retry': {
-      id: '/api/workflows/$workflowId/retry'
-      path: '/api/workflows/$workflowId/retry'
-      fullPath: '/api/workflows/$workflowId/retry'
-      preLoaderRoute: typeof ApiWorkflowsWorkflowIdRetryRouteImport
+    '/api/auth/login': {
+      id: '/api/auth/login'
+      path: '/api/auth/login'
+      fullPath: '/api/auth/login'
+      preLoaderRoute: typeof ApiAuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/logout': {
+      id: '/api/auth/logout'
+      path: '/api/auth/logout'
+      fullPath: '/api/auth/logout'
+      preLoaderRoute: typeof ApiAuthLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/me': {
+      id: '/api/auth/me'
+      path: '/api/auth/me'
+      fullPath: '/api/auth/me'
+      preLoaderRoute: typeof ApiAuthMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/register': {
+      id: '/api/auth/register'
+      path: '/api/auth/register'
+      fullPath: '/api/auth/register'
+      preLoaderRoute: typeof ApiAuthRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/copilotkit/$': {
+      id: '/api/copilotkit/$'
+      path: '/$'
+      fullPath: '/api/copilotkit/$'
+      preLoaderRoute: typeof ApiCopilotkitSplatRouteImport
+      parentRoute: typeof ApiCopilotkitRoute
+    }
+    '/api/db/generate-schema': {
+      id: '/api/db/generate-schema'
+      path: '/api/db/generate-schema'
+      fullPath: '/api/db/generate-schema'
+      preLoaderRoute: typeof ApiDbGenerateSchemaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/db/reverse-engineer': {
+      id: '/api/db/reverse-engineer'
+      path: '/api/db/reverse-engineer'
+      fullPath: '/api/db/reverse-engineer'
+      preLoaderRoute: typeof ApiDbReverseEngineerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mermaid/': {
+      id: '/api/mermaid/'
+      path: '/api/mermaid'
+      fullPath: '/api/mermaid/'
+      preLoaderRoute: typeof ApiMermaidIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mermaid/$filename': {
+      id: '/api/mermaid/$filename'
+      path: '/api/mermaid/$filename'
+      fullPath: '/api/mermaid/$filename'
+      preLoaderRoute: typeof ApiMermaidFilenameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mermaid/parse': {
+      id: '/api/mermaid/parse'
+      path: '/api/mermaid/parse'
+      fullPath: '/api/mermaid/parse'
+      preLoaderRoute: typeof ApiMermaidParseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/': {
+      id: '/api/projects/'
+      path: '/api/projects'
+      fullPath: '/api/projects/'
+      preLoaderRoute: typeof ApiProjectsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/rules/': {
+      id: '/api/rules/'
+      path: '/api/rules'
+      fullPath: '/api/rules/'
+      preLoaderRoute: typeof ApiRulesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/rules/validate': {
+      id: '/api/rules/validate'
+      path: '/api/rules/validate'
+      fullPath: '/api/rules/validate'
+      preLoaderRoute: typeof ApiRulesValidateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/': {
+      id: '/api/workflows/'
+      path: '/api/workflows'
+      fullPath: '/api/workflows/'
+      preLoaderRoute: typeof ApiWorkflowsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/$id/deploy': {
+      id: '/projects/$id/deploy'
+      path: '/projects/$id/deploy'
+      fullPath: '/projects/$id/deploy'
+      preLoaderRoute: typeof ProjectsIdDeployRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/$id/design': {
+      id: '/projects/$id/design'
+      path: '/projects/$id/design'
+      fullPath: '/projects/$id/design'
+      preLoaderRoute: typeof ProjectsIdDesignRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/$id/generate': {
+      id: '/projects/$id/generate'
+      path: '/projects/$id/generate'
+      fullPath: '/projects/$id/generate'
+      preLoaderRoute: typeof ProjectsIdGenerateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/$id/init': {
+      id: '/projects/$id/init'
+      path: '/projects/$id/init'
+      fullPath: '/projects/$id/init'
+      preLoaderRoute: typeof ProjectsIdInitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/$id/rules-design': {
+      id: '/projects/$id/rules-design'
+      path: '/projects/$id/rules-design'
+      fullPath: '/projects/$id/rules-design'
+      preLoaderRoute: typeof ProjectsIdRulesDesignRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/rules/$entity/$ruleId': {
@@ -1258,39 +1202,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRulesEntityRuleIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/projects/$id/workflows/': {
-      id: '/api/projects/$id/workflows/'
-      path: '/api/projects/$id/workflows'
-      fullPath: '/api/projects/$id/workflows/'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsIndexRouteImport
+    '/api/admin/users/': {
+      id: '/api/admin/users/'
+      path: '/api/admin/users'
+      fullPath: '/api/admin/users/'
+      preLoaderRoute: typeof ApiAdminUsersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/projects/$id/members/': {
-      id: '/api/projects/$id/members/'
-      path: '/api/projects/$id/members'
-      fullPath: '/api/projects/$id/members/'
-      preLoaderRoute: typeof ApiProjectsIdMembersIndexRouteImport
+    '/api/projects/$id/': {
+      id: '/api/projects/$id/'
+      path: '/api/projects/$id'
+      fullPath: '/api/projects/$id/'
+      preLoaderRoute: typeof ApiProjectsIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/projects/$id/erd-versions/': {
-      id: '/api/projects/$id/erd-versions/'
-      path: '/api/projects/$id/erd-versions'
-      fullPath: '/api/projects/$id/erd-versions/'
-      preLoaderRoute: typeof ApiProjectsIdErdVersionsIndexRouteImport
+    '/api/rules/$ruleId/': {
+      id: '/api/rules/$ruleId/'
+      path: '/api/rules/$ruleId'
+      fullPath: '/api/rules/$ruleId/'
+      preLoaderRoute: typeof ApiRulesRuleIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/projects/$id/deployment/': {
-      id: '/api/projects/$id/deployment/'
-      path: '/api/projects/$id/deployment'
-      fullPath: '/api/projects/$id/deployment/'
-      preLoaderRoute: typeof ApiProjectsIdDeploymentIndexRouteImport
+    '/api/workflows/$workflowId/': {
+      id: '/api/workflows/$workflowId/'
+      path: '/api/workflows/$workflowId'
+      fullPath: '/api/workflows/$workflowId/'
+      preLoaderRoute: typeof ApiWorkflowsWorkflowIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/admin/users/$id/reject': {
-      id: '/api/admin/users/$id/reject'
-      path: '/api/admin/users/$id/reject'
-      fullPath: '/api/admin/users/$id/reject'
-      preLoaderRoute: typeof ApiAdminUsersIdRejectRouteImport
+    '/api/workflows/$workflowId/retry': {
+      id: '/api/workflows/$workflowId/retry'
+      path: '/api/workflows/$workflowId/retry'
+      fullPath: '/api/workflows/$workflowId/retry'
+      preLoaderRoute: typeof ApiWorkflowsWorkflowIdRetryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workflows/$workflowId/status': {
+      id: '/api/workflows/$workflowId/status'
+      path: '/api/workflows/$workflowId/status'
+      fullPath: '/api/workflows/$workflowId/status'
+      preLoaderRoute: typeof ApiWorkflowsWorkflowIdStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/$id/enhance/': {
+      id: '/projects/$id/enhance/'
+      path: '/projects/$id/enhance'
+      fullPath: '/projects/$id/enhance/'
+      preLoaderRoute: typeof ProjectsIdEnhanceIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/$id/enhance/$serviceName': {
+      id: '/projects/$id/enhance/$serviceName'
+      path: '/projects/$id/enhance/$serviceName'
+      fullPath: '/projects/$id/enhance/$serviceName'
+      preLoaderRoute: typeof ProjectsIdEnhanceServiceNameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/users/$id/approve': {
@@ -1300,11 +1265,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminUsersIdApproveRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/projects/$id/workflows/$serviceName/': {
-      id: '/api/projects/$id/workflows/$serviceName/'
-      path: '/api/projects/$id/workflows/$serviceName'
-      fullPath: '/api/projects/$id/workflows/$serviceName/'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameIndexRouteImport
+    '/api/admin/users/$id/reject': {
+      id: '/api/admin/users/$id/reject'
+      path: '/api/admin/users/$id/reject'
+      fullPath: '/api/admin/users/$id/reject'
+      preLoaderRoute: typeof ApiAdminUsersIdRejectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/$id/deployment/': {
+      id: '/api/projects/$id/deployment/'
+      path: '/api/projects/$id/deployment'
+      fullPath: '/api/projects/$id/deployment/'
+      preLoaderRoute: typeof ApiProjectsIdDeploymentIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/$id/erd-versions/': {
+      id: '/api/projects/$id/erd-versions/'
+      path: '/api/projects/$id/erd-versions'
+      fullPath: '/api/projects/$id/erd-versions/'
+      preLoaderRoute: typeof ApiProjectsIdErdVersionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/$id/members/': {
+      id: '/api/projects/$id/members/'
+      path: '/api/projects/$id/members'
+      fullPath: '/api/projects/$id/members/'
+      preLoaderRoute: typeof ApiProjectsIdMembersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/$id/workflows/': {
+      id: '/api/projects/$id/workflows/'
+      path: '/api/projects/$id/workflows'
+      fullPath: '/api/projects/$id/workflows/'
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/$id/erd-versions/$versionId/restore': {
+      id: '/api/projects/$id/erd-versions/$versionId/restore'
+      path: '/api/projects/$id/erd-versions/$versionId/restore'
+      fullPath: '/api/projects/$id/erd-versions/$versionId/restore'
+      preLoaderRoute: typeof ApiProjectsIdErdVersionsVersionIdRestoreRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/projects/$id/members/$userId/': {
@@ -1314,32 +1314,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProjectsIdMembersUserIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/projects/$id/workflows/$serviceName/validate': {
-      id: '/api/projects/$id/workflows/$serviceName/validate'
-      path: '/api/projects/$id/workflows/$serviceName/validate'
-      fullPath: '/api/projects/$id/workflows/$serviceName/validate'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameValidateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/$serviceName/gorules': {
-      id: '/api/projects/$id/workflows/$serviceName/gorules'
-      path: '/api/projects/$id/workflows/$serviceName/gorules'
-      fullPath: '/api/projects/$id/workflows/$serviceName/gorules'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameGorulesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/$serviceName/generate': {
-      id: '/api/projects/$id/workflows/$serviceName/generate'
-      path: '/api/projects/$id/workflows/$serviceName/generate'
-      fullPath: '/api/projects/$id/workflows/$serviceName/generate'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameGenerateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/$serviceName/draft': {
-      id: '/api/projects/$id/workflows/$serviceName/draft'
-      path: '/api/projects/$id/workflows/$serviceName/draft'
-      fullPath: '/api/projects/$id/workflows/$serviceName/draft'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameDraftRouteImport
+    '/api/projects/$id/workflows/$serviceName/': {
+      id: '/api/projects/$id/workflows/$serviceName/'
+      path: '/api/projects/$id/workflows/$serviceName'
+      fullPath: '/api/projects/$id/workflows/$serviceName/'
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/projects/$id/workflows/$serviceName/apply': {
@@ -1349,11 +1328,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameApplyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/projects/$id/erd-versions/$versionId/restore': {
-      id: '/api/projects/$id/erd-versions/$versionId/restore'
-      path: '/api/projects/$id/erd-versions/$versionId/restore'
-      fullPath: '/api/projects/$id/erd-versions/$versionId/restore'
-      preLoaderRoute: typeof ApiProjectsIdErdVersionsVersionIdRestoreRouteImport
+    '/api/projects/$id/workflows/$serviceName/draft': {
+      id: '/api/projects/$id/workflows/$serviceName/draft'
+      path: '/api/projects/$id/workflows/$serviceName/draft'
+      fullPath: '/api/projects/$id/workflows/$serviceName/draft'
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/$id/workflows/$serviceName/generate': {
+      id: '/api/projects/$id/workflows/$serviceName/generate'
+      path: '/api/projects/$id/workflows/$serviceName/generate'
+      fullPath: '/api/projects/$id/workflows/$serviceName/generate'
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameGenerateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/$id/workflows/$serviceName/gorules': {
+      id: '/api/projects/$id/workflows/$serviceName/gorules'
+      path: '/api/projects/$id/workflows/$serviceName/gorules'
+      fullPath: '/api/projects/$id/workflows/$serviceName/gorules'
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameGorulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/$id/workflows/$serviceName/validate': {
+      id: '/api/projects/$id/workflows/$serviceName/validate'
+      path: '/api/projects/$id/workflows/$serviceName/validate'
+      fullPath: '/api/projects/$id/workflows/$serviceName/validate'
+      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameValidateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/projects/$id/workflows/$serviceName/files/': {

@@ -3,7 +3,6 @@
 // No AI involved — pure deterministic parsing.
 
 import { createFileRoute } from "@tanstack/react-router";
-import { parseMermaid } from "@/lib/mermaid";
 
 export const Route = createFileRoute("/api/mermaid/parse")({
   server: {
@@ -19,6 +18,7 @@ export const Route = createFileRoute("/api/mermaid/parse")({
             });
           }
 
+          const { parseMermaid } = await import("@/lib/mermaid");
           const result = parseMermaid(code);
 
           return new Response(JSON.stringify(result), {
