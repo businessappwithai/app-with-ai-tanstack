@@ -223,20 +223,22 @@ Remember: You are a professional code generation agent that transforms ERD diagr
     runCommand,
   },
   memory: new Memory({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     storage: new LibSQLStore({
       id: "code-agent-storage",
       url: "file:../../../../mastra-code-agent.db",
-    }),
+    }) as any,
     options: {
       generateTitle: true,
       semanticRecall: true,
       workingMemory: { enabled: true },
     },
     embedder: fastembed,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vector: new LibSQLVector({
       id: "code-agent-vector",
       url: "file:../../../../mastra-code-agent.db",
-    }),
-  }),
+    }) as any,
+  }) as any,
   defaultStreamOptionsLegacy: { maxSteps: 25 },
 });

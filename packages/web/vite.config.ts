@@ -18,6 +18,8 @@ const config = defineConfig({
       "pg",
       "@erdwithai/core",
     ],
+    // CJS interop: pre-bundle elkjs bundled JS so Vite handles it as ESM
+    include: ["elkjs/lib/elk.bundled.js"],
   },
   ssr: {
     // Treat workspace packages as Node.js externals so their dist/index.js

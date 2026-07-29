@@ -388,6 +388,12 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
   } catch {
     /* already exists */
   }
+
+  try {
+    await sql`ALTER TABLE projects ADD COLUMN target_db_connection TEXT`.execute(db);
+  } catch {
+    /* already exists */
+  }
 }
 
 // ─── Transform helpers ─────────────────────────────────────────────────────────

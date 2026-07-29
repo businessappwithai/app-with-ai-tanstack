@@ -31,7 +31,10 @@ import {
 } from "lucide-react";
 import mermaid from "mermaid";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCopilotAction, useCopilotReadable } from "@copilotkit/react-core";
 import { CopilotProvider } from "@/components/CopilotProvider";
+import { DbOperationsModal } from "@/components/DbOperationsModal";
+import { ErdFlowViewer } from "@/components/ErdFlowViewer";
 import { JourneyArc } from "@/components/JourneyArc";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
@@ -133,16 +136,47 @@ function DesignPage() {
   const [showEntityList, setShowEntityList] = useState(false);
   const [autoRetryCount, setAutoRetryCount] = useState(0);
   const [isAutoRetrying, setIsAutoRetrying] = useState(false);
+  const [showFlowView, setShowFlowView] = useState(false);
+  const [showDbModal, setShowDbModal] = useState(false);
+  const erdCodeRef = useRef(erdCode);
 
   useEffect(() => {
     conversationHistoryRef.current = conversationHistory;
   }, [conversationHistory]);
+
+  useEffect(() => {
+    erdCodeRef.current = erdCode;
+  }, [erdCode]);
 
   const previewRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
   const renderTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set());
+
+  useCopilotReadable({
+    description:
+      "Current ERD diagram in Mermaid erDiagram syntax. This is the source of truth for the entity-relationship diagram being designed.",
+    value: erdCodeRef.current,
+  });
+
+  useCopilotAction({
+    name: "updateERD",
+    description:
+      "Update the ERD diagram by replacing it with new Mermaid erDiagram code. Use this to add entities, modify attributes, or change relationships based on the user's request.",
+    parameters: [
+      {
+        name: "mermaidCode",
+        type: "string",
+        description:
+          "The complete new Mermaid erDiagram code to replace the current ERD with.",
+        required: true,
+      },
+    ],
+    handler: ({ mermaidCode }: { mermaidCode: string }) => {
+      setErdCode(mermaidCode);
+    },
+  });
 
   const entities = useMemo(() => {
     if (!erdCode) return [];
@@ -199,9 +233,26 @@ function DesignPage() {
   useEffect(() => {
     if (project) {
       setCurrentStep("design");
-      setErdCode(project.erdCode || "erDiagram\n");
+      // Try loading canonical .mmd first, fall back to DB erdCode
+      const loadCanonical = async () => {
+        try {
+          const res = await fetch(`/api/mermaid?projectId=${projectId}&canonical=true`);
+          if (res.ok) {
+            const data = await res.json();
+            const canonicalFile = data.files?.[0];
+            if (canonicalFile?.content) {
+              setErdCode(canonicalFile.content);
+              return;
+            }
+          }
+        } catch {
+          // fall through to DB value
+        }
+        setErdCode(project.erdCode || "erDiagram\n");
+      };
+      loadCanonical();
     }
-  }, [project, setCurrentStep]);
+  }, [project, setCurrentStep, projectId]);
 
   const renderDiagram = useCallback(
     async (code: string) => {
@@ -418,6 +469,28 @@ function DesignPage() {
     setIsSaving(true);
     try {
       await updateErdCode(projectId, erdCode);
+
+      // Save canonical .mmd file
+      try {
+        const version = `v${Date.now()}`;
+        const sanitizedName = (project?.name ?? "export").replace(/[^a-z0-9]/gi, "_").toLowerCase();
+        await fetch("/api/mermaid", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            projectId,
+            projectName: project?.name ?? "export",
+            filename: `${sanitizedName}-erd-canonical.mmd`,
+            type: "erd",
+            content: erdCode,
+            canonical: true,
+          }),
+        });
+        void version; // suppress unused warning
+      } catch {
+        // Non-blocking — .mmd save failure should not block the UI save
+        console.error("Failed to save canonical .mmd file");
+      }
 
       if (saveAsVersion) {
         await saveErdVersion(projectId, erdCode, commitMessage || "Manual save");
@@ -861,7 +934,7 @@ function DesignPage() {
   return (
     <CopilotProvider>
       <CopilotSidebar
-        instructions="Welcome to ERDwithAI! I can help you design Entity-Relationship Diagrams using natural language. Try asking me to create a database schema for your application."
+        instructions="You are an ERD design assistant. You can see the current ERD diagram (via the 'Current ERD' context). Use the 'updateERD' action to make surgical changes: add entities, modify attributes, change relationships. For bulk AI generation, use the bottom bar. Ask the user what they'd like to change."
         defaultOpen={false}
       >
         <div className="min-h-screen bg-background flex flex-col">
@@ -911,6 +984,26 @@ function DesignPage() {
                             {versions.length}
                           </span>
                         )}
+                      </button>
+                      <button
+                        onClick={() => setShowFlowView(!showFlowView)}
+                        className={`flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors ${
+                          showFlowView
+                            ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                            : "bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
+                        }`}
+                        title="Toggle React Flow view"
+                      >
+                        <Zap className="w-4 h-4" />
+                        {showFlowView ? "Mermaid View" : "Flow View"}
+                      </button>
+                      <button
+                        onClick={() => setShowDbModal(true)}
+                        className="flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
+                        title="Database operations"
+                      >
+                        <Database className="w-4 h-4" />
+                        DB Ops
                       </button>
                       <button
                         onClick={handleValidate}
@@ -1353,16 +1446,23 @@ function DesignPage() {
 
               <div
                 className={`flex-1 overflow-auto ${isFullscreen ? "p-4" : "p-6"} bg-white dark:bg-slate-900`}
+                style={{ position: "relative" }}
               >
-                <div
-                  ref={previewRef}
-                  style={{
-                    transform: `scale(${zoom / 100})`,
-                    transformOrigin: "top left",
-                    minHeight: "400px",
-                  }}
-                  className="mermaid-preview w-full"
-                />
+                {showFlowView ? (
+                  <div style={{ width: "100%", minHeight: "400px", height: "100%" }}>
+                    <ErdFlowViewer erdCode={erdCode} />
+                  </div>
+                ) : (
+                  <div
+                    ref={previewRef}
+                    style={{
+                      transform: `scale(${zoom / 100})`,
+                      transformOrigin: "top left",
+                      minHeight: "400px",
+                    }}
+                    className="mermaid-preview w-full"
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -1704,6 +1804,16 @@ function DesignPage() {
             <HelpCircle className="w-6 h-6" />
           </button>
         </div>
+        <DbOperationsModal
+          isOpen={showDbModal}
+          onClose={() => setShowDbModal(false)}
+          erdCode={erdCode}
+          projectId={projectId}
+          onReverseEngineered={(code) => {
+            setErdCode(code);
+            setShowDbModal(false);
+          }}
+        />
       </CopilotSidebar>
     </CopilotProvider>
   );

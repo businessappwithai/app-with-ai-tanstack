@@ -36,6 +36,8 @@ import { Route as ProjectsIdDeployRouteImport } from './routes/projects/$id/depl
 import { Route as ApiRulesValidateRouteImport } from './routes/api/rules/validate'
 import { Route as ApiMermaidParseRouteImport } from './routes/api/mermaid/parse'
 import { Route as ApiMermaidFilenameRouteImport } from './routes/api/mermaid/$filename'
+import { Route as ApiDbReverseEngineerRouteImport } from './routes/api/db/reverse-engineer'
+import { Route as ApiDbGenerateSchemaRouteImport } from './routes/api/db/generate-schema'
 import { Route as ApiCopilotkitSplatRouteImport } from './routes/api/copilotkit/$'
 import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth/register'
 import { Route as ApiAuthMeRouteImport } from './routes/api/auth/me'
@@ -207,6 +209,16 @@ const ApiMermaidParseRoute = ApiMermaidParseRouteImport.update({
 const ApiMermaidFilenameRoute = ApiMermaidFilenameRouteImport.update({
   id: '/api/mermaid/$filename',
   path: '/api/mermaid/$filename',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDbReverseEngineerRoute = ApiDbReverseEngineerRouteImport.update({
+  id: '/api/db/reverse-engineer',
+  path: '/api/db/reverse-engineer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDbGenerateSchemaRoute = ApiDbGenerateSchemaRouteImport.update({
+  id: '/api/db/generate-schema',
+  path: '/api/db/generate-schema',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCopilotkitSplatRoute = ApiCopilotkitSplatRouteImport.update({
@@ -439,6 +451,8 @@ export interface FileRoutesByFullPath {
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/copilotkit/$': typeof ApiCopilotkitSplatRoute
+  '/api/db/generate-schema': typeof ApiDbGenerateSchemaRoute
+  '/api/db/reverse-engineer': typeof ApiDbReverseEngineerRoute
   '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
   '/api/mermaid/parse': typeof ApiMermaidParseRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
@@ -505,6 +519,8 @@ export interface FileRoutesByTo {
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/copilotkit/$': typeof ApiCopilotkitSplatRoute
+  '/api/db/generate-schema': typeof ApiDbGenerateSchemaRoute
+  '/api/db/reverse-engineer': typeof ApiDbReverseEngineerRoute
   '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
   '/api/mermaid/parse': typeof ApiMermaidParseRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
@@ -572,6 +588,8 @@ export interface FileRoutesById {
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/copilotkit/$': typeof ApiCopilotkitSplatRoute
+  '/api/db/generate-schema': typeof ApiDbGenerateSchemaRoute
+  '/api/db/reverse-engineer': typeof ApiDbReverseEngineerRoute
   '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
   '/api/mermaid/parse': typeof ApiMermaidParseRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
@@ -640,6 +658,8 @@ export interface FileRouteTypes {
     | '/api/auth/me'
     | '/api/auth/register'
     | '/api/copilotkit/$'
+    | '/api/db/generate-schema'
+    | '/api/db/reverse-engineer'
     | '/api/mermaid/$filename'
     | '/api/mermaid/parse'
     | '/api/rules/validate'
@@ -706,6 +726,8 @@ export interface FileRouteTypes {
     | '/api/auth/me'
     | '/api/auth/register'
     | '/api/copilotkit/$'
+    | '/api/db/generate-schema'
+    | '/api/db/reverse-engineer'
     | '/api/mermaid/$filename'
     | '/api/mermaid/parse'
     | '/api/rules/validate'
@@ -772,6 +794,8 @@ export interface FileRouteTypes {
     | '/api/auth/me'
     | '/api/auth/register'
     | '/api/copilotkit/$'
+    | '/api/db/generate-schema'
+    | '/api/db/reverse-engineer'
     | '/api/mermaid/$filename'
     | '/api/mermaid/parse'
     | '/api/rules/validate'
@@ -838,6 +862,8 @@ export interface RootRouteChildren {
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiAuthMeRoute: typeof ApiAuthMeRoute
   ApiAuthRegisterRoute: typeof ApiAuthRegisterRoute
+  ApiDbGenerateSchemaRoute: typeof ApiDbGenerateSchemaRoute
+  ApiDbReverseEngineerRoute: typeof ApiDbReverseEngineerRoute
   ApiMermaidFilenameRoute: typeof ApiMermaidFilenameRoute
   ApiMermaidParseRoute: typeof ApiMermaidParseRoute
   ApiRulesValidateRoute: typeof ApiRulesValidateRoute
@@ -1069,6 +1095,20 @@ declare module '@tanstack/react-router' {
       path: '/api/mermaid/$filename'
       fullPath: '/api/mermaid/$filename'
       preLoaderRoute: typeof ApiMermaidFilenameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/db/reverse-engineer': {
+      id: '/api/db/reverse-engineer'
+      path: '/api/db/reverse-engineer'
+      fullPath: '/api/db/reverse-engineer'
+      preLoaderRoute: typeof ApiDbReverseEngineerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/db/generate-schema': {
+      id: '/api/db/generate-schema'
+      path: '/api/db/generate-schema'
+      fullPath: '/api/db/generate-schema'
+      preLoaderRoute: typeof ApiDbGenerateSchemaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/copilotkit/$': {
@@ -1369,6 +1409,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiAuthMeRoute: ApiAuthMeRoute,
   ApiAuthRegisterRoute: ApiAuthRegisterRoute,
+  ApiDbGenerateSchemaRoute: ApiDbGenerateSchemaRoute,
+  ApiDbReverseEngineerRoute: ApiDbReverseEngineerRoute,
   ApiMermaidFilenameRoute: ApiMermaidFilenameRoute,
   ApiMermaidParseRoute: ApiMermaidParseRoute,
   ApiRulesValidateRoute: ApiRulesValidateRoute,

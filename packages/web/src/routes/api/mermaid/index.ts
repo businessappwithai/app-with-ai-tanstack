@@ -43,6 +43,11 @@ export const Route = createFileRoute("/api/mermaid/")({
             filtered = filtered.filter((f) => f.type === type);
           }
 
+          const canonicalParam = url.searchParams.get("canonical");
+          if (canonicalParam === "true") {
+            filtered = filtered.filter((f) => f.canonical === true);
+          }
+
           filtered.sort(
             (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
@@ -67,15 +72,41 @@ export const Route = createFileRoute("/api/mermaid/")({
             filename: string;
             type: "erd" | "rules";
             content: string;
+            canonical?: boolean;
           };
 
-          const { projectId, projectName, filename, type, content } = body;
+          const { projectId, projectName, filename, type, content, canonical } = body;
 
           if (!projectId || !filename || !content) {
             return new Response(
               JSON.stringify({ error: "projectId, filename, and content are required" }),
               { status: 400, headers: { "Content-Type": "application/json" } }
             );
+          }
+
+          // If marking as canonical, clear previous canonical entries for this project
+          if (canonical === true) {
+            const entries = await fs.readdir(MERMAID_DIR, { withFileTypes: true });
+            const metaFiles = entries
+              .filter((e) => e.isFile() && e.name.endsWith(".meta.json"))
+              .map((e) => e.name);
+
+            for (const metaFile of metaFiles) {
+              try {
+                const raw = await fs.readFile(path.join(MERMAID_DIR, metaFile), "utf-8");
+                const existingMeta = JSON.parse(raw);
+                if (existingMeta.projectId === projectId && existingMeta.canonical === true) {
+                  existingMeta.canonical = false;
+                  await fs.writeFile(
+                    path.join(MERMAID_DIR, metaFile),
+                    JSON.stringify(existingMeta, null, 2),
+                    "utf-8"
+                  );
+                }
+              } catch {
+                // skip unreadable files
+              }
+            }
           }
 
           const safeFilename = filename.replace(/[^a-z0-9._-]/gi, "_");
@@ -91,6 +122,7 @@ export const Route = createFileRoute("/api/mermaid/")({
             projectName,
             content,
             createdAt: new Date().toISOString(),
+            canonical: canonical ?? false,
             downloadUrl: `/api/mermaid/${encodeURIComponent(safeFilename)}`,
           };
 

@@ -26,6 +26,7 @@ export interface ProjectsTable {
   deployment_url: string | null;
   uptime: string | null;
   owner_user_id: string | null;
+  target_db_connection: string | null;
   created_at: string;
   updated_at: string;
 }

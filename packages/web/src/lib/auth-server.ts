@@ -70,5 +70,5 @@ export async function getCurrentUser(request: Request): Promise<AuthUsersTable |
     .where("id" as any, "=", (session as any).userId)
     .executeTakeFirst();
 
-  return user ?? null;
+  return (user as AuthUsersTable | undefined) ?? null;
 }
