@@ -40,6 +40,7 @@ import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import type { ERDVersion } from "@/lib/api/projects";
 import { erdVersionsApi } from "@/lib/api/projects";
+import { toRenderableMermaid } from "@/lib/mermaid-render";
 import { useProjectStore } from "@/store/projectStore";
 
 export const Route = createFileRoute("/projects/$id/design")({
@@ -292,7 +293,7 @@ function DesignPage() {
         }
 
         const id = `mermaid-${Date.now()}`;
-        const { svg } = await mermaid.render(id, code);
+        const { svg } = await mermaid.render(id, toRenderableMermaid(code));
 
         const mermaidDiv = document.getElementById(`d${id}`);
         console.log("Mermaid render output:", { svg, mermaidDiv });
@@ -466,7 +467,7 @@ function DesignPage() {
     setIsValidating(true);
     try {
       const id = `validate-${Date.now()}`;
-      await mermaid.render(id, erdCode);
+      await mermaid.render(id, toRenderableMermaid(erdCode));
       setValidationErrors([]);
     } catch (error) {
       if (error instanceof Error) {
@@ -742,7 +743,7 @@ function DesignPage() {
 
     try {
       const id = `validate-${Date.now()}`;
-      await mermaid.render(id, generatedCode);
+      await mermaid.render(id, toRenderableMermaid(generatedCode));
 
       addAiStep("complete", "Validation successful!", "ERD is syntactically correct", "completed");
       return true;

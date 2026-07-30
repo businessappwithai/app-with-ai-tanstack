@@ -8,6 +8,8 @@ import type { JdmGraph } from "./jdm-converter";
 import { convertToJdm } from "./jdm-converter";
 import { parseMermaidFlowchart } from "./mermaid-flowchart-parser";
 
+export { toRenderableMermaid } from "./mermaid-render";
+
 export type { Entity, JdmGraph, Relationship };
 
 export interface ErdParseResult {
