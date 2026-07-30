@@ -13,6 +13,13 @@ export function camelCase(str: string): string {
 
 export function snakeCase(str: string): string {
   if (!str) return "";
+  // Acronyms are already snake_case once lowered. Without this guard every
+  // letter gets its own underscore ("CAPA" -> "c_a_p_a"), which disagreed with
+  // the table name the Mermaid parser derives for the same entity ("capa") and
+  // produced foreign keys pointing at tables that were never created.
+  if (/^[A-Z0-9_]+$/.test(str)) {
+    return str.toLowerCase();
+  }
   return str
     .replace(/([A-Z])/g, "_$1")
     .replace(/[-\s]+/g, "_")
