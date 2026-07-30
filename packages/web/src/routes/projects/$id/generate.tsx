@@ -160,7 +160,11 @@ function GeneratePage() {
                 if (data.complete) {
                   setGenerationComplete(true);
                   updateProject(projectId, {
-                    generatedPath: data.generatedPath,
+                    // /api/generate sends the output directory as `path`.
+                    // Reading `generatedPath` here stored undefined, which left
+                    // isGenerated false so the page fell back to the stack
+                    // picker instead of the generated-app view.
+                    generatedPath: data.path,
                     deploymentStatus: "completed",
                   });
                 }

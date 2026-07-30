@@ -9,6 +9,16 @@ import { defineConfig } from "vite";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const config = defineConfig({
+  server: {
+    watch: {
+      // /api/generate writes the generated app under
+      // packages/web/generated-projects/<projectId> (see .gitignore). That is
+      // inside Vite's watch root, so finishing a generation dropped hundreds of
+      // files at once and triggered a full-page reload — which unmounted the
+      // Generate step mid-run and threw away its logs and completion state.
+      ignored: ["**/generated-projects/**"],
+    },
+  },
   optimizeDeps: {
     // Native .node binaries and Node-only drivers can't be bundled by Rolldown — exclude them
     exclude: [
