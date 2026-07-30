@@ -13,7 +13,6 @@ import {
   X,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { LogsViewer } from "@/components/logs/LogsViewer";
 import { NewProjectModal } from "@/components/project";
 import { ShareProjectModal } from "@/components/project/ShareProjectModal";
 import { useAuthStore } from "@/store/authStore";
@@ -97,7 +96,6 @@ function ProjectsPage() {
     addProject,
     deleteProject,
     setCurrentProject,
-    currentActionId,
   } = useProjectStore();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -106,7 +104,6 @@ function ProjectsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState<string | null>(null);
   const [showMobileNav, setShowMobileNav] = useState(false);
-  const [showLogsViewer, setShowLogsViewer] = useState(false);
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState<string | null>(null);
   const [isCreatingProject, setIsCreatingProject] = useState(false);
@@ -636,17 +633,6 @@ function ProjectsPage() {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Logs Viewer Modal */}
-      {showLogsViewer && (
-        <LogsViewer
-          actionId={currentActionId ?? undefined}
-          onClose={() => setShowLogsViewer(false)}
-          projectName={
-            projects.find((p) => p.id === useProjectStore.getState().currentProject?.id)?.name
-          }
-        />
       )}
 
       {/* Share Project Modal */}
