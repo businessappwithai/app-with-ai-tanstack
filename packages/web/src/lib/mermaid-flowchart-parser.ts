@@ -50,9 +50,21 @@ function ensureNode(ast: FlowAST, id: string, suffix: string | undefined) {
   ast.nodes.set(id, { id, label: id, shape: "rect" });
 }
 
+// A node's shape suffix. Longest forms first: ((circle)) and ([stadium]) both
+// start with "(", so a bare \([^)]*\) placed earlier would claim just their
+// opening half and mis-shape the node.
+const NODE_SUFFIX = String.raw`\(\([^)]*\)\)|\(\[[^\]]*\]\)|\{[^}]*\}|\[[^\]]*\]|\([^)]*\)`;
+
 // Matches: SrcId[optional-suffix] --> |optional-label| TgtId[optional-suffix]
-const EDGE_RE =
-  /^([A-Za-z_][A-Za-z0-9_]*)(\([^)]*\)|\{[^}]*\}|\[[^\]]*\]|\(\([^)]*\)\))??\s*(?:-->|---)\|?([^|]*)?\|?\s*([A-Za-z_][A-Za-z0-9_]*)(\([^)]*\)|\{[^}]*\}|\[[^\]]*\]|\(\([^)]*\)\))?/;
+//
+// The edge label is only recognized when it is actually delimited by pipes.
+// Written as an optional unanchored group it matched the empty-pipe case by
+// greedily consuming the target node, then backtracking just far enough to
+// leave one identifier character behind — so "A --> B{Status == draft?}"
+// produced a node id of "t" (the tail of "draft") instead of "B".
+const EDGE_RE = new RegExp(
+  String.raw`^([A-Za-z_][A-Za-z0-9_]*)(${NODE_SUFFIX})?\s*(?:-->|---)\s*(?:\|([^|]*)\|)?\s*([A-Za-z_][A-Za-z0-9_]*)(${NODE_SUFFIX})?`
+);
 
 export function parseMermaidFlowchart(code: string): FlowAST {
   const ast: FlowAST = { nodes: new Map(), edges: [] };
