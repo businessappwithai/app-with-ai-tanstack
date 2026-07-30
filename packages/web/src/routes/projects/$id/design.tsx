@@ -43,8 +43,20 @@ import { erdVersionsApi } from "@/lib/api/projects";
 import { useProjectStore } from "@/store/projectStore";
 
 export const Route = createFileRoute("/projects/$id/design")({
-  component: DesignPage,
+  component: DesignRoute,
 });
+
+// CopilotProvider must sit ABOVE the component that calls useCopilotReadable /
+// useCopilotAction. Rendering it inside DesignPage's own JSX puts the context
+// below the hooks that read it, which throws
+// "useCopilotKit must be used within CopilotKitProvider".
+function DesignRoute() {
+  return (
+    <CopilotProvider>
+      <DesignPage />
+    </CopilotProvider>
+  );
+}
 
 function DesignPage() {
   const navigate = useNavigate();
@@ -932,8 +944,7 @@ function DesignPage() {
   }
 
   return (
-    <CopilotProvider>
-      <CopilotSidebar
+    <CopilotSidebar
         instructions="You are an ERD design assistant. You can see the current ERD diagram (via the 'Current ERD' context). Use the 'updateERD' action to make surgical changes: add entities, modify attributes, change relationships. For bulk AI generation, use the bottom bar. Ask the user what they'd like to change."
         defaultOpen={false}
       >
@@ -1814,7 +1825,6 @@ function DesignPage() {
             setShowDbModal(false);
           }}
         />
-      </CopilotSidebar>
-    </CopilotProvider>
+    </CopilotSidebar>
   );
 }
