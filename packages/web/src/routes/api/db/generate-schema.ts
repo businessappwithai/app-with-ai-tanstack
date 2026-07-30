@@ -48,19 +48,11 @@ export const Route = createAPIFileRoute("/api/db/generate-schema")({
         );
       }
 
-      // Parse connection URL
-      const url = new URL(connStr);
-      const mysql = await import("mysql2/promise");
-      const connection = await mysql.createConnection({
-        host: url.hostname,
-        port: url.port ? parseInt(url.port) : 3306,
-        user: url.username,
-        password: url.password,
-        database: url.pathname.slice(1),
-        connectTimeout: 10000,
-      });
+      // Connect via pg
+      const { Client } = await import("pg");
+      const client = new Client({ connectionString: connStr, connectionTimeoutMillis: 10000 });
+      await client.connect();
 
-      // Generate DDL per entity
       const ddlStatements: string[] = [];
       const tablesCreated: string[] = [];
 
@@ -71,41 +63,40 @@ export const Route = createAPIFileRoute("/api/db/generate-schema")({
 
         const columns = entity.attributes.map((attr) => {
           const colName = attr.name;
-          let colType = "VARCHAR(255)";
+          let colType = "TEXT";
           const rawType = (attr.type || "string").toLowerCase();
-          if (rawType === "int" || rawType === "integer") colType = "INT";
+          if (rawType === "int" || rawType === "integer") colType = "INTEGER";
           else if (rawType === "bigint") colType = "BIGINT";
-          else if (rawType === "float" || rawType === "double") colType = "DOUBLE";
-          else if (rawType === "decimal") colType = "DECIMAL(10,2)";
-          else if (rawType === "boolean" || rawType === "bool") colType = "TINYINT(1)";
+          else if (rawType === "float" || rawType === "double") colType = "DOUBLE PRECISION";
+          else if (rawType === "decimal") colType = "NUMERIC(10,2)";
+          else if (rawType === "boolean" || rawType === "bool") colType = "BOOLEAN";
           else if (rawType === "text") colType = "TEXT";
           else if (rawType === "date") colType = "DATE";
-          else if (rawType === "datetime" || rawType === "timestamp") colType = "DATETIME";
-          else if (rawType === "json") colType = "JSON";
+          else if (rawType === "datetime" || rawType === "timestamp") colType = "TIMESTAMPTZ";
+          else if (rawType === "json") colType = "JSONB";
 
           const pk = attr.unique && attr.name === "id" ? " PRIMARY KEY" : "";
-          const autoInc =
-            attr.unique && colName === "id" ? " AUTO_INCREMENT" : "";
+          const serial = attr.unique && colName === "id" ? "SERIAL" : colType;
           const notNull =
             attr.required && !(attr.unique && attr.name === "id") ? " NOT NULL" : "";
-          return `  \`${colName}\` ${colType}${autoInc}${pk}${notNull}`;
+          return `  "${colName}" ${pk ? serial : colType}${pk}${notNull}`;
         });
 
         if (!entity.attributes.some((a) => a.unique && a.name === "id")) {
-          columns.unshift("  `id` INT AUTO_INCREMENT PRIMARY KEY");
+          columns.unshift('  "id" SERIAL PRIMARY KEY');
         }
 
-        const ddl = `CREATE TABLE IF NOT EXISTS \`${tableName}\` (\n${columns.join(",\n")}\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
+        const ddl = `CREATE TABLE IF NOT EXISTS "${tableName}" (\n${columns.join(",\n")}\n);`;
         ddlStatements.push(ddl);
         tablesCreated.push(tableName);
       }
 
       try {
         for (const stmt of ddlStatements) {
-          await connection.execute(stmt);
+          await client.query(stmt);
         }
       } finally {
-        await connection.end();
+        await client.end();
       }
 
       return new Response(JSON.stringify({ success: true, tablesCreated }), {

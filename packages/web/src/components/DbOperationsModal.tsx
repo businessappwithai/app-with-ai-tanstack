@@ -28,7 +28,7 @@ export function DbOperationsModal({
 
   const handleGenerateSchema = async () => {
     if (!connectionString.trim()) {
-      setResult({ error: "Please enter a MariaDB connection string" });
+      setResult({ error: "Please enter a PostgreSQL connection string" });
       return;
     }
     setIsGenerating(true);
@@ -54,7 +54,7 @@ export function DbOperationsModal({
 
   const handleReverseEngineer = async () => {
     if (!connectionString.trim()) {
-      setResult({ error: "Please enter a MariaDB connection string" });
+      setResult({ error: "Please enter a PostgreSQL connection string" });
       return;
     }
     setIsReverseEngineering(true);
@@ -93,11 +93,11 @@ export function DbOperationsModal({
           </button>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          Enter your MariaDB connection string. It will be encrypted and stored per project.
+          Enter your PostgreSQL connection string. It will be encrypted and stored per project.
         </p>
         <input
           type="password"
-          placeholder="mysql://user:pass@host:3306/dbname"
+          placeholder="postgresql://user:pass@host:5432/dbname"
           value={connectionString}
           onChange={(e) => setConnectionString(e.target.value)}
           className="w-full px-3 py-2 rounded-lg border border-border bg-secondary text-sm font-mono mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50"

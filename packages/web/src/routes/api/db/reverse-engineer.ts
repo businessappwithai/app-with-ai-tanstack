@@ -24,81 +24,70 @@ export const Route = createAPIFileRoute("/api/db/reverse-engineer")({
         );
       }
 
-      const url = new URL(connStr);
-      const dbName = url.pathname.slice(1);
-      const mysql = await import("mysql2/promise");
-      const connection = await mysql.createConnection({
-        host: url.hostname,
-        port: url.port ? parseInt(url.port) : 3306,
-        user: url.username,
-        password: url.password,
-        database: dbName,
-        connectTimeout: 30000,
-      });
+      const { Client } = await import("pg");
+      const client = new Client({ connectionString: connStr, connectionTimeoutMillis: 30000 });
+      await client.connect();
 
       try {
-        const [tables] = (await connection.execute(
-          `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'`,
-          [dbName]
-        )) as unknown[];
+        const tablesRes = await client.query<{ table_name: string }>(
+          `SELECT table_name FROM information_schema.tables
+           WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+           ORDER BY table_name`
+        );
 
-        if (!tables || (tables as unknown[]).length === 0) {
+        if (tablesRes.rows.length === 0) {
           return new Response(JSON.stringify({ mermaidCode: "erDiagram\n" }), {
             headers: { "Content-Type": "application/json" },
           });
         }
 
-        const tableNames: string[] = (tables as Array<{ TABLE_NAME: string }>).map(
-          (t) => t.TABLE_NAME
-        );
-        const allColumns: Record<
-          string,
-          Array<{
-            COLUMN_NAME: string;
-            DATA_TYPE: string;
-            COLUMN_KEY: string;
-            IS_NULLABLE: string;
-          }>
-        > = {};
-
-        for (const tableName of tableNames) {
-          const [cols] = (await connection.execute(
-            `SELECT COLUMN_NAME, DATA_TYPE, COLUMN_KEY, IS_NULLABLE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? ORDER BY ORDINAL_POSITION`,
-            [dbName, tableName]
-          )) as unknown[];
-          allColumns[tableName] = cols as Array<{
-            COLUMN_NAME: string;
-            DATA_TYPE: string;
-            COLUMN_KEY: string;
-            IS_NULLABLE: string;
-          }>;
-        }
-
-        // Convert to PascalCase entity name
-        const toPascal = (s: string) =>
-          s.replace(/(^|_)([a-z])/g, (_, __, c: string) => c.toUpperCase());
+        const tableNames = tablesRes.rows.map((r) => r.table_name);
 
         const toEmlType = (dt: string) => {
-          if (["int", "bigint", "tinyint", "smallint", "mediumint"].includes(dt)) return "int";
-          if (["float", "double", "decimal"].includes(dt)) return "float";
-          if (dt === "text" || dt === "longtext") return "text";
+          if (["integer", "int", "int4", "int2", "int8", "bigint", "smallint"].includes(dt)) return "int";
+          if (["numeric", "decimal", "float4", "float8", "real", "double precision"].includes(dt)) return "float";
+          if (["text", "character varying", "varchar", "char", "bpchar"].includes(dt)) return "string";
           if (dt === "date") return "date";
-          if (dt === "datetime" || dt === "timestamp") return "datetime";
+          if (["timestamp", "timestamptz", "timestamp with time zone", "timestamp without time zone"].includes(dt))
+            return "datetime";
           if (dt === "boolean" || dt === "bool") return "boolean";
-          if (dt === "json") return "json";
+          if (dt === "json" || dt === "jsonb") return "json";
           return "string";
         };
 
+        const toPascal = (s: string) =>
+          s.replace(/(^|_)([a-z])/g, (_, __, c: string) => c.toUpperCase());
+
         let mmd = "erDiagram\n";
         for (const tableName of tableNames) {
+          const colsRes = await client.query<{
+            column_name: string;
+            data_type: string;
+            is_nullable: string;
+            constraint_type: string | null;
+          }>(
+            `SELECT c.column_name, c.data_type, c.is_nullable,
+                    tc.constraint_type
+             FROM information_schema.columns c
+             LEFT JOIN information_schema.key_column_usage kcu
+               ON kcu.table_schema = 'public'
+              AND kcu.table_name = c.table_name
+              AND kcu.column_name = c.column_name
+             LEFT JOIN information_schema.table_constraints tc
+               ON tc.constraint_name = kcu.constraint_name
+              AND tc.table_schema = 'public'
+             WHERE c.table_schema = 'public' AND c.table_name = $1
+             ORDER BY c.ordinal_position`,
+            [tableName]
+          );
+
           const entityName = toPascal(tableName);
-          const cols = allColumns[tableName] || [];
           mmd += `  ${entityName} {\n`;
-          for (const col of cols) {
-            const emlType = toEmlType(col.DATA_TYPE);
-            const pk = col.COLUMN_KEY === "PRI" ? " PK" : col.COLUMN_KEY === "MUL" ? " FK" : "";
-            const optional = col.IS_NULLABLE === "YES" ? " OPTIONAL" : "";
-            mmd += `    ${emlType} ${col.COLUMN_NAME}${pk}${optional}\n`;
+          for (const col of colsRes.rows) {
+            const emlType = toEmlType(col.data_type);
+            const pk = col.constraint_type === "PRIMARY KEY" ? " PK" : col.constraint_type === "FOREIGN KEY" ? " FK" : "";
+            const optional = col.is_nullable === "YES" ? " OPTIONAL" : "";
+            mmd += `    ${emlType} ${col.column_name}${pk}${optional}\n`;
           }
           mmd += `  }\n`;
         }
@@ -107,7 +96,7 @@ export const Route = createAPIFileRoute("/api/db/reverse-engineer")({
           headers: { "Content-Type": "application/json" },
         });
       } finally {
-        await connection.end();
+        await client.end();
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to reverse-engineer schema";

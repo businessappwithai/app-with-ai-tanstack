@@ -172,7 +172,7 @@ export const Route = createFileRoute("/api/projects/")({
               stack_version: "latest",
               port,
               database_url: databaseUrl,
-              database_type: "mariadb",
+              database_type: "postgresql",
               environment_variables: environmentVariables,
               owner_user_id: user.id,
               created_at: now,
