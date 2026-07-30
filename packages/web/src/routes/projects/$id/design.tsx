@@ -437,13 +437,17 @@ function DesignPage() {
     return progressMap[step] || 50;
   }, []);
 
+  // The preview SVG is injected imperatively into previewRef, so any React
+  // reconciliation of that subtree throws it away. Re-render whenever a side
+  // panel or view toggle reflows the preview, not just when the code changes,
+  // otherwise opening Version History leaves the preview permanently blank.
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
       renderDiagram(erdCode);
     }, 800);
 
     return () => clearTimeout(debounceTimer);
-  }, [erdCode, renderDiagram]);
+  }, [erdCode, renderDiagram, showVersions, showEntityList, showFlowView, isFullscreen]);
 
   const loadVersions = async () => {
     setIsLoadingVersions(true);
