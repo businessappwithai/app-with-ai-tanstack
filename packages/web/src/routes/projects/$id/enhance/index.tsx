@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { JourneyArc } from "@/components/JourneyArc";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
+import { erdVersionsApi } from "@/lib/api/projects";
 import { useProjectStore } from "@/store/projectStore";
 
 export const Route = createFileRoute("/projects/$id/enhance/")({
@@ -45,12 +46,40 @@ function EnhancePage() {
   }, [projectId, getProject, currentProject, loadProject]);
 
   const [services, setServices] = useState<ServiceInfo[]>([]);
+  // Project.erdCode is declared on the type but no API ever populates it — the
+  // ERD lives in erd_versions and the design step reads it from there. Deriving
+  // services from project.erdCode therefore always produced zero services and
+  // the "generate your project code first" empty state, even right after a
+  // successful generation. Load the current version instead.
+  const [erdCode, setErdCode] = useState<string>("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    erdVersionsApi
+      .getAll(projectId)
+      .then((versions) => {
+        if (cancelled) return;
+        const current =
+          versions.find((v) => v.is_current) ??
+          [...versions].sort((a, b) => b.version_number - a.version_number)[0];
+        setErdCode(current?.mermaid_code ?? "");
+      })
+      .catch((error) => {
+        console.error("Failed to load ERD versions:", error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
 
   useEffect(() => {
     if (project) {
       setCurrentStep("enhance");
 
-      const entityNames = project.erdCode ? parseEntityNamesFromErd(project.erdCode) : [];
+      const source = erdCode || project.erdCode || "";
+      const entityNames = source ? parseEntityNamesFromErd(source) : [];
 
       const derivedServices: ServiceInfo[] = entityNames.map((entity, i) => ({
         name: `${entity}Service`,
@@ -63,7 +92,7 @@ function EnhancePage() {
 
       setServices(derivedServices);
     }
-  }, [project, setCurrentStep]);
+  }, [project, setCurrentStep, erdCode]);
 
   const handleServiceClick = (serviceName: string) => {
     try {

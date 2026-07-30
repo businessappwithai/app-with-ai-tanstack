@@ -40,11 +40,24 @@ import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import type { ERDVersion } from "@/lib/api/projects";
 import { erdVersionsApi } from "@/lib/api/projects";
+import { toRenderableMermaid } from "@/lib/mermaid-render";
 import { useProjectStore } from "@/store/projectStore";
 
 export const Route = createFileRoute("/projects/$id/design")({
-  component: DesignPage,
+  component: DesignRoute,
 });
+
+// CopilotProvider must sit ABOVE the component that calls useCopilotReadable /
+// useCopilotAction. Rendering it inside DesignPage's own JSX puts the context
+// below the hooks that read it, which throws
+// "useCopilotKit must be used within CopilotKitProvider".
+function DesignRoute() {
+  return (
+    <CopilotProvider>
+      <DesignPage />
+    </CopilotProvider>
+  );
+}
 
 function DesignPage() {
   const navigate = useNavigate();
@@ -280,7 +293,7 @@ function DesignPage() {
         }
 
         const id = `mermaid-${Date.now()}`;
-        const { svg } = await mermaid.render(id, code);
+        const { svg } = await mermaid.render(id, toRenderableMermaid(code));
 
         const mermaidDiv = document.getElementById(`d${id}`);
         console.log("Mermaid render output:", { svg, mermaidDiv });
@@ -424,13 +437,17 @@ function DesignPage() {
     return progressMap[step] || 50;
   }, []);
 
+  // The preview SVG is injected imperatively into previewRef, so any React
+  // reconciliation of that subtree throws it away. Re-render whenever a side
+  // panel or view toggle reflows the preview, not just when the code changes,
+  // otherwise opening Version History leaves the preview permanently blank.
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
       renderDiagram(erdCode);
     }, 800);
 
     return () => clearTimeout(debounceTimer);
-  }, [erdCode, renderDiagram]);
+  }, [erdCode, renderDiagram, showVersions, showEntityList, showFlowView, isFullscreen]);
 
   const loadVersions = async () => {
     setIsLoadingVersions(true);
@@ -454,7 +471,7 @@ function DesignPage() {
     setIsValidating(true);
     try {
       const id = `validate-${Date.now()}`;
-      await mermaid.render(id, erdCode);
+      await mermaid.render(id, toRenderableMermaid(erdCode));
       setValidationErrors([]);
     } catch (error) {
       if (error instanceof Error) {
@@ -730,7 +747,7 @@ function DesignPage() {
 
     try {
       const id = `validate-${Date.now()}`;
-      await mermaid.render(id, generatedCode);
+      await mermaid.render(id, toRenderableMermaid(generatedCode));
 
       addAiStep("complete", "Validation successful!", "ERD is syntactically correct", "completed");
       return true;
@@ -932,8 +949,7 @@ function DesignPage() {
   }
 
   return (
-    <CopilotProvider>
-      <CopilotSidebar
+    <CopilotSidebar
         instructions="You are an ERD design assistant. You can see the current ERD diagram (via the 'Current ERD' context). Use the 'updateERD' action to make surgical changes: add entities, modify attributes, change relationships. For bulk AI generation, use the bottom bar. Ask the user what they'd like to change."
         defaultOpen={false}
       >
@@ -1814,7 +1830,6 @@ function DesignPage() {
             setShowDbModal(false);
           }}
         />
-      </CopilotSidebar>
-    </CopilotProvider>
+    </CopilotSidebar>
   );
 }
