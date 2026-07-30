@@ -80,7 +80,12 @@ export function DbOperationsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      onKeyDown={(e) => { if (e.key === "Escape") onClose(); }}
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative bg-background border border-border rounded-xl p-6 w-full max-w-md shadow-2xl">
         <div className="flex items-center justify-between mb-4">

@@ -10,10 +10,13 @@ import {
   Clock,
   Database,
   Download,
+  FileCode2,
   FileText,
+  FolderOpen,
   GitCommit,
   HelpCircle,
   History,
+  Library,
   List,
   Loader2,
   Maximize2,
@@ -24,6 +27,7 @@ import {
   Search,
   Send,
   Sparkles,
+  Upload,
   X,
   Zap,
   ZoomIn,
@@ -151,7 +155,172 @@ function DesignPage() {
   const [isAutoRetrying, setIsAutoRetrying] = useState(false);
   const [showFlowView, setShowFlowView] = useState(false);
   const [showDbModal, setShowDbModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importTab, setImportTab] = useState<"local" | "library">("local");
+  const [libraryFiles, setLibraryFiles] = useState<Array<{ filename: string; projectName: string; content: string; downloadUrl: string; createdAt: string }>>([]);
+  const [isLoadingLibrary, setIsLoadingLibrary] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const erdCodeRef = useRef(erdCode);
+
+  const examples = [
+    {
+      name: "Blog",
+      content: `erDiagram
+    USER {
+        int id PK
+        string name
+        string email
+        string passwordHash
+        datetime createdAt
+    }
+    POST {
+        int id PK
+        string title
+        text content
+        datetime publishedAt
+        int authorId FK
+    }
+    COMMENT {
+        int id PK
+        text content
+        datetime createdAt
+        int postId FK
+        int authorId FK
+    }
+    TAG {
+        int id PK
+        string name
+        string slug
+    }
+    POST_TAG {
+        int postId FK
+        int tagId FK
+    }
+    USER ||--o{ POST : "writes"
+    USER ||--o{ COMMENT : "writes"
+    POST ||--o{ COMMENT : "has"
+    POST }o--o{ TAG : "tagged"
+`,
+    },
+    {
+      name: "E-commerce",
+      content: `erDiagram
+    CUSTOMER {
+        int id PK
+        string name
+        string email
+        string phone
+        datetime createdAt
+    }
+    PRODUCT {
+        int id PK
+        string name
+        string description
+        decimal price
+        int stock
+        int categoryId FK
+    }
+    CATEGORY {
+        int id PK
+        string name
+    }
+    ORDER {
+        int id PK
+        datetime orderedAt
+        string status
+        decimal total
+        int customerId FK
+    }
+    ORDER_ITEM {
+        int id PK
+        int orderId FK
+        int productId FK
+        int quantity
+        decimal unitPrice
+    }
+    CUSTOMER ||--o{ ORDER : "places"
+    ORDER ||--|{ ORDER_ITEM : "contains"
+    PRODUCT ||--o{ ORDER_ITEM : "included in"
+    CATEGORY ||--o{ PRODUCT : "groups"
+`,
+    },
+    {
+      name: "Project Mgmt",
+      content: `erDiagram
+    USER {
+        int id PK
+        string name
+        string email
+        string role
+    }
+    PROJECT {
+        int id PK
+        string name
+        string description
+        date startDate
+        date endDate
+        int ownerId FK
+    }
+    TASK {
+        int id PK
+        string title
+        string status
+        date dueDate
+        int projectId FK
+        int assigneeId FK
+    }
+    MILESTONE {
+        int id PK
+        string name
+        date targetDate
+        int projectId FK
+    }
+    USER ||--o{ PROJECT : "owns"
+    PROJECT ||--o{ TASK : "has"
+    PROJECT ||--o{ MILESTONE : "tracks"
+    USER ||--o{ TASK : "assigned to"
+`,
+    },
+    {
+      name: "Hospital",
+      content: `erDiagram
+    PATIENT {
+        int id PK
+        string name
+        date dateOfBirth
+        string bloodType
+        string phone
+    }
+    DOCTOR {
+        int id PK
+        string name
+        string specialty
+        string licenseNumber
+    }
+    APPOINTMENT {
+        int id PK
+        datetime scheduledAt
+        string status
+        string notes
+        int patientId FK
+        int doctorId FK
+    }
+    MEDICAL_RECORD {
+        int id PK
+        string diagnosis
+        string treatment
+        datetime recordedAt
+        int patientId FK
+        int doctorId FK
+    }
+    PATIENT ||--o{ APPOINTMENT : "books"
+    DOCTOR ||--o{ APPOINTMENT : "conducts"
+    PATIENT ||--o{ MEDICAL_RECORD : "has"
+    DOCTOR ||--o{ MEDICAL_RECORD : "creates"
+`,
+    },
+  ];
 
   useEffect(() => {
     conversationHistoryRef.current = conversationHistory;
@@ -160,6 +329,18 @@ function DesignPage() {
   useEffect(() => {
     erdCodeRef.current = erdCode;
   }, [erdCode]);
+
+  useEffect(() => {
+    if (!showImportModal && !showDbModal) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (showImportModal) setShowImportModal(false);
+        if (showDbModal) setShowDbModal(false);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [showImportModal, showDbModal]);
 
   const previewRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLTextAreaElement>(null);
@@ -917,6 +1098,56 @@ function DesignPage() {
     URL.revokeObjectURL(url);
   };
 
+  const handleImportFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.name.endsWith(".mmd") && !file.name.endsWith(".md")) {
+      setImportError("Only .mmd files are supported");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      if (!text.trim().startsWith("erDiagram") && !text.trim().startsWith("flowchart") && !text.trim().startsWith("graph")) {
+        setImportError("File does not appear to be a valid Mermaid ERD. Must start with 'erDiagram'.");
+        return;
+      }
+      setErdCode(text);
+      setShowImportModal(false);
+      setImportError(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+    reader.readAsText(file);
+  };
+
+  const handleLoadLibraryFiles = async () => {
+    setIsLoadingLibrary(true);
+    setImportError(null);
+    try {
+      const res = await fetch("/api/mermaid?type=erd");
+      if (!res.ok) throw new Error("Failed to load library");
+      const data = await res.json();
+      setLibraryFiles(data.files ?? []);
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : "Failed to load library");
+    } finally {
+      setIsLoadingLibrary(false);
+    }
+  };
+
+  const handleLoadFromLibrary = (content: string) => {
+    setErdCode(content);
+    setShowImportModal(false);
+    setImportError(null);
+  };
+
+  const handleOpenImportModal = () => {
+    setImportError(null);
+    setImportTab("local");
+    setShowImportModal(true);
+    handleLoadLibraryFiles();
+  };
+
   const jumpToEntity = (lineNumber: number) => {
     if (editorRef.current) {
       const lines = erdCode.split("\n");
@@ -1038,8 +1269,16 @@ function DesignPage() {
                         {isSaving ? "Saving..." : "Save Draft"}
                       </button>
                       <button
+                        onClick={handleOpenImportModal}
+                        title="Import .mmd file or load from library"
+                        className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors"
+                      >
+                        <Upload className="w-4 h-4" />
+                        Import
+                      </button>
+                      <button
                         onClick={handleExportMrd}
-                        title="Download as .mrd file"
+                        title="Download as .mmd file"
                         className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors"
                       >
                         <Download className="w-4 h-4" />
@@ -1830,6 +2069,153 @@ function DesignPage() {
             setShowDbModal(false);
           }}
         />
+
+        {/* Hidden file input for .mmd import */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".mmd,.md"
+          className="hidden"
+          onChange={handleImportFileSelect}
+        />
+
+        {/* Import Modal */}
+        {showImportModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            onClick={(e) => { if (e.target === e.currentTarget) setShowImportModal(false); }}
+            onKeyDown={(e) => { if (e.key === "Escape") setShowImportModal(false); }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Import ERD"
+          >
+            <div className="bg-background border border-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+                <div className="flex items-center gap-2">
+                  <Upload className="w-5 h-5 text-primary" />
+                  <h2 className="text-lg font-semibold">Import ERD</h2>
+                </div>
+                <button
+                  onClick={() => setShowImportModal(false)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Tabs */}
+              <div className="flex border-b border-border">
+                <button
+                  onClick={() => setImportTab("local")}
+                  className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
+                    importTab === "local"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <FolderOpen className="w-4 h-4" />
+                  Upload File
+                </button>
+                <button
+                  onClick={() => { setImportTab("library"); handleLoadLibraryFiles(); }}
+                  className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
+                    importTab === "library"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Library className="w-4 h-4" />
+                  Mermaid Library
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                {importError && (
+                  <div className="mb-4 flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-300">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    {importError}
+                  </div>
+                )}
+
+                {importTab === "local" && (
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Upload a <code className="px-1 py-0.5 bg-secondary rounded text-xs">.mmd</code> file containing an <code className="px-1 py-0.5 bg-secondary rounded text-xs">erDiagram</code> definition.
+                    </p>
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full flex flex-col items-center gap-3 px-6 py-10 border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 rounded-xl transition-colors cursor-pointer"
+                    >
+                      <FileCode2 className="w-10 h-10 text-muted-foreground" />
+                      <div className="text-center">
+                        <p className="font-medium">Click to browse files</p>
+                        <p className="text-sm text-muted-foreground mt-1">Supports .mmd files</p>
+                      </div>
+                    </button>
+                    {examples.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Or start from an example</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {examples.map((ex) => (
+                            <button
+                              key={ex.name}
+                              onClick={() => { setErdCode(ex.content); setShowImportModal(false); }}
+                              className="flex items-center gap-2 px-3 py-2 text-sm bg-secondary hover:bg-secondary/80 rounded-lg transition-colors text-left"
+                            >
+                              <FileText className="w-4 h-4 text-primary flex-shrink-0" />
+                              {ex.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {importTab === "library" && (
+                  <div>
+                    {isLoadingLibrary ? (
+                      <div className="flex items-center justify-center py-10 gap-2 text-muted-foreground">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span className="text-sm">Loading library...</span>
+                      </div>
+                    ) : libraryFiles.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-10 gap-3 text-muted-foreground">
+                        <Library className="w-10 h-10 opacity-40" />
+                        <div className="text-center">
+                          <p className="font-medium">No ERD files in library</p>
+                          <p className="text-sm mt-1">Export your ERD using the Export button to save it here</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {libraryFiles.map((file) => (
+                          <button
+                            key={file.filename}
+                            onClick={() => handleLoadFromLibrary(file.content)}
+                            className="w-full flex items-center gap-3 px-4 py-3 bg-secondary hover:bg-secondary/80 rounded-xl transition-colors text-left"
+                          >
+                            <FileCode2 className="w-5 h-5 text-primary flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm truncate">{file.projectName}</p>
+                              <p className="text-xs text-muted-foreground truncate">{file.filename}</p>
+                            </div>
+                            <span className="text-xs text-muted-foreground flex-shrink-0">
+                              {new Date(file.createdAt).toLocaleDateString()}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
     </CopilotSidebar>
   );
 }
