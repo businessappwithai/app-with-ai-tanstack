@@ -1,6 +1,7 @@
 import { Agent } from "@mastra/core/agent";
 import { z } from "zod";
 import type { EntityCandidate, RelationshipCandidate } from "../types";
+import { mastraModelConfig } from "../config";
 
 const mermaidOutputSchema = z.object({
   syntax: z.string(),
@@ -31,7 +32,7 @@ Cardinality symbols:
 - ||--o{ : oneToMany
 - }o--|| : manyToOne
 - }o--o{ : manyToMany`,
-  model: "anthropic/claude-sonnet-4-20250514",
+  model: mastraModelConfig,
 });
 
 export async function generateMermaid(

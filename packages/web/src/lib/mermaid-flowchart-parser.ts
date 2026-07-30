@@ -1,7 +1,7 @@
 // Minimal Mermaid flowchart TD → AST parser
 // Supports: A([label]), B{label}, C[label], D((label)), edges with optional labels
 
-export type NodeShape = "stadium" | "diamond" | "rect" | "circle";
+export type NodeShape = "stadium" | "diamond" | "rect" | "circle" | "round";
 
 export interface FlowNode {
   id: string;
@@ -34,6 +34,9 @@ function parseNodeDef(id: string, rest: string): FlowNode | null {
 
   m = rest.match(/^\[(.+?)\]/);
   if (m?.[1]) return { id, label: m[1].trim(), shape: "rect" };
+
+  m = rest.match(/^\((.+?)\)/);
+  if (m?.[1]) return { id, label: m[1].trim(), shape: "round" };
 
   return null;
 }

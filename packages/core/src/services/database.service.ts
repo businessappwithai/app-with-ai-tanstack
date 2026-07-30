@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * Database service for ERDwithAI — MariaDB via Kysely + mysql2
+ * Database service for ERDwithAI — PostgreSQL via Kysely + pg
  *
  * Connection config lives in ONE place: packages/core/src/config/db.config.ts
  * Change driver / connection string there only.
@@ -12,7 +12,7 @@ import { type Database, destroyDb, getDb } from "../config/db.config.js";
 // Re-export types consumed by other packages
 export type { Database };
 
-// ─── Helpers (MySQL has no RETURNING — use insert/update then select) ──────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 async function insertAndReturn<T>(
   db: Kysely<Database>,

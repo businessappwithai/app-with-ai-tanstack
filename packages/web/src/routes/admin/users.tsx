@@ -8,7 +8,7 @@ async function checkAdminAuth() {
 
   if (typeof window === "undefined") {
     try {
-      const { getRequest } = await import("@tanstack/react-start/server");
+      const { getRequest } = await import(/* @vite-ignore */ "@tanstack/react-start/server");
       const req = getRequest();
       if (req) {
         const cookie = req.headers.get("cookie") ?? "";

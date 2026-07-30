@@ -1,5 +1,6 @@
 import { Agent } from "@mastra/core/agent";
 import { domainAnalysisSchema } from "../types";
+import { mastraModelConfig } from "../config";
 
 export const domainAgent = new Agent({
   id: "domain-agent",
@@ -207,7 +208,7 @@ Rate your confidence in each extraction:
 - **0.1-0.2**: Guess, low confidence
 
 Generate complete, valid Mermaid ERD syntax that can be directly rendered.`,
-  model: "anthropic/claude-sonnet-4-20250514",
+  model: mastraModelConfig,
 });
 
 export async function analyzeDomain(description: string) {

@@ -1,4 +1,9 @@
 import OpenAI from "openai";
+import { AI_API_KEY, AI_BASE_URL, AI_MODEL } from "../config";
+
+function makeLocalClient(): OpenAI {
+  return new OpenAI({ apiKey: AI_API_KEY, baseURL: AI_BASE_URL });
+}
 
 /** Attribute shape used in OpenAI-parsed entity responses */
 interface ParsedAttribute {
@@ -149,7 +154,7 @@ Generate ONLY valid Mermaid ERD syntax. Follow these rules:
 5. Relationships: ENTITY_A ||--o{ ENTITY_B : "label"`;
 
       const response = await openai.chat.completions.create({
-        model: "gpt-4-turbo-preview",
+        model: AI_MODEL,
         messages: [
           {
             role: "system",
@@ -381,15 +386,9 @@ erDiagram
  * Analyze domain and generate Mermaid ERD with retry logic
  */
 export async function analyzeDomainWithOpenAI(description: string) {
-  const apiKey = process.env.OPENAI_API_KEY;
+  console.log("[Local AI Analysis] Starting analysis with", AI_MODEL, "at", AI_BASE_URL);
 
-  console.log("[OpenAI Analysis] Starting analysis, API key present:", !!apiKey);
-
-  if (!apiKey) {
-    throw new Error("OPENAI_API_KEY environment variable is not set");
-  }
-
-  const openai = new OpenAI({ apiKey });
+  const openai = makeLocalClient();
 
   const conversationHistory: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
     {
@@ -430,11 +429,11 @@ Response format:
     },
   ];
 
-  console.log("[OpenAI Analysis] Calling OpenAI API...");
+  console.log("[Local AI Analysis] Calling API...");
 
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: AI_MODEL,
       messages: [
         ...conversationHistory,
         {
@@ -493,16 +492,7 @@ ${description}`,
  */
 export async function generateMermaidWithValidation(
   entities: ParsedEntity[],
-  relationships: ParsedRelationship[],
-  openaiApiKey?: string
+  relationships: ParsedRelationship[]
 ): Promise<{ mermaidSyntax: string; entityCount: number; relationshipCount: number }> {
-  const apiKey = openaiApiKey || process.env.OPENAI_API_KEY;
-
-  if (!apiKey) {
-    // Fallback to programmatic generation
-    return generateMermaidProgrammatic(entities, relationships);
-  }
-
-  const openai = new OpenAI({ apiKey });
-  return generateMermaidWithRetry(openai, entities, relationships, 3);
+  return generateMermaidWithRetry(makeLocalClient(), entities, relationships, 3);
 }

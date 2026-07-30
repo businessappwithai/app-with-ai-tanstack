@@ -1,4 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/start/api";
+import { createAPIFileRoute } from "@tanstack/start-api-routes";
 
 export const Route = createAPIFileRoute("/api/db/generate-schema")({
   POST: async ({ request }) => {

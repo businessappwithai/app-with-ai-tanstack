@@ -36,6 +36,52 @@ const FLOWCHART_PLACEHOLDER = `flowchart TD
     F --> G
     G --> H([End: Price Calculated])`;
 
+/**
+ * Extracts flowchart blocks that follow %%rule directives in an EML file.
+ * Returns one string per rule, each starting with "flowchart".
+ */
+function extractRuleFlowcharts(erdCode: string): string[] {
+  const lines = erdCode.split("\n");
+  const results: string[] = [];
+  let capturing = false;
+  let buffer: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith("%%rule ")) {
+      if (capturing && buffer.length > 0) {
+        const fc = buffer.join("\n").trim();
+        if (fc) results.push(fc);
+        buffer = [];
+      }
+      capturing = true;
+      continue;
+    }
+
+    if (!capturing) continue;
+
+    if (trimmed.match(/^(%%workflow|erDiagram|stateDiagram-v2|stateDiagram)\b/)) {
+      const fc = buffer.join("\n").trim();
+      if (fc) results.push(fc);
+      buffer = [];
+      capturing = false;
+      continue;
+    }
+
+    if (trimmed.startsWith("%%")) continue;
+
+    buffer.push(line);
+  }
+
+  if (capturing && buffer.length > 0) {
+    const fc = buffer.join("\n").trim();
+    if (fc) results.push(fc);
+  }
+
+  return results.filter((s) => /^flowchart\b/.test(s));
+}
+
 function RulesDesignPage() {
   const navigate = useNavigate();
   const { id: projectId } = Route.useParams();
@@ -80,6 +126,17 @@ function RulesDesignPage() {
   const [showAiDetails, setShowAiDetails] = useState(false);
 
   const prevBlobUrlRef = useRef<string>("");
+  const erdRulesApplied = useRef(false);
+
+  useEffect(() => {
+    if (project?.erdCode && !erdRulesApplied.current) {
+      const rules = extractRuleFlowcharts(project.erdCode);
+      if (rules.length > 0 && rules[0]) {
+        setFlowchartCode(rules[0]);
+        erdRulesApplied.current = true;
+      }
+    }
+  }, [project?.erdCode]);
 
   mermaid.initialize({
     startOnLoad: false,

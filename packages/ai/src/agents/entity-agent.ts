@@ -1,5 +1,6 @@
 import { Agent } from "@mastra/core/agent";
 import { entityCandidateSchema } from "../types";
+import { mastraModelConfig } from "../config";
 
 export const entityAgent = new Agent({
   id: "entity-agent",
@@ -13,7 +14,7 @@ export const entityAgent = new Agent({
 5. Defaults: timestamps, boolean flags
 
 Return refined entity with confidence score.`,
-  model: "anthropic/claude-sonnet-4-20250514",
+  model: mastraModelConfig,
 });
 
 export async function refineEntity(entity: unknown) {

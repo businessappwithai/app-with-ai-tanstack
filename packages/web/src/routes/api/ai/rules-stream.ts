@@ -1,9 +1,13 @@
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToJdm } from "@/lib/jdm-converter";
 import { parseMermaidFlowchart } from "@/lib/mermaid-flowchart-parser";
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const localAI = new OpenAI({
+  apiKey: process.env.LOCAL_AI_API_KEY ?? "local",
+  baseURL: process.env.LOCAL_AI_BASE_URL ?? "http://localhost:8000/v1",
+});
+const LOCAL_MODEL = process.env.LOCAL_AI_MODEL ?? "qwen3.6:27b-mlx";
 
 function sse(controller: ReadableStreamDefaultController, encoder: TextEncoder, data: unknown) {
   controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
@@ -47,17 +51,19 @@ Rules:
 
   sse(controller, encoder, { step: "generating", message: "Generating Mermaid flowchart..." });
 
-  const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+  const completion = await localAI.chat.completions.create({
+    model: LOCAL_MODEL,
     max_tokens: 2048,
-    system: systemPrompt,
-    messages: [{ role: "user", content: userPrompt }],
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ],
   });
 
-  const content = message.content[0];
-  if (!content || content.type !== "text") throw new Error("Unexpected response type");
+  const rawText = completion.choices[0]?.message?.content;
+  if (!rawText) throw new Error("Empty response from model");
 
-  let flowchartCode = (content as { type: "text"; text: string }).text.trim();
+  let flowchartCode = rawText.trim();
   flowchartCode = flowchartCode
     .replace(/^```(?:mermaid)?\n?/m, "")
     .replace(/```$/m, "")

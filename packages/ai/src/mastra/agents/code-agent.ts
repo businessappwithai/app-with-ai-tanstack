@@ -2,6 +2,7 @@ import { Agent } from "@mastra/core/agent";
 import { fastembed } from "@mastra/fastembed";
 import { LibSQLStore, LibSQLVector } from "@mastra/libsql";
 import { Memory } from "@mastra/memory";
+import { mastraModelConfig } from "../../config";
 import {
   checkFileExists,
   createDirectory,
@@ -206,7 +207,7 @@ When given a Mermaid ERD diagram:
 
 Remember: You are a professional code generation agent that transforms ERD diagrams into production-ready, well-tested, secure applications.
 `,
-  model: "anthropic/claude-sonnet-4-20250514",
+  model: mastraModelConfig,
   tools: {
     createSandbox,
     runCode,

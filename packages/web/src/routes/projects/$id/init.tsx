@@ -50,7 +50,7 @@ function InitPage() {
         name: currentProject.name,
         description: currentProject.description,
         stackType: currentProject.stackType,
-        databaseUrl: currentProject.databaseUrl || `mysql://erdwithai@127.0.0.1:3306/${projectId}`,
+        databaseUrl: currentProject.databaseUrl || `postgresql://erdwithai@127.0.0.1:5432/${projectId}`,
       });
       setCurrentProject(projectId);
     }
@@ -347,12 +347,12 @@ function InitPage() {
                         type="text"
                         value={formData.databaseUrl}
                         onChange={(e) => setFormData({ ...formData, databaseUrl: e.target.value })}
-                        placeholder={`mysql://erdwithai@127.0.0.1:3306/${projectId}`}
+                        placeholder={`postgresql://erdwithai@127.0.0.1:5432/${projectId}`}
                         className="w-full font-mono text-sm bg-background border border-border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Using database: <span className="font-mono">{projectId}</span> (default:
-                        SQLite)
+                        Using database: <span className="font-mono">{projectId}</span> (leave blank
+                        to configure later)
                       </p>
                     </>
                   ) : (

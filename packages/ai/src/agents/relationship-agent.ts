@@ -1,5 +1,6 @@
 import { Agent } from "@mastra/core/agent";
 import { relationshipCandidateSchema } from "../types";
+import { mastraModelConfig } from "../config";
 
 export const relationshipAgent = new Agent({
   id: "relationship-agent",
@@ -15,7 +16,7 @@ Common patterns:
 - "users create posts" → User 1:N Post (FK: authorId in Post)
 - "post has comments" → Post 1:N Comment (FK: postId in Comment)
 - "posts tagged with tags" → Post M:N Tag (junction table)`,
-  model: "anthropic/claude-sonnet-4-20250514",
+  model: mastraModelConfig,
 });
 
 export async function refineRelationship(relationship: unknown) {
