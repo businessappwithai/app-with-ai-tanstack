@@ -127,3 +127,56 @@ These items were considered but explicitly rejected:
 - **Workflow scheduling** - No time-based triggers identified
 - **Rule versioning** - Admin can duplicate rules manually
 - **Bulk operations** - OData $batch is complex, unclear use case
+
+---
+
+## Found by /qa on `claude/drug-discovery-mmd-qa-nc8d0b`, 2026-07-30
+
+Deferred (low severity) findings from driving `examples/drug-discovery.eml.mmd`
+through the full wizard. Full report:
+`.gstack/qa-reports/qa-report-localhost-3000-2026-07-30.md`
+
+### Settle on one database across defaults and copy — low, content
+
+The Init step's Configuration panel shows a `mysql://…:3306/…` default
+connection string, under a stack card that says **PostgreSQL**, with helper text
+reading *"(default: SQLite)"*. `.env.example` ships `DATABASE_URL=mysql://…`
+while `packages/core/src/config/db.config.ts` is PostgreSQL-only, and
+`packages/core/src/services/database.service.ts` still has a
+"MariaDB via Kysely + mysql2" header comment.
+
+Nothing breaks at runtime — the value is overridden — but a developer following
+`.env.example` verbatim cannot start the app.
+
+**Repro:** create a project → Init step → Configuration panel.
+
+### Ingest `%%rule` and `%%workflow` sections from EML files — low, feature gap
+
+`drug-discovery.eml.mmd` defines three business rules
+(`experimentSubmitGate`, `deviationSeverity`, `bookingConflict`) and four
+workflows via `%%rule` / `%%workflow` directives. Step 3 ignores all of them and
+pre-fills an unrelated "Order Discount" sample. Pasting a rule by hand works
+correctly, so this is unimplemented ingest, not a defect.
+
+**Repro:** load an EML file with `%%rule` sections on Design → Continue to Step 3.
+
+### Support the `(round)` node shape in the flowchart parser — low, cosmetic
+
+`parseMermaidFlowchart` documents `A([label])`, `B{label}`, `C[label]`,
+`D((label))`. `EDGE_RE` also captures a bare `C(round)` suffix, but
+`parseNodeDef` has no branch for it, so the node falls back to `label = id` and
+renders as "C".
+
+**Repro:** enter `A --> C(round)` on the Rules step; the node renders as "C".
+
+### Stop the devtools console pipe from amplifying its own output — medium, dev-only
+
+The TanStack devtools console pipe echoes each `[Server]`-prefixed warning back
+to the client and re-prefixes it every round. One deprecation warning
+(`@tanstack/start/api`, still imported by `routes/api/db/reverse-engineer.ts`
+and `routes/api/db/generate-schema.ts`) grew the dev log into the hundreds of
+kilobytes and killed the dev server once during this QA session.
+
+Migrating those two imports off the deprecated package removes the seed warning.
+
+**Repro:** `bun run dev`, open any page, watch the dev server log grow.
