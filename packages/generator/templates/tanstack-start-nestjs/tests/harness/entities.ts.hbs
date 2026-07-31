@@ -1,0 +1,179 @@
+/**
+ * Entity registry — generated from the ERD.
+ *
+ * This is the single source of truth the suites iterate over. Every entity in
+ * the model appears here with the field metadata the factory needs to invent
+ * realistic values and the relationship metadata the workflow suite needs to
+ * wire records together.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+export type FieldType =
+  | "string"
+  | "integer"
+  | "decimal"
+  | "boolean"
+  | "date"
+  | "datetime"
+  | "text"
+  | "json";
+
+export interface FieldMeta {
+  /** Physical column name — what the API expects in a payload. */
+  name: string;
+  /** Human-readable label from the Application Dictionary. */
+  displayName: string;
+  type: FieldType;
+  required: boolean;
+  unique: boolean;
+  /** True for *_id columns that point at another bus_ table. */
+  isForeignKey: boolean;
+  maxLength?: number;
+}
+
+export interface EntityMeta {
+  /** ERD entity name, e.g. "Customer". */
+  name: string;
+  /** Physical table, e.g. "bus_customer" — the identifier the rules API uses. */
+  tableName: string;
+  /** Path segment for /api/bus/:entity. */
+  route: string;
+  displayName: string;
+  primaryKey: string;
+  fields: FieldMeta[];
+}
+
+export interface RelationshipMeta {
+  name: string;
+  sourceEntity: string;
+  targetEntity: string;
+  cardinality: "oneToOne" | "oneToMany" | "manyToOne" | "manyToMany";
+  foreignKey?: string;
+}
+
+/** Columns the server owns — never sent in a create/update payload. */
+export const SERVER_MANAGED_FIELDS = new Set([
+  "id",
+  "created_at",
+  "updated_at",
+  "deleted_at",
+  "created_by",
+  "updated_by",
+  "version",
+  "is_active",
+  "doc_status",
+]);
+
+export const entities: EntityMeta[] = [
+{{#each entities}}
+  {
+    name: "{{name}}",
+    tableName: "{{tableName}}",
+    route: "{{tableName}}",
+    displayName: "{{displayName}}",
+    primaryKey: "{{primaryKey}}",
+    fields: [
+{{#each attributes}}
+      {
+        name: "{{columnName}}",
+        displayName: "{{displayName}}",
+        type: "{{type}}",
+        required: {{#if required}}true{{else}}false{{/if}},
+        unique: {{#if unique}}true{{else}}false{{/if}},
+        isForeignKey: {{#if isForeignKey}}true{{else}}false{{/if}},
+{{#if maxLength}}
+        maxLength: {{maxLength}},
+{{/if}}
+      },
+{{/each}}
+    ],
+  },
+{{/each}}
+];
+
+export const relationships: RelationshipMeta[] = [
+{{#each relationships}}
+  {
+    name: "{{name}}",
+    sourceEntity: "{{sourceEntity}}",
+    targetEntity: "{{targetEntity}}",
+    cardinality: "{{cardinality}}",
+{{#if foreignKey}}
+    foreignKey: "{{foreignKey}}",
+{{/if}}
+  },
+{{/each}}
+];
+
+/** Fields a client is allowed to write. */
+export function writableFields(entity: EntityMeta): FieldMeta[] {
+  return entity.fields.filter((f) => !SERVER_MANAGED_FIELDS.has(f.name));
+}
+
+/** Writable fields excluding foreign keys — safe to populate without existing parents. */
+export function scalarFields(entity: EntityMeta): FieldMeta[] {
+  return writableFields(entity).filter((f) => !f.isForeignKey && !f.name.endsWith("_id"));
+}
+
+export function foreignKeyFields(entity: EntityMeta): FieldMeta[] {
+  return writableFields(entity).filter((f) => f.isForeignKey || f.name.endsWith("_id"));
+}
+
+/** The first text-ish field, used for search and update assertions. */
+export function firstTextField(entity: EntityMeta): FieldMeta | undefined {
+  return scalarFields(entity).find((f) => f.type === "string" || f.type === "text");
+}
+
+export function numericFields(entity: EntityMeta): FieldMeta[] {
+  return scalarFields(entity).filter((f) => f.type === "integer" || f.type === "decimal");
+}
+
+export function getEntity(name: string): EntityMeta {
+  const found = entities.find(
+    (e) => e.name === name || e.tableName === name || e.route === name
+  );
+  if (!found) throw new Error(`Unknown entity "${name}"`);
+  return found;
+}
+
+/**
+ * Entities ordered so that a record's foreign-key targets are created first.
+ * Falls back to declaration order for cycles.
+ */
+export function topologicalEntities(): EntityMeta[] {
+  const byName = new Map(entities.map((e) => [e.name, e]));
+  const dependencies = new Map<string, Set<string>>();
+
+  for (const entity of entities) {
+    dependencies.set(entity.name, new Set());
+  }
+  for (const rel of relationships) {
+    // manyToOne / oneToOne: the source holds the FK, so the target must exist first.
+    if (rel.cardinality === "manyToOne" || rel.cardinality === "oneToOne") {
+      dependencies.get(rel.sourceEntity)?.add(rel.targetEntity);
+    } else if (rel.cardinality === "oneToMany") {
+      dependencies.get(rel.targetEntity)?.add(rel.sourceEntity);
+    }
+  }
+
+  const ordered: EntityMeta[] = [];
+  const visited = new Set<string>();
+  const visiting = new Set<string>();
+
+  const visit = (name: string): void => {
+    if (visited.has(name) || visiting.has(name)) return;
+    visiting.add(name);
+    for (const dep of dependencies.get(name) ?? []) {
+      if (dep !== name) visit(dep);
+    }
+    visiting.delete(name);
+    visited.add(name);
+    const entity = byName.get(name);
+    if (entity) ordered.push(entity);
+  };
+
+  for (const entity of entities) visit(entity.name);
+  return ordered;
+}

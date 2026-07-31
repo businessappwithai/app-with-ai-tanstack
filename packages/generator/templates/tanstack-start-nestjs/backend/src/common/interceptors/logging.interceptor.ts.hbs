@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { FastifyRequest } from 'fastify';
+import type { FastifyRequest } from 'fastify';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {

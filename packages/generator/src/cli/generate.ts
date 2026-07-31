@@ -151,6 +151,65 @@ async function runSetup(opts: {
 }
 
 // ---------------------------------------------------------------------------
+// E2E test run (bun:test)
+// ---------------------------------------------------------------------------
+
+/**
+ * Install the test workspace's dependencies and run the generated suites.
+ *
+ * The suites start the backend themselves (or attach to one already listening),
+ * so this only needs a migrated + seeded database — which `runSetup` has
+ * already produced by the time we get here.
+ *
+ * Returns true when the suites pass, false when they fail, and null when they
+ * could not be run at all.
+ */
+async function runE2ETests(opts: {
+  outputDir: string;
+  packageManager: string;
+  fast: boolean;
+  quiet: boolean;
+}): Promise<boolean | null> {
+  const { outputDir, packageManager: pm, fast, quiet } = opts;
+  const testsDir = path.join(outputDir, "tests");
+
+  try {
+    await fs.access(path.join(testsDir, "run.ts"));
+  } catch {
+    console.warn("\n⚠️  No tests/ directory found — skipping the E2E run.");
+    return null;
+  }
+
+  log("\n📦 Installing test dependencies…", quiet);
+  const install = spawnSync(pm, ["install"], {
+    cwd: testsDir,
+    stdio: quiet ? "pipe" : "inherit",
+    shell: false,
+  });
+  if (install.status !== 0) {
+    const stderr = install.stderr?.toString().trim();
+    console.error(`\n❌ Installing test dependencies failed${stderr ? `: ${stderr}` : ""}`);
+    return false;
+  }
+
+  log(`\n🧪 Running E2E tests${fast ? " (fast — no bulk seed)" : ""}…\n`, quiet);
+  const run = spawnSync("bun", ["run", "run.ts", ...(fast ? ["--fast"] : [])], {
+    cwd: testsDir,
+    // Always inherit: a test run the user asked for should stream its output.
+    stdio: "inherit",
+    shell: false,
+  });
+
+  if (run.status === 0) {
+    log("\n✅ E2E tests passed", quiet);
+    return true;
+  }
+
+  console.error(`\n❌ E2E tests failed (exit code ${run.status ?? "unknown"})`);
+  return false;
+}
+
+// ---------------------------------------------------------------------------
 // EML checker + fixer pre-flight
 // ---------------------------------------------------------------------------
 
@@ -276,6 +335,15 @@ program
   .option("--quiet", "Suppress all non-error output")
   // Post-generation setup
   .option("--no-setup", "Skip automatic install, migrate and seed after generation")
+  // End-to-end tests (bun:test)
+  .option("--no-tests", "Skip generation of the bun:test E2E suite in tests/")
+  .option(
+    "--records-per-entity <count>",
+    "Records the bulk-seed E2E suite creates per entity",
+    "1000"
+  )
+  .option("--run-tests", "Run the generated E2E suite after setup completes")
+  .option("--run-tests-fast", "Run the E2E suite but skip the bulk-seed volume suite")
   .action(async (options) => {
     const quiet: boolean = !!options.quiet;
 
@@ -433,6 +501,8 @@ program
             : undefined,
         skipFrontend: !!options.skipFrontend,
         skipBackend: !!options.skipBackend,
+        skipTests: options.tests === false,
+        recordsPerEntity: Number(options.recordsPerEntity) || 1000,
       });
 
       await generator.generate(allEntities, allRelationships);
@@ -468,6 +538,27 @@ program
         });
       }
 
+      // ── Run E2E tests ───────────────────────────────────────────────────
+      // Generation → setup → tests, in that order: the suites sign in as the
+      // seeded administrator, so they cannot run before migrate + seed.
+      const wantsTests = !!(options.runTests || options.runTestsFast);
+      let testsPassed: boolean | null = null;
+
+      if (wantsTests && options.tests === false) {
+        console.warn("\n⚠️  --run-tests ignored: test generation was disabled with --no-tests");
+      } else if (wantsTests && options.setup === false) {
+        console.warn(
+          "\n⚠️  --run-tests ignored: the suites need a migrated and seeded database (--no-setup was given)"
+        );
+      } else if (wantsTests) {
+        testsPassed = await runE2ETests({
+          outputDir,
+          packageManager: options.packageManager,
+          fast: !!options.runTestsFast,
+          quiet,
+        });
+      }
+
       // ── Success ─────────────────────────────────────────────────────────
       if (!quiet) {
         const pm = options.packageManager;
@@ -483,8 +574,18 @@ program
         } else {
           console.log(`   App ready in: ${outputDir}`);
           console.log(`   cd ${outputDir} && ${pm} run dev\n`);
-          console.log("   Default admin:  admin@admin.com / administrator\n");
+          // Matches the bootstrap defaults in backend/src/main.ts
+          // (ADMIN_EMAIL / ADMIN_PASSWORD override them).
+          console.log("   Default admin:  admin@admin.com / admin\n");
         }
+        if (options.tests !== false) {
+          console.log(`   E2E tests:      cd ${outputDir} && ${pm} run test:e2e`);
+          console.log(`                   (add :fast to skip the bulk-seed volume suite)\n`);
+        }
+      }
+
+      if (testsPassed === false) {
+        process.exitCode = 1;
       }
     } catch (error: unknown) {
       console.error("\n❌ Error:", error instanceof Error ? error.message : String(error));
@@ -1223,7 +1324,7 @@ program
     console.log("  • Audit trail (ImmuDB-backed)");
     console.log("  • Role-based access control (RBAC)");
     console.log("  • ETag-based optimistic concurrency");
-    console.log("  • E2E test suite (Playwright)\n");
+    console.log("  • E2E test suite (bun:test) — CRUD, rules, workflows, faker volume data\n");
 
     console.log("🛠️  CLI Commands\n");
     console.log("  generate          Full-stack generation");

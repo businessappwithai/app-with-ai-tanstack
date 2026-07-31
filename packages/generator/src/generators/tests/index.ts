@@ -1,8 +1,11 @@
 /**
  * E2E Test Generators
  *
- * Exports framework-specific E2E test generators
+ * Generated applications are tested with bun:test only — the Playwright
+ * generator was removed in favour of the API-level suites this harness drives.
  */
 
-export { BaseE2ETestGenerator } from "./base-e2e.generator";
-export { TanStackStartPlaywrightE2ETestGenerator } from "./tanstack-start-e2e.generator";
+export {
+  BunE2ETestGenerator,
+  type BunE2ETestGeneratorOptions,
+} from "./bun-e2e.generator";

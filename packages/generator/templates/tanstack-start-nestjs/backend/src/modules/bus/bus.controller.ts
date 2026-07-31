@@ -29,7 +29,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuditInterceptor } from "../audit/audit.interceptor";
 import { SessionAuthGuard } from "../auth/guards/session-auth.guard";
-import type { BusService } from "./bus.service";
+import { BusService } from "./bus.service";
 
 @ApiTags("bus")
 @ApiBearerAuth()

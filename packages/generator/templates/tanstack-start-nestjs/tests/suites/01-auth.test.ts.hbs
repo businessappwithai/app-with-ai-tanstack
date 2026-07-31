@@ -1,0 +1,103 @@
+/**
+ * Authentication — the login the whole run depends on.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import {
+  config,
+  currentUser,
+  harness,
+  HttpClient,
+  isAuthenticated,
+  login,
+  logout,
+  permissions,
+  register,
+  buildUser,
+} from "../harness";
+
+describe("authentication", () => {
+  beforeAll(async () => {
+    await harness.setup();
+  });
+
+  afterAll(async () => {
+    await harness.teardown();
+  });
+
+  it("logs in as the seeded administrator", async () => {
+    const client = new HttpClient();
+    const user = await login(client);
+
+    expect(user).toBeTruthy();
+    expect(String(user.email).toLowerCase()).toBe(config.admin.email.toLowerCase());
+    expect(client.jar.size).toBeGreaterThan(0);
+  });
+
+  it("keeps the session across requests", async () => {
+    const client = new HttpClient();
+    await login(client);
+
+    expect(await isAuthenticated(client)).toBe(true);
+    const me = await currentUser(client);
+    expect(me.email).toBeTruthy();
+  });
+
+  it("rejects a wrong password", async () => {
+    const client = new HttpClient();
+    const response = await client.post(
+      "/api/auth/sign-in/email",
+      { email: config.admin.email, password: "definitely-not-the-password" },
+      { absolute: true, allowFailure: true }
+    );
+
+    expect(response.ok).toBe(false);
+    expect(response.status).toBeGreaterThanOrEqual(400);
+  });
+
+  it("rejects an unknown account", async () => {
+    const client = new HttpClient();
+    const response = await client.post(
+      "/api/auth/sign-in/email",
+      { email: "nobody@nowhere.invalid", password: "whatever-123" },
+      { absolute: true, allowFailure: true }
+    );
+
+    expect(response.ok).toBe(false);
+  });
+
+  it("exposes the administrator's permissions", async () => {
+    const perms = await permissions(harness.client);
+
+    expect(perms).toBeTruthy();
+    expect(Array.isArray(perms.windows)).toBe(true);
+  });
+
+  it("registers a new account and signs it in", async () => {
+    const client = new HttpClient();
+    const candidate = buildUser(0);
+
+    const created = await register(client, candidate.email, candidate.password, candidate.name);
+    expect(created.status).toBeLessThan(500);
+
+    // Registration may or may not auto-sign-in depending on better-auth config;
+    // an explicit login must work either way.
+    if (created.ok) {
+      const fresh = new HttpClient();
+      const user = await login(fresh, candidate.email, candidate.password);
+      expect(String(user.email).toLowerCase()).toBe(candidate.email.toLowerCase());
+    }
+  });
+
+  it("drops the session on logout", async () => {
+    const client = new HttpClient();
+    await login(client);
+    expect(await isAuthenticated(client)).toBe(true);
+
+    await logout(client);
+    expect(await isAuthenticated(client)).toBe(false);
+  });
+});
