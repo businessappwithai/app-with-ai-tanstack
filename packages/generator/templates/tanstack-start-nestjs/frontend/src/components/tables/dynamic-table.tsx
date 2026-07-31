@@ -48,6 +48,7 @@ import {
 import { type FieldMetadata, useGridFields } from "@/hooks/use-entities";
 import { apiClient, type PaginatedResponse } from "@/lib/api-client";
 import { useTranslations } from "@/lib/translations";
+import { referenceLabel } from "@/lib/utils";
 
 // ============================================================================
 // Types
@@ -346,19 +347,7 @@ export function DynamicTable({
       const tableMap: Record<string, string> = {};
       for (const rec of records) {
         const id = String((rec as any)[idField] ?? "");
-        const parts = labelFields
-          .map((f: string) => (rec as any)[f])
-          .filter((v: unknown) => v != null && v !== "")
-          .map(String);
-        // Configured label, then a person's full name, then the raw id.
-        const label = parts.length
-          ? parts.join(" · ")
-          : (rec as any).first_name != null
-            ? [String((rec as any).first_name), String((rec as any).last_name ?? "")]
-                .filter(Boolean)
-                .join(" ")
-            : id;
-        if (id) tableMap[id] = label;
+        if (id) tableMap[id] = referenceLabel(rec as Record<string, unknown>, labelFields, id);
       }
       map[field.ref_table_name!] = tableMap;
     });

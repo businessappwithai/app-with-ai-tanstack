@@ -1,68 +1,14 @@
 {
   "file": "/home/user/app-with-ai-tanstack/examples/drug-discovery.eml.mmd",
-  "checkedAt": "2026-07-31T10:05:55.094Z",
+  "checkedAt": "2026-07-31T10:27:46.633Z",
   "languageVersion": "1.0.0",
   "summary": {
     "errors": 0,
-    "warnings": 5,
-    "infos": 6,
+    "warnings": 0,
+    "infos": 8,
     "ok": true
   },
   "issues": [
-    {
-      "severity": "warning",
-      "code": "EML114",
-      "message": "Foreign key \"DeviationReport.reported_by\" does not end with \"_id\".",
-      "line": 208,
-      "hint": "Convention: rename to \"reported_by_id\" so the generator can derive the referenced table.",
-      "autoFixable": false
-    },
-    {
-      "severity": "warning",
-      "code": "EML114",
-      "message": "Foreign key \"CAPA.remediation_owner\" does not end with \"_id\".",
-      "line": 222,
-      "hint": "Convention: rename to \"remediation_owner_id\" so the generator can derive the referenced table.",
-      "autoFixable": false
-    },
-    {
-      "severity": "warning",
-      "code": "EML114",
-      "message": "Foreign key \"Compound.registered_by\" does not end with \"_id\".",
-      "line": 65,
-      "hint": "Convention: rename to \"registered_by_id\" so the generator can derive the referenced table.",
-      "autoFixable": false
-    },
-    {
-      "severity": "warning",
-      "code": "EML114",
-      "message": "Foreign key \"InstrumentBooking.booked_by\" does not end with \"_id\".",
-      "line": 161,
-      "hint": "Convention: rename to \"booked_by_id\" so the generator can derive the referenced table.",
-      "autoFixable": false
-    },
-    {
-      "severity": "warning",
-      "code": "EML114",
-      "message": "Foreign key \"VendorRequest.requested_by\" does not end with \"_id\".",
-      "line": 182,
-      "hint": "Convention: rename to \"requested_by_id\" so the generator can derive the referenced table.",
-      "autoFixable": false
-    },
-    {
-      "severity": "info",
-      "code": "EML502",
-      "message": "FK attribute \"Experiment.pi_id\" has no relationship to \"Pi\".",
-      "hint": "Add:  Pi ||--o{ Experiment : \"...\"  (or reverse for manyToOne).",
-      "autoFixable": false
-    },
-    {
-      "severity": "info",
-      "code": "EML502",
-      "message": "FK attribute \"Experiment.lab_manager_id\" has no relationship to \"LabManager\".",
-      "hint": "Add:  LabManager ||--o{ Experiment : \"...\"  (or reverse for manyToOne).",
-      "autoFixable": false
-    },
     {
       "severity": "info",
       "code": "EML502",
@@ -73,8 +19,22 @@
     {
       "severity": "info",
       "code": "EML502",
-      "message": "FK attribute \"Team.manager_id\" has no relationship to \"Manager\".",
-      "hint": "Add:  Manager ||--o{ Team : \"...\"  (or reverse for manyToOne).",
+      "message": "FK attribute \"DeviationReport.reported_by_id\" has no relationship to \"User\".",
+      "hint": "Add:  User ||--o{ DeviationReport : \"...\"  (or reverse for manyToOne).",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML502",
+      "message": "FK attribute \"CAPA.remediation_owner_id\" has no relationship to \"User\".",
+      "hint": "Add:  User ||--o{ CAPA : \"...\"  (or reverse for manyToOne).",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML502",
+      "message": "FK attribute \"Compound.registered_by_id\" has no relationship to \"User\".",
+      "hint": "Add:  User ||--o{ Compound : \"...\"  (or reverse for manyToOne).",
       "autoFixable": false
     },
     {
@@ -82,6 +42,20 @@
       "code": "EML502",
       "message": "FK attribute \"Sample.parent_sample_id\" has no relationship to \"ParentSample\".",
       "hint": "Add:  ParentSample ||--o{ Sample : \"...\"  (or reverse for manyToOne).",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML502",
+      "message": "FK attribute \"InstrumentBooking.booked_by_id\" has no relationship to \"User\".",
+      "hint": "Add:  User ||--o{ InstrumentBooking : \"...\"  (or reverse for manyToOne).",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML502",
+      "message": "FK attribute \"VendorRequest.requested_by_id\" has no relationship to \"User\".",
+      "hint": "Add:  User ||--o{ VendorRequest : \"...\"  (or reverse for manyToOne).",
       "autoFixable": false
     },
     {

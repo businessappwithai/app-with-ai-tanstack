@@ -67,6 +67,38 @@ datetime last_login OPTIONAL
 Defaults: an attribute is `required` unless `OPTIONAL`/`NULL`/`PK`, and not
 `unique` unless `UK`/`UNIQUE`/`PK`.
 
+### Foreign key naming
+
+`FK` marks a column as a reference, but it does not say *what* the column
+references — the generator derives that from the column name alone. So the name
+has to carry the target:
+
+| Column name | Resolves to |
+|-------------|-------------|
+| `<entity>_id` | `bus_<entity>` |
+| `<role>_by_id`, `<role>_by` | `bus_user` |
+| `pi_id`, `manager_id`, `owner_id`, `assigned_to`, … | `bus_user` |
+| anything else | nothing — see below |
+
+A column ending in `_by` names a person by the role they played
+(`reported_by_id`, `registered_by_id`, `approved_by_id`), so it resolves to the
+user entity rather than to a `bus_reported_by` table that does not exist. The
+full list of person-role columns is in `foreignKeys.personRoleColumns` in
+`erdwithai-language.json`.
+
+**A column that resolves to nothing is silently degraded**: the generator stores
+it as a plain string, so grids and forms render the raw UUID with no lookup and
+no display name. The checker catches the common cause — an `FK` column that does
+not end in `_id` — as `EML114`, and the fixer repairs it:
+
+```bash
+bun language/checker.ts model.mmd     # EML114: "DeviationReport.reported_by" does not end with "_id"
+bun language/fixer.ts model.mmd       # rewrites it to  string reported_by_id FK
+```
+
+Write `reported_by_id FK` rather than `reported_by FK` and the column resolves
+to `bus_user` from the start.
+
 ## Relationships
 
 ```

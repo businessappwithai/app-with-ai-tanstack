@@ -26,13 +26,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadLanguageDefinition } from "./index.ts";
-import type {
-  EmlAttribute,
-  EmlEntity,
-  EmlModel,
-  EmlRule,
-  EmlWorkflow,
-} from "./cli/src/model.ts";
+import type { EmlAttribute, EmlEntity, EmlModel, EmlRule, EmlWorkflow } from "./cli/src/model.ts";
 import { parseEml } from "./cli/src/parser.ts";
 
 // ---------------------------------------------------------------------------
@@ -141,6 +135,40 @@ class SourceIndex {
 }
 
 // ---------------------------------------------------------------------------
+// Foreign key naming
+// ---------------------------------------------------------------------------
+
+/**
+ * FK column names that carry no suffix but still name a person by role.
+ * Mirrors `foreignKeys.personRoleColumns.names` in erdwithai-language.json.
+ */
+const PERSON_ROLE_COLUMN_NAMES = new Set([
+  "assigned_to",
+  "author_id",
+  "lab_manager_id",
+  "manager_id",
+  "owner_id",
+  "pi_id",
+  "remediation_owner",
+  "remediation_owner_id",
+  "user_id",
+]);
+
+/**
+ * Whether an FK column names a person by the role they played rather than by
+ * entity — `reported_by_id`, `pi_id`, `assigned_to`. These resolve to the user
+ * entity, not to a table derived from the column name: there is no
+ * `bus_reported_by`.
+ */
+export function isPersonRoleColumn(columnName: string): boolean {
+  return (
+    columnName.endsWith("_by") ||
+    columnName.endsWith("_by_id") ||
+    PERSON_ROLE_COLUMN_NAMES.has(columnName)
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Check engine
 // ---------------------------------------------------------------------------
 
@@ -161,7 +189,10 @@ class CheckEngine {
   private identRe = /^[A-Za-z][A-Za-z0-9_]*$/;
   private slugRe = /^[a-z][a-z0-9_]*$/;
 
-  constructor(private model: EmlModel, source: string) {
+  constructor(
+    private model: EmlModel,
+    source: string
+  ) {
     this.src = new SourceIndex(source);
     this.validHookTypes = new Set(this.def.hooks.types.map((h) => h.type));
     this.validCardinalities = new Set(this.def.cardinalities.map.map((c) => c.operator));
@@ -171,15 +202,27 @@ class CheckEngine {
     this.issues.push(issue);
   }
 
-  private error(code: string, message: string, opts: Partial<Omit<Issue, "severity" | "code" | "message">> = {}): void {
+  private error(
+    code: string,
+    message: string,
+    opts: Partial<Omit<Issue, "severity" | "code" | "message">> = {}
+  ): void {
     this.add({ severity: "error", code, message, ...opts });
   }
 
-  private warn(code: string, message: string, opts: Partial<Omit<Issue, "severity" | "code" | "message">> = {}): void {
+  private warn(
+    code: string,
+    message: string,
+    opts: Partial<Omit<Issue, "severity" | "code" | "message">> = {}
+  ): void {
     this.add({ severity: "warning", code, message, ...opts });
   }
 
-  private info(code: string, message: string, opts: Partial<Omit<Issue, "severity" | "code" | "message">> = {}): void {
+  private info(
+    code: string,
+    message: string,
+    opts: Partial<Omit<Issue, "severity" | "code" | "message">> = {}
+  ): void {
     this.add({ severity: "info", code, message, ...opts });
   }
 
@@ -236,6 +279,10 @@ class CheckEngine {
 
   /** Convert a FK column name back to the candidate parent entity name. */
   private fkToEntityName(fkAttr: string): string {
+    // A person-role column names the role, not a table: reported_by_id points at
+    // a user, not at a "ReportedBy" entity. See foreignKeys.personRoleColumns in
+    // erdwithai-language.json.
+    if (isPersonRoleColumn(fkAttr)) return "User";
     const base = fkAttr.slice(0, -3); // strip _id
     // Convert snake_case to PascalCase
     return base.replace(/(^|_)([a-z])/g, (_, _sep, ch) => ch.toUpperCase());
@@ -268,7 +315,11 @@ class CheckEngine {
       });
     }
 
-    if (this.model.entities.length === 0 && this.model.rules.length === 0 && this.model.workflows.length === 0) {
+    if (
+      this.model.entities.length === 0 &&
+      this.model.rules.length === 0 &&
+      this.model.workflows.length === 0
+    ) {
       this.error("EML004", "Empty document: no entities, rules, or workflows found.", {
         hint: "Add an erDiagram section with at least one entity block.",
       });
@@ -287,10 +338,14 @@ class CheckEngine {
 
       // EML100: Entity name must be a valid identifier
       if (!this.identRe.test(entity.name)) {
-        this.error("EML100", `Invalid entity name "${entity.name}": must match ^[A-Za-z][A-Za-z0-9_]*$.`, {
-          line: entityLine,
-          hint: "Use PascalCase for entity names (e.g. CustomerOrder).",
-        });
+        this.error(
+          "EML100",
+          `Invalid entity name "${entity.name}": must match ^[A-Za-z][A-Za-z0-9_]*$.`,
+          {
+            line: entityLine,
+            hint: "Use PascalCase for entity names (e.g. CustomerOrder).",
+          }
+        );
       }
 
       // EML101: Unique entity names
@@ -321,21 +376,26 @@ class CheckEngine {
     let pkCount = 0;
 
     for (const attr of entity.attributes) {
-      const attrLine = this.src.findLine(
-        new RegExp(`\\b${attr.name}\\b`),
-        entityLine
-      );
+      const attrLine = this.src.findLine(new RegExp(`\\b${attr.name}\\b`), entityLine);
 
       // EML110: Attribute name format
       if (!this.identRe.test(attr.name)) {
-        this.error("EML110", `Invalid attribute name "${entity.name}.${attr.name}": must match ^[A-Za-z][A-Za-z0-9_]*$.`, {
-          line: attrLine,
-          hint: "Use snake_case for attribute names (e.g. first_name, order_id).",
-        });
+        this.error(
+          "EML110",
+          `Invalid attribute name "${entity.name}.${attr.name}": must match ^[A-Za-z][A-Za-z0-9_]*$.`,
+          {
+            line: attrLine,
+            hint: "Use snake_case for attribute names (e.g. first_name, order_id).",
+          }
+        );
       }
 
       // EML111: Attribute name style recommendation
-      if (this.identRe.test(attr.name) && !this.slugRe.test(attr.name) && attr.name !== attr.name.toUpperCase()) {
+      if (
+        this.identRe.test(attr.name) &&
+        !this.slugRe.test(attr.name) &&
+        attr.name !== attr.name.toUpperCase()
+      ) {
         this.info("EML111", `Attribute "${entity.name}.${attr.name}" is not snake_case.`, {
           line: attrLine,
           hint: "snake_case is recommended for attribute names per the EML spec.",
@@ -356,18 +416,28 @@ class CheckEngine {
       if (attr.isPrimaryKey) {
         pkCount++;
         if (pkCount > 1) {
-          this.error("EML113", `Entity "${entity.name}" declares more than one PK (found "${attr.name}").`, {
-            line: attrLine,
-            hint: "Each entity may have exactly one primary key. Remove the extra PK modifier.",
-          });
+          this.error(
+            "EML113",
+            `Entity "${entity.name}" declares more than one PK (found "${attr.name}").`,
+            {
+              line: attrLine,
+              hint: "Each entity may have exactly one primary key. Remove the extra PK modifier.",
+            }
+          );
         }
       }
 
-      // EML114: FK naming convention
+      // EML114: FK naming convention. The generator derives an FK's target from
+      // the column name alone, so a name that does not end in _id resolves to
+      // nothing and the column degrades to a plain string — the raw UUID renders
+      // in grids and forms with no lookup.
       if (attr.isForeignKey && !attr.name.endsWith("_id")) {
+        const isPersonRole = attr.name.endsWith("_by");
         this.warn("EML114", `Foreign key "${entity.name}.${attr.name}" does not end with "_id".`, {
           line: attrLine,
-          hint: `Convention: rename to "${attr.name}_id" so the generator can derive the referenced table.`,
+          hint: isPersonRole
+            ? `Rename to "${attr.name}_id" — a _by column names a person by role, so it resolves to the user entity. Run  bun language/fixer.ts  to apply this automatically.`
+            : `Convention: rename to "${attr.name}_id" so the generator can derive the referenced table. Run  bun language/fixer.ts  to apply this automatically.`,
         });
       }
 
@@ -375,16 +445,24 @@ class CheckEngine {
       const def = this.def;
       const rawBase = attr.rawType?.replace(/\(\d+\)/, "").toLowerCase();
       if (rawBase && rawBase !== "string" && !(rawBase in def.types.map)) {
-        this.warn("EML115", `Unknown type "${attr.rawType}" on "${entity.name}.${attr.name}"; mapped to "string".`, {
-          line: attrLine,
-          hint: `Valid types: ${def.types.canonical.join(", ")} (plus aliases listed in erdwithai-language.json).`,
-        });
+        this.warn(
+          "EML115",
+          `Unknown type "${attr.rawType}" on "${entity.name}.${attr.name}"; mapped to "string".`,
+          {
+            line: attrLine,
+            hint: `Valid types: ${def.types.canonical.join(", ")} (plus aliases listed in erdwithai-language.json).`,
+          }
+        );
       }
 
       // EML116: PK should not be OPTIONAL (check raw source — parser sets required:false for all PKs by design)
       if (attr.isPrimaryKey && attrLine) {
         const rawLine = this.src.getLine(attrLine).toUpperCase();
-        if (rawLine.includes("OPTIONAL") || rawLine.includes(" NULL ") || rawLine.endsWith(" NULL")) {
+        if (
+          rawLine.includes("OPTIONAL") ||
+          rawLine.includes(" NULL ") ||
+          rawLine.endsWith(" NULL")
+        ) {
           this.error("EML116", `Primary key "${entity.name}.${attr.name}" is marked OPTIONAL.`, {
             line: attrLine,
             hint: "Remove OPTIONAL from the PK attribute — primary keys are always required.",
@@ -431,10 +509,14 @@ class CheckEngine {
 
       // EML122: Cardinality operator is valid
       if (rel.operator && !this.validCardinalities.has(rel.operator)) {
-        this.error("EML122", `Unknown cardinality operator "${rel.operator}" between "${rel.source}" and "${rel.target}".`, {
-          line: relLine,
-          hint: `Valid operators: ${[...this.validCardinalities].join("  ")}.`,
-        });
+        this.error(
+          "EML122",
+          `Unknown cardinality operator "${rel.operator}" between "${rel.source}" and "${rel.target}".`,
+          {
+            line: relLine,
+            hint: `Valid operators: ${[...this.validCardinalities].join("  ")}.`,
+          }
+        );
       }
 
       // EML123: Self-referential relationship (info only)
@@ -448,27 +530,39 @@ class CheckEngine {
       // EML124: Duplicate relationship
       const key = `${rel.source}|${rel.operator}|${rel.target}`;
       if (seenRels.has(key)) {
-        this.warn("EML124", `Duplicate relationship: "${rel.source}" ${rel.operator} "${rel.target}".`, {
-          line: relLine,
-          hint: `First declared on line ${seenRels.get(key)}. Remove the duplicate.`,
-        });
+        this.warn(
+          "EML124",
+          `Duplicate relationship: "${rel.source}" ${rel.operator} "${rel.target}".`,
+          {
+            line: relLine,
+            hint: `First declared on line ${seenRels.get(key)}. Remove the duplicate.`,
+          }
+        );
       } else {
         seenRels.set(key, relLine ?? 0);
       }
 
       // EML125: FK attribute exists in many-side entity (FK is named after the ONE-side entity)
-      if ((rel.cardinality === "manyToOne" || rel.cardinality === "oneToMany") && entityNames.has(rel.source) && entityNames.has(rel.target)) {
+      if (
+        (rel.cardinality === "manyToOne" || rel.cardinality === "oneToMany") &&
+        entityNames.has(rel.source) &&
+        entityNames.has(rel.target)
+      ) {
         const manySideName = rel.cardinality === "manyToOne" ? rel.source : rel.target;
-        const oneSideName  = rel.cardinality === "manyToOne" ? rel.target : rel.source;
+        const oneSideName = rel.cardinality === "manyToOne" ? rel.target : rel.source;
         const manySide = this.model.entities.find((e) => e.name === manySideName);
         if (manySide && manySide.attributes.length > 0) {
           const expectedFk = this.entityToFkName(oneSideName);
           const fkExists = manySide.attributes.some((a) => a.isForeignKey || a.name === expectedFk);
           if (!fkExists) {
-            this.info("EML125", `No FK attribute found in "${manySideName}" for relationship to "${oneSideName}".`, {
-              line: relLine,
-              hint: `Add  string ${expectedFk} FK  to "${manySideName}".`,
-            });
+            this.info(
+              "EML125",
+              `No FK attribute found in "${manySideName}" for relationship to "${oneSideName}".`,
+              {
+                line: relLine,
+                hint: `Add  string ${expectedFk} FK  to "${manySideName}".`,
+              }
+            );
           }
         }
       }
@@ -487,10 +581,14 @@ class CheckEngine {
 
       // EML130: Enum name format
       if (!this.identRe.test(em.name)) {
-        this.error("EML130", `Invalid enum name "${em.name}": must match ^[A-Za-z][A-Za-z0-9_]*$.`, {
-          line: enumLine,
-          hint: "Use PascalCase for enum names (e.g. OrderStatus).",
-        });
+        this.error(
+          "EML130",
+          `Invalid enum name "${em.name}": must match ^[A-Za-z][A-Za-z0-9_]*$.`,
+          {
+            line: enumLine,
+            hint: "Use PascalCase for enum names (e.g. OrderStatus).",
+          }
+        );
       }
 
       // EML131: Duplicate enum name
@@ -573,10 +671,14 @@ class CheckEngine {
       // EML142: Attribute must exist on entity
       const attrs = entityAttrMap.get(entityName);
       if (attrs && !attrs.has(attrName)) {
-        this.error("EML142", `%%field references undeclared attribute "${entityName}.${attrName}".`, {
-          line: lineNo,
-          hint: `Add "${attrName}" to the "${entityName}" entity block, or check for a typo.`,
-        });
+        this.error(
+          "EML142",
+          `%%field references undeclared attribute "${entityName}.${attrName}".`,
+          {
+            line: lineNo,
+            hint: `Add "${attrName}" to the "${entityName}" entity block, or check for a typo.`,
+          }
+        );
       }
 
       // EML143: Key must be a known %%field key
@@ -589,18 +691,26 @@ class CheckEngine {
 
       // EML144: enum: value must reference a declared %%enum
       if (key === "enum" && !enumNames.has(value.trim())) {
-        this.error("EML144", `%%field "${entityName}.${attrName}" references undeclared enum "${value.trim()}".`, {
-          line: lineNo,
-          hint: `Add  %%enum ${value.trim()}: value1, value2  before the erDiagram block.`,
-        });
+        this.error(
+          "EML144",
+          `%%field "${entityName}.${attrName}" references undeclared enum "${value.trim()}".`,
+          {
+            line: lineNo,
+            hint: `Add  %%enum ${value.trim()}: value1, value2  before the erDiagram block.`,
+          }
+        );
       }
 
       // EML145: min/max values should be numeric
       if ((key === "min" || key === "max") && Number.isNaN(Number(value.trim()))) {
-        this.warn("EML145", `%%field "${entityName}.${attrName}" has non-numeric ${key}: "${value.trim()}".`, {
-          line: lineNo,
-          hint: `${key}: should be a number, e.g.  ${key}: 0`,
-        });
+        this.warn(
+          "EML145",
+          `%%field "${entityName}.${attrName}" has non-numeric ${key}: "${value.trim()}".`,
+          {
+            line: lineNo,
+            hint: `${key}: should be a number, e.g.  ${key}: 0`,
+          }
+        );
       }
     }
   }
@@ -632,10 +742,14 @@ class CheckEngine {
       const attrs = entityAttrMap.get(idx.entity);
       for (const col of idx.columns) {
         if (attrs && !attrs.has(col)) {
-          this.error("EML151", `%%index on "${idx.entity}" references undeclared column "${col}".`, {
-            line: idxLine,
-            hint: `Add "${col}" to the "${idx.entity}" entity, or check for a typo.`,
-          });
+          this.error(
+            "EML151",
+            `%%index on "${idx.entity}" references undeclared column "${col}".`,
+            {
+              line: idxLine,
+              hint: `Add "${col}" to the "${idx.entity}" entity, or check for a typo.`,
+            }
+          );
         }
       }
 
@@ -721,10 +835,14 @@ class CheckEngine {
 
       // EML202: Entity must be declared
       if (!entityNames.has(hook.entity)) {
-        this.warn("EML202", `%%hook "${hook.handler}" references undeclared entity "${hook.entity}".`, {
-          line: hookLine,
-          hint: `Declare "${hook.entity}" in the erDiagram section.`,
-        });
+        this.warn(
+          "EML202",
+          `%%hook "${hook.handler}" references undeclared entity "${hook.entity}".`,
+          {
+            line: hookLine,
+            hint: `Declare "${hook.entity}" in the erDiagram section.`,
+          }
+        );
       }
 
       // EML203: Field params must reference declared attributes
@@ -732,10 +850,14 @@ class CheckEngine {
         const attrs = entityAttrMap.get(hook.entity);
         for (const field of hook.fields) {
           if (attrs && !attrs.has(field)) {
-            this.warn("EML203", `%%hook "${hook.handler}" references undeclared field "${hook.entity}.${field}".`, {
-              line: hookLine,
-              hint: `Add "${field}" to "${hook.entity}", or check for a typo.`,
-            });
+            this.warn(
+              "EML203",
+              `%%hook "${hook.handler}" references undeclared field "${hook.entity}.${field}".`,
+              {
+                line: hookLine,
+                hint: `Add "${field}" to "${hook.entity}", or check for a typo.`,
+              }
+            );
           }
         }
       }
@@ -801,9 +923,7 @@ class CheckEngine {
     const entityNames = new Set(this.model.entities.map((e) => e.name));
 
     for (const trigger of this.model.triggers) {
-      const triggerLine = this.src.findLine(
-        new RegExp(`%%trigger.+on\\s+${trigger.entity}`)
-      );
+      const triggerLine = this.src.findLine(new RegExp(`%%trigger.+on\\s+${trigger.entity}`));
 
       // EML230: Source format
       if (!this.validTriggerSources.test(trigger.source)) {
@@ -818,10 +938,14 @@ class CheckEngine {
         const expr = trigger.source.slice(5).trim();
         const parts = expr.split(/\s+/);
         if (parts.length < 5 || parts.length > 6) {
-          this.warn("EML231", `%%trigger cron expression "${expr}" has ${parts.length} field(s); expected 5 or 6.`, {
-            line: triggerLine,
-            hint: "Standard cron: minute hour day-of-month month day-of-week  (e.g. 0 9 * * *)",
-          });
+          this.warn(
+            "EML231",
+            `%%trigger cron expression "${expr}" has ${parts.length} field(s); expected 5 or 6.`,
+            {
+              line: triggerLine,
+              hint: "Standard cron: minute hour day-of-month month day-of-week  (e.g. 0 9 * * *)",
+            }
+          );
         }
       }
 
@@ -889,7 +1013,9 @@ class CheckEngine {
     const ruleLines = this.src.findAll(/^%%rule\b/);
 
     for (const { lineNo, text } of ruleLines) {
-      const m = text.trim().match(/^%%rule\s+(\w+)\s+on\s+(\w+)(?:\s+event:\s*(\w+))?(?:\s+priority:\s*(\d+))?/);
+      const m = text
+        .trim()
+        .match(/^%%rule\s+(\w+)\s+on\s+(\w+)(?:\s+event:\s*(\w+))?(?:\s+priority:\s*(\d+))?/);
       if (!m) {
         this.error("EML250", `Invalid %%rule syntax: "${text.trim()}"`, {
           line: lineNo,
@@ -954,9 +1080,13 @@ class CheckEngine {
         if (node.shape === "diamond") {
           const outCount = edgeSources.get(node.id) ?? 0;
           if (outCount < 2) {
-            this.warn("EML303", `Rule "${rule.name}": decision node "${node.id}" (${node.label}) has only ${outCount} outgoing edge(s).`, {
-              hint: "Decision (diamond) nodes should branch at least Yes/No — add a second outgoing edge.",
-            });
+            this.warn(
+              "EML303",
+              `Rule "${rule.name}": decision node "${node.id}" (${node.label}) has only ${outCount} outgoing edge(s).`,
+              {
+                hint: "Decision (diamond) nodes should branch at least Yes/No — add a second outgoing edge.",
+              }
+            );
           }
         }
       }
@@ -965,9 +1095,13 @@ class CheckEngine {
       for (const edge of rule.edges) {
         const srcNode = rule.nodes.find((n) => n.id === edge.source);
         if (srcNode?.shape === "diamond" && !edge.label) {
-          this.warn("EML304", `Rule "${rule.name}": unlabeled edge from decision node "${srcNode.id}".`, {
-            hint: `Add a condition label:  ${edge.source} -->|Yes| ${edge.target}  or  ${edge.source} -->|condition| ${edge.target}`,
-          });
+          this.warn(
+            "EML304",
+            `Rule "${rule.name}": unlabeled edge from decision node "${srcNode.id}".`,
+            {
+              hint: `Add a condition label:  ${edge.source} -->|Yes| ${edge.target}  or  ${edge.source} -->|condition| ${edge.target}`,
+            }
+          );
         }
       }
 
@@ -976,9 +1110,13 @@ class CheckEngine {
         const reachable = this.reachableNodes(rule);
         for (const node of rule.nodes) {
           if (!reachable.has(node.id) && node.jdmType !== "inputNode") {
-            this.warn("EML305", `Rule "${rule.name}": node "${node.id}" (${node.label}) is unreachable from the start node.`, {
-              hint: "Add an edge from the start or another reachable node to this node.",
-            });
+            this.warn(
+              "EML305",
+              `Rule "${rule.name}": node "${node.id}" (${node.label}) is unreachable from the start node.`,
+              {
+                hint: "Add an edge from the start or another reachable node to this node.",
+              }
+            );
           }
         }
       }
@@ -1044,9 +1182,13 @@ class CheckEngine {
   private checkHookWorkflow(wf: EmlWorkflow): void {
     // EML410: Hook workflow should have %%hook directives
     if (wf.hooks.length === 0 && wf.entity) {
-      this.warn("EML410", `Hook workflow "${wf.name}" (entity: ${wf.entity}) has no %%hook directives.`, {
-        hint: `Add  %%hook <type> <handler> on ${wf.entity}  inside or before the flowchart section.`,
-      });
+      this.warn(
+        "EML410",
+        `Hook workflow "${wf.name}" (entity: ${wf.entity}) has no %%hook directives.`,
+        {
+          hint: `Add  %%hook <type> <handler> on ${wf.entity}  inside or before the flowchart section.`,
+        }
+      );
     }
   }
 
@@ -1062,26 +1204,38 @@ class CheckEngine {
     // EML421: Must have an initial state ([*] --> FirstState)
     const hasInitial = wf.transitions.some((t) => t.from === "[*]");
     if (!hasInitial) {
-      this.error("EML421", `State workflow "${wf.name}" has no initial transition ([*] --> FirstState).`, {
-        hint: "Add  [*] --> <firstStateName>  as the first transition.",
-      });
+      this.error(
+        "EML421",
+        `State workflow "${wf.name}" has no initial transition ([*] --> FirstState).`,
+        {
+          hint: "Add  [*] --> <firstStateName>  as the first transition.",
+        }
+      );
     }
 
     // EML422: Must have at least one final state (<state> --> [*])
     const hasFinal = wf.transitions.some((t) => t.to === "[*]");
     if (!hasFinal) {
-      this.warn("EML422", `State workflow "${wf.name}" has no final state (no transition to [*]).`, {
-        hint: "Add  <TerminalState> --> [*]  to mark a terminal state.",
-      });
+      this.warn(
+        "EML422",
+        `State workflow "${wf.name}" has no final state (no transition to [*]).`,
+        {
+          hint: "Add  <TerminalState> --> [*]  to mark a terminal state.",
+        }
+      );
     }
 
     // EML423: All states should be reachable from initial
     const reachableStates = this.reachableStates(wf);
     for (const state of wf.states) {
       if (!reachableStates.has(state) && state !== "[*]") {
-        this.warn("EML423", `State workflow "${wf.name}": state "${state}" is not reachable from [*].`, {
-          hint: `Add a transition to "${state}" from a reachable state, or remove it.`,
-        });
+        this.warn(
+          "EML423",
+          `State workflow "${wf.name}": state "${state}" is not reachable from [*].`,
+          {
+            hint: `Add a transition to "${state}" from a reachable state, or remove it.`,
+          }
+        );
       }
     }
 
@@ -1089,18 +1243,26 @@ class CheckEngine {
     const canReachFinal = this.statesReachingFinal(wf);
     for (const state of wf.states) {
       if (!canReachFinal.has(state)) {
-        this.warn("EML424", `State workflow "${wf.name}": state "${state}" has no path to a terminal state ([*]).`, {
-          hint: `Add a transition from "${state}" to [*] or to a state that eventually reaches [*].`,
-        });
+        this.warn(
+          "EML424",
+          `State workflow "${wf.name}": state "${state}" has no path to a terminal state ([*]).`,
+          {
+            hint: `Add a transition from "${state}" to [*] or to a state that eventually reaches [*].`,
+          }
+        );
       }
     }
 
     // EML425: Transition events should be valid identifiers
     for (const t of wf.transitions) {
       if (t.event && !this.identRe.test(t.event.replace(/[- ]/g, "_"))) {
-        this.warn("EML425", `State workflow "${wf.name}": transition event "${t.event}" may not be a valid identifier.`, {
-          hint: "Use snake_case or camelCase event names (e.g. submit, mark_paid, close_won).",
-        });
+        this.warn(
+          "EML425",
+          `State workflow "${wf.name}": transition event "${t.event}" may not be a valid identifier.`,
+          {
+            hint: "Use snake_case or camelCase event names (e.g. submit, mark_paid, close_won).",
+          }
+        );
       }
     }
 
@@ -1115,14 +1277,22 @@ class CheckEngine {
           const missingInEnum = [...stateSet].filter((s) => !enumSet.has(s));
           const extraInEnum = [...enumSet].filter((v) => !stateSet.has(v));
           if (missingInEnum.length > 0) {
-            this.warn("EML426", `State workflow "${wf.name}": states [${missingInEnum.join(", ")}] are not in enum "${em.name}".`, {
-              hint: `Add these values to  %%enum ${em.name}: ...`,
-            });
+            this.warn(
+              "EML426",
+              `State workflow "${wf.name}": states [${missingInEnum.join(", ")}] are not in enum "${em.name}".`,
+              {
+                hint: `Add these values to  %%enum ${em.name}: ...`,
+              }
+            );
           }
           if (extraInEnum.length > 0) {
-            this.info("EML427", `Enum "${em.name}" has values [${extraInEnum.join(", ")}] not present as states in workflow "${wf.name}".`, {
-              hint: "These may be future states or unreachable values — remove if not needed.",
-            });
+            this.info(
+              "EML427",
+              `Enum "${em.name}" has values [${extraInEnum.join(", ")}] not present as states in workflow "${wf.name}".`,
+              {
+                hint: "These may be future states or unreachable values — remove if not needed.",
+              }
+            );
           }
           break;
         }
@@ -1192,11 +1362,16 @@ class CheckEngine {
     for (const wf of this.model.workflows) {
       if (wf.kind === "state" && wf.entity && entityNames.has(wf.entity)) {
         const attrs = entityAttrMap.get(wf.entity);
-        const hasStatusField = attrs && (attrs.has("status") || attrs.has("state") || attrs.has("stage"));
+        const hasStatusField =
+          attrs && (attrs.has("status") || attrs.has("state") || attrs.has("stage"));
         if (!hasStatusField) {
-          this.warn("EML500", `State workflow "${wf.name}" is bound to "${wf.entity}" which has no "status", "state", or "stage" field.`, {
-            hint: `Add  string status  to "${wf.entity}" — the state machine needs a field to track the current state.`,
-          });
+          this.warn(
+            "EML500",
+            `State workflow "${wf.name}" is bound to "${wf.entity}" which has no "status", "state", or "stage" field.`,
+            {
+              hint: `Add  string status  to "${wf.entity}" — the state machine needs a field to track the current state.`,
+            }
+          );
         }
       }
     }
@@ -1206,9 +1381,13 @@ class CheckEngine {
     for (const entity of this.model.entities) {
       for (const attr of entity.attributes) {
         if (attr.enumRef && !enumNames.has(attr.enumRef)) {
-          this.warn("EML501", `Attribute "${entity.name}.${attr.name}" has enum reference "${attr.enumRef}" but no matching %%enum is declared.`, {
-            hint: `Add  %%enum ${attr.enumRef}: value1, value2  to the document.`,
-          });
+          this.warn(
+            "EML501",
+            `Attribute "${entity.name}.${attr.name}" has enum reference "${attr.enumRef}" but no matching %%enum is declared.`,
+            {
+              hint: `Add  %%enum ${attr.enumRef}: value1, value2  to the document.`,
+            }
+          );
         }
       }
     }
@@ -1225,9 +1404,13 @@ class CheckEngine {
               (r.source === parentEntityName || r.target === parentEntityName)
           );
           if (!hasRelationship) {
-            this.info("EML502", `FK attribute "${entity.name}.${attr.name}" has no relationship to "${parentEntityName}".`, {
-              hint: `Add:  ${parentEntityName} ||--o{ ${entity.name} : "..."  (or reverse for manyToOne).`,
-            });
+            this.info(
+              "EML502",
+              `FK attribute "${entity.name}.${attr.name}" has no relationship to "${parentEntityName}".`,
+              {
+                hint: `Add:  ${parentEntityName} ||--o{ ${entity.name} : "..."  (or reverse for manyToOne).`,
+              }
+            );
           }
         }
       }
@@ -1292,6 +1475,7 @@ export const AUTO_FIXABLE_CODES = new Set([
   "EML421", // no initial state → add [*] --> firstState
   "EML422", // no terminal state → add lastState --> [*]
   "EML001", // missing meta name → add %%meta name:
+  "EML114", // FK not ending in _id → append the suffix (_by columns then resolve to bus_user)
 ]);
 
 /** Structured output written to <file>.error for the fixer to consume. */
@@ -1342,11 +1526,7 @@ function writeErrorFile(filePath: string, content: ErrorFileContent): void {
 // Formatter
 // ---------------------------------------------------------------------------
 
-function formatIssues(
-  issues: Issue[],
-  filePath: string,
-  showHints: boolean
-): string {
+function formatIssues(issues: Issue[], filePath: string, showHints: boolean): string {
   if (issues.length === 0) return "";
   const lines: string[] = [];
   for (const issue of issues) {
@@ -1475,7 +1655,9 @@ async function main(): Promise<void> {
   try {
     const { loadLanguageDefinition } = await import("./index.ts");
     languageVersion = loadLanguageDefinition().language.version;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   // Run checks
   const allResults: Array<{ result: CheckResult; file: string; errorFilePath: string }> = [];
@@ -1488,7 +1670,9 @@ async function main(): Promise<void> {
       );
       allResults.push(r);
     } catch (err) {
-      console.error(c.red(`Error reading ${file}: ${err instanceof Error ? err.message : String(err)}`));
+      console.error(
+        c.red(`Error reading ${file}: ${err instanceof Error ? err.message : String(err)}`)
+      );
       process.exit(2);
     }
   }
@@ -1497,7 +1681,9 @@ async function main(): Promise<void> {
   if (flags.json) {
     const output = allResults.map(({ result, file }) => ({
       file,
-      ok: flags.strict ? result.issues.filter((i) => i.severity !== "info").length === 0 : result.ok,
+      ok: flags.strict
+        ? result.issues.filter((i) => i.severity !== "info").length === 0
+        : result.ok,
       errors: result.errors,
       warnings: result.warnings,
       infos: result.infos,
@@ -1509,9 +1695,7 @@ async function main(): Promise<void> {
     let totalWarnings = 0;
 
     for (const { result, file, errorFilePath } of allResults) {
-      const effectiveErrors = flags.strict
-        ? result.errors + result.warnings
-        : result.errors;
+      const effectiveErrors = flags.strict ? result.errors + result.warnings : result.errors;
 
       if (!flags.summary) {
         const header = `\n${c.bold("Checking")} ${c.cyan(file)}`;
@@ -1526,9 +1710,12 @@ async function main(): Promise<void> {
         const autoFixCount = result.issues.filter(
           (i) => AUTO_FIXABLE_CODES.has(i.code) && i.severity === "error"
         ).length;
-        const fixHint = autoFixCount > 0
-          ? c.cyan(` (${autoFixCount} auto-fixable — run: bun language/fixer.ts ${path.basename(errorFilePath)})`)
-          : "";
+        const fixHint =
+          autoFixCount > 0
+            ? c.cyan(
+                ` (${autoFixCount} auto-fixable — run: bun language/fixer.ts ${path.basename(errorFilePath)})`
+              )
+            : "";
         console.log(c.dim(`  → wrote ${path.relative(process.cwd(), errorFilePath)}${fixHint}`));
       }
 
@@ -1550,9 +1737,7 @@ async function main(): Promise<void> {
 
   // Exit code
   const anyErrors = allResults.some(({ result }) =>
-    flags.strict
-      ? result.errors > 0 || result.warnings > 0
-      : result.errors > 0
+    flags.strict ? result.errors > 0 || result.warnings > 0 : result.errors > 0
   );
   process.exit(anyErrors ? 1 : 0);
 }

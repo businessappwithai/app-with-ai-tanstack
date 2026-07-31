@@ -51,6 +51,7 @@ import {
 } from "@/components/ui/table";
 import { type FieldMetadata, useGridFields } from "@/hooks/use-entities";
 import { useTranslations } from "@/lib/translations";
+import { referenceLabel } from "@/lib/utils";
 
 // ============================================================================
 // Types
@@ -317,15 +318,7 @@ export function DynamicTable({
       const tableMap: Record<string, string> = {};
       for (const rec of records) {
         const id = String((rec as any)[idField] ?? '');
-        let label: string;
-        if (labelFields.length > 0) {
-          const parts = labelFields.map((f: string) => (rec as any)[f]).filter(Boolean).map(String);
-          label = parts.length ? parts.join(' · ') : id;
-        } else {
-          const fullName = [(rec as any).first_name, (rec as any).last_name].filter(Boolean).join(' ');
-          label = fullName || id;
-        }
-        if (id) tableMap[id] = label;
+        if (id) tableMap[id] = referenceLabel(rec as Record<string, unknown>, labelFields, id);
       }
       map[field.ref_table_name!] = tableMap;
     });
