@@ -247,3 +247,46 @@ them up. Full report with evidence: [docs/qa/qa-report-drug-discovery-2026-07-31
 plain strings rather than `_id`-suffixed foreign keys, so the generator cannot derive
 the referenced table and those columns render as UUIDs. The EML checker already flags
 this as `EML114`. Renaming them in the model is the fix.
+
+---
+
+## Found by the generated E2E suite, 2026-07-31 — RESOLVED
+
+Ran the generated `tests/` suite against the running drug-discovery app:
+60 failures → 40/40 suites, 609 tests, 0 failures. All fixed in the templates.
+
+**Test harness (generated code, so generator bugs):**
+
+- **`_by` foreign keys unresolvable** — `resolveParentEntity` derived the parent
+  from `<stem>_id`, so `registered_by_id` looked for a `registered_by` entity and
+  left a mandatory FK unset. Six entities could not be created at all.
+- **`is_active` excluded as server-managed** — the generator never adds it; when a
+  bus table has one the model declared it, often as required. The factory was
+  forbidden from supplying a field the API demanded.
+- **Name-driven fakers overrode the declared type** — `ratio` matched
+  "calib(ratio)n", `login` matched "last_(login)". Patterns are now segment-
+  anchored, and a value that does not fit the column's declared type is discarded.
+- **Unique columns unique only within a run** — the salt came from the seeded
+  faker, so a second run against a populated database regenerated a value it had
+  already inserted (409). Now drawn from an unseeded per-process id.
+- **`firstTextField` picked `email`** — suites write arbitrary markers into it,
+  tripping the email-format rule. Format-constrained columns are now skipped.
+
+**Rules engine (an app bug, not just a test bug):**
+
+- **The CRUD verb was injected as `action`**, overwriting any entity column of
+  that name. `bus_workflow_event.action` is a declared required column, so its
+  required-field rule could never fire. The verb now travels as `_operation`.
+- **Trigger-workflow rules tested an undeclared input (`i0`)**, so the condition
+  was ignored and both post-create and post-update workflows fired on every
+  operation. The decision table now declares the operation input.
+
+**Audit report — server-side pagination**
+
+The API was already paginated (LIMIT/OFFSET + total). The UI asked for a
+hardcoded 50, computed page counts from that literal rather than the server's
+echoed limit, and hid the pager below two pages. Now: 25/50/100/250 rows, row
+range, first/previous/next/last, page maths from `meta`, and the previous page
+held on screen while the next loads (without which the in-flight empty state
+tripped the out-of-range clamp and bounced every navigation back to page 1).
+Verified against 545 rows.
