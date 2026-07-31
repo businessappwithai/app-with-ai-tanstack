@@ -19,6 +19,8 @@
  *
  * Auto-fixable error codes:
  *   EML001  Missing %%meta name → insert %%meta name: <derived>
+ *   EML114  FK not ending in _id → append the suffix (_by columns then resolve
+ *           to the user entity instead of degrading to a plain string)
  *   EML117  No primary key → prepend  string id PK  to entity block
  *   EML421  State workflow: no [*] → FirstState → insert initial transition
  *   EML422  State workflow: no terminal state → append LastState --> [*]
@@ -29,6 +31,7 @@
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { isPersonRoleColumn } from "./checker";
 
 // ---------------------------------------------------------------------------
 // ANSI helpers
@@ -36,12 +39,12 @@ import { spawnSync } from "node:child_process";
 
 const useColor = !process.env.NO_COLOR && process.stdout.isTTY && !hasFlag("--no-color");
 const c = {
-  dim:     (s: string) => useColor ? `\x1b[2m${s}\x1b[0m` : s,
-  bold:    (s: string) => useColor ? `\x1b[1m${s}\x1b[0m` : s,
-  red:     (s: string) => useColor ? `\x1b[31m${s}\x1b[0m` : s,
-  yellow:  (s: string) => useColor ? `\x1b[33m${s}\x1b[0m` : s,
-  green:   (s: string) => useColor ? `\x1b[32m${s}\x1b[0m` : s,
-  cyan:    (s: string) => useColor ? `\x1b[36m${s}\x1b[0m` : s,
+  dim: (s: string) => (useColor ? `\x1b[2m${s}\x1b[0m` : s),
+  bold: (s: string) => (useColor ? `\x1b[1m${s}\x1b[0m` : s),
+  red: (s: string) => (useColor ? `\x1b[31m${s}\x1b[0m` : s),
+  yellow: (s: string) => (useColor ? `\x1b[33m${s}\x1b[0m` : s),
+  green: (s: string) => (useColor ? `\x1b[32m${s}\x1b[0m` : s),
+  cyan: (s: string) => (useColor ? `\x1b[36m${s}\x1b[0m` : s),
 };
 
 function hasFlag(name: string): boolean {
@@ -79,7 +82,12 @@ interface FixResult {
   applied: boolean;
   description: string;
   /** Lines changed in source (for diff display). */
-  changes: Array<{ lineNo: number; before: string; after: string; action: "insert" | "replace" | "delete" }>;
+  changes: Array<{
+    lineNo: number;
+    before: string;
+    after: string;
+    action: "insert" | "replace" | "delete";
+  }>;
 }
 
 function applyFixes(source: string, issues: Issue[]): { newSource: string; results: FixResult[] } {
@@ -108,6 +116,8 @@ function applyFix(lines: string[], issue: Issue): FixResult {
   switch (issue.code) {
     case "EML001":
       return fixMissingMetaName(lines, issue, base);
+    case "EML114":
+      return fixForeignKeyNaming(lines, issue, base);
     case "EML117":
       return fixMissingPrimaryKey(lines, issue, base);
     case "EML421":
@@ -160,6 +170,88 @@ function fixMissingMetaName(lines: string[], issue: Issue, base: FixResult): Fix
 }
 
 // ---------------------------------------------------------------------------
+// Fix: EML114 — Foreign key does not end in _id
+// ---------------------------------------------------------------------------
+
+/**
+ * Append the `_id` suffix to an FK column so the generator can resolve what it
+ * points at.
+ *
+ * This matters most for `_by` columns. `reported_by FK` names a person by the
+ * role they played, and the generator resolves person-role columns to the user
+ * entity — but only once the name ends in `_id`. Without the suffix the column
+ * is not treated as a reference at all: it is stored as a plain string, and
+ * grids and forms render the raw UUID with no lookup and no display name.
+ * `reported_by_id FK` resolves to bus_user and renders the user's name.
+ *
+ * The rewrite is confined to the attribute name. Type, modifiers, any trailing
+ * `"comment"`, and the column alignment of the surrounding block are preserved,
+ * so the diff is one identifier wide.
+ */
+function fixForeignKeyNaming(lines: string[], issue: Issue, base: FixResult): FixResult {
+  // 'Foreign key "Entity.column" does not end with "_id".'
+  const match = issue.message.match(/Foreign key "([^".]+)\.([^"]+)"/);
+  if (!match) {
+    base.description = "Could not extract entity and column from issue message.";
+    return base;
+  }
+  const [, entityName, columnName] = match as unknown as [string, string, string];
+
+  if (columnName.endsWith("_id")) {
+    base.description = `"${columnName}" already ends with "_id".`;
+    return base;
+  }
+
+  const lineNo = issue.line ? issue.line - 1 : findAttributeLine(lines, entityName, columnName);
+  if (lineNo < 0 || lineNo >= lines.length) {
+    base.description = `Could not locate "${entityName}.${columnName}" in the source.`;
+    return base;
+  }
+
+  const before = lines[lineNo]!;
+  // <indent><type><gap><name><rest>. Only the name is replaced, and the gap that
+  // follows the type is left alone so aligned attribute blocks stay aligned.
+  const attrRe = new RegExp(`^(\\s*[A-Za-z][A-Za-z0-9_()]*\\s+)${escapeRe(columnName)}\\b`);
+  if (!attrRe.test(before)) {
+    base.description = `Line ${lineNo + 1} does not look like the "${columnName}" attribute; left alone.`;
+    return base;
+  }
+
+  const after = before.replace(attrRe, `$1${columnName}_id`);
+  if (after === before) {
+    base.description = `Rewrite of "${columnName}" produced no change.`;
+    return base;
+  }
+
+  lines[lineNo] = after;
+  base.applied = true;
+  const target = isPersonRoleColumn(columnName) ? "bus_user" : `bus_${columnName}`;
+  base.description = `Renamed "${entityName}.${columnName}" to "${columnName}_id" — now resolves to ${target}.`;
+  base.changes.push({ lineNo: lineNo + 1, before, after, action: "replace" });
+  return base;
+}
+
+function escapeRe(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Fallback when the issue carries no line: scan the entity block for the attribute. */
+function findAttributeLine(lines: string[], entityName: string, columnName: string): number {
+  const openRe = new RegExp(`^\\s*${escapeRe(entityName)}\\s*\\{`);
+  let inEntity = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!;
+    if (!inEntity) {
+      if (openRe.test(line)) inEntity = true;
+      continue;
+    }
+    if (/^\s*\}/.test(line)) return -1;
+    if (new RegExp(`\\b${escapeRe(columnName)}\\b`).test(line)) return i;
+  }
+  return -1;
+}
+
+// ---------------------------------------------------------------------------
 // Fix: EML117 — No primary key
 // ---------------------------------------------------------------------------
 
@@ -178,7 +270,10 @@ function fixMissingPrimaryKey(lines: string[], issue: Issue, base: FixResult): F
 
   if (openBraceLine < 0) {
     for (let i = 0; i < lines.length; i++) {
-      if (openBraceRe.test(lines[i]!)) { openBraceLine = i; break; }
+      if (openBraceRe.test(lines[i]!)) {
+        openBraceLine = i;
+        break;
+      }
     }
   }
 
@@ -212,11 +307,17 @@ function fixMissingInitialTransition(lines: string[], issue: Issue, base: FixRes
   let searchFrom = 0;
   if (wfName) {
     for (let i = 0; i < lines.length; i++) {
-      if (lines[i]!.includes(`%%workflow ${wfName}`)) { searchFrom = i; break; }
+      if (lines[i]!.includes(`%%workflow ${wfName}`)) {
+        searchFrom = i;
+        break;
+      }
     }
   }
   for (let i = searchFrom; i < lines.length; i++) {
-    if (/^\s*stateDiagram(-v2)?\s*$/.test(lines[i]!)) { stateDiagramLine = i; break; }
+    if (/^\s*stateDiagram(-v2)?\s*$/.test(lines[i]!)) {
+      stateDiagramLine = i;
+      break;
+    }
   }
 
   if (stateDiagramLine < 0) {
@@ -229,15 +330,22 @@ function fixMissingInitialTransition(lines: string[], issue: Issue, base: FixRes
   for (let i = stateDiagramLine + 1; i < lines.length; i++) {
     const t = lines[i]!.trim();
     if (!t || t.startsWith("%%")) continue;
-    if (/^\[\*\]/.test(t)) { // already has initial
+    if (/^\[\*\]/.test(t)) {
+      // already has initial
       base.description = "Initial transition [*] --> already present.";
       return base;
     }
     // Extract left-hand side state
     const m = t.match(/^(\w+)\s*-->/);
-    if (m) { firstState = m[1]; break; }
+    if (m) {
+      firstState = m[1];
+      break;
+    }
     const m2 = t.match(/^(\w+)\s*$/);
-    if (m2) { firstState = m2[1]; break; }
+    if (m2) {
+      firstState = m2[1];
+      break;
+    }
   }
 
   if (!firstState) {
@@ -267,11 +375,17 @@ function fixMissingTerminalTransition(lines: string[], issue: Issue, base: FixRe
   let searchFrom = 0;
   if (wfName) {
     for (let i = 0; i < lines.length; i++) {
-      if (lines[i]!.includes(`%%workflow ${wfName}`)) { searchFrom = i; break; }
+      if (lines[i]!.includes(`%%workflow ${wfName}`)) {
+        searchFrom = i;
+        break;
+      }
     }
   }
   for (let i = searchFrom; i < lines.length; i++) {
-    if (/^\s*stateDiagram(-v2)?\s*$/.test(lines[i]!)) { stateDiagramLine = i; break; }
+    if (/^\s*stateDiagram(-v2)?\s*$/.test(lines[i]!)) {
+      stateDiagramLine = i;
+      break;
+    }
   }
 
   if (stateDiagramLine < 0) {
@@ -288,10 +402,16 @@ function fixMissingTerminalTransition(lines: string[], issue: Issue, base: FixRe
   for (let i = stateDiagramLine + 1; i < lines.length; i++) {
     const t = lines[i]!.trim();
     if (!t || t.startsWith("%%")) {
-      if (!t) { diagramEnd = i; break; }
+      if (!t) {
+        diagramEnd = i;
+        break;
+      }
       continue;
     }
-    if (/^(erDiagram|flowchart|graph|stateDiagram)/.test(t)) { diagramEnd = i; break; }
+    if (/^(erDiagram|flowchart|graph|stateDiagram)/.test(t)) {
+      diagramEnd = i;
+      break;
+    }
     // Parse transition
     const m = t.match(/^(\[\*\]|\w+)\s*-->\s*(\[\*\]|\w+)/);
     if (m) {
@@ -343,7 +463,9 @@ function processErrorFile(errorFilePath: string, dryRun: boolean): FixSummary {
   try {
     errorData = JSON.parse(readFileSync(errorFilePath, "utf8")) as ErrorFile;
   } catch (e) {
-    throw new Error(`Cannot parse error file "${errorFilePath}": ${e instanceof Error ? e.message : String(e)}`);
+    throw new Error(
+      `Cannot parse error file "${errorFilePath}": ${e instanceof Error ? e.message : String(e)}`
+    );
   }
 
   const mmdFile = errorData.file;
@@ -352,7 +474,9 @@ function processErrorFile(errorFilePath: string, dryRun: boolean): FixSummary {
   }
 
   const fixableIssues = errorData.issues.filter((i) => i.autoFixable);
-  const unfixable = errorData.issues.filter((i) => !i.autoFixable && (i.severity === "error" || i.severity === "warning")).length;
+  const unfixable = errorData.issues.filter(
+    (i) => !i.autoFixable && (i.severity === "error" || i.severity === "warning")
+  ).length;
 
   if (fixableIssues.length === 0) {
     return {
@@ -420,6 +544,9 @@ ${c.bold("OPTIONS")}
 
 ${c.bold("AUTO-FIXABLE CODES")}
   EML001   Missing %%meta name → insert %%meta name: <derived>
+  EML114   FK not ending in _id → append the suffix, e.g. reported_by → reported_by_id
+           (_by columns then resolve to the user entity rather than degrading to
+            a plain string that renders as a raw UUID)
   EML117   No primary key → insert  string id PK  as first attribute
   EML421   State workflow: no [*]→First transition → insert it
   EML422   State workflow: no terminal state (→[*]) → insert it
@@ -437,10 +564,10 @@ ${c.bold("WORKFLOW")}
 
 async function main(): Promise<void> {
   const flags = {
-    dryRun:   hasFlag("--dry-run"),
-    noRecheck:hasFlag("--no-recheck"),
-    json:     hasFlag("--json"),
-    help:     hasFlag("--help") || hasFlag("-h"),
+    dryRun: hasFlag("--dry-run"),
+    noRecheck: hasFlag("--no-recheck"),
+    json: hasFlag("--json"),
+    help: hasFlag("--help") || hasFlag("-h"),
   };
 
   if (flags.help || process.argv.length < 3) {
@@ -495,7 +622,9 @@ async function main(): Promise<void> {
     try {
       summary = processErrorFile(errorFile, flags.dryRun);
     } catch (err) {
-      console.error(c.red(`Error processing ${errorFile}: ${err instanceof Error ? err.message : String(err)}`));
+      console.error(
+        c.red(`Error processing ${errorFile}: ${err instanceof Error ? err.message : String(err)}`)
+      );
       continue;
     }
     allSummaries.push(summary);
@@ -509,7 +638,11 @@ async function main(): Promise<void> {
 
     if (summary.results.length === 0) {
       if (summary.unfixable > 0) {
-        console.log(c.yellow(`  No auto-fixable issues. ${summary.unfixable} issue(s) require manual intervention.`));
+        console.log(
+          c.yellow(
+            `  No auto-fixable issues. ${summary.unfixable} issue(s) require manual intervention.`
+          )
+        );
       } else {
         console.log(c.green("  No auto-fixable issues found — file is already clean."));
       }
@@ -517,7 +650,9 @@ async function main(): Promise<void> {
       for (const r of summary.results) {
         const icon = r.applied ? c.green("✓") : c.yellow("○");
         const label = r.applied
-          ? flags.dryRun ? c.cyan("would fix") : c.green("fixed")
+          ? flags.dryRun
+            ? c.cyan("would fix")
+            : c.green("fixed")
           : c.dim("skipped");
         console.log(`  ${icon} ${c.dim(`[${r.code}]`)} ${label}  ${r.description}`);
         if (r.applied) {
@@ -539,10 +674,14 @@ async function main(): Promise<void> {
       if (!flags.dryRun) {
         console.log(
           `\n  ${c.green(`Applied ${appliedCount} fix(es).`)}` +
-          (summary.unfixable > 0 ? c.yellow(` ${summary.unfixable} issue(s) still need manual attention.`) : "")
+            (summary.unfixable > 0
+              ? c.yellow(` ${summary.unfixable} issue(s) still need manual attention.`)
+              : "")
         );
       } else {
-        console.log(`\n  ${c.cyan(`Would apply ${appliedCount} fix(es).`)} Run without --dry-run to write changes.`);
+        console.log(
+          `\n  ${c.cyan(`Would apply ${appliedCount} fix(es).`)} Run without --dry-run to write changes.`
+        );
       }
     }
 
@@ -557,16 +696,22 @@ async function main(): Promise<void> {
         if (line.trim()) console.log(`  ${line}`);
       }
     } else if (!flags.dryRun && summary.unfixable > 0 && summary.applied === 0) {
-      console.log(c.dim(`\n  Tip: run  bun language/checker.ts ${relMmd}  to see full diagnostics.`));
+      console.log(
+        c.dim(`\n  Tip: run  bun language/checker.ts ${relMmd}  to see full diagnostics.`)
+      );
     }
   }
 
   if (flags.json) {
-    console.log(JSON.stringify(allSummaries.length === 1 ? allSummaries[0] : allSummaries, null, 2));
+    console.log(
+      JSON.stringify(allSummaries.length === 1 ? allSummaries[0] : allSummaries, null, 2)
+    );
   }
 
   const anyApplied = allSummaries.some((s) => s.applied > 0);
-  process.exit(anyApplied || allSummaries.every((s) => s.applied === 0 && s.unfixable === 0) ? 0 : 0);
+  process.exit(
+    anyApplied || allSummaries.every((s) => s.applied === 0 && s.unfixable === 0) ? 0 : 0
+  );
 }
 
 main().catch((err) => {

@@ -145,6 +145,7 @@ export class FullStackGenerator {
         projectVersion: this.options.projectVersion,
         projectDescription: this.options.projectDescription,
         apiBaseUrl: `http://localhost:${this.options.port}`,
+        frontendPort: this.options.frontendPort ?? this.options.port + 1,
         enableDarkMode: false,
         stackOption: this.options.stackOption as "tanstackjs-nestjs" | "tanstack-start-nestjs",
         skipCliScaffold: this.options.skipCliScaffold,

@@ -569,10 +569,19 @@ export class BusService {
     }
   }
 
+  /**
+   * FK columns that name a person by the role they played rather than by
+   * entity. Kept in sync with `foreignKeys.personRoleColumns` in
+   * language/erdwithai-language.json.
+   */
   private static readonly COLUMN_TABLE_ALIASES: Record<string, string> = {
     owner_id: "bus_user",
     author_id: "bus_user",
     manager_id: "bus_user",
+    lab_manager_id: "bus_user",
+    pi_id: "bus_user",
+    user_id: "bus_user",
+    remediation_owner_id: "bus_user",
     assigned_to: "bus_user",
     created_by: "bus_user",
   };
@@ -581,6 +590,12 @@ export class BusService {
     if (sysReferenceId !== 18 && sysReferenceId !== 19) return undefined;
     if (BusService.COLUMN_TABLE_ALIASES[columnName]) {
       return BusService.COLUMN_TABLE_ALIASES[columnName];
+    }
+    // A _by column is a person: reported_by_id, registered_by_id, approved_by_id
+    // all point at a user. Deriving bus_reported_by from the name would look up
+    // a table that does not exist, so the column would render its raw id.
+    if (columnName.endsWith("_by_id") || columnName.endsWith("_by")) {
+      return "bus_user";
     }
     if (!columnName.endsWith("_id") || columnName === "id") return undefined;
     const baseName = columnName.slice(0, -3);

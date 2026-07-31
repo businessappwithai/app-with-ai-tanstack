@@ -1,8 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { format, parseISO } from "date-fns";
 import {
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   ChevronUp,
   Filter,
   Home,
@@ -13,7 +17,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -262,8 +266,13 @@ function DetailRow({ event }: { event: AuditEvent }) {
 // Main page
 // ---------------------------------------------------------------------------
 
+/** Page sizes offered in the footer. The API caps `limit` at 500. */
+const PAGE_SIZES = [25, 50, 100, 250] as const;
+const DEFAULT_PAGE_SIZE = 50;
+
 function AuditLogPage() {
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
   const [filters, setFilters] = useState({
     from: "",
     to: "",
@@ -279,7 +288,9 @@ function AuditLogPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const params: Record<string, string> = { page: String(page), limit: "50" };
+  // Only the current page is fetched — the audit table grows without bound, so
+  // the server does the LIMIT/OFFSET and returns the total alongside it.
+  const params: Record<string, string> = { page: String(page), limit: String(pageSize) };
   if (applied.from) params.from = applied.from;
   if (applied.to) params.to = applied.to;
   if (applied.user_email) params.user_email = applied.user_email;
@@ -290,9 +301,13 @@ function AuditLogPage() {
   if (applied.success) params.success = applied.success;
   if (applied.search) params.search = applied.search;
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ["audit-log", params],
     queryFn: () => apiClient.get<AuditResponse>("/audit", params),
+    // Hold the previous page while the next one loads. Without this the table
+    // blanks between pages and `total` briefly reads 0, which the clamp below
+    // would take as "the result shrank" and bounce you back to page 1.
+    placeholderData: keepPreviousData,
   });
 
   const { data: entityTypes } = useQuery({
@@ -302,8 +317,23 @@ function AuditLogPage() {
 
   const records = data?.data ?? [];
   const total = data?.meta?.total ?? 0;
-  const totalPages = Math.ceil(total / 50);
+  // Page maths follows the limit the server actually applied, not the one we
+  // asked for — it clamps out-of-range values, and guessing would drift.
+  const effectiveLimit = data?.meta?.limit ?? pageSize;
+  const totalPages = Math.max(1, Math.ceil(total / effectiveLimit));
+  const currentPage = Math.min(page, totalPages);
+  const firstRow = total === 0 ? 0 : (currentPage - 1) * effectiveLimit + 1;
+  const lastRow = Math.min(total, firstRow + records.length - 1);
   const hasFilters = Object.values(applied).some((v) => v !== "");
+
+  // Deleting or filtering can shrink the result past the page being viewed.
+  // Snap back rather than showing an empty table with a live page number.
+  // Only ever against a settled response: clamping mid-fetch reads the empty
+  // in-flight state as "one page" and bounces every navigation back to 1.
+  useEffect(() => {
+    if (!data || isFetching) return;
+    if (page > totalPages) setPage(totalPages);
+  }, [data, isFetching, page, totalPages]);
 
   const applyFilters = () => {
     setApplied({ ...filters });
@@ -338,7 +368,7 @@ function AuditLogPage() {
           Refresh
         </Button>
         <span className="ml-auto text-xs text-muted-foreground">
-          {total.toLocaleString()} records
+          {total.toLocaleString()} {total === 1 ? "record" : "records"}
         </span>
       </div>
 
@@ -590,34 +620,83 @@ function AuditLogPage() {
         )}
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-2 border-t border-border bg-background text-xs text-muted-foreground">
-          <span>
-            Page {page} of {totalPages} · {total.toLocaleString()} total
+      {/* Pagination. Always rendered: the row range and the page-size control
+          are useful on a single page too, and an audit trail only grows. */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border bg-background px-4 py-2 text-xs text-muted-foreground">
+        <span className={isFetching ? "opacity-60" : undefined}>
+          {total === 0
+            ? "No records"
+            : `Showing ${firstRow.toLocaleString()}–${lastRow.toLocaleString()} of ${total.toLocaleString()}`}
+        </span>
+
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-1.5">
+            <span>Rows</span>
+            <select
+              className="swiss-input h-7 w-auto px-2 text-xs"
+              value={effectiveLimit}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setPage(1);
+              }}
+              aria-label="Rows per page"
+            >
+              {PAGE_SIZES.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <span className="tabular-nums">
+            Page {currentPage} of {totalPages}
           </span>
+
           <div className="flex gap-1">
             <Button
               size="sm"
               variant="outline"
-              className="h-7 text-xs"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
+              className="h-7 w-7 p-0"
+              onClick={() => setPage(1)}
+              disabled={currentPage === 1}
+              aria-label="First page"
             >
-              Previous
+              <ChevronsLeft className="h-3.5 w-3.5" />
             </Button>
             <Button
               size="sm"
               variant="outline"
-              className="h-7 text-xs"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
+              className="h-7 w-7 p-0"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              aria-label="Previous page"
             >
-              Next
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 w-7 p-0"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage >= totalPages}
+              aria-label="Next page"
+            >
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 w-7 p-0"
+              onClick={() => setPage(totalPages)}
+              disabled={currentPage >= totalPages}
+              aria-label="Last page"
+            >
+              <ChevronsRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -63,6 +63,8 @@ export interface TanStackStartFrontendOptions {
   projectVersion: string;
   projectDescription: string;
   apiBaseUrl: string;
+  /** Port the dev/preview server binds to. Defaults to the API port + 1. */
+  frontendPort?: number;
   enableDarkMode: boolean;
   stackOption?: "tanstackjs-nestjs" | "tanstack-start-nestjs";
   /**
@@ -107,6 +109,9 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
 
     // Create additional directories beyond TanStack Start scaffolding
     await this.createAdditionalDirectories(outputDir);
+
+    // Copy static assets served from the app's own origin (self-hosted fonts)
+    await this.copyPublicAssets(outputDir);
 
     // Generate core application files
     await this.generateCoreFiles(outputDir, context);
@@ -229,6 +234,9 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
             return "3001";
           }
         })(),
+        // package.json's dev/start scripts pass this to vinxi. Left undefined it
+        // rendered as `vinxi dev --port ` and the server picked a port at random.
+        frontendPort: this.options.frontendPort ?? 3001,
         enableDarkMode: this.options.enableDarkMode,
       },
       projectName: this.options.projectName,
@@ -791,9 +799,8 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     const context = this.prepareContext(allEntities, relationships);
     const busEntities = context.entities as any[];
     const busEntity =
-      busEntities.find(
-        (e) => e.originalName === entity.name || e.name === entity.name
-      ) ?? busEntities[0];
+      busEntities.find((e) => e.originalName === entity.name || e.name === entity.name) ??
+      busEntities[0];
 
     await this.generateSingleEntityRoutes(busEntity, context, outputDir);
 
@@ -916,6 +923,22 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       } catch (e) {
         console.warn(`Admin subdir not found: ${subdir.src}`);
       }
+    }
+  }
+
+  /**
+   * Copy `public/` verbatim — everything in it is served from the app's own
+   * origin. The webfonts live here rather than on a font CDN so a generated app
+   * renders identically behind a corporate proxy, air-gapped, or in CI.
+   */
+  private async copyPublicAssets(outputDir: string): Promise<void> {
+    try {
+      await this.copyDirRecursive(
+        path.join(this.resolvedTemplateDir, "public"),
+        path.join(outputDir, "public")
+      );
+    } catch (e) {
+      console.warn("Public assets not found, skipping:", (e as Error).message);
     }
   }
 

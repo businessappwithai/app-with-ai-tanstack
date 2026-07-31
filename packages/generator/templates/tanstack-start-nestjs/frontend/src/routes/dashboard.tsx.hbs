@@ -242,18 +242,21 @@ function DashboardPage() {
       {/* Header */}
       <header className="sticky top-0 z-10 bg-card border-b border-border">
         <div className="container-swiss">
-          <div className="flex h-14 items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h1 className="font-display text-xl font-semibold text-foreground">{{project.name}}</h1>
+          <div className="flex h-14 items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-3">
+              <h1 className="font-display truncate text-xl font-semibold text-foreground">{{project.name}}</h1>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="relative">
+            <div className="flex min-w-0 items-center gap-3">
+              {/* The search box shrinks rather than pushing the account
+                  controls off-screen — a fixed width overflowed the header on
+                  a 375px viewport. */}
+              <div className="relative min-w-0 flex-1 sm:flex-none">
                 <input
                   type="text"
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="swiss-input h-9 w-56 pl-9 pr-8 text-sm"
+                  className="swiss-input h-9 w-full pl-9 pr-8 text-sm sm:w-56"
                 />
                 <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 {searchQuery && (

@@ -21,7 +21,13 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { getDb, type SyncConfig, syncSysTablesForRole, type UnsubscribeFn } from "@/lib/electric";
+import {
+  ELECTRIC_ENABLED,
+  getDb,
+  type SyncConfig,
+  syncSysTablesForRole,
+  type UnsubscribeFn,
+} from "@/lib/electric";
 import { reloadSysCollections } from "@/lib/sys-collections";
 
 /* -------------------------------------------------------------------------- */
@@ -33,6 +39,8 @@ interface ElectricContextValue {
   isSyncing: boolean;
   isSynced: boolean;
   error: Error | null;
+  /** False when VITE_ELECTRIC_URL is unset — hooks read over HTTP instead. */
+  isEnabled: boolean;
 }
 
 const ElectricContext = createContext<ElectricContextValue>({
@@ -40,6 +48,7 @@ const ElectricContext = createContext<ElectricContextValue>({
   isSyncing: false,
   isSynced: false,
   error: null,
+  isEnabled: false,
 });
 
 export function useElectric(): ElectricContextValue {
@@ -66,7 +75,11 @@ export function ElectricProvider({ children, role, token }: ElectricProviderProp
   const unsubRef = useRef<UnsubscribeFn | null>(null);
 
   useEffect(() => {
-    if (!role) return;
+    // Without an Electric endpoint there is nothing to sync, and booting PGlite
+    // would download a WASM runtime only to leave it empty. Staying idle here is
+    // the supported configuration, not a failure: the sys_ hooks fall back to
+    // fetching the Application Dictionary over HTTP.
+    if (!ELECTRIC_ENABLED || !role) return;
 
     let cancelled = false;
 
@@ -94,8 +107,16 @@ export function ElectricProvider({ children, role, token }: ElectricProviderProp
         setIsSynced(true);
       } catch (err) {
         if (!cancelled) {
-          console.error("[ElectricProvider] sync error:", err);
-          setError(err instanceof Error ? err : new Error(String(err)));
+          // Sync is an optimisation. Record the failure for anything that wants
+          // to surface it, warn rather than error, and let the HTTP fallback
+          // carry the app — a broken sync must not break the UI.
+          const failure = err instanceof Error ? err : new Error(String(err));
+          console.warn(
+            "[ElectricProvider] sync unavailable, falling back to HTTP:",
+            failure.message
+          );
+          setError(failure);
+          setDb(null);
         }
       } finally {
         if (!cancelled) setIsSyncing(false);
@@ -113,7 +134,9 @@ export function ElectricProvider({ children, role, token }: ElectricProviderProp
   }, [role, token]);
 
   return (
-    <ElectricContext.Provider value={{ db, isSyncing, isSynced, error }}>
+    <ElectricContext.Provider
+      value={{ db, isSyncing, isSynced, error, isEnabled: ELECTRIC_ENABLED }}
+    >
       {children}
     </ElectricContext.Provider>
   );

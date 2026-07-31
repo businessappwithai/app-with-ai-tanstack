@@ -14,6 +14,7 @@
       "content": {
         "hitPolicy": "collect",
         "inputs": [
+          { "id": "iop", "name": "Operation", "field": "_operation" },
           {{#each attributes}}
           {{#unless (or (eq name "id") (eq name "created_at") (eq name "updated_at") (eq name "deleted_at") (eq name "version"))}}
           { "id": "i{{@index}}", "name": "{{displayName}}", "field": "{{columnName}}" },
@@ -83,7 +84,7 @@
           {{/each}}
           {
             "_id": "{{tableName}}-on-create-trigger-workflow",
-            "i0": "action == \"create\"",
+            "iop": "_operation == \"create\"",
             "o1": "'trigger-workflow'",
             "o2": "'{{displayName}} created — triggering post-create workflow'",
             "o3": "'{{tableName}}-on-create-trigger-workflow'",
@@ -96,7 +97,7 @@
           },
           {
             "_id": "{{tableName}}-on-update-trigger-workflow",
-            "i0": "action == \"update\"",
+            "iop": "_operation == \"update\"",
             "o1": "'trigger-workflow'",
             "o2": "'{{displayName}} updated — triggering post-update workflow'",
             "o3": "'{{tableName}}-on-update-trigger-workflow'",

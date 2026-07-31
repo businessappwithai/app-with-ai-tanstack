@@ -139,8 +139,23 @@ export function entityToBusEntity(entity: Entity): BusEntity {
 export function attributeReferenceId(attr: EntityAttribute, entityPrimaryKey?: string): number {
   if (attr.name === "id") return ReferenceType.ID;
   if (entityPrimaryKey && attr.name === entityPrimaryKey) return ReferenceType.ID;
-  if (attr.name.endsWith("_id") && attr.isForeignKey) return ReferenceType.TABLE_DIRECT;
+  if (attr.isForeignKey && isForeignKeyColumnName(attr.name)) return ReferenceType.TABLE_DIRECT;
   return attributeTypeToReferenceId(attr.type);
+}
+
+/**
+ * Whether an FK-marked column name is one the generator can resolve to a table.
+ *
+ * `<entity>_id` is the convention. A bare `_by` column is accepted too: it names
+ * a person by the role they played (`reported_by`, `approved_by`) and resolves
+ * to the user entity. Without this it would fall through to the declared scalar
+ * type and render as a plain string — the raw UUID, no lookup — which is what
+ * the EML checker reports as EML114 and the fixer repairs by appending `_id`.
+ * Accepting both spellings means a model that has not been through the fixer
+ * still gets a working lookup.
+ */
+export function isForeignKeyColumnName(columnName: string): boolean {
+  return columnName.endsWith("_id") || columnName.endsWith("_by");
 }
 
 /**

@@ -53,7 +53,15 @@ export interface RelationshipMeta {
   foreignKey?: string;
 }
 
-/** Columns the server owns — never sent in a create/update payload. */
+/**
+ * Columns the server owns — never sent in a create/update payload.
+ *
+ * `is_active` is deliberately NOT here. The generator does not add it: when a
+ * bus table has one it is because the model declared it, often as a required
+ * field. Excluding it meant the harness could never build a valid payload for
+ * those entities, and every create in the suite failed on a missing field the
+ * factory was forbidden from supplying.
+ */
 export const SERVER_MANAGED_FIELDS = new Set([
   "id",
   "created_at",
@@ -62,7 +70,6 @@ export const SERVER_MANAGED_FIELDS = new Set([
   "created_by",
   "updated_by",
   "version",
-  "is_active",
   "doc_status",
 ]);
 
@@ -121,9 +128,24 @@ export function foreignKeyFields(entity: EntityMeta): FieldMeta[] {
   return writableFields(entity).filter((f) => f.isForeignKey || f.name.endsWith("_id"));
 }
 
-/** The first text-ish field, used for search and update assertions. */
+/**
+ * Columns whose contents the model constrains to a shape. Tests write arbitrary
+ * markers into a text field to assert round-tripping and search, so a column
+ * with a format rule is the wrong one to pick — writing `e2e-1785…` into
+ * `email` trips the email-format rule and the create is rejected.
+ */
+const FORMATTED_TEXT_COLUMNS = /email|url|website|link|phone|mobile|tel|slug|signature/i;
+
+/** The first free-text field, used for search and update assertions. */
 export function firstTextField(entity: EntityMeta): FieldMeta | undefined {
-  return scalarFields(entity).find((f) => f.type === "string" || f.type === "text");
+  const textish = scalarFields(entity).filter((f) => f.type === "string" || f.type === "text");
+  return (
+    textish.find((f) => !FORMATTED_TEXT_COLUMNS.test(f.name)) ??
+    // Every text column is format-constrained — fall back rather than skip the
+    // assertion entirely; the suite tolerates a create failure better than a
+    // silent gap in coverage.
+    textish[0]
+  );
 }
 
 export function numericFields(entity: EntityMeta): FieldMeta[] {

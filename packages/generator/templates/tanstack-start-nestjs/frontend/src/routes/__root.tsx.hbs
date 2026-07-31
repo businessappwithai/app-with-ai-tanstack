@@ -70,9 +70,10 @@ export const Route = createRootRoute({
     links: [
       { rel: 'stylesheet', href: globalsCssUrl },
       { rel: 'icon', href: '/favicon.ico' },
-      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
-      { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap' },
+      // Webfonts are served from public/fonts, not a font CDN: a third-party
+      // stylesheet in the critical path means the app renders wrong wherever
+      // that host is unreachable — corporate proxy, air-gapped site, CI.
+      { rel: 'stylesheet', href: '/fonts/fonts.css' },
     ],
   }),
   errorComponent: RootErrorComponent,

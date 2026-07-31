@@ -107,7 +107,15 @@ export class RulesEngine implements OnModuleDestroy {
 
     try {
       const decision = this.engine.createDecision(Buffer.from(jdmContent));
-      const result = await decision.evaluate({ ...data, action });
+      // `_operation` carries the CRUD verb. It is deliberately not called
+      // `action`: that name belongs to the record. A model with an `action`
+      // column could never fire its own rules against it, because the engine
+      // had already replaced the value with "create"/"update" — and a required
+      // -field rule on such a column could never fire at all, since the
+      // injected value made the field look present even when it was omitted.
+      // Rules read the operation from `_operation`; the payload is passed
+      // through untouched.
+      const result = await decision.evaluate({ ...data, _operation: action });
 
       let violations: JdmViolation[] = [];
 
@@ -171,7 +179,15 @@ export class RulesEngine implements OnModuleDestroy {
     let violations: JdmViolation[] = [];
     try {
       const decision = this.engine.createDecision(content);
-      const result = await decision.evaluate({ ...data, action });
+      // `_operation` carries the CRUD verb. It is deliberately not called
+      // `action`: that name belongs to the record. A model with an `action`
+      // column could never fire its own rules against it, because the engine
+      // had already replaced the value with "create"/"update" — and a required
+      // -field rule on such a column could never fire at all, since the
+      // injected value made the field look present even when it was omitted.
+      // Rules read the operation from `_operation`; the payload is passed
+      // through untouched.
+      const result = await decision.evaluate({ ...data, _operation: action });
 
       // hitPolicy "collect" returns an array; single-match returns an object or null
       if (Array.isArray(result.result)) {

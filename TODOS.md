@@ -191,7 +191,7 @@ target app and the plan before starting.
 
 These items were considered but explicitly rejected:
 
-- **Audit logging** - Not required for MVP, adds 3h + storage costs
+- ~~**Audit logging**~~ - superseded: shipped and verified end to end, 2026-07-31. `audit_log` is created by migration `0007`, `AuditInterceptor` records every bus mutation, and `/admin/audit` reads it with filters and a before/after diff.
 - **Multi-tenancy** - HMS is single-hospital system, no use case
 - **Workflow scheduling** - No time-based triggers identified
 - **Rule versioning** - Admin can duplicate rules manually
@@ -207,3 +207,86 @@ All four deferred findings fixed on main, 2026-07-30:
 - **EML `%%rule` ingestion** — `extractRuleFlowcharts()` added to `rules-design.tsx`; on first load the editor now seeds from the first `%%rule` flowchart in `project.erdCode` instead of the hardcoded "Order Discount" placeholder.
 - **`(round)` node shape** — `NodeShape` union extended with `"round"`; `parseNodeDef` branch added for `^\((.+?)\)` in `mermaid-flowchart-parser.ts`.
 - **Console pipe amplification** — `routes/api/db/reverse-engineer.ts` and `generate-schema.ts` migrated from `@tanstack/start/api` (deprecated, emits `console.warn` on every load) to `@tanstack/start-api-routes` (the underlying package, no warning); `@tanstack/start-api-routes` added as an explicit web dependency.
+
+---
+
+## Found by /qa on `claude/drug-discovery-categories-qa-fon34w`, 2026-07-31 — RESOLVED
+
+Ten defects found driving the generated drug-discovery app (17 entities, 7 categories)
+against PostgreSQL. All fixed in the generator templates, so every generated app picks
+them up. Full report with evidence: [docs/qa/qa-report-drug-discovery-2026-07-31.md](docs/qa/qa-report-drug-discovery-2026-07-31.md).
+
+- **`generate --force` broke `bun run migrate`** — scaffold migrations were named
+  `<Date.now()>_<slug>.ts` and the cleanup pass removed only three of eight slugs, so a
+  regeneration emitted a fresh set alongside the old and the runner replayed CREATE
+  TABLE migrations. Now a fixed zero-padded sequence, overwritten in place.
+- **`bun run migrate` never ran the seeds** — `src/migrate.ts` looked in `src/seeds`;
+  they are generated at the backend root. Silent: it reported success with an empty
+  Application Dictionary.
+- **Unhandled ElectricProvider sync error on every load** — booted PGlite with
+  `VITE_ELECTRIC_URL` unset, which is the shipped default and already covered by the
+  HTTP fallback. Now idle when Electric is not configured.
+- **Duplicate TanStack Query keys from `useQueries`** — `DynamicTable` keyed lookups by
+  referenced table, so two FKs to the same table collided and shifted every later result
+  onto the wrong field. Same in the breadcrumb shells. Both now dedupe.
+- **Google Fonts was a hard runtime dependency** — a render-blocking third-party
+  stylesheet. Latin subsets vendored under `frontend/public/fonts` (SIL OFL).
+- **FK columns rendered raw UUIDs** — the shipped `.tsx` DynamicTable ignored
+  `ref_label_fields` and defaulted to `"name"`.
+- **Category selects on `/admin/categories` were unreadable** — `.swiss-input` kept
+  `py-3` under every height override, clipping the text to a band shorter than the glyphs.
+- **Dashboard header overflowed at 375px** — fixed-width search box.
+- **Audit trail recorded a `promotion` column that does not exist** — the interceptor
+  diffed the raw response envelope. Also added the missing `audit_log` migration.
+- **"1 records"**, and the frontend `dev` script rendered as `vinxi dev --port ` with no
+  port because `config.frontendPort` was never in the template context.
+
+### Not fixed — model authoring, not a defect
+
+`drug-discovery.eml.mmd` declares `booked_by`, `reported_by` and `registered_by` as
+plain strings rather than `_id`-suffixed foreign keys, so the generator cannot derive
+the referenced table and those columns render as UUIDs. The EML checker already flags
+this as `EML114`. Renaming them in the model is the fix.
+
+---
+
+## Found by the generated E2E suite, 2026-07-31 — RESOLVED
+
+Ran the generated `tests/` suite against the running drug-discovery app:
+60 failures → 40/40 suites, 609 tests, 0 failures. All fixed in the templates.
+
+**Test harness (generated code, so generator bugs):**
+
+- **`_by` foreign keys unresolvable** — `resolveParentEntity` derived the parent
+  from `<stem>_id`, so `registered_by_id` looked for a `registered_by` entity and
+  left a mandatory FK unset. Six entities could not be created at all.
+- **`is_active` excluded as server-managed** — the generator never adds it; when a
+  bus table has one the model declared it, often as required. The factory was
+  forbidden from supplying a field the API demanded.
+- **Name-driven fakers overrode the declared type** — `ratio` matched
+  "calib(ratio)n", `login` matched "last_(login)". Patterns are now segment-
+  anchored, and a value that does not fit the column's declared type is discarded.
+- **Unique columns unique only within a run** — the salt came from the seeded
+  faker, so a second run against a populated database regenerated a value it had
+  already inserted (409). Now drawn from an unseeded per-process id.
+- **`firstTextField` picked `email`** — suites write arbitrary markers into it,
+  tripping the email-format rule. Format-constrained columns are now skipped.
+
+**Rules engine (an app bug, not just a test bug):**
+
+- **The CRUD verb was injected as `action`**, overwriting any entity column of
+  that name. `bus_workflow_event.action` is a declared required column, so its
+  required-field rule could never fire. The verb now travels as `_operation`.
+- **Trigger-workflow rules tested an undeclared input (`i0`)**, so the condition
+  was ignored and both post-create and post-update workflows fired on every
+  operation. The decision table now declares the operation input.
+
+**Audit report — server-side pagination**
+
+The API was already paginated (LIMIT/OFFSET + total). The UI asked for a
+hardcoded 50, computed page counts from that literal rather than the server's
+echoed limit, and hid the pager below two pages. Now: 25/50/100/250 rows, row
+range, first/previous/next/last, page maths from `meta`, and the previous page
+held on screen while the next loads (without which the in-flight empty state
+tripped the out-of-range clamp and bounced every navigation back to page 1).
+Verified against 545 rows.
