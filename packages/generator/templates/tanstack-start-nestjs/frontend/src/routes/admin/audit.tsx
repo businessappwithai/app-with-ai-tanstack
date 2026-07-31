@@ -338,7 +338,7 @@ function AuditLogPage() {
           Refresh
         </Button>
         <span className="ml-auto text-xs text-muted-foreground">
-          {total.toLocaleString()} records
+          {total.toLocaleString()} {total === 1 ? "record" : "records"}
         </span>
       </div>
 

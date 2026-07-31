@@ -125,9 +125,16 @@
     @apply rounded-xl border border-border bg-card text-card-foreground;
   }
 
-  /* Swiss Clean Input - refined borders */
+  /* Swiss Clean Input - refined borders
+   *
+   * No vertical padding on purpose. Browsers centre the text of a single-line
+   * input or select inside its content box, so the height alone positions it.
+   * A py-* here survives every height override (`swiss-input h-8`) and clips
+   * the text to a band too short to hold it — which is what happened to the
+   * category selects on /admin/categories: only descenders rendered. Multi-line
+   * controls that need padding set their own (see the textarea on that page). */
   .swiss-input {
-    @apply h-12 w-full rounded-lg border border-border bg-background px-4 py-3 text-sm ring-offset-background transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply h-12 w-full rounded-lg border border-border bg-background px-4 text-sm ring-offset-background transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   /* Swiss Clean Button - refined borders */

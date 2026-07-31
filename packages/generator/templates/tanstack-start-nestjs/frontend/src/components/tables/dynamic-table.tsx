@@ -333,19 +333,31 @@ export function DynamicTable({
       if (!result?.data) return;
       const records = Array.isArray(result.data) ? result.data : ((result.data as any).data ?? []);
       const idField = field.ref_id_field ?? "id";
-      const labelField = field.ref_label_field ?? "name";
+      // The dictionary describes a label as `ref_label_fields` — a list, so an
+      // entity identified by more than one column reads properly. Honour it
+      // before the single `ref_label_field`; defaulting straight to "name"
+      // rendered a raw UUID for every table that names its records something
+      // else (bus_experiment.title, say).
+      const labelFields: string[] = (field as any).ref_label_fields?.length
+        ? (field as any).ref_label_fields
+        : field.ref_label_field
+          ? [field.ref_label_field]
+          : ["name"];
       const tableMap: Record<string, string> = {};
       for (const rec of records) {
         const id = String((rec as any)[idField] ?? "");
-        // Try configured label, then full-name fallback, then first_name, then id
-        const label =
-          (rec as any)[labelField] != null
-            ? String((rec as any)[labelField])
-            : (rec as any).first_name != null
-              ? [String((rec as any).first_name), String((rec as any).last_name ?? "")]
-                  .filter(Boolean)
-                  .join(" ")
-              : id;
+        const parts = labelFields
+          .map((f: string) => (rec as any)[f])
+          .filter((v: unknown) => v != null && v !== "")
+          .map(String);
+        // Configured label, then a person's full name, then the raw id.
+        const label = parts.length
+          ? parts.join(" · ")
+          : (rec as any).first_name != null
+            ? [String((rec as any).first_name), String((rec as any).last_name ?? "")]
+                .filter(Boolean)
+                .join(" ")
+            : id;
         if (id) tableMap[id] = label;
       }
       map[field.ref_table_name!] = tableMap;
