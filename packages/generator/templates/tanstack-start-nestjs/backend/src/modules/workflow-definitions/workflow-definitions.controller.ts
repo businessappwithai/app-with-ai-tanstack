@@ -10,10 +10,8 @@ import {
   Put,
   Query,
 } from "@nestjs/common";
-import type {
-  WorkflowDefinitionDto,
-  WorkflowDefinitionsService,
-} from "./workflow-definitions.service";
+import { WorkflowDefinitionsService } from "./workflow-definitions.service";
+import type { WorkflowDefinitionDto } from "./workflow-definitions.service";
 
 @Controller("workflow-definitions")
 export class WorkflowDefinitionsController {

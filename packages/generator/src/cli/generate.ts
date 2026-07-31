@@ -16,6 +16,7 @@ import * as readline from "readline";
 import { FullStackGenerator, type StackOption } from "../generators/full-stack.generator";
 import { NestJsBackendGenerator } from "../generators/tanstack-start-nestjs/nestjs-backend.generator";
 import { TanStackStartFrontendGenerator } from "../generators/tanstack-start-nestjs/tanstack-start-frontend.generator";
+import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
 import { MermaidParser } from "../parsers/mermaid.parser";
 
 // Resolve relative paths from the workspace root (INIT_CWD) when called via bun --filter
@@ -43,6 +44,33 @@ async function parseFile(
   const content = await fs.readFile(absPath, "utf-8");
   const parser = new MermaidParser();
   return parser.parse(content);
+}
+
+/**
+ * Read the Application Dictionary categories a model declares with `%%category`
+ * directives, filling in a "General" default for anything left unassigned.
+ * Reads the raw source because the ERD parser discards `%%` comment lines.
+ */
+async function parseCategoriesFrom(
+  filePaths: Array<string | undefined>,
+  entities: Entity[]
+): Promise<EntityCategory[]> {
+  const sources: string[] = [];
+
+  for (const filePath of filePaths) {
+    if (!filePath) continue;
+    try {
+      sources.push(await fs.readFile(resolvePath(filePath), "utf-8"));
+    } catch {
+      // A missing optional input is not an error here — the caller already
+      // validated the files it requires.
+    }
+  }
+
+  return resolveCategories(
+    sources.join("\n"),
+    entities.map((entity) => entity.name)
+  );
 }
 
 /** Save a generation manifest so `erdwithai info` can read it later. */
@@ -151,6 +179,65 @@ async function runSetup(opts: {
 }
 
 // ---------------------------------------------------------------------------
+// E2E test run (bun:test)
+// ---------------------------------------------------------------------------
+
+/**
+ * Install the test workspace's dependencies and run the generated suites.
+ *
+ * The suites start the backend themselves (or attach to one already listening),
+ * so this only needs a migrated + seeded database — which `runSetup` has
+ * already produced by the time we get here.
+ *
+ * Returns true when the suites pass, false when they fail, and null when they
+ * could not be run at all.
+ */
+async function runE2ETests(opts: {
+  outputDir: string;
+  packageManager: string;
+  fast: boolean;
+  quiet: boolean;
+}): Promise<boolean | null> {
+  const { outputDir, packageManager: pm, fast, quiet } = opts;
+  const testsDir = path.join(outputDir, "tests");
+
+  try {
+    await fs.access(path.join(testsDir, "run.ts"));
+  } catch {
+    console.warn("\n⚠️  No tests/ directory found — skipping the E2E run.");
+    return null;
+  }
+
+  log("\n📦 Installing test dependencies…", quiet);
+  const install = spawnSync(pm, ["install"], {
+    cwd: testsDir,
+    stdio: quiet ? "pipe" : "inherit",
+    shell: false,
+  });
+  if (install.status !== 0) {
+    const stderr = install.stderr?.toString().trim();
+    console.error(`\n❌ Installing test dependencies failed${stderr ? `: ${stderr}` : ""}`);
+    return false;
+  }
+
+  log(`\n🧪 Running E2E tests${fast ? " (fast — no bulk seed)" : ""}…\n`, quiet);
+  const run = spawnSync("bun", ["run", "run.ts", ...(fast ? ["--fast"] : [])], {
+    cwd: testsDir,
+    // Always inherit: a test run the user asked for should stream its output.
+    stdio: "inherit",
+    shell: false,
+  });
+
+  if (run.status === 0) {
+    log("\n✅ E2E tests passed", quiet);
+    return true;
+  }
+
+  console.error(`\n❌ E2E tests failed (exit code ${run.status ?? "unknown"})`);
+  return false;
+}
+
+// ---------------------------------------------------------------------------
 // EML checker + fixer pre-flight
 // ---------------------------------------------------------------------------
 
@@ -194,7 +281,9 @@ async function runCheckerFixer(mmdPath: string, quiet: boolean): Promise<void> {
   try {
     await fs.access(fixerScript);
     fixerExists = true;
-  } catch { /* not installed */ }
+  } catch {
+    /* not installed */
+  }
 
   if (fixerExists) {
     log(`\n🔧 Auto-fixing EML issues in ${path.basename(mmdPath)}…`, quiet);
@@ -276,6 +365,15 @@ program
   .option("--quiet", "Suppress all non-error output")
   // Post-generation setup
   .option("--no-setup", "Skip automatic install, migrate and seed after generation")
+  // End-to-end tests (bun:test)
+  .option("--no-tests", "Skip generation of the bun:test E2E suite in tests/")
+  .option(
+    "--records-per-entity <count>",
+    "Records the bulk-seed E2E suite creates per entity",
+    "1000"
+  )
+  .option("--run-tests", "Run the generated E2E suite after setup completes")
+  .option("--run-tests-fast", "Run the E2E suite but skip the bulk-seed volume suite")
   .action(async (options) => {
     const quiet: boolean = !!options.quiet;
 
@@ -341,11 +439,23 @@ program
         );
       }
 
+      // ── Entity categories ───────────────────────────────────────────────
+      const categories = await parseCategoriesFrom(
+        [options.input, options.sysFile, options.busFile, options.refFile],
+        allEntities
+      );
+
       // ── Entity summary ──────────────────────────────────────────────────
       if (!quiet) {
         console.log("\n📊 Entities found:");
         for (const e of allEntities) {
           console.log(`   • ${e.name} (${e.attributes.length} attributes)`);
+        }
+
+        console.log(`\n🗂️  Entity categories (${categories.length}):`);
+        for (const c of [...categories].sort((a, b) => a.name.localeCompare(b.name))) {
+          const flag = c.isDefault ? " (default)" : "";
+          console.log(`   • ${c.name}${flag} — ${c.entities.length} entities`);
         }
       }
 
@@ -433,6 +543,9 @@ program
             : undefined,
         skipFrontend: !!options.skipFrontend,
         skipBackend: !!options.skipBackend,
+        skipTests: options.tests === false,
+        recordsPerEntity: Number(options.recordsPerEntity) || 1000,
+        categories,
       });
 
       await generator.generate(allEntities, allRelationships);
@@ -468,6 +581,27 @@ program
         });
       }
 
+      // ── Run E2E tests ───────────────────────────────────────────────────
+      // Generation → setup → tests, in that order: the suites sign in as the
+      // seeded administrator, so they cannot run before migrate + seed.
+      const wantsTests = !!(options.runTests || options.runTestsFast);
+      let testsPassed: boolean | null = null;
+
+      if (wantsTests && options.tests === false) {
+        console.warn("\n⚠️  --run-tests ignored: test generation was disabled with --no-tests");
+      } else if (wantsTests && options.setup === false) {
+        console.warn(
+          "\n⚠️  --run-tests ignored: the suites need a migrated and seeded database (--no-setup was given)"
+        );
+      } else if (wantsTests) {
+        testsPassed = await runE2ETests({
+          outputDir,
+          packageManager: options.packageManager,
+          fast: !!options.runTestsFast,
+          quiet,
+        });
+      }
+
       // ── Success ─────────────────────────────────────────────────────────
       if (!quiet) {
         const pm = options.packageManager;
@@ -483,8 +617,18 @@ program
         } else {
           console.log(`   App ready in: ${outputDir}`);
           console.log(`   cd ${outputDir} && ${pm} run dev\n`);
-          console.log("   Default admin:  admin@admin.com / administrator\n");
+          // Matches the bootstrap defaults in backend/src/main.ts
+          // (ADMIN_EMAIL / ADMIN_PASSWORD override them).
+          console.log("   Default admin:  admin@admin.com / admin\n");
         }
+        if (options.tests !== false) {
+          console.log(`   E2E tests:      cd ${outputDir} && ${pm} run test:e2e`);
+          console.log(`                   (add :fast to skip the bulk-seed volume suite)\n`);
+        }
+      }
+
+      if (testsPassed === false) {
+        process.exitCode = 1;
       }
     } catch (error: unknown) {
       console.error("\n❌ Error:", error instanceof Error ? error.message : String(error));
@@ -600,10 +744,7 @@ program
     "Add or regenerate a single entity from an .mmd / .eml file into an existing generated project"
   )
   .requiredOption("-i, --input <file>", "Input .mmd / .eml file containing the entity")
-  .requiredOption(
-    "-e, --entity <name>",
-    "Entity name to generate (PascalCase, e.g. 'Compound')"
-  )
+  .requiredOption("-e, --entity <name>", "Entity name to generate (PascalCase, e.g. 'Compound')")
   .requiredOption(
     "-o, --output <dir>",
     "Root of the generated project directory (must contain backend/ and/or frontend/)"
@@ -638,9 +779,7 @@ program
 
       // ── Find the entity ──────────────────────────────────────────────────
       const entityName = options.entity as string;
-      const entity = entities.find(
-        (e) => e.name.toLowerCase() === entityName.toLowerCase()
-      );
+      const entity = entities.find((e) => e.name.toLowerCase() === entityName.toLowerCase());
       if (!entity) {
         const available = entities.map((e) => e.name).join(", ");
         throw new Error(
@@ -755,10 +894,7 @@ program
         );
       }
     } catch (error: unknown) {
-      console.error(
-        "\n❌ Error:",
-        error instanceof Error ? error.message : String(error)
-      );
+      console.error("\n❌ Error:", error instanceof Error ? error.message : String(error));
       process.exit(1);
     }
   });
@@ -1223,7 +1359,7 @@ program
     console.log("  • Audit trail (ImmuDB-backed)");
     console.log("  • Role-based access control (RBAC)");
     console.log("  • ETag-based optimistic concurrency");
-    console.log("  • E2E test suite (Playwright)\n");
+    console.log("  • E2E test suite (bun:test) — CRUD, rules, workflows, faker volume data\n");
 
     console.log("🛠️  CLI Commands\n");
     console.log("  generate          Full-stack generation");

@@ -4,7 +4,7 @@ import { type Kysely, sql } from "kysely";
 import { KYSELY_CONNECTION } from "../../database/database.constants";
 import type { AuditEvent, AuditSearchParams } from "./audit.types";
 import { maskSensitive } from "./audit.types";
-import type { ImmudbService } from "./immudb.service";
+import { ImmudbService } from "./immudb.service";
 
 @Injectable()
 export class AuditService implements OnModuleInit {

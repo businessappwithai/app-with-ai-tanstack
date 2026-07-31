@@ -75,14 +75,24 @@ jobs:
           flags: frontend
           name: frontend-coverage
 
-  playwright:
-    name: Playwright E2E Tests
+  e2e:
+    name: E2E Tests (bun:test)
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        browser: [chromium, firefox, webkit]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: {{project.name}}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
         with:
@@ -95,32 +105,31 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
+        working-directory: ..
 
-      - name: Install Playwright browsers
-        run: bun exec playwright install --with-deps ${{ matrix.browser }}
-
-      - name: Build application
-        run: bun run build
+      - name: Migrate and seed
+        run: bun run db:setup
+        working-directory: ../backend
         env:
-          VITE_APP_URL: http://localhost:5000
-          VITE_API_URL: http://localhost:{{config.backendPort}}/api
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/{{project.name}}
 
-      - name: Run Playwright tests (${{ matrix.browser }})
-        run: bun run test:playwright -- --project=${{ matrix.browser }}
-        timeout-minutes: 15
-
-      - name: Upload Playwright report
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: playwright-report-${{ matrix.browser }}
-          path: playwright-report/
-          retention-days: 7
+      # The runner starts the backend itself and waits for its health check.
+      # Record volume is reduced from the 1000 default so CI stays under the
+      # timeout; the bulk-seed code path is still exercised.
+      - name: Run E2E suites
+        run: bun run test
+        working-directory: ../tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/{{project.name}}
+          E2E_BASE_URL: http://localhost:{{config.backendPort}}
+          E2E_RECORDS_PER_ENTITY: 100
+          E2E_USERS_TO_CREATE: 10
+          E2E_RANDOM_WORKFLOW_OPS: 25
 
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
-    needs: [lint, type-check, test, playwright]
+    needs: [lint, type-check, test, e2e]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     permissions:
       contents: read

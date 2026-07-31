@@ -11,6 +11,7 @@
 import type { Entity, Relationship } from "@erdwithai/core/types";
 import * as fs from "fs/promises";
 import * as path from "path";
+import type { EntityCategory } from "../parsers/category.parser";
 import {
   NestJsBackendGenerator,
   type NestJsBackendOptions,
@@ -19,6 +20,7 @@ import {
   TanStackStartFrontendGenerator,
   type TanStackStartFrontendOptions,
 } from "./tanstack-start-nestjs/tanstack-start-frontend.generator";
+import { BunE2ETestGenerator } from "./tests/bun-e2e.generator";
 
 export type StackOption = "tanstackjs-nestjs" | "tanstack-start-nestjs";
 export type AIAddonOption = "none" | "basic" | "advanced";
@@ -48,6 +50,16 @@ export interface FullStackGeneratorOptions {
 
   skipFrontend?: boolean;
   skipBackend?: boolean;
+
+  /** Skip generation of the bun:test E2E suite in <outputDir>/tests. */
+  skipTests?: boolean;
+  /**
+   * Application Dictionary entity categories parsed from the model's
+   * `%%category` directives. Falls back to a single "General" default.
+   */
+  categories?: EntityCategory[];
+  /** Records the bulk-seed suite creates per entity (default 1000). */
+  recordsPerEntity?: number;
 }
 
 export class FullStackGenerator {
@@ -116,6 +128,7 @@ export class FullStackGenerator {
       enableSwagger: true,
       enableCors: true,
       skipCliScaffold: this.options.skipCliScaffold,
+      categories: this.options.categories,
       ...aiConfig,
       ...this.options.tanstackStartNestjs?.backend,
     };
@@ -143,6 +156,19 @@ export class FullStackGenerator {
       const frontendGenerator = new TanStackStartFrontendGenerator(frontendOptions);
       await frontendGenerator.generate(entities, relationships, frontendDir);
     }
+
+    if (!this.options.skipTests) {
+      console.log("🧪 Generating bun:test E2E suite...");
+      const testGenerator = new BunE2ETestGenerator({
+        projectName: this.options.projectName,
+        projectVersion: this.options.projectVersion,
+        projectDescription: this.options.projectDescription,
+        port: this.options.port,
+        frontendPort: this.options.frontendPort ?? this.options.port + 1,
+        recordsPerEntity: this.options.recordsPerEntity,
+      });
+      await testGenerator.generate(entities, relationships, outputDir);
+    }
   }
 
   /**
@@ -155,7 +181,9 @@ export class FullStackGenerator {
       version: this.options.projectVersion,
       description: this.options.projectDescription,
       private: true,
-      workspaces: ["backend", "frontend"],
+      workspaces: this.options.skipTests
+        ? ["backend", "frontend"]
+        : ["backend", "frontend", "tests"],
       scripts: {
         dev: 'concurrently "bun run dev:backend" "bun run dev:frontend"',
         "dev:backend": "cd backend && bun run start:dev",
@@ -165,10 +193,14 @@ export class FullStackGenerator {
         "build:frontend": "cd frontend && bun run build",
         "db:migrate": "cd backend && bun run migrate",
         "db:seed": "cd backend && bun run seed",
+        "db:setup": "cd backend && bun run db:setup",
         test: "bun run test:backend && bun run test:frontend",
         "test:backend": "cd backend && bun run test",
         "test:frontend": "cd frontend && bun run test",
-        "test:e2e": "cd frontend && bun run test:e2e",
+        // End-to-end suites run on bun:test and start the backend themselves.
+        "test:e2e": "cd tests && bun run test",
+        "test:e2e:fast": "cd tests && bun run test:fast",
+        "test:e2e:attach": "cd tests && bun run test:attach",
         "test:all": "bun run test && bun run test:e2e",
       },
       devDependencies: {
@@ -234,7 +266,10 @@ npm-debug.log*
     // docker-compose.yml
     try {
       const templateDir = await this.findTemplatesDir();
-      const dockerComposeTpl = path.join(templateDir, "tanstack-start-nestjs/docker-compose.yml.hbs");
+      const dockerComposeTpl = path.join(
+        templateDir,
+        "tanstack-start-nestjs/docker-compose.yml.hbs"
+      );
       const tplContent = await fs.readFile(dockerComposeTpl, "utf-8");
       const backendPort = this.options.port;
       const frontendPort = this.options.frontendPort ?? this.options.port + 1;
@@ -273,7 +308,9 @@ npm-debug.log*
       try {
         const s = await fs.stat(c);
         if (s.isDirectory()) return c;
-      } catch { /* continue */ }
+      } catch {
+        /* continue */
+      }
     }
     return candidates[0]!;
   }

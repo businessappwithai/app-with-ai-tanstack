@@ -2,9 +2,33 @@
 
 Work deferred from the Better Auth + Trigger.dev + GoRules enhancement plan.
 
+> **Status audit, 2026-07-31.** These items were written against an HMS app built
+> on OpenUI5 + OData V4. This repository generates TanStack Start + NestJS and has
+> no OData layer and no `BaseEntityController`, so items 1 and 4 no longer map onto
+> the code as written. Current state:
+>
+> | # | Item | Status |
+> |---|------|--------|
+> | 1 | Row-Level Security | **Needs re-scoping** — see note below |
+> | 2 | Rate limiting on auth endpoints | ✅ **Done** (2026-07-31) |
+> | 3 | JDM Editor self-hosting | ✅ **Already done** — bundled from npm, no CDN |
+> | 4 | Dead letter queue | **Blocked** — external (Trigger.dev plan) |
+
 ---
 
 ## 1. Row-Level Security (RLS)
+
+> **Re-scoping needed.** The implementation below targets `BaseEntityController`
+> and OData queries, neither of which exists here. Two candidate homes for this
+> work in the current architecture:
+> 1. **This app's own data** — `projects` already has a membership model
+>    (`routes/api/projects/$id/members/`); ownership filtering would go in the
+>    project API routes and `database.service.ts`.
+> 2. **Generated apps** — the NestJS `bus` module templates under
+>    `packages/generator/templates/tanstack-start-nestjs/backend/src/modules/bus/`,
+>    which do have `sys_access` / `sys_user_role`.
+>
+> These are different pieces of work. Decide which before starting.
 
 **What:** Add `created_by`/`updated_by` filtering to OData queries so users can only access their own records.
 
@@ -34,7 +58,24 @@ Work deferred from the Better Auth + Trigger.dev + GoRules enhancement plan.
 
 ---
 
-## 2. Rate Limiting on Auth Endpoints
+## 2. Rate Limiting on Auth Endpoints — ✅ DONE (2026-07-31)
+
+**Implemented in** `packages/web/src/lib/rate-limit.ts`, applied to
+`routes/api/auth/login.ts` (10/min per IP) and `routes/api/auth/register.ts`
+(3/min per IP). Returns 429 with `Retry-After` and `RateLimit-*` headers.
+Covered by `packages/web/src/lib/__tests__/rate-limit.test.ts` (15 tests).
+
+Deviation from the plan below: `express-rate-limit` was not used. The auth
+endpoints are TanStack Start server handlers taking a Web `Request` and returning
+a `Response`, not Express middleware, so the package does not apply. The
+replacement is a dependency-free in-memory fixed-window limiter with the same
+semantics.
+
+**Remaining limitation:** counters are per-process and reset on restart. Move the
+`buckets` map to Redis before running more than one instance.
+
+<details>
+<summary>Original plan</summary>
 
 **What:** Add `express-rate-limit` middleware to `/api/auth/*` endpoints (10 attempts per minute per IP address).
 
@@ -58,9 +99,26 @@ Work deferred from the Better Auth + Trigger.dev + GoRules enhancement plan.
 
 **Blocked by:** None
 
+</details>
+
 ---
 
-## 3. JDM Editor Self-Hosting
+## 3. JDM Editor Self-Hosting — ✅ ALREADY DONE
+
+`@gorules/jdm-editor` is a declared dependency of `@erdwithai/web` and is imported
+directly as an ES module in `packages/web/src/components/workflow/GoRulesEditor.tsx`:
+
+```ts
+import "@gorules/jdm-editor/dist/style.css";
+import { DecisionGraph, JdmConfigProvider } from "@gorules/jdm-editor";
+```
+
+There is no `cdn.jsdelivr.net` script tag anywhere in the repository, so the
+supply-chain risk this item describes does not exist. The webpack work below is
+moot — the editor is bundled by Vite as part of the normal build.
+
+<details>
+<summary>Original plan</summary>
 
 **What:** Install `@gorules/jdm-editor` via npm and serve from `/static/jdm-editor.js` instead of loading from CDN.
 
@@ -86,9 +144,20 @@ Work deferred from the Better Auth + Trigger.dev + GoRules enhancement plan.
 
 **Blocked by:** None
 
+</details>
+
 ---
 
-## 4. Dead Letter Queue for Failed Workflows
+## 4. Dead Letter Queue for Failed Workflows — BLOCKED
+
+Still blocked, and for the reason the item already records: DLQ availability
+depends on the Trigger.dev account plan, which is an external decision.
+
+Scope note: Trigger.dev appears in this repository only inside the **generated**
+NestJS templates (`backend/src/modules/jobs/job-queue.service.ts.hbs`,
+`modules/bus/promotion-dispatcher.service.ts.hbs`). The "AdminWorkflows view"
+below refers to the HMS app, not `routes/admin/workflows/` here. Confirm the
+target app and the plan before starting.
 
 **What:** Configure Trigger.dev dead letter queue to persist workflows that fail after 3 retries. Surface in AdminWorkflows view.
 

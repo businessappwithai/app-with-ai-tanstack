@@ -430,15 +430,22 @@ export class RulesService {
   }
 
   /**
-   * Execute rules and return results
+   * Execute rules and return results.
+   *
+   * `db` must be supplied when the caller already holds a transaction. Reading
+   * the rule definitions off the pool instead would acquire a *second*
+   * connection while the first is still held, and under concurrent writes that
+   * exhausts the pool and deadlocks every in-flight request — each one holding
+   * a connection while waiting for one that can never be released.
    */
   async evaluate(
     entityType: string,
     data: Record<string, unknown>,
     action: 'create' | 'update' | 'delete' = 'create',
+    db: Kysely<any> = this.db,
   ): Promise<RuleEvaluationResult[]> {
     // Rules scoped to the specific operation plus rules that apply to ALL operations
-    const rules = await this.db
+    const rules = await db
       .selectFrom('sys_rule_definitions')
       .selectAll()
       .where('entity_name', '=', entityType)
@@ -505,7 +512,9 @@ export class RulesService {
 
     let results: RuleEvaluationResult[];
     try {
-      results = await this.evaluate(entityName, data, operation);
+      // Pass `db` so a caller-supplied transaction is reused rather than a
+      // second pool connection being taken while the first is still held.
+      results = await this.evaluate(entityName, data, operation, db);
     } catch (err: any) {
       if (options.throwOnError) {
         throw new Error(`Could not evaluate business rules for ${entityName}: ${err?.message ?? err}`);

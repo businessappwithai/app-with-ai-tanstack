@@ -24,8 +24,14 @@ import {
 } from "@erdwithai/core/types";
 import * as fs from "fs/promises";
 import * as path from "path";
+import type { EntityCategory } from "../../parsers/category.parser";
 import { CliExecutor } from "../../utils/cli-executor";
 import { BaseGenerator } from "../base.generator";
+
+/** Escape a value for embedding inside a single-quoted JS string literal. */
+function jsQuote(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\r?\n/g, " ");
+}
 
 /**
  * Resolve template directory path, handling both dev and bundled environments
@@ -117,6 +123,11 @@ export interface NestJsBackendOptions {
    * generation where the NestJS CLI is unavailable.
    */
   skipCliScaffold?: boolean;
+  /**
+   * Application Dictionary entity categories, parsed from the model's
+   * `%%category` directives. When absent a single "General" default is seeded.
+   */
+  categories?: EntityCategory[];
 }
 
 export class NestJsBackendGenerator extends BaseGenerator {
@@ -336,8 +347,51 @@ export class NestJsBackendGenerator extends BaseGenerator {
       sysTables,
       sysColumns,
       sysFields,
+      categories: this.prepareCategories(busEntities),
       now: new Date().toISOString(),
     };
+  }
+
+  /**
+   * Shape the model's categories for the seed template: escape strings for
+   * embedding in JS literals, and translate ERD entity names into the physical
+   * `bus_*` table names the seed matches `sys_table` on.
+   */
+  private prepareCategories(busEntities: Array<{ name: string; tableName: string }>) {
+    const categories =
+      this.options.categories && this.options.categories.length > 0
+        ? this.options.categories
+        : [
+            {
+              name: "General",
+              code: "general",
+              description: "Default grouping for all business entities",
+              icon: "LayoutGrid",
+              color: undefined,
+              seqNo: 0,
+              isDefault: true,
+              entities: busEntities.map((entity) => entity.name),
+            },
+          ];
+
+    // ERD names are matched case-insensitively — a model may write `Compound`
+    // in the ERD block and `compound` in a directive.
+    const tableByName = new Map(
+      busEntities.map((entity) => [entity.name.toLowerCase(), entity.tableName])
+    );
+
+    return categories.map((category) => ({
+      name: jsQuote(category.name),
+      code: category.code,
+      description: category.description ? jsQuote(category.description) : "",
+      icon: category.icon ?? "",
+      color: category.color ?? "",
+      seqNo: category.seqNo,
+      isDefault: category.isDefault,
+      tables: category.entities
+        .map((entityName) => tableByName.get(entityName.toLowerCase()))
+        .filter((tableName): tableName is string => !!tableName),
+    }));
   }
 
   private async generateCoreFiles(outputDir: string, context: any): Promise<void> {
@@ -521,12 +575,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
     }
 
     // Trigger.dev tasks
-    const triggerTasks = [
-      "email",
-      "report",
-      "sync",
-      "entity-lifecycle-workflow",
-    ];
+    const triggerTasks = ["email", "report", "sync", "entity-lifecycle-workflow"];
     for (const task of triggerTasks) {
       try {
         const taskContent = await this.renderTemplate(`src/trigger/${task}.task.ts.hbs`, context);
@@ -633,10 +682,9 @@ export class NestJsBackendGenerator extends BaseGenerator {
   /** Shared JDM file writer — used by both full generation and generateSingleEntity. */
   private async writeEntityJdm(busEntity: any, outputDir: string): Promise<void> {
     try {
-      let jdmContent = await this.renderTemplate(
-        "src/modules/rules/jdm/entity.jdm.json.hbs",
-        { ...busEntity }
-      );
+      let jdmContent = await this.renderTemplate("src/modules/rules/jdm/entity.jdm.json.hbs", {
+        ...busEntity,
+      });
       jdmContent = cleanJsonContent(jdmContent);
       jdmContent = JSON.stringify(normalizeJdmDecisionTables(JSON.parse(jdmContent)), null, 2);
       await fs.writeFile(
@@ -672,6 +720,28 @@ export class NestJsBackendGenerator extends BaseGenerator {
       context
     );
     await fs.writeFile(path.join(outputDir, "src/modules/sys/sys.service.ts"), sysServiceContent);
+
+    // Entity categories — the dictionary grouping the dashboard renders by.
+    await fs.mkdir(path.join(outputDir, "src/modules/sys/controllers"), { recursive: true });
+    await fs.mkdir(path.join(outputDir, "src/modules/sys/services"), { recursive: true });
+
+    const categoryServiceContent = await this.renderTemplate(
+      "src/modules/sys/services/sys-category.service.ts.hbs",
+      context
+    );
+    await fs.writeFile(
+      path.join(outputDir, "src/modules/sys/services/sys-category.service.ts"),
+      categoryServiceContent
+    );
+
+    const categoryControllerContent = await this.renderTemplate(
+      "src/modules/sys/controllers/sys-category.controller.ts.hbs",
+      context
+    );
+    await fs.writeFile(
+      path.join(outputDir, "src/modules/sys/controllers/sys-category.controller.ts"),
+      categoryControllerContent
+    );
   }
 
   private async generateElectricModule(outputDir: string, context: any): Promise<void> {
@@ -1045,6 +1115,21 @@ export async function executeAfterListHooks(
       );
     }
 
+    // sys_category — entity grouping for the dashboard and admin dictionary.
+    // Must run after sys_table exists, since it adds the FK column to it.
+    try {
+      const categoryMigration = await this.renderTemplate(
+        "src/migrations/005_create_sys_category.ts.hbs",
+        context
+      );
+      await fs.writeFile(
+        path.join(outputDir, `src/migrations/${timestamp + 5}_create_sys_category.ts`),
+        categoryMigration
+      );
+    } catch (e) {
+      console.warn("sys_category migration template not found, skipping:", (e as Error).message);
+    }
+
     // Seed users and roles with Better-Auth integration
     try {
       const usersAndRolesContent = await this.renderTemplate(
@@ -1069,6 +1154,18 @@ export async function executeAfterListHooks(
       context
     );
     await fs.writeFile(path.join(outputDir, "seeds/02_sys_dictionary.ts"), sysDictContent);
+
+    // Seed entity categories. Numbered 02b so it runs straight after the
+    // dictionary that creates the sys_table rows it assigns.
+    try {
+      const categoriesContent = await this.renderTemplate(
+        "../../common/seeds/entity-categories.ts.hbs",
+        context
+      );
+      await fs.writeFile(path.join(outputDir, "seeds/02b_entity_categories.ts"), categoriesContent);
+    } catch (e) {
+      console.warn("Entity categories seed template failed, skipping:", (e as Error).message);
+    }
 
     // Seed business data for E2E testing
     const businessDataContent = await this.renderTemplate(
@@ -1415,15 +1512,18 @@ export async function executeAfterListHooks(
         const snake = toSnake(entity.name);
         const migrationContent = await this.renderTemplate(
           "../../common/migrations/bus-table.migration.ts.hbs",
-          { ...busEntity, relationships: entityRels, timestamps: true, now: new Date().toISOString() }
+          {
+            ...busEntity,
+            relationships: entityRels,
+            timestamps: true,
+            now: new Date().toISOString(),
+          }
         );
         const migrationFile = `${timestamp}_add_${snake}.ts`;
         await fs.writeFile(path.join(migrationsDir, migrationFile), migrationContent);
         console.log(`  ✓ backend/src/migrations/${migrationFile}`);
       } catch (e) {
-        console.warn(
-          `  ⚠️  Migration template failed for ${entity.name}: ${(e as Error).message}`
-        );
+        console.warn(`  ⚠️  Migration template failed for ${entity.name}: ${(e as Error).message}`);
       }
     }
   }

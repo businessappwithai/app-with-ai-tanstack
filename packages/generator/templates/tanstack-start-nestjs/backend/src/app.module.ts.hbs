@@ -38,11 +38,15 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
       ],
     }),
 
-    // Rate limiting (permissive in dev/test, strict in production)
+    // Rate limiting (permissive in dev/test, strict in production).
+    // THROTTLE_TTL / THROTTLE_LIMIT override the defaults — raise the limit for
+    // bulk data loads and end-to-end runs, which legitimately exceed 1000/min.
     ThrottlerModule.forRoot([
       {
-        ttl: 60000,
-        limit: process.env.NODE_ENV === 'production' ? 100 : 1000,
+        ttl: Number(process.env.THROTTLE_TTL ?? 60000),
+        limit: Number(
+          process.env.THROTTLE_LIMIT ?? (process.env.NODE_ENV === 'production' ? 100 : 1000),
+        ),
       },
     ]),
 

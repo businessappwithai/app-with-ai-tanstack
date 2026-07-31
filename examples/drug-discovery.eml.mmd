@@ -17,6 +17,17 @@
 %%meta kind: erd
 %%meta version: 1.0.0
 
+%% ---- Entity categories ------------------------------------------------------
+%% Group entities into dashboard sections. Rendered one block per category,
+%% ordered alphabetically by name.
+%%category name: Compound Registry; description: Compound structures, identifiers and aliases; icon: FlaskConical; color: #6366f1; entities: Compound, CompoundAlias
+%%category name: Experiments; description: Experiment planning, execution and captured results; icon: Microscope; color: #0ea5e9; entities: Experiment, ExperimentMetadata, WorkflowEvent
+%%category name: Inventory and Samples; description: Physical samples and chemical stock on hand; icon: Boxes; color: #14b8a6; entities: Sample, ChemicalInventory
+%%category name: Instruments; description: Laboratory instruments and their bookings; icon: Cpu; color: #f59e0b; entities: Instrument, InstrumentBooking
+%%category name: Quality and Compliance; description: Deviations, corrective actions and stability programmes; icon: ShieldCheck; color: #ef4444; entities: DeviationReport, CAPA, StabilityTest, StabilityPull
+%%category name: Suppliers; description: Vendors and outsourced work requests; icon: Truck; color: #8b5cf6; entities: Vendor, VendorRequest
+%%category name: People and Teams; description: Users, teams and organisational structure; icon: Users; color: #64748b; default: true; entities: User, Team
+
 %% ---- Enumerations ----------------------------------------------------------
 %%enum CompoundRegistrationStatus: draft, pending_review, approved, rejected, withdrawn
 %%enum CompoundClass: small_molecule, biologic, peptide, nucleotide, natural_product

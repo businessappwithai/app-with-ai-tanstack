@@ -8,7 +8,7 @@
  */
 
 import { Controller, Get, UseGuards, Req } from '@nestjs/common';
-import { FastifyRequest } from 'fastify';
+import type { FastifyRequest } from 'fastify';
 import { SessionAuthGuard } from './guards/session-auth.guard';
 import { Public } from './decorators/public.decorator';
 import { DatabaseService } from '../../database/database.service';

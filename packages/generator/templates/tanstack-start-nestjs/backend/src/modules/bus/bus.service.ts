@@ -18,11 +18,8 @@ import {
 import { randomUUID } from "crypto";
 import type { Kysely } from "kysely";
 import { KYSELY_CONNECTION } from "../../database/database.constants";
-import type {
-  DatabaseService,
-  PaginatedResult,
-  PaginationOptions,
-} from "../../database/database.service";
+import { DatabaseService } from "../../database/database.service";
+import type { PaginatedResult, PaginationOptions } from "../../database/database.service";
 import {
   executeAfterCreateHooks,
   executeAfterDeleteHooks,
@@ -35,8 +32,8 @@ import {
   executeBeforeReadHooks,
   executeBeforeUpdateHooks,
 } from "../hooks/hooks";
-import type { RulesService } from "../rules/rules.service";
-import type { WorkflowService } from "../workflow/workflow.service";
+import { RulesService } from "../rules/rules.service";
+import { WorkflowService } from "../workflow/workflow.service";
 
 export interface FieldMetadata {
   sys_field_id: string;

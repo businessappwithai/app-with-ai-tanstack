@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { type Observable, throwError } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
-import type { AuditService } from "./audit.service";
+import { AuditService } from "./audit.service";
 import type { AuditEvent, AuditSource } from "./audit.types";
 import { diffFields } from "./audit.types";
 

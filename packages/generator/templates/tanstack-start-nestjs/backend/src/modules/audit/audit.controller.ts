@@ -1,7 +1,7 @@
 import { Controller, Get, Param, ParseUUIDPipe, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { SessionAuthGuard } from "../auth/guards/session-auth.guard";
-import type { AuditService } from "./audit.service";
+import { AuditService } from "./audit.service";
 import type { AuditSearchParams, AuditSource } from "./audit.types";
 
 @ApiTags("audit")
