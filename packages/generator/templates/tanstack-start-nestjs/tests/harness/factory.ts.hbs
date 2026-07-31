@@ -25,9 +25,39 @@ export function reseed(seed: number = config.fakerSeed): void {
   faker.seed(seed);
 }
 
+/**
+ * Salt for unique columns.
+ *
+ * It must NOT come from faker: the seed is fixed so runs reproduce, which means
+ * faker replays the same "random" salts every time. Against a database that
+ * still holds rows from an earlier run, the second run regenerates a value it
+ * already inserted and the create fails with a 409 — unique-safe within a run,
+ * never across them. `Math.random` is not seeded, so this stays unique per
+ * process while leaving every other value reproducible.
+ */
+const RUN_ID = `${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`;
+let uniqueCounter = 0;
+
+function nextUniqueSalt(): string {
+  uniqueCounter += 1;
+  return `${RUN_ID}${uniqueCounter.toString(36)}`;
+}
+
 export { faker };
 
-/** Name-driven generators, checked before the type-driven fallback. */
+/**
+ * Name-driven generators, checked before the type-driven fallback.
+ *
+ * Patterns match against the column name, which is snake_case — so anything
+ * that could appear *inside* a longer word is anchored to a segment boundary
+ * with `(^|_)` / `(_|$)`. Without that, `ratio` matches "calib(ratio)n" and
+ * "regist(ratio)n", and `login` matches "last_(login)": each one produced a
+ * value of the wrong type entirely.
+ *
+ * A pattern is only a suggestion. `fakeValue` discards any generator whose
+ * output does not fit the column's declared type and keeps scanning, so a
+ * collision costs a worse-looking value, never an invalid one.
+ */
 const BY_NAME: Array<[RegExp, () => unknown]> = [
   [/^email$|_email$/i, () => faker.internet.email().toLowerCase()],
   [/phone|mobile|tel/i, () => faker.phone.number()],
@@ -39,13 +69,13 @@ const BY_NAME: Array<[RegExp, () => unknown]> = [
   [/street|address(_?1)?$/i, () => faker.location.streetAddress()],
   [/address_?2|suite|apartment/i, () => faker.location.secondaryAddress()],
   [/city|town/i, () => faker.location.city()],
-  [/state|province|region/i, () => faker.location.state()],
+  [/(^|_)(state|province|region)(_|$)/i, () => faker.location.state()],
   [/country/i, () => faker.location.country()],
   [/zip|postal/i, () => faker.location.zipCode()],
   [/lat(itude)?$/i, () => faker.location.latitude()],
   [/lon(g|gitude)?$/i, () => faker.location.longitude()],
   [/url|website|link|homepage/i, () => faker.internet.url()],
-  [/username|login|handle/i, () => faker.internet.username().toLowerCase()],
+  [/username|(^|_)(login|handle)(_|$)/i, () => faker.internet.username().toLowerCase()],
   [/password/i, () => faker.internet.password({ length: 16 })],
   [/avatar|image|photo|picture|thumbnail/i, () => faker.image.url()],
   [/slug/i, () => faker.lorem.slug()],
@@ -54,7 +84,7 @@ const BY_NAME: Array<[RegExp, () => unknown]> = [
     Number(faker.commerce.price({ min: 1, max: 10_000 })),
   ],
   [/quantity|qty|count|stock|units/i, () => faker.number.int({ min: 0, max: 500 })],
-  [/percent|rate|ratio|discount/i, () => Number(faker.number.float({ min: 0, max: 100, fractionDigits: 2 }))],
+  [/percent|discount|(^|_)(rate|ratio)(_|$)/i, () => Number(faker.number.float({ min: 0, max: 100, fractionDigits: 2 }))],
   [/sku|code|reference|ref_?no|serial/i, () => faker.string.alphanumeric({ length: 10, casing: "upper" })],
   [/color|colour/i, () => faker.color.human()],
   [/currency/i, () => faker.finance.currencyCode()],
@@ -93,24 +123,54 @@ function truncate(value: unknown, field: FieldMeta): unknown {
   return value;
 }
 
+/**
+ * Whether a generated value is storable in a column of this declared type.
+ *
+ * The name-driven generators are heuristics over substrings, so they will
+ * sometimes fire on a column they were not meant for. When that happens the
+ * value is usually the wrong *type* — a float for a status string, a username
+ * for a timestamp — and the API rejects the whole payload, which reads as
+ * "every create in this suite is broken" rather than "one field guessed wrong".
+ * Checking the type turns that class of collision into a cosmetic one.
+ */
+function matchesType(value: unknown, type: FieldMeta["type"]): boolean {
+  switch (type) {
+    case "integer":
+    case "decimal":
+      return typeof value === "number" && Number.isFinite(value);
+    case "boolean":
+      return typeof value === "boolean";
+    case "date":
+    case "datetime":
+      return typeof value === "string" && !Number.isNaN(Date.parse(value));
+    case "json":
+      return typeof value === "object" && value !== null;
+    default:
+      return typeof value === "string";
+  }
+}
+
 /** A value for one field, unique-safe when the column is declared unique. */
 export function fakeValue(field: FieldMeta, uniqueSalt?: string | number): unknown {
   for (const [pattern, generate] of BY_NAME) {
-    if (pattern.test(field.name)) {
-      let value = generate();
-      if (field.unique && typeof value === "string") {
-        const salt = uniqueSalt ?? faker.string.alphanumeric(6);
-        value = value.includes("@")
-          ? value.replace("@", `+${salt}@`)
-          : `${value}-${salt}`;
-      }
-      return truncate(value, field);
+    if (!pattern.test(field.name)) continue;
+
+    const candidate = generate();
+    // Keep scanning on a type mismatch: a later pattern may still fit, and the
+    // type-driven fallback is there if none does.
+    if (!matchesType(candidate, field.type)) continue;
+
+    let value = candidate;
+    if (field.unique && typeof value === "string") {
+      const salt = uniqueSalt ?? nextUniqueSalt();
+      value = value.includes("@") ? value.replace("@", `+${salt}@`) : `${value}-${salt}`;
     }
+    return truncate(value, field);
   }
 
   let value = byType(field);
   if (field.unique && typeof value === "string") {
-    value = `${value}-${uniqueSalt ?? faker.string.alphanumeric(6)}`;
+    value = `${value}-${uniqueSalt ?? nextUniqueSalt()}`;
   }
   return truncate(value, field);
 }
@@ -160,7 +220,7 @@ export function buildRecords(
   options: BuildOptions = {}
 ): Array<Record<string, unknown>> {
   return Array.from({ length: count }, (_unused, index) =>
-    buildRecord(entity, { ...options, uniqueSalt: options.uniqueSalt ?? `${Date.now()}-${index}` })
+    buildRecord(entity, { ...options, uniqueSalt: options.uniqueSalt ?? `${nextUniqueSalt()}${index}` })
   );
 }
 

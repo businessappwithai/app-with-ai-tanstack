@@ -168,18 +168,50 @@ class TestHarness {
     return id ?? null;
   }
 
-  /** Map a foreign-key column (`customer_id`) to its entity. */
+  /**
+   * FK columns naming a person by the role they played rather than by entity.
+   * Mirrors `foreignKeys.personRoleColumns` in erdwithai-language.json and the
+   * backend's own COLUMN_TABLE_ALIASES.
+   */
+  private static readonly PERSON_ROLE_COLUMNS = new Set([
+    "assigned_to",
+    "author_id",
+    "lab_manager_id",
+    "manager_id",
+    "owner_id",
+    "pi_id",
+    "remediation_owner_id",
+    "user_id",
+  ]);
+
+  /**
+   * Map a foreign-key column (`customer_id`) to its entity.
+   *
+   * A `_by` column points at a user, so it resolves to the user entity rather
+   * than to the table its name would suggest — there is no `bus_reported_by`.
+   * Getting this wrong leaves a mandatory FK unset and every create in the
+   * suite fails validation.
+   */
   resolveParentEntity(columnName: string): EntityMeta | null {
-    if (!columnName.endsWith("_id")) return null;
-    const stem = columnName.slice(0, -3);
-    return (
+    const findByStem = (stem: string): EntityMeta | null =>
       entities.find(
         (e) =>
           e.route === stem ||
           e.tableName === `bus_${stem}` ||
           e.name.toLowerCase() === stem.toLowerCase()
-      ) ?? null
-    );
+      ) ?? null;
+
+    if (
+      columnName.endsWith("_by_id") ||
+      columnName.endsWith("_by") ||
+      TestHarness.PERSON_ROLE_COLUMNS.has(columnName)
+    ) {
+      const user = findByStem("user");
+      if (user) return user;
+    }
+
+    if (!columnName.endsWith("_id")) return null;
+    return findByStem(columnName.slice(0, -3));
   }
 
   /** Entities ordered parents-first — the safe creation order. */

@@ -37,7 +37,7 @@ const WORKFLOW_TRIGGER_RULES = [
           position: { x: 300, y: 0 },
           content: {
             hitPolicy: 'collect',
-            inputs: [{ id: 'i0', name: 'Action', field: 'action' }],
+            inputs: [{ id: 'i0', name: 'Operation', field: '_operation' }],
             outputs: [
               { id: 'o1', name: 'Action', field: 'action' },
               { id: 'o2', name: 'Message', field: 'message' },
@@ -47,7 +47,7 @@ const WORKFLOW_TRIGGER_RULES = [
             rules: [
               {
                 _id: '{{tableName}}-on-create-trigger-workflow',
-                i0: 'action == "create"',
+                i0: '_operation == "create"',
                 o1: '"trigger-workflow"',
                 o2: '"{{displayName}} created — triggering post-create workflow"',
                 o3: '"{{tableName}}-on-create-trigger-workflow"',
@@ -78,7 +78,7 @@ const WORKFLOW_TRIGGER_RULES = [
           position: { x: 300, y: 0 },
           content: {
             hitPolicy: 'collect',
-            inputs: [{ id: 'i0', name: 'Action', field: 'action' }],
+            inputs: [{ id: 'i0', name: 'Operation', field: '_operation' }],
             outputs: [
               { id: 'o1', name: 'Action', field: 'action' },
               { id: 'o2', name: 'Message', field: 'message' },
@@ -88,7 +88,7 @@ const WORKFLOW_TRIGGER_RULES = [
             rules: [
               {
                 _id: '{{tableName}}-on-update-trigger-workflow',
-                i0: 'action == "update"',
+                i0: '_operation == "update"',
                 o1: '"trigger-workflow"',
                 o2: '"{{displayName}} updated — triggering post-update workflow"',
                 o3: '"{{tableName}}-on-update-trigger-workflow"',
