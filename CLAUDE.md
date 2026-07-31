@@ -665,6 +665,26 @@ Rules are JDM decision graphs evaluated by `@gorules/zen-engine`
 The web app edits them through `@gorules/jdm-editor` — bundled from npm, **not** a
 CDN — in `components/workflow/GoRulesEditor.tsx` and `components/rules/`.
 
+### Rate limiting
+
+`packages/web/src/lib/rate-limit.ts` is a dependency-free, in-memory fixed-window
+limiter for TanStack Start server handlers (`express-rate-limit` does not apply —
+these are Web `Request`/`Response` handlers, not Express middleware). Guard a route
+by returning early:
+
+```typescript
+const { AUTH_LOGIN_LIMIT, enforceRateLimit } = await import("@/lib/rate-limit");
+const limited = enforceRateLimit(request, "auth:login", AUTH_LOGIN_LIMIT);
+if (limited) return limited;   // 429 with Retry-After + RateLimit-* headers
+```
+
+Counters are keyed by `scope:clientIp`, so each endpoint has its own budget.
+Currently applied to `api/auth/login` (10/min per IP) and `api/auth/register`
+(3/min per IP).
+
+**Limitation:** counters live in module state — single-process only, and they
+reset on restart. Move `buckets` to Redis before running more than one instance.
+
 ### User-facing AI flow
 
 ```
@@ -700,7 +720,7 @@ CDN — in `components/workflow/GoRulesEditor.tsx` and `components/rules/`.
 
 **Security:** `SESSION_SECRET`, `JWT_SECRET`, `DB_ENCRYPTION_KEY` (base64, 32 bytes), `CORS_ORIGIN`, `CORS_CREDENTIALS`
 
-**Rate limiting:** `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX_REQUESTS` *(declared in `.env.example`; not yet enforced on the web auth routes)*
+**Rate limiting:** `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX_REQUESTS` — defaults for `defaultRateLimitOptions()`; the auth routes use their own fixed limits (see Rate Limiting)
 
 **Feature flags:** `ENABLE_AI_FEATURES`, `ENABLE_DICTIONARY_FEATURES`, `ENABLE_CODE_GENERATION`, `ENABLE_ANALYTICS`
 

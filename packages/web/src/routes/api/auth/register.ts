@@ -4,6 +4,12 @@ export const Route = createFileRoute("/api/auth/register")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { AUTH_REGISTER_LIMIT, enforceRateLimit } = await import("@/lib/rate-limit");
+
+        // Signup abuse protection: 3 registrations per minute per IP.
+        const limited = enforceRateLimit(request, "auth:register", AUTH_REGISTER_LIMIT);
+        if (limited) return limited;
+
         const { getDatabase, runMigrations } = await import("@erdwithai/core/services");
 
         // Simple password hashing using Bun's built-in crypto

@@ -4,6 +4,12 @@ export const Route = createFileRoute("/api/auth/login")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { AUTH_LOGIN_LIMIT, enforceRateLimit } = await import("@/lib/rate-limit");
+
+        // Brute-force protection: 10 attempts per minute per IP.
+        const limited = enforceRateLimit(request, "auth:login", AUTH_LOGIN_LIMIT);
+        if (limited) return limited;
+
         const { setSessionCookie } = await import("@/lib/auth-server");
         const { getDatabase } = await import("@erdwithai/core/services");
 
