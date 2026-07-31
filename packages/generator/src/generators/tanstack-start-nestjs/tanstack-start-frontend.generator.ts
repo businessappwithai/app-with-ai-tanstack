@@ -846,6 +846,17 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("Admin rules page template not found");
     }
 
+    // Entity categories - the grouping the dashboard renders by
+    try {
+      const categoriesContent = await this.renderTemplate(
+        "src/routes/admin/categories.tsx.hbs",
+        context
+      );
+      await fs.writeFile(path.join(adminDir, "categories.tsx"), categoriesContent);
+    } catch (e) {
+      console.warn("Admin categories page template not found");
+    }
+
     // Workflow monitoring - renders as /admin/workflows via admin/workflows.tsx
     try {
       const workflowsContent = await this.renderTemplate(

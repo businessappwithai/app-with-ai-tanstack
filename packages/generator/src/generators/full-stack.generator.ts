@@ -11,6 +11,7 @@
 import type { Entity, Relationship } from "@erdwithai/core/types";
 import * as fs from "fs/promises";
 import * as path from "path";
+import type { EntityCategory } from "../parsers/category.parser";
 import {
   NestJsBackendGenerator,
   type NestJsBackendOptions,
@@ -52,6 +53,11 @@ export interface FullStackGeneratorOptions {
 
   /** Skip generation of the bun:test E2E suite in <outputDir>/tests. */
   skipTests?: boolean;
+  /**
+   * Application Dictionary entity categories parsed from the model's
+   * `%%category` directives. Falls back to a single "General" default.
+   */
+  categories?: EntityCategory[];
   /** Records the bulk-seed suite creates per entity (default 1000). */
   recordsPerEntity?: number;
 }
@@ -122,6 +128,7 @@ export class FullStackGenerator {
       enableSwagger: true,
       enableCors: true,
       skipCliScaffold: this.options.skipCliScaffold,
+      categories: this.options.categories,
       ...aiConfig,
       ...this.options.tanstackStartNestjs?.backend,
     };
@@ -259,7 +266,10 @@ npm-debug.log*
     // docker-compose.yml
     try {
       const templateDir = await this.findTemplatesDir();
-      const dockerComposeTpl = path.join(templateDir, "tanstack-start-nestjs/docker-compose.yml.hbs");
+      const dockerComposeTpl = path.join(
+        templateDir,
+        "tanstack-start-nestjs/docker-compose.yml.hbs"
+      );
       const tplContent = await fs.readFile(dockerComposeTpl, "utf-8");
       const backendPort = this.options.port;
       const frontendPort = this.options.frontendPort ?? this.options.port + 1;
@@ -298,7 +308,9 @@ npm-debug.log*
       try {
         const s = await fs.stat(c);
         if (s.isDirectory()) return c;
-      } catch { /* continue */ }
+      } catch {
+        /* continue */
+      }
     }
     return candidates[0]!;
   }

@@ -8,6 +8,7 @@ import {
   Menu,
   Settings,
   ShieldCheck,
+  Tags,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -34,6 +35,11 @@ const MENU_ITEMS = [
     label: "Reference",
     to: "/admin/references",
     icon: Hash,
+  },
+  {
+    label: "Entity Categories",
+    to: "/admin/categories",
+    icon: Tags,
   },
   {
     label: "Field Layout Manager",

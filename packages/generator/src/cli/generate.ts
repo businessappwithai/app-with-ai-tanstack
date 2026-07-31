@@ -16,6 +16,7 @@ import * as readline from "readline";
 import { FullStackGenerator, type StackOption } from "../generators/full-stack.generator";
 import { NestJsBackendGenerator } from "../generators/tanstack-start-nestjs/nestjs-backend.generator";
 import { TanStackStartFrontendGenerator } from "../generators/tanstack-start-nestjs/tanstack-start-frontend.generator";
+import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
 import { MermaidParser } from "../parsers/mermaid.parser";
 
 // Resolve relative paths from the workspace root (INIT_CWD) when called via bun --filter
@@ -43,6 +44,33 @@ async function parseFile(
   const content = await fs.readFile(absPath, "utf-8");
   const parser = new MermaidParser();
   return parser.parse(content);
+}
+
+/**
+ * Read the Application Dictionary categories a model declares with `%%category`
+ * directives, filling in a "General" default for anything left unassigned.
+ * Reads the raw source because the ERD parser discards `%%` comment lines.
+ */
+async function parseCategoriesFrom(
+  filePaths: Array<string | undefined>,
+  entities: Entity[]
+): Promise<EntityCategory[]> {
+  const sources: string[] = [];
+
+  for (const filePath of filePaths) {
+    if (!filePath) continue;
+    try {
+      sources.push(await fs.readFile(resolvePath(filePath), "utf-8"));
+    } catch {
+      // A missing optional input is not an error here — the caller already
+      // validated the files it requires.
+    }
+  }
+
+  return resolveCategories(
+    sources.join("\n"),
+    entities.map((entity) => entity.name)
+  );
 }
 
 /** Save a generation manifest so `erdwithai info` can read it later. */
@@ -253,7 +281,9 @@ async function runCheckerFixer(mmdPath: string, quiet: boolean): Promise<void> {
   try {
     await fs.access(fixerScript);
     fixerExists = true;
-  } catch { /* not installed */ }
+  } catch {
+    /* not installed */
+  }
 
   if (fixerExists) {
     log(`\n🔧 Auto-fixing EML issues in ${path.basename(mmdPath)}…`, quiet);
@@ -409,11 +439,23 @@ program
         );
       }
 
+      // ── Entity categories ───────────────────────────────────────────────
+      const categories = await parseCategoriesFrom(
+        [options.input, options.sysFile, options.busFile, options.refFile],
+        allEntities
+      );
+
       // ── Entity summary ──────────────────────────────────────────────────
       if (!quiet) {
         console.log("\n📊 Entities found:");
         for (const e of allEntities) {
           console.log(`   • ${e.name} (${e.attributes.length} attributes)`);
+        }
+
+        console.log(`\n🗂️  Entity categories (${categories.length}):`);
+        for (const c of [...categories].sort((a, b) => a.name.localeCompare(b.name))) {
+          const flag = c.isDefault ? " (default)" : "";
+          console.log(`   • ${c.name}${flag} — ${c.entities.length} entities`);
         }
       }
 
@@ -503,6 +545,7 @@ program
         skipBackend: !!options.skipBackend,
         skipTests: options.tests === false,
         recordsPerEntity: Number(options.recordsPerEntity) || 1000,
+        categories,
       });
 
       await generator.generate(allEntities, allRelationships);
@@ -701,10 +744,7 @@ program
     "Add or regenerate a single entity from an .mmd / .eml file into an existing generated project"
   )
   .requiredOption("-i, --input <file>", "Input .mmd / .eml file containing the entity")
-  .requiredOption(
-    "-e, --entity <name>",
-    "Entity name to generate (PascalCase, e.g. 'Compound')"
-  )
+  .requiredOption("-e, --entity <name>", "Entity name to generate (PascalCase, e.g. 'Compound')")
   .requiredOption(
     "-o, --output <dir>",
     "Root of the generated project directory (must contain backend/ and/or frontend/)"
@@ -739,9 +779,7 @@ program
 
       // ── Find the entity ──────────────────────────────────────────────────
       const entityName = options.entity as string;
-      const entity = entities.find(
-        (e) => e.name.toLowerCase() === entityName.toLowerCase()
-      );
+      const entity = entities.find((e) => e.name.toLowerCase() === entityName.toLowerCase());
       if (!entity) {
         const available = entities.map((e) => e.name).join(", ");
         throw new Error(
@@ -856,10 +894,7 @@ program
         );
       }
     } catch (error: unknown) {
-      console.error(
-        "\n❌ Error:",
-        error instanceof Error ? error.message : String(error)
-      );
+      console.error("\n❌ Error:", error instanceof Error ? error.message : String(error));
       process.exit(1);
     }
   });

@@ -31,6 +31,7 @@ const ADMIN_WINDOW_META: Record<string, { icon: any; href: string }> = {
   'Window, Tab and Field': { icon: AppWindow,  href: '/admin/windows' },
   'Element':               { icon: Tag,        href: '/admin/elements' },
   'Reference':             { icon: BookOpen,   href: '/admin/references' },
+  'Entity Category':       { icon: Tag,        href: '/admin/categories' },
   'Field Layout Manager':  { icon: LayoutGrid, href: '/admin/fields' },
   'Business Rules':        { icon: ShieldCheck,href: '/admin/rules' },
   'Workflow Designer':     { icon: Workflow,   href: '/admin/workflow-definitions' },
@@ -55,6 +56,29 @@ interface TableMetadata {
 interface TablesResponse {
   data: TableMetadata[];
   meta: { total: number; page: number; pageSize: number };
+}
+
+/** A dictionary category with the entities assigned to it. */
+interface CategoryGroup {
+  sys_category_id: string | null;
+  name: string;
+  code: string;
+  description: string | null;
+  icon: string | null;
+  color: string | null;
+  entities: TableMetadata[];
+}
+
+/**
+ * Categories with their entities, already ordered by category name server-side.
+ * The dashboard renders one block per category, separated by a rule.
+ */
+function useCategoryGroups() {
+  return useQuery({
+    queryKey: ['dashboard', 'categories'],
+    queryFn: () => apiClient.get<{ data: CategoryGroup[] }>('/sys/categories/with-entities'),
+    staleTime: 5 * 60 * 1000,
+  });
 }
 
 function useBusTables() {
@@ -136,6 +160,7 @@ function Dashlet({
 
 function DashboardPage() {
   const { data: tablesData, isLoading, error } = useBusTables();
+  const { data: categoryData, isLoading: categoriesLoading } = useCategoryGroups();
   const { data: perms, isLoading: permsLoading } = usePermissions();
   const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth();
   const navigate = useNavigate();
@@ -190,6 +215,28 @@ function DashboardPage() {
     ? adminWindowsFromPerms.filter(d => d.name.toLowerCase().includes(query))
     : adminWindowsFromPerms;
 
+  // Entities grouped by category, alphabetical by category name. The search box
+  // filters within each group and drops groups that end up empty.
+  const categoryGroups = (categoryData?.data ?? [])
+    .map((group) => ({
+      ...group,
+      entities: query
+        ? group.entities.filter(
+            (t) =>
+              t.name.toLowerCase().includes(query) ||
+              t.table_name.toLowerCase().includes(query) ||
+              (t.description?.toLowerCase().includes(query) ?? false),
+          )
+        : group.entities,
+    }))
+    .filter((group) => group.entities.length > 0);
+
+  const groupedEntityCount = categoryGroups.reduce((sum, g) => sum + g.entities.length, 0);
+
+  // Fall back to the flat list only when no categories are configured at all,
+  // so an un-migrated database still shows its entities.
+  const useGroupedView = (categoryData?.data ?? []).length > 0;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -242,7 +289,7 @@ function DashboardPage() {
 
       <main className="container-swiss py-8 space-y-10">
         {/* Loading */}
-        {isLoading && (
+        {(isLoading || categoriesLoading) && (
           <div className="swiss-card p-12 text-center">
             <Loader2 className="w-8 h-8 mx-auto animate-spin text-primary" />
             <p className="text-muted-foreground mt-4 text-sm">Loading entities...</p>
@@ -260,8 +307,64 @@ function DashboardPage() {
           </div>
         )}
 
-        {/* Business Entities */}
-        {!isLoading && !error && filteredBus.length > 0 && (
+        {/* Business Entities — grouped by category, ordered by category name.
+            Each group is introduced by its name above a separating rule. */}
+        {!isLoading && !error && useGroupedView && groupedEntityCount > 0 && (
+          <section data-testid="dashboard-categories">
+            {categoryGroups.map((group) => (
+              <div
+                key={group.code}
+                className="mb-10 last:mb-0"
+                data-testid={`category-group-${group.code}`}
+              >
+                {/* Category name sits above the line that separates this group */}
+                <div className="flex items-baseline gap-2 mb-2">
+                  {group.icon ? (
+                    <Icon
+                      name={group.icon}
+                      size={16}
+                      className="text-primary self-center"
+                      style={group.color ? { color: group.color } : undefined}
+                    />
+                  ) : (
+                    <Database className="w-4 h-4 text-primary self-center" />
+                  )}
+                  <h2
+                    className="section-header mb-0"
+                    style={group.color ? { color: group.color } : undefined}
+                    data-testid={`category-name-${group.code}`}
+                  >
+                    {group.name}
+                  </h2>
+                  <span className="font-mono-display text-muted-foreground">
+                    ({group.entities.length})
+                  </span>
+                </div>
+
+                <hr className="border-t border-border mb-5" />
+
+                {group.description && (
+                  <p className="text-sm text-muted-foreground -mt-3 mb-5">{group.description}</p>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {group.entities.map((table) => (
+                    <Dashlet
+                      key={table.table_name}
+                      name={table.name}
+                      description={table.description || `Manage ${table.name} records`}
+                      icon={table.icon}
+                      href={`/${table.name.toLowerCase().replace(/\s+/g, '-')}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {/* Ungrouped fallback — only when no categories exist at all */}
+        {!isLoading && !error && !useGroupedView && filteredBus.length > 0 && (
           <section>
             <div className="flex items-center gap-2 mb-5">
               <Database className="w-4 h-4 text-primary" />
@@ -309,7 +412,7 @@ function DashboardPage() {
         )}
 
         {/* Empty search */}
-        {!isLoading && !error && filteredBus.length === 0 && filteredAdmin.length === 0 && (
+        {!isLoading && !error && groupedEntityCount === 0 && filteredBus.length === 0 && filteredAdmin.length === 0 && (
           <div className="swiss-card p-12 text-center">
             <Search className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
             <p className="font-semibold">No results for &ldquo;{searchQuery}&rdquo;</p>
