@@ -1,6 +1,6 @@
 {
-  "file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai-tanstack/examples/drug-discovery.eml.mmd",
-  "checkedAt": "2026-07-29T10:07:40.056Z",
+  "file": "/home/user/app-with-ai-tanstack/examples/drug-discovery.eml.mmd",
+  "checkedAt": "2026-07-31T09:46:57.484Z",
   "languageVersion": "1.0.0",
   "summary": {
     "errors": 0,
@@ -13,7 +13,7 @@
       "severity": "warning",
       "code": "EML114",
       "message": "Foreign key \"DeviationReport.reported_by\" does not end with \"_id\".",
-      "line": 197,
+      "line": 208,
       "hint": "Convention: rename to \"reported_by_id\" so the generator can derive the referenced table.",
       "autoFixable": false
     },
@@ -21,7 +21,7 @@
       "severity": "warning",
       "code": "EML114",
       "message": "Foreign key \"CAPA.remediation_owner\" does not end with \"_id\".",
-      "line": 211,
+      "line": 222,
       "hint": "Convention: rename to \"remediation_owner_id\" so the generator can derive the referenced table.",
       "autoFixable": false
     },
@@ -29,7 +29,7 @@
       "severity": "warning",
       "code": "EML114",
       "message": "Foreign key \"Compound.registered_by\" does not end with \"_id\".",
-      "line": 54,
+      "line": 65,
       "hint": "Convention: rename to \"registered_by_id\" so the generator can derive the referenced table.",
       "autoFixable": false
     },
@@ -37,7 +37,7 @@
       "severity": "warning",
       "code": "EML114",
       "message": "Foreign key \"InstrumentBooking.booked_by\" does not end with \"_id\".",
-      "line": 150,
+      "line": 161,
       "hint": "Convention: rename to \"booked_by_id\" so the generator can derive the referenced table.",
       "autoFixable": false
     },
@@ -45,7 +45,7 @@
       "severity": "warning",
       "code": "EML114",
       "message": "Foreign key \"VendorRequest.requested_by\" does not end with \"_id\".",
-      "line": 171,
+      "line": 182,
       "hint": "Convention: rename to \"requested_by_id\" so the generator can derive the referenced table.",
       "autoFixable": false
     },

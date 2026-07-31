@@ -1011,23 +1011,6 @@ export async function executeAfterListHooks(
 
   private async generateMigrations(outputDir: string, context: any): Promise<void> {
     const migrationsDir = path.join(outputDir, "src/migrations");
-    const timestamp = Date.now();
-
-    // Remove any existing generated migration files to avoid duplicates on re-generation
-    try {
-      const existingFiles = await fs.readdir(migrationsDir);
-      for (const file of existingFiles) {
-        if (
-          file.endsWith("_create_auth_tables.ts") ||
-          file.endsWith("_create_sys_tables.ts") ||
-          file.endsWith("_create_bus_tables.ts")
-        ) {
-          await fs.unlink(path.join(migrationsDir, file));
-        }
-      }
-    } catch (_e) {
-      // Directory may not exist yet, that's fine
-    }
 
     // Select database-specific migration templates
     const dbType = this.options.databaseType;
@@ -1040,94 +1023,71 @@ export async function executeAfterListHooks(
         ? "../../common/migrations/bus-tables.sqlite.migration.ts.hbs"
         : "../../common/migrations/bus-tables.migration.ts.hbs";
 
-    // auth tables migration (must run before sys/bus tables)
-    const authMigrationContent = await this.renderTemplate(
-      "src/migrations/000_create_auth_tables.ts.hbs",
-      context
-    );
-    await fs.writeFile(
-      path.join(outputDir, `src/migrations/${timestamp - 1}_create_auth_tables.ts`),
-      authMigrationContent
-    );
+    // The scaffold migrations, in execution order.
+    //
+    // Names are deterministic (a fixed zero-padded sequence, never a timestamp)
+    // so that regenerating over an existing project overwrites each file in
+    // place. Timestamped names made every `--force` regeneration emit a *new*
+    // set of files alongside the old ones: the migration runner keys off the
+    // filename, so it replayed CREATE TABLE migrations that had already run.
+    //
+    // The sequence sorts before the `<Date.now()>_add_<entity>.ts` additive
+    // migrations that `generate:entity` writes, which is the order the runner
+    // needs — scaffold first, then per-entity additions.
+    const scaffold: Array<{ slug: string; template: string; required?: boolean }> = [
+      // auth tables must run before sys/bus tables
+      {
+        slug: "create_auth_tables",
+        template: "src/migrations/000_create_auth_tables.ts.hbs",
+        required: true,
+      },
+      { slug: "create_sys_tables", template: sysMigrationTemplate, required: true },
+      // creates all business entity tables
+      { slug: "create_bus_tables", template: busMigrationTemplate, required: true },
+      // adds sys_workflow_runs + doc_status columns to bus tables
+      { slug: "add_workflow_support", template: "src/migrations/003_add_workflow_support.ts.hbs" },
+      {
+        slug: "create_workflow_definitions",
+        template: "src/migrations/004_create_workflow_definitions.ts.hbs",
+      },
+      // corrects any DECIMAL columns mistyped as VARCHAR
+      {
+        slug: "fix_numeric_columns",
+        template: "../../common/migrations/fix_numeric_columns.migration.ts.hbs",
+      },
+      // sys_category — entity grouping for the dashboard and admin dictionary.
+      // Must run after sys_table exists, since it adds the FK column to it.
+      { slug: "create_sys_category", template: "src/migrations/005_create_sys_category.ts.hbs" },
+      // audit_log — immutable trail of every mutation, read by /admin/audit
+      { slug: "create_audit_log", template: "src/migrations/006_create_audit_log.ts.hbs" },
+    ];
 
-    // sys tables migration
-    const sysMigrationContent = await this.renderTemplate(sysMigrationTemplate, context);
-    await fs.writeFile(
-      path.join(outputDir, `src/migrations/${timestamp}_create_sys_tables.ts`),
-      sysMigrationContent
-    );
-
-    // bus tables migration - creates all business entity tables
-    const busMigrationContent = await this.renderTemplate(busMigrationTemplate, context);
-    await fs.writeFile(
-      path.join(outputDir, `src/migrations/${timestamp + 1}_create_bus_tables.ts`),
-      busMigrationContent
-    );
-
-    // workflow support migration - adds sys_workflow_runs + doc_status columns to bus tables
+    // Drop previously generated scaffold migrations under *any* prefix. This
+    // clears out the timestamped files older generator versions produced, so a
+    // regenerated project is left with exactly one copy of each migration.
+    const scaffoldSlugs = new Set(scaffold.map((m) => m.slug));
     try {
-      const workflowSupportContent = await this.renderTemplate(
-        "src/migrations/003_add_workflow_support.ts.hbs",
-        context
-      );
-      await fs.writeFile(
-        path.join(outputDir, `src/migrations/${timestamp + 2}_add_workflow_support.ts`),
-        workflowSupportContent
-      );
-    } catch (e) {
-      console.warn(
-        "Workflow support migration template not found, skipping:",
-        (e as Error).message
-      );
+      for (const file of await fs.readdir(migrationsDir)) {
+        const match = file.match(/^\d+_(.+)\.ts$/);
+        if (match?.[1] && scaffoldSlugs.has(match[1])) {
+          await fs.unlink(path.join(migrationsDir, file));
+        }
+      }
+    } catch (_e) {
+      // Directory may not exist yet, that's fine
     }
 
-    // workflow definitions migration - creates sys_workflow_definitions table
-    try {
-      const workflowDefsContent = await this.renderTemplate(
-        "src/migrations/004_create_workflow_definitions.ts.hbs",
-        context
-      );
-      await fs.writeFile(
-        path.join(outputDir, `src/migrations/${timestamp + 3}_create_workflow_definitions.ts`),
-        workflowDefsContent
-      );
-    } catch (e) {
-      console.warn(
-        "Workflow definitions migration template not found, skipping:",
-        (e as Error).message
-      );
-    }
+    await fs.mkdir(migrationsDir, { recursive: true });
 
-    // fix_numeric_columns migration — corrects any DECIMAL columns mistyped as VARCHAR
-    try {
-      const fixNumericContent = await this.renderTemplate(
-        "../../common/migrations/fix_numeric_columns.migration.ts.hbs",
-        context
-      );
-      await fs.writeFile(
-        path.join(outputDir, `src/migrations/${timestamp + 4}_fix_numeric_columns.ts`),
-        fixNumericContent
-      );
-    } catch (e) {
-      console.warn(
-        "fix_numeric_columns migration template not found, skipping:",
-        (e as Error).message
-      );
-    }
-
-    // sys_category — entity grouping for the dashboard and admin dictionary.
-    // Must run after sys_table exists, since it adds the FK column to it.
-    try {
-      const categoryMigration = await this.renderTemplate(
-        "src/migrations/005_create_sys_category.ts.hbs",
-        context
-      );
-      await fs.writeFile(
-        path.join(outputDir, `src/migrations/${timestamp + 5}_create_sys_category.ts`),
-        categoryMigration
-      );
-    } catch (e) {
-      console.warn("sys_category migration template not found, skipping:", (e as Error).message);
+    for (const [index, { slug, template, required }] of scaffold.entries()) {
+      const fileName = `${String(index).padStart(4, "0")}_${slug}.ts`;
+      try {
+        const content = await this.renderTemplate(template, context);
+        await fs.writeFile(path.join(migrationsDir, fileName), content);
+      } catch (e) {
+        if (required) throw e;
+        console.warn(`Migration template not found, skipping ${slug}:`, (e as Error).message);
+      }
     }
 
     // Seed users and roles with Better-Auth integration

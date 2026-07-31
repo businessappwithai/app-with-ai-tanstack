@@ -14,8 +14,8 @@ import { diffFields } from "./audit.types";
 /** Methods that mutate data and should be audited. */
 const AUDIT_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
-/** Map HTTP method + route pattern → audit action. */
-function resolveAction(method: string, path: string): string {
+/** Map HTTP method → audit action. */
+function resolveAction(method: string): string {
   if (method === "DELETE") return "ENTITY_DELETE";
   if (method === "POST") return "ENTITY_CREATE";
   if (method === "PUT" || method === "PATCH") return "ENTITY_UPDATE";
@@ -33,6 +33,24 @@ function resolveEntityType(path: string): string | null {
 
 function resolveEntityId(params: Record<string, string>): string | null {
   return params?.id ?? params?.entityId ?? null;
+}
+
+/**
+ * Response envelope keys that describe the request rather than the record.
+ * Bus mutations append a `promotion` report from the rules engine; leaving it in
+ * makes every update look like it changed a `promotion` column that does not
+ * exist, and stores a copy of the report in the audit trail.
+ */
+const ENVELOPE_KEYS = new Set(["promotion", "meta", "workflow", "rules"]);
+
+/** Strip envelope keys so before/after hold the record and nothing else. */
+function recordOnly(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+    if (!ENVELOPE_KEYS.has(k)) out[k] = v;
+  }
+  return out;
 }
 
 @Injectable()
@@ -65,7 +83,7 @@ export class AuditInterceptor implements NestInterceptor {
       session_id: req.session?.session?.id ?? null,
       entity_type: entityType,
       entity_id: resolveEntityId(params),
-      action: resolveAction(method, path),
+      action: resolveAction(method),
       ip_address:
         (headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ??
         req.socket?.remoteAddress ??
@@ -78,11 +96,11 @@ export class AuditInterceptor implements NestInterceptor {
     return next.handle().pipe(
       tap((responseData: any) => {
         // Read __auditBefore here (after handler ran) — controller sets it before its mutation
-        const beforeValue = req.__auditBefore ?? null;
-        const after = responseData?.data ?? responseData ?? null;
+        const beforeValue = recordOnly(req.__auditBefore);
+        const after = recordOnly(responseData?.data ?? responseData);
         const changed = diffFields(beforeValue, after);
         // For POST (CREATE), extract entity_id from the response body
-        const entityId = base.entity_id ?? after?.id ?? null;
+        const entityId = base.entity_id ?? (after?.id as string | undefined) ?? null;
         this.auditService.log({
           ...base,
           entity_id: entityId,
@@ -93,7 +111,7 @@ export class AuditInterceptor implements NestInterceptor {
         } as AuditEvent);
       }),
       catchError((err) => {
-        const beforeValue = req.__auditBefore ?? null;
+        const beforeValue = recordOnly(req.__auditBefore);
         this.auditService.log({
           ...base,
           before_value: beforeValue,

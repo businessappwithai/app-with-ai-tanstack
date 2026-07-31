@@ -116,7 +116,10 @@ async function runMigrations(db: Kysely<any>) {
 async function runSeeds(db: Kysely<any>) {
   console.log('\n🌱 Running seeds...\n');
 
-  const seedDir = path.join(__dirname, 'seeds');
+  // Seeds live at the backend root, next to src/ — the same place src/seed.ts
+  // reads them from. Looking under src/ silently found nothing and reported
+  // success, leaving every generated app with an empty dictionary.
+  const seedDir = path.join(__dirname, '..', 'seeds');
   if (!fs.existsSync(seedDir)) {
     console.log('⊘ No seeds directory found');
     return;

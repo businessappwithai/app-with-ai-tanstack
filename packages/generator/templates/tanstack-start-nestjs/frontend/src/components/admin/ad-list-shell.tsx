@@ -277,6 +277,22 @@ function FilterBuilder({
 // Helpers
 // ---------------------------------------------------------------------------
 
+/** Cache identity of a breadcrumb ancestor — one fetch per endpoint+id. */
+function parentKey({ level, id }: ParentContext): string {
+  return `${level.endpoint}|${id}`;
+}
+
+/** Collapse repeated ancestors so useQueries never receives a duplicate key. */
+function dedupeParents(parentCtx: ParentContext[]): ParentContext[] {
+  const seen = new Set<string>();
+  return parentCtx.filter((p) => {
+    const key = parentKey(p);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 /** Build parent filter params from context — uses level.parentField from metadata */
 function parentFilterParams(parentCtx: ParentContext[], level: ADLevel): Record<string, string> {
   if (!parentCtx.length || !level.parentField) return {};
@@ -315,16 +331,24 @@ export function ADListShell({
   const [isCreating, setIsCreating] = useState(false);
   const [createErrors, setCreateErrors] = useState<string[]>([]);
 
-  // Fetch each parent record's display name for the breadcrumb
+  // Fetch each parent record's display name for the breadcrumb.
+  // A self-referencing hierarchy can put the same record in the trail twice, so
+  // fetch each distinct endpoint+id once — duplicate keys in a single
+  // useQueries call are dropped by React Query, which would shift every result
+  // after the duplicate onto the wrong breadcrumb.
+  const uniqueParents = dedupeParents(parentContext);
   const parentNameQueries = useQueries({
-    queries: parentContext.map(({ level: l, id }) => ({
+    queries: uniqueParents.map(({ level: l, id }) => ({
       queryKey: ["ad-parent-name", l.endpoint, id],
       queryFn: () => apiClient.get<AnyRecord>(`${l.endpoint}/${id}`),
       enabled: !!id,
     })),
   });
-  const parentNames: string[] = parentNameQueries.map((q, i) => {
-    const rec = q.data as AnyRecord | undefined;
+  const parentRecordByKey = new Map<string, AnyRecord | undefined>(
+    uniqueParents.map((p, i) => [parentKey(p), parentNameQueries[i]?.data as AnyRecord | undefined])
+  );
+  const parentNames: string[] = parentContext.map((pc, i) => {
+    const rec = parentRecordByKey.get(parentKey(pc));
     if (!rec) return parentContext[i].id;
     const pl = parentContext[i].level;
     if (pl.nameField === "first_name" && rec.last_name) {

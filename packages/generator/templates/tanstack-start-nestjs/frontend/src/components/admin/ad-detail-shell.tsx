@@ -30,6 +30,22 @@ type AnyRecord = Record<string, unknown>;
 // Row clicks navigate to the child's detail URL (metadata-derived)
 // ---------------------------------------------------------------------------
 
+/** Cache identity of a breadcrumb ancestor — one fetch per endpoint+id. */
+function parentKey({ level, id }: ParentContext): string {
+  return `${level.endpoint}|${id}`;
+}
+
+/** Collapse repeated ancestors so useQueries never receives a duplicate key. */
+function dedupeParents(parentCtx: ParentContext[]): ParentContext[] {
+  const seen = new Set<string>();
+  return parentCtx.filter((p) => {
+    const key = parentKey(p);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function pluralLabel(label: string): string {
   if (label.endsWith("y") && !/[aeiou]y$/i.test(label)) return label.slice(0, -1) + "ies";
   if (
@@ -255,21 +271,29 @@ export function ADDetailShell({
     (c: any) => c.group_layout_type === "summary" && c.is_displayed
   ) as FieldMetadata[];
 
-  // Fetch each parent record's display name for breadcrumbs
+  // Fetch each parent record's display name for breadcrumbs.
+  // A self-referencing hierarchy can put the same record in the trail twice, so
+  // fetch each distinct endpoint+id once — duplicate keys in a single
+  // useQueries call are dropped by React Query, which would shift every result
+  // after the duplicate onto the wrong breadcrumb.
+  const uniqueParents = dedupeParents(parentContext);
   const parentNameQueries = useQueries({
-    queries: parentContext.map(({ level: l, id }) => ({
+    queries: uniqueParents.map(({ level: l, id }) => ({
       queryKey: ["ad-parent-name", l.endpoint, id],
       queryFn: () => apiClient.get<AnyRecord>(`${l.endpoint}/${id}`),
       enabled: !!id,
     })),
   });
+  const parentRecordByKey = new Map<string, AnyRecord | undefined>(
+    uniqueParents.map((p, i) => [parentKey(p), parentNameQueries[i]?.data as AnyRecord | undefined])
+  );
   // Immediate parent record data — used to filter child lookup dropdowns
   const immediateParentData =
-    parentNameQueries.length > 0
-      ? ((parentNameQueries[parentNameQueries.length - 1].data as AnyRecord | undefined) ?? {})
+    parentContext.length > 0
+      ? (parentRecordByKey.get(parentKey(parentContext[parentContext.length - 1])) ?? {})
       : {};
-  const parentNames: string[] = parentNameQueries.map((q, i) => {
-    const rec = q.data as AnyRecord | undefined;
+  const parentNames: string[] = parentContext.map((pc, i) => {
+    const rec = parentRecordByKey.get(parentKey(pc));
     if (!rec) return parentContext[i].id;
     const pl = parentContext[i].level;
     if (pl.nameField === "first_name" && rec.last_name) {
