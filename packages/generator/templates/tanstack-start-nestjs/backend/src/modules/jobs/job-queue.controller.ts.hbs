@@ -7,12 +7,18 @@
  * Project: {{project.name}}
  */
 
-import { Controller, Get, Post, Body, Param, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JobQueueService } from './job-queue.service';
 import type { EmailJobData, ReportJobData, SyncJobData } from './job-queue.service';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 
+/**
+ * Guarded: enqueueing email, report and sync jobs is not something an
+ * anonymous caller should be able to do.
+ */
 @ApiTags('jobs')
+@UseGuards(SessionAuthGuard)
 @Controller('jobs')
 export class JobQueueController {
   constructor(private readonly jobQueueService: JobQueueService) {}

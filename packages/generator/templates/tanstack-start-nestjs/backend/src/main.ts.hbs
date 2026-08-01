@@ -12,6 +12,7 @@ import { Kysely, PostgresDialect } from 'kysely';
 import { Pool } from 'pg';
 import { AppModule } from './app.module';
 import { initAuth, getAuth } from './lib/better-auth';
+import { AuditService } from './modules/audit/audit.service';
 
 async function ensureAdminUser(logger: Logger) {
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@admin.com';
@@ -105,6 +106,79 @@ async function ensureAdminUser(logger: Logger) {
   }
 }
 
+/**
+ * Record a sign-in, sign-out or sign-up on the audit trail.
+ *
+ * better-auth is mounted directly on Fastify to keep its cookie handling
+ * intact, which puts it outside Nest's interceptor chain — so without this the
+ * audit page showed every record change and not one login. Failures are
+ * recorded too: a run of AUTH_LOGIN with success=false is what an attack looks
+ * like from the trail.
+ *
+ * Never throws. An audit write must not be able to fail a login.
+ */
+async function recordAuthEvent(
+  app: NestFastifyApplication,
+  request: any,
+  pathname: string,
+  status: number,
+): Promise<void> {
+  const ACTIONS: Array<[RegExp, string]> = [
+    [/sign-in/, 'AUTH_LOGIN'],
+    [/sign-out/, 'AUTH_LOGOUT'],
+    [/sign-up/, 'AUTH_REGISTER'],
+    [/forget-password|reset-password/, 'AUTH_PASSWORD_RESET'],
+    [/change-password/, 'AUTH_PASSWORD_CHANGE'],
+    [/verify-email/, 'AUTH_EMAIL_VERIFY'],
+  ];
+
+  const matched = ACTIONS.find(([re]) => re.test(pathname));
+  if (!matched) return;
+
+  try {
+    const audit = app.get(AuditService, { strict: false });
+    if (!audit) return;
+
+    const headers = request.headers ?? {};
+    const body = typeof request.body === 'string' ? safeParse(request.body) : request.body;
+    const success = status >= 200 && status < 400;
+
+    await audit.log({
+      user_id: null,
+      user_name: null,
+      // The only identifier available on a failed sign-in, and the one worth
+      // having: it says which account was targeted.
+      user_email: body?.email ?? null,
+      session_id: null,
+      action: matched[1],
+      entity_type: 'auth',
+      entity_id: null,
+      before_value: null,
+      after_value: null,
+      changed_fields: [],
+      ip_address:
+        (headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ??
+        request.socket?.remoteAddress ??
+        null,
+      user_agent: (headers['user-agent'] as string) ?? null,
+      source: 'WEB_UI',
+      request_id: (headers['x-request-id'] as string) ?? null,
+      success,
+      error_message: success ? null : `Authentication request failed with status ${status}`,
+    } as any);
+  } catch {
+    // Swallowed on purpose — see the note above.
+  }
+}
+
+function safeParse(value: string): any {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
@@ -177,6 +251,12 @@ async function bootstrap() {
       }
 
       const webResponse = await auth.handler(new Request(url.toString(), init));
+
+      // Auth is mounted straight on Fastify, so Nest's audit interceptor never
+      // sees it. Sign-in, sign-out and sign-up are the events an audit trail
+      // exists for, so they are recorded here instead — including the failures,
+      // which is where a break-in attempt shows up.
+      void recordAuthEvent(app, request, url.pathname, webResponse.status);
 
       reply.status(webResponse.status);
       webResponse.headers.forEach((value, key) => {

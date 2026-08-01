@@ -23,18 +23,15 @@ import {
   ParseUUIDPipe,
   Logger,
   UseGuards,
-  UseInterceptors,
   Req,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { BusService } from './bus.service';
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
-import { AuditInterceptor } from '../audit/audit.interceptor';
 
 @ApiTags('bus')
 @ApiBearerAuth()
 @UseGuards(SessionAuthGuard)
-@UseInterceptors(AuditInterceptor)
 @Controller('bus')
 export class BusController {
   private readonly logger = new Logger(BusController.name);

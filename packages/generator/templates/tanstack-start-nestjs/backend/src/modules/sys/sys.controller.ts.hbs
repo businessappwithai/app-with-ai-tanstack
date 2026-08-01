@@ -19,8 +19,11 @@ import {
   Query,
   Headers,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { SysService } from './sys.service';
 
 function parseFilters(rawFilters: Record<string, any>): Record<string, any> {
@@ -46,8 +49,17 @@ function parseFilters(rawFilters: Record<string, any>): Record<string, any> {
   return parsed;
 }
 
+/**
+ * The Application Dictionary, plus the user and role directories.
+ *
+ * Guarded. This controller shipped open: `GET /api/sys/users` returned every
+ * user's name, email and roles to an unauthenticated caller, and the rest of
+ * the dictionary — tables, columns, windows, validation rules — was equally
+ * readable and writable without signing in.
+ */
 @ApiTags('sys')
 @ApiBearerAuth()
+@UseGuards(SessionAuthGuard, RolesGuard)
 @Controller('sys')
 export class SysController {
   constructor(private readonly sysService: SysService) {}
