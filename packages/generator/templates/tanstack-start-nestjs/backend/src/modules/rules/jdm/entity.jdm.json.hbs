@@ -82,32 +82,6 @@
           {{/if}}
           {{/unless}}
           {{/each}}
-          {
-            "_id": "{{tableName}}-on-create-trigger-workflow",
-            "iop": "_operation == \"create\"",
-            "o1": "'trigger-workflow'",
-            "o2": "'{{displayName}} created — triggering post-create workflow'",
-            "o3": "'{{tableName}}-on-create-trigger-workflow'",
-            "o4": "'{{tableName}}-on-create-workflow'",
-            "o5": "''",
-            "o6": "''",
-            "o7": "''",
-            "o8": "''",
-            "o9": "''"
-          },
-          {
-            "_id": "{{tableName}}-on-update-trigger-workflow",
-            "iop": "_operation == \"update\"",
-            "o1": "'trigger-workflow'",
-            "o2": "'{{displayName}} updated — triggering post-update workflow'",
-            "o3": "'{{tableName}}-on-update-trigger-workflow'",
-            "o4": "'{{tableName}}-on-update-workflow'",
-            "o5": "''",
-            "o6": "''",
-            "o7": "''",
-            "o8": "''",
-            "o9": "''"
-          }
         ]
       }
     },
