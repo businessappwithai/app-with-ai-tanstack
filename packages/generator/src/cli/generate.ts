@@ -18,7 +18,9 @@ import { NestJsBackendGenerator } from "../generators/tanstack-start-nestjs/nest
 import { TanStackStartFrontendGenerator } from "../generators/tanstack-start-nestjs/tanstack-start-frontend.generator";
 import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
 import { MermaidParser } from "../parsers/mermaid.parser";
+import { extractRuleSections } from "../eml";
 import { generateApplication, readModelSources } from "../pipeline";
+import { compileRules } from "../rules";
 
 // Resolve relative paths from the workspace root (INIT_CWD) when called via bun --filter
 const resolvePath = (p: string) =>
@@ -425,11 +427,28 @@ program
         allEntities
       );
 
+      // ── Business rules ──────────────────────────────────────────────────
+      // `%%rule` sections are decision flowcharts; compiled here to GoRules
+      // JDM so a rule declared in the model is enforced by the generated app.
+      const ruleSources = await readModelSources(
+        [options.input, options.sysFile, options.busFile, options.refFile].map(
+          (p) => p && resolvePath(p)
+        )
+      );
+      const compiledRules = compileRules(extractRuleSections(ruleSources.join("\n")), (message) =>
+        console.warn(`  ⚠️  ${message}`)
+      );
+
       // ── Entity summary ──────────────────────────────────────────────────
       if (!quiet) {
         console.log("\n📊 Entities found:");
         for (const e of allEntities) {
           console.log(`   • ${e.name} (${e.attributes.length} attributes)`);
+        }
+
+        console.log(`\n📐 Business rules (${compiledRules.length}):`);
+        for (const rule of compiledRules) {
+          console.log(`   • ${rule.name} on ${rule.entity} (${rule.operation})`);
         }
 
         console.log(`\n🗂️  Entity categories (${categories.length}):`);
@@ -503,7 +522,12 @@ program
       // model generating the same application from either entry point.
       await generateApplication({
         sources: [],
-        model: { entities: allEntities, relationships: allRelationships, categories },
+        model: {
+          entities: allEntities,
+          relationships: allRelationships,
+          categories,
+          rules: compiledRules,
+        },
         stackOption,
         projectName: options.name,
         projectVersion: options.version,

@@ -21,13 +21,17 @@ import {
   type StackOption,
 } from "../generators/full-stack.generator";
 import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
+import { type CompiledRule, compileRules } from "../rules";
 import { MermaidParser } from "../parsers/mermaid.parser";
+import { extractRuleSections } from "../eml";
 
 /** Everything a model contributes to generation. */
 export interface ParsedModel {
   entities: Entity[];
   relationships: Relationship[];
   categories: EntityCategory[];
+  /** Rules compiled from the model's `%%rule` decision flowcharts. */
+  rules: CompiledRule[];
 }
 
 export interface GenerationSettings {
@@ -98,12 +102,18 @@ export function parseModel(sources: string | string[]): ParsedModel {
     relationships.push(...parsed.relationships);
   }
 
+  const joined = list.join("\n");
   const categories = resolveCategories(
-    list.join("\n"),
+    joined,
     entities.map((entity) => entity.name)
   );
+  // `%%rule` sections are decision flowcharts; compiling them here is what
+  // carries a rule authored in the model through to the generated application.
+  const rules = compileRules(extractRuleSections(joined), (message) =>
+    console.warn(`  \u26a0\ufe0f  ${message}`)
+  );
 
-  return { entities, relationships, categories };
+  return { entities, relationships, categories, rules };
 }
 
 /** Read model sources from disk, skipping any that are absent. */
@@ -163,6 +173,7 @@ export function buildGeneratorOptions(
     skipCliScaffold: settings.skipCliScaffold,
     recordsPerEntity: settings.recordsPerEntity ?? GENERATION_DEFAULTS.recordsPerEntity,
     categories: model.categories,
+    compiledRules: model.rules,
   };
 }
 
@@ -199,6 +210,7 @@ export async function writeManifest(
           apiUrl: settings.apiBaseUrl ?? `http://localhost:${port}`,
           entities: model.entities.map((entity) => entity.name),
           categories: model.categories.map((category) => category.name),
+          rules: model.rules.map((rule) => `${rule.name} on ${rule.entity} (${rule.operation})`),
           packageManager: extras.packageManager,
           generatedAt: new Date().toISOString(),
         },

@@ -25,6 +25,7 @@ import {
 import * as fs from "fs/promises";
 import * as path from "path";
 import type { EntityCategory } from "../../parsers/category.parser";
+import type { CompiledRule } from "../../rules";
 import { CliExecutor } from "../../utils/cli-executor";
 import { BaseGenerator } from "../base.generator";
 
@@ -128,6 +129,8 @@ export interface NestJsBackendOptions {
    * `%%category` directives. When absent a single "General" default is seeded.
    */
   categories?: EntityCategory[];
+  /** Business rules compiled from the model's `%%rule` sections. */
+  compiledRules?: CompiledRule[];
 }
 
 export class NestJsBackendGenerator extends BaseGenerator {
@@ -348,6 +351,12 @@ export class NestJsBackendGenerator extends BaseGenerator {
       sysColumns,
       sysFields,
       categories: this.prepareCategories(busEntities),
+      compiledRules: (this.options.compiledRules ?? []).map((rule) => ({
+        ...rule,
+        // Embedded in a single-quoted literal in the seed, so escape it here
+        // rather than trusting a template helper to do it.
+        jdmContentEscaped: jsQuote(rule.jdmContent),
+      })),
       now: new Date().toISOString(),
     };
   }
