@@ -53,6 +53,7 @@ import { Route as ProjectsIdRulesDesignRouteImport } from './routes/projects/$id
 import { Route as AdminRulesEntityRuleIdRouteImport } from './routes/admin/rules/$entity/$ruleId'
 import { Route as ApiAdminUsersIndexRouteImport } from './routes/api/admin/users/index'
 import { Route as ApiProjectsIdIndexRouteImport } from './routes/api/projects/$id/index'
+import { Route as ApiProjectsIdEmlRouteImport } from './routes/api/projects/$id/eml'
 import { Route as ApiRulesRuleIdIndexRouteImport } from './routes/api/rules/$ruleId/index'
 import { Route as ApiWorkflowsWorkflowIdIndexRouteImport } from './routes/api/workflows/$workflowId/index'
 import { Route as ApiWorkflowsWorkflowIdRetryRouteImport } from './routes/api/workflows/$workflowId/retry'
@@ -297,6 +298,11 @@ const ApiProjectsIdIndexRoute = ApiProjectsIdIndexRouteImport.update({
   path: '/api/projects/$id/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiProjectsIdEmlRoute = ApiProjectsIdEmlRouteImport.update({
+  id: '/api/projects/$id/eml',
+  path: '/api/projects/$id/eml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiRulesRuleIdIndexRoute = ApiRulesRuleIdIndexRouteImport.update({
   id: '/api/rules/$ruleId/',
   path: '/api/rules/$ruleId/',
@@ -469,6 +475,7 @@ export interface FileRoutesByFullPath {
   '/api/rules/': typeof ApiRulesIndexRoute
   '/api/workflows/': typeof ApiWorkflowsIndexRoute
   '/admin/rules/$entity/$ruleId': typeof AdminRulesEntityRuleIdRoute
+  '/api/projects/$id/eml': typeof ApiProjectsIdEmlRoute
   '/api/workflows/$workflowId/retry': typeof ApiWorkflowsWorkflowIdRetryRoute
   '/api/workflows/$workflowId/status': typeof ApiWorkflowsWorkflowIdStatusRoute
   '/projects/$id/enhance/$serviceName': typeof ProjectsIdEnhanceServiceNameRoute
@@ -537,6 +544,7 @@ export interface FileRoutesByTo {
   '/api/rules': typeof ApiRulesIndexRoute
   '/api/workflows': typeof ApiWorkflowsIndexRoute
   '/admin/rules/$entity/$ruleId': typeof AdminRulesEntityRuleIdRoute
+  '/api/projects/$id/eml': typeof ApiProjectsIdEmlRoute
   '/api/workflows/$workflowId/retry': typeof ApiWorkflowsWorkflowIdRetryRoute
   '/api/workflows/$workflowId/status': typeof ApiWorkflowsWorkflowIdStatusRoute
   '/projects/$id/enhance/$serviceName': typeof ProjectsIdEnhanceServiceNameRoute
@@ -606,6 +614,7 @@ export interface FileRoutesById {
   '/api/rules/': typeof ApiRulesIndexRoute
   '/api/workflows/': typeof ApiWorkflowsIndexRoute
   '/admin/rules/$entity/$ruleId': typeof AdminRulesEntityRuleIdRoute
+  '/api/projects/$id/eml': typeof ApiProjectsIdEmlRoute
   '/api/workflows/$workflowId/retry': typeof ApiWorkflowsWorkflowIdRetryRoute
   '/api/workflows/$workflowId/status': typeof ApiWorkflowsWorkflowIdStatusRoute
   '/projects/$id/enhance/$serviceName': typeof ProjectsIdEnhanceServiceNameRoute
@@ -676,6 +685,7 @@ export interface FileRouteTypes {
     | '/api/rules/'
     | '/api/workflows/'
     | '/admin/rules/$entity/$ruleId'
+    | '/api/projects/$id/eml'
     | '/api/workflows/$workflowId/retry'
     | '/api/workflows/$workflowId/status'
     | '/projects/$id/enhance/$serviceName'
@@ -744,6 +754,7 @@ export interface FileRouteTypes {
     | '/api/rules'
     | '/api/workflows'
     | '/admin/rules/$entity/$ruleId'
+    | '/api/projects/$id/eml'
     | '/api/workflows/$workflowId/retry'
     | '/api/workflows/$workflowId/status'
     | '/projects/$id/enhance/$serviceName'
@@ -812,6 +823,7 @@ export interface FileRouteTypes {
     | '/api/rules/'
     | '/api/workflows/'
     | '/admin/rules/$entity/$ruleId'
+    | '/api/projects/$id/eml'
     | '/api/workflows/$workflowId/retry'
     | '/api/workflows/$workflowId/status'
     | '/projects/$id/enhance/$serviceName'
@@ -880,6 +892,7 @@ export interface RootRouteChildren {
   ApiRulesIndexRoute: typeof ApiRulesIndexRoute
   ApiWorkflowsIndexRoute: typeof ApiWorkflowsIndexRoute
   AdminRulesEntityRuleIdRoute: typeof AdminRulesEntityRuleIdRoute
+  ApiProjectsIdEmlRoute: typeof ApiProjectsIdEmlRoute
   ApiWorkflowsWorkflowIdRetryRoute: typeof ApiWorkflowsWorkflowIdRetryRoute
   ApiWorkflowsWorkflowIdStatusRoute: typeof ApiWorkflowsWorkflowIdStatusRoute
   ProjectsIdEnhanceServiceNameRoute: typeof ProjectsIdEnhanceServiceNameRoute
@@ -1216,6 +1229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProjectsIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/projects/$id/eml': {
+      id: '/api/projects/$id/eml'
+      path: '/api/projects/$id/eml'
+      fullPath: '/api/projects/$id/eml'
+      preLoaderRoute: typeof ApiProjectsIdEmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/rules/$ruleId/': {
       id: '/api/rules/$ruleId/'
       path: '/api/rules/$ruleId'
@@ -1427,6 +1447,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiRulesIndexRoute: ApiRulesIndexRoute,
   ApiWorkflowsIndexRoute: ApiWorkflowsIndexRoute,
   AdminRulesEntityRuleIdRoute: AdminRulesEntityRuleIdRoute,
+  ApiProjectsIdEmlRoute: ApiProjectsIdEmlRoute,
   ApiWorkflowsWorkflowIdRetryRoute: ApiWorkflowsWorkflowIdRetryRoute,
   ApiWorkflowsWorkflowIdStatusRoute: ApiWorkflowsWorkflowIdStatusRoute,
   ProjectsIdEnhanceServiceNameRoute: ProjectsIdEnhanceServiceNameRoute,

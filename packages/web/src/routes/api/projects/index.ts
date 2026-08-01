@@ -144,6 +144,7 @@ export const Route = createFileRoute("/api/projects/")({
             port,
             databaseUrl,
             environmentVariables,
+            erdCode,
           } = body;
 
           if (!name) {
@@ -179,6 +180,23 @@ export const Route = createFileRoute("/api/projects/")({
               updated_at: now,
             } as any)
             .execute();
+
+          // Persist a model supplied at creation as version 1. It used to be
+          // accepted and dropped, so a project created with a complete EML
+          // document came back with nothing to design against.
+          if (typeof erdCode === "string" && erdCode.trim()) {
+            const { erdVersionDb } = await import("@erdwithai/core/services");
+            const { parseModel } = await import("@erdwithai/generator");
+            const model = parseModel(erdCode);
+            await erdVersionDb.createVersion({
+              project_id: projectId,
+              mermaid_code: erdCode,
+              is_current: true,
+              description: "Initial model",
+              entity_count: model.entities.length,
+              relationship_count: model.relationships.length,
+            });
+          }
 
           const dbProject = await db
             .selectFrom("projects")

@@ -20,6 +20,7 @@ import {
   TanStackStartFrontendGenerator,
   type TanStackStartFrontendOptions,
 } from "./tanstack-start-nestjs/tanstack-start-frontend.generator";
+import type { CompiledRule } from "../rules";
 import { BunE2ETestGenerator } from "./tests/bun-e2e.generator";
 
 export type StackOption = "tanstackjs-nestjs" | "tanstack-start-nestjs";
@@ -58,6 +59,12 @@ export interface FullStackGeneratorOptions {
    * `%%category` directives. Falls back to a single "General" default.
    */
   categories?: EntityCategory[];
+
+  /**
+   * Business rules compiled from the model's `%%rule` sections. Seeded into
+   * sys_rule_definitions so a rule authored in EML is enforced by the app.
+   */
+  compiledRules?: CompiledRule[];
   /** Records the bulk-seed suite creates per entity (default 1000). */
   recordsPerEntity?: number;
 }
@@ -129,6 +136,7 @@ export class FullStackGenerator {
       enableCors: true,
       skipCliScaffold: this.options.skipCliScaffold,
       categories: this.options.categories,
+      compiledRules: this.options.compiledRules,
       ...aiConfig,
       ...this.options.tanstackStartNestjs?.backend,
     };

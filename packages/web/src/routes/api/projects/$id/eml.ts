@@ -1,0 +1,100 @@
+/**
+ * The project's EML document.
+ *
+ * A project's model is one `.mmd` file — ERD, business rules and workflows
+ * together — and that file is the source of truth the generator consumes. The
+ * design phase edits rules and workflows as structured records; this route is
+ * where they are merged back in, so the document stays complete and valid
+ * however it was edited.
+ *
+ * GET  → the complete document, plus its sections parsed out for an editor
+ * PUT  → replace the rules and/or workflow sections, leaving the ERD untouched
+ */
+
+import { createFileRoute } from "@tanstack/react-router";
+
+function json(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+export const Route = createFileRoute("/api/projects/$id/eml")({
+  server: {
+    handlers: {
+      GET: async ({ params }) => {
+        const { projectDb } = await import("@erdwithai/core/services");
+        const { extractRuleSections, extractWorkflowSections } = await import(
+          "@erdwithai/generator"
+        );
+
+        const project = await projectDb.findById(params.id);
+        if (!project) return json({ error: "Project not found" }, 404);
+
+        const eml = project.erdCode ?? "";
+
+        return json({
+          projectId: params.id,
+          name: project.name,
+          eml,
+          rules: extractRuleSections(eml),
+          workflows: extractWorkflowSections(eml),
+        });
+      },
+
+      PUT: async ({ request, params }) => {
+        const { erdVersionDb, projectDb } = await import("@erdwithai/core/services");
+        const { mergeSections, extractRuleSections, extractWorkflowSections, parseModel } =
+          await import("@erdwithai/generator");
+
+        const project = await projectDb.findById(params.id);
+        if (!project) return json({ error: "Project not found" }, 404);
+
+        const existing = project.erdCode ?? "";
+        if (!existing.trim()) {
+          return json(
+            { error: "This project has no ERD yet. Design the data model before adding rules." },
+            409
+          );
+        }
+
+        const body = (await request.json()) as {
+          rules?: unknown;
+          workflows?: unknown;
+        };
+
+        // Omitting a collection leaves it as it is; sending an empty array
+        // clears it. An editor that only handles rules must not silently drop
+        // the workflows the model already declares.
+        const rules = Array.isArray(body.rules)
+          ? (body.rules as ReturnType<typeof extractRuleSections>)
+          : extractRuleSections(existing);
+        const workflows = Array.isArray(body.workflows)
+          ? (body.workflows as ReturnType<typeof extractWorkflowSections>)
+          : extractWorkflowSections(existing);
+
+        const eml = mergeSections(existing, { rules, workflows });
+
+        // The model is versioned, so editing rules leaves the previous document
+        // recoverable rather than overwriting it in place.
+        const model = parseModel(eml);
+        await erdVersionDb.createVersion({
+          project_id: params.id,
+          mermaid_code: eml,
+          is_current: true,
+          description: "Rules and workflows updated from the design phase",
+          entity_count: model.entities.length,
+          relationship_count: model.relationships.length,
+        });
+
+        return json({
+          projectId: params.id,
+          eml,
+          rules: extractRuleSections(eml),
+          workflows: extractWorkflowSections(eml),
+        });
+      },
+    },
+  },
+});

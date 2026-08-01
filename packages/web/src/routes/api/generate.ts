@@ -1,6 +1,40 @@
+/**
+ * Generate an application from a project's model.
+ *
+ * The project's EML document is written to disk and handed to the generator
+ * CLI, which is the same command a developer runs by hand. Going through the
+ * CLI rather than calling the generator in-process means there is one execution
+ * path: the pre-flight EML check and auto-fix, the parse, the categories, the
+ * manifest and the post-generation setup all happen exactly once, in one place,
+ * and the app cannot drift from the command line the way it did when it
+ * assembled the generator's options itself.
+ *
+ * The `.mmd` is kept next to the output so the generated application always has
+ * the model that produced it sitting beside it.
+ */
+
 import { createFileRoute } from "@tanstack/react-router";
+import { spawn } from "child_process";
 import fs from "fs/promises";
 import path from "path";
+
+/** Resolve the generator CLI entry point, preferring the built bundle. */
+async function resolveCli(cwd: string): Promise<string | null> {
+  const candidates = [
+    path.join(cwd, "packages/generator/dist/cli/generate.js"),
+    path.join(cwd, "node_modules/@erdwithai/generator/dist/cli/generate.js"),
+    path.join(cwd, "packages/generator/src/cli/generate.ts"),
+  ];
+  for (const candidate of candidates) {
+    try {
+      await fs.access(candidate);
+      return candidate;
+    } catch {
+      // try the next one
+    }
+  }
+  return null;
+}
 
 export const Route = createFileRoute("/api/generate")({
   server: {
@@ -9,93 +43,131 @@ export const Route = createFileRoute("/api/generate")({
         const body = await request.json();
         const { projectId, stackType, stackOption, erdCode } = body;
 
-        console.log("Generate API received:", {
-          projectId: projectId ? "SET" : "MISSING",
-          stackType: stackType ? stackType : "MISSING",
-          stackOption: stackOption ? stackOption : "MISSING",
-          erdCode: erdCode ? `SET (${erdCode.length} chars)` : "MISSING",
-        });
-
         const encoder = new TextEncoder();
 
         const stream = new ReadableStream({
           async start(controller) {
-            const sendLog = (level: string, message: string) => {
-              const data = `data: ${JSON.stringify({ log: message, level })}\n\n`;
-              controller.enqueue(encoder.encode(data));
+            let closed = false;
+            const send = (payload: Record<string, unknown>) => {
+              if (closed) return;
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`));
             };
-
-            const sendComplete = (outputPath: string) => {
-              const data = `data: ${JSON.stringify({ complete: true, path: outputPath })}\n\n`;
-              controller.enqueue(encoder.encode(data));
-            };
-
-            const sendError = (error: string) => {
-              const data = `data: ${JSON.stringify({ error })}\n\n`;
-              controller.enqueue(encoder.encode(data));
+            const sendLog = (level: string, message: string) => send({ log: message, level });
+            const finish = () => {
+              if (closed) return;
+              closed = true;
+              controller.close();
             };
 
             try {
               if (!projectId) {
-                sendError("Missing required field: projectId");
-                controller.close();
-                return;
+                send({ error: "Missing required field: projectId" });
+                return finish();
               }
 
               const { projectDb } = await import("@erdwithai/core/services");
-              const { FullStackGenerator, MermaidParser } = await import("@erdwithai/generator");
+              const { parseModel } = await import("@erdwithai/generator");
 
               sendLog("info", "Loading project details...");
               const project = await projectDb.findById(projectId);
               if (!project) {
-                sendError("Project not found in database");
-                controller.close();
-                return;
+                send({ error: "Project not found in database" });
+                return finish();
               }
 
               const finalErdCode = erdCode || project.erdCode;
               if (!finalErdCode) {
-                sendError("No ERD code found. Please create an ERD diagram first.");
-                controller.close();
-                return;
+                send({ error: "No ERD code found. Please create an ERD diagram first." });
+                return finish();
               }
 
               const finalStackType =
                 stackOption || stackType || project.stackType || "tanstackjs-nestjs";
-              const finalStackOption =
-                finalStackType === "tanstackjs-nestjs" ? "tanstackjs-nestjs" : finalStackType;
 
-              sendLog("info", `Initializing generator for stack: ${finalStackType}`);
-
-              sendLog("info", "Parsing ERD definition...");
-              const parser = new MermaidParser();
-              const { entities, relationships } = parser.parse(finalErdCode);
+              // Parse up front so the log names what is about to be generated
+              // and an unparseable model fails before anything is written.
+              const model = parseModel(finalErdCode);
               sendLog(
                 "success",
-                `Parsed ${entities.length} entities and ${relationships.length} relationships`
+                `Parsed ${model.entities.length} entities and ${model.relationships.length} relationships`
+              );
+              sendLog(
+                "success",
+                `Resolved ${model.categories.length} entity categories: ${model.categories
+                  .map((category) => category.name)
+                  .sort()
+                  .join(", ")}`
               );
 
-              const outputDir = path.join(process.cwd(), "generated-projects", projectId);
-              await fs.mkdir(outputDir, { recursive: true });
-              sendLog("info", `Created output directory: ${outputDir}`);
+              const cwd = process.cwd();
+              const outputDir = path.join(cwd, "generated-projects", projectId);
+              const modelDir = path.join(cwd, "generated-projects", "models");
+              await fs.mkdir(modelDir, { recursive: true });
 
-              sendLog("info", `Initializing FullStackGenerator for ${finalStackType}...`);
-              const generator = new FullStackGenerator({
-                stackOption: finalStackOption,
-                projectName: project.name || `Project ${projectId}`,
-                projectVersion: "1.0.0",
-                projectDescription:
-                  project.description || `Generated ${finalStackType} application`,
+              const slug =
+                (project.name || projectId).toLowerCase().replace(/[^a-z0-9]+/g, "-") || projectId;
+              const modelPath = path.join(modelDir, `${slug}.eml.mmd`);
+              await fs.writeFile(modelPath, finalErdCode, "utf-8");
+              sendLog("info", `Wrote model: ${modelPath}`);
+
+              const cli = await resolveCli(cwd);
+              if (!cli) {
+                send({
+                  error:
+                    "Generator CLI not found. Run `bun --filter @erdwithai/generator build` and try again.",
+                });
+                return finish();
+              }
+
+              const args = [
+                cli,
+                "generate",
+                "--input",
+                modelPath,
+                "--output",
                 outputDir,
-                port: project.port || 4000,
+                "--name",
+                project.name || `project-${projectId}`,
+                "--description",
+                project.description || `Generated ${finalStackType} application`,
+                "--stack",
+                finalStackType,
+                "--port",
+                String(project.port || 4000),
+                "--db",
+                project.databaseType === "sqlite" ? "sqlite" : "postgresql",
+                "--force",
+                // The browser is waiting on this stream: installing dependencies
+                // and migrating a database would hold it open for minutes. The
+                // generated README documents the setup command.
+                "--no-setup",
+              ];
+
+              sendLog("info", `Running: erdwithai generate --input ${path.basename(modelPath)}`);
+
+              const exitCode = await new Promise<number>((resolve) => {
+                const child = spawn("bun", args, { cwd, env: process.env });
+
+                const relay = (level: string) => (chunk: Buffer) => {
+                  for (const line of chunk.toString().split("\n")) {
+                    const text = line.replace(/\s+$/, "");
+                    if (text.trim()) sendLog(level, text);
+                  }
+                };
+
+                child.stdout.on("data", relay("info"));
+                child.stderr.on("data", relay("warn"));
+                child.on("error", (error) => {
+                  sendLog("error", `Failed to start the generator CLI: ${error.message}`);
+                  resolve(1);
+                });
+                child.on("close", (code) => resolve(code ?? 1));
               });
 
-              sendLog(
-                "info",
-                `Generating ${entities.length} entities (${relationships.length} relationships)...`
-              );
-              await generator.generate(entities, relationships);
-              sendLog("success", `Generated ${entities.length} entities successfully`);
+              if (exitCode !== 0) {
+                send({ error: `Generator CLI exited with code ${exitCode}` });
+                return finish();
+              }
 
               await projectDb.update(projectId, {
                 generatedPath: outputDir,
@@ -103,12 +175,12 @@ export const Route = createFileRoute("/api/generate")({
               });
 
               sendLog("success", "Code generation complete");
-              sendComplete(outputDir);
-              controller.close();
+              send({ complete: true, path: outputDir, model: modelPath });
+              finish();
             } catch (error) {
               console.error("Generation error:", error);
-              sendError(error instanceof Error ? error.message : "Generation failed");
-              controller.close();
+              send({ error: error instanceof Error ? error.message : "Generation failed" });
+              finish();
             }
           },
         });

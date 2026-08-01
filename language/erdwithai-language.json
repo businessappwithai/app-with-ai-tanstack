@@ -9,7 +9,13 @@
     "basedOn": "mermaid",
     "mermaidCompatibility": "All EML documents are valid, renderable Mermaid. EML is a semantic superset that assigns generator meaning to standard Mermaid constructs (erDiagram, flowchart, stateDiagram-v2) and to `%%`-prefixed directive comments.",
     "description": "A single, standalone, Mermaid-based language for describing an application's Entity Relationship Diagram (ERD), its business rules, and its business workflows in one place. EML is the source language read by the ERDwithAI generator to produce full-stack applications (TanStack Start + NestJS, or OpenUI5 + OData V4).",
-    "fileExtensions": [".eml.mmd", ".erd.mmd", ".flow.mmd", ".rules.mmd", ".mmd"],
+    "fileExtensions": [
+      ".eml.mmd",
+      ".erd.mmd",
+      ".flow.mmd",
+      ".rules.mmd",
+      ".mmd"
+    ],
     "encoding": "utf-8",
     "caseSensitivity": {
       "entityNames": "significant (PascalCase recommended)",
@@ -26,7 +32,6 @@
       "Provide one coherent, human- and machine-readable artifact that the generator consumes to emit code."
     ]
   },
-
   "document": {
     "description": "An EML document is a text file containing one or more sections. Each section opens with a Mermaid diagram keyword. A single file may contain multiple diagrams separated by blank lines; the generator classifies each by its opening keyword and by directive comments.",
     "comments": {
@@ -38,19 +43,30 @@
     "sectionClassifier": {
       "description": "How the generator decides what a diagram block means.",
       "rules": [
-        { "openingKeyword": "erDiagram", "section": "erd" },
+        {
+          "openingKeyword": "erDiagram",
+          "section": "erd"
+        },
         {
           "openingKeyword": "flowchart",
           "section": "resolved by %%meta section directive; defaults to 'workflow' unless rule-shaped or marked kind: rules"
         },
-        { "openingKeyword": "graph", "section": "alias of flowchart" },
-        { "openingKeyword": "stateDiagram-v2", "section": "workflow (state-machine form)" },
-        { "openingKeyword": "stateDiagram", "section": "workflow (state-machine form, legacy)" }
+        {
+          "openingKeyword": "graph",
+          "section": "alias of flowchart"
+        },
+        {
+          "openingKeyword": "stateDiagram-v2",
+          "section": "workflow (state-machine form)"
+        },
+        {
+          "openingKeyword": "stateDiagram",
+          "section": "workflow (state-machine form, legacy)"
+        }
       ],
       "disambiguation": "A flowchart is treated as a business-rules decision flow when it is preceded by `%%meta kind: rules` OR when it contains only decision/expression/function/io node shapes and no %%hook directives. Otherwise it is treated as a workflow."
     }
   },
-
   "sections": {
     "erd": {
       "title": "Entity Relationship Diagram",
@@ -99,7 +115,6 @@
         }
       }
     },
-
     "rules": {
       "title": "Business Rules (Decision Flows)",
       "opensWith": "flowchart TD  (with `%%meta kind: rules`)",
@@ -125,7 +140,6 @@
       },
       "example": "flowchart TD\n    A([Start: Order Received]) --> B{Order Amount > $1000?}\n    B -->|Yes| C[Apply Premium Discount 15%]\n    B -->|No| D{Customer is VIP?}\n    D -->|Yes| E[Apply VIP Discount 10%]\n    D -->|No| F[Apply Standard Pricing]\n    C --> G(Calculate Final Price)\n    E --> G\n    F --> G\n    G --> H([End: Price Calculated])"
     },
-
     "workflows": {
       "title": "Business Workflows (Lifecycle Hooks & Process Orchestration)",
       "opensWith": "flowchart TD  or  stateDiagram-v2",
@@ -157,10 +171,18 @@
       }
     }
   },
-
   "types": {
     "description": "Attribute type vocabulary. Aliases are normalized to a canonical type. Canonical types drive TypeScript, Zod, SQL/Kysely, OData EDM, and UI control mapping in the generator.",
-    "canonical": ["string", "text", "integer", "decimal", "boolean", "date", "datetime", "json"],
+    "canonical": [
+      "string",
+      "text",
+      "integer",
+      "decimal",
+      "boolean",
+      "date",
+      "datetime",
+      "json"
+    ],
     "map": {
       "string": "string",
       "varchar": "string",
@@ -207,7 +229,6 @@
     },
     "default": "string"
   },
-
   "modifiers": {
     "description": "Trailing tokens on an ERD attribute. Normalized to UPPER-case. Unknown modifiers are ignored.",
     "map": {
@@ -221,21 +242,42 @@
       },
       "FK": {
         "meaning": "Foreign key",
-        "effects": ["marks the column as a reference; relationship inference / navigation"]
+        "effects": [
+          "marks the column as a reference; relationship inference / navigation"
+        ]
       },
-      "UK": { "meaning": "Unique key", "effects": ["unique = true"] },
-      "UNIQUE": { "meaning": "Alias of UK", "effects": ["unique = true"] },
-      "OPTIONAL": { "meaning": "Nullable / not required", "effects": ["required = false"] },
-      "NULL": { "meaning": "Alias of OPTIONAL", "effects": ["required = false"] }
+      "UK": {
+        "meaning": "Unique key",
+        "effects": [
+          "unique = true"
+        ]
+      },
+      "UNIQUE": {
+        "meaning": "Alias of UK",
+        "effects": [
+          "unique = true"
+        ]
+      },
+      "OPTIONAL": {
+        "meaning": "Nullable / not required",
+        "effects": [
+          "required = false"
+        ]
+      },
+      "NULL": {
+        "meaning": "Alias of OPTIONAL",
+        "effects": [
+          "required = false"
+        ]
+      }
     },
     "defaults": {
       "required": "true unless OPTIONAL/NULL or PK",
       "unique": "false unless UK/UNIQUE/PK"
     }
   },
-
   "foreignKeys": {
-    "description": "How an FK column name resolves to the table it points at. The generator derives the target from the column name alone — there is no explicit target syntax on the attribute — so the name has to carry the reference.",
+    "description": "How an FK column name resolves to the table it points at. The generator derives the target from the column name alone \u2014 there is no explicit target syntax on the attribute \u2014 so the name has to carry the reference.",
     "suffix": "_id",
     "resolution": [
       "1. A person-role name (see personRoleColumns) resolves to the user entity.",
@@ -244,7 +286,10 @@
     ],
     "personRoleColumns": {
       "description": "Columns naming a person by the role they played rather than by entity. All resolve to the model's user entity (bus_user).",
-      "suffixes": ["_by", "_by_id"],
+      "suffixes": [
+        "_by",
+        "_by_id"
+      ],
       "names": [
         "assigned_to",
         "author_id",
@@ -266,7 +311,6 @@
       "EML114": "FK column does not end in _id. Auto-fixable: the fixer appends the suffix, so `reported_by FK` becomes `reported_by_id FK` and starts resolving to bus_user."
     }
   },
-
   "cardinalities": {
     "description": "Mermaid ER relationship operators and their semantic meaning. Left/right glyphs encode min/max multiplicity; EML maps the pair to a cardinality kind and infers the foreign-key side.",
     "glyphReference": {
@@ -279,17 +323,41 @@
       "|{": "one or many"
     },
     "map": [
-      { "operator": "||--||", "kind": "oneToOne", "example": "User ||--|| Profile : has" },
-      { "operator": "||--o{", "kind": "oneToMany", "example": "Company ||--o{ Contact : employs" },
-      { "operator": "||--|{", "kind": "oneToMany", "example": "Order ||--|{ OrderItem : contains" },
-      { "operator": "}o--||", "kind": "manyToOne", "example": "Deal }o--|| DealStage : in_stage" },
+      {
+        "operator": "||--||",
+        "kind": "oneToOne",
+        "example": "User ||--|| Profile : has"
+      },
+      {
+        "operator": "||--o{",
+        "kind": "oneToMany",
+        "example": "Company ||--o{ Contact : employs"
+      },
+      {
+        "operator": "||--|{",
+        "kind": "oneToMany",
+        "example": "Order ||--|{ OrderItem : contains"
+      },
+      {
+        "operator": "}o--||",
+        "kind": "manyToOne",
+        "example": "Deal }o--|| DealStage : in_stage"
+      },
       {
         "operator": "}|--||",
         "kind": "manyToOne",
         "example": "OrderItem }|--|| Order : belongs_to"
       },
-      { "operator": "}o--o{", "kind": "manyToMany", "example": "Student }o--o{ Course : enrolls" },
-      { "operator": "}|--|{", "kind": "manyToMany", "example": "Author }|--|{ Book : writes" },
+      {
+        "operator": "}o--o{",
+        "kind": "manyToMany",
+        "example": "Student }o--o{ Course : enrolls"
+      },
+      {
+        "operator": "}|--|{",
+        "kind": "manyToMany",
+        "example": "Author }|--|{ Book : writes"
+      },
       {
         "operator": "|o--o|",
         "kind": "oneToOne",
@@ -297,7 +365,6 @@
       }
     ]
   },
-
   "hooks": {
     "description": "Lifecycle event points a workflow hook may bind to. Handlers run in the generated BaseService around CRUD operations (globalHookExecutor).",
     "types": [
@@ -383,10 +450,12 @@
     "directive": {
       "pattern": "%%hook <type> <handlerName> on <Entity>[<params>]",
       "regex": "%%hook\\s+(\\w+)\\s+(\\w+)\\s+on\\s+(\\w+)(\\[(?:field:\\s*\\w+(?:\\s*,\\s*field:\\s*\\w+)*)?\\])?",
-      "paramForms": ["[field: slug]", "[field: slug, field: title]"]
+      "paramForms": [
+        "[field: slug]",
+        "[field: slug, field: title]"
+      ]
     }
   },
-
   "ruleNodes": {
     "description": "Mapping of Mermaid node shapes to GoRules JDM node roles for business-rule decision flows.",
     "map": [
@@ -428,7 +497,6 @@
       }
     ]
   },
-
   "workflowConstructs": {
     "description": "Node/edge vocabulary for process workflows and state workflows.",
     "flowShapes": {
@@ -467,7 +535,6 @@
       }
     }
   },
-
   "directives": {
     "description": "Reserved %% directive comments. All are renderer-safe (ignored by Mermaid) and interpreted by the generator. Only %%hook is parsed by the current shipped parser; the remainder are the EML extension surface, documented here as the authoritative language contract.",
     "reserved": [
@@ -486,7 +553,9 @@
         "keyword": "%%hook",
         "form": "%%hook <type> <handler> on <Entity>[<params>]",
         "purpose": "Bind a named handler to an entity lifecycle event (SHIPPED, parsed by hook-parser.ts).",
-        "examples": ["%%hook beforeCreate hashPassword on User"]
+        "examples": [
+          "%%hook beforeCreate hashPassword on User"
+        ]
       },
       {
         "keyword": "%%entity",
@@ -512,19 +581,35 @@
         "keyword": "%%enum",
         "form": "%%enum <Name>: <value1>, <value2>, ...",
         "purpose": "Declare a named enumeration reusable by fields and by state workflows.",
-        "examples": ["%%enum OrderStatus: draft, submitted, approved, shipped, cancelled"]
+        "examples": [
+          "%%enum OrderStatus: draft, submitted, approved, shipped, cancelled"
+        ]
+      },
+      {
+        "keyword": "%%category",
+        "form": "%%category name: <Name>; description: <text>; icon: <LucideIcon>; color: <#hex>; seq: <n>; default: true; entities: <A>, <B>",
+        "purpose": "Group business entities into a named Application Dictionary category. The dashboard renders one block per category, ordered by name; the admin dictionary maintains them. Keys after `name` are optional and `;`-separated. A model that declares none gets a single \"General\" default holding every entity.",
+        "examples": [
+          "%%category name: Compound Registry; description: Structures and aliases; icon: FlaskConical; color: #6366f1; entities: Compound, CompoundAlias",
+          "%%category name: People and Teams; default: true; entities: User, Team"
+        ]
       },
       {
         "keyword": "%%index",
         "form": "%%index <Entity>(<attr>[, <attr>...]) [unique]",
         "purpose": "Declare a database index over one or more attributes.",
-        "examples": ["%%index Contact(email) unique", "%%index Order(company_id, status)"]
+        "examples": [
+          "%%index Contact(email) unique",
+          "%%index Order(company_id, status)"
+        ]
       },
       {
         "keyword": "%%rule",
         "form": "%%rule <name> on <Entity> event: <lifecycle> priority: <n>",
         "purpose": "Bind a business-rule decision flow (a rules section) to an entity and lifecycle event.",
-        "examples": ["%%rule pricing on Order event: beforeCreate priority: 10"]
+        "examples": [
+          "%%rule pricing on Order event: beforeCreate priority: 10"
+        ]
       },
       {
         "keyword": "%%guard",
@@ -548,11 +633,12 @@
         "keyword": "%%workflow",
         "form": "%%workflow <name> entity: <Entity> kind: <hook|state|saga>",
         "purpose": "Name and classify a workflow section and bind it to an entity.",
-        "examples": ["%%workflow OrderFulfillment entity: Order kind: state"]
+        "examples": [
+          "%%workflow OrderFulfillment entity: Order kind: state"
+        ]
       }
     ]
   },
-
   "grammar": {
     "notation": "EBNF-like; see language/grammar/erdwithai.ebnf for the full grammar.",
     "topLevel": "document ::= ( comment | directive | erdSection | ruleSection | workflowSection | blankLine )*",
@@ -563,7 +649,6 @@
     "ruleSection": "ruleSection ::= ('flowchart'|'graph') direction NEWLINE ( node | edge | comment )*",
     "workflowSection": "workflowSection ::= (('flowchart'|'graph') direction | 'stateDiagram-v2') NEWLINE ( node | edge | transition | hookDirective | comment )*"
   },
-
   "generatorContract": {
     "description": "How each section feeds the generator pipeline.",
     "pipeline": [
@@ -579,10 +664,9 @@
       "orchestrator": "packages/generator/src/generators/orchestrator.ts"
     }
   },
-
   "conformance": {
     "levels": {
-      "core": "erDiagram entities, attributes with PK/FK/UK/OPTIONAL/NULL/UNIQUE, relationship cardinalities (all 8 operators). Fully parsed by the shipped ERD parser (mermaid.parser.ts). Directives inside an erDiagram block (%%field, %%enum, %%index, %%entity) are silently skipped by the ERD parser — they are reserved for future use.",
+      "core": "erDiagram entities, attributes with PK/FK/UK/OPTIONAL/NULL/UNIQUE, relationship cardinalities (all 8 operators). Fully parsed by the shipped ERD parser (mermaid.parser.ts). Directives inside an erDiagram block (%%field, %%enum, %%index, %%entity) are silently skipped by the ERD parser \u2014 they are reserved for future use.",
       "rules": "flowchart decision flows convertible to JDM via shape semantics. Fully parsed by the shipped flowchart parser + JDM converter.",
       "workflow-hooks": "%%hook directives (all 13 hook types) and stateDiagram-v2 state transitions. Fully parsed by the shipped hook-parser (hook-parser.ts). kind: hook and kind: state are shipped; kind: saga visual diagram renders but compensating-transaction orchestration is extended.",
       "extended": "%%meta, %%entity, %%field, %%enum, %%index, %%rule, %%guard, %%trigger, %%workflow directives beyond what the shipped parsers consume. Reserved and documented; renderer-safe; adopted incrementally by the generator."

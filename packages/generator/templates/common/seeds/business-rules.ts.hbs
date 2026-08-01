@@ -19,6 +19,22 @@ const RULES = [
   {{/each}}
 ];
 
+// Business rules authored in the model's `%%rule` sections, compiled from their
+// decision flowcharts to GoRules JDM. These are the rules a designer drew; they
+// are seeded alongside the generated validation rules and are editable in the
+// admin rules editor afterwards.
+const AUTHORED_RULES = [
+  {{#each compiledRules}}
+  {
+    entityName: '{{tableName}}',
+    ruleName: '{{name}}',
+    operation: '{{operation}}',
+    priority: {{priority}},
+    jdmContent: '{{{jdmContentEscaped}}}',
+  },
+  {{/each}}
+];
+
 // Trigger-workflow rules seeded separately per entity (CREATE and UPDATE)
 // These reference workflows that should be defined in the Workflow Designer
 const WORKFLOW_TRIGGER_RULES = [
@@ -157,6 +173,46 @@ export async function seed(db: Kysely<any>): Promise<void> {
     }
   }
   await seedWorkflowTriggerRules(db);
+  await seedAuthoredRules(db);
+}
+
+export async function seedAuthoredRules(db: Kysely<any>): Promise<void> {
+  const now = new Date();
+
+  for (const rule of AUTHORED_RULES) {
+    const existing = await db
+      .selectFrom('sys_rule_definitions')
+      .select('id')
+      .where('entity_name', '=', rule.entityName)
+      .where('rule_name', '=', rule.ruleName)
+      .executeTakeFirst();
+
+    if (existing) {
+      await db
+        .updateTable('sys_rule_definitions')
+        .set({ jdm_content: rule.jdmContent, operation: rule.operation as any, is_active: true, updated_by: 'seed', updated_at: now })
+        .where('id', '=', (existing as any).id)
+        .execute();
+      console.log(`  \u21bb Updated authored rule: ${rule.ruleName} (${rule.entityName} ${rule.operation})`);
+    } else {
+      await db
+        .insertInto('sys_rule_definitions')
+        .values({
+          id: uuidv4(),
+          entity_name: rule.entityName,
+          rule_name: rule.ruleName,
+          operation: rule.operation as any,
+          jdm_content: rule.jdmContent,
+          version: 1,
+          is_active: true,
+          created_by: 'seed',
+          created_at: now,
+          updated_at: now,
+        } as any)
+        .execute();
+      console.log(`  \u2713 Seeded authored rule: ${rule.ruleName} (${rule.entityName} ${rule.operation})`);
+    }
+  }
 }
 
 export async function seedWorkflowTriggerRules(db: Kysely<any>): Promise<void> {

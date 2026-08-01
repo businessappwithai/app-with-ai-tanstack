@@ -103,6 +103,29 @@ Reusable by `%%field enum:` and by state-workflow states.
 %%enum Priority: low, medium, high, urgent
 ```
 
+## `%%category` — group entities for the dashboard
+
+```
+%%category name: <Name>; description: <text>; icon: <LucideIcon>; color: <#hex>; seq: <n>; default: true; entities: <A>, <B>
+```
+
+Groups business entities into a named Application Dictionary category. The
+generated dashboard renders one block per category, ordered by name, and
+`/admin/categories` maintains them.
+
+Only `name` is required; the remaining keys are `;`-separated and may appear in
+any order. `entities` lists the entity names the category holds. `default: true`
+marks the category that receives anything left unassigned — at most one document
+may declare it.
+
+A model that declares no categories gets a single `General` default holding
+every entity, so the directive is optional.
+
+```
+%%category name: Compound Registry; description: Structures and aliases; icon: FlaskConical; color: #6366f1; entities: Compound, CompoundAlias
+%%category name: People and Teams; default: true; entities: User, Team
+```
+
 ## `%%index` — database index
 
 ```
