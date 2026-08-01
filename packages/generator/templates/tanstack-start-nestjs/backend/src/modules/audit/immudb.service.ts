@@ -38,9 +38,12 @@ export class ImmudbService implements OnModuleInit, OnModuleDestroy {
     }
 
     try {
-      // Dynamic import — immudb-node is an optional dep; @ts-expect-error suppresses the module-not-found lint
-      // @ts-expect-error
-      const ImmudbClient = (await import("immudb-node")).default;
+      // immudb-node is an optional dependency. The specifier is held in a
+      // variable so TypeScript does not try to resolve it: a literal needs a
+      // suppression comment, and that comment is itself an error once the
+      // package *is* installed, so the project failed to compile either way.
+      const moduleName = "immudb-node";
+      const ImmudbClient = (await import(moduleName)).default;
 
       const host = this.config.get<string>("IMMUDB_HOST", "127.0.0.1");
       const port = this.config.get<number>("IMMUDB_PORT", 8088);

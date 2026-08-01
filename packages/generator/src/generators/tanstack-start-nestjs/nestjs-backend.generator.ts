@@ -25,7 +25,14 @@ import {
 import * as fs from "fs/promises";
 import * as path from "path";
 import type { EntityCategory } from "../../parsers/category.parser";
+import { type CompiledHook, HOOK_CONTRACTS, hooksByEntity } from "../../hooks";
 import type { CompiledRule } from "../../rules";
+import {
+  buildPassThroughBpmn,
+  buildStateEntryBpmn,
+  type CompiledWorkflow,
+  describeWorkflow,
+} from "../../workflows";
 import { CliExecutor } from "../../utils/cli-executor";
 import { BaseGenerator } from "../base.generator";
 
@@ -131,6 +138,10 @@ export interface NestJsBackendOptions {
   categories?: EntityCategory[];
   /** Business rules compiled from the model's `%%rule` sections. */
   compiledRules?: CompiledRule[];
+  /** Lifecycle handlers compiled from the model's `%%hook` directives. */
+  compiledHooks?: CompiledHook[];
+  /** Status machines compiled from the model's state workflows. */
+  compiledWorkflows?: CompiledWorkflow[];
 }
 
 export class NestJsBackendGenerator extends BaseGenerator {
@@ -774,25 +785,168 @@ export class NestJsBackendGenerator extends BaseGenerator {
     }
   }
 
+  /**
+   * Write the per-entity hook handler modules and the registry binding them.
+   *
+   * Handlers are where application logic goes, so a handler module is written
+   * only when it does not already exist. Regenerating a project must not throw
+   * away an implementation someone wrote — the registry, which is pure wiring,
+   * is rewritten every time so a newly declared hook is always picked up.
+   */
+  private async generateHookHandlers(hooksDir: string): Promise<void> {
+    const handlersDir = path.join(hooksDir, "handlers");
+    await fs.mkdir(handlersDir, { recursive: true });
+
+    const grouped = hooksByEntity(this.options.compiledHooks ?? []);
+    const entities = [...grouped.keys()].sort();
+
+    for (const entity of entities) {
+      const hooks = grouped.get(entity) ?? [];
+      const file = path.join(handlersDir, `${entity}.ts`);
+
+      let existing: string | null = null;
+      try {
+        existing = await fs.readFile(file, "utf-8");
+      } catch {
+        // no handler module yet — write the stubs
+      }
+
+      if (existing === null) {
+        await fs.writeFile(file, this.renderHookModule(entity, hooks));
+        continue;
+      }
+
+      // The module is already there and may carry real implementations. Append
+      // stubs only for handlers it does not export yet, so a hook added to the
+      // model after the first generation still arrives.
+      const missing = hooks.filter(
+        (hook) => !new RegExp(`\\b(function|const)\\s+${hook.handler}\\b`).test(existing as string)
+      );
+      if (!missing.length) continue;
+
+      const additions = missing.map((hook) => this.renderHookFunction(entity, hook)).join("\n");
+      await fs.writeFile(
+        file,
+        `${existing.trimEnd()}\n\n/* --- Added by a later generation run --- */\n\n${additions}`
+      );
+    }
+
+    await fs.writeFile(path.join(handlersDir, "index.ts"), this.renderHookRegistry(grouped));
+  }
+
+  /** One handler function: a documented no-op with the right shape. */
+  private renderHookFunction(entity: string, hook: CompiledHook): string {
+    const contract = HOOK_CONTRACTS[hook.type];
+    const scope = hook.field ? `\n * Scoped to \`${hook.field}\`.` : "";
+    const async = `export async function ${hook.handler}(${contract.param}: ${contract.paramType})`;
+
+    const body =
+      contract.returns === "void"
+        ? "  // TODO: implement.\n"
+        : contract.returns === "boolean"
+          ? "  // TODO: implement. Return false to block the delete.\n  return true;\n"
+          : `  // TODO: implement.\n  return ${contract.param};\n`;
+
+    return (
+      `/**\n * ${hook.type} on ${entity}.\n *\n * ${contract.summary}${scope}\n */\n` +
+      `${async}: Promise<${contract.returns}> {\n${body}}\n`
+    );
+  }
+
+  /** A whole entity's handler module. */
+  private renderHookModule(entity: string, hooks: CompiledHook[]): string {
+    const header =
+      `/**\n * Lifecycle handlers for ${entity}.\n *\n` +
+      ` * Declared by the model's \`%%hook\` directives and wired up in ./index.ts.\n` +
+      ` * The bodies are yours: this file is generated once and then left alone, so\n` +
+      ` * regenerating the project will not overwrite what you write here.\n */\n\n`;
+
+    return header + hooks.map((hook) => this.renderHookFunction(entity, hook)).join("\n");
+  }
+
+  /** The registry the hooks module reads. Pure wiring, always regenerated. */
+  private renderHookRegistry(grouped: Map<string, CompiledHook[]>): string {
+    const entities = [...grouped.keys()].sort();
+
+    // The identifier reaching the service is whatever the caller used — the
+    // REST route sends `bus_compound`, the UI sends `chemical-inventory`, the
+    // model calls it `ChemicalInventory`. Keying on any one spelling means the
+    // other two silently find no hooks, so every lookup goes through the same
+    // normaliser on both sides.
+    const header =
+      "/**\n * Hook registry.\n *\n" +
+      " * Binds each entity's handlers to the lifecycle events the model declares.\n" +
+      " * Generated from `%%hook` directives — edit the model, not this file.\n *\n" +
+      " * @generated\n */\n\n";
+
+    const keyFn =
+      "/** Canonical lookup key for an entity, however it was spelled. */\n" +
+      "export function hookKey(entity: string): string {\n" +
+      "  const flat = entity.toLowerCase().replace(/^bus_/, '').replace(/[_-]/g, '');\n" +
+      "  return flat.endsWith('s') && !flat.endsWith('ss') ? flat.slice(0, -1) : flat;\n" +
+      "}\n\n";
+
+    if (!entities.length) {
+      return (
+        `${header}${keyFn}// This model declares no \`%%hook\` directives. Add a hook to a\n` +
+        "// workflow and regenerate to populate this file.\n" +
+        "export const ENTITY_HOOKS: Record<string, Record<string, Record<string, any>>> = {};\n"
+      );
+    }
+
+    const imports = entities
+      .map((entity) => `import * as ${entity}Hooks from './${entity}';`)
+      .join("\n");
+
+    const bindings = entities
+      .map((entity) => {
+        const byType = new Map<string, string[]>();
+        for (const hook of grouped.get(entity) ?? []) {
+          const list = byType.get(hook.type);
+          if (list) list.push(hook.handler);
+          else byType.set(hook.type, [hook.handler]);
+        }
+
+        const events = [...byType.entries()]
+          .map(([type, handlers]) => {
+            const entries = handlers
+              .map((handler) => `      ${handler}: ${entity}Hooks.${handler},`)
+              .join("\n");
+            return `    ${type}: {\n${entries}\n    },`;
+          })
+          .join("\n");
+
+        return `  // ${entity}\n  [hookKey('${entity}')]: {\n${events}\n  },`;
+      })
+      .join("\n");
+
+    return (
+      `${header}${imports}\n\n${keyFn}` +
+      "export const ENTITY_HOOKS: Record<string, Record<string, Record<string, any>>> = {\n" +
+      `${bindings}\n};\n`
+    );
+  }
+
   private async generateBusEntities(outputDir: string, context: any): Promise<void> {
     // Generate hooks module first (bus.service depends on it)
     const hooksDir = path.join(outputDir, "src/modules/hooks");
     await fs.mkdir(hooksDir, { recursive: true });
 
+    // Handler modules and the registry that binds them to entities. Written
+    // before hooks.ts, which imports the registry.
+    await this.generateHookHandlers(hooksDir);
+
     // Generate hooks.ts file
     const hooksContent = `/**
  * Hooks Index
  *
- * This file exports all hook functions for an entity.
- * It's automatically generated when workflows are applied.
+ * Runs the lifecycle handlers the model's \`%%hook\` directives declare.
+ * The handlers themselves live in ./handlers, one module per entity.
  *
  * @generated
  */
 
-// Hook files will be generated here when workflows are applied
-// Example:
-// export { hashPasswordUser } from './User/beforeCreate.hashPassword';
-// export { sendWelcomeEmailUser } from './User/afterCreate.sendWelcomeEmail';
+import { ENTITY_HOOKS, hookKey } from './handlers';
 
 export interface HookRegistry {
   beforeCreate?: Record<string, (...args: unknown[]) => unknown>;
@@ -812,10 +966,12 @@ export interface HookRegistry {
 
 /**
  * Get all registered hooks for an entity
+ *
+ * Accepts any spelling the caller happens to use — \`Compound\`, \`compound\`,
+ * \`compounds\`, \`bus_compound\` and \`chemical-inventory\` all resolve.
  */
-export function getHooks(_entity: string): HookRegistry {
-  // Hook functions will be dynamically imported here
-  return {};
+export function getHooks(entity: string): HookRegistry {
+  return ENTITY_HOOKS[hookKey(entity)] ?? {};
 }
 
 /**
@@ -987,6 +1143,25 @@ export async function executeAfterListHooks(
     await hookFn(data);
   }
 }
+
+/**
+ * Execute customValidate hooks for an entity
+ *
+ * Runs on every create and update. A handler rejects the write by throwing;
+ * the error propagates to the caller as-is so it keeps its own status code.
+ */
+export async function executeCustomValidateHooks(
+  entity: string,
+  data: any
+): Promise<void> {
+  const hooks = getHooks(entity);
+  const validators = hooks.customValidate || {};
+
+  for (const hookName of Object.keys(validators)) {
+    const hookFn = validators[hookName];
+    await hookFn(data);
+  }
+}
 `;
 
     await fs.writeFile(path.join(hooksDir, "hooks.ts"), hooksContent);
@@ -1153,6 +1328,118 @@ export async function executeAfterListHooks(
     } catch (e) {
       console.warn("Business rules seed template failed, skipping:", (e as Error).message);
     }
+
+    // Seed workflow definitions. Runs after 04 because the trigger rules seeded
+    // there are what go looking for these by name.
+    await fs.writeFile(
+      path.join(outputDir, "seeds/05_workflow_definitions.ts"),
+      this.renderWorkflowDefinitionsSeed(context)
+    );
+  }
+
+  /**
+   * The workflow-definitions seed.
+   *
+   * Every entity gets a `trigger-workflow` rule on create and on update, each
+   * naming a definition. Without the definitions the service logged "No active
+   * workflow named … — nothing to trigger" on every single write and no run was
+   * ever recorded. Entities with a state machine in the model get a definition
+   * that puts a new record into its starting state; the rest get a pass-through
+   * so the run still exists and the chain is observable.
+   */
+  private renderWorkflowDefinitionsSeed(context: any): string {
+    const byEntity = new Map<string, CompiledWorkflow>();
+    for (const workflow of this.options.compiledWorkflows ?? []) {
+      if (!byEntity.has(workflow.entity)) byEntity.set(workflow.entity, workflow);
+    }
+
+    const rows: string[] = [];
+    for (const entity of context.entities ?? []) {
+      const tableName: string = entity.tableName;
+      const workflow = byEntity.get(entity.name) ?? byEntity.get(entity.className);
+
+      // Status lives on whichever column the model gave the entity; `status` is
+      // the conventional one, `workflow_status` the fallback every bus table has.
+      const columns: string[] = (entity.attributes ?? []).map((a: any) => a.columnName ?? a.name);
+      const statusField = columns.includes("status") ? "status" : "workflow_status";
+
+      const description = workflow
+        ? describeWorkflow(workflow)
+        : `No state machine declared for ${entity.displayName ?? tableName}.`;
+
+      for (const operation of ["create", "update"]) {
+        const bpmn = workflow
+          ? buildStateEntryBpmn(workflow, tableName, statusField)
+          : buildPassThroughBpmn(tableName);
+
+        rows.push(
+          `  {\n` +
+            `    name: '${tableName}-on-${operation}-workflow',\n` +
+            `    entityName: '${tableName}',\n` +
+            `    operation: '${operation.toUpperCase()}',\n` +
+            `    description: '${jsQuote(description)}',\n` +
+            `    bpmnXml: ${JSON.stringify(bpmn)},\n` +
+            `  },`
+        );
+      }
+    }
+
+    return `/**
+ * Workflow definitions.
+ *
+ * Generated from the model's \`%%workflow ... kind: state\` sections. The
+ * trigger-workflow rules seeded in 04 resolve definitions by name, so there is
+ * one per entity per operation.
+ *
+ * @generated — edit the model, not this file.
+ */
+
+import type { Kysely } from 'kysely';
+
+const DEFINITIONS = [
+${rows.join("\n")}
+];
+
+export async function seed(db: Kysely<any>): Promise<void> {
+  for (const definition of DEFINITIONS) {
+    const existing = await db
+      .selectFrom('sys_workflow_definitions')
+      .select(['id'])
+      .where('name', '=', definition.name)
+      .executeTakeFirst();
+
+    if (existing) {
+      await db
+        .updateTable('sys_workflow_definitions')
+        .set({
+          entity_name: definition.entityName,
+          operation: definition.operation,
+          bpmn_xml: definition.bpmnXml,
+          description: definition.description,
+          is_active: true,
+          updated_at: new Date(),
+        })
+        .where('id', '=', existing.id)
+        .execute();
+      console.log(\`  ↻ Updated workflow definition: \${definition.name}\`);
+      continue;
+    }
+
+    await db
+      .insertInto('sys_workflow_definitions')
+      .values({
+        name: definition.name,
+        entity_name: definition.entityName,
+        operation: definition.operation,
+        bpmn_xml: definition.bpmnXml,
+        description: definition.description,
+        is_active: true,
+      })
+      .execute();
+    console.log(\`  ✓ Seeded workflow definition: \${definition.name}\`);
+  }
+}
+`;
   }
 
   /**

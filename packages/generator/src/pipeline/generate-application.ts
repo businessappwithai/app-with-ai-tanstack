@@ -15,15 +15,17 @@
 import type { Entity, Relationship } from "@erdwithai/core/types";
 import * as fs from "fs/promises";
 import * as path from "path";
+import { extractRuleSections } from "../eml";
 import {
   FullStackGenerator,
   type FullStackGeneratorOptions,
   type StackOption,
 } from "../generators/full-stack.generator";
+import { type CompiledHook, compileHooks } from "../hooks";
 import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
-import { type CompiledRule, compileRules } from "../rules";
 import { MermaidParser } from "../parsers/mermaid.parser";
-import { extractRuleSections } from "../eml";
+import { type CompiledRule, compileRules } from "../rules";
+import { type CompiledWorkflow, compileWorkflows } from "../workflows";
 
 /** Everything a model contributes to generation. */
 export interface ParsedModel {
@@ -32,6 +34,10 @@ export interface ParsedModel {
   categories: EntityCategory[];
   /** Rules compiled from the model's `%%rule` decision flowcharts. */
   rules: CompiledRule[];
+  /** Lifecycle handlers declared by the model's `%%hook` directives. */
+  hooks: CompiledHook[];
+  /** Status machines declared by the model's `%%workflow ... kind: state` sections. */
+  workflows: CompiledWorkflow[];
 }
 
 export interface GenerationSettings {
@@ -107,13 +113,28 @@ export function parseModel(sources: string | string[]): ParsedModel {
     joined,
     entities.map((entity) => entity.name)
   );
+  const warn = (message: string) => console.warn(`  \u26a0\ufe0f  ${message}`);
+
   // `%%rule` sections are decision flowcharts; compiling them here is what
   // carries a rule authored in the model through to the generated application.
-  const rules = compileRules(extractRuleSections(joined), (message) =>
-    console.warn(`  \u26a0\ufe0f  ${message}`)
+  const rules = compileRules(extractRuleSections(joined), warn);
+  // `%%hook` directives do the same for workflows: they name the handlers the
+  // generated service runs around each CRUD operation.
+  const hooks = compileHooks(
+    joined,
+    entities.map((entity) => entity.name),
+    warn
   );
 
-  return { entities, relationships, categories, rules };
+  // `%%workflow ... kind: state` sections become seeded workflow definitions,
+  // which is what the trigger rules the generator seeds go looking for.
+  const workflows = compileWorkflows(
+    joined,
+    entities.map((entity) => entity.name),
+    warn
+  );
+
+  return { entities, relationships, categories, rules, hooks, workflows };
 }
 
 /** Read model sources from disk, skipping any that are absent. */
@@ -174,6 +195,8 @@ export function buildGeneratorOptions(
     recordsPerEntity: settings.recordsPerEntity ?? GENERATION_DEFAULTS.recordsPerEntity,
     categories: model.categories,
     compiledRules: model.rules,
+    compiledHooks: model.hooks,
+    compiledWorkflows: model.workflows,
   };
 }
 
@@ -211,6 +234,10 @@ export async function writeManifest(
           entities: model.entities.map((entity) => entity.name),
           categories: model.categories.map((category) => category.name),
           rules: model.rules.map((rule) => `${rule.name} on ${rule.entity} (${rule.operation})`),
+          hooks: model.hooks.map((hook) => `${hook.type} ${hook.handler} on ${hook.entity}`),
+          workflows: model.workflows.map(
+            (w) => `${w.name} on ${w.entity} (${w.states.length} states)`
+          ),
           packageManager: extras.packageManager,
           generatedAt: new Date().toISOString(),
         },

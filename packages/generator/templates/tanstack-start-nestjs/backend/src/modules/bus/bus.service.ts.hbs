@@ -13,7 +13,7 @@ import { randomUUID } from 'crypto';
 import { KYSELY_CONNECTION } from '../../database/database.constants';
 import { DatabaseService } from '../../database/database.service';
 import type { PaginationOptions, PaginatedResult } from '../../database/database.service';
-import { executeBeforeCreateHooks, executeAfterCreateHooks, executeBeforeUpdateHooks, executeAfterUpdateHooks, executeBeforeDeleteHooks, executeAfterDeleteHooks, executeBeforeReadHooks, executeAfterReadHooks, executeBeforeListHooks, executeAfterListHooks } from '../hooks/hooks';
+import { executeBeforeCreateHooks, executeAfterCreateHooks, executeBeforeUpdateHooks, executeAfterUpdateHooks, executeBeforeDeleteHooks, executeAfterDeleteHooks, executeBeforeReadHooks, executeAfterReadHooks, executeBeforeListHooks, executeAfterListHooks, executeCustomValidateHooks } from '../hooks/hooks';
 import { RulesService } from '../rules/rules.service';
 import { PromotionDispatcher } from './promotion-dispatcher.service';
 import type { PromotionResult } from './entity-promotion.service';
@@ -164,6 +164,7 @@ export class BusService {
       processedData = rest;
     }
 
+    await executeCustomValidateHooks(entity, processedData);
     await this.enforceBusinessRules(tableName, processedData, 'create');
 
     let result: any;
@@ -236,7 +237,9 @@ export class BusService {
     // update, so rules over fields absent from a partial payload still hold.
     const current = await this.db.findById<Record<string, any>>(tableName, id);
     if (current) {
-      await this.enforceBusinessRules(tableName, { ...current, ...processedData }, 'update');
+      const merged = { ...current, ...processedData };
+      await executeCustomValidateHooks(entity, merged);
+      await this.enforceBusinessRules(tableName, merged, 'update');
     }
 
     const result = await this.db.transaction(async (trx) => {

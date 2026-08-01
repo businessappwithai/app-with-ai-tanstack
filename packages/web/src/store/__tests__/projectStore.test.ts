@@ -1,6 +1,6 @@
 import { act } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Project } from "../../types/project";
+import { type Project, STEP_ORDER } from "../../types/project";
 import { useProjectStore } from "../projectStore";
 
 // ---------------------------------------------------------------------------
@@ -279,7 +279,7 @@ describe("projectStore", () => {
     it("goes back to the previous step", () => {
       useProjectStore.setState({ currentStep: "generate" });
       useProjectStore.getState().goToPreviousStep();
-      expect(useProjectStore.getState().currentStep).toBe("design");
+      expect(useProjectStore.getState().currentStep).toBe("workflows");
     });
 
     it("does not go before the first step", () => {
@@ -288,14 +288,21 @@ describe("projectStore", () => {
       expect(useProjectStore.getState().currentStep).toBe("init");
     });
 
+    // Navigation follows STEP_ORDER rather than a list kept here. The two used
+    // to disagree — the store skipped the rules step the stepper displayed, so
+    // "next" from design jumped past it.
     it("traverses all steps in order", () => {
-      const steps = ["init", "design", "generate", "enhance", "deploy"] as const;
-      useProjectStore.setState({ currentStep: "init" });
+      useProjectStore.setState({ currentStep: STEP_ORDER[0] });
 
-      for (let i = 1; i < steps.length; i++) {
+      for (let i = 1; i < STEP_ORDER.length; i++) {
         useProjectStore.getState().goToNextStep();
-        expect(useProjectStore.getState().currentStep).toBe(steps[i]);
+        expect(useProjectStore.getState().currentStep).toBe(STEP_ORDER[i]);
       }
+    });
+
+    it("visits the rules and workflow steps the wizard displays", () => {
+      expect(STEP_ORDER).toContain("rules");
+      expect(STEP_ORDER).toContain("workflows");
     });
   });
 
