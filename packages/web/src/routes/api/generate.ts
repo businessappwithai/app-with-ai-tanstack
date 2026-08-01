@@ -43,7 +43,10 @@ export const Route = createFileRoute("/api/generate")({
               }
 
               const { projectDb } = await import("@erdwithai/core/services");
-              const { FullStackGenerator, MermaidParser } = await import("@erdwithai/generator");
+              // The shared pipeline, not FullStackGenerator directly: assembling
+              // the generator's options here is what let this path drift from
+              // the CLI and silently drop the model's entity categories.
+              const { generateApplication, parseModel } = await import("@erdwithai/generator");
 
               sendLog("info", "Loading project details...");
               const project = await projectDb.findById(projectId);
@@ -68,34 +71,40 @@ export const Route = createFileRoute("/api/generate")({
               sendLog("info", `Initializing generator for stack: ${finalStackType}`);
 
               sendLog("info", "Parsing ERD definition...");
-              const parser = new MermaidParser();
-              const { entities, relationships } = parser.parse(finalErdCode);
+              const model = parseModel(finalErdCode);
               sendLog(
                 "success",
-                `Parsed ${entities.length} entities and ${relationships.length} relationships`
+                `Parsed ${model.entities.length} entities and ${model.relationships.length} relationships`
+              );
+              sendLog(
+                "success",
+                `Resolved ${model.categories.length} entity categories: ${model.categories
+                  .map((category) => category.name)
+                  .sort()
+                  .join(", ")}`
               );
 
               const outputDir = path.join(process.cwd(), "generated-projects", projectId);
               await fs.mkdir(outputDir, { recursive: true });
               sendLog("info", `Created output directory: ${outputDir}`);
 
-              sendLog("info", `Initializing FullStackGenerator for ${finalStackType}...`);
-              const generator = new FullStackGenerator({
+              sendLog("info", `Initializing generator for ${finalStackType}...`);
+              sendLog(
+                "info",
+                `Generating ${model.entities.length} entities (${model.relationships.length} relationships)...`
+              );
+              await generateApplication({
+                sources: finalErdCode,
+                model,
                 stackOption: finalStackOption,
                 projectName: project.name || `Project ${projectId}`,
-                projectVersion: "1.0.0",
                 projectDescription:
                   project.description || `Generated ${finalStackType} application`,
                 outputDir,
                 port: project.port || 4000,
+                manifest: { input: "erdCode", packageManager: "bun" },
               });
-
-              sendLog(
-                "info",
-                `Generating ${entities.length} entities (${relationships.length} relationships)...`
-              );
-              await generator.generate(entities, relationships);
-              sendLog("success", `Generated ${entities.length} entities successfully`);
+              sendLog("success", `Generated ${model.entities.length} entities successfully`);
 
               await projectDb.update(projectId, {
                 generatedPath: outputDir,

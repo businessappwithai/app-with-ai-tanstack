@@ -13,11 +13,12 @@ import { Command } from "commander";
 import { promises as fs } from "fs";
 import * as path from "path";
 import * as readline from "readline";
-import { FullStackGenerator, type StackOption } from "../generators/full-stack.generator";
+import type { StackOption } from "../generators/full-stack.generator";
 import { NestJsBackendGenerator } from "../generators/tanstack-start-nestjs/nestjs-backend.generator";
 import { TanStackStartFrontendGenerator } from "../generators/tanstack-start-nestjs/tanstack-start-frontend.generator";
 import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
 import { MermaidParser } from "../parsers/mermaid.parser";
+import { generateApplication, readModelSources } from "../pipeline";
 
 // Resolve relative paths from the workspace root (INIT_CWD) when called via bun --filter
 const resolvePath = (p: string) =>
@@ -55,34 +56,13 @@ async function parseCategoriesFrom(
   filePaths: Array<string | undefined>,
   entities: Entity[]
 ): Promise<EntityCategory[]> {
-  const sources: string[] = [];
-
-  for (const filePath of filePaths) {
-    if (!filePath) continue;
-    try {
-      sources.push(await fs.readFile(resolvePath(filePath), "utf-8"));
-    } catch {
-      // A missing optional input is not an error here — the caller already
-      // validated the files it requires.
-    }
-  }
-
+  const sources = await readModelSources(filePaths.map((p) => p && resolvePath(p)));
+  // Reuses the pipeline's resolution so the CLI and the web app agree on what a
+  // model's `%%category` directives mean, including the "General" fallback.
   return resolveCategories(
     sources.join("\n"),
     entities.map((entity) => entity.name)
   );
-}
-
-/** Save a generation manifest so `erdwithai info` can read it later. */
-async function writeManifest(outputDir: string, meta: Record<string, unknown>) {
-  try {
-    await fs.writeFile(
-      path.join(outputDir, ".erdwithai.json"),
-      JSON.stringify({ ...meta, generatedAt: new Date().toISOString() }, null, 2)
-    );
-  } catch {
-    // non-fatal
-  }
 }
 
 /** Check whether the output directory already contains files. */
@@ -518,55 +498,36 @@ program
       // ── Generate ────────────────────────────────────────────────────────
       log("\n📦 Generating application...\n", quiet);
 
-      const generator = new FullStackGenerator({
+      // Generation and the manifest both go through the shared pipeline, which
+      // the web app's /api/generate route also calls — that is what keeps a
+      // model generating the same application from either entry point.
+      await generateApplication({
+        sources: [],
+        model: { entities: allEntities, relationships: allRelationships, categories },
         stackOption,
         projectName: options.name,
         projectVersion: options.version,
         projectDescription: options.description,
         outputDir,
+        databaseType: options.db as "postgresql" | "sqlite",
         port: backendPort,
         frontendPort,
-        tanstackStartNestjs:
-          stackOption === "tanstackjs-nestjs"
-            ? {
-                backend: {
-                  databaseType: options.db as "postgresql" | "sqlite",
-                  port: backendPort,
-                  enableSwagger: options.swagger !== false,
-                  enableCors: options.cors !== false,
-                },
-                frontend: {
-                  apiBaseUrl: apiUrl,
-                  enableDarkMode: !!options.darkMode,
-                },
-              }
-            : undefined,
+        apiBaseUrl: apiUrl,
+        enableSwagger: options.swagger !== false,
+        enableCors: options.cors !== false,
+        enableDarkMode: !!options.darkMode,
         skipFrontend: !!options.skipFrontend,
         skipBackend: !!options.skipBackend,
         skipTests: options.tests === false,
         recordsPerEntity: Number(options.recordsPerEntity) || 1000,
-        categories,
-      });
-
-      await generator.generate(allEntities, allRelationships);
-
-      // ── Save manifest ───────────────────────────────────────────────────
-      await writeManifest(outputDir, {
-        name: options.name,
-        version: options.version,
-        description: options.description,
-        stack: stackOption,
-        database: options.db,
-        input: options.input || {
-          sysFile: options.sysFile,
-          busFile: options.busFile,
-          refFile: options.refFile,
+        manifest: {
+          input: options.input || {
+            sysFile: options.sysFile,
+            busFile: options.busFile,
+            refFile: options.refFile,
+          },
+          packageManager: options.packageManager,
         },
-        backendPort,
-        frontendPort,
-        apiUrl,
-        entities: allEntities.map((e) => e.name),
-        packageManager: options.packageManager,
       });
 
       // ── Auto-setup (install + migrate + seed) ───────────────────────────
