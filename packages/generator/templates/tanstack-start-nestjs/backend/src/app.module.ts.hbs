@@ -20,6 +20,7 @@ import { WorkflowDefinitionsModule } from './modules/workflow-definitions/workfl
 import { JobQueueModule } from './modules/jobs/job-queue.module';
 import { ElectricModule } from './modules/electric/electric.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { AuditInterceptor } from './modules/audit/audit.interceptor';
 
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
@@ -91,6 +92,18 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
+    },
+
+    // Global audit interceptor.
+    //
+    // Global, not per-controller: it used to hang off BusController alone, so
+    // the audit page showed record edits and nothing else — business rule
+    // changes, workflow definition changes, role grants and dictionary edits
+    // all went unrecorded. An audit trail with holes in it is worse than none,
+    // because it looks complete.
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
     },
 
     // Global rate limiting guard

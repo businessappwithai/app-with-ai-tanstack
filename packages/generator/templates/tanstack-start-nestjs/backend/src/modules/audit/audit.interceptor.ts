@@ -11,24 +11,86 @@ import { AuditService } from "./audit.service";
 import type { AuditEvent, AuditSource } from "./audit.types";
 import { diffFields } from "./audit.types";
 
-/** Methods that mutate data and should be audited. */
-const AUDIT_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+/** Methods that mutate data. Always audited. */
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
-/** Map HTTP method → audit action. */
-function resolveAction(method: string): string {
-  if (method === "DELETE") return "ENTITY_DELETE";
-  if (method === "POST") return "ENTITY_CREATE";
-  if (method === "PUT" || method === "PATCH") return "ENTITY_UPDATE";
-  return "ENTITY_READ";
+/**
+ * Audit reads as well as writes.
+ *
+ * Off by default: every list and detail view would land in the table, and on a
+ * busy app the reads bury the changes. Turn it on where the regime requires
+ * proof of who looked at what (GxP, HIPAA, SOX) and budget for the volume.
+ */
+const AUDIT_READS = process.env.AUDIT_READS === "true";
+
+/**
+ * What each API surface is, for the audit trail.
+ *
+ * Anything not listed is still audited under its first path segment — a new
+ * module is recorded from the day it ships rather than silently missing until
+ * someone remembers to add it here. Ordered longest-prefix first so
+ * `/sys/roles` does not match as plain `sys`.
+ */
+const RESOURCES: Array<{ prefix: RegExp; resource: string; subject: string }> = [
+  { prefix: /^\/?api\/auth\b/, resource: "auth", subject: "AUTH" },
+  { prefix: /^\/?bus\/([^/?]+)/, resource: "", subject: "ENTITY" },
+  { prefix: /^\/?sys\/roles\b/, resource: "sys/roles", subject: "ROLE" },
+  { prefix: /^\/?sys\/user-roles\b/, resource: "sys/user-roles", subject: "ROLE_ASSIGNMENT" },
+  { prefix: /^\/?sys\/users\b/, resource: "sys/users", subject: "USER" },
+  { prefix: /^\/?sys\/access\b/, resource: "sys/access", subject: "PERMISSION" },
+  { prefix: /^\/?sys\b/, resource: "sys", subject: "DICTIONARY" },
+  { prefix: /^\/?rules\b/, resource: "rules", subject: "RULE" },
+  { prefix: /^\/?workflow-definitions\b/, resource: "workflow-definitions", subject: "WORKFLOW" },
+  { prefix: /^\/?workflows\b/, resource: "workflows", subject: "WORKFLOW_RUN" },
+  { prefix: /^\/?jobs\b/, resource: "jobs", subject: "JOB" },
+  { prefix: /^\/?api\/ai\b/, resource: "api/ai", subject: "AI" },
+  { prefix: /^\/?me\b/, resource: "me", subject: "PROFILE" },
+];
+
+/** Paths that would audit themselves into a loop, or say nothing worth keeping. */
+const IGNORED = [/^\/?audit\b/, /^\/?health\b/, /^\/?v1\/shape\b/, /^\/?favicon/];
+
+/** Verb suffix for an action name. */
+function verbFor(method: string): string {
+  if (method === "DELETE") return "DELETE";
+  if (method === "POST") return "CREATE";
+  if (method === "PUT" || method === "PATCH") return "UPDATE";
+  return "READ";
 }
 
-function resolveEntityType(path: string): string | null {
-  // /bus/:entity/... → entity name
-  const busMatch = path.match(/\/bus\/([^/]+)/);
-  if (busMatch) return busMatch[1];
-  // /sys/... → sys
-  if (path.includes("/sys/")) return "sys";
-  return null;
+export interface AuditTarget {
+  /** Recorded as `entity_type` — the thing acted on. */
+  entityType: string;
+  /** Recorded as `action`, e.g. `RULE_UPDATE`. */
+  action: string;
+}
+
+/**
+ * Classify a request into what the audit page shows.
+ *
+ * Returns null only for paths in IGNORED. Everything else is recorded: a trail
+ * that quietly omits business rule edits, role grants or logins is not an audit
+ * trail, and those were exactly the paths the old `/bus/` and `/sys/` match
+ * dropped on the floor.
+ */
+export function classifyRequest(path: string, method: string): AuditTarget | null {
+  const clean = (path.split("?")[0] ?? "").replace(/^\/api\//, "/");
+  if (IGNORED.some((re) => re.test(clean))) return null;
+
+  const verb = verbFor(method);
+
+  for (const { prefix, resource, subject } of RESOURCES) {
+    const match = clean.match(prefix);
+    if (!match) continue;
+    // `/bus/:entity` records the entity itself, so the trail reads
+    // `bus_compound` rather than a uniform `bus`.
+    const entityType = resource || match[1] || "bus";
+    return { entityType, action: `${subject}_${verb}` };
+  }
+
+  // Unknown surface: record it under its first segment rather than lose it.
+  const segment = clean.replace(/^\//, "").split("/")[0] || "root";
+  return { entityType: segment, action: `${segment.toUpperCase().replace(/[^A-Z0-9]/g, "_")}_${verb}` };
 }
 
 function resolveEntityId(params: Record<string, string>): string | null {
@@ -64,13 +126,12 @@ export class AuditInterceptor implements NestInterceptor {
     const req = http.getRequest();
     const method: string = req.method?.toUpperCase() ?? "";
 
-    if (!AUDIT_METHODS.has(method)) return next.handle();
+    const mutating = MUTATING_METHODS.has(method);
+    if (!mutating && !AUDIT_READS) return next.handle();
 
     const path: string = req.url ?? req.path ?? "";
-    const entityType = resolveEntityType(path);
-
-    // Skip pure sys reads — only audit sys mutations (handled separately)
-    if (!entityType) return next.handle();
+    const target = classifyRequest(path, method);
+    if (!target) return next.handle();
 
     const user = req.user;
     const params = req.params ?? {};
@@ -81,9 +142,9 @@ export class AuditInterceptor implements NestInterceptor {
       user_name: user?.name ?? null,
       user_email: user?.email ?? null,
       session_id: req.session?.session?.id ?? null,
-      entity_type: entityType,
+      entity_type: target.entityType,
       entity_id: resolveEntityId(params),
-      action: resolveAction(method),
+      action: target.action,
       ip_address:
         (headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ??
         req.socket?.remoteAddress ??

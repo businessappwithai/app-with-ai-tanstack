@@ -9,10 +9,20 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from "@nestjs/common";
+import { SessionAuthGuard } from "../auth/guards/session-auth.guard";
+import { RolesGuard } from "../auth/guards/roles.guard";
 import { WorkflowDefinitionsService } from "./workflow-definitions.service";
 import type { WorkflowDefinitionDto } from "./workflow-definitions.service";
 
+/**
+ * Workflow definitions decide what runs on every write, so they are guarded the
+ * same way business rules are. This controller shipped with no guards at all:
+ * `GET /api/workflow-definitions` returned every definition to anyone who
+ * asked, and PUT/POST/DELETE let them be rewritten without signing in.
+ */
+@UseGuards(SessionAuthGuard, RolesGuard)
 @Controller("workflow-definitions")
 export class WorkflowDefinitionsController {
   constructor(private readonly service: WorkflowDefinitionsService) {}

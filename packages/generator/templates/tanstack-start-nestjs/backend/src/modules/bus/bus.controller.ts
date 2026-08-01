@@ -24,7 +24,6 @@ import {
   Query,
   Req,
   UseGuards,
-  UseInterceptors,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuditInterceptor } from "../audit/audit.interceptor";
@@ -34,7 +33,6 @@ import { BusService } from "./bus.service";
 @ApiTags("bus")
 @ApiBearerAuth()
 @UseGuards(SessionAuthGuard)
-@UseInterceptors(AuditInterceptor)
 @Controller("bus")
 export class BusController {
   private readonly logger = new Logger(BusController.name);
