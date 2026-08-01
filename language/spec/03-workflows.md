@@ -32,6 +32,41 @@ Examples:
 %%hook customValidate ensureCreditLimit on Order
 ```
 
+### What a hook directive generates
+
+Each directive becomes a function in the generated backend, in a module per
+entity:
+
+```
+backend/src/modules/hooks/
+├── handlers/
+│   ├── User.ts        # one exported function per handler declared for User
+│   └── index.ts       # the registry, generated from the directives
+└── hooks.ts           # the executors the bus service calls
+```
+
+`handlers/<Entity>.ts` is written **once** and then left alone — the bodies are
+application logic, so regenerating the project never overwrites them. A hook
+added to the model later is appended to the existing module. `handlers/index.ts`
+is pure wiring and is rewritten on every generation.
+
+A handler's signature follows its phase:
+
+| Phase | Receives | Returns |
+|-------|----------|---------|
+| `before*` | the payload | the payload to use (return it, changed or not) |
+| `after*` | the record | nothing — side effects only |
+| `beforeDelete` | the id | `false` to block the delete |
+| `customValidate` | the record | nothing — **throw** to reject the write |
+
+`customValidate` runs on every create and update, against the record as it will
+look after the write, so a validation over a field absent from a partial update
+still holds.
+
+The entity a hook binds to is matched however the caller spells it: the REST
+route sends `bus_compound`, the UI sends `chemical-inventory`, the model says
+`ChemicalInventory` — all three resolve to the same handlers.
+
 ### The 13 hook types
 
 | Hook | Phase | Op | Typical use |
@@ -91,6 +126,24 @@ LastState  --> [*]
   triggering event/action.
 - Bind with `%%workflow ... kind: state` and (optionally) guard transitions with
   `%%guard`.
+
+### What a state workflow generates
+
+Each state workflow becomes a row in `sys_workflow_definitions`, holding BPMN the
+generated backend executes. The generator already seeds a `trigger-workflow` rule
+per entity for create and update; those rules resolve a definition **by name**
+(`<table>-on-create-workflow`), so one is seeded for every entity:
+
+| The model declares | The generated definition does |
+|--------------------|-------------------------------|
+| a state machine for the entity | puts a new record into the starting state — the `[*] --> x` edge — writing `x` to the entity's `status` column, or `workflow_status` when it has none |
+| nothing for that entity | runs a single no-op, so the workflow run still exists and is visible in the run list |
+
+The full machine (every state and transition, with its trigger labels) is recorded
+in the definition's description, so the Workflow Designer shows what was drawn.
+
+Without the definitions, every write logged *"No active workflow named … —
+nothing to trigger"* and no run was ever recorded.
 
 ### Complete state workflow — order fulfilment
 

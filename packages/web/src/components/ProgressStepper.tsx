@@ -1,30 +1,43 @@
 "use client";
 
+import { useNavigate } from "@tanstack/react-router";
 import { Check } from "lucide-react";
 import React from "react";
-import type { ProjectStep } from "@/types/project";
+import { type ProjectStep, STEP_LABELS, STEP_ORDER, STEP_ROUTES } from "@/types/project";
 
-const steps: Array<{ key: ProjectStep; label: string; number: number }> = [
-  { key: "init", label: "Init", number: 1 },
-  { key: "design", label: "Design", number: 2 },
-  { key: "rules", label: "Rules", number: 3 },
-  { key: "generate", label: "Gen", number: 4 },
-  { key: "enhance", label: "Enhance", number: 5 },
-  { key: "deploy", label: "Deploy", number: 6 },
-];
+// Derived from the step vocabulary so a new step is added in one place.
+const steps: Array<{ key: ProjectStep; label: string; number: number }> = STEP_ORDER.map(
+  (key, index) => ({ key, label: STEP_LABELS[key], number: index + 1 })
+);
 
 interface ProgressStepperProps {
   currentStep: ProjectStep;
   completedSteps?: ProjectStep[];
   onStepClick?: (step: ProjectStep) => void;
+  /**
+   * Pass the project id to get navigation for free — every step already knows
+   * its own route, so a page need not repeat the mapping.
+   */
+  projectId?: string;
 }
 
 export function ProgressStepper({
   currentStep,
   completedSteps = [],
   onStepClick,
+  projectId,
 }: ProgressStepperProps) {
+  const navigate = useNavigate();
   const currentIndex = steps.findIndex((s) => s.key === currentStep);
+
+  const goToStep =
+    onStepClick ??
+    (projectId
+      ? (step: ProjectStep) => {
+          if (step === currentStep) return;
+          void navigate({ to: STEP_ROUTES[step], params: { id: projectId } });
+        }
+      : undefined);
 
   return (
     <div className="px-6 py-8">
@@ -32,13 +45,14 @@ export function ProgressStepper({
         {steps.map((step, index) => {
           const isCompleted = completedSteps.includes(step.key) || index < currentIndex;
           const isCurrent = step.key === currentStep;
-          const isClickable = onStepClick && (isCompleted || isCurrent);
+          const isClickable = Boolean(goToStep) && (isCompleted || isCurrent);
 
           return (
             <React.Fragment key={step.key}>
               <div className="flex flex-col items-center z-10 gap-2">
                 <button
-                  onClick={() => isClickable && onStepClick(step.key)}
+                  type="button"
+                  onClick={() => goToStep?.(step.key)}
                   disabled={!isClickable}
                   className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
                     isCurrent

@@ -52,12 +52,20 @@ export interface WorkflowDefinition {
   description?: string;
 }
 
-export type ProjectStep = "init" | "design" | "rules" | "generate" | "enhance" | "deploy";
+export type ProjectStep =
+  | "init"
+  | "design"
+  | "rules"
+  | "workflows"
+  | "generate"
+  | "enhance"
+  | "deploy";
 
 export const STEP_ORDER: ProjectStep[] = [
   "init",
   "design",
   "rules",
+  "workflows",
   "generate",
   "enhance",
   "deploy",
@@ -67,9 +75,21 @@ export const STEP_LABELS: Record<ProjectStep, string> = {
   init: "Init",
   design: "Design",
   rules: "Rules",
+  workflows: "Flows",
   generate: "Gen",
   enhance: "Enhance",
   deploy: "Deploy",
+};
+
+/** Where each step lives, so the stepper can navigate without a lookup table per page. */
+export const STEP_ROUTES: Record<ProjectStep, string> = {
+  init: "/projects/$id/init",
+  design: "/projects/$id/design",
+  rules: "/projects/$id/rules-design",
+  workflows: "/projects/$id/workflow-design",
+  generate: "/projects/$id/generate",
+  enhance: "/projects/$id/enhance",
+  deploy: "/projects/$id/deploy",
 };
 
 export interface MermaidFile {

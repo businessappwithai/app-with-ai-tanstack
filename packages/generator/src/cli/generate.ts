@@ -13,14 +13,16 @@ import { Command } from "commander";
 import { promises as fs } from "fs";
 import * as path from "path";
 import * as readline from "readline";
+import { extractRuleSections } from "../eml";
 import type { StackOption } from "../generators/full-stack.generator";
 import { NestJsBackendGenerator } from "../generators/tanstack-start-nestjs/nestjs-backend.generator";
 import { TanStackStartFrontendGenerator } from "../generators/tanstack-start-nestjs/tanstack-start-frontend.generator";
+import { compileHooks } from "../hooks";
 import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
 import { MermaidParser } from "../parsers/mermaid.parser";
-import { extractRuleSections } from "../eml";
 import { generateApplication, readModelSources } from "../pipeline";
 import { compileRules } from "../rules";
+import { compileWorkflows } from "../workflows";
 
 // Resolve relative paths from the workspace root (INIT_CWD) when called via bun --filter
 const resolvePath = (p: string) =>
@@ -435,8 +437,20 @@ program
           (p) => p && resolvePath(p)
         )
       );
-      const compiledRules = compileRules(extractRuleSections(ruleSources.join("\n")), (message) =>
-        console.warn(`  ⚠️  ${message}`)
+      const warn = (message: string) => console.warn(`  ⚠️  ${message}`);
+      const compiledRules = compileRules(extractRuleSections(ruleSources.join("\n")), warn);
+      // `%%hook` directives name the lifecycle handlers the generated service
+      // runs around each CRUD operation.
+      const compiledHooks = compileHooks(
+        ruleSources.join("\n"),
+        allEntities.map((entity) => entity.name),
+        warn
+      );
+      // `%%workflow ... kind: state` sections become seeded workflow definitions.
+      const compiledWorkflows = compileWorkflows(
+        ruleSources.join("\n"),
+        allEntities.map((entity) => entity.name),
+        warn
       );
 
       // ── Entity summary ──────────────────────────────────────────────────
@@ -449,6 +463,19 @@ program
         console.log(`\n📐 Business rules (${compiledRules.length}):`);
         for (const rule of compiledRules) {
           console.log(`   • ${rule.name} on ${rule.entity} (${rule.operation})`);
+        }
+
+        console.log(`\n🪝 Lifecycle hooks (${compiledHooks.length}):`);
+        for (const hook of compiledHooks) {
+          console.log(`   • ${hook.type} ${hook.handler} on ${hook.entity}`);
+        }
+
+        console.log(`\n🔁 Status workflows (${compiledWorkflows.length}):`);
+        for (const workflow of compiledWorkflows) {
+          console.log(
+            `   • ${workflow.name} on ${workflow.entity} — ${workflow.states.length} states, ` +
+              `${workflow.transitions.length} transitions`
+          );
         }
 
         console.log(`\n🗂️  Entity categories (${categories.length}):`);
@@ -527,6 +554,8 @@ program
           relationships: allRelationships,
           categories,
           rules: compiledRules,
+          hooks: compiledHooks,
+          workflows: compiledWorkflows,
         },
         stackOption,
         projectName: options.name,

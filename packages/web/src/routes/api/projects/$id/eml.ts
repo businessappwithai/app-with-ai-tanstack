@@ -20,80 +20,100 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
+/**
+ * Turn a thrown error into a response.
+ *
+ * An error that escapes a handler is not just an unhelpful 500 — the dev server
+ * dies trying to serialise it — so nothing here is allowed to throw.
+ */
+function failed(error: unknown, action: string): Response {
+  const message = error instanceof Error ? error.message : "Unknown error";
+  console.error(`[eml] ${action} failed:`, error);
+  return json({ error: `Could not ${action}: ${message}` }, 500);
+}
+
 export const Route = createFileRoute("/api/projects/$id/eml")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const { projectDb } = await import("@erdwithai/core/services");
-        const { extractRuleSections, extractWorkflowSections } = await import(
-          "@erdwithai/generator"
-        );
+        try {
+          const { projectDb } = await import("@erdwithai/core/services");
+          const { extractRuleSections, extractWorkflowSections } = await import(
+            "@erdwithai/generator"
+          );
 
-        const project = await projectDb.findById(params.id);
-        if (!project) return json({ error: "Project not found" }, 404);
+          const project = await projectDb.findById(params.id);
+          if (!project) return json({ error: "Project not found" }, 404);
 
-        const eml = project.erdCode ?? "";
+          const eml = project.erdCode ?? "";
 
-        return json({
-          projectId: params.id,
-          name: project.name,
-          eml,
-          rules: extractRuleSections(eml),
-          workflows: extractWorkflowSections(eml),
-        });
+          return json({
+            projectId: params.id,
+            name: project.name,
+            eml,
+            rules: extractRuleSections(eml),
+            workflows: extractWorkflowSections(eml),
+          });
+        } catch (error) {
+          return failed(error, "read the model");
+        }
       },
 
       PUT: async ({ request, params }) => {
-        const { erdVersionDb, projectDb } = await import("@erdwithai/core/services");
-        const { mergeSections, extractRuleSections, extractWorkflowSections, parseModel } =
-          await import("@erdwithai/generator");
+        try {
+          const { erdVersionDb, projectDb } = await import("@erdwithai/core/services");
+          const { mergeSections, extractRuleSections, extractWorkflowSections, parseModel } =
+            await import("@erdwithai/generator");
 
-        const project = await projectDb.findById(params.id);
-        if (!project) return json({ error: "Project not found" }, 404);
+          const project = await projectDb.findById(params.id);
+          if (!project) return json({ error: "Project not found" }, 404);
 
-        const existing = project.erdCode ?? "";
-        if (!existing.trim()) {
-          return json(
-            { error: "This project has no ERD yet. Design the data model before adding rules." },
-            409
-          );
+          const existing = project.erdCode ?? "";
+          if (!existing.trim()) {
+            return json(
+              { error: "This project has no ERD yet. Design the data model before adding rules." },
+              409
+            );
+          }
+
+          const body = (await request.json()) as {
+            rules?: unknown;
+            workflows?: unknown;
+          };
+
+          // Omitting a collection leaves it as it is; sending an empty array
+          // clears it. An editor that only handles rules must not silently drop
+          // the workflows the model already declares.
+          const rules = Array.isArray(body.rules)
+            ? (body.rules as ReturnType<typeof extractRuleSections>)
+            : extractRuleSections(existing);
+          const workflows = Array.isArray(body.workflows)
+            ? (body.workflows as ReturnType<typeof extractWorkflowSections>)
+            : extractWorkflowSections(existing);
+
+          const eml = mergeSections(existing, { rules, workflows });
+
+          // The model is versioned, so editing rules leaves the previous document
+          // recoverable rather than overwriting it in place.
+          const model = parseModel(eml);
+          await erdVersionDb.createVersion({
+            project_id: params.id,
+            mermaid_code: eml,
+            is_current: true,
+            description: "Rules and workflows updated from the design phase",
+            entity_count: model.entities.length,
+            relationship_count: model.relationships.length,
+          });
+
+          return json({
+            projectId: params.id,
+            eml,
+            rules: extractRuleSections(eml),
+            workflows: extractWorkflowSections(eml),
+          });
+        } catch (error) {
+          return failed(error, "save the model");
         }
-
-        const body = (await request.json()) as {
-          rules?: unknown;
-          workflows?: unknown;
-        };
-
-        // Omitting a collection leaves it as it is; sending an empty array
-        // clears it. An editor that only handles rules must not silently drop
-        // the workflows the model already declares.
-        const rules = Array.isArray(body.rules)
-          ? (body.rules as ReturnType<typeof extractRuleSections>)
-          : extractRuleSections(existing);
-        const workflows = Array.isArray(body.workflows)
-          ? (body.workflows as ReturnType<typeof extractWorkflowSections>)
-          : extractWorkflowSections(existing);
-
-        const eml = mergeSections(existing, { rules, workflows });
-
-        // The model is versioned, so editing rules leaves the previous document
-        // recoverable rather than overwriting it in place.
-        const model = parseModel(eml);
-        await erdVersionDb.createVersion({
-          project_id: params.id,
-          mermaid_code: eml,
-          is_current: true,
-          description: "Rules and workflows updated from the design phase",
-          entity_count: model.entities.length,
-          relationship_count: model.relationships.length,
-        });
-
-        return json({
-          projectId: params.id,
-          eml,
-          rules: extractRuleSections(eml),
-          workflows: extractWorkflowSections(eml),
-        });
       },
     },
   },

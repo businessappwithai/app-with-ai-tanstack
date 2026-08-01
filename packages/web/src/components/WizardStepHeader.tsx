@@ -1,7 +1,7 @@
 "use client";
 
 import { Info } from "lucide-react";
-import React from "react";
+import { STEP_ORDER } from "@/types/project";
 
 interface WizardStepHeaderProps {
   stepNumber: number;
@@ -24,7 +24,7 @@ export function WizardStepHeader({
       <div className="mb-3">
         <div className="flex items-center gap-3 mb-2">
           <span className="text-sm font-semibold text-muted-foreground">
-            Step {stepNumber} of 6
+            Step {stepNumber} of {STEP_ORDER.length}
           </span>
           {estimatedTime && (
             <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">

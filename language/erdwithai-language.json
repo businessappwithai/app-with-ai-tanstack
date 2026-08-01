@@ -277,7 +277,7 @@
     }
   },
   "foreignKeys": {
-    "description": "How an FK column name resolves to the table it points at. The generator derives the target from the column name alone \u2014 there is no explicit target syntax on the attribute \u2014 so the name has to carry the reference.",
+    "description": "How an FK column name resolves to the table it points at. The generator derives the target from the column name alone — there is no explicit target syntax on the attribute — so the name has to carry the reference.",
     "suffix": "_id",
     "resolution": [
       "1. A person-role name (see personRoleColumns) resolves to the user entity.",
@@ -366,7 +366,7 @@
     ]
   },
   "hooks": {
-    "description": "Lifecycle event points a workflow hook may bind to. Handlers run in the generated BaseService around CRUD operations (globalHookExecutor).",
+    "description": "Lifecycle event points a workflow hook may bind to. Each %%hook directive generates a handler function in the generated backend (src/modules/hooks/handlers/<Entity>.ts), registered against the event and run by the bus service around the matching CRUD operation.",
     "types": [
       {
         "type": "beforeCreate",
@@ -653,20 +653,25 @@
     "description": "How each section feeds the generator pipeline.",
     "pipeline": [
       "1. ERD section -> MermaidParser -> Entity[] + Relationship[] -> migrations, DTOs, services, controllers, forms, tables.",
-      "2. Rules section -> mermaid-flowchart-parser -> convertToJdm -> GoRules JDM graph -> decision service.",
-      "3. Workflow section -> hook-parser -> HookDefinition[] -> generated BaseService lifecycle wiring; state form -> status enum + transition guards."
+      "2. Rules section -> flowchart-parser -> jdm-converter -> GoRules JDM graph -> seeded into sys_rule_definitions and evaluated by the rules engine.",
+      "3. Workflow section, hook form -> compileHooks -> per-entity handler modules under src/modules/hooks/handlers plus a registry the bus service calls around every CRUD operation.",
+      "4. Workflow section, state form -> compileWorkflows -> BPMN seeded into sys_workflow_definitions; the trigger-workflow rules resolve it by name and the run puts a new record into the state machine’s starting state."
     ],
     "referenceFiles": {
       "erdParser": "packages/generator/src/parsers/mermaid.parser.ts",
       "flowchartParser": "packages/web/src/lib/mermaid-flowchart-parser.ts",
       "jdmConverter": "packages/web/src/lib/jdm-converter.ts",
       "hookParser": "packages/web/src/lib/workflow/hook-parser.ts",
-      "orchestrator": "packages/generator/src/generators/orchestrator.ts"
+      "orchestrator": "packages/generator/src/generators/orchestrator.ts",
+      "ruleCompiler": "packages/generator/src/rules/index.ts",
+      "hookCompiler": "packages/generator/src/hooks/index.ts",
+      "pipeline": "packages/generator/src/pipeline/generate-application.ts",
+      "workflowCompiler": "packages/generator/src/workflows/index.ts"
     }
   },
   "conformance": {
     "levels": {
-      "core": "erDiagram entities, attributes with PK/FK/UK/OPTIONAL/NULL/UNIQUE, relationship cardinalities (all 8 operators). Fully parsed by the shipped ERD parser (mermaid.parser.ts). Directives inside an erDiagram block (%%field, %%enum, %%index, %%entity) are silently skipped by the ERD parser \u2014 they are reserved for future use.",
+      "core": "erDiagram entities, attributes with PK/FK/UK/OPTIONAL/NULL/UNIQUE, relationship cardinalities (all 8 operators). Fully parsed by the shipped ERD parser (mermaid.parser.ts). Directives inside an erDiagram block (%%field, %%enum, %%index, %%entity) are silently skipped by the ERD parser — they are reserved for future use.",
       "rules": "flowchart decision flows convertible to JDM via shape semantics. Fully parsed by the shipped flowchart parser + JDM converter.",
       "workflow-hooks": "%%hook directives (all 13 hook types) and stateDiagram-v2 state transitions. Fully parsed by the shipped hook-parser (hook-parser.ts). kind: hook and kind: state are shipped; kind: saga visual diagram renders but compensating-transaction orchestration is extended.",
       "extended": "%%meta, %%entity, %%field, %%enum, %%index, %%rule, %%guard, %%trigger, %%workflow directives beyond what the shipped parsers consume. Reserved and documented; renderer-safe; adopted incrementally by the generator."

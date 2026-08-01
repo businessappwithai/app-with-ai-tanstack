@@ -20,7 +20,9 @@ import {
   TanStackStartFrontendGenerator,
   type TanStackStartFrontendOptions,
 } from "./tanstack-start-nestjs/tanstack-start-frontend.generator";
+import type { CompiledHook } from "../hooks";
 import type { CompiledRule } from "../rules";
+import type { CompiledWorkflow } from "../workflows";
 import { BunE2ETestGenerator } from "./tests/bun-e2e.generator";
 
 export type StackOption = "tanstackjs-nestjs" | "tanstack-start-nestjs";
@@ -65,6 +67,13 @@ export interface FullStackGeneratorOptions {
    * sys_rule_definitions so a rule authored in EML is enforced by the app.
    */
   compiledRules?: CompiledRule[];
+  /**
+   * Lifecycle handlers declared by the model's `%%hook` directives. Generated
+   * as per-entity handler modules the bus service runs around each operation.
+   */
+  compiledHooks?: CompiledHook[];
+  /** Status machines compiled from the model's state workflows. */
+  compiledWorkflows?: CompiledWorkflow[];
   /** Records the bulk-seed suite creates per entity (default 1000). */
   recordsPerEntity?: number;
 }
@@ -137,6 +146,8 @@ export class FullStackGenerator {
       skipCliScaffold: this.options.skipCliScaffold,
       categories: this.options.categories,
       compiledRules: this.options.compiledRules,
+      compiledHooks: this.options.compiledHooks,
+      compiledWorkflows: this.options.compiledWorkflows,
       ...aiConfig,
       ...this.options.tanstackStartNestjs?.backend,
     };
@@ -559,7 +570,7 @@ MIT
           console.log("  ✅ Backend linting passed");
         } else {
           console.warn(
-            '  ⚠️  Backend linting found issues (run "cd backend && npm run lint:fix" to auto-fix)'
+            '  ⚠️  Backend linting found issues (run "cd backend && bun run lint:fix" to auto-fix)'
           );
         }
       }
@@ -575,14 +586,14 @@ MIT
           console.log("  ✅ Frontend linting passed");
         } else {
           console.warn(
-            '  ⚠️  Frontend linting found issues (run "cd frontend && npm run lint:fix" to auto-fix)'
+            '  ⚠️  Frontend linting found issues (run "cd frontend && bun run lint:fix" to auto-fix)'
           );
         }
       }
 
       console.log("\n✨ Linting checks completed!");
       console.log(
-        '   Tip: Run "npm run lint:fix" in backend/frontend directories to auto-fix issues'
+        '   Tip: Run "bun run lint:fix" in backend/frontend directories to auto-fix issues'
       );
     } catch (error) {
       console.warn("  ⚠️  Linting could not be completed (dependencies not installed?)");
