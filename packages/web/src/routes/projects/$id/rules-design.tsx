@@ -1,771 +1,558 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   AlertCircle,
+  ArrowRight,
   CheckCircle2,
-  ChevronDown,
-  ChevronUp,
   Code2,
-  Download,
-  Eye,
-  GitBranch,
   Loader2,
-  RefreshCw,
+  Plus,
   Save,
-  Send,
   Sparkles,
-  Zap,
+  Trash2,
 } from "lucide-react";
-import mermaid from "mermaid";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { emptyRuleFlow, RuleFlowCanvas } from "@/components/eml/RuleFlowCanvas";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
+import { emitRuleFlow, parseRuleFlow, type RuleFlow, validateRuleFlow } from "@/lib/eml/rule-flow";
 import { useProjectStore } from "@/store/projectStore";
 
 export const Route = createFileRoute("/projects/$id/rules-design")({
   component: RulesDesignPage,
 });
 
-const FLOWCHART_PLACEHOLDER = `flowchart TD
-    A([Start: Order Received]) --> B{Order Amount > $1000?}
-    B -->|Yes| C[Apply Premium Discount 15%]
-    B -->|No| D{Customer is VIP?}
-    D -->|Yes| E[Apply VIP Discount 10%]
-    D -->|No| F[Apply Standard Pricing]
-    C --> G(Calculate Final Price)
-    E --> G
-    F --> G
-    G --> H([End: Price Calculated])`;
+/** The lifecycle events a rule can be bound to. */
+const RULE_EVENTS = [
+  "beforeCreate",
+  "afterCreate",
+  "beforeUpdate",
+  "afterUpdate",
+  "beforeDelete",
+  "customValidate",
+] as const;
 
-/**
- * Extracts flowchart blocks that follow %%rule directives in an EML file.
- * Returns one string per rule, each starting with "flowchart".
- */
-function extractRuleFlowcharts(erdCode: string): string[] {
-  const lines = erdCode.split("\n");
-  const results: string[] = [];
-  let capturing = false;
-  let buffer: string[] = [];
+interface EditableRule {
+  /** Stable across renames, so React keeps the row it is editing. */
+  key: string;
+  name: string;
+  entity: string;
+  event: string;
+  priority?: number;
+  title?: string;
+  flow: RuleFlow;
+}
 
-  for (const line of lines) {
-    const trimmed = line.trim();
+interface EmlResponse {
+  eml: string;
+  rules: Array<{
+    name: string;
+    entity: string;
+    event: string;
+    priority?: number;
+    title?: string;
+    flowchart: string;
+  }>;
+  workflows: unknown[];
+}
 
-    if (trimmed.startsWith("%%rule ")) {
-      if (capturing && buffer.length > 0) {
-        const fc = buffer.join("\n").trim();
-        if (fc) results.push(fc);
-        buffer = [];
-      }
-      capturing = true;
+/** Entity names and their attributes, read from the ERD for the pickers. */
+function readEntities(erd: string): Array<{ name: string; attributes: string[] }> {
+  const entities: Array<{ name: string; attributes: string[] }> = [];
+  let current: { name: string; attributes: string[] } | null = null;
+
+  for (const rawLine of (erd ?? "").split("\n")) {
+    const line = rawLine.trim();
+    if (line.startsWith("%%")) continue;
+
+    const open = line.match(/^([A-Za-z][A-Za-z0-9_]*)\s*\{$/);
+    if (open?.[1]) {
+      current = { name: open[1], attributes: [] };
       continue;
     }
-
-    if (!capturing) continue;
-
-    if (trimmed.match(/^(%%workflow|erDiagram|stateDiagram-v2|stateDiagram)\b/)) {
-      const fc = buffer.join("\n").trim();
-      if (fc) results.push(fc);
-      buffer = [];
-      capturing = false;
+    if (line === "}" && current) {
+      entities.push(current);
+      current = null;
       continue;
     }
-
-    if (trimmed.startsWith("%%")) continue;
-
-    buffer.push(line);
+    if (current) {
+      const attribute = line.match(/^\S+\s+([A-Za-z_][A-Za-z0-9_]*)/);
+      if (attribute?.[1]) current.attributes.push(attribute[1]);
+    }
   }
+  return entities;
+}
 
-  if (capturing && buffer.length > 0) {
-    const fc = buffer.join("\n").trim();
-    if (fc) results.push(fc);
-  }
+let keyCounter = 0;
+const nextKey = () => `r${(keyCounter++).toString(36)}${Date.now().toString(36)}`;
 
-  return results.filter((s) => /^flowchart\b/.test(s));
+function slugify(value: string): string {
+  const cleaned = value
+    .replace(/[^A-Za-z0-9]+/g, " ")
+    .trim()
+    .split(" ")
+    .map((word, index) =>
+      index === 0 ? word.toLowerCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    )
+    .join("");
+  return cleaned || "rule";
 }
 
 function RulesDesignPage() {
+  const { id } = Route.useParams();
   const navigate = useNavigate();
-  const { id: projectId } = Route.useParams();
-  const { getProject, loadProject, setCurrentStep, goToNextStep, currentProject, isLoading } =
-    useProjectStore();
-  const project = getProject(projectId) || currentProject;
+  const { currentProject, loadProject, setCurrentStep } = useProjectStore();
 
-  useEffect(() => {
-    if (!getProject(projectId) && !currentProject) {
-      loadProject(projectId);
-    }
-  }, [projectId, getProject, currentProject, loadProject]);
-
-  useEffect(() => {
-    if (project) {
-      setCurrentStep("rules");
-    }
-  }, [project, setCurrentStep]);
-
-  const [activeTab, setActiveTab] = useState<"flowchart" | "jdm">("flowchart");
-  const [flowchartCode, setFlowchartCode] = useState(FLOWCHART_PLACEHOLDER);
-  const [jdmCode, setJdmCode] = useState("");
-  const [svgBlobUrl, setSvgBlobUrl] = useState<string>("");
-  const [renderError, setRenderError] = useState<string | null>(null);
+  const [rules, setRules] = useState<EditableRule[]>([]);
+  const [workflows, setWorkflows] = useState<unknown[]>([]);
+  const [erd, setErd] = useState("");
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isConverting, setIsConverting] = useState(false);
-  const [aiInput, setAiInput] = useState("");
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [aiStatus, setAiStatus] = useState<{
-    step: string;
-    message: string;
-    progress: number;
-  } | null>(null);
-  const [aiStepsLog, setAiStepsLog] = useState<
-    Array<{
-      id: string;
-      step: string;
-      message: string;
-      status: "in-progress" | "completed" | "error";
-    }>
-  >([]);
-  const [showAiDetails, setShowAiDetails] = useState(false);
-
-  const prevBlobUrlRef = useRef<string>("");
-  const erdRulesApplied = useRef(false);
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showSource, setShowSource] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isDrafting, setIsDrafting] = useState(false);
 
   useEffect(() => {
-    if (project?.erdCode && !erdRulesApplied.current) {
-      const rules = extractRuleFlowcharts(project.erdCode);
-      if (rules.length > 0 && rules[0]) {
-        setFlowchartCode(rules[0]);
-        erdRulesApplied.current = true;
-      }
-    }
-  }, [project?.erdCode]);
-
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: "default",
-    securityLevel: "loose",
-    suppressErrorRendering: true,
-  });
-
-  const renderFlowchart = useCallback(async (code: string) => {
-    if (!code.trim() || code.trim() === "flowchart TD") {
-      if (prevBlobUrlRef.current) {
-        URL.revokeObjectURL(prevBlobUrlRef.current);
-        prevBlobUrlRef.current = "";
-      }
-      setSvgBlobUrl("");
-      setRenderError(null);
-      return;
-    }
-
-    try {
-      const id = `mermaid-rules-${Date.now()}`;
-      const { svg } = await mermaid.render(id, code);
-      const orphan = document.getElementById(`d${id}`);
-      orphan?.remove();
-
-      if (prevBlobUrlRef.current) {
-        URL.revokeObjectURL(prevBlobUrlRef.current);
-      }
-
-      const blob = new Blob([svg], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(blob);
-      prevBlobUrlRef.current = url;
-      setSvgBlobUrl(url);
-      setRenderError(null);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setRenderError(msg);
-      setSvgBlobUrl("");
-    }
-  }, []);
+    if (id) void loadProject(id);
+  }, [id, loadProject]);
 
   useEffect(() => {
-    const timer = setTimeout(() => renderFlowchart(flowchartCode), 800);
-    return () => clearTimeout(timer);
-  }, [flowchartCode, renderFlowchart]);
+    setCurrentStep("rules");
+  }, [setCurrentStep]);
 
+  // Load the model's rules. The document is the source of truth; this page
+  // edits its `%%rule` sections and hands them straight back.
   useEffect(() => {
-    return () => {
-      if (prevBlobUrlRef.current) {
-        URL.revokeObjectURL(prevBlobUrlRef.current);
-      }
-    };
-  }, []);
+    let cancelled = false;
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    const sanitizedName = (project?.name ?? "export").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-    const filename = `${sanitizedName}-rules.mmd`;
-    try {
-      await fetch("/api/mermaid", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          projectId,
-          projectName: project?.name ?? "export",
-          filename,
-          type: "rules",
-          content: flowchartCode,
-        }),
-      });
-    } catch (_e) {
-      // non-blocking
-    } finally {
-      setTimeout(() => setIsSaving(false), 500);
-    }
-  };
+    async function load() {
+      try {
+        const response = await fetch(`/api/projects/${id}/eml`);
+        if (!response.ok) throw new Error(`Could not load the model (${response.status})`);
+        const data = (await response.json()) as EmlResponse;
+        if (cancelled) return;
 
-  const handleExportMmd = () => {
-    const sanitizedName = (project?.name ?? "export").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-    const blob = new Blob([flowchartCode], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${sanitizedName}-rules.mmd`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleExportJdm = () => {
-    if (!jdmCode) return;
-    const sanitizedName = (project?.name ?? "export").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-    const blob = new Blob([jdmCode], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${sanitizedName}-rules.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleConvertToJdm = async () => {
-    setIsConverting(true);
-    try {
-      const response = await fetch("/api/ai/rules-stream", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "convert-to-jdm",
-          flowchartCode,
-          projectId,
-        }),
-      });
-
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      if (!reader) throw new Error("No response body");
-
-      let buffer = "";
-      let collectedJdm = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = JSON.parse(line.slice(6));
-            if (data.jdm) {
-              collectedJdm =
-                typeof data.jdm === "string" ? data.jdm : JSON.stringify(data.jdm, null, 2);
-            }
-          }
+        setErd(data.eml ?? "");
+        setWorkflows(data.workflows ?? []);
+        setRules(
+          (data.rules ?? []).map((rule) => ({
+            key: nextKey(),
+            name: rule.name,
+            entity: rule.entity,
+            event: rule.event,
+            priority: rule.priority,
+            title: rule.title,
+            flow: parseRuleFlow(rule.flowchart),
+          }))
+        );
+      } catch (loadError) {
+        if (!cancelled) {
+          setError(loadError instanceof Error ? loadError.message : "Could not load the model");
         }
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
+    }
 
-      if (collectedJdm) {
-        setJdmCode(collectedJdm);
-        setActiveTab("jdm");
+    if (id) void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
 
-        // Save JDM to server
-        const sanitizedName = (project?.name ?? "export").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-        await fetch("/api/mermaid", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            projectId,
-            projectName: project?.name ?? "export",
-            filename: `${sanitizedName}-rules.json`,
-            type: "rules",
-            content: collectedJdm,
-          }),
-        }).catch(() => undefined);
-      }
-    } catch (err) {
-      console.error("JDM conversion error:", err);
+  const entities = useMemo(() => readEntities(erd), [erd]);
+  const activeRule = rules[activeIndex] ?? null;
+  const fieldHints = useMemo(() => {
+    const entity = entities.find((candidate) => candidate.name === activeRule?.entity);
+    return entity?.attributes ?? [];
+  }, [entities, activeRule?.entity]);
+
+  const problems = useMemo(
+    () => (activeRule ? validateRuleFlow(activeRule.flow) : []),
+    [activeRule]
+  );
+
+  const patchActive = useCallback(
+    (patch: Partial<EditableRule>) => {
+      setRules((current) =>
+        current.map((rule, index) => (index === activeIndex ? { ...rule, ...patch } : rule))
+      );
+      setSavedAt(null);
+    },
+    [activeIndex]
+  );
+
+  const addRule = () => {
+    const entity = entities[0]?.name ?? "";
+    const next: EditableRule = {
+      key: nextKey(),
+      name: `rule${rules.length + 1}`,
+      entity,
+      event: "beforeCreate",
+      priority: 100,
+      flow: emptyRuleFlow(),
+    };
+    setRules((current) => [...current, next]);
+    setActiveIndex(rules.length);
+    setSavedAt(null);
+  };
+
+  const deleteRule = (index: number) => {
+    setRules((current) => current.filter((_rule, position) => position !== index));
+    setActiveIndex((current) => Math.max(0, current > index ? current - 1 : current));
+    setSavedAt(null);
+  };
+
+  const save = async () => {
+    setIsSaving(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/projects/${id}/eml`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rules: rules.map((rule) => ({
+            name: slugify(rule.name),
+            entity: rule.entity,
+            event: rule.event,
+            priority: rule.priority,
+            title: rule.title,
+            flowchart: emitRuleFlow(rule.flow),
+          })),
+          workflows,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? `Save failed (${response.status})`);
+
+      setErd(data.eml ?? erd);
+      setSavedAt(new Date().toLocaleTimeString());
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "Could not save");
     } finally {
-      setIsConverting(false);
+      setIsSaving(false);
     }
   };
 
-  const handleAiSubmit = async () => {
-    if (!aiInput.trim()) return;
-    setIsAiLoading(true);
-    setAiStepsLog([]);
-    setAiStatus({ step: "starting", message: "Connecting to AI service...", progress: 5 });
-
+  /** Ask the AI for a first draft, then drop it onto the canvas to refine. */
+  const draftWithAi = async () => {
+    if (!aiPrompt.trim() || !activeRule) return;
+    setIsDrafting(true);
+    setError(null);
     try {
       const response = await fetch("/api/ai/rules-stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "generate-flowchart",
-          description: aiInput,
-          currentFlowchartCode: flowchartCode,
-          projectId,
+          description: aiPrompt,
+          // Send what is on the canvas so the model extends it rather than
+          // replacing work already done.
+          currentFlowchartCode: emitRuleFlow(activeRule.flow),
+          projectId: id,
         }),
       });
+      if (!response.ok || !response.body) throw new Error("The AI service is unavailable");
 
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
-
-      const reader = response.body?.getReader();
+      const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      if (!reader) throw new Error("No response body");
-
       let buffer = "";
-      let finalFlowchart = "";
+      let flowchart = "";
+      let failure = "";
+
+      // SSE frames can split across reads, so keep the tail until it completes.
+      const drain = (final: boolean) => {
+        const frames = buffer.split("\n\n");
+        buffer = final ? "" : (frames.pop() ?? "");
+        for (const frame of frames) {
+          const line = frame.split("\n").find((candidate) => candidate.startsWith("data: "));
+          if (!line) continue;
+          try {
+            const payload = JSON.parse(line.slice(6)) as {
+              step?: string;
+              message?: string;
+              flowchartCode?: string;
+            };
+            if (payload.flowchartCode) flowchart = payload.flowchartCode;
+            if (payload.step === "error") failure = payload.message ?? "The AI could not help";
+          } catch {
+            // not a complete frame yet
+          }
+        }
+      };
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = JSON.parse(line.slice(6));
-
-            if (data.step && data.message) {
-              const progress =
-                { starting: 10, analyzing: 30, generating: 60, complete: 100, error: 0 }[
-                  data.step as string
-                ] ?? 50;
-              setAiStatus({ step: data.step, message: data.message, progress });
-              setAiStepsLog((prev) => [
-                ...prev.filter((s) => s.step !== data.step),
-                {
-                  id: `${data.step}-${Date.now()}`,
-                  step: data.step,
-                  message: data.message,
-                  status:
-                    data.step === "complete"
-                      ? "completed"
-                      : data.step === "error"
-                        ? "error"
-                        : "in-progress",
-                },
-              ]);
-            }
-
-            if (data.flowchartCode) {
-              finalFlowchart = data.flowchartCode;
-              setFlowchartCode(data.flowchartCode);
-            }
-
-            if (data.step === "error") throw new Error(data.message);
-          }
-        }
+        drain(false);
       }
+      drain(true);
 
-      if (finalFlowchart) {
-        setAiInput("");
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Unknown error";
-      setAiStatus({ step: "error", message: msg, progress: 0 });
+      if (failure) throw new Error(failure);
+      if (!flowchart.trim()) throw new Error("The AI did not return a flowchart");
+      patchActive({ flow: parseRuleFlow(flowchart) });
+      setAiPrompt("");
+    } catch (aiError) {
+      setError(aiError instanceof Error ? aiError.message : "Could not draft the rule");
     } finally {
-      setIsAiLoading(false);
+      setIsDrafting(false);
     }
   };
 
-  const handleContinue = async () => {
-    await handleSave();
-    goToNextStep();
-    navigate({ to: "/projects/$id/generate", params: { id: projectId } });
-  };
-
-  const shouldLoad = !getProject(projectId) && !currentProject;
-
-  if (isLoading || shouldLoad) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Zap className="w-6 h-6 text-blue-600 animate-pulse" />
-      </div>
-    );
-  }
-
-  if (!project) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-slate-500">Project not found</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
-        <div className="max-w-[1800px] mx-auto px-6 py-4">
-          <WizardStepHeader
-            stepNumber={3}
-            title="Define Business Rules"
-            description="Design your business logic as a Mermaid flowchart. The AI will help you model decision flows and convert them to executable GoRules JDM format."
-            estimatedTime="5-10 min"
-          />
+    <div className="min-h-screen bg-background">
+      <ProgressStepper currentStep="rules" projectId={id} />
 
-          <div className="flex items-center gap-3 mb-4">
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors disabled:opacity-50"
-            >
-              <Save className="w-4 h-4" />
-              {isSaving ? "Saving..." : "Save Draft"}
-            </button>
-            <button
-              onClick={handleExportMmd}
-              className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors"
-            >
-              <Download className="w-4 h-4" />
-              Export .mmd
-            </button>
-            {jdmCode && (
-              <button
-                onClick={handleExportJdm}
-                className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                Export JDM
-              </button>
-            )}
-            <button
-              onClick={handleConvertToJdm}
-              disabled={isConverting || !flowchartCode.trim()}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors disabled:opacity-50"
-            >
-              {isConverting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <GitBranch className="w-4 h-4" />
-              )}
-              {isConverting ? "Converting..." : "Convert to JDM"}
-            </button>
-            <button
-              onClick={handleContinue}
-              className="flex items-center gap-2 px-6 py-2 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98]"
-              style={{ backgroundColor: "#FF8400" }}
-            >
-              <Zap className="w-4 h-4" />
-              Continue to Step 4
-            </button>
+      <div className="mx-auto max-w-[1600px] px-4 py-6">
+        <WizardStepHeader
+          stepNumber={3}
+          estimatedTime="5-10 min"
+          subtitle={currentProject?.name}
+          title="Business rules"
+          description="Draw the decisions your application makes. Each rule compiles to a GoRules decision graph the generated app evaluates on the lifecycle event you choose."
+        />
+
+        {error && (
+          <div className="mb-4 flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{error}</span>
           </div>
+        )}
 
-          <ProgressStepper
-            currentStep="rules"
-            completedSteps={["init", "design"]}
-            onStepClick={(step) => {
-              if (step === "init")
-                navigate({ to: "/projects/$id/init", params: { id: projectId } });
-              else if (step === "design")
-                navigate({ to: "/projects/$id/design", params: { id: projectId } });
-              else if (step === "generate")
-                navigate({ to: "/projects/$id/generate", params: { id: projectId } });
-              else if (step === "enhance")
-                navigate({ to: "/projects/$id/enhance", params: { id: projectId } });
-              else if (step === "deploy")
-                navigate({ to: "/projects/$id/deploy", params: { id: projectId } });
-            }}
-          />
-        </div>
-      </header>
-
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left: Editor */}
-        <div className="w-1/2 border-r border-border flex flex-col bg-white dark:bg-slate-950">
-          <div className="flex border-b border-border">
-            <button
-              onClick={() => setActiveTab("flowchart")}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors ${
-                activeTab === "flowchart"
-                  ? "border-b-2 border-primary text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Code2 className="w-4 h-4" />
-              Mermaid Flowchart
-            </button>
-            <button
-              onClick={() => setActiveTab("jdm")}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors ${
-                activeTab === "jdm"
-                  ? "border-b-2 border-purple-500 text-purple-500"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <GitBranch className="w-4 h-4" />
-              GoRules JDM
-              {jdmCode && <span className="ml-1 w-2 h-2 rounded-full bg-emerald-500" />}
-            </button>
+        {isLoading ? (
+          <div className="flex items-center gap-2 py-16 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading the model…
           </div>
-
-          <div className="flex-1 p-6 overflow-auto">
-            {activeTab === "flowchart" ? (
-              <textarea
-                value={flowchartCode}
-                onChange={(e) => setFlowchartCode(e.target.value)}
-                className="w-full h-[calc(100vh-380px)] p-4 bg-slate-50 dark:bg-slate-900 border border-border rounded-xl text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                spellCheck={false}
-                placeholder={FLOWCHART_PLACEHOLDER}
-              />
-            ) : (
-              <div className="relative">
-                <textarea
-                  value={jdmCode}
-                  onChange={(e) => setJdmCode(e.target.value)}
-                  className="w-full h-[calc(100vh-380px)] p-4 bg-slate-50 dark:bg-slate-900 border border-border rounded-xl text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
-                  spellCheck={false}
-                  placeholder='JDM JSON will appear here after clicking "Convert to JDM"...'
-                  readOnly={!jdmCode}
-                />
-                {!jdmCode && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="text-center">
-                      <GitBranch className="w-10 h-10 mx-auto mb-2 text-muted-foreground opacity-30" />
-                      <p className="text-sm text-muted-foreground">
-                        Click "Convert to JDM" to generate GoRules JSON Decision Model
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right: Preview */}
-        <div className="w-1/2 flex flex-col bg-slate-50 dark:bg-slate-900">
-          <div className="p-4 border-b border-border flex items-center gap-2">
-            <Eye className="w-5 h-5 text-muted-foreground" />
-            <h2 className="text-sm font-semibold text-foreground">Live Preview</h2>
-            {renderError && (
-              <span className="ml-auto text-xs text-red-500 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" />
-                Syntax error
-              </span>
-            )}
-          </div>
-
-          <div className="flex-1 overflow-auto p-6 bg-white dark:bg-slate-900">
-            {svgBlobUrl ? (
-              <img src={svgBlobUrl} alt="Business rules flowchart" className="w-full h-auto" />
-            ) : renderError ? (
-              <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">
-                    Flowchart syntax error
-                  </p>
-                  <p className="text-xs font-mono text-red-600 dark:text-red-400">{renderError}</p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-64 text-center">
-                <div>
-                  <GitBranch className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-30" />
-                  <p className="text-sm font-medium text-muted-foreground">No flowchart yet</p>
-                  <p className="text-xs text-muted-foreground mt-1 max-w-xs">
-                    Edit the Mermaid flowchart on the left or use the AI assistant below to generate
-                    one
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* AI Assistant */}
-      <div className="bg-white dark:bg-slate-950 border-t border-border">
-        <div className="max-w-[1800px] mx-auto px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-              <Sparkles className="w-5 h-5 text-purple-600" />
-              <span className="font-medium">AI Assistant</span>
-            </div>
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                value={aiInput}
-                onChange={(e) => setAiInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleAiSubmit();
-                }}
-                placeholder="Describe your business rule... e.g. 'Discount 20% for orders over $500 from VIP customers' (Cmd+Enter)"
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
-                disabled={isAiLoading}
-              />
-            </div>
-            <button
-              onClick={handleAiSubmit}
-              disabled={isAiLoading || !aiInput.trim()}
-              className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isAiLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                  Generate
-                </>
-              )}
-            </button>
-          </div>
-
-          {aiStatus && (
-            <div className="mt-3">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-purple-600 h-full transition-all duration-300"
-                    style={{ width: `${aiStatus.progress}%` }}
-                  />
-                </div>
-                <span className="text-xs text-muted-foreground min-w-[50px] text-right">
-                  {aiStatus.progress}%
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2 text-xs">
-                {aiStatus.step === "complete" ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                ) : aiStatus.step === "error" ? (
-                  <AlertCircle className="w-4 h-4 text-red-600" />
-                ) : (
-                  <div className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
-                )}
-                <span
-                  className={
-                    aiStatus.step === "complete"
-                      ? "text-emerald-600"
-                      : aiStatus.step === "error"
-                        ? "text-red-600"
-                        : "text-muted-foreground"
-                  }
-                >
-                  {aiStatus.message}
-                </span>
-              </div>
-
-              {aiStepsLog.length > 0 && (
+        ) : (
+          <div className="flex gap-4">
+            {/* Rule list */}
+            <aside className="w-60 shrink-0">
+              <div className="mb-2 flex items-center justify-between">
+                <h2 className="text-xs font-semibold uppercase text-muted-foreground">
+                  Rules ({rules.length})
+                </h2>
                 <button
-                  onClick={() => setShowAiDetails(!showAiDetails)}
-                  className="mt-2 flex items-center gap-1 text-xs text-purple-600 hover:underline"
+                  type="button"
+                  onClick={addRule}
+                  className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium hover:bg-muted"
                 >
-                  {showAiDetails ? (
-                    <>
-                      <ChevronUp className="w-3 h-3" />
-                      Hide steps
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown className="w-3 h-3" />
-                      Show steps ({aiStepsLog.length})
-                    </>
-                  )}
+                  <Plus className="h-3 w-3" />
+                  New
                 </button>
-              )}
+              </div>
 
-              {showAiDetails && aiStepsLog.length > 0 && (
-                <div className="mt-2 space-y-1">
-                  {aiStepsLog.map((s) => (
-                    <div
-                      key={s.id}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs ${
-                        s.status === "completed"
-                          ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700"
-                          : s.status === "error"
-                            ? "bg-red-50 dark:bg-red-950/30 text-red-700"
-                            : "bg-purple-50 dark:bg-purple-950/30 text-purple-700"
-                      }`}
+              <div className="space-y-1">
+                {rules.map((rule, index) => (
+                  <div
+                    key={rule.key}
+                    className={`group flex items-center gap-1 rounded-md border px-2 py-1.5 text-left text-sm ${
+                      index === activeIndex
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:bg-muted"
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setActiveIndex(index)}
+                      className="min-w-0 flex-1 text-left"
                     >
-                      {s.status === "completed" ? (
-                        <CheckCircle2 className="w-3 h-3" />
-                      ) : s.status === "error" ? (
-                        <AlertCircle className="w-3 h-3" />
-                      ) : (
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                      )}
-                      {s.message}
-                    </div>
-                  ))}
+                      <span className="block truncate font-medium">{rule.title || rule.name}</span>
+                      <span className="block truncate text-[11px] text-muted-foreground">
+                        {rule.entity || "no entity"} · {rule.event}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteRule(index)}
+                      aria-label={`Delete ${rule.name}`}
+                      className="opacity-0 transition group-hover:opacity-100"
+                    >
+                      <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                    </button>
+                  </div>
+                ))}
+
+                {!rules.length && (
+                  <p className="rounded-md border border-dashed border-border px-2 py-4 text-center text-xs text-muted-foreground">
+                    No rules yet. Add one to start.
+                  </p>
+                )}
+              </div>
+            </aside>
+
+            {/* Editor */}
+            <div className="min-w-0 flex-1">
+              {!activeRule ? (
+                <div className="rounded-lg border border-dashed border-border py-20 text-center text-sm text-muted-foreground">
+                  Select a rule, or create one, to start drawing.
                 </div>
+              ) : (
+                <>
+                  <div className="mb-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    <label className="block">
+                      <span className="mb-1 block text-xs font-medium">Name</span>
+                      <input
+                        className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
+                        value={activeRule.title ?? activeRule.name}
+                        onChange={(event) =>
+                          patchActive({
+                            title: event.target.value,
+                            name: slugify(event.target.value),
+                          })
+                        }
+                        placeholder="Sample expiry guard"
+                      />
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-1 block text-xs font-medium">Entity</span>
+                      <select
+                        className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
+                        value={activeRule.entity}
+                        onChange={(event) => patchActive({ entity: event.target.value })}
+                      >
+                        <option value="">Choose…</option>
+                        {entities.map((entity) => (
+                          <option key={entity.name} value={entity.name}>
+                            {entity.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-1 block text-xs font-medium">Runs on</span>
+                      <select
+                        className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
+                        value={activeRule.event}
+                        onChange={(event) => patchActive({ event: event.target.value })}
+                      >
+                        {RULE_EVENTS.map((event) => (
+                          <option key={event} value={event}>
+                            {event}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-1 block text-xs font-medium">Priority</span>
+                      <input
+                        type="number"
+                        className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
+                        value={activeRule.priority ?? 100}
+                        onChange={(event) =>
+                          patchActive({ priority: Number(event.target.value) || 0 })
+                        }
+                      />
+                    </label>
+                  </div>
+
+                  <div className="h-[520px]">
+                    <RuleFlowCanvas
+                      flow={activeRule.flow}
+                      onChange={(flow) => patchActive({ flow })}
+                      fieldHints={fieldHints}
+                    />
+                  </div>
+
+                  {problems.length > 0 && (
+                    <ul className="mt-3 space-y-1 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                      {problems.map((problem) => (
+                        <li key={problem} className="flex items-start gap-1.5">
+                          <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
+                          {problem}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <input
+                      className="min-w-[240px] flex-1 rounded-md border border-border px-2 py-1.5 text-sm"
+                      value={aiPrompt}
+                      onChange={(event) => setAiPrompt(event.target.value)}
+                      placeholder="Describe the rule and let AI draft it — e.g. block edits once a sample is consumed"
+                    />
+                    <button
+                      type="button"
+                      onClick={draftWithAi}
+                      disabled={isDrafting || !aiPrompt.trim()}
+                      className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium disabled:opacity-50"
+                    >
+                      {isDrafting ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-3.5 w-3.5" />
+                      )}
+                      Draft
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowSource((current) => !current)}
+                      className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium"
+                    >
+                      <Code2 className="h-3.5 w-3.5" />
+                      {showSource ? "Hide" : "Show"} EML
+                    </button>
+                  </div>
+
+                  {showSource && (
+                    <pre className="mt-2 max-h-56 overflow-auto rounded-lg border border-border bg-muted/40 p-3 font-mono text-[11px] leading-relaxed">
+                      {`%%rule ${slugify(activeRule.title ?? activeRule.name)} on ${
+                        activeRule.entity || "<entity>"
+                      } event: ${activeRule.event} priority: ${activeRule.priority ?? 100}\n${emitRuleFlow(
+                        activeRule.flow
+                      )}`}
+                    </pre>
+                  )}
+                </>
               )}
             </div>
-          )}
+          </div>
+        )}
 
-          <div className="flex items-center gap-2 mt-3 flex-wrap">
-            <button
-              onClick={() =>
-                setAiInput("Order discount: 20% off for orders over $500, 10% for VIP customers")
-              }
-              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-            >
-              Order Discount
-            </button>
-            <button
-              onClick={() =>
-                setAiInput(
-                  "Patient triage: Emergency if vital signs critical, Urgent if fever above 38.5°C, else Standard"
-                )
-              }
-              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-            >
-              Patient Triage
-            </button>
-            <button
-              onClick={() =>
-                setAiInput(
-                  "Loan approval: Approve if credit score > 700 and income > $50k, else reject or manual review"
-                )
-              }
-              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-            >
-              Loan Approval
-            </button>
-            <button
-              onClick={() =>
-                setAiInput(
-                  "Inventory reorder: If stock below reorder point, create PO. If critical stock, expedite order"
-                )
-              }
-              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-            >
-              Inventory Reorder
-            </button>
+        <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            {savedAt && (
+              <>
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                Saved to the model at {savedAt}
+              </>
+            )}
           </div>
 
-          <div className="flex items-center gap-2 mt-3 px-3 py-2 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/30 rounded-lg text-xs text-purple-700 dark:text-purple-300">
-            <RefreshCw className="w-4 h-4 flex-shrink-0" />
-            <span>
-              Flowchart uses Mermaid <code className="font-mono">flowchart TD</code> syntax. Nodes:{" "}
-              <code className="font-mono">A([Start/End])</code>,{" "}
-              <code className="font-mono">B{"{"}</code>Decision
-              <code className="font-mono">{"}"}</code>, <code className="font-mono">C[Action]</code>
-              , <code className="font-mono">D((Function))</code>. Convert to GoRules JDM for runtime
-              execution in generated apps.
-            </span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={save}
+              disabled={isSaving || isLoading}
+              className="flex items-center gap-1.5 rounded-md border border-border px-4 py-2 text-sm font-medium disabled:opacity-50"
+            >
+              {isSaving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              Save rules
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                await save();
+                void navigate({ to: "/projects/$id/workflow-design", params: { id } });
+              }}
+              disabled={isSaving || isLoading}
+              className="flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+            >
+              Continue to workflows
+              <ArrowRight className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </div>

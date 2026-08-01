@@ -13,7 +13,12 @@ import {
   type UpdateProjectInput,
   workflowsApi,
 } from "@/lib/api/projects";
-import type { Project, ProjectStep, WorkflowDefinition } from "../types/project";
+import {
+  type Project,
+  type ProjectStep,
+  STEP_ORDER,
+  type WorkflowDefinition,
+} from "../types/project";
 
 interface ProjectStore {
   // State
@@ -176,7 +181,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   // Go to next step
   goToNextStep: () => {
-    const steps: ProjectStep[] = ["init", "design", "generate", "enhance", "deploy"];
+    const steps = STEP_ORDER;
     const currentIndex = steps.indexOf(get().currentStep);
     if (currentIndex < steps.length - 1) {
       set({ currentStep: steps[currentIndex + 1] });
@@ -185,7 +190,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   // Go to previous step
   goToPreviousStep: () => {
-    const steps: ProjectStep[] = ["init", "design", "generate", "enhance", "deploy"];
+    const steps = STEP_ORDER;
     const currentIndex = steps.indexOf(get().currentStep);
     if (currentIndex > 0) {
       set({ currentStep: steps[currentIndex - 1] });

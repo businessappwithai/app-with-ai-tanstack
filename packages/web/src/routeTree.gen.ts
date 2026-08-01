@@ -50,6 +50,7 @@ import { Route as ProjectsIdDesignRouteImport } from './routes/projects/$id/desi
 import { Route as ProjectsIdGenerateRouteImport } from './routes/projects/$id/generate'
 import { Route as ProjectsIdInitRouteImport } from './routes/projects/$id/init'
 import { Route as ProjectsIdRulesDesignRouteImport } from './routes/projects/$id/rules-design'
+import { Route as ProjectsIdWorkflowDesignRouteImport } from './routes/projects/$id/workflow-design'
 import { Route as AdminRulesEntityRuleIdRouteImport } from './routes/admin/rules/$entity/$ruleId'
 import { Route as ApiAdminUsersIndexRouteImport } from './routes/api/admin/users/index'
 import { Route as ApiProjectsIdIndexRouteImport } from './routes/api/projects/$id/index'
@@ -283,6 +284,12 @@ const ProjectsIdRulesDesignRoute = ProjectsIdRulesDesignRouteImport.update({
   path: '/projects/$id/rules-design',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsIdWorkflowDesignRoute =
+  ProjectsIdWorkflowDesignRouteImport.update({
+    id: '/projects/$id/workflow-design',
+    path: '/projects/$id/workflow-design',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminRulesEntityRuleIdRoute = AdminRulesEntityRuleIdRouteImport.update({
   id: '/admin/rules/$entity/$ruleId',
   path: '/admin/rules/$entity/$ruleId',
@@ -467,6 +474,7 @@ export interface FileRoutesByFullPath {
   '/projects/$id/generate': typeof ProjectsIdGenerateRoute
   '/projects/$id/init': typeof ProjectsIdInitRoute
   '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
+  '/projects/$id/workflow-design': typeof ProjectsIdWorkflowDesignRoute
   '/admin/mermaid/': typeof AdminMermaidIndexRoute
   '/admin/rules/': typeof AdminRulesIndexRoute
   '/admin/workflows/': typeof AdminWorkflowsIndexRoute
@@ -536,6 +544,7 @@ export interface FileRoutesByTo {
   '/projects/$id/generate': typeof ProjectsIdGenerateRoute
   '/projects/$id/init': typeof ProjectsIdInitRoute
   '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
+  '/projects/$id/workflow-design': typeof ProjectsIdWorkflowDesignRoute
   '/admin/mermaid': typeof AdminMermaidIndexRoute
   '/admin/rules': typeof AdminRulesIndexRoute
   '/admin/workflows': typeof AdminWorkflowsIndexRoute
@@ -606,6 +615,7 @@ export interface FileRoutesById {
   '/projects/$id/generate': typeof ProjectsIdGenerateRoute
   '/projects/$id/init': typeof ProjectsIdInitRoute
   '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
+  '/projects/$id/workflow-design': typeof ProjectsIdWorkflowDesignRoute
   '/admin/mermaid/': typeof AdminMermaidIndexRoute
   '/admin/rules/': typeof AdminRulesIndexRoute
   '/admin/workflows/': typeof AdminWorkflowsIndexRoute
@@ -677,6 +687,7 @@ export interface FileRouteTypes {
     | '/projects/$id/generate'
     | '/projects/$id/init'
     | '/projects/$id/rules-design'
+    | '/projects/$id/workflow-design'
     | '/admin/mermaid/'
     | '/admin/rules/'
     | '/admin/workflows/'
@@ -746,6 +757,7 @@ export interface FileRouteTypes {
     | '/projects/$id/generate'
     | '/projects/$id/init'
     | '/projects/$id/rules-design'
+    | '/projects/$id/workflow-design'
     | '/admin/mermaid'
     | '/admin/rules'
     | '/admin/workflows'
@@ -815,6 +827,7 @@ export interface FileRouteTypes {
     | '/projects/$id/generate'
     | '/projects/$id/init'
     | '/projects/$id/rules-design'
+    | '/projects/$id/workflow-design'
     | '/admin/mermaid/'
     | '/admin/rules/'
     | '/admin/workflows/'
@@ -884,6 +897,7 @@ export interface RootRouteChildren {
   ProjectsIdGenerateRoute: typeof ProjectsIdGenerateRoute
   ProjectsIdInitRoute: typeof ProjectsIdInitRoute
   ProjectsIdRulesDesignRoute: typeof ProjectsIdRulesDesignRoute
+  ProjectsIdWorkflowDesignRoute: typeof ProjectsIdWorkflowDesignRoute
   AdminMermaidIndexRoute: typeof AdminMermaidIndexRoute
   AdminRulesIndexRoute: typeof AdminRulesIndexRoute
   AdminWorkflowsIndexRoute: typeof AdminWorkflowsIndexRoute
@@ -1208,6 +1222,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsIdRulesDesignRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/$id/workflow-design': {
+      id: '/projects/$id/workflow-design'
+      path: '/projects/$id/workflow-design'
+      fullPath: '/projects/$id/workflow-design'
+      preLoaderRoute: typeof ProjectsIdWorkflowDesignRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/rules/$entity/$ruleId': {
       id: '/admin/rules/$entity/$ruleId'
       path: '/admin/rules/$entity/$ruleId'
@@ -1439,6 +1460,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsIdGenerateRoute: ProjectsIdGenerateRoute,
   ProjectsIdInitRoute: ProjectsIdInitRoute,
   ProjectsIdRulesDesignRoute: ProjectsIdRulesDesignRoute,
+  ProjectsIdWorkflowDesignRoute: ProjectsIdWorkflowDesignRoute,
   AdminMermaidIndexRoute: AdminMermaidIndexRoute,
   AdminRulesIndexRoute: AdminRulesIndexRoute,
   AdminWorkflowsIndexRoute: AdminWorkflowsIndexRoute,
