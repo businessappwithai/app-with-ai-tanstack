@@ -10,6 +10,12 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('operation', 'varchar(20)', (col) => col.notNull().defaultTo('ALL'))
     .addColumn('bpmn_xml', 'text', (col) => col.notNull())
     .addColumn('description', 'text')
+    // How the definition is reached.
+    //   automatic  run on every write matching entity_name + operation
+    //   rule       run only when a rule's trigger-workflow action names it
+    // Without this every definition ran on every matching write, so a workflow
+    // a rule was supposed to gate on a condition fired regardless of it.
+    .addColumn('trigger_type', 'varchar(20)', (col) => col.notNull().defaultTo('automatic'))
     .addColumn('is_active', 'boolean', (col) => col.notNull().defaultTo(true))
     .addColumn('created_by', 'uuid')
     .addColumn('created_at', 'timestamptz', (col) => col.notNull().defaultTo(sql`now()`))

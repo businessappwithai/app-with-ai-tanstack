@@ -679,19 +679,11 @@ export class NestJsBackendGenerator extends BaseGenerator {
       }
     }
 
-    // Copy static bpmn-executor.service.ts (no Handlebars, copy verbatim)
-    try {
-      const bpmnExecutorSrc = path.join(
-        resolveTemplateDir("tanstack-start-nestjs/backend"),
-        "src/modules/workflow/bpmn-executor.service.ts"
-      );
-      await fs.copyFile(
-        bpmnExecutorSrc,
-        path.join(outputDir, "src/modules/workflow/bpmn-executor.service.ts")
-      );
-    } catch (e) {
-      console.warn("bpmn-executor.service.ts template not found, skipping:", (e as Error).message);
-    }
+    // bpmn-executor.service.ts used to be copied here. It was a second, never
+    // registered BPMN executor that no module imported, and it disagreed with
+    // the live one in workflow.service.ts (it did not `bus_`-prefix tables, and
+    // it lacked the row-targeting rules). Two implementations, one dead, is a
+    // trap for whoever debugs a workflow next; the live one is the only one.
 
     // JDM rule files per entity — delegates to shared private helper
     for (const busEntity of context.entities) {
@@ -1377,6 +1369,7 @@ export async function executeCustomValidateHooks(
             `    name: '${tableName}-on-${operation}-workflow',\n` +
             `    entityName: '${tableName}',\n` +
             `    operation: '${operation.toUpperCase()}',\n` +
+            `    triggerType: 'automatic',\n` +
             `    description: '${jsQuote(description)}',\n` +
             `    bpmnXml: ${JSON.stringify(bpmn)},\n` +
             `  },`
@@ -1416,6 +1409,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
           operation: definition.operation,
           bpmn_xml: definition.bpmnXml,
           description: definition.description,
+          trigger_type: definition.triggerType,
           is_active: true,
           updated_at: new Date(),
         })
@@ -1433,6 +1427,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         operation: definition.operation,
         bpmn_xml: definition.bpmnXml,
         description: definition.description,
+        trigger_type: definition.triggerType,
         is_active: true,
       })
       .execute();

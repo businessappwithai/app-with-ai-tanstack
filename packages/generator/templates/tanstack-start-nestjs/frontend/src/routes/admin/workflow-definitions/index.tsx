@@ -27,6 +27,7 @@ interface WfDef {
   name: string;
   entity_name: string;
   operation: string;
+  trigger_type?: string;
   is_active: boolean;
   description?: string;
   created_at: string;
@@ -132,6 +133,7 @@ function WorkflowDefinitionsList() {
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Name</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Entity</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Operation</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">Runs when</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Created</th>
                   <th className="px-4 py-3" />
@@ -156,6 +158,11 @@ function WorkflowDefinitionsList() {
                     <td className="px-4 py-3">
                       <Badge variant="outline" className="text-xs">
                         {d.operation}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge variant="outline" className="text-xs">
+                        {d.trigger_type === "rule" ? "When a rule triggers it" : "Every write"}
                       </Badge>
                     </td>
                     <td className="px-4 py-3">

@@ -52,6 +52,10 @@ interface BpmnTaskProps {
   targetSource?: string;
   /** CreateEntity: JSON map of { column: contextKeyOrLiteral } */
   fields?: string;
+  /** CreateEntity: variable name to publish the new row's id under */
+  as?: string;
+  /** DeleteEntity: "true" to remove the row rather than stamp deleted_at */
+  hard?: string;
   /** Formula */
   target?: string;
   operation?: string;
@@ -103,6 +107,11 @@ export class WorkflowService {
           ]),
         )
         .where('is_active', '=', true)
+        // Rule-triggered definitions are reached only through a rule's
+        // trigger-workflow action, which is what evaluates the condition. Auto-
+        // running them here ignored that condition entirely: a workflow gated on
+        // "severity == critical" fired on every write, whatever the severity.
+        .where('trigger_type', '=', 'automatic')
         .orderBy('created_at', 'asc')
         .execute();
     } catch (err: any) {
@@ -127,6 +136,7 @@ export class WorkflowService {
           .values({
             entity_name: tableName,
             entity_id: entityId,
+            workflow_name: def.name,
             operation: operation.toUpperCase(),
             status: 'draft',
             created_by: 'system',
@@ -233,6 +243,7 @@ export class WorkflowService {
         .values({
           entity_name: entityName,
           entity_id: entityId,
+          workflow_name: definition.name ?? workflowName,
           operation: operation.toUpperCase(),
           status: 'draft',
           created_by: 'rules-engine',
@@ -381,7 +392,11 @@ export class WorkflowService {
     }
 
     if (task.nodeType === 'CreateEntity') {
-      return this.executeCreateEntity(task, triggeringTable, context, db);
+      return this.executeCreateEntity(task, triggeringTable, context, vars, db);
+    }
+
+    if (task.nodeType === 'DeleteEntity') {
+      return this.executeDeleteEntity(task, triggeringTable, entityData, context, db);
     }
 
     if (task.nodeType === 'Formula') {
@@ -498,6 +513,7 @@ export class WorkflowService {
     task: BpmnTaskProps,
     triggeringTable: string,
     context: Record<string, unknown>,
+    vars: Record<string, unknown>,
     db: Kysely<any> = this.db,
   ): Promise<Record<string, unknown> | null> {
     const targetTable = task.entity?.trim() || triggeringTable;
@@ -529,19 +545,117 @@ export class WorkflowService {
       .returningAll()
       .executeTakeFirst();
 
-    this.logger.log(`CreateEntity: inserted into ${targetTable} (id=${(inserted as any)?.id})`);
+    // Publish the new row's id as a workflow variable so a later step can
+    // update or delete the record this one just created. Without it a
+    // multi-step workflow can insert a row and then never reach it again.
+    const createdId = (inserted as any)?.id;
+    const varName = task.as?.trim() || `${targetTable.replace(/^bus_/, '')}Id`;
+    if (createdId !== undefined) vars[varName] = createdId;
+
+    this.logger.log(`CreateEntity: inserted into ${targetTable} (id=${createdId}, as "${varName}")`);
     return {
       nodeType: 'CreateEntity',
       table: targetTable,
-      createdId: (inserted as any)?.id,
+      createdId,
+      boundTo: varName,
       values,
     };
   }
 
   /**
-   * Compute a number and store it in the workflow's vars so later steps can
+   * Delete rows on the triggering entity or a related one.
+   *
+   * Soft by default: the application deletes by stamping `deleted_at`, and a
+   * workflow that hard-deleted would leave the audit trail pointing at a row
+   * that is no longer there. Set `hard` to "true" to remove it outright.
+   *
+   * Row targeting matches UpdateEntity exactly, including the refusal to touch
+   * another table by `id` with no `targetSource` — deleting the wrong row is
+   * worse than updating one.
+   */
+  private async executeDeleteEntity(
+    task: BpmnTaskProps,
+    triggeringTable: string,
+    entityData: Record<string, unknown>,
+    context: Record<string, unknown>,
+    db: Kysely<any> = this.db,
+  ): Promise<Record<string, unknown> | null> {
+    const targetTable = task.entity?.trim() || triggeringTable;
+    const entityId = entityData.id as string | undefined;
+    const targetField = task.targetField?.trim() || 'id';
+    const targetSource = task.targetSource?.trim();
+    const isSelf = targetTable === triggeringTable;
+
+    let targetValue: unknown;
+    if (targetSource) {
+      targetValue = context[targetSource];
+      if (targetValue === undefined || targetValue === null) {
+        this.logger.warn(
+          `DeleteEntity: targetSource "${targetSource}" is not present in the workflow context — skipping ${targetTable}`,
+        );
+        return { nodeType: 'DeleteEntity', table: targetTable, skipped: `no value for targetSource "${targetSource}"` };
+      }
+    } else if (!isSelf && targetField === 'id') {
+      this.logger.warn(
+        `DeleteEntity: cannot delete from ${targetTable} in a ${triggeringTable} workflow without "targetSource" (or a "targetField" foreign key) — skipping`,
+      );
+      return { nodeType: 'DeleteEntity', table: targetTable, skipped: 'no row targeting configured for a cross-entity delete' };
+    } else {
+      targetValue = entityId;
+    }
+
+    if (targetValue === undefined || targetValue === null) {
+      this.logger.warn('DeleteEntity: no value to match rows on — skipping');
+      return { nodeType: 'DeleteEntity', table: targetTable, skipped: 'no value to match rows on' };
+    }
+
+    const hard = task.hard?.trim() === 'true';
+    let rowsAffected: number;
+
+    if (hard) {
+      const result = await db
+        .deleteFrom(targetTable as any)
+        .where(targetField as any, '=', targetValue)
+        .execute();
+      rowsAffected = Number(result?.[0]?.numDeletedRows ?? 0);
+    } else {
+      const result = await db
+        .updateTable(targetTable as any)
+        .set({ deleted_at: new Date(), updated_at: new Date() } as any)
+        .where(targetField as any, '=', targetValue)
+        .where('deleted_at' as any, 'is', null)
+        .execute();
+      rowsAffected = Number(result?.[0]?.numUpdatedRows ?? 0);
+    }
+
+    if (rowsAffected === 0) {
+      this.logger.warn(
+        `DeleteEntity: ${targetTable} matched no rows (${targetField}=${String(targetValue)})`,
+      );
+    } else {
+      this.logger.log(
+        `DeleteEntity: ${targetTable} ${hard ? 'hard' : 'soft'}-deleted ${rowsAffected} row(s) (${targetField}=${String(targetValue)})`,
+      );
+    }
+
+    return {
+      nodeType: 'DeleteEntity',
+      table: targetTable,
+      hard,
+      matchedOn: `${targetField}=${String(targetValue)}`,
+      rowsAffected,
+    };
+  }
+
+  /**
+   * Compute a value and store it in the workflow's vars so later steps can
    * reference it via a "source" key. Mutates `vars` in place — that is the
    * channel multi-step workflows use to pass values between nodes.
+   *
+   * The arithmetic operations coerce to Number. `set` and `copy` do not: they
+   * stage a literal or carry a value across unchanged, which is how a string —
+   * a status, a title, an id from an earlier step — reaches a later one.
+   * Without them every variable a workflow could pass would be a number.
    */
   private executeFormula(
     task: BpmnTaskProps,
@@ -554,6 +668,25 @@ export class WorkflowService {
       return { nodeType: 'Formula', skipped: 'no "target" variable configured' };
     }
 
+    const operationName = task.operation?.trim() || 'multiply';
+
+    if (operationName === 'set') {
+      vars[target] = task.value ?? '';
+      this.logger.log(`Formula(set): ${target} = ${JSON.stringify(vars[target])}`);
+      return { nodeType: 'Formula', target, value: vars[target], operation: 'set' };
+    }
+
+    if (operationName === 'copy') {
+      const carried = context[task.source?.trim() ?? ''];
+      if (carried === undefined) {
+        this.logger.warn(`Formula(copy): "${task.source}" is not in the workflow context — skipping`);
+        return { nodeType: 'Formula', target, skipped: `no value for source "${task.source}"` };
+      }
+      vars[target] = carried;
+      this.logger.log(`Formula(copy): ${target} = ${JSON.stringify(carried)}`);
+      return { nodeType: 'Formula', target, value: carried, operation: 'copy' };
+    }
+
     const left = Number(context[task.source?.trim() ?? '']);
     const right = Number(task.operand);
     if (!Number.isFinite(left) || !Number.isFinite(right)) {
@@ -563,7 +696,7 @@ export class WorkflowService {
       return { nodeType: 'Formula', target, skipped: 'non-numeric operand' };
     }
 
-    const operation = task.operation?.trim() || 'multiply';
+    const operation = operationName;
     let value: number;
     switch (operation) {
       case 'multiply': value = left * right; break;
