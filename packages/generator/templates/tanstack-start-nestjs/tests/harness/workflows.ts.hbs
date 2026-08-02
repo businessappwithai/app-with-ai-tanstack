@@ -126,3 +126,96 @@ export async function waitForRun(
   }
   return run;
 }
+
+// ── Multi-step workflow authoring ───────────────────────────────────────────
+
+/**
+ * One step of a workflow, as the BPMN executor reads it.
+ *
+ * `props` are the `erdwithai:property` entries the executor looks for. The
+ * builder below does not validate them — a suite asserting on a mis-typed
+ * property should see the executor skip that node, which is the behaviour worth
+ * testing.
+ */
+export interface WorkflowStep {
+  id: string;
+  name: string;
+  props: Record<string, string>;
+}
+
+function escapeXmlAttr(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/**
+ * Build executable BPMN from an ordered list of steps.
+ *
+ * Steps are wired start → s1 → s2 → … → end, because the executor walks the
+ * sequence flows: a multi-step workflow only means anything if the steps run in
+ * the order they were written.
+ */
+export function buildWorkflowBpmn(processId: string, steps: WorkflowStep[]): string {
+  const tasks = steps
+    .map((step) => {
+      const props = Object.entries(step.props)
+        .map(([k, v]) => `          <erdwithai:property name="${k}" value="${escapeXmlAttr(v)}" />`)
+        .join("\n");
+      return `    <bpmn:serviceTask id="${step.id}" name="${escapeXmlAttr(step.name)}">
+      <bpmn:extensionElements>
+        <erdwithai:properties xmlns:erdwithai="http://erdwithai.dev/bpmn">
+${props}
+        </erdwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>`;
+    })
+    .join("\n");
+
+  const ids = ["start", ...steps.map((s) => s.id), "end"];
+  const flows = ids
+    .slice(0, -1)
+    .map((from, i) => `    <bpmn:sequenceFlow id="flow_${i}" sourceRef="${from}" targetRef="${ids[i + 1]}" />`)
+    .join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="defs_${processId}" targetNamespace="http://erdwithai.dev/bpmn">
+  <bpmn:process id="${processId}" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+${tasks}
+${flows}
+    <bpmn:endEvent id="end" name="Done" />
+  </bpmn:process>
+</bpmn:definitions>
+`;
+}
+
+export interface WorkflowDefinitionRecord {
+  id: string;
+  name: string;
+  entity_name?: string;
+  entityName?: string;
+  trigger_type?: string;
+}
+
+/** Register a workflow definition through the admin API. */
+export async function createWorkflowDefinition(
+  client: HttpClient,
+  input: {
+    name: string;
+    entityName: string;
+    operation: "CREATE" | "UPDATE" | "DELETE" | "ALL";
+    bpmnXml: string;
+    description?: string;
+    triggerType?: "automatic" | "rule";
+  }
+): Promise<WorkflowDefinitionRecord> {
+  const response = await client.post<WorkflowDefinitionRecord>("/workflow-definitions", input);
+  return response.data;
+}
+
+export async function deleteWorkflowDefinition(client: HttpClient, id: string): Promise<void> {
+  await client.delete(`/workflow-definitions/${id}`, { allowFailure: true });
+}

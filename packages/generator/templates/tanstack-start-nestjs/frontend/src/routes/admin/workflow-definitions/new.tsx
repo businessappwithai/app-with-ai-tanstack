@@ -30,6 +30,7 @@ function NewWorkflowDefinition() {
   const [name, setName] = useState("");
   const [entityName, setEntityName] = useState("");
   const [operation, setOperation] = useState<"ALL" | "CREATE" | "UPDATE" | "DELETE">("ALL");
+  const [triggerType, setTriggerType] = useState<"automatic" | "rule">("automatic");
   const [description, setDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -58,7 +59,7 @@ function NewWorkflowDefinition() {
 
     try {
       const bpmnXml = await canvasRef.current.getXml();
-      createMutation.mutate({ name, entityName, operation, bpmnXml, description });
+      createMutation.mutate({ name, entityName, operation, triggerType, bpmnXml, description });
     } catch (e: any) {
       setError(e.message ?? "Failed to export BPMN");
     }
@@ -129,6 +130,22 @@ function NewWorkflowDefinition() {
                   {o}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-gray-600">Runs when</Label>
+          <Select value={triggerType} onValueChange={(v: any) => setTriggerType(v)}>
+            <SelectTrigger className="h-8 text-sm w-56">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="automatic" className="text-xs">
+                Every matching write
+              </SelectItem>
+              <SelectItem value="rule" className="text-xs">
+                Only when a rule triggers it
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>

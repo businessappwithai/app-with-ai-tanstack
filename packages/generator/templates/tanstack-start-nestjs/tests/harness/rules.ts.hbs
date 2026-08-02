@@ -196,6 +196,19 @@ export async function createRule(
   return response.data;
 }
 
+/**
+ * Change a rule in place. Deactivating one is the cleanest way for a suite to
+ * assert what happens when a rule stops matching, without editing its JDM.
+ */
+export async function updateRule(
+  client: HttpClient,
+  id: string,
+  patch: { jdmContent?: string; isActive?: boolean }
+): Promise<RuleRecord> {
+  const response = await client.put<RuleRecord>(`/rules/${id}`, patch);
+  return response.data;
+}
+
 export async function listRules(
   client: HttpClient,
   filters: { entityName?: string; operation?: string; isActive?: boolean } = {}

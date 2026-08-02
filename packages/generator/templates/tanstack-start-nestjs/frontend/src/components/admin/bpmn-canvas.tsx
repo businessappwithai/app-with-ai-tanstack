@@ -39,12 +39,20 @@ interface SelectedTask {
   properties: Record<string, string>;
 }
 
-const NODE_TYPES = ["UpdateEntity", "CreateEntity", "Formula", "REST", "Agent"] as const;
+const NODE_TYPES = [
+  "UpdateEntity",
+  "CreateEntity",
+  "DeleteEntity",
+  "Formula",
+  "REST",
+  "Agent",
+] as const;
 type NodeType = (typeof NODE_TYPES)[number];
 
 const NODE_TYPE_ICONS: Record<NodeType, string> = {
   UpdateEntity: "✏️",
   CreateEntity: "➕",
+  DeleteEntity: "🗑️",
   Formula: "🔢",
   REST: "🌐",
   Agent: "🤖",
@@ -53,10 +61,14 @@ const NODE_TYPE_ICONS: Record<NodeType, string> = {
 const NODE_TYPE_DESC: Record<NodeType, string> = {
   UpdateEntity: "Update a field on an entity record",
   CreateEntity: "Insert a new entity record",
-  Formula: "Compute a value and store in vars",
+  DeleteEntity: "Delete an entity record (soft by default)",
+  Formula: "Compute or stage a value in vars",
   REST: "Call an external HTTP endpoint",
   Agent: "Invoke an AI agent (placeholder)",
 };
+
+/** Formula operations that read `source`/`operand` as numbers. */
+const ARITHMETIC_OPERATIONS = ["multiply", "divide", "add", "subtract"];
 
 /**
  * Properties a node cannot run without. The executor skips a node that is
@@ -87,10 +99,25 @@ function missingRequiredProps(nodeType: NodeType, props: Record<string, string>)
     if (fieldCount === 0) missing.push("at least one field to set");
   }
 
+  if (nodeType === "DeleteEntity") {
+    // Same rule the executor enforces: deleting from another table by row id
+    // has to say which row, because guessing deletes the wrong one.
+    if (has("entity") && !has("targetSource") && (props["targetField"] ?? "id").trim() === "id") {
+      missing.push("a context key to match against (cross-entity delete)");
+    }
+  }
+
   if (nodeType === "Formula") {
     if (!has("target")) missing.push("Target variable name");
-    if (!has("source")) missing.push("Source key");
-    if (!has("operand")) missing.push("Operand");
+    const operation = (props["operation"] ?? "multiply").trim();
+    if (operation === "set") {
+      if (!has("value")) missing.push("Value to stage");
+    } else if (operation === "copy") {
+      if (!has("source")) missing.push("Source key to copy from");
+    } else {
+      if (!has("source")) missing.push("Source key");
+      if (!has("operand")) missing.push("Operand");
+    }
   }
 
   if (nodeType === "REST") {
@@ -237,6 +264,32 @@ const HELP_SCENARIOS: ScenarioExample[] = [
     description: "Auto-create a contact record using {{name}} / {{email}} template keys.",
     props: { entity: "bus_contact", fields: '{"name":"{{name}}","email":"{{email}}"}' },
   },
+  {
+    nodeType: "CreateEntity",
+    title: "Create a task and remember its id",
+    description:
+      "Bind the new row's id to newTaskId so a later Update or Delete node can reach the record this step created.",
+    props: {
+      entity: "bus_activity",
+      fields: '{"type":"Task","subject":"Review","status":"Planned"}',
+      as: "newTaskId",
+    },
+  },
+  // DeleteEntity
+  {
+    nodeType: "DeleteEntity",
+    title: "Retire the row a previous step created",
+    description:
+      "Soft-delete the record whose id an earlier CreateEntity node bound to newTaskId. Cross-entity deletes must name the row.",
+    props: { entity: "bus_activity", targetSource: "newTaskId", hard: "false" },
+  },
+  {
+    nodeType: "DeleteEntity",
+    title: "Cancel every activity on this lead",
+    description:
+      "Match child rows by their foreign key instead of by row id — one node, all the children.",
+    props: { entity: "bus_activity", targetField: "lead_id", targetSource: "id" },
+  },
   // Formula
   {
     nodeType: "Formula",
@@ -250,6 +303,13 @@ const HELP_SCENARIOS: ScenarioExample[] = [
     title: "Discount % = amount ÷ 100",
     description: "Divide the amount field by 100 and store the result in discount_pct.",
     props: { source: "amount", operation: "divide", operand: "100", target: "discount_pct" },
+  },
+  {
+    nodeType: "Formula",
+    title: "Stage a title for later steps",
+    description:
+      "`set` stores a literal unchanged, so a CreateEntity node further down the chain can use it as a text field value.",
+    props: { operation: "set", target: "capaTitle", value: "CAPA for critical deviation" },
   },
   // REST
   {
@@ -861,30 +921,65 @@ function PropertyFields({
           value={props["fields"] ?? ""}
           onChange={(v) => set("fields", v)}
         />
+        <div className="pt-2 border-t space-y-1">
+          <TextField label="Bind the new row's id to a variable" k="as" placeholder="newCapaId" />
+          <p className="text-xs text-gray-500">
+            Later steps can use this name as their <em>context key</em> to update or delete the row
+            this step created. Defaults to the table name plus <code>Id</code>.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (nodeType === "DeleteEntity") {
+    return (
+      <div className="space-y-3">
+        <EntitySelect label="Entity table (blank = triggering entity)" />
+        <div className="pt-2 border-t space-y-3">
+          <p className="text-xs text-gray-500">
+            Which rows? Leave blank to delete the record that triggered the workflow. To delete from
+            a <em>related</em> entity, say how the two are linked.
+          </p>
+          <FieldSelect label="Match on column (default: id)" propKey="targetField" includeId />
+          <TextField label="…against this context key" k="targetSource" placeholder="newCapaId" />
+        </div>
+        <div className="pt-2 border-t space-y-1">
+          <Label className="text-xs text-gray-600">Delete mode</Label>
+          <Select value={props["hard"] ?? "false"} onValueChange={(v) => set("hard", v)}>
+            <SelectTrigger className="h-7 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="false" className="text-xs">
+                Soft — stamp deleted_at (recommended)
+              </SelectItem>
+              <SelectItem value="true" className="text-xs">
+                Hard — remove the row
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-gray-500">
+            A hard delete leaves the audit trail pointing at a row that is no longer there.
+          </p>
+        </div>
       </div>
     );
   }
 
   if (nodeType === "Formula") {
+    const operation = props["operation"] ?? "multiply";
     return (
       <div className="space-y-3">
         <TextField label="Target variable name" k="target" placeholder="lead_score" />
-        <TextField
-          label="Source key (number from entityData/vars)"
-          k="source"
-          placeholder="version"
-        />
         <div className="space-y-1">
           <Label className="text-xs text-gray-600">Operation</Label>
-          <Select
-            value={props["operation"] ?? "multiply"}
-            onValueChange={(v) => set("operation", v)}
-          >
+          <Select value={operation} onValueChange={(v) => set("operation", v)}>
             <SelectTrigger className="h-7 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {["multiply", "divide", "add", "subtract"].map((o) => (
+              {[...ARITHMETIC_OPERATIONS, "set", "copy"].map((o) => (
                 <SelectItem key={o} value={o} className="text-xs">
                   {o}
                 </SelectItem>
@@ -892,7 +987,30 @@ function PropertyFields({
             </SelectContent>
           </Select>
         </div>
-        <TextField label="Operand" k="operand" placeholder="10" />
+        {operation === "set" ? (
+          <>
+            <TextField label="Value to stage" k="value" placeholder="Escalated" />
+            <p className="text-xs text-gray-500">
+              Stores the literal as-is, so a later step can pass text — a status, a title — and not
+              only numbers.
+            </p>
+          </>
+        ) : operation === "copy" ? (
+          <TextField
+            label="Source key to copy from (entityData/vars)"
+            k="source"
+            placeholder="newCapaId"
+          />
+        ) : (
+          <>
+            <TextField
+              label="Source key (number from entityData/vars)"
+              k="source"
+              placeholder="version"
+            />
+            <TextField label="Operand" k="operand" placeholder="10" />
+          </>
+        )}
       </div>
     );
   }

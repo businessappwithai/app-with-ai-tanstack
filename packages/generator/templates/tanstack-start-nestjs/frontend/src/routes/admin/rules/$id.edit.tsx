@@ -146,6 +146,22 @@ function EditRulePage() {
     },
   });
 
+  // The decision table's trigger-workflow action offers these by name. Without
+  // them this page referenced an undefined `availableWorkflows` and failed to
+  // compile, so editing an existing rule was impossible.
+  const { data: workflowsData } = useQuery({
+    queryKey: ["workflow-definitions"],
+    queryFn: async () => {
+      const data = await apiClient.get<any[]>("/workflow-definitions?isActive=true");
+      return Array.isArray(data) ? data : [];
+    },
+  });
+  const availableWorkflows = (workflowsData ?? []).map((wf: any) => ({
+    id: wf.id,
+    name: wf.name,
+    description: wf.description,
+  }));
+
   useEffect(() => {
     if (rule) {
       try {

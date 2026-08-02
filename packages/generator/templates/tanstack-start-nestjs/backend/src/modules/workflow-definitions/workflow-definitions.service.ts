@@ -9,6 +9,13 @@ export type WorkflowDefinitionDto = {
   bpmnXml: string;
   description?: string;
   isActive?: boolean;
+  /**
+   * How the definition is reached.
+   *   automatic  run on every write matching entityName + operation
+   *   rule       run only when a rule's trigger-workflow action names it
+   * Defaults to automatic, which is what an unmarked definition has always done.
+   */
+  triggerType?: "automatic" | "rule";
 };
 
 @Injectable()
@@ -63,6 +70,7 @@ export class WorkflowDefinitionsService {
         operation: dto.operation ?? "ALL",
         bpmn_xml: dto.bpmnXml,
         description: dto.description ?? null,
+        trigger_type: dto.triggerType ?? "automatic",
         is_active: dto.isActive ?? true,
         created_by: userId ?? null,
       } as any)
@@ -80,6 +88,7 @@ export class WorkflowDefinitionsService {
     if (dto.bpmnXml !== undefined) updates.bpmn_xml = dto.bpmnXml;
     if (dto.description !== undefined) updates.description = dto.description;
     if (dto.isActive !== undefined) updates.is_active = dto.isActive;
+    if (dto.triggerType !== undefined) updates.trigger_type = dto.triggerType;
 
     const [result] = await this.db
       .updateTable("sys_workflow_definitions")

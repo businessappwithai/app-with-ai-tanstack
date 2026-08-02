@@ -74,6 +74,7 @@ const SHARED_SUITES = [
   "06-rules-workflow.test.ts",
   "07-workflow-random.test.ts",
   "08-users-roles.test.ts",
+  "09-workflow-multistep.test.ts",
 ];
 
 /** Root-level files. */
