@@ -337,6 +337,11 @@ flowchart TD
     N --> E([End: Routed])
     K --> E
 
+    %% A critical deviation escalates: the action below names the multi-step
+    %% workflow in Section 10, and its `when` is what keeps that workflow from
+    %% running on every deviation.
+    %%action escalateCritical trigger-workflow when: severity == "critical" workflow: CriticalDeviationEscalation message: Critical deviation — escalating and opening a CAPA
+
 %% ---- Section 4: Business rule — instrument booking conflict check ----------
 %%meta name: Instrument Booking Conflict
 %%meta kind: rules
@@ -453,3 +458,26 @@ flowchart TD
     %%hook customValidate requireDescription on DeviationReport[field: anomaly_description]
     %%hook afterCreate triggerCapaIfCritical on DeviationReport
     %%hook afterCreate notifyQualityTeam on DeviationReport
+
+%% ---- Section 10: Workflow — critical deviation escalation ------------------
+%% A multi-step process: it stages a value, computes from it, creates a CAPA in
+%% another entity, updates the record that triggered it, and then reaches back
+%% into the row it created using the id that step bound. `trigger: rule` is what
+%% makes the severity condition in Section 3 load-bearing — without it the
+%% workflow would run on every deviation, critical or not.
+%%meta name: Critical Deviation Escalation
+%%meta kind: workflow
+%%workflow CriticalDeviationEscalation entity: DeviationReport kind: saga trigger: rule
+flowchart TD
+    A([Critical deviation reported]) --> B[Stage the base SLA]
+    B --> C[Compute the resolution window]
+    C --> D[Open a CAPA]
+    D --> E[Escalate the deviation]
+    E --> F[Record the window on the CAPA]
+    F --> G([Escalated])
+
+    %%step B Formula target: baseDays operation: set value: 3
+    %%step C Formula target: resolutionDays source: baseDays operation: multiply operand: 7
+    %%step D CreateEntity entity: CAPA as: newCapaId fields: {"deviation_report_id":"id","title":"CAPA for a critical deviation","root_cause_category":"under_investigation","remediation_owner_id":"reported_by_id","required_resolution_date":"anomaly_timestamp","status":"open"}
+    %%step E UpdateEntity field: status value: escalated
+    %%step F UpdateEntity entity: CAPA targetSource: newCapaId field: effectiveness_metric source: resolutionDays

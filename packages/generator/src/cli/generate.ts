@@ -22,7 +22,7 @@ import { type EntityCategory, resolveCategories } from "../parsers/category.pars
 import { MermaidParser } from "../parsers/mermaid.parser";
 import { generateApplication, readModelSources } from "../pipeline";
 import { compileRules } from "../rules";
-import { compileWorkflows } from "../workflows";
+import { compileSagaWorkflows, compileWorkflows } from "../workflows";
 
 // Resolve relative paths from the workspace root (INIT_CWD) when called via bun --filter
 const resolvePath = (p: string) =>
@@ -452,6 +452,13 @@ program
         allEntities.map((entity) => entity.name),
         warn
       );
+      // `%%workflow ... kind: saga` sections become multi-step definitions: one
+      // BPMN service task per `%%step`, ordered by the flowchart's edges.
+      const compiledSagas = compileSagaWorkflows(
+        ruleSources.join("\n"),
+        allEntities.map((entity) => entity.name),
+        warn
+      );
 
       // ── Entity summary ──────────────────────────────────────────────────
       if (!quiet) {
@@ -468,6 +475,14 @@ program
         console.log(`\n🪝 Lifecycle hooks (${compiledHooks.length}):`);
         for (const hook of compiledHooks) {
           console.log(`   • ${hook.type} ${hook.handler} on ${hook.entity}`);
+        }
+
+        console.log(`\n🧩 Multi-step workflows (${compiledSagas.length}):`);
+        for (const saga of compiledSagas) {
+          console.log(
+            `   • ${saga.name} on ${saga.entity} — ${saga.steps.length} steps, ` +
+              `${saga.trigger}-triggered on ${saga.operation}`
+          );
         }
 
         console.log(`\n🔁 Status workflows (${compiledWorkflows.length}):`);
@@ -556,6 +571,7 @@ program
           rules: compiledRules,
           hooks: compiledHooks,
           workflows: compiledWorkflows,
+          sagas: compiledSagas,
         },
         stackOption,
         projectName: options.name,

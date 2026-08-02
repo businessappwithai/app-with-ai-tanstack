@@ -1,12 +1,13 @@
 # EML — Directive Reference
 
 Directives are `%%`-prefixed comment lines that carry generator meaning while
-staying invisible to Mermaid renderers. Only `%%hook` is parsed by the currently
-shipped parser; the rest are the documented, reserved extension surface — they
+staying invisible to Mermaid renderers. `%%hook` and `%%step` are parsed by the
+shipped compilers; the rest are the documented, reserved extension surface — they
 are renderer-safe today and adopted by the generator incrementally.
 
-All directive keywords are reserved: `%%meta`, `%%hook`, `%%entity`, `%%field`,
-`%%enum`, `%%index`, `%%rule`, `%%guard`, `%%trigger`, `%%workflow`.
+All directive keywords are reserved: `%%meta`, `%%hook`, `%%step`, `%%entity`,
+`%%field`, `%%enum`, `%%category`, `%%index`, `%%rule`, `%%guard`, `%%trigger`,
+`%%workflow`.
 
 ---
 
@@ -49,6 +50,41 @@ Regex (from `hook-parser.ts`):
 %%hook beforeCreate hashPassword on User
 %%hook beforeCreate generateSlug on Post[field: slug]
 ```
+
+## `%%step` — bind a flowchart node to an executable step *(shipped)*
+
+```
+%%step <nodeId> <stepType> <key>: <value> ...
+```
+
+Only meaningful inside a `%%workflow ... kind: saga` section. `nodeId` names a
+node in that flowchart; the flowchart's edges give the running order. Each
+`%%step` becomes one `bpmn:serviceTask` in the seeded workflow definition.
+
+- `stepType` — `UpdateEntity` | `CreateEntity` | `DeleteEntity` | `Formula` |
+  `REST` | `Agent`
+- properties — space-separated `key: value`. A value runs to the next `<key>:`
+  token, so it may contain spaces. **`fields` carries JSON and must be the last
+  key on the line.**
+
+```
+%%step B Formula target: baseDays operation: set value: 3
+%%step C Formula target: resolutionDays source: baseDays operation: multiply operand: 7
+%%step D CreateEntity entity: Capa as: newCapaId fields: {"title":"CAPA","status":"open"}
+%%step E UpdateEntity field: status value: escalated
+%%step F UpdateEntity entity: Capa targetSource: newCapaId field: effectiveness_metric source: resolutionDays
+%%step G DeleteEntity entity: Capa targetSource: supersededCapaId
+```
+
+Steps share a context — the triggering record's columns plus every variable an
+earlier step published (`as` on `CreateEntity`, `target` on `Formula`). Naming
+one in `source` or `targetSource` is how a later step reaches a row an earlier
+step created.
+
+Per-type required properties and the row-targeting rules are in
+[`03-workflows.md`](03-workflows.md#3-saga-workflows--multi-step-processes) and
+declared canonically under `workflowConstructs.stepNodes` in
+`erdwithai-language.json`.
 
 ## `%%entity` — entity-level metadata
 
@@ -180,10 +216,17 @@ multiple rules.
 ## `%%workflow` — name & classify a workflow
 
 ```
-%%workflow <name> entity: <Entity> kind: <hook|state|saga>
+%%workflow <name> entity: <Entity> kind: <hook|state|saga> [trigger: automatic|rule]
+           [operation: CREATE|UPDATE|DELETE|ALL]
 ```
+
+`trigger` and `operation` apply to `kind: saga` only. `automatic` (the default)
+runs the workflow on every matching write; `rule` runs it only when a business
+rule emits a `trigger-workflow` action naming it, so the rule's condition is what
+decides. `operation` defaults to `CREATE` and is only consulted for `automatic`.
 
 ```
 %%workflow OrderFulfilment entity: Order kind: state
 %%workflow SignupFlow entity: User kind: hook
+%%workflow CheckoutSaga entity: Order kind: saga trigger: rule
 ```

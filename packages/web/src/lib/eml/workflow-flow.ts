@@ -261,3 +261,298 @@ export function validateStateFlow(flow: StateFlow): string[] {
   }
   return problems;
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Saga workflows — multi-step processes                                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * A saga is a flowchart whose nodes are bound to executable steps by `%%step`
+ * directives. The generated executor runs them in the order the edges give, so
+ * this editor keeps them as an ordered list and emits a straight chain: the
+ * node ids are bookkeeping the author should never have to hold in their head.
+ *
+ * The vocabulary mirrors `workflowConstructs.stepNodes` in
+ * `language/erdwithai-language.json`, which is the canonical declaration.
+ */
+export const SAGA_STEP_TYPES = [
+  "Formula",
+  "CreateEntity",
+  "UpdateEntity",
+  "DeleteEntity",
+  "REST",
+] as const;
+
+export type SagaStepType = (typeof SAGA_STEP_TYPES)[number];
+
+export const SAGA_STEP_HINTS: Record<SagaStepType, string> = {
+  Formula: "Work out a value — or stage a literal — for a later step to use.",
+  CreateEntity: "Insert a row. Name the variable its id lands in so a later step can reach it.",
+  UpdateEntity: "Write one column, on this record or on a related one.",
+  DeleteEntity: "Delete a record. Soft by default, so the audit trail still resolves.",
+  REST: "Call an external endpoint.",
+};
+
+export const FORMULA_OPERATIONS = ["set", "copy", "multiply", "divide", "add", "subtract"] as const;
+
+/** Which property fields each step type shows, in the order they read. */
+export const SAGA_STEP_FIELDS: Record<SagaStepType, string[]> = {
+  Formula: ["target", "operation", "value", "source", "operand"],
+  CreateEntity: ["entity", "fields", "as"],
+  UpdateEntity: ["entity", "targetField", "targetSource", "field", "value", "source"],
+  DeleteEntity: ["entity", "targetField", "targetSource", "hard"],
+  REST: ["url", "method", "bodyTemplate"],
+};
+
+export const SAGA_FIELD_LABELS: Record<string, string> = {
+  entity: "Entity",
+  field: "Column to write",
+  value: "Literal value",
+  source: "Read from variable",
+  target: "Store in variable",
+  targetField: "Match rows on column",
+  targetSource: "…against this variable",
+  operation: "Operation",
+  operand: "Operand",
+  as: "Bind new row id to",
+  hard: "Hard delete",
+  fields: "Columns to set (JSON)",
+  url: "URL",
+  method: "Method",
+  bodyTemplate: "Body template",
+};
+
+export interface SagaStep {
+  /** Stable across renames, so React keeps the row being edited. */
+  id: string;
+  type: SagaStepType;
+  /** Node label, shown on the flowchart. */
+  label: string;
+  props: Record<string, string>;
+}
+
+export interface SagaFlow {
+  steps: SagaStep[];
+  /** `rule` means a business rule decides when this runs. */
+  trigger: "automatic" | "rule";
+  operation: "CREATE" | "UPDATE" | "DELETE" | "ALL";
+}
+
+export function emptySagaFlow(): SagaFlow {
+  return { steps: [], trigger: "rule", operation: "CREATE" };
+}
+
+let sagaStepCounter = 0;
+const nextSagaStepId = () => `s${(sagaStepCounter++).toString(36)}${Date.now().toString(36)}`;
+
+/** Node id for the nth step. Positional, because the editor owns the order. */
+function stepNodeId(index: number): string {
+  return `S${index + 1}`;
+}
+
+/** `key: value` pairs, each value running to the next `key:` token. */
+function parseStepProps(rest: string): Record<string, string> {
+  const props: Record<string, string> = {};
+  const trimmed = rest.trim();
+  if (!trimmed) return props;
+  for (const chunk of trimmed.split(/\s+(?=[A-Za-z_]\w*:)/)) {
+    const at = chunk.indexOf(":");
+    if (at <= 0) continue;
+    const key = chunk.slice(0, at).trim();
+    if (key) props[key] = chunk.slice(at + 1).trim();
+  }
+  return props;
+}
+
+/**
+ * Read a saga flowchart back into the editable model.
+ *
+ * Steps come out in the order the edges chain them, so a document written by
+ * hand — or by an earlier version of this editor — still opens in the order it
+ * runs rather than in directive order.
+ */
+export function parseSagaFlow(diagram: string): SagaFlow {
+  const declared = new Map<string, SagaStep>();
+  const labels = new Map<string, string>();
+  const next = new Map<string, string>();
+  const hasIncoming = new Set<string>();
+
+  const nodeLabel =
+    /(?:^|[^\w])([A-Za-z_]\w*)\s*(?:\(\[([^\]]*)\]\)|\[([^\]]*)\]|\{([^}]*)\}|\(([^)]*)\))/g;
+  const edge =
+    /([A-Za-z_]\w*)\s*(?:\(\[[^\]]*\]\)|\[[^\]]*\]|\{[^}]*\}|\([^)]*\))?\s*(?:-->|---|==>)(?:\|[^|]*\|)?\s*([A-Za-z_]\w*)/g;
+
+  for (const rawLine of (diagram ?? "").split("\n")) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    const step = line.match(/^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z]\w*)\s*(.*)$/);
+    if (step) {
+      const [, nodeId, typeName, rest] = step as unknown as [string, string, string, string];
+      if (!SAGA_STEP_TYPES.includes(typeName as SagaStepType)) continue;
+      if (declared.has(nodeId)) continue;
+      declared.set(nodeId, {
+        id: nextSagaStepId(),
+        type: typeName as SagaStepType,
+        label: "",
+        props: parseStepProps(rest ?? ""),
+      });
+      continue;
+    }
+    if (line.startsWith("%%")) continue;
+
+    nodeLabel.lastIndex = 0;
+    let match: RegExpExecArray | null;
+    while ((match = nodeLabel.exec(line)) !== null) {
+      const id = match[1]!;
+      const text = (match[2] ?? match[3] ?? match[4] ?? match[5] ?? "").trim();
+      if (text && !labels.has(id)) labels.set(id, text);
+    }
+
+    edge.lastIndex = 0;
+    while ((match = edge.exec(line)) !== null) {
+      const from = match[1]!;
+      const to = match[2]!;
+      if (!next.has(from)) next.set(from, to);
+      hasIncoming.add(to);
+      edge.lastIndex = match.index + match[0].length - to.length;
+    }
+  }
+
+  // Walk the chain from its head so the list opens in execution order.
+  const ordered: SagaStep[] = [];
+  const seen = new Set<string>();
+  const heads = [...next.keys()].filter((id) => !hasIncoming.has(id));
+  for (const head of heads) {
+    let cursor: string | undefined = head;
+    while (cursor && !seen.has(cursor)) {
+      seen.add(cursor);
+      const step = declared.get(cursor);
+      if (step) ordered.push({ ...step, label: labels.get(cursor) ?? step.label });
+      cursor = next.get(cursor);
+    }
+  }
+  for (const [id, step] of declared) {
+    if (!seen.has(id)) ordered.push({ ...step, label: labels.get(id) ?? step.label });
+  }
+
+  return { steps: ordered, trigger: "rule", operation: "CREATE" };
+}
+
+/**
+ * Write the editable model back out as a flowchart plus `%%step` directives.
+ *
+ * Emits a start and end terminal so the diagram reads as a process even before
+ * any step is added, and so a reader can tell at a glance where it begins.
+ */
+export function emitSagaFlow(flow: SagaFlow): string {
+  const lines = ["flowchart TD"];
+  const ids = ["Start", ...flow.steps.map((_step, index) => stepNodeId(index)), "Done"];
+
+  lines.push(`    Start([Start])`);
+  flow.steps.forEach((step, index) => {
+    const label = (step.label || step.type).replace(/[[\]{}()|]/g, " ").trim();
+    lines.push(`    ${stepNodeId(index)}[${label}]`);
+  });
+  lines.push(`    Done([Done])`);
+  lines.push("");
+  for (let index = 0; index < ids.length - 1; index++) {
+    lines.push(`    ${ids[index]} --> ${ids[index + 1]}`);
+  }
+
+  if (flow.steps.length) lines.push("");
+  flow.steps.forEach((step, index) => {
+    const props = Object.entries(step.props)
+      .filter(([key, value]) => value?.trim() && key !== "fields")
+      .map(([key, value]) => `${key}: ${value.trim()}`);
+    // `fields` carries JSON, so it goes last — every other value ends at the
+    // next `key:` token, and JSON is full of them.
+    const fields = step.props.fields?.trim();
+    if (fields) props.push(`fields: ${fields}`);
+    lines.push(
+      `    %%step ${stepNodeId(index)} ${step.type}${props.length ? ` ${props.join(" ")}` : ""}`
+    );
+  });
+
+  return lines.join("\n");
+}
+
+/**
+ * The same requirements the checker enforces on the model and the executor
+ * enforces at runtime, surfaced while the step is being drawn.
+ */
+export function validateSagaFlow(flow: SagaFlow): string[] {
+  const problems: string[] = [];
+  if (!flow.steps.length) return ["No steps yet — add the first one."];
+
+  const published = new Set<string>();
+
+  flow.steps.forEach((step, index) => {
+    const at = `Step ${index + 1}`;
+    const has = (key: string) => (step.props[key] ?? "").trim().length > 0;
+
+    if (step.type === "Formula") {
+      if (!has("target")) problems.push(`${at}: name the variable to store the result in.`);
+      const operation = (step.props.operation ?? "").trim();
+      if (!operation) problems.push(`${at}: choose an operation.`);
+      else if (operation === "set" && !has("value")) problems.push(`${at}: give a value to stage.`);
+      else if (operation === "copy" && !has("source"))
+        problems.push(`${at}: name the variable to copy from.`);
+      else if (operation !== "set" && operation !== "copy" && (!has("source") || !has("operand")))
+        problems.push(`${at}: ${operation} needs both a source variable and an operand.`);
+    }
+
+    if (step.type === "CreateEntity") {
+      if (!has("entity")) problems.push(`${at}: choose the entity to insert into.`);
+      if (!has("fields")) problems.push(`${at}: set at least one column.`);
+      else {
+        try {
+          const parsed = JSON.parse(step.props.fields!);
+          if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error();
+          if (!Object.keys(parsed).length) problems.push(`${at}: set at least one column.`);
+        } catch {
+          problems.push(`${at}: the columns must be a JSON object, e.g. {"status":"open"}.`);
+        }
+      }
+    }
+
+    if (step.type === "UpdateEntity") {
+      if (!has("field")) problems.push(`${at}: choose the column to write.`);
+      if (!has("value") && !has("source"))
+        problems.push(`${at}: give a literal value or a variable to read from.`);
+    }
+
+    if (step.type === "REST" && !has("url")) problems.push(`${at}: give the URL to call.`);
+
+    // The executor refuses a cross-entity write it cannot aim at a row.
+    if (
+      (step.type === "UpdateEntity" || step.type === "DeleteEntity") &&
+      has("entity") &&
+      !has("targetSource") &&
+      (step.props.targetField ?? "id").trim() === "id"
+    ) {
+      problems.push(
+        `${at}: say which row of ${step.props.entity} — a variable holding its id, or a foreign key column to match on.`
+      );
+    }
+
+    const reference = (step.props.targetSource ?? "").trim();
+    if (reference && !published.has(reference)) {
+      problems.push(
+        `${at}: nothing before it stores "${reference}" — unless that is a column of the triggering record.`
+      );
+    }
+
+    if (step.type === "CreateEntity") {
+      const bound =
+        (step.props.as ?? "").trim() ||
+        ((step.props.entity ?? "").trim()
+          ? `${step.props.entity!.trim().replace(/^bus_/, "")}Id`
+          : "");
+      if (bound) published.add(bound);
+    }
+    if (step.type === "Formula" && has("target")) published.add(step.props.target!.trim());
+  });
+
+  return problems;
+}

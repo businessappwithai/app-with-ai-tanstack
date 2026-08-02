@@ -25,7 +25,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadLanguageDefinition } from "./index.ts";
+import { loadLanguageDefinition, stepNodeTypes } from "./index.ts";
 import type { EmlAttribute, EmlEntity, EmlModel, EmlRule, EmlWorkflow } from "./cli/src/model.ts";
 import { parseEml } from "./cli/src/parser.ts";
 
@@ -252,6 +252,8 @@ class CheckEngine {
     this.checkGuards();
     this.checkTriggers();
     this.checkWorkflowDirectives();
+    this.checkStepDirectives();
+    this.checkActionDirectives();
     this.checkRuleDirectives();
     this.checkRules();
     this.checkWorkflows();
@@ -1005,6 +1007,417 @@ class CheckEngine {
   }
 
   // -------------------------------------------------------------------------
+  // EML280-EML289: %%action directive checks (rule actions)
+  // -------------------------------------------------------------------------
+
+  /**
+   * Validate the side-effecting actions a rules section declares.
+   *
+   * An action the engine cannot execute is dropped silently at evaluation time,
+   * so a rule appears to be wired up and does nothing. These checks move that
+   * to the model — particularly the workflow name, which is the join between a
+   * rule and the saga it is supposed to start.
+   */
+  private checkActionDirectives(): void {
+    const actionTypes = new Map(
+      (this.def.ruleNodes.actions?.types ?? []).map((action) => [action.name, action])
+    );
+    const workflowNames = new Set(this.model.workflows.map((wf) => wf.name));
+
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%action\b/)) {
+      const match = text.trim().match(/^%%action\s+([A-Za-z_][\w-]*)\s+([A-Za-z][\w-]*)\s*(.*)$/);
+      if (!match) {
+        this.error("EML280", `Invalid %%action syntax: "${text.trim()}"`, {
+          line: lineNo,
+          hint: "Syntax: %%action <name> <actionType> when: <expr> <key>: <value> ...",
+        });
+        continue;
+      }
+
+      const [, name, typeName, rest] = match as unknown as [string, string, string, string];
+      const contract = actionTypes.get(typeName);
+
+      // EML281: an unknown action type is dropped by the engine.
+      if (!contract) {
+        this.error("EML281", `%%action "${name}" has unknown type "${typeName}".`, {
+          line: lineNo,
+          hint: `Valid action types: ${[...actionTypes.keys()].join(", ")}.`,
+        });
+        continue;
+      }
+
+      const props = this.parseStepProps(rest ?? "");
+      const has = (key: string) => (props[key] ?? "").trim().length > 0;
+
+      // EML282: no condition means the action fires on every write, which is
+      // almost never what someone writing a conditional rule intended.
+      if (!has("when")) {
+        this.warn("EML282", `%%action "${name}" has no "when" — it fires on every write.`, {
+          line: lineNo,
+          hint: 'Add a condition, e.g. when: severity == "critical". Use when: true to say "always" on purpose.',
+        });
+      }
+
+      // EML283: properties the action cannot run without.
+      const missing = contract.required.filter((key) => !has(key));
+      if (missing.length > 0) {
+        this.error(
+          "EML283",
+          `%%action "${name}" (${typeName}) is missing: ${missing.join(", ")}.`,
+          {
+            line: lineNo,
+            hint: `${typeName} requires ${contract.required.join(", ")}.`,
+          }
+        );
+      }
+
+      // EML284: the workflow a trigger-workflow names has to exist, or the run
+      // logs "No active workflow named …" and nothing happens.
+      const workflow = props.workflow?.trim();
+      if (typeName === "trigger-workflow" && workflow && !workflowNames.has(workflow)) {
+        this.warn(
+          "EML284",
+          `%%action "${name}" triggers workflow "${workflow}", which this document does not declare.`,
+          {
+            line: lineNo,
+            hint: `Declare it with %%workflow ${workflow} entity: <Entity> kind: saga trigger: rule, or correct the name.`,
+          }
+        );
+      }
+
+      // EML285: an unknown key is ignored, so the action runs without it.
+      const known = new Set(["when", ...contract.required, ...(contract.optional ?? [])]);
+      for (const key of Object.keys(props)) {
+        if (!known.has(key)) {
+          this.warn("EML285", `%%action "${name}" has unknown property "${key}".`, {
+            line: lineNo,
+            hint: `${typeName} understands: ${[...known].sort().join(", ")}.`,
+          });
+        }
+      }
+    }
+
+    // EML286: a saga declared trigger: rule that no action ever names never
+    // runs at all — the definition is seeded and nothing reaches it.
+    const triggered = new Set(
+      this.src
+        .findAll(/^\s*%%action\b/)
+        .map(({ text }) => text.match(/\bworkflow:\s*(\S+)/)?.[1])
+        .filter((name): name is string => !!name)
+    );
+    for (const { lineNo, text } of this.src.findAll(/^%%workflow\b/)) {
+      const m = text.match(/^%%workflow\s+(\w+)[^\n]*kind:\s*saga/);
+      if (!m || !/\btrigger:\s*rule\b/.test(text)) continue;
+      if (triggered.has(m[1]!)) continue;
+      this.warn("EML286", `Saga "${m[1]}" is rule-triggered but no %%action names it.`, {
+        line: lineNo,
+        hint: `Add %%action <name> trigger-workflow when: <condition> workflow: ${m[1]} to a %%rule section, or change it to trigger: automatic.`,
+      });
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // EML260-EML279: %%step directive checks (saga workflows)
+  // -------------------------------------------------------------------------
+
+  /**
+   * Validate the executable steps of every `kind: saga` workflow.
+   *
+   * A step the executor cannot run is skipped at runtime with a log line, which
+   * is a bad place to discover that a workflow has quietly been doing nothing.
+   * These checks move that discovery to the model.
+   *
+   * The vocabulary comes from `workflowConstructs.stepNodes` in
+   * erdwithai-language.json, so a new step type is declared in one place.
+   */
+  private checkStepDirectives(): void {
+    const stepTypes = new Map(stepNodeTypes().map((step) => [step.name, step]));
+    const entitySpellings = this.entitySpellings();
+
+    for (const section of this.sagaSections()) {
+      // Variables a step can read: every entity column is in scope, plus
+      // whatever an earlier step published.
+      const published = new Set<string>();
+      const bound = new Set<string>();
+
+      for (const { lineNo, text } of section.steps) {
+        const match = text.trim().match(/^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z]\w*)\s*(.*)$/);
+        if (!match) {
+          this.error("EML260", `Invalid %%step syntax: "${text.trim()}"`, {
+            line: lineNo,
+            hint: "Syntax: %%step <nodeId> <StepType> <key>: <value> ...",
+          });
+          continue;
+        }
+
+        const [, nodeId, typeName, rest] = match as unknown as [string, string, string, string];
+        const contract = stepTypes.get(typeName);
+
+        // EML261: the step type has to be one the executor knows.
+        if (!contract) {
+          this.error("EML261", `%%step on node ${nodeId} has unknown type "${typeName}".`, {
+            line: lineNo,
+            hint: `Valid step types: ${[...stepTypes.keys()].join(", ")}.`,
+          });
+          continue;
+        }
+
+        // EML270: the compiler keeps the first binding, so the second is dead
+        // text that reads as though it were doing something.
+        if (bound.has(nodeId)) {
+          this.error("EML270", `Node "${nodeId}" has more than one %%step.`, {
+            line: lineNo,
+            hint: "Only the first binding runs. Give the second step its own node.",
+          });
+          continue;
+        }
+        bound.add(nodeId);
+
+        // EML263: a step bound to a node that is not on the canvas runs at the
+        // end, detached from the order the author drew — almost never intended.
+        if (!section.nodeIds.has(nodeId)) {
+          this.warn("EML263", `%%step binds node "${nodeId}", which is not in the flowchart.`, {
+            line: lineNo,
+            hint: `Add a node "${nodeId}" to the flowchart, or bind the step to an existing one.`,
+          });
+        }
+
+        const props = this.parseStepProps(rest ?? "");
+        const has = (key: string) => (props[key] ?? "").trim().length > 0;
+
+        // EML262: properties the step cannot run without.
+        const missing: string[] = [];
+        for (const key of contract.required) {
+          if (!has(key)) missing.push(key);
+        }
+        for (const group of contract.oneOf ?? []) {
+          if (!group.some((key) => has(key))) missing.push(`one of ${group.join(" / ")}`);
+        }
+        if (typeName === "Formula" && has("operation")) {
+          const extra = contract.perOperation?.[props.operation!.trim()]?.required ?? [];
+          for (const key of extra) {
+            if (!has(key)) missing.push(key);
+          }
+        }
+        if (missing.length > 0) {
+          this.error(
+            "EML262",
+            `%%step ${nodeId} (${typeName}) is missing: ${missing.join(", ")}.`,
+            {
+              line: lineNo,
+              hint: `${typeName} requires ${contract.required.join(", ") || "no fixed properties"}. See spec/03-workflows.md.`,
+            }
+          );
+        }
+
+        // EML268: a misspelt key is silently ignored by the executor, so the
+        // step runs without the property the author thought they had set.
+        const known = new Set([
+          ...contract.required,
+          ...(contract.optional ?? []),
+          ...(contract.oneOf ?? []).flat(),
+          ...(typeName === "Formula" ? ["source", "operand", "value"] : []),
+        ]);
+        for (const key of Object.keys(props)) {
+          if (!known.has(key)) {
+            this.warn("EML268", `%%step ${nodeId} (${typeName}) has unknown property "${key}".`, {
+              line: lineNo,
+              hint: `${typeName} understands: ${[...known].sort().join(", ")}.`,
+            });
+          }
+        }
+
+        // EML266: the target entity has to exist.
+        const entityProp = props.entity?.trim();
+        if (entityProp && !entitySpellings.has(entityProp.toLowerCase())) {
+          this.warn(
+            "EML266",
+            `%%step ${nodeId} targets entity "${entityProp}", which the model does not declare.`,
+            {
+              line: lineNo,
+              hint: "Use the entity name from the erDiagram, or its bus_ table name.",
+            }
+          );
+        }
+
+        // EML267: an unparseable field map means the whole step is skipped.
+        if (typeName === "CreateEntity" && has("fields")) {
+          try {
+            const parsed = JSON.parse(props.fields!);
+            if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+              throw new Error("not an object");
+            }
+            if (Object.keys(parsed).length === 0) {
+              this.error("EML267", `%%step ${nodeId} (CreateEntity) sets no fields.`, {
+                line: lineNo,
+                hint: 'Give at least one column, e.g. fields: {"status":"open"}.',
+              });
+            }
+          } catch {
+            this.error("EML267", `%%step ${nodeId} (CreateEntity) has an invalid "fields" map.`, {
+              line: lineNo,
+              hint: '`fields` must be a JSON object and the last key on the line, e.g. fields: {"status":"open"}.',
+            });
+          }
+        }
+
+        // EML265: the executor refuses a cross-entity write it cannot aim.
+        if (
+          (typeName === "UpdateEntity" || typeName === "DeleteEntity") &&
+          entityProp &&
+          !has("targetSource") &&
+          (props.targetField ?? "id").trim() === "id"
+        ) {
+          this.error(
+            "EML265",
+            `%%step ${nodeId} (${typeName}) targets "${entityProp}" without saying which row.`,
+            {
+              line: lineNo,
+              hint: "Set targetSource to a context key holding the row id, or targetField to a foreign key column. The executor refuses this rather than guessing a row.",
+            }
+          );
+        }
+
+        // EML264: reading a variable nothing has published yet. Entity columns
+        // are also in scope, so this is a warning: the checker cannot know the
+        // target entity's columns from here.
+        const reference = props.targetSource?.trim();
+        if (reference && !published.has(reference)) {
+          this.warn(
+            "EML264",
+            `%%step ${nodeId} reads "${reference}", which no earlier step publishes.`,
+            {
+              line: lineNo,
+              hint: `Publish it with \`as: ${reference}\` on a CreateEntity step or \`target: ${reference}\` on a Formula step — unless it is a column of the triggering record.`,
+            }
+          );
+        }
+
+        const publishes =
+          typeName === "CreateEntity"
+            ? props.as?.trim() || (entityProp ? `${entityProp.replace(/^bus_/, "")}Id` : undefined)
+            : typeName === "Formula"
+              ? props.target?.trim()
+              : undefined;
+        if (publishes) published.add(publishes);
+      }
+    }
+
+    // EML269: a %%step outside a saga does nothing at all.
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%step\b/)) {
+      if (this.sagaStepLines.has(lineNo)) continue;
+      this.warn("EML269", `%%step is only read inside a "kind: saga" workflow: "${text.trim()}"`, {
+        line: lineNo,
+        hint: "Move it into a %%workflow ... kind: saga section, or delete it.",
+      });
+    }
+  }
+
+  /** Line numbers of every %%step the saga scan claimed. */
+  private sagaStepLines = new Set<number>();
+
+  /**
+   * Split the document into its `kind: saga` sections.
+   *
+   * Sections run from a `%%workflow ... kind: saga` directive to the next
+   * `%%workflow`/`%%rule` directive, which mirrors how the composer's extractor
+   * carves the document up.
+   */
+  private sagaSections(): Array<{
+    name: string;
+    nodeIds: Set<string>;
+    steps: Array<{ lineNo: number; text: string }>;
+  }> {
+    const sections: Array<{
+      name: string;
+      nodeIds: Set<string>;
+      steps: Array<{ lineNo: number; text: string }>;
+    }> = [];
+
+    let current: {
+      name: string;
+      nodeIds: Set<string>;
+      steps: Array<{ lineNo: number; text: string }>;
+    } | null = null;
+
+    const nodeRef =
+      /([A-Za-z_]\w*)\s*(?:\(\[[^\]]*\]\)|\(\([^)]*\)\)|\[[^\]]*\]|\{[^}]*\}|\([^)]*\))?/g;
+    const edge = /(?:-->|---|-\.->|==>)/;
+
+    const all = this.src.findAll(/.*/);
+    for (const { lineNo, text } of all) {
+      const trimmed = text.trim();
+
+      const workflow = trimmed.match(/^%%workflow\s+(\w+)\s+entity:\s*\w+\s+kind:\s*(\w+)/);
+      if (workflow) {
+        if (current) sections.push(current);
+        current =
+          workflow[2] === "saga"
+            ? { name: workflow[1]!, nodeIds: new Set<string>(), steps: [] }
+            : null;
+        continue;
+      }
+      if (trimmed.startsWith("%%rule ")) {
+        if (current) sections.push(current);
+        current = null;
+        continue;
+      }
+      if (!current) continue;
+
+      if (trimmed.startsWith("%%step")) {
+        current.steps.push({ lineNo, text });
+        this.sagaStepLines.add(lineNo);
+        continue;
+      }
+      if (!trimmed || trimmed.startsWith("%%")) continue;
+
+      // Any bare identifier on a diagram line is a node reference — either end
+      // of an edge, or a standalone node definition.
+      if (edge.test(trimmed) || /[[({]/.test(trimmed)) {
+        nodeRef.lastIndex = 0;
+        let m: RegExpExecArray | null;
+        while ((m = nodeRef.exec(trimmed)) !== null) {
+          if (m[0].trim()) current.nodeIds.add(m[1]!);
+          if (m.index === nodeRef.lastIndex) nodeRef.lastIndex++;
+        }
+      }
+    }
+    if (current) sections.push(current);
+    return sections;
+  }
+
+  /** Every spelling of a declared entity a %%step's `entity:` may use. */
+  private entitySpellings(): Set<string> {
+    const spellings = new Set<string>();
+    for (const entity of this.model.entities) {
+      const snake = entity.name
+        .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+        .replace(/-/g, "_")
+        .toLowerCase();
+      const bare = snake.replace(/^bus_/, "");
+      spellings.add(entity.name.toLowerCase());
+      spellings.add(snake);
+      spellings.add(bare);
+      spellings.add(`bus_${bare}`);
+    }
+    return spellings;
+  }
+
+  /** `key: value` pairs, each value running to the next `key:` token. */
+  private parseStepProps(rest: string): Record<string, string> {
+    const props: Record<string, string> = {};
+    const trimmed = rest.trim();
+    if (!trimmed) return props;
+    for (const chunk of trimmed.split(/\s+(?=[A-Za-z_]\w*:)/)) {
+      const at = chunk.indexOf(":");
+      if (at <= 0) continue;
+      const key = chunk.slice(0, at).trim();
+      if (key) props[key] = chunk.slice(at + 1).trim();
+    }
+    return props;
+  }
+
+  // -------------------------------------------------------------------------
   // EML250-EML259: %%rule directive checks
   // -------------------------------------------------------------------------
 
@@ -1336,10 +1749,13 @@ class CheckEngine {
   }
 
   private checkSagaWorkflow(wf: EmlWorkflow): void {
-    // EML430: Saga should have at least one hook
-    if (wf.hooks.length === 0) {
-      this.info("EML430", `Saga workflow "${wf.name}" has no %%hook directives.`, {
-        hint: "Sagas typically bind hooks on multiple entities. Add %%hook directives for each saga step.",
+    // EML430: a saga's steps come from %%step directives. It used to be checked
+    // for %%hook directives instead, from when saga was a documented-but-unbuilt
+    // kind — a saga with steps and no hooks is the normal case now.
+    const declared = this.sagaSections().find((section) => section.name === wf.name);
+    if (declared && declared.steps.length === 0 && wf.hooks.length === 0) {
+      this.warn("EML430", `Saga workflow "${wf.name}" declares no steps.`, {
+        hint: "Bind its flowchart nodes with %%step directives, e.g. %%step B UpdateEntity field: status value: escalated.",
       });
     }
   }

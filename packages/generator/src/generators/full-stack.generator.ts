@@ -22,7 +22,7 @@ import {
 } from "./tanstack-start-nestjs/tanstack-start-frontend.generator";
 import type { CompiledHook } from "../hooks";
 import type { CompiledRule } from "../rules";
-import type { CompiledWorkflow } from "../workflows";
+import type { CompiledSaga, CompiledWorkflow } from "../workflows";
 import { BunE2ETestGenerator } from "./tests/bun-e2e.generator";
 
 export type StackOption = "tanstackjs-nestjs" | "tanstack-start-nestjs";
@@ -74,6 +74,8 @@ export interface FullStackGeneratorOptions {
   compiledHooks?: CompiledHook[];
   /** Status machines compiled from the model's state workflows. */
   compiledWorkflows?: CompiledWorkflow[];
+  /** Multi-step processes compiled from the model's `kind: saga` workflows. */
+  compiledSagas?: CompiledSaga[];
   /** Records the bulk-seed suite creates per entity (default 1000). */
   recordsPerEntity?: number;
 }
@@ -148,6 +150,7 @@ export class FullStackGenerator {
       compiledRules: this.options.compiledRules,
       compiledHooks: this.options.compiledHooks,
       compiledWorkflows: this.options.compiledWorkflows,
+      compiledSagas: this.options.compiledSagas,
       ...aiConfig,
       ...this.options.tanstackStartNestjs?.backend,
     };

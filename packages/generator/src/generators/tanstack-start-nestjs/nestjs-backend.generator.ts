@@ -29,8 +29,11 @@ import { type CompiledHook, HOOK_CONTRACTS, hooksByEntity } from "../../hooks";
 import type { CompiledRule } from "../../rules";
 import {
   buildPassThroughBpmn,
+  buildSagaBpmn,
   buildStateEntryBpmn,
+  type CompiledSaga,
   type CompiledWorkflow,
+  describeSaga,
   describeWorkflow,
 } from "../../workflows";
 import { CliExecutor } from "../../utils/cli-executor";
@@ -142,6 +145,8 @@ export interface NestJsBackendOptions {
   compiledHooks?: CompiledHook[];
   /** Status machines compiled from the model's state workflows. */
   compiledWorkflows?: CompiledWorkflow[];
+  /** Multi-step processes compiled from the model's `kind: saga` workflows. */
+  compiledSagas?: CompiledSaga[];
 }
 
 export class NestJsBackendGenerator extends BaseGenerator {
@@ -1236,6 +1241,14 @@ export async function executeCustomValidateHooks(
       { slug: "create_sys_category", template: "src/migrations/005_create_sys_category.ts.hbs" },
       // audit_log — immutable trail of every mutation, read by /admin/audit
       { slug: "create_audit_log", template: "src/migrations/006_create_audit_log.ts.hbs" },
+      // trigger_type / source / workflow_name. Also declared in 004's
+      // createTable for a fresh database; repeated here because the runner
+      // tracks by filename, so an app generated before those columns existed
+      // has already recorded 004 as executed and would never receive them.
+      {
+        slug: "add_workflow_ownership",
+        template: "src/migrations/007_add_workflow_ownership.ts.hbs",
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This
@@ -1377,12 +1390,45 @@ export async function executeCustomValidateHooks(
       }
     }
 
+    // Saga workflows are named by the model, not by convention, so they are
+    // extra definitions rather than replacements for the per-entity pair.
+    const tableFor = new Map<string, string>();
+    for (const entity of context.entities ?? []) {
+      const table: string = entity.tableName;
+      // A %%step may name the entity however the model spells it, or use the
+      // table name directly; all of them have to land on the same table.
+      for (const spelling of [entity.name, entity.className, table, table.replace(/^bus_/, "")]) {
+        if (spelling) tableFor.set(String(spelling).toLowerCase(), table);
+      }
+    }
+    const resolveTable = (entity: string) => tableFor.get(entity.trim().toLowerCase()) ?? entity;
+
+    for (const saga of this.options.compiledSagas ?? []) {
+      const tableName = tableFor.get(saga.entity.toLowerCase());
+      if (!tableName) continue;
+
+      rows.push(
+        `  {\n` +
+          `    name: '${jsQuote(saga.name)}',\n` +
+          `    entityName: '${tableName}',\n` +
+          `    operation: '${saga.operation}',\n` +
+          `    triggerType: '${saga.trigger}',\n` +
+          `    description: '${jsQuote(describeSaga(saga))}',\n` +
+          `    bpmnXml: ${JSON.stringify(buildSagaBpmn(saga, tableName, resolveTable))},\n` +
+          `  },`
+      );
+    }
+
     return `/**
  * Workflow definitions.
  *
- * Generated from the model's \`%%workflow ... kind: state\` sections. The
- * trigger-workflow rules seeded in 04 resolve definitions by name, so there is
- * one per entity per operation.
+ * Generated from the model's \`%%workflow\` sections. The trigger-workflow rules
+ * seeded in 04 resolve definitions by name, so there is one per entity per
+ * operation, plus one for every \`kind: saga\` workflow the model declares.
+ *
+ * These rows are owned by the model: they carry \`source = 'model'\` and are
+ * rewritten on every generation. Workflows built in the app carry
+ * \`source = 'designer'\` and are never touched here.
  *
  * @generated — edit the model, not this file.
  */
@@ -1397,11 +1443,22 @@ export async function seed(db: Kysely<any>): Promise<void> {
   for (const definition of DEFINITIONS) {
     const existing = await db
       .selectFrom('sys_workflow_definitions')
-      .select(['id'])
+      .select(['id', 'source'])
       .where('name', '=', definition.name)
       .executeTakeFirst();
 
     if (existing) {
+      // A definition someone built in the Workflow Designer is theirs. Seeding
+      // over it would silently discard their work every time the project is
+      // regenerated, and the name collision is far more likely to be an
+      // accident than an instruction to overwrite.
+      if (existing.source === 'designer') {
+        console.log(
+          \`  ⤳ Skipped workflow definition: \${definition.name} — a designer-authored workflow already has that name\`,
+        );
+        continue;
+      }
+
       await db
         .updateTable('sys_workflow_definitions')
         .set({
@@ -1410,6 +1467,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
           bpmn_xml: definition.bpmnXml,
           description: definition.description,
           trigger_type: definition.triggerType,
+          source: 'model',
           is_active: true,
           updated_at: new Date(),
         })
@@ -1428,6 +1486,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         bpmn_xml: definition.bpmnXml,
         description: definition.description,
         trigger_type: definition.triggerType,
+        source: 'model',
         is_active: true,
       })
       .execute();

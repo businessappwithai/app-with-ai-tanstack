@@ -65,11 +65,19 @@ export interface EmlRuleSection {
   flowchart: string;
 }
 
-/** A workflow section: hook flowchart or state diagram. */
+/** A workflow section: hook flowchart, state diagram, or saga flowchart. */
 export interface EmlWorkflowSection {
   name: string;
   entity: string;
   kind: "hook" | "state" | "saga";
+  /**
+   * Saga only. `rule` means the workflow runs only when a business rule emits a
+   * trigger-workflow action naming it, so the rule's condition decides; the
+   * default `automatic` runs it on every matching write.
+   */
+  trigger?: "automatic" | "rule";
+  /** Saga only. Which write runs the workflow. Defaults to CREATE. */
+  operation?: "CREATE" | "UPDATE" | "DELETE" | "ALL";
   title?: string;
   /** The diagram body, starting at `flowchart`/`graph`/`stateDiagram-v2`. */
   diagram: string;
@@ -156,10 +164,18 @@ export function emitRuleSection(rule: EmlRuleSection): string {
 
 export function emitWorkflowSection(workflow: EmlWorkflowSection): string {
   const keyword = workflow.kind === "state" ? "stateDiagram-v2" : "flowchart TD";
+  // `trigger` only means anything for a saga, and only when it is not the
+  // default — emitting `trigger: automatic` on every workflow would be noise in
+  // every diff for a value that changes nothing.
+  const trigger = workflow.kind === "saga" && workflow.trigger === "rule" ? " trigger: rule" : "";
+  const operation =
+    workflow.kind === "saga" && workflow.operation && workflow.operation !== "CREATE"
+      ? ` operation: ${workflow.operation}`
+      : "";
   return [
     `%%meta name: ${workflow.title ?? workflow.name}`,
     "%%meta kind: workflow",
-    `${WORKFLOW_LEAD}${workflow.name} entity: ${workflow.entity} kind: ${workflow.kind}`,
+    `${WORKFLOW_LEAD}${workflow.name} entity: ${workflow.entity} kind: ${workflow.kind}${trigger}${operation}`,
     ensureDiagram(workflow.diagram, keyword),
   ].join("\n");
 }
@@ -318,10 +334,20 @@ export function extractWorkflowSections(source: string): EmlWorkflowSection[] {
   return extractSections(source, WORKFLOW_LEAD).map(({ directive, body, title }) => {
     const match = directive.match(/^(\S+)\s+entity:\s*(\S+)\s+kind:\s*(\S+)/);
     const kind = match?.[3];
+    const trigger = directive.match(/\btrigger:\s*(\S+)/)?.[1];
+    const operation = directive.match(/\boperation:\s*(\S+)/)?.[1]?.toUpperCase();
     return {
       name: match?.[1] ?? "workflow",
       entity: match?.[2] ?? "",
       kind: kind === "state" || kind === "saga" ? kind : "hook",
+      trigger: trigger === "rule" ? "rule" : trigger === "automatic" ? "automatic" : undefined,
+      operation:
+        operation === "CREATE" ||
+        operation === "UPDATE" ||
+        operation === "DELETE" ||
+        operation === "ALL"
+          ? operation
+          : undefined,
       title,
       diagram: body,
     };

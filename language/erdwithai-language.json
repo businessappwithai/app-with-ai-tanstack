@@ -495,7 +495,46 @@
         "role": "Rounded rectangle, treated like a function/computation step (used for calculate steps).",
         "example": "G(Calculate Final Price)"
       }
-    ]
+    ],
+    "actions": {
+      "description": "Side-effecting actions a rule may emit, evaluated by the rules engine after the decision runs. A %%action directive inside a rules section declares one: the `when` expression becomes the decision-table row's condition, and the remaining keys become its outputs. Without this a model-declared rule could only decide, never act — the action vocabulary existed solely in the app's decision-table editor.",
+      "directive": "%%action <name> <actionType> when: <expr> <key>: <value> ...",
+      "whenForm": "A zen expression over the record being written, e.g. `severity == \"critical\"`. `true` fires on every write. It is the last key parsed before the action's own keys, so quote values containing a `key:` sequence.",
+      "types": [
+        {
+          "name": "trigger-workflow",
+          "purpose": "Run a workflow definition by name. This is what gates a `kind: saga` workflow declared with `trigger: rule` on a condition.",
+          "required": [
+            "workflow"
+          ],
+          "optional": [
+            "message"
+          ],
+          "example": "%%action escalate trigger-workflow when: severity == \"critical\" workflow: CriticalDeviationEscalation"
+        },
+        {
+          "name": "validation-error",
+          "purpose": "Reject the write. The message is returned to the caller.",
+          "required": [
+            "message"
+          ],
+          "optional": [],
+          "example": "%%action requireCause validation-error when: status == \"closed\" and root_cause == null message: A closed deviation needs a root cause"
+        },
+        {
+          "name": "transform",
+          "purpose": "Overwrite a field on the record being written.",
+          "required": [
+            "field",
+            "value"
+          ],
+          "optional": [
+            "message"
+          ],
+          "example": "%%action stampSeverity transform when: true field: severity value: major"
+        }
+      ]
+    }
   },
   "workflowConstructs": {
     "description": "Node/edge vocabulary for process workflows and state workflows.",
@@ -526,17 +565,159 @@
         "shipped": true
       },
       "saga": {
-        "form": "%%workflow <name> entity: <PrimaryEntity> kind: saga",
-        "description": "A flowchart representing a multi-entity, multi-step process that may span several services or require compensating transactions (e.g. checkout, patient admission, loan approval). Each step node may carry a %%hook directive targeting its specific entity. The visual flow renders in any Mermaid viewer; hook directives are parsed today; orchestration of compensating transactions is extended conformance.",
+        "form": "%%workflow <name> entity: <Entity> kind: saga [trigger: automatic|rule] [operation: CREATE|UPDATE|DELETE|ALL]",
+        "description": "A flowchart whose nodes are executable steps. Each node is bound to a step by a %%step directive naming the node id and its step type; the flowchart edges give the running order. Compiles to BPMN service tasks seeded into sys_workflow_definitions and run by the generated workflow executor. This is how a multi-entity, multi-step process — create a row here, update one there, delete a third, passing values between the steps — is expressed in the model rather than drawn by hand in the app.",
         "diagram": "flowchart",
-        "shipped": false,
-        "compensatingPattern": "Pair each forward step with a compensating hook (afterDelete or customValidate) to enable rollback on failure.",
-        "example": "%%workflow CheckoutSaga entity: Order kind: saga"
+        "shipped": true,
+        "trigger": {
+          "automatic": "Runs on every write to the bound entity that matches the workflow's operation. The default.",
+          "rule": "Runs only when a business rule emits a trigger-workflow action naming it, so the rule's condition decides. Use this whenever the workflow should not fire on every write."
+        },
+        "ordering": "Steps run in flowchart edge order, walking forward from every node with no incoming edge. A node with a %%step but no edges still runs, after the wired ones, in document order — the canvas implies a step runs even when the connection was left implicit.",
+        "example": "%%workflow CriticalDeviationEscalation entity: DeviationReport kind: saga trigger: rule operation: CREATE",
+        "operation": "Which write runs the workflow. Defaults to CREATE. Only consulted for trigger: automatic — a rule-triggered workflow is resolved by name, so the rule decides."
       }
+    },
+    "stepNodes": {
+      "description": "Executable step types for a `kind: saga` workflow. A %%step directive binds a flowchart node to one of these and supplies its properties; each becomes one bpmn:serviceTask with erdwithai:property extension elements. This table is the single source of truth for the checker, the generator, the EML authoring canvas and the generated Workflow Designer.",
+      "directive": "%%step <nodeId> <stepType> <key>: <value> ...",
+      "propertyForm": "Space-separated `key: value` pairs. A value runs to the next `<key>:` token or the end of the line, so it may contain spaces. `fields` is JSON and must be the last key on the line.",
+      "variables": "Steps share a context: the triggering record's columns, plus every variable a previous step published. CreateEntity publishes the new row's id under `as`; Formula publishes under `target`. A later step reads one by naming it in `source` or `targetSource`. This is what lets a workflow reach a row it created earlier.",
+      "types": [
+        {
+          "name": "UpdateEntity",
+          "purpose": "Write one column on the triggering record, or on rows of a related entity.",
+          "required": [
+            "field"
+          ],
+          "oneOf": [
+            [
+              "source",
+              "value"
+            ]
+          ],
+          "optional": [
+            "entity",
+            "targetField",
+            "targetSource"
+          ],
+          "rowTargeting": "Defaults to the record that triggered the workflow. To reach another entity, set `entity` plus either `targetSource` (a context key holding the row id) or `targetField` (a foreign key column matched against the triggering row). Targeting another entity by `id` with no `targetSource` is refused rather than guessed.",
+          "example": "%%step D UpdateEntity entity: Capa targetSource: newCapaId field: effectiveness_metric source: resolutionDays"
+        },
+        {
+          "name": "CreateEntity",
+          "purpose": "Insert a row, optionally publishing its id for later steps.",
+          "required": [
+            "entity",
+            "fields"
+          ],
+          "optional": [
+            "as"
+          ],
+          "notes": [
+            "`fields` is a JSON object of column -> context key or literal. A string that names a context key is substituted; anything else is written as-is.",
+            "`as` names the variable the new row's id is published under. It defaults to the table name without its bus_ prefix plus `Id`. Without it a workflow can insert a row and then never reach it again."
+          ],
+          "example": "%%step C CreateEntity entity: Capa as: newCapaId fields: {\"title\":\"capaTitle\",\"status\":\"open\"}"
+        },
+        {
+          "name": "DeleteEntity",
+          "purpose": "Delete the triggering record or rows of a related entity.",
+          "required": [],
+          "optional": [
+            "entity",
+            "targetField",
+            "targetSource",
+            "hard"
+          ],
+          "notes": [
+            "Soft by default: stamps deleted_at, so the audit trail still points at a row that exists. `hard: true` removes it.",
+            "Row targeting matches UpdateEntity exactly, including the refusal to touch another entity by `id` with no targetSource."
+          ],
+          "example": "%%step F DeleteEntity entity: Capa targetSource: supersededCapaId"
+        },
+        {
+          "name": "Formula",
+          "purpose": "Publish a value into the workflow context for later steps.",
+          "required": [
+            "target",
+            "operation"
+          ],
+          "operations": {
+            "multiply": "target = Number(source) * Number(operand)",
+            "divide": "target = Number(source) / Number(operand)",
+            "add": "target = Number(source) + Number(operand)",
+            "subtract": "target = Number(source) - Number(operand)",
+            "set": "target = value, stored unchanged. The only way to pass text — a status, a title — to a later step.",
+            "copy": "target = context[source], carried across unchanged."
+          },
+          "perOperation": {
+            "multiply": {
+              "required": [
+                "source",
+                "operand"
+              ]
+            },
+            "divide": {
+              "required": [
+                "source",
+                "operand"
+              ]
+            },
+            "add": {
+              "required": [
+                "source",
+                "operand"
+              ]
+            },
+            "subtract": {
+              "required": [
+                "source",
+                "operand"
+              ]
+            },
+            "set": {
+              "required": [
+                "value"
+              ]
+            },
+            "copy": {
+              "required": [
+                "source"
+              ]
+            }
+          },
+          "example": "%%step B Formula target: resolutionDays source: baseDays operation: multiply operand: 7"
+        },
+        {
+          "name": "REST",
+          "purpose": "Call an external HTTP endpoint.",
+          "required": [
+            "url"
+          ],
+          "optional": [
+            "method",
+            "bodyTemplate"
+          ],
+          "notes": [
+            "`bodyTemplate` interpolates {{key}} from the workflow context."
+          ],
+          "example": "%%step E REST url: https://hooks.example.com/notify method: POST"
+        },
+        {
+          "name": "Agent",
+          "purpose": "Invoke an AI agent. Placeholder pending Mastra integration — the executor logs and skips.",
+          "required": [
+            "agentId"
+          ],
+          "shipped": false,
+          "example": "%%step G Agent agentId: deviation-triage-v1"
+        }
+      ]
     }
   },
   "directives": {
-    "description": "Reserved %% directive comments. All are renderer-safe (ignored by Mermaid) and interpreted by the generator. Only %%hook is parsed by the current shipped parser; the remainder are the EML extension surface, documented here as the authoritative language contract.",
+    "description": "Reserved %% directive comments. All are renderer-safe (ignored by Mermaid) and interpreted by the generator. %%hook, %%step and %%action are parsed by the shipped compilers; the remainder are the EML extension surface, documented here as the authoritative language contract.",
     "reserved": [
       {
         "keyword": "%%meta",
@@ -555,6 +736,26 @@
         "purpose": "Bind a named handler to an entity lifecycle event (SHIPPED, parsed by hook-parser.ts).",
         "examples": [
           "%%hook beforeCreate hashPassword on User"
+        ]
+      },
+      {
+        "keyword": "%%step",
+        "form": "%%step <nodeId> <stepType> <key>: <value> ...",
+        "purpose": "Bind a flowchart node in a `kind: saga` workflow to an executable step. `nodeId` is the node's id in the flowchart; `stepType` is one of workflowConstructs.stepNodes.types. Compiles to a bpmn:serviceTask (SHIPPED, parsed by packages/generator/src/workflows/index.ts).",
+        "examples": [
+          "%%step B Formula target: baseDays operation: set value: 3",
+          "%%step C CreateEntity entity: Capa as: newCapaId fields: {\"title\":\"capaTitle\",\"status\":\"open\"}",
+          "%%step D UpdateEntity field: status value: escalated",
+          "%%step F DeleteEntity entity: Capa targetSource: supersededCapaId"
+        ]
+      },
+      {
+        "keyword": "%%action",
+        "form": "%%action <name> <actionType> when: <expr> <key>: <value> ...",
+        "purpose": "Declare a side-effecting rule action inside a `%%rule` section. A section carrying %%action directives compiles to a GoRules decision table — one row per directive — instead of a node graph, which is the shape the rules engine reads actions from (SHIPPED, parsed by packages/generator/src/rules/index.ts).",
+        "examples": [
+          "%%action escalate trigger-workflow when: severity == \"critical\" workflow: CriticalDeviationEscalation",
+          "%%action requireCause validation-error when: root_cause == null message: A root cause is required"
         ]
       },
       {
@@ -646,8 +847,10 @@
     "entityBlock": "entityBlock ::= IDENT '{' NEWLINE attribute* '}' NEWLINE",
     "attribute": "attribute ::= TYPE ['(' NUMBER ')'] IDENT modifier* [ STRING ] NEWLINE",
     "relationship": "relationship ::= IDENT cardinality IDENT [ ':' STRING ] NEWLINE",
-    "ruleSection": "ruleSection ::= ('flowchart'|'graph') direction NEWLINE ( node | edge | comment )*",
-    "workflowSection": "workflowSection ::= (('flowchart'|'graph') direction | 'stateDiagram-v2') NEWLINE ( node | edge | transition | hookDirective | comment )*"
+    "ruleSection": "ruleSection ::= ('flowchart'|'graph') direction NEWLINE ( node | edge | actionDirective | comment )*",
+    "workflowSection": "workflowSection ::= (('flowchart'|'graph') direction | 'stateDiagram-v2') NEWLINE ( node | edge | transition | hookDirective | stepDirective | comment )*",
+    "stepDirective": "stepDirective ::= '%%step' WS IDENT WS stepType ( WS IDENT ':' WS value )* NEWLINE",
+    "actionDirective": "actionDirective ::= '%%action' WS IDENT WS actionType WS 'when:' WS expr ( WS IDENT ':' WS value )* NEWLINE"
   },
   "generatorContract": {
     "description": "How each section feeds the generator pipeline.",
@@ -655,7 +858,9 @@
       "1. ERD section -> MermaidParser -> Entity[] + Relationship[] -> migrations, DTOs, services, controllers, forms, tables.",
       "2. Rules section -> flowchart-parser -> jdm-converter -> GoRules JDM graph -> seeded into sys_rule_definitions and evaluated by the rules engine.",
       "3. Workflow section, hook form -> compileHooks -> per-entity handler modules under src/modules/hooks/handlers plus a registry the bus service calls around every CRUD operation.",
-      "4. Workflow section, state form -> compileWorkflows -> BPMN seeded into sys_workflow_definitions; the trigger-workflow rules resolve it by name and the run puts a new record into the state machine’s starting state."
+      "4. Workflow section, state form -> compileWorkflows -> BPMN seeded into sys_workflow_definitions; the trigger-workflow rules resolve it by name and the run puts a new record into the state machine’s starting state.",
+      "5. Workflow section, saga form -> compileWorkflows -> one bpmn:serviceTask per %%step, ordered by the flowchart edges, seeded into sys_workflow_definitions with source 'model'. A definition declared in the model is owned by the model: the generated Workflow Designer shows it read-only, and regeneration rewrites it. Definitions authored in the app carry source 'designer' and are never touched by regeneration.",
+      "6. Rules section with %%action directives -> compileRules -> a GoRules decision table whose rows carry action/message/ruleId/workflowName outputs. This is how a model-declared rule reaches a model-declared saga: the rule's `when` expression decides, and its trigger-workflow action names the workflow."
     ],
     "referenceFiles": {
       "erdParser": "packages/generator/src/parsers/mermaid.parser.ts",

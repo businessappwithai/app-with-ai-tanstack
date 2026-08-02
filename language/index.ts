@@ -63,6 +63,29 @@ export type JdmNodeRole =
   | "functionNode"
   | "expressionNode";
 
+/**
+ * One executable step type for a saga workflow.
+ *
+ * The checker, the generator and both authoring UIs read their notion of "what
+ * this step needs" from here, so a new step type is declared once.
+ */
+export interface StepNodeDefinition {
+  name: string;
+  purpose: string;
+  required: string[];
+  /** Groups where at least one member must be present. */
+  oneOf?: string[][];
+  optional?: string[];
+  /** Formula only: the operations it understands. */
+  operations?: Record<string, string>;
+  /** Formula only: extra required properties per operation. */
+  perOperation?: Record<string, { required: string[] }>;
+  notes?: string[];
+  rowTargeting?: string;
+  shipped?: boolean;
+  example: string;
+}
+
 export interface LanguageDefinition {
   $schema: string;
   $id: string;
@@ -105,6 +128,19 @@ export interface LanguageDefinition {
   };
   ruleNodes: {
     description: string;
+    /** Side-effecting actions a %%action directive may declare. */
+    actions?: {
+      description: string;
+      directive: string;
+      whenForm: string;
+      types: Array<{
+        name: string;
+        purpose: string;
+        required: string[];
+        optional?: string[];
+        example: string;
+      }>;
+    };
     map: Array<{
       shape: string;
       delimiters: string;
@@ -114,7 +150,19 @@ export interface LanguageDefinition {
       resolution?: string;
     }>;
   };
-  workflowConstructs: Record<string, unknown>;
+  workflowConstructs: {
+    flowShapes: Record<string, string>;
+    stateForm: Record<string, string>;
+    workflowKinds: Record<string, Record<string, unknown>>;
+    /** Executable step vocabulary for `kind: saga` workflows. */
+    stepNodes: {
+      description: string;
+      directive: string;
+      propertyForm: string;
+      variables: string;
+      types: StepNodeDefinition[];
+    };
+  };
   directives: {
     description: string;
     reserved: Array<{ keyword: string; form: string; purpose: string; examples: string[] }>;
@@ -190,3 +238,13 @@ export function languageVersion(): string {
 }
 
 export default loadLanguageDefinition;
+
+/** The executable step types a `kind: saga` workflow may use. */
+export function stepNodeTypes(): StepNodeDefinition[] {
+  return loadLanguageDefinition().workflowConstructs.stepNodes.types;
+}
+
+/** Look up one step type's contract by name. */
+export function stepNode(name: string): StepNodeDefinition | undefined {
+  return stepNodeTypes().find((step) => step.name === name);
+}
