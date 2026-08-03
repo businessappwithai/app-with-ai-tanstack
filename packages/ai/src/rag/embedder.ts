@@ -29,6 +29,12 @@ export const remoteEmbedder: Embedder = async (texts) => {
   const response = await client.embeddings.create({
     model: AI_EMBEDDING_MODEL,
     input: texts,
+    // Asked for explicitly because the SDK otherwise negotiates base64 and
+    // decodes it as float32. An endpoint that answers with a plain JSON array
+    // regardless — which OpenAI-compatible servers commonly do — then gets read
+    // four values to one, and the vectors are silently a quarter of the width
+    // and entirely wrong.
+    encoding_format: "float",
   });
 
   // The API does not promise response order matches input order; it promises an

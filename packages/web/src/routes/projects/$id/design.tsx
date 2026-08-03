@@ -43,6 +43,7 @@ import { ErdFlowViewer } from "@/components/ErdFlowViewer";
 import { JourneyArc } from "@/components/JourneyArc";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
+import { useModelAssistant } from "@/hooks/useModelAssistant";
 import type { ERDVersion } from "@/lib/api/projects";
 import { erdVersionsApi } from "@/lib/api/projects";
 import { toRenderableMermaid } from "@/lib/mermaid-render";
@@ -410,6 +411,24 @@ function DesignPage() {
 
     return entityList;
   }, [erdCode]);
+
+  // The readable above carries the ERD text alone. Retrieval is what lets the
+  // assistant see the rest of the model — the rules and processes bound to
+  // these entities, and the EML directives for declaring them — none of which
+  // appear in the erDiagram block it is editing.
+  useModelAssistant({
+    projectId,
+    surface: "entities",
+    summary: useMemo(
+      () => ({
+        name: project?.name ?? "this application",
+        entities: entities.map((entity) => entity.name),
+        ruleNames: [],
+        workflowNames: [],
+      }),
+      [project?.name, entities]
+    ),
+  });
 
   const filteredEntities = useMemo(() => {
     if (!entitySearch) return entities;

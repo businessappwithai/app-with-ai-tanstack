@@ -112,6 +112,18 @@ export const Route = createFileRoute("/api/projects/$id/eml")({
             relationship_count: model.relationships.length,
           });
 
+          // Re-embed so the assistant answers from what was just saved rather
+          // than from the previous version. Deliberately awaited but not
+          // allowed to fail the save: a model the user has written is worth
+          // keeping even when the vector store is unreachable, and stale
+          // context is a worse answer, not a lost document.
+          try {
+            const { ingestProjectModel } = await import("@erdwithai/ai");
+            await ingestProjectModel(params.id, eml, { name: project.name });
+          } catch (ingestError) {
+            console.error("[eml] model saved but not re-embedded:", ingestError);
+          }
+
           return json({
             projectId: params.id,
             eml,

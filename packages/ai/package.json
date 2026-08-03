@@ -23,7 +23,7 @@
     "erdwithai-convert": "./dist/cli/convert.js"
   },
   "scripts": {
-    "build": "bun build src/index.ts src/cli/convert.ts src/mastra.ts --outdir dist --target node --format esm --external @erdwithai/core --external @mastra/core --external @anthropic-ai/sdk --external @ag-ui/mastra --external @mastra/loggers --external @mastra/libsql --external @mastra/memory --external @mastra/fastembed --external @e2b/code-interpreter --external @ai-sdk/openai --external openai --external zod --external commander",
+    "build": "bun build src/index.ts src/cli/convert.ts src/mastra.ts --outdir dist --target node --format esm --external @erdwithai/core --external @mastra/core --external @anthropic-ai/sdk --external @ag-ui/mastra --external @mastra/loggers --external @mastra/libsql --external @mastra/memory --external @mastra/fastembed --external @e2b/code-interpreter --external @ai-sdk/openai --external openai --external zod --external commander --external @mastra/rag --external @mastra/pg --external pg --external @erdwithai/generator",
     "dev": "bun run src/mastra.ts",
     "start": "node dist/mastra.js",
     "start:mastra": "node dist/mastra.js"
