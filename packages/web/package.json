@@ -43,6 +43,7 @@
     "@tanstack/start-api-routes": "^1.120.19",
     "@xyflow/react": "^12.11.2",
     "axios": "^1.18.1",
+    "bpmn-js": "^18.21.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "elkjs": "^0.12.0",

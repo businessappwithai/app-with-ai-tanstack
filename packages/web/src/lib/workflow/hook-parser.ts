@@ -115,7 +115,7 @@ function parseParameters(paramsStr: string): HookParameter[] {
   for (const part of parts) {
     // Match "field: fieldName" or just "fieldName"
     const fieldMatch = part.match(/^field:\s*(\w+)$/);
-    if (fieldMatch && fieldMatch[1]) {
+    if (fieldMatch?.[1]) {
       parameters.push({ name: fieldMatch[1], type: "field" });
     } else if (part.match(/^\w+$/)) {
       parameters.push({ name: part, type: "unknown" });
@@ -140,7 +140,7 @@ export function parseHooksFromFlowchart(flowchartCode: string): ParseResult {
     const trimmedLine = line.trim();
 
     // Skip empty lines and non-comments
-    if (!trimmedLine || !trimmedLine.startsWith("%%")) {
+    if (!trimmedLine?.startsWith("%%")) {
       continue;
     }
 

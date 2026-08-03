@@ -200,12 +200,12 @@ export function tableNameToEntitySetName(tableName: string): string {
   const modelName = tableNameToModelName(tableName);
   // Simple pluralization - in real usage, consider a proper pluralization library
   if (modelName.endsWith("y")) {
-    return modelName.slice(0, -1) + "ies";
+    return `${modelName.slice(0, -1)}ies`;
   }
   if (modelName.endsWith("s") || modelName.endsWith("x") || modelName.endsWith("ch")) {
-    return modelName + "es";
+    return `${modelName}es`;
   }
-  return modelName + "s";
+  return `${modelName}s`;
 }
 
 // ============================================================================

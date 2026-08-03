@@ -3,15 +3,31 @@
 
 import type { FlowAST, NodeShape } from "./flowchart-parser";
 
-type JdmNodeType = "inputNode" | "outputNode" | "switchNode" | "expressionNode" | "functionNode";
+type JdmNodeType =
+  | "inputNode"
+  | "outputNode"
+  | "switchNode"
+  | "expressionNode"
+  | "functionNode"
+  | "decisionTableNode";
 
-interface JdmNode {
+/** A decision table's columns and rows. Only `decisionTableNode` carries one. */
+export interface JdmDecisionTable {
+  hitPolicy: "first" | "collect";
+  inputs: Array<{ id: string; name: string; field: string }>;
+  outputs: Array<{ id: string; name: string; field: string }>;
+  /** `_id` plus one cell per input/output id, each a zen expression. */
+  rules: Array<Record<string, string>>;
+}
+
+export interface JdmNode {
   id: string;
   name: string;
   type: JdmNodeType;
+  content?: JdmDecisionTable;
 }
 
-interface JdmEdge {
+export interface JdmEdge {
   id: string;
   name?: string;
   sourceId: string;

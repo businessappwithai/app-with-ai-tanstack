@@ -14,7 +14,7 @@ export abstract class BaseService<T> {
     const result = await this.performCreate(processed);
 
     // Trigger workflow (non-blocking)
-    await this.triggerWorkflow("CREATE", (result as Record<string, unknown>)["id"] as string);
+    await this.triggerWorkflow("CREATE", (result as Record<string, unknown>).id as string);
 
     // After hooks
     await globalHookExecutor.execute(this.entityName, "afterCreate", result);

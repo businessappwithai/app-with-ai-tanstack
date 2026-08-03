@@ -34,7 +34,8 @@ import {
   ZoomOut,
 } from "lucide-react";
 import mermaid from "mermaid";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCopilotAction, useCopilotReadable } from "@copilotkit/react-core";
 import { CopilotProvider } from "@/components/CopilotProvider";
 import { DbOperationsModal } from "@/components/DbOperationsModal";

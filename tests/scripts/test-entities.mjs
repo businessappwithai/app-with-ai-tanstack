@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import { MermaidParser } from "./packages/generator/dist/parsers/mermaid.parser.js";
 
 const erd = fs.readFileSync("./test-data/hospital-erd.mermaid", "utf8");

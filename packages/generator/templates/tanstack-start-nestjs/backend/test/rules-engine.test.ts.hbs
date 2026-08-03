@@ -66,13 +66,18 @@ describe('Rules Engine (GoRules JDM)', () => {
       expect(violations).toEqual([]);
     });
 
-    it('fires the post-create trigger-workflow row on create', async () => {
+    // The generated validation table used to carry a trigger-workflow row per
+    // operation, naming a definition nothing created. Once definitions were
+    // seeded, those rows fired the same workflow a second and third time for a
+    // single write. Workflows are now reached declaratively — matched by entity
+    // and operation — and `trigger-workflow` is reserved for rules an author
+    // writes, where naming a workflow is the point.
+    it('leaves workflow triggering to the definitions, not the validation table', async () => {
       const data = TestDataFactory.create{{pascalCase name}}();
       const results = await engine.evaluateRulesWithJDM('{{tableName}}', jdmContent, data, 'create');
 
       const triggers = results.filter((r) => r.actions[0]?.type === 'trigger-workflow');
-      expect(triggers.length).toBeGreaterThan(0);
-      expect(triggers[0].actions[0].config.workflowName).toBe('{{tableName}}-on-create-workflow');
+      expect(triggers).toEqual([]);
     });
 
     it('evaluates rules loaded from the JDM file on disk', async () => {

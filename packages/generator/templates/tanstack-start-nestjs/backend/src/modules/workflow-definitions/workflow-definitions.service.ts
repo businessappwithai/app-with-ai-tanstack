@@ -18,6 +18,23 @@ export type WorkflowDefinitionDto = {
   triggerType?: "automatic" | "rule";
 };
 
+/**
+ * Content fields a model-owned definition will not accept through the API.
+ *
+ * `isActive` is deliberately absent: switching a workflow off is an operational
+ * decision an admin should be able to take without editing the model. The next
+ * generation turns it back on, which is the honest outcome — the model says it
+ * should be running.
+ */
+const MODEL_OWNED_FIELDS = [
+  "name",
+  "entityName",
+  "operation",
+  "bpmnXml",
+  "description",
+  "triggerType",
+] as const;
+
 @Injectable()
 export class WorkflowDefinitionsService {
   constructor(@InjectDatabase() private readonly db: Kysely<any>) {}
@@ -71,6 +88,9 @@ export class WorkflowDefinitionsService {
         bpmn_xml: dto.bpmnXml,
         description: dto.description ?? null,
         trigger_type: dto.triggerType ?? "automatic",
+        // Anything created through the API was built in the app, so the model
+        // seed leaves it alone.
+        source: "designer",
         is_active: dto.isActive ?? true,
         created_by: userId ?? null,
       } as any)
@@ -80,7 +100,21 @@ export class WorkflowDefinitionsService {
   }
 
   async update(id: string, dto: Partial<WorkflowDefinitionDto>) {
-    await this.findOne(id);
+    const existing = await this.findOne(id);
+
+    // A definition declared by a %%workflow section belongs to the model. The
+    // next generation rewrites it, so accepting an edit here would look like it
+    // worked and then quietly vanish.
+    if ((existing as any).source === "model") {
+      const attempted = MODEL_OWNED_FIELDS.filter((field) => dto[field] !== undefined);
+      if (attempted.length > 0) {
+        throw new BadRequestException(
+          `"${(existing as any).name}" is declared in the model — edit the %%workflow section and regenerate. ` +
+            `Rejected: ${attempted.join(", ")}.`,
+        );
+      }
+    }
+
     const updates: Record<string, unknown> = { updated_at: new Date() };
     if (dto.name !== undefined) updates.name = dto.name;
     if (dto.entityName !== undefined) updates.entity_name = dto.entityName;
@@ -100,7 +134,13 @@ export class WorkflowDefinitionsService {
   }
 
   async remove(id: string) {
-    await this.findOne(id);
+    const existing = await this.findOne(id);
+    if ((existing as any).source === "model") {
+      throw new BadRequestException(
+        `"${(existing as any).name}" is declared in the model — remove the %%workflow section and regenerate. ` +
+          "Deactivate it instead if you need it off now.",
+      );
+    }
     await this.db.deleteFrom("sys_workflow_definitions").where("id", "=", id).execute();
     return { deleted: true };
   }

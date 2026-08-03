@@ -17,6 +17,14 @@ export interface CreateProjectInput {
   port?: number;
   databaseUrl?: string;
   environmentVariables?: Record<string, string>;
+  /**
+   * A complete EML document to start from.
+   *
+   * The API has always accepted this and stored it as version 1; leaving it off
+   * the type meant the only way to begin a project was to describe the domain
+   * in prose, even when a model already existed.
+   */
+  erdCode?: string;
 }
 
 export interface UpdateProjectInput {

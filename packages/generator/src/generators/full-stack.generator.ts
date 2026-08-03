@@ -9,8 +9,8 @@
  */
 
 import type { Entity, Relationship } from "@erdwithai/core/types";
-import * as fs from "fs/promises";
-import * as path from "path";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import type { EntityCategory } from "../parsers/category.parser";
 import {
   NestJsBackendGenerator,
@@ -22,8 +22,9 @@ import {
 } from "./tanstack-start-nestjs/tanstack-start-frontend.generator";
 import type { CompiledHook } from "../hooks";
 import type { CompiledRule } from "../rules";
-import type { CompiledWorkflow } from "../workflows";
+import type { CompiledSaga, CompiledWorkflow } from "../workflows";
 import { BunE2ETestGenerator } from "./tests/bun-e2e.generator";
+import { DEFAULT_FRONTEND_PORT } from "./ports";
 
 export type StackOption = "tanstackjs-nestjs" | "tanstack-start-nestjs";
 export type AIAddonOption = "none" | "basic" | "advanced";
@@ -74,6 +75,8 @@ export interface FullStackGeneratorOptions {
   compiledHooks?: CompiledHook[];
   /** Status machines compiled from the model's state workflows. */
   compiledWorkflows?: CompiledWorkflow[];
+  /** Multi-step processes compiled from the model's `kind: saga` workflows. */
+  compiledSagas?: CompiledSaga[];
   /** Records the bulk-seed suite creates per entity (default 1000). */
   recordsPerEntity?: number;
 }
@@ -140,7 +143,7 @@ export class FullStackGenerator {
       projectDescription: this.options.projectDescription,
       databaseType: "postgresql",
       port: this.options.port,
-      frontendPort: this.options.frontendPort ?? this.options.port + 1,
+      frontendPort: this.options.frontendPort ?? DEFAULT_FRONTEND_PORT,
       enableSwagger: true,
       enableCors: true,
       skipCliScaffold: this.options.skipCliScaffold,
@@ -148,6 +151,7 @@ export class FullStackGenerator {
       compiledRules: this.options.compiledRules,
       compiledHooks: this.options.compiledHooks,
       compiledWorkflows: this.options.compiledWorkflows,
+      compiledSagas: this.options.compiledSagas,
       ...aiConfig,
       ...this.options.tanstackStartNestjs?.backend,
     };
@@ -164,7 +168,7 @@ export class FullStackGenerator {
         projectVersion: this.options.projectVersion,
         projectDescription: this.options.projectDescription,
         apiBaseUrl: `http://localhost:${this.options.port}`,
-        frontendPort: this.options.frontendPort ?? this.options.port + 1,
+        frontendPort: this.options.frontendPort ?? DEFAULT_FRONTEND_PORT,
         enableDarkMode: false,
         stackOption: this.options.stackOption as "tanstackjs-nestjs" | "tanstack-start-nestjs",
         skipCliScaffold: this.options.skipCliScaffold,
@@ -184,7 +188,7 @@ export class FullStackGenerator {
         projectVersion: this.options.projectVersion,
         projectDescription: this.options.projectDescription,
         port: this.options.port,
-        frontendPort: this.options.frontendPort ?? this.options.port + 1,
+        frontendPort: this.options.frontendPort ?? DEFAULT_FRONTEND_PORT,
         recordsPerEntity: this.options.recordsPerEntity,
       });
       await testGenerator.generate(entities, relationships, outputDir);
@@ -292,7 +296,7 @@ npm-debug.log*
       );
       const tplContent = await fs.readFile(dockerComposeTpl, "utf-8");
       const backendPort = this.options.port;
-      const frontendPort = this.options.frontendPort ?? this.options.port + 1;
+      const frontendPort = this.options.frontendPort ?? DEFAULT_FRONTEND_PORT;
       const projectId = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       const projectSnake = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "_");
       const dockerCompose = tplContent
@@ -499,8 +503,8 @@ bun run db:seed
 bun run dev
 
 # Or start individually
-bun run dev:backend   # Backend on http://localhost:3000
-bun run dev:frontend  # Frontend on http://localhost:3001
+bun run dev:backend   # API on http://localhost:${this.options.port}
+bun run dev:frontend  # App on http://localhost:${this.options.frontendPort ?? DEFAULT_FRONTEND_PORT}
 \`\`\`
 
 ### Production Build
@@ -551,7 +555,7 @@ MIT
    */
   private async runLintingChecks(outputDir: string): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { execFileSync } = require("child_process") as typeof import("child_process");
+    const { execFileSync } = require("node:child_process") as typeof import("child_process");
 
     const runLint = (command: string, args: string[], cwd: string): boolean => {
       try {

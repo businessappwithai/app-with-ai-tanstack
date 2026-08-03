@@ -5,9 +5,9 @@
  * RUNTIME: Bun.js only (NOT Node.js)
  */
 
-import { execSync, spawn } from "child_process";
-import fs from "fs";
-import path from "path";
+import { execSync, spawn } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 
 const BACKEND_DIR =
   "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/test-output/comprehensive-e2e/option1-sqlite/backend";

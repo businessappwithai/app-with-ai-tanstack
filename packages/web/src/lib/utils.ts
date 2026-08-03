@@ -24,7 +24,7 @@ export function formatDate(
   try {
     const dateObj = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
 
-    if (isNaN(dateObj.getTime())) return "Invalid Date";
+    if (Number.isNaN(dateObj.getTime())) return "Invalid Date";
 
     return dateObj.toLocaleDateString("en-US", {
       year: "numeric",
@@ -59,7 +59,7 @@ export function formatRelativeTime(date: Date | string | number | null | undefin
   try {
     const dateObj = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
 
-    if (isNaN(dateObj.getTime())) return "Invalid Date";
+    if (Number.isNaN(dateObj.getTime())) return "Invalid Date";
 
     const now = new Date();
     const diffMs = now.getTime() - dateObj.getTime();
@@ -87,7 +87,7 @@ export function formatRelativeTime(date: Date | string | number | null | undefin
  */
 export function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength).trim() + "...";
+  return `${text.slice(0, maxLength).trim()}...`;
 }
 
 /**
@@ -152,7 +152,7 @@ export function formatFileSize(bytes: number): string {
   const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return parseFloat((bytes / k ** i).toFixed(2)) + " " + sizes[i];
+  return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 }
 
 /**
@@ -161,7 +161,7 @@ export function formatFileSize(bytes: number): string {
 export function deepClone<T>(obj: T): T {
   if (obj === null || typeof obj !== "object") return obj;
   if (obj instanceof Date) return new Date(obj.getTime()) as unknown as T;
-  if (obj instanceof Array) return obj.map((item) => deepClone(item)) as unknown as T;
+  if (Array.isArray(obj)) return obj.map((item) => deepClone(item)) as unknown as T;
   if (obj instanceof Object) {
     const clonedObj = {} as T;
     for (const key in obj) {
@@ -261,7 +261,7 @@ export async function retry<T>(
  */
 export async function copyToClipboard(text: string): Promise<boolean> {
   try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+    if (navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(text);
       return true;
     }

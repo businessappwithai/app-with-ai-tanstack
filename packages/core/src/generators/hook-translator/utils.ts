@@ -267,6 +267,10 @@ export function generateHookCode(
     hookType: hook.type,
     hookName: hook.name,
     code,
+    // Bracket access on purpose: `currentImports` is private on the visitor and
+    // this is the one place that needs to read it out. Biome's useLiteralKeys
+    // "fix" rewrote it to dot access, which does not compile.
+    // biome-ignore lint/complexity/useLiteralKeys: deliberate private-member escape hatch
     imports: Array.from(visitor["currentImports"]),
     fileName: `${hook.type}.${hook.name}.ts`,
   };
@@ -289,7 +293,7 @@ export function generateHookCodeFile(
   hooks.forEach((hook) => {
     const generated = generateHookCode(hook, options);
     hookCodes.push(generated.code);
-    generated.imports.forEach((imp) => allImports.add(imp));
+    for (const imp of generated.imports) allImports.add(imp);
   });
 
   const code = hookCodes.join("\n\n");

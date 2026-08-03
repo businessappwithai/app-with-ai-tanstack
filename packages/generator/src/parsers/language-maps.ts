@@ -16,9 +16,9 @@
  * the built-in maps and continues.
  */
 
-import { existsSync, readFileSync } from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 export type CanonicalType =
   | "string"

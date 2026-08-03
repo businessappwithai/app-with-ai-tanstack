@@ -77,7 +77,7 @@ export class WorkflowService implements IWorkflowService {
   async retry(workflowRunId: string): Promise<string> {
     const run = this.runs.get(workflowRunId);
 
-    if (!run || !run.inputPayload) {
+    if (!run?.inputPayload) {
       throw new Error(`WORKFLOW_RUN_NOT_FOUND: ${workflowRunId}`);
     }
 

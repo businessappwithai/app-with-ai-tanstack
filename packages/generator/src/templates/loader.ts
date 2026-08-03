@@ -22,10 +22,10 @@ import {
   tableNameToRoutePath,
   tableNameToServiceName,
 } from "@erdwithai/core/utils";
-import { execSync } from "child_process";
-import { existsSync, promises as fs } from "fs";
+import { execSync } from "node:child_process";
+import { existsSync, promises as fs } from "node:fs";
 import Handlebars from "handlebars";
-import path from "path";
+import path from "node:path";
 
 function resolveOsUser(): string {
   if (process.env.PGUSER) return process.env.PGUSER;
@@ -531,11 +531,11 @@ export class TemplateLoader {
       ) {
         switch (operator) {
           case "==":
-            return v1 == v2 ? options.fn(this) : options.inverse(this);
+            return v1 === v2 ? options.fn(this) : options.inverse(this);
           case "===":
             return v1 === v2 ? options.fn(this) : options.inverse(this);
           case "!=":
-            return v1 != v2 ? options.fn(this) : options.inverse(this);
+            return v1 !== v2 ? options.fn(this) : options.inverse(this);
           case "!==":
             return v1 !== v2 ? options.fn(this) : options.inverse(this);
           case "<":
@@ -628,7 +628,7 @@ export class TemplateLoader {
     });
 
     Handlebars.registerHelper("jsdoc", (description: string, params?: Record<string, string>) => {
-      let doc = "/**\n * " + description;
+      let doc = `/**\n * ${description}`;
       if (params) {
         doc += "\n *";
         for (const [name, type] of Object.entries(params)) {
@@ -660,7 +660,7 @@ export class TemplateLoader {
       const relativeParts = toParts.slice(commonLength);
 
       if (upCount === 0) {
-        return "./" + relativeParts.join("/");
+        return `./${relativeParts.join("/")}`;
       }
 
       return "../".repeat(upCount) + relativeParts.join("/");

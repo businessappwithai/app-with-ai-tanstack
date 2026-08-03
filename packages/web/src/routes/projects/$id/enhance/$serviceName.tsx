@@ -16,7 +16,7 @@ import {
   Settings,
   Trash2,
 } from "lucide-react";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { FlowchartPreview } from "@/components/workflow/FlowchartPreview";
 import { WorkflowEditor } from "@/components/workflow/WorkflowEditor";
@@ -1205,7 +1205,7 @@ function getDefaultFlowchart(serviceName: string): string {
 }
 
 function getTimeSince(date: Date): string {
-  const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+  const seconds = Math.floor((Date.now()- date.getTime()) / 1000);
 
   if (seconds < 60) return `${seconds}s ago`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;

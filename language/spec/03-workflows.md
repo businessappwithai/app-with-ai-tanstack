@@ -166,42 +166,153 @@ stateDiagram-v2
     %%trigger webhook:carrier -> markShipped on Order
 ```
 
-## 3. Saga workflows
+## 3. Saga workflows — multi-step processes
 
-Use `%%workflow ... kind: saga` for multi-entity, multi-step processes that span
-several services or require compensating transactions (e.g. order checkout,
-patient admission, loan approval).
+Use `%%workflow ... kind: saga` for a process that takes several steps, touches
+more than one entity, and carries values from one step into the next: escalate a
+deviation and open a CAPA, admit a patient, run a checkout.
 
-A saga is expressed as a `flowchart` whose nodes represent steps involving
-**different entities**; each step can carry a `%%hook` directive that fires on
-the relevant entity.
+A saga is a `flowchart` whose **edges give the running order** and whose nodes
+are bound to executable steps by `%%step` directives. The flowchart is the
+picture a reader sees; the directives are what the generator compiles. Same
+division of labour as `%%hook` — one artifact, both halves in sync.
 
-```mermaid
-%%meta name: Checkout Saga
-%%meta kind: workflow
-%%workflow CheckoutSaga entity: Order kind: saga
-flowchart TD
-    A([Start: Checkout Initiated]) --> B[reserveInventory on OrderItem]
-    B --> C[capturePayment on Payment]
-    C --> D{Payment OK?}
-    D -->|Yes| E[confirmOrder on Order]
-    D -->|No| F[releaseInventory on OrderItem]
-    E --> G([End: Order Confirmed])
-    F --> H([End: Checkout Failed])
-
-    %%hook beforeCreate reserveInventory on OrderItem
-    %%hook afterCreate capturePayment on Payment
-    %%hook afterUpdate confirmOrder on Order
-    %%hook afterDelete releaseInventory on OrderItem
+```
+%%step <nodeId> <stepType> <key>: <value> ...
 ```
 
-Saga nodes that need compensation (rollback) should be paired: one forward hook
-and one compensating hook (typically `afterDelete` or a `customValidate`).
+- `nodeId` — a node in the same flowchart. A `%%step` naming a node that is not
+  there is an error, not a silent no-op.
+- `stepType` — `UpdateEntity`, `CreateEntity`, `DeleteEntity`, `Decision`,
+  `Formula`, `REST` or `Agent`.
+- properties — space-separated `key: value`. A value runs to the next `<key>:`
+  token, so it may contain spaces. **`fields` is JSON and must be last on the
+  line.**
 
-> **Status:** saga is a reserved `kind` value — the visual diagram renders today
-> and the `%%hook` directives are parsed, but orchestration of compensating
-> transactions is part of the generator's extended conformance surface and adopted
-> incrementally.
+### The trigger
+
+```
+%%workflow <name> entity: <Entity> kind: saga [trigger: automatic|rule] [operation: CREATE|UPDATE|DELETE|ALL]
+```
+
+| `trigger` | When it runs |
+|-----------|--------------|
+| `automatic` (default) | on every write to the entity matching the workflow's operation |
+| `rule` | only when a business rule emits a `trigger-workflow` action naming it |
+
+Choose `rule` whenever the workflow should not fire on every write — that is
+what makes the rule's condition load-bearing. A `trigger: automatic` workflow
+gated on a condition would run regardless of it.
+
+`operation` says which write runs it and defaults to `CREATE`. It is only
+consulted for `trigger: automatic`; a rule-triggered workflow is resolved by
+name, so the rule decides.
+
+### Passing values between steps
+
+Steps share one context: the triggering record's columns, plus every variable a
+previous step published.
+
+- `CreateEntity` publishes the new row's id under `as`
+- `Formula` publishes under `target`
+- `Decision` publishes one variable per output column of the row that matched
+- a later step reads one by naming it in `source` or `targetSource`
+
+Without this a workflow could insert a row and then never reach it again, so it
+could only ever touch the record it started from.
+
+### The step types
+
+| Type | Required | Optional | Does |
+|------|----------|----------|------|
+| `UpdateEntity` | `field`, and one of `source`/`value` | `entity`, `targetField`, `targetSource` | writes one column |
+| `CreateEntity` | `entity`, `fields` | `as` | inserts a row, publishing its id |
+| `DeleteEntity` | — | `entity`, `targetField`, `targetSource`, `hard` | soft-deletes (stamps `deleted_at`); `hard: true` removes the row |
+| `Decision` | one of `decisionTable`/`rule` | `publish` | evaluates a GoRules table and publishes its outputs |
+| `Formula` | `target`, `operation` | see below | publishes a value into the context |
+| `REST` | `url` | `method`, `bodyTemplate` | calls an external endpoint |
+| `Agent` | `agentId` | — | placeholder pending Mastra integration |
+
+`Formula` operations: `multiply`, `divide`, `add`, `subtract` (need `source` +
+`operand`, both coerced to Number), `set` (needs `value`, stored **unchanged** —
+the only way to pass text to a later step) and `copy` (needs `source`, carried
+across unchanged).
+
+**Decision** puts a GoRules decision table inside the process, so a branch lives
+where the process does rather than in a rule that triggers a second workflow.
+
+- `decisionTable` — the table as JSON, `{ hitPolicy, inputs, outputs, rules }`,
+  for logic only this process cares about. The generator wraps it in the
+  input → table → output graph the engine evaluates, so a step never carries
+  that plumbing. Like `fields`, it is JSON and must be last on the line.
+- `rule` — the name of a rule declared elsewhere in the model, for when the same
+  table already governs the entity and the process should not fork a copy of it.
+- `publish` — a comma-separated allow-list, when a table emits more columns than
+  the process needs. Omitted, every output column is published.
+
+Outputs land in the context under their `field` name, so a later step reads one
+exactly as it reads any other variable. A table that matches no row publishes
+nothing — that is how "leave it alone" is expressed, not an error, and the steps
+that would have read its variables skip themselves.
+
+Every row must set every output column. The engine silently discards a row that
+leaves one unset, and a single such row stops the whole table matching, so the
+checker refuses it (EML272).
+
+**Row targeting**, for `UpdateEntity` and `DeleteEntity`. With no `entity` the
+step acts on the record that triggered the workflow. To reach another entity,
+set `entity` plus either `targetSource` (a context key holding the row id) or
+`targetField` (a foreign key column matched against the triggering row).
+Targeting another entity by `id` with no `targetSource` is **refused** rather
+than guessed — updating the wrong row is bad, deleting it is worse.
+
+### Complete saga — escalate a critical deviation
+
+```mermaid
+%%meta name: Critical Deviation Escalation
+%%meta kind: workflow
+%%workflow CriticalDeviationEscalation entity: DeviationReport kind: saga trigger: rule
+flowchart TD
+    A([Deviation reported]) --> B[Stage the base SLA]
+    B --> C[Compute the resolution window]
+    C --> D[Open a CAPA]
+    D --> E[Escalate the deviation]
+    E --> F[Carry the window onto the CAPA]
+    F --> G([Escalated])
+
+    %%step B Formula target: baseDays operation: set value: 3
+    %%step C Formula target: resolutionDays source: baseDays operation: multiply operand: 7
+    %%step D CreateEntity entity: Capa as: newCapaId fields: {"title":"CAPA for critical deviation","status":"open"}
+    %%step E UpdateEntity field: status value: escalated
+    %%step F UpdateEntity entity: Capa targetSource: newCapaId field: effectiveness_metric source: resolutionDays
+```
+
+Step D creates the CAPA and publishes its id as `newCapaId`; step F reaches that
+exact row and writes the value step C computed from what step B staged. Nodes
+`A` and `G` carry no `%%step` — they are terminals, drawn for the reader.
+
+### What a saga generates
+
+One row in `sys_workflow_definitions`, holding BPMN with one
+`bpmn:serviceTask` per `%%step`, wired in flowchart edge order, plus
+`trigger_type` from `trigger:`. The generated executor walks the sequence flows,
+so the steps run in the order they were drawn. A node with a `%%step` but no
+edges still runs, after the wired ones, in document order — the canvas implies a
+step runs even when the connection was left implicit.
+
+Definitions that come from the model are seeded with `source: 'model'`. **The
+model owns them**: regeneration rewrites them, and the generated Workflow
+Designer shows them read-only with a pointer back to the model. Workflows
+authored in the app carry `source: 'designer'` and are never touched by
+regeneration — so the two ways of authoring cannot silently clobber each other.
+
+### Compensation
+
+A saga that needs rollback pairs each forward step with a compensating one — a
+`DeleteEntity` undoing a `CreateEntity`, an `UpdateEntity` restoring a prior
+value. The executor runs a linear chain, so compensation is expressed as
+explicit steps rather than inferred; automatic compensating-transaction
+orchestration remains extended conformance.
 
 ## Combining hooks, rules, and state
 

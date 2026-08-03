@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { promises as fs } from "fs";
+import { promises as fs } from "node:fs";
 import { AIToMermaidConverter } from "../converter";
 
 const program = new Command();

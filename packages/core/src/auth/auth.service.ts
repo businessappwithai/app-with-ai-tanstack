@@ -162,7 +162,7 @@ export class AuthService implements IAuthService {
       },
     })) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-    if (!result || !result.data) {
+    if (!result?.data) {
       return null;
     }
 

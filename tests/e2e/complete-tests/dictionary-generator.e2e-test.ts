@@ -186,35 +186,35 @@ test.describe("Dictionary Generator - BusEntity Conversion", () => {
 
 test.describe("Dictionary Generator - Reference Type Mapping", () => {
   test("string → STRING (10)", () => {
-    expect(TYPE_TO_REFERENCE["string"]).toBe(10);
+    expect(TYPE_TO_REFERENCE.string).toBe(10);
   });
 
   test("integer → INTEGER (11)", () => {
-    expect(TYPE_TO_REFERENCE["integer"]).toBe(11);
+    expect(TYPE_TO_REFERENCE.integer).toBe(11);
   });
 
   test("decimal → AMOUNT (12)", () => {
-    expect(TYPE_TO_REFERENCE["decimal"]).toBe(12);
+    expect(TYPE_TO_REFERENCE.decimal).toBe(12);
   });
 
   test("boolean → YES_NO (20)", () => {
-    expect(TYPE_TO_REFERENCE["boolean"]).toBe(20);
+    expect(TYPE_TO_REFERENCE.boolean).toBe(20);
   });
 
   test("date → DATE (15)", () => {
-    expect(TYPE_TO_REFERENCE["date"]).toBe(15);
+    expect(TYPE_TO_REFERENCE.date).toBe(15);
   });
 
   test("datetime → DATETIME (16)", () => {
-    expect(TYPE_TO_REFERENCE["datetime"]).toBe(16);
+    expect(TYPE_TO_REFERENCE.datetime).toBe(16);
   });
 
   test("text → TEXT (14)", () => {
-    expect(TYPE_TO_REFERENCE["text"]).toBe(14);
+    expect(TYPE_TO_REFERENCE.text).toBe(14);
   });
 
   test("json → JSON (28)", () => {
-    expect(TYPE_TO_REFERENCE["json"]).toBe(28);
+    expect(TYPE_TO_REFERENCE.json).toBe(28);
   });
 
   test("all entity attribute types should map to valid reference IDs", () => {

@@ -192,7 +192,7 @@ export class HookCodeGenerationVisitor extends BaseHookVisitor<string> {
     }
 
     // Add return statement
-    body += "\n" + this.generateReturnStatement(hookType, entity);
+    body += `\n${this.generateReturnStatement(hookType, entity)}`;
 
     body += "}\n";
 

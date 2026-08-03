@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Code2,
   GitBranch,
+  ListOrdered,
   Loader2,
   Plus,
   Save,
@@ -12,18 +13,24 @@ import {
   Workflow as WorkflowIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { SagaBpmnEditor } from "@/components/eml/SagaBpmnEditor";
 import { emptyStateFlow, StateFlowCanvas } from "@/components/eml/StateFlowCanvas";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import {
   emitHookWorkflow,
+  emitSagaFlow,
   emitStateFlow,
+  emptySagaFlow,
   HOOK_HINTS,
   HOOK_TYPES,
   parseHookWorkflow,
+  parseSagaFlow,
   parseStateFlow,
+  type SagaFlow,
   type StateFlow,
   validateHookWorkflow,
+  validateSagaFlow,
   validateStateFlow,
   type WorkflowHook,
 } from "@/lib/eml/workflow-flow";
@@ -33,7 +40,7 @@ export const Route = createFileRoute("/projects/$id/workflow-design")({
   component: WorkflowDesignPage,
 });
 
-type WorkflowKind = "hook" | "state";
+type WorkflowKind = "hook" | "state" | "saga";
 
 interface EditableWorkflow {
   /** Stable across renames, so React keeps the row it is editing. */
@@ -44,6 +51,7 @@ interface EditableWorkflow {
   title?: string;
   hooks: WorkflowHook[];
   states: StateFlow;
+  saga: SagaFlow;
 }
 
 interface EmlResponse {
@@ -53,20 +61,48 @@ interface EmlResponse {
     name: string;
     entity: string;
     kind: string;
+    trigger?: "automatic" | "rule";
+    operation?: "CREATE" | "UPDATE" | "DELETE" | "ALL";
     title?: string;
     diagram: string;
   }>;
 }
 
 function readEntityNames(erd: string): string[] {
-  const names: string[] = [];
+  return [...readEntityColumns(erd).keys()];
+}
+
+/**
+ * Every entity's column names, so a step's pickers offer real columns and the
+ * editor can tell "reads a column of the record" apart from "reads a variable
+ * nothing publishes" — the two look identical until one of them silently
+ * skips the step.
+ */
+function readEntityColumns(erd: string): Map<string, string[]> {
+  const columns = new Map<string, string[]>();
+  let current: string | null = null;
+
   for (const rawLine of (erd ?? "").split("\n")) {
     const line = rawLine.trim();
     if (line.startsWith("%%")) continue;
+
     const open = line.match(/^([A-Za-z][A-Za-z0-9_]*)\s*\{$/);
-    if (open?.[1]) names.push(open[1]);
+    if (open?.[1]) {
+      current = open[1];
+      columns.set(current, []);
+      continue;
+    }
+    if (line === "}") {
+      current = null;
+      continue;
+    }
+    if (!current) continue;
+
+    // `<type> <name> [PK|FK|...]` — the name is the second token.
+    const attribute = line.match(/^[A-Za-z][\w[\]]*\s+([A-Za-z_]\w*)/);
+    if (attribute?.[1]) columns.get(current)?.push(attribute[1]);
   }
-  return names;
+  return columns;
 }
 
 function pascal(value: string): string {
@@ -119,7 +155,9 @@ function WorkflowDesignPage() {
         setRules(data.rules ?? []);
         setWorkflows(
           (data.workflows ?? []).map((workflow) => {
-            const kind: WorkflowKind = workflow.kind === "state" ? "state" : "hook";
+            const kind: WorkflowKind =
+              workflow.kind === "state" || workflow.kind === "saga" ? workflow.kind : "hook";
+            const saga = kind === "saga" ? parseSagaFlow(workflow.diagram) : emptySagaFlow();
             return {
               key: nextKey(),
               name: workflow.name,
@@ -128,6 +166,13 @@ function WorkflowDesignPage() {
               title: workflow.title,
               hooks: kind === "hook" ? parseHookWorkflow(workflow.diagram) : [],
               states: kind === "state" ? parseStateFlow(workflow.diagram) : emptyStateFlow(),
+              // The diagram carries the steps; the trigger lives on the
+              // %%workflow directive, so it arrives alongside rather than inside.
+              saga: {
+                ...saga,
+                trigger: workflow.trigger ?? saga.trigger,
+                operation: workflow.operation ?? saga.operation,
+              },
             };
           })
         );
@@ -147,13 +192,27 @@ function WorkflowDesignPage() {
   }, [id]);
 
   const entityNames = useMemo(() => readEntityNames(erd), [erd]);
+  const entityColumns = useMemo(() => readEntityColumns(erd), [erd]);
+  const columnsFor = useCallback(
+    (entity: string) => entityColumns.get(entity) ?? [],
+    [entityColumns]
+  );
+  // A Decision step can evaluate a rule the model already declares rather than
+  // carrying its own copy of the same table.
+  const ruleNames = useMemo(
+    () =>
+      (rules as { name?: string }[])
+        .map((rule) => rule?.name)
+        .filter((name): name is string => Boolean(name)),
+    [rules]
+  );
   const active = workflows[activeIndex] ?? null;
 
   const problems = useMemo(() => {
     if (!active) return [];
-    return active.kind === "hook"
-      ? validateHookWorkflow(active.entity, active.hooks)
-      : validateStateFlow(active.states);
+    if (active.kind === "hook") return validateHookWorkflow(active.entity, active.hooks);
+    if (active.kind === "saga") return validateSagaFlow(active.saga);
+    return validateStateFlow(active.states);
   }, [active]);
 
   const patchActive = useCallback(
@@ -170,13 +229,15 @@ function WorkflowDesignPage() {
 
   const addWorkflow = (kind: WorkflowKind) => {
     const entity = entityNames[0] ?? "";
+    const suffix = kind === "state" ? "Lifecycle" : kind === "saga" ? "Process" : "Hooks";
     const next: EditableWorkflow = {
       key: nextKey(),
-      name: `${entity || "New"}${kind === "state" ? "Lifecycle" : "Hooks"}`,
+      name: `${entity || "New"}${suffix}`,
       entity,
       kind,
-      hooks: kind === "hook" ? [] : [],
+      hooks: [],
       states: emptyStateFlow(),
+      saga: emptySagaFlow(),
     };
     setWorkflows((current) => [...current, next]);
     setActiveIndex(workflows.length);
@@ -211,10 +272,15 @@ function WorkflowDesignPage() {
             entity: workflow.entity,
             kind: workflow.kind,
             title: workflow.title,
+            ...(workflow.kind === "saga"
+              ? { trigger: workflow.saga.trigger, operation: workflow.saga.operation }
+              : {}),
             diagram:
               workflow.kind === "hook"
                 ? emitHookWorkflow(workflow.entity, workflow.hooks)
-                : emitStateFlow(workflow.states),
+                : workflow.kind === "saga"
+                  ? emitSagaFlow(workflow.saga)
+                  : emitStateFlow(workflow.states),
           })),
         }),
       });
@@ -265,10 +331,11 @@ function WorkflowDesignPage() {
                 </h2>
               </div>
 
-              <div className="mb-2 grid grid-cols-2 gap-1">
+              <div className="mb-2 grid grid-cols-3 gap-1">
                 <button
                   type="button"
                   onClick={() => addWorkflow("hook")}
+                  title="Run named handlers around this entity's create, update and delete"
                   className="flex items-center justify-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium hover:bg-muted"
                 >
                   <Plus className="h-3 w-3" />
@@ -277,10 +344,20 @@ function WorkflowDesignPage() {
                 <button
                   type="button"
                   onClick={() => addWorkflow("state")}
+                  title="Define the statuses a record moves through"
                   className="flex items-center justify-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium hover:bg-muted"
                 >
                   <Plus className="h-3 w-3" />
                   Status
+                </button>
+                <button
+                  type="button"
+                  onClick={() => addWorkflow("saga")}
+                  title="A multi-step process: create, update and delete across entities, passing values along"
+                  className="flex items-center justify-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium hover:bg-muted"
+                >
+                  <Plus className="h-3 w-3" />
+                  Process
                 </button>
               </div>
 
@@ -301,6 +378,8 @@ function WorkflowDesignPage() {
                     >
                       {workflow.kind === "state" ? (
                         <GitBranch className="h-3.5 w-3.5 shrink-0 opacity-60" />
+                      ) : workflow.kind === "saga" ? (
+                        <ListOrdered className="h-3.5 w-3.5 shrink-0 opacity-60" />
                       ) : (
                         <WorkflowIcon className="h-3.5 w-3.5 shrink-0 opacity-60" />
                       )}
@@ -379,7 +458,11 @@ function WorkflowDesignPage() {
                     <div>
                       <span className="mb-1 block text-xs font-medium">Kind</span>
                       <p className="rounded-md border border-border bg-muted/40 px-2 py-1.5 text-sm">
-                        {active.kind === "hook" ? "Lifecycle handlers" : "Status state machine"}
+                        {active.kind === "hook"
+                          ? "Lifecycle handlers"
+                          : active.kind === "saga"
+                            ? "Multi-step process"
+                            : "Status state machine"}
                       </p>
                     </div>
                   </div>
@@ -492,6 +575,16 @@ function WorkflowDesignPage() {
                         )}
                       </div>
                     </div>
+                  ) : active.kind === "saga" ? (
+                    <SagaBpmnEditor
+                      key={active.key}
+                      flow={active.saga}
+                      entityNames={entityNames}
+                      entityColumns={columnsFor(active.entity)}
+                      ruleNames={ruleNames}
+                      columnsFor={columnsFor}
+                      onChange={(saga) => patchActive({ saga })}
+                    />
                   ) : (
                     <div className="h-[460px]">
                       <StateFlowCanvas
@@ -525,10 +618,20 @@ function WorkflowDesignPage() {
                     <pre className="mt-2 max-h-56 overflow-auto rounded-lg border border-border bg-muted/40 p-3 font-mono text-[11px] leading-relaxed">
                       {`%%workflow ${pascal(active.title ?? active.name)} entity: ${
                         active.entity || "<entity>"
-                      } kind: ${active.kind}\n${
+                      } kind: ${active.kind}${
+                        active.kind === "saga"
+                          ? `${active.saga.trigger === "rule" ? " trigger: rule" : ""}${
+                              active.saga.operation !== "CREATE"
+                                ? ` operation: ${active.saga.operation}`
+                                : ""
+                            }`
+                          : ""
+                      }\n${
                         active.kind === "hook"
                           ? emitHookWorkflow(active.entity || "Entity", active.hooks)
-                          : emitStateFlow(active.states)
+                          : active.kind === "saga"
+                            ? emitSagaFlow(active.saga)
+                            : emitStateFlow(active.states)
                       }`}
                     </pre>
                   )}

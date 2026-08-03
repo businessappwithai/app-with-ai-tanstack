@@ -4,9 +4,9 @@
  * Tests 3 critical bug fixes in generator templates
  */
 
-const { execSync, spawn } = require("child_process");
-const fs = require("fs");
-const path = require("path");
+const { execSync, spawn } = require("node:child_process");
+const fs = require("node:fs");
+const path = require("node:path");
 
 const BACKEND_DIR =
   "/Users/pramodkoshy/projects/dynamic/test/app-with-ai/test-output/comprehensive-e2e/option1-sqlite/backend";

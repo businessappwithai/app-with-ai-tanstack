@@ -22,19 +22,23 @@ import {
   generateEntityDictionary,
   type Relationship,
 } from "@erdwithai/core/types";
-import * as fs from "fs/promises";
-import * as path from "path";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import type { EntityCategory } from "../../parsers/category.parser";
 import { type CompiledHook, HOOK_CONTRACTS, hooksByEntity } from "../../hooks";
 import type { CompiledRule } from "../../rules";
 import {
   buildPassThroughBpmn,
+  buildSagaBpmn,
   buildStateEntryBpmn,
+  type CompiledSaga,
   type CompiledWorkflow,
+  describeSaga,
   describeWorkflow,
 } from "../../workflows";
 import { CliExecutor } from "../../utils/cli-executor";
 import { BaseGenerator } from "../base.generator";
+import { DEFAULT_FRONTEND_PORT } from "../ports";
 
 /** Escape a value for embedding inside a single-quoted JS string literal. */
 function jsQuote(value: string): string {
@@ -58,7 +62,7 @@ function resolveTemplateDir(subpath: string): string {
 
   for (const possiblePath of possiblePaths) {
     try {
-      const stat = require("fs").statSync(possiblePath);
+      const stat = require("node:fs").statSync(possiblePath);
       if (stat.isDirectory()) {
         return possiblePath;
       }
@@ -70,7 +74,7 @@ function resolveTemplateDir(subpath: string): string {
   // If no path found, return the __dirname relative path and let it fail with a clear error
   const fallbackPath = path.join(__dirname, "../../../templates", subpath);
   console.error(`Template directory not found. Tried paths:`);
-  possiblePaths.forEach((p) => console.error(`  - ${p}`));
+  for (const candidate of possiblePaths) console.error(`  - ${candidate}`);
   console.error(`Using fallback: ${fallbackPath}`);
   return fallbackPath;
 }
@@ -142,6 +146,8 @@ export interface NestJsBackendOptions {
   compiledHooks?: CompiledHook[];
   /** Status machines compiled from the model's state workflows. */
   compiledWorkflows?: CompiledWorkflow[];
+  /** Multi-step processes compiled from the model's `kind: saga` workflows. */
+  compiledSagas?: CompiledSaga[];
 }
 
 export class NestJsBackendGenerator extends BaseGenerator {
@@ -346,11 +352,11 @@ export class NestJsBackendGenerator extends BaseGenerator {
       config: {
         databaseType: this.options.databaseType,
         port: this.options.port,
-        frontendPort: this.options.frontendPort ?? this.options.port + 1,
+        frontendPort: this.options.frontendPort ?? DEFAULT_FRONTEND_PORT,
         enableSwagger: this.options.enableSwagger,
         enableCors: this.options.enableCors,
         dbUser: dbUser,
-        corsOrigin: `http://localhost:${this.options.frontendPort ?? this.options.port + 1}`,
+        corsOrigin: `http://localhost:${this.options.frontendPort ?? DEFAULT_FRONTEND_PORT}`,
       },
       databaseType: this.options.databaseType,
       projectName: this.options.projectName,
@@ -1236,6 +1242,14 @@ export async function executeCustomValidateHooks(
       { slug: "create_sys_category", template: "src/migrations/005_create_sys_category.ts.hbs" },
       // audit_log — immutable trail of every mutation, read by /admin/audit
       { slug: "create_audit_log", template: "src/migrations/006_create_audit_log.ts.hbs" },
+      // trigger_type / source / workflow_name. Also declared in 004's
+      // createTable for a fresh database; repeated here because the runner
+      // tracks by filename, so an app generated before those columns existed
+      // has already recorded 004 as executed and would never receive them.
+      {
+        slug: "add_workflow_ownership",
+        template: "src/migrations/007_add_workflow_ownership.ts.hbs",
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This
@@ -1377,12 +1391,45 @@ export async function executeCustomValidateHooks(
       }
     }
 
+    // Saga workflows are named by the model, not by convention, so they are
+    // extra definitions rather than replacements for the per-entity pair.
+    const tableFor = new Map<string, string>();
+    for (const entity of context.entities ?? []) {
+      const table: string = entity.tableName;
+      // A %%step may name the entity however the model spells it, or use the
+      // table name directly; all of them have to land on the same table.
+      for (const spelling of [entity.name, entity.className, table, table.replace(/^bus_/, "")]) {
+        if (spelling) tableFor.set(String(spelling).toLowerCase(), table);
+      }
+    }
+    const resolveTable = (entity: string) => tableFor.get(entity.trim().toLowerCase()) ?? entity;
+
+    for (const saga of this.options.compiledSagas ?? []) {
+      const tableName = tableFor.get(saga.entity.toLowerCase());
+      if (!tableName) continue;
+
+      rows.push(
+        `  {\n` +
+          `    name: '${jsQuote(saga.name)}',\n` +
+          `    entityName: '${tableName}',\n` +
+          `    operation: '${saga.operation}',\n` +
+          `    triggerType: '${saga.trigger}',\n` +
+          `    description: '${jsQuote(describeSaga(saga))}',\n` +
+          `    bpmnXml: ${JSON.stringify(buildSagaBpmn(saga, tableName, resolveTable))},\n` +
+          `  },`
+      );
+    }
+
     return `/**
  * Workflow definitions.
  *
- * Generated from the model's \`%%workflow ... kind: state\` sections. The
- * trigger-workflow rules seeded in 04 resolve definitions by name, so there is
- * one per entity per operation.
+ * Generated from the model's \`%%workflow\` sections. The trigger-workflow rules
+ * seeded in 04 resolve definitions by name, so there is one per entity per
+ * operation, plus one for every \`kind: saga\` workflow the model declares.
+ *
+ * These rows are owned by the model: they carry \`source = 'model'\` and are
+ * rewritten on every generation. Workflows built in the app carry
+ * \`source = 'designer'\` and are never touched here.
  *
  * @generated — edit the model, not this file.
  */
@@ -1397,11 +1444,22 @@ export async function seed(db: Kysely<any>): Promise<void> {
   for (const definition of DEFINITIONS) {
     const existing = await db
       .selectFrom('sys_workflow_definitions')
-      .select(['id'])
+      .select(['id', 'source'])
       .where('name', '=', definition.name)
       .executeTakeFirst();
 
     if (existing) {
+      // A definition someone built in the Workflow Designer is theirs. Seeding
+      // over it would silently discard their work every time the project is
+      // regenerated, and the name collision is far more likely to be an
+      // accident than an instruction to overwrite.
+      if (existing.source === 'designer') {
+        console.log(
+          \`  ⤳ Skipped workflow definition: \${definition.name} — a designer-authored workflow already has that name\`,
+        );
+        continue;
+      }
+
       await db
         .updateTable('sys_workflow_definitions')
         .set({
@@ -1410,6 +1468,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
           bpmn_xml: definition.bpmnXml,
           description: definition.description,
           trigger_type: definition.triggerType,
+          source: 'model',
           is_active: true,
           updated_at: new Date(),
         })
@@ -1428,6 +1487,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         bpmn_xml: definition.bpmnXml,
         description: definition.description,
         trigger_type: definition.triggerType,
+        source: 'model',
         is_active: true,
       })
       .execute();
@@ -1515,10 +1575,22 @@ export async function seed(db: Kysely<any>): Promise<void> {
     const seedRunnerContent = await this.renderTemplate("src/seed.ts.hbs", context);
     await fs.writeFile(path.join(outputDir, "src", "seed.ts"), seedRunnerContent);
 
-    // Generate/update environment files
+    // `.env.example` is generated output and always rewritten. `.env` is the
+    // developer's — it holds the real DATABASE_URL, secrets and keys — so it is
+    // only created when absent. Writing both unconditionally meant every
+    // regeneration silently reset the connection string to the template default,
+    // and the next `db:setup` failed against a database that was never the one
+    // being worked on.
     const envContent = await this.renderTemplate(".env.example.hbs", context);
     await fs.writeFile(path.join(outputDir, ".env.example"), envContent);
-    await fs.writeFile(path.join(outputDir, ".env"), envContent);
+
+    const envPath = path.join(outputDir, ".env");
+    try {
+      await fs.access(envPath);
+      console.log("  ↷ Kept existing backend/.env (see .env.example for new keys)");
+    } catch {
+      await fs.writeFile(envPath, envContent);
+    }
 
     // Update Biome configuration
     try {
@@ -1651,6 +1723,27 @@ export async function seed(db: Kysely<any>): Promise<void> {
       );
     } catch (e) {
       console.warn("Job queue test template not found");
+    }
+
+    // Executor and lifecycle tests. These templates existed but were never
+    // rendered, so the suites that cover multi-step workflow ordering,
+    // cross-entity targeting and the promotion pipeline never ran in a
+    // generated app — the code they guard shipped untested.
+    const behaviourTestFiles = [
+      {
+        tpl: "test/workflow-multi-entity.test.ts.hbs",
+        out: "test/workflow-multi-entity.test.ts",
+      },
+      { tpl: "test/entity-promotion.test.ts.hbs", out: "test/entity-promotion.test.ts" },
+    ];
+
+    for (const { tpl, out } of behaviourTestFiles) {
+      try {
+        const content = await this.renderTemplate(tpl, context);
+        await fs.writeFile(path.join(outputDir, out), content);
+      } catch (e) {
+        console.warn(`Behaviour test template not found: ${tpl}`);
+      }
     }
 
     // Trigger task tests

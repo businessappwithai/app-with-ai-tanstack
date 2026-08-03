@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { mkdir, writeFile } from "fs/promises";
-import { join } from "path";
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 
 const GENERATED_HOOKS_BASE_PATH = join(process.cwd(), "generated-projects");
 
@@ -48,12 +48,12 @@ function generateHookCode(
 `;
   }
 
-  if (code && code.trim()) {
+  if (code?.trim()) {
     const indentedCode = code
       .split("\n")
-      .map((line: string) => "  " + line)
+      .map((line: string) => `  ${line}`)
       .join("\n");
-    hookCode += indentedCode + "\n";
+    hookCode += `${indentedCode}\n`;
   } else {
     hookCode += `  // TODO: Implement ${name} logic for ${entity}
   // Your code here

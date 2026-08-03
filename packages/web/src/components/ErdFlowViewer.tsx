@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -53,7 +53,7 @@ function parseMermaidToGraph(code: string): {
 
     // Relationship line: Entity1 ||--o{ Entity2 : "label"
     const relMatch = trimmed.match(
-      /^(\w+)\s+[\|\}o]{2}--[\|\{o]{2}\s+(\w+)\s*(?::\s*"?(.+)"?)?$/
+      /^(\w+)\s+[|}o]{2}--[|{o]{2}\s+(\w+)\s*(?::\s*"?(.+)"?)?$/
     );
     if (relMatch) {
       edgeList.push({

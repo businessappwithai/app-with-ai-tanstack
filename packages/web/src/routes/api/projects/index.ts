@@ -35,7 +35,7 @@ export const Route = createFileRoute("/api/projects/")({
           const url = new URL(request.url);
           const search = url.searchParams.get("search");
 
-          let projects;
+          let projects: Array<Record<string, unknown>>;
 
           if (search) {
             projects = await db

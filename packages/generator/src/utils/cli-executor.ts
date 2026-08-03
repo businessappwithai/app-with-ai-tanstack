@@ -5,8 +5,8 @@
  * with proper error handling and logging.
  */
 
-import { execSync, spawn } from "child_process";
-import * as fs from "fs/promises";
+import { execSync, spawn } from "node:child_process";
+import * as fs from "node:fs/promises";
 
 export interface CliExecutorOptions {
   cwd?: string;

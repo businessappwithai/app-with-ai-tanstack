@@ -2,7 +2,7 @@
 
 import { Download, ZoomIn, ZoomOut } from "lucide-react";
 import mermaid from "mermaid";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface FlowchartPreviewProps {
   flowchartCode: string;

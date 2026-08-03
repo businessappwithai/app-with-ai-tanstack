@@ -51,6 +51,11 @@ function EditWorkflowDefinition() {
     queryFn: () => apiClient.get(`/workflow-definitions/${id}`),
   });
 
+  // Declared by a %%workflow section: the next generation rewrites this row, so
+  // the page shows what the model says rather than accepting an edit that would
+  // silently vanish on the next generate.
+  const fromModel = def?.source === "model";
+
   // Populate form once def loads
   useEffect(() => {
     if (!def) return;
@@ -85,6 +90,12 @@ function EditWorkflowDefinition() {
 
     try {
       const bpmnXml = await canvasRef.current.getXml();
+      // Everything but Active is owned by the model; sending it back would be
+      // rejected by the API and would look like a failed save.
+      if (fromModel) {
+        updateMutation.mutate({ isActive });
+        return;
+      }
       updateMutation.mutate({
         name,
         entityName,
@@ -118,7 +129,9 @@ function EditWorkflowDefinition() {
           <ChevronRight className="h-3.5 w-3.5" />
           <span className="text-gray-900 font-medium">Edit</span>
         </nav>
-        <h1 className="font-semibold text-gray-800">Edit Workflow Definition</h1>
+        <h1 className="font-semibold text-gray-800">
+          {fromModel ? "Workflow Definition" : "Edit Workflow Definition"}
+        </h1>
         <div className="flex items-center gap-2 ml-4">
           <Switch checked={isActive} onCheckedChange={setIsActive} id="is-active" />
           <Label htmlFor="is-active" className="text-xs text-gray-600">
@@ -128,9 +141,19 @@ function EditWorkflowDefinition() {
         <div className="flex-1" />
         {error && <span className="text-xs text-red-600">{error}</span>}
         <Button size="sm" onClick={handleSave} disabled={updateMutation.isPending}>
-          {updateMutation.isPending ? "Saving…" : "Save Changes"}
+          {updateMutation.isPending ? "Saving…" : fromModel ? "Save Active state" : "Save Changes"}
         </Button>
       </div>
+
+      {fromModel && (
+        <div className="px-4 py-2 border-b bg-indigo-50 text-xs text-indigo-900">
+          <strong>Declared in the model.</strong> This workflow comes from a{" "}
+          <code className="font-mono">%%workflow … kind: saga</code> section, and the next
+          generation rewrites it — so it is shown here read-only. Change the steps in the model and
+          regenerate. Switching it <em>Active</em> off still works, until the next generation turns
+          it back on.
+        </div>
+      )}
 
       {/* Metadata bar */}
       <div className="flex items-end gap-4 px-4 py-3 border-b bg-gray-50">
@@ -139,12 +162,13 @@ function EditWorkflowDefinition() {
           <Input
             className="h-8 text-sm w-56"
             value={name}
+            disabled={fromModel}
             onChange={(e) => setName(e.target.value)}
           />
         </div>
         <div className="space-y-1">
           <Label className="text-xs text-gray-600">Entity</Label>
-          <Select value={entityName} onValueChange={setEntityName}>
+          <Select value={entityName} onValueChange={setEntityName} disabled={fromModel}>
             <SelectTrigger className="h-8 text-sm w-48">
               <SelectValue />
             </SelectTrigger>
@@ -163,7 +187,7 @@ function EditWorkflowDefinition() {
         </div>
         <div className="space-y-1">
           <Label className="text-xs text-gray-600">Trigger on</Label>
-          <Select value={operation} onValueChange={(v: any) => setOperation(v)}>
+          <Select value={operation} onValueChange={(v: any) => setOperation(v)} disabled={fromModel}>
             <SelectTrigger className="h-8 text-sm w-36">
               <SelectValue />
             </SelectTrigger>
@@ -178,7 +202,7 @@ function EditWorkflowDefinition() {
         </div>
         <div className="space-y-1">
           <Label className="text-xs text-gray-600">Runs when</Label>
-          <Select value={triggerType} onValueChange={(v: any) => setTriggerType(v)}>
+          <Select value={triggerType} onValueChange={(v: any) => setTriggerType(v)} disabled={fromModel}>
             <SelectTrigger className="h-8 text-sm w-56">
               <SelectValue />
             </SelectTrigger>
@@ -197,6 +221,7 @@ function EditWorkflowDefinition() {
           <Input
             className="h-8 text-sm"
             value={description}
+            disabled={fromModel}
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
@@ -204,7 +229,12 @@ function EditWorkflowDefinition() {
 
       {/* Canvas */}
       <div className="flex-1 p-4 min-h-0">
-        <BpmnCanvas ref={canvasRef} className="h-full" entityName={entityName} />
+        <BpmnCanvas
+          ref={canvasRef}
+          className="h-full"
+          entityName={entityName}
+          readOnly={fromModel}
+        />
       </div>
     </div>
   );

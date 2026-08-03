@@ -14,7 +14,6 @@ import {
   Settings,
   Sparkles,
 } from "lucide-react";
-import React from "react";
 import { GoRulesEditor } from "./GoRulesEditor";
 import { GoRulesErrorBoundary } from "./GoRulesErrorBoundary";
 import { useWorkflowEditor, type WorkflowStep } from "./useWorkflowEditor";

@@ -34,6 +34,9 @@ import {
 
 const suiteId = `e2e-chaos-${Date.now().toString(36)}`;
 
+/** How long to let in-flight workflow dispatch settle before judging it. */
+const SETTLE_MS = Math.min(config.workflowTimeoutMs, 5000);
+
 interface Operation {
   kind: "create" | "update";
   entity: EntityMeta;
@@ -192,9 +195,12 @@ describe("randomised workflow chaos", () => {
     }
   });
 
+  // The settle time below is 5s, which is exactly bun's default per-test
+  // timeout — so without an explicit one this test could only pass if every
+  // other line took no time at all, and it failed on timing alone.
   it("leaves every observed workflow run in a terminal state", async () => {
     // Give any in-flight dispatch a moment to settle before judging it.
-    await Bun.sleep(Math.min(config.workflowTimeoutMs, 5000));
+    await Bun.sleep(SETTLE_MS);
 
     const runs = await listRuns(harness.client, { limit: 100 });
     const pending = runs.filter((run) => !isTerminal(run.status));
@@ -207,7 +213,7 @@ describe("randomised workflow chaos", () => {
     );
 
     expect(stuck.map((run) => `${run.workflow_name}:${run.status}`)).toEqual([]);
-  });
+  }, SETTLE_MS * 4);
 
   it("keeps every touched record readable afterwards", async () => {
     const touched = operations.filter((op) => op.ok && op.id).slice(-20);

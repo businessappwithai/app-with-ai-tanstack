@@ -27,7 +27,7 @@ async function checkAdminAuth() {
 export const Route = createFileRoute("/admin/users")({
   beforeLoad: async () => {
     const data = await checkAdminAuth();
-    if (!data.user || data.user.role !== "admin") {
+    if (data.user?.role !== "admin") {
       throw redirect({ to: "/login" });
     }
   },

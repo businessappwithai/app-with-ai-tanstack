@@ -13,6 +13,18 @@
  */
 
 import { extractWorkflowSections } from "../eml";
+import { type CompiledSaga, compileSagas } from "./steps";
+
+export * from "./steps";
+
+/** Read the saga workflows a document declares. */
+export function compileSagaWorkflows(
+  source: string,
+  knownEntities: string[] = [],
+  onWarn: (message: string) => void = () => {}
+): CompiledSaga[] {
+  return compileSagas(extractWorkflowSections(source ?? ""), knownEntities, onWarn);
+}
 
 export interface WorkflowState {
   name: string;

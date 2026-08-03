@@ -1,5 +1,5 @@
 const { MermaidParser } = require("./packages/generator/dist/parsers/mermaid.parser.js");
-const fs = require("fs");
+const fs = require("node:fs");
 
 const erd = fs.readFileSync("./test-data/hospital-erd.mermaid", "utf8");
 const parser = new MermaidParser();

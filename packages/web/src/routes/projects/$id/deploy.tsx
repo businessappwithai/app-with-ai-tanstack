@@ -6,6 +6,7 @@ import {
   Clock,
   Eye,
   EyeOff,
+  FileCode2,
   Globe,
   HelpCircle,
   Loader2,
@@ -331,6 +332,17 @@ function DeployPage() {
                   <Globe className="w-4 h-4" />
                   Open Local App
                 </button>
+                {/* The model is the artifact worth keeping: everything designed
+                    here — the ERD, the rules, the workflows built in the editor
+                    — is merged back into one document, and this is where it
+                    leaves as the same kind of file it could be imported from. */}
+                <a
+                  href={`/api/projects/${projectId}/eml/download`}
+                  className="flex items-center gap-2 px-4 py-2 border border-border hover:bg-muted font-semibold rounded-xl transition-all active:scale-[0.98]"
+                >
+                  <FileCode2 className="w-4 h-4" />
+                  Download the model
+                </a>
                 <button
                   onClick={handleBackToProjects}
                   className="flex items-center gap-2 px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"

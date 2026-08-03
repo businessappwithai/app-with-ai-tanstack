@@ -1,7 +1,16 @@
+/**
+ * Whitespace is a word separator, not a character to keep.
+ *
+ * Only `-` and `_` used to split, so an entity whose display name has a space
+ * — "Compound Alias" — produced `compound AliasData`, and the generated file
+ * would not parse. Anything asking for PascalCase wants an identifier, and an
+ * identifier can never contain a space.
+ */
 export function pascalCase(str: string): string {
   if (!str) return "";
   return str
-    .replace(/[-_](\w)/g, (_, c) => c.toUpperCase())
+    .replace(/[-_\s]+(\w)/g, (_, c) => c.toUpperCase())
+    .replace(/[-_\s]+/g, "")
     .replace(/^(\w)/, (_, c) => c.toUpperCase());
 }
 
@@ -40,14 +49,14 @@ export function kebabCase(str: string): string {
 
 export function plural(str: string): string {
   if (!str) return "";
-  if (str.endsWith("y")) return str.slice(0, -1) + "ies";
-  if (str.endsWith("s") || str.endsWith("x") || str.endsWith("ch")) return str + "es";
-  return str + "s";
+  if (str.endsWith("y")) return `${str.slice(0, -1)}ies`;
+  if (str.endsWith("s") || str.endsWith("x") || str.endsWith("ch")) return `${str}es`;
+  return `${str}s`;
 }
 
 export function singular(str: string): string {
   if (!str) return "";
-  if (str.endsWith("ies")) return str.slice(0, -3) + "y";
+  if (str.endsWith("ies")) return `${str.slice(0, -3)}y`;
   if (str.endsWith("es")) return str.slice(0, -2);
   if (str.endsWith("s")) return str.slice(0, -1);
   return str;

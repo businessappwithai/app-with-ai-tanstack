@@ -65,7 +65,7 @@ export class RulesEngineService implements IRulesEngineService {
       if (!validation.valid) {
         return {
           success: false,
-          error: "Invalid JDM: " + (validation.errors?.join(", ") || "unknown error"),
+          error: `Invalid JDM: ${validation.errors?.join(", ") || "unknown error"}`,
           validationErrors: validation.errors,
         };
       }
@@ -128,7 +128,7 @@ export class RulesEngineService implements IRulesEngineService {
 
     const errors = result.error.errors.map((e) => {
       const path = e.path.join(".");
-      return path + ": " + e.message;
+      return `${path}: ${e.message}`;
     });
 
     return {
@@ -252,7 +252,7 @@ export class RulesEngineService implements IRulesEngineService {
       .executeTakeFirst();
 
     if (!current) {
-      throw new Error("Rule not found: " + ruleId);
+      throw new Error(`Rule not found: ${ruleId}`);
     }
 
     const row = await this.db
@@ -267,7 +267,7 @@ export class RulesEngineService implements IRulesEngineService {
       .executeTakeFirst();
 
     if (!row) {
-      throw new Error("Rule not found: " + ruleId);
+      throw new Error(`Rule not found: ${ruleId}`);
     }
 
     // Invalidate cache for this entity/operation
@@ -364,7 +364,7 @@ export class RulesEngineService implements IRulesEngineService {
    * Generate a unique ID for new rules
    */
   private generateId(): string {
-    return "rule_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+    return `rule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
   /**

@@ -2,7 +2,7 @@ import { getDatabase, runMigrations } from "@erdwithai/core/services";
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password + "salt-key");
+  const data = encoder.encode(`${password}salt-key`);
   const hash = await crypto.subtle.digest("SHA-256", data);
   return Array.from(new Uint8Array(hash))
     .map((b) => b.toString(16).padStart(2, "0"))

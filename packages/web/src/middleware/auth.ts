@@ -123,7 +123,7 @@ export async function requireRole(request: Request, allowedRoles: string[]): Pro
 
   const user = await getCurrentUser(request);
 
-  if (!user || !user.role) {
+  if (!user?.role) {
     throw AuthError.permissionDenied("access this resource");
   }
 

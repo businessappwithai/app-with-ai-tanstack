@@ -1,6 +1,5 @@
-import { spawn } from "child_process";
-import { existsSync } from "fs";
-import * as path from "path";
+import { spawn } from "node:child_process";
+import * as path from "node:path";
 
 const BACKEND_DIR = path.join(
   process.cwd(),

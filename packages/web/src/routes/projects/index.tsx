@@ -12,8 +12,8 @@ import {
   User,
   X,
 } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
-import { NewProjectModal } from "@/components/project";
+import { useEffect, useRef, useState } from "react";
+import { ImportModelModal, NewProjectModal } from "@/components/project";
 import { ShareProjectModal } from "@/components/project/ShareProjectModal";
 import { useAuthStore } from "@/store/authStore";
 import { useProjectStore } from "@/store/projectStore";
@@ -88,15 +88,8 @@ function ProjectsPage() {
     navigate({ to: "/login" });
   };
 
-  const {
-    projects,
-    isLoading,
-    error,
-    loadProjects,
-    addProject,
-    deleteProject,
-    setCurrentProject,
-  } = useProjectStore();
+  const { projects, isLoading, error, loadProjects, addProject, deleteProject, setCurrentProject } =
+    useProjectStore();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
@@ -105,6 +98,7 @@ function ProjectsPage() {
   const [showMenu, setShowMenu] = useState<string | null>(null);
   const [showMobileNav, setShowMobileNav] = useState(false);
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState<string | null>(null);
   const [isCreatingProject, setIsCreatingProject] = useState(false);
 
@@ -115,7 +109,7 @@ function ProjectsPage() {
   const filteredProjects = projects.filter((p) => {
     const matchesSearch =
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      p.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const computedStatus =
       p.deploymentStatus === "running" ? "active" : p.generatedPath ? "complete" : "draft";
     const matchesStatus =
@@ -156,6 +150,35 @@ function ProjectsPage() {
     } finally {
       setIsCreatingProject(false);
     }
+  };
+
+  /**
+   * Start a project from a model that already exists.
+   *
+   * The document goes in as version 1 and the design pages read it from there,
+   * so an imported model lands on the design step with its rules and workflows
+   * already in place rather than on an empty canvas.
+   */
+  const handleImportModel = async (input: { name: string; eml: string }) => {
+    const usedPorts = projects.map((p) => p.port).filter(Boolean);
+    let availablePort = 4001;
+    while (usedPorts.includes(availablePort)) {
+      availablePort++;
+    }
+
+    const imported = await addProject({
+      name: input.name,
+      description: "Imported from an EML model",
+      icon: "\u{1F4C4}",
+      iconColor: "#3b82f6",
+      stackType: "tanstackjs-nestjs",
+      port: availablePort,
+      erdCode: input.eml,
+    });
+
+    setCurrentProject(imported.id);
+    setShowImportModal(false);
+    navigate({ to: "/projects/$id/design", params: { id: imported.id } });
   };
 
   const handleDeleteProject = async (id: string) => {
@@ -238,6 +261,18 @@ function ProjectsPage() {
                     <Plus className="w-4 h-4" />
                   )}
                   {isCreatingProject ? "Creating..." : "Create New Project"}
+                </button>
+              )}
+              {/* A model that already exists is a way in, not just prose. */}
+              {user?.role !== "admin" && (
+                <button
+                  type="button"
+                  onClick={() => setShowImportModal(true)}
+                  disabled={isLoading || isCreatingProject}
+                  className="hidden sm:flex border border-border hover:bg-muted px-4 py-2.5 rounded-xl text-sm font-semibold items-center gap-2 transition-all disabled:opacity-50"
+                >
+                  <FileCode2 className="w-4 h-4" />
+                  Import a model
                 </button>
               )}
               {/* Mobile: icon-only create button + hamburger - admins cannot create projects */}
@@ -402,6 +437,16 @@ function ProjectsPage() {
                   Create Your First Project
                 </>
               )}
+            </button>
+            {/* Someone with a model already written should not have to describe
+                it again in prose to get started. */}
+            <button
+              type="button"
+              onClick={() => setShowImportModal(true)}
+              className="ml-3 inline-flex items-center gap-2 border border-border hover:bg-muted px-6 py-3 rounded-xl text-base font-semibold transition-colors"
+            >
+              <FileCode2 className="w-5 h-5" />
+              Import a model
             </button>
           </div>
         ) : (
@@ -643,6 +688,12 @@ function ProjectsPage() {
           onClose={() => setShowShareModal(null)}
         />
       )}
+
+      <ImportModelModal
+        open={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImport={handleImportModel}
+      />
 
       {/* New Project Modal */}
       <NewProjectModal

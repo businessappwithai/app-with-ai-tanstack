@@ -5,9 +5,9 @@
  */
 
 import type { Entity, Relationship } from "@erdwithai/core/types";
-import * as fs from "fs/promises";
-import os from "os";
-import * as path from "path";
+import * as fs from "node:fs/promises";
+import os from "node:os";
+import * as path from "node:path";
 import { vi } from "vitest";
 
 // Mock fs module for tests that don't need real file operations

@@ -29,7 +29,7 @@
           alert(data.error || "Login failed");
         }
       } catch (error) {
-        alert("Network error: " + error.message);
+        alert(`Network error: ${error.message}`);
       }
     });
   }

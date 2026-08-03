@@ -28,6 +28,7 @@ interface WfDef {
   entity_name: string;
   operation: string;
   trigger_type?: string;
+  source?: string;
   is_active: boolean;
   description?: string;
   created_at: string;
@@ -150,6 +151,15 @@ function WorkflowDefinitionsList() {
                       >
                         {d.name}
                       </Link>
+                      {d.source === "model" && (
+                        <Badge
+                          variant="outline"
+                          className="ml-2 text-[10px] border-indigo-200 text-indigo-700"
+                          title="Declared by a %%workflow section in the model. Edit the model and regenerate."
+                        >
+                          From the model
+                        </Badge>
+                      )}
                       {d.description && (
                         <div className="text-xs text-gray-400 mt-0.5">{d.description}</div>
                       )}
@@ -191,7 +201,7 @@ function WorkflowDefinitionsList() {
                             })
                           }
                         >
-                          Edit
+                          {d.source === "model" ? "View" : "Edit"}
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
@@ -199,6 +209,12 @@ function WorkflowDefinitionsList() {
                               variant="ghost"
                               size="sm"
                               className="text-red-500 hover:text-red-700"
+                              disabled={d.source === "model"}
+                              title={
+                                d.source === "model"
+                                  ? "Declared in the model — remove the %%workflow section and regenerate"
+                                  : undefined
+                              }
                             >
                               Delete
                             </Button>

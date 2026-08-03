@@ -8,11 +8,11 @@
  */
 
 import type { Entity, Relationship } from "@erdwithai/core/types";
-import { spawnSync } from "child_process";
+import { spawnSync } from "node:child_process";
 import { Command } from "commander";
-import { promises as fs } from "fs";
-import * as path from "path";
-import * as readline from "readline";
+import { promises as fs } from "node:fs";
+import * as path from "node:path";
+import * as readline from "node:readline";
 import { extractRuleSections } from "../eml";
 import type { StackOption } from "../generators/full-stack.generator";
 import { NestJsBackendGenerator } from "../generators/tanstack-start-nestjs/nestjs-backend.generator";
@@ -22,7 +22,7 @@ import { type EntityCategory, resolveCategories } from "../parsers/category.pars
 import { MermaidParser } from "../parsers/mermaid.parser";
 import { generateApplication, readModelSources } from "../pipeline";
 import { compileRules } from "../rules";
-import { compileWorkflows } from "../workflows";
+import { compileSagaWorkflows, compileWorkflows } from "../workflows";
 
 // Resolve relative paths from the workspace root (INIT_CWD) when called via bun --filter
 const resolvePath = (p: string) =>
@@ -296,6 +296,17 @@ async function runCheckerFixer(mmdPath: string, quiet: boolean): Promise<void> {
 // CLI setup
 // ---------------------------------------------------------------------------
 
+/**
+ * Where a generated application listens by default.
+ *
+ * 4000 is the app itself — the address someone opens. The API sits beside it on
+ * 4001. Both used to default into the 3000s, which is where the modelling tool
+ * runs, so generating an app and then trying to run it produced EADDRINUSE on
+ * the very first `bun run dev`.
+ */
+export const DEFAULT_FRONTEND_PORT = 4000;
+export const DEFAULT_BACKEND_PORT = 4001;
+
 const program = new Command();
 
 program
@@ -327,8 +338,8 @@ program
   .option("-s, --stack <stack>", "Stack: tanstackjs-nestjs", "tanstackjs-nestjs")
   .option("--db <type>", "Database type: postgresql | sqlite", "postgresql")
   // Ports & URLs
-  .option("--port <port>", "Backend port", "3000")
-  .option("--frontend-port <port>", "Frontend dev-server port (default: backend port + 1)")
+  .option("--port <port>", "Backend API port", String(DEFAULT_BACKEND_PORT))
+  .option("--frontend-port <port>", "Frontend dev-server port", String(DEFAULT_FRONTEND_PORT))
   .option("--api-url <url>", "Backend API URL used by the frontend (overrides --port default)")
   .option(
     "--cors-origin <origin>",
@@ -452,6 +463,13 @@ program
         allEntities.map((entity) => entity.name),
         warn
       );
+      // `%%workflow ... kind: saga` sections become multi-step definitions: one
+      // BPMN service task per `%%step`, ordered by the flowchart's edges.
+      const compiledSagas = compileSagaWorkflows(
+        ruleSources.join("\n"),
+        allEntities.map((entity) => entity.name),
+        warn
+      );
 
       // ── Entity summary ──────────────────────────────────────────────────
       if (!quiet) {
@@ -468,6 +486,14 @@ program
         console.log(`\n🪝 Lifecycle hooks (${compiledHooks.length}):`);
         for (const hook of compiledHooks) {
           console.log(`   • ${hook.type} ${hook.handler} on ${hook.entity}`);
+        }
+
+        console.log(`\n🧩 Multi-step workflows (${compiledSagas.length}):`);
+        for (const saga of compiledSagas) {
+          console.log(
+            `   • ${saga.name} on ${saga.entity} — ${saga.steps.length} steps, ` +
+              `${saga.trigger}-triggered on ${saga.operation}`
+          );
         }
 
         console.log(`\n🔁 Status workflows (${compiledWorkflows.length}):`);
@@ -495,7 +521,7 @@ program
       const backendPort = parseInt(options.port, 10);
       const frontendPort = options.frontendPort
         ? parseInt(options.frontendPort, 10)
-        : backendPort + 1;
+        : DEFAULT_FRONTEND_PORT;
       const apiUrl = options.apiUrl || `http://localhost:${backendPort}`;
       const corsOrigin = options.corsOrigin || `http://localhost:${frontendPort}`;
 
@@ -556,6 +582,7 @@ program
           rules: compiledRules,
           hooks: compiledHooks,
           workflows: compiledWorkflows,
+          sagas: compiledSagas,
         },
         stackOption,
         projectName: options.name,
@@ -1168,7 +1195,7 @@ program
   .option("-n, --name <name>", "Project name", "my-backend")
   .option("-s, --stack <stack>", "Backend stack: nestjs", "nestjs")
   .option("--db <type>", "Database type: postgresql | sqlite", "postgresql")
-  .option("--port <port>", "Backend port", "3000")
+  .option("--port <port>", "Backend API port", String(DEFAULT_BACKEND_PORT))
   .option("--no-swagger", "Disable Swagger UI")
   .option("--no-cors", "Disable CORS")
   .option("--cors-origin <origin>", "CORS allowed origin")
@@ -1286,9 +1313,10 @@ program
       const dbChoice = (await ask("Choice [1]: ")) || "1";
       const db = dbChoice === "2" ? "sqlite" : "postgresql";
 
-      const portStr = (await ask("Backend port [3000]: ")) || "3000";
-      const port = parseInt(portStr, 10);
-      const frontendPortStr = (await ask(`Frontend port [${port + 1}]: `)) || String(port + 1);
+      const portStr =
+        (await ask(`Backend API port [${DEFAULT_BACKEND_PORT}]: `)) || String(DEFAULT_BACKEND_PORT);
+      const frontendPortStr =
+        (await ask(`Frontend port [${DEFAULT_FRONTEND_PORT}]: `)) || String(DEFAULT_FRONTEND_PORT);
 
       const darkModeInput = (await ask("Enable dark mode? [y/N]: ")).toLowerCase();
       const darkMode = darkModeInput === "y" || darkModeInput === "yes";
@@ -1508,7 +1536,7 @@ program
         opts.host = await askInput("SSH host (IP or hostname): ");
       }
       // Only prompt for password if not provided AND no local SSH key exists
-      const os2 = await import("os");
+      const os2 = await import("node:os");
       const earlyKeyCheck = [
         path.join(os2.homedir(), ".ssh", "id_ed25519"),
         path.join(os2.homedir(), ".ssh", "id_rsa"),
@@ -1548,7 +1576,7 @@ program
 
       // ── Connect via SSH ────────────────────────────────────────────────────
       const ssh = new NodeSSH();
-      const os = await import("os");
+      const os = await import("node:os");
       const sshKeyPaths = [
         path.join(os.homedir(), ".ssh", "id_ed25519"),
         path.join(os.homedir(), ".ssh", "id_rsa"),
@@ -1573,12 +1601,12 @@ program
           tryKeyboard: false,
         };
         if (opts.password) {
-          connectOpts["password"] = opts.password;
+          connectOpts.password = opts.password;
         } else if (availableKeys.length > 0) {
-          connectOpts["privateKeyPath"] = availableKeys[0];
+          connectOpts.privateKeyPath = availableKeys[0];
         } else {
           opts.password = await askInput(`SSH password for ${opts.user}@${opts.host}: `);
-          connectOpts["password"] = opts.password;
+          connectOpts.password = opts.password;
         }
         await ssh.connect(connectOpts as Parameters<typeof ssh.connect>[0]);
       } catch (err) {

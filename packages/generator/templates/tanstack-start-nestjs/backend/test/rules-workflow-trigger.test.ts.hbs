@@ -430,7 +430,7 @@ describe('WorkflowService — triggerByWorkflowName executes BPMN and updates en
       insert:    { sys_workflow_runs: RUN_ROW },
     });
 
-    const wfSvc = new WorkflowService(mockDb);
+    const wfSvc = new WorkflowService(mockDb, new RulesEngine());
 
     await wfSvc.triggerByWorkflowName(
       'GenerateClaimWorkflow',
@@ -476,7 +476,7 @@ describe('WorkflowService — triggerByWorkflowName executes BPMN and updates en
       selectOne: { sys_workflow_definitions: undefined },
     });
 
-    const wfSvc = new WorkflowService(mockDb);
+    const wfSvc = new WorkflowService(mockDb, new RulesEngine());
 
     // Should not throw — logs a warning and returns
     await expect(
@@ -517,7 +517,7 @@ describe('WorkflowService — triggerByWorkflowName executes BPMN and updates en
       insert: { sys_workflow_runs: RUN_ROW },
     });
 
-    const wfSvc = new WorkflowService(mockDb);
+    const wfSvc = new WorkflowService(mockDb, new RulesEngine());
 
     await wfSvc.triggerByWorkflowName(
       'GenerateClaimWorkflow',
@@ -548,7 +548,7 @@ describe('WorkflowService — triggerByWorkflowName executes BPMN and updates en
       return origInsertInto(table);
     };
 
-    const wfSvc = new WorkflowService(mockDb);
+    const wfSvc = new WorkflowService(mockDb, new RulesEngine());
 
     await wfSvc.triggerByWorkflowName('GenerateClaimWorkflow', 'bus_appointment', ENTITY_ID, 'update', { id: ENTITY_ID });
     await wfSvc.triggerByWorkflowName('GenerateClaimWorkflow', 'bus_appointment', ENTITY_ID, 'update', { id: ENTITY_ID });
@@ -628,7 +628,7 @@ describe('End-to-end: rule fires → workflow runs → entity updated', () => {
       return Promise.resolve(undefined);
     };
 
-    const wfSvc = new WorkflowService(wfMockDb);
+    const wfSvc = new WorkflowService(wfMockDb, new RulesEngine());
     const rulesSvc = new RulesService(engine, rulesDb, wfSvc);
 
     // Simulate an appointment being updated to 'completed'

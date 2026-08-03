@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Database, Loader2, X, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface DbOperationsModalProps {

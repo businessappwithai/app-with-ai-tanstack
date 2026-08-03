@@ -13,8 +13,8 @@
  */
 
 import type { Entity, Relationship } from "@erdwithai/core/types";
-import * as fs from "fs/promises";
-import * as path from "path";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import { extractRuleSections } from "../eml";
 import {
   FullStackGenerator,
@@ -25,7 +25,12 @@ import { type CompiledHook, compileHooks } from "../hooks";
 import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
 import { MermaidParser } from "../parsers/mermaid.parser";
 import { type CompiledRule, compileRules } from "../rules";
-import { type CompiledWorkflow, compileWorkflows } from "../workflows";
+import {
+  type CompiledSaga,
+  type CompiledWorkflow,
+  compileSagaWorkflows,
+  compileWorkflows,
+} from "../workflows";
 
 /** Everything a model contributes to generation. */
 export interface ParsedModel {
@@ -38,6 +43,8 @@ export interface ParsedModel {
   hooks: CompiledHook[];
   /** Status machines declared by the model's `%%workflow ... kind: state` sections. */
   workflows: CompiledWorkflow[];
+  /** Multi-step processes declared by the model's `%%workflow ... kind: saga` sections. */
+  sagas: CompiledSaga[];
 }
 
 export interface GenerationSettings {
@@ -134,7 +141,15 @@ export function parseModel(sources: string | string[]): ParsedModel {
     warn
   );
 
-  return { entities, relationships, categories, rules, hooks, workflows };
+  // `%%workflow ... kind: saga` sections are the multi-step form: each `%%step`
+  // directive becomes one BPMN service task, ordered by the flowchart's edges.
+  const sagas = compileSagaWorkflows(
+    joined,
+    entities.map((entity) => entity.name),
+    warn
+  );
+
+  return { entities, relationships, categories, rules, hooks, workflows, sagas };
 }
 
 /** Read model sources from disk, skipping any that are absent. */
@@ -197,6 +212,7 @@ export function buildGeneratorOptions(
     compiledRules: model.rules,
     compiledHooks: model.hooks,
     compiledWorkflows: model.workflows,
+    compiledSagas: model.sagas,
   };
 }
 
@@ -237,6 +253,9 @@ export async function writeManifest(
           hooks: model.hooks.map((hook) => `${hook.type} ${hook.handler} on ${hook.entity}`),
           workflows: model.workflows.map(
             (w) => `${w.name} on ${w.entity} (${w.states.length} states)`
+          ),
+          sagas: model.sagas.map(
+            (s) => `${s.name} on ${s.entity} (${s.steps.length} steps, ${s.trigger})`
           ),
           packageManager: extras.packageManager,
           generatedAt: new Date().toISOString(),

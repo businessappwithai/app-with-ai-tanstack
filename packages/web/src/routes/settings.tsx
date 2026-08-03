@@ -20,7 +20,7 @@ import {
   User,
   Zap,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
