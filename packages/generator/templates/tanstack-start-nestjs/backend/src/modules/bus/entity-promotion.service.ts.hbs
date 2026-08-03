@@ -92,6 +92,11 @@ export class EntityPromotionService {
 
     const ruleNames = [...new Set(actions.map((a) => a.ruleName))];
 
+    // A workflow a matched rule triggers runs too, so name it alongside the
+    // automatic ones rather than leaving the report short by exactly the
+    // workflow the write was interesting enough to set off.
+    workflowNames = [...new Set([...workflowNames, ...this.workflowNamesFromActions(actions)])];
+
     // ── 2. Nothing associated → straight to final ────────────────────────────
     if (actions.length === 0 && workflowNames.length === 0) {
       try {
@@ -246,6 +251,18 @@ export class EntityPromotionService {
   }
 
   /** Active workflow definitions for this entity + operation, by name. */
+  /**
+   * The workflows that will actually run for this write.
+   *
+   * Only `automatic` definitions, because that is the same filter
+   * `runLocalWorkflows` applies. Without it this counted rule-triggered
+   * workflows too and the result claimed them as run: creating a non-critical
+   * deviation reported "successfully running 2 workflow(s)" when the escalation
+   * had correctly declined to fire.
+   *
+   * A rule-triggered workflow that does fire is added by the caller from the
+   * matched rule actions, so the report names what happened either way.
+   */
   private async findWorkflowNames(
     tableName: string,
     operation: 'create' | 'update' | 'delete',
@@ -263,9 +280,18 @@ export class EntityPromotionService {
         eb.or([eb('operation', '=', operation.toUpperCase()), eb('operation', '=', 'ALL')]),
       )
       .where('is_active', '=', true)
+      .where('trigger_type', '=', 'automatic')
       .execute();
 
     return rows.map((r: any) => r.name as string);
+  }
+
+  /** Workflow names named by the `trigger-workflow` actions that matched. */
+  private workflowNamesFromActions(actions: MatchedAction[]): string[] {
+    return actions
+      .filter((action) => action.type === 'trigger-workflow')
+      .map((action) => String((action.config as any)?.workflowName ?? '').trim())
+      .filter(Boolean);
   }
 
   private async setDocStatus(

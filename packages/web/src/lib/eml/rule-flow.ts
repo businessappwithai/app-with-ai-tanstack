@@ -37,6 +37,34 @@ export interface RuleFlowEdge {
 export interface RuleFlow {
   nodes: RuleFlowNode[];
   edges: RuleFlowEdge[];
+  /**
+   * `%%` directive lines inside the section that the canvas does not model,
+   * kept verbatim so they survive being edited.
+   *
+   * The canvas understands nodes and edges. A rule section can carry more than
+   * that — `%%action` is the one that matters most, because it is how a rule
+   * triggers a workflow. Re-emitting only what the canvas knows deleted those
+   * lines on save: opening the Logic step and pressing Save was enough to drop
+   * `%%action escalateCritical trigger-workflow …` from the model, after which
+   * a critical deviation no longer opened a CAPA and nothing reported an error.
+   *
+   * The `.mmd` is the source of truth, so the editor must not quietly narrow it
+   * to the subset it can draw.
+   */
+  directives?: string[];
+}
+
+/**
+ * Directive lines a rule section carries alongside its flowchart.
+ *
+ * Anything starting `%%` that is not a plain `%%` comment. Mermaid ignores them
+ * and the flowchart parser drops them, so they have to be collected separately.
+ */
+function extractDirectives(mermaid: string): string[] {
+  return (mermaid ?? "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => /^%%[a-z]/i.test(line));
 }
 
 /** How each role renders as a Mermaid shape. Mirrors spec/02-business-rules.md. */
@@ -164,7 +192,7 @@ export function parseRuleFlow(mermaid: string): RuleFlow {
   }));
 
   autoLayout(nodes, edges);
-  return { nodes, edges };
+  return { nodes, edges, directives: extractDirectives(mermaid) };
 }
 
 /**
@@ -193,6 +221,12 @@ export function emitRuleFlow(flow: RuleFlow): string {
     if (!source || !target) continue;
     const label = edge.label?.trim();
     lines.push(`    ${source} -->${label ? `|${safeLabel(label)}|` : ""} ${target}`);
+  }
+
+  // Directives last, after a blank line: they describe the section rather than
+  // the diagram, and Mermaid renders the flowchart the same either way.
+  if (flow.directives?.length) {
+    lines.push("", ...flow.directives.map((directive) => `    ${directive}`));
   }
 
   return lines.join("\n");
