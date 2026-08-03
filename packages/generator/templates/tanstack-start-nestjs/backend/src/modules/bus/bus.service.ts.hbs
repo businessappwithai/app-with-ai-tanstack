@@ -294,7 +294,24 @@ export class BusService {
     return this.withPromotion(tableName, id, current, promotion);
   }
 
-  async softDelete(entity: string, id: string): Promise<boolean> {
+  /**
+   * Delete a record. The row goes, and it goes through the workflow pipeline.
+   *
+   * This used to stamp `deleted_at` and then fire the delete workflows and rule
+   * actions afterwards, unawaited. Three things were wrong with that. The row
+   * survived, so "deleted" records kept their foreign keys and every query had
+   * to remember to filter them out. The workflows ran after the write rather
+   * than before it, so a workflow meant to clear a record's children raced the
+   * deletion of their parent. And because the calls were fire-and-forget, a
+   * cascade that failed was logged and swallowed: the parent was already marked
+   * deleted and the children were still there, with nothing to say so.
+   *
+   * Now the delete is one all-or-nothing transaction, the same one create and
+   * update go through: matched rule actions run, then the delete workflows —
+   * which is where children are cleared — and the row is removed last. Anything
+   * that throws rolls the whole thing back and the record is still there.
+   */
+  async remove(entity: string, id: string): Promise<PromotionResult> {
     const tableName = this.getTableName(entity);
     await this.verifyEntity(entity);
 
@@ -304,33 +321,16 @@ export class BusService {
     }
 
     const current = await this.db.findById<Record<string, any>>(tableName, id);
-    if (current) {
-      await this.enforceBusinessRules(tableName, current, 'delete');
+    if (!current) {
+      throw new NotFoundException(`Record not found in ${tableName} with id: ${id}`);
     }
 
-    const result = await this.db.transaction(async (trx) => {
-      const rows = await trx
-        .updateTable(tableName as any)
-        .set({ deleted_at: new Date(), updated_at: new Date() } as any)
-        .where('id' as any, '=', id)
-        .where('deleted_at' as any, 'is', null)
-        .returningAll()
-        .execute();
-      return rows.length > 0;
-    });
-    await executeAfterDeleteHooks(entity, result);
+    await this.enforceBusinessRules(tableName, current, 'delete');
 
-    if (result && current) {
-      this.workflowService
-        .runLocalWorkflows(entity, id, 'delete', current)
-        .catch((err) => this.logger.error(`Workflow trigger failed for ${entity} delete: ${err?.message}`));
+    const promotion = await this.promotionDispatcher.dispatch(entity, id, 'delete', current);
+    await executeAfterDeleteHooks(entity, promotion.promoted);
 
-      this.rulesService
-        .executeMatchedActions(entity, id, current, 'delete')
-        .catch((err) => this.logger.error(`Rule actions failed for ${entity} delete: ${err?.message}`));
-    }
-
-    return result;
+    return promotion;
   }
 
   private async verifyEntity(entity: string): Promise<void> {

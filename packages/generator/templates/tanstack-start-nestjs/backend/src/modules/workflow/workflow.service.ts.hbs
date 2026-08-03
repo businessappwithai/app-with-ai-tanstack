@@ -55,8 +55,8 @@ interface BpmnTaskProps {
   fields?: string;
   /** CreateEntity: variable name to publish the new row's id under */
   as?: string;
-  /** DeleteEntity: "true" to remove the row rather than stamp deleted_at */
-  hard?: string;
+  // DeleteEntity removes the row. There is no soft variant and no `hard` flag:
+  // a delete in this application is a delete.
   /** Formula */
   target?: string;
   operation?: string;
@@ -646,24 +646,14 @@ export class WorkflowService {
       return { nodeType: 'DeleteEntity', table: targetTable, skipped: 'no value to match rows on' };
     }
 
-    const hard = task.hard?.trim() === 'true';
-    let rowsAffected: number;
-
-    if (hard) {
-      const result = await db
-        .deleteFrom(targetTable as any)
-        .where(targetField as any, '=', targetValue)
-        .execute();
-      rowsAffected = Number(result?.[0]?.numDeletedRows ?? 0);
-    } else {
-      const result = await db
-        .updateTable(targetTable as any)
-        .set({ deleted_at: new Date(), updated_at: new Date() } as any)
-        .where(targetField as any, '=', targetValue)
-        .where('deleted_at' as any, 'is', null)
-        .execute();
-      rowsAffected = Number(result?.[0]?.numUpdatedRows ?? 0);
-    }
+    // The row goes. A soft delete left a row that reads deleted but still holds
+    // its foreign keys, so deleting a parent through a workflow left orphans
+    // behind that every query then had to remember to filter out.
+    const result = await db
+      .deleteFrom(targetTable as any)
+      .where(targetField as any, '=', targetValue)
+      .execute();
+    const rowsAffected = Number(result?.[0]?.numDeletedRows ?? 0);
 
     if (rowsAffected === 0) {
       this.logger.warn(
@@ -671,14 +661,13 @@ export class WorkflowService {
       );
     } else {
       this.logger.log(
-        `DeleteEntity: ${targetTable} ${hard ? 'hard' : 'soft'}-deleted ${rowsAffected} row(s) (${targetField}=${String(targetValue)})`,
+        `DeleteEntity: ${targetTable} deleted ${rowsAffected} row(s) (${targetField}=${String(targetValue)})`,
       );
     }
 
     return {
       nodeType: 'DeleteEntity',
       table: targetTable,
-      hard,
       matchedOn: `${targetField}=${String(targetValue)}`,
       rowsAffected,
     };

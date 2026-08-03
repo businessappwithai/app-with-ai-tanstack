@@ -25,7 +25,12 @@ import { RulesService } from '../rules/rules.service';
 import type { MatchedAction } from '../rules/rules.service';
 import { WorkflowService } from '../workflow/workflow.service';
 
-export type DocStatus = 'draft' | 'final';
+/**
+ * `draft` and `final` are stored on the row. `deleted` never is — the row is
+ * gone by the time it is reported, and it exists here so a caller can tell a
+ * successful delete from a successful save.
+ */
+export type DocStatus = 'draft' | 'final' | 'deleted';
 
 export interface PromotionResult {
   entityName: string;
@@ -97,19 +102,39 @@ export class EntityPromotionService {
     // workflow the write was interesting enough to set off.
     workflowNames = [...new Set([...workflowNames, ...this.workflowNamesFromActions(actions)])];
 
-    // ── 2. Nothing associated → straight to final ────────────────────────────
+    // A delete ends by removing the row rather than by stamping a status on it,
+    // and the removal belongs in the same transaction as the workflows that run
+    // first — those are what clear the record's children, so a cascade that
+    // fails must leave the parent standing rather than orphan what it could not
+    // reach.
+    const isDelete = operation === 'delete';
+    const finalise = async (db: Kysely<any>) => {
+      if (isDelete) {
+        await db.deleteFrom(tableName as any).where('id' as any, '=', entityId).execute();
+      } else {
+        await this.setDocStatus(db, tableName, entityId, 'final', null);
+      }
+    };
+    const finaliseStep = isDelete ? 'deleting the record' : 'marking the record final';
+    const finalisedMessage = isDelete ? 'Deleted' : 'Finalised';
+
+    // ── 2. Nothing associated → finalise directly ────────────────────────────
     if (actions.length === 0 && workflowNames.length === 0) {
       try {
-        await this.setDocStatus(this.db, tableName, entityId, 'final', null);
+        await finalise(this.db);
       } catch (err: any) {
-        return this.fail(base, startedAt, 'marking the record final', err, entityData);
+        return this.fail(base, startedAt, finaliseStep, err, entityData);
       }
-      this.logger.log(`Promoted ${tableName}:${entityId} to final (no associated rules or workflows)`);
+      this.logger.log(
+        `${isDelete ? 'Deleted' : 'Promoted'} ${tableName}:${entityId} (no associated rules or workflows)`,
+      );
       return {
         ...base,
-        docStatus: 'final',
+        docStatus: isDelete ? 'deleted' : 'final',
         promoted: true,
-        message: 'No business rules or workflows are associated with this record, so it was finalised automatically.',
+        message: isDelete
+          ? 'No business rules or workflows are associated with this record, so it was deleted directly.'
+          : 'No business rules or workflows are associated with this record, so it was finalised automatically.',
         durationMs: Date.now() - startedAt,
       };
     }
@@ -133,8 +158,8 @@ export class EntityPromotionService {
           });
         }
 
-        failedStep = 'marking the record final';
-        await this.setDocStatus(trx, tableName, entityId, 'final', null);
+        failedStep = finaliseStep;
+        await finalise(trx);
       });
     } catch (err: any) {
       return this.fail({ ...base, ranRules: ruleNames, ranWorkflows: workflowNames }, startedAt, failedStep, err, entityData);
@@ -147,14 +172,16 @@ export class EntityPromotionService {
       .filter(Boolean)
       .join(' and ');
 
-    this.logger.log(`Promoted ${tableName}:${entityId} to final after ${summary}`);
+    this.logger.log(
+      `${isDelete ? 'Deleted' : 'Promoted to final'} ${tableName}:${entityId} after ${summary}`,
+    );
     return {
       ...base,
       ranRules: ruleNames,
       ranWorkflows: workflowNames,
-      docStatus: 'final',
+      docStatus: isDelete ? 'deleted' : 'final',
       promoted: true,
-      message: `Finalised after successfully running ${summary}.`,
+      message: `${finalisedMessage} after successfully running ${summary}.`,
       durationMs: Date.now() - startedAt,
     };
   }
@@ -204,7 +231,12 @@ export class EntityPromotionService {
     this.logger.error(`Promotion failed for ${base.entityName}:${base.entityId} — ${failedStep}: ${error}`);
 
     try {
-      await this.setDocStatus(this.db, base.entityName, base.entityId, 'draft', message);
+      // A delete that rolled back leaves the record exactly as it was, status
+      // included: it was never a draft, and demoting it would corrupt a
+      // finalised record because someone tried to remove it.
+      if (base.operation !== 'delete') {
+        await this.setDocStatus(this.db, base.entityName, base.entityId, 'draft', message);
+      }
     } catch (statusErr: any) {
       // The record keeps its existing draft status; the response still carries the detail.
       this.logger.error(
@@ -214,7 +246,9 @@ export class EntityPromotionService {
 
     return {
       ...base,
-      docStatus: 'draft',
+      // A delete that failed left the row untouched, so report the status it
+      // still has rather than claiming it was demoted to a draft.
+      docStatus: base.operation === 'delete' ? 'final' : 'draft',
       promoted: false,
       message,
       failedStep,
@@ -229,11 +263,17 @@ export class EntityPromotionService {
    * error was, and what happened to their data.
    */
   private buildFailureMessage(
-    base: Pick<PromotionResult, 'entityName' | 'entityId' | 'ranRules' | 'ranWorkflows'>,
+    base: Pick<PromotionResult, 'entityName' | 'entityId' | 'operation' | 'ranRules' | 'ranWorkflows'>,
     failedStep: string,
     error: string,
   ): string {
-    const parts = [`This record could not be finalised and has been kept as a draft.`];
+    // A failed delete did not save a draft — nothing was saved at all. Saying
+    // otherwise sends the reader looking for a draft that does not exist.
+    const parts = [
+      base.operation === 'delete'
+        ? 'This record could not be deleted and is unchanged.'
+        : 'This record could not be finalised and has been kept as a draft.',
+    ];
     parts.push(`Failed while ${failedStep}: ${error}`);
 
     if (base.ranRules.length > 0) {

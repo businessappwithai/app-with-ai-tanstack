@@ -514,3 +514,30 @@ flowchart TD
     %%step C CreateEntity entity: CompoundAlias as: dispositionAliasId fields: {"compound_id":"compound_id","alias_name":"pending disposition","alias_type":"dispositionType"}
     %%step D UpdateEntity field: storage_location source: dispositionLocation
     %%step E UpdateEntity entity: CompoundAlias targetSource: dispositionAliasId field: alias_name source: dispositionLocation
+
+%% ---- Section 12: Workflow — stability test retirement on delete ------------
+%% The third trigger. Section 10 runs when a rule names it, Section 11 runs on
+%% every update, and this one runs when a record is deleted.
+%%
+%% A delete is a hard delete, and the row goes last: this workflow runs inside
+%% the same transaction, before the removal, which is the only order that works.
+%% A StabilityTest owns its pulls, so the pulls have to be cleared while the
+%% test still exists — a foreign key does not care that we intended to delete
+%% the parent. If the cascade throws, nothing is deleted and the test is still
+%% there to try again.
+%%
+%% The decision reads the record being deleted, so the same shape as the other
+%% two holds here: a table decides, its variables reach the steps after it, and
+%% those steps write across entities.
+%%meta name: Stability Test Retirement
+%%meta kind: workflow
+%%workflow StabilityTestRetirement entity: StabilityTest kind: saga trigger: automatic operation: DELETE
+flowchart TD
+    A([Stability test deleted]) --> B{Classify the retirement}
+    B --> C[Record the retirement]
+    C --> D[Clear the scheduled pulls]
+    D --> E([Retired])
+
+    %%step B Decision decisionTable: {"hitPolicy":"first","inputs":[{"id":"i1","name":"Status","field":"status"}],"outputs":[{"id":"o1","name":"Reason","field":"retirementReason"}],"rules":[{"_id":"completed","i1":"\"completed\"","o1":"'retired_after_completion'"},{"_id":"rest","i1":"","o1":"'retired_early'"}]}
+    %%step C CreateEntity entity: CompoundAlias as: retirementNoteId fields: {"compound_id":"compound_id","alias_name":"retired stability test","alias_type":"retirementReason"}
+    %%step D DeleteEntity entity: StabilityPull targetField: stability_test_id targetSource: id
