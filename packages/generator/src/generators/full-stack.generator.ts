@@ -24,6 +24,7 @@ import type { CompiledHook } from "../hooks";
 import type { CompiledRule } from "../rules";
 import type { CompiledSaga, CompiledWorkflow } from "../workflows";
 import { BunE2ETestGenerator } from "./tests/bun-e2e.generator";
+import { DEFAULT_FRONTEND_PORT } from "./ports";
 
 export type StackOption = "tanstackjs-nestjs" | "tanstack-start-nestjs";
 export type AIAddonOption = "none" | "basic" | "advanced";
@@ -142,7 +143,7 @@ export class FullStackGenerator {
       projectDescription: this.options.projectDescription,
       databaseType: "postgresql",
       port: this.options.port,
-      frontendPort: this.options.frontendPort ?? this.options.port + 1,
+      frontendPort: this.options.frontendPort ?? DEFAULT_FRONTEND_PORT,
       enableSwagger: true,
       enableCors: true,
       skipCliScaffold: this.options.skipCliScaffold,
@@ -167,7 +168,7 @@ export class FullStackGenerator {
         projectVersion: this.options.projectVersion,
         projectDescription: this.options.projectDescription,
         apiBaseUrl: `http://localhost:${this.options.port}`,
-        frontendPort: this.options.frontendPort ?? this.options.port + 1,
+        frontendPort: this.options.frontendPort ?? DEFAULT_FRONTEND_PORT,
         enableDarkMode: false,
         stackOption: this.options.stackOption as "tanstackjs-nestjs" | "tanstack-start-nestjs",
         skipCliScaffold: this.options.skipCliScaffold,
@@ -187,7 +188,7 @@ export class FullStackGenerator {
         projectVersion: this.options.projectVersion,
         projectDescription: this.options.projectDescription,
         port: this.options.port,
-        frontendPort: this.options.frontendPort ?? this.options.port + 1,
+        frontendPort: this.options.frontendPort ?? DEFAULT_FRONTEND_PORT,
         recordsPerEntity: this.options.recordsPerEntity,
       });
       await testGenerator.generate(entities, relationships, outputDir);
@@ -295,7 +296,7 @@ npm-debug.log*
       );
       const tplContent = await fs.readFile(dockerComposeTpl, "utf-8");
       const backendPort = this.options.port;
-      const frontendPort = this.options.frontendPort ?? this.options.port + 1;
+      const frontendPort = this.options.frontendPort ?? DEFAULT_FRONTEND_PORT;
       const projectId = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       const projectSnake = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "_");
       const dockerCompose = tplContent
@@ -502,8 +503,8 @@ bun run db:seed
 bun run dev
 
 # Or start individually
-bun run dev:backend   # Backend on http://localhost:3000
-bun run dev:frontend  # Frontend on http://localhost:3001
+bun run dev:backend   # API on http://localhost:${this.options.port}
+bun run dev:frontend  # App on http://localhost:${this.options.frontendPort ?? DEFAULT_FRONTEND_PORT}
 \`\`\`
 
 ### Production Build

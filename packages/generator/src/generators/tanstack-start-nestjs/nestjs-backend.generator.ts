@@ -38,6 +38,7 @@ import {
 } from "../../workflows";
 import { CliExecutor } from "../../utils/cli-executor";
 import { BaseGenerator } from "../base.generator";
+import { DEFAULT_FRONTEND_PORT } from "../ports";
 
 /** Escape a value for embedding inside a single-quoted JS string literal. */
 function jsQuote(value: string): string {
@@ -351,11 +352,11 @@ export class NestJsBackendGenerator extends BaseGenerator {
       config: {
         databaseType: this.options.databaseType,
         port: this.options.port,
-        frontendPort: this.options.frontendPort ?? this.options.port + 1,
+        frontendPort: this.options.frontendPort ?? DEFAULT_FRONTEND_PORT,
         enableSwagger: this.options.enableSwagger,
         enableCors: this.options.enableCors,
         dbUser: dbUser,
-        corsOrigin: `http://localhost:${this.options.frontendPort ?? this.options.port + 1}`,
+        corsOrigin: `http://localhost:${this.options.frontendPort ?? DEFAULT_FRONTEND_PORT}`,
       },
       databaseType: this.options.databaseType,
       projectName: this.options.projectName,

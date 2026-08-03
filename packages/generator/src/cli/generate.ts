@@ -296,6 +296,17 @@ async function runCheckerFixer(mmdPath: string, quiet: boolean): Promise<void> {
 // CLI setup
 // ---------------------------------------------------------------------------
 
+/**
+ * Where a generated application listens by default.
+ *
+ * 4000 is the app itself — the address someone opens. The API sits beside it on
+ * 4001. Both used to default into the 3000s, which is where the modelling tool
+ * runs, so generating an app and then trying to run it produced EADDRINUSE on
+ * the very first `bun run dev`.
+ */
+export const DEFAULT_FRONTEND_PORT = 4000;
+export const DEFAULT_BACKEND_PORT = 4001;
+
 const program = new Command();
 
 program
@@ -327,8 +338,8 @@ program
   .option("-s, --stack <stack>", "Stack: tanstackjs-nestjs", "tanstackjs-nestjs")
   .option("--db <type>", "Database type: postgresql | sqlite", "postgresql")
   // Ports & URLs
-  .option("--port <port>", "Backend port", "3000")
-  .option("--frontend-port <port>", "Frontend dev-server port (default: backend port + 1)")
+  .option("--port <port>", "Backend API port", String(DEFAULT_BACKEND_PORT))
+  .option("--frontend-port <port>", "Frontend dev-server port", String(DEFAULT_FRONTEND_PORT))
   .option("--api-url <url>", "Backend API URL used by the frontend (overrides --port default)")
   .option(
     "--cors-origin <origin>",
@@ -510,7 +521,7 @@ program
       const backendPort = parseInt(options.port, 10);
       const frontendPort = options.frontendPort
         ? parseInt(options.frontendPort, 10)
-        : backendPort + 1;
+        : DEFAULT_FRONTEND_PORT;
       const apiUrl = options.apiUrl || `http://localhost:${backendPort}`;
       const corsOrigin = options.corsOrigin || `http://localhost:${frontendPort}`;
 
@@ -1184,7 +1195,7 @@ program
   .option("-n, --name <name>", "Project name", "my-backend")
   .option("-s, --stack <stack>", "Backend stack: nestjs", "nestjs")
   .option("--db <type>", "Database type: postgresql | sqlite", "postgresql")
-  .option("--port <port>", "Backend port", "3000")
+  .option("--port <port>", "Backend API port", String(DEFAULT_BACKEND_PORT))
   .option("--no-swagger", "Disable Swagger UI")
   .option("--no-cors", "Disable CORS")
   .option("--cors-origin <origin>", "CORS allowed origin")
@@ -1302,9 +1313,10 @@ program
       const dbChoice = (await ask("Choice [1]: ")) || "1";
       const db = dbChoice === "2" ? "sqlite" : "postgresql";
 
-      const portStr = (await ask("Backend port [3000]: ")) || "3000";
-      const port = parseInt(portStr, 10);
-      const frontendPortStr = (await ask(`Frontend port [${port + 1}]: `)) || String(port + 1);
+      const portStr =
+        (await ask(`Backend API port [${DEFAULT_BACKEND_PORT}]: `)) || String(DEFAULT_BACKEND_PORT);
+      const frontendPortStr =
+        (await ask(`Frontend port [${DEFAULT_FRONTEND_PORT}]: `)) || String(DEFAULT_FRONTEND_PORT);
 
       const darkModeInput = (await ask("Enable dark mode? [y/N]: ")).toLowerCase();
       const darkMode = darkModeInput === "y" || darkModeInput === "yes";

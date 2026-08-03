@@ -1,5 +1,10 @@
 {
   "compilerOptions": {
+    // No target meant TypeScript assumed ES5, so anything iterating a Set or a
+    // Map failed to typecheck even though Vite compiles it happily. The app
+    // ships through esbuild to modern browsers; the checker should assume the
+    // same thing the bundler does.
+    "target": "ES2022",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,

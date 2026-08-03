@@ -229,7 +229,12 @@ function EditWorkflowDefinition() {
 
       {/* Canvas */}
       <div className="flex-1 p-4 min-h-0">
-        <BpmnCanvas ref={canvasRef} className="h-full" entityName={entityName} />
+        <BpmnCanvas
+          ref={canvasRef}
+          className="h-full"
+          entityName={entityName}
+          readOnly={fromModel}
+        />
       </div>
     </div>
   );

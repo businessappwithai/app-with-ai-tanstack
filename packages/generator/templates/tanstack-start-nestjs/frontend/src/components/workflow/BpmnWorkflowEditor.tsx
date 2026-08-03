@@ -15,7 +15,7 @@ import {
   type StepType,
   serializeDecisionTable,
   type WorkflowStep,
-} from "@/lib/workflow/bpmn-model";
+} from "../../lib/workflow/bpmn-model";
 import { DecisionTableGrid } from "./DecisionTableGrid";
 import { StepPropertyFields } from "./StepPropertyFields";
 

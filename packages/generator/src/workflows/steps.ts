@@ -387,7 +387,7 @@ export function buildSagaBpmn(
 
       return `    <bpmn:serviceTask id="${escapeXmlAttr(step.nodeId)}" name="${escapeXmlAttr(step.label)}">
       <bpmn:extensionElements>
-        <erdwithai:properties xmlns:erdwithai="http://erdwithai.dev/bpmn">
+        <erdwithai:properties xmlns:erdwithai="http://erdwithai.io/schema/1.0">
 ${properties}
         </erdwithai:properties>
       </bpmn:extensionElements>
@@ -405,15 +405,66 @@ ${properties}
     .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="defs_${processId}" targetNamespace="http://erdwithai.dev/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="defs_${processId}" targetNamespace="http://erdwithai.dev/bpmn">
   <bpmn:process id="${processId}" isExecutable="true">
     <bpmn:startEvent id="start" name="Record written" />
 ${tasks}
 ${flows}
     <bpmn:endEvent id="end" name="Done" />
   </bpmn:process>
+${diagramInterchange(processId, ids)}
 </bpmn:definitions>
 `;
+}
+
+/**
+ * Where every shape sits, so the diagram can be opened as well as executed.
+ *
+ * The executor only reads the process, so this used to be left out — and a
+ * workflow declared in the model could never be looked at: bpmn-js refuses a
+ * definition with no diagram, so the Workflow Designer showed "no diagram to
+ * display" for every one of them. The layout is a straight left-to-right chain,
+ * which is the order the steps run in and the arrangement anyone would draw.
+ */
+function diagramInterchange(processId: string, ids: string[]): string {
+  const TASK_WIDTH = 110;
+  const TASK_HEIGHT = 80;
+  const EVENT_SIZE = 36;
+  const GAP = 60;
+  const CENTRE_Y = 220;
+
+  let x = 150;
+  const shapes: string[] = [];
+  const positions = new Map<string, { x: number; width: number }>();
+
+  ids.forEach((id, index) => {
+    const isEvent = index === 0 || index === ids.length - 1;
+    const width = isEvent ? EVENT_SIZE : TASK_WIDTH;
+    const height = isEvent ? EVENT_SIZE : TASK_HEIGHT;
+    shapes.push(
+      `      <bpmndi:BPMNShape id="${escapeXmlAttr(id)}_di" bpmnElement="${escapeXmlAttr(id)}">
+        <dc:Bounds x="${x}" y="${CENTRE_Y - height / 2}" width="${width}" height="${height}" />
+      </bpmndi:BPMNShape>`
+    );
+    positions.set(id, { x, width });
+    x += width + GAP;
+  });
+
+  const edges = ids.slice(0, -1).map((from, index) => {
+    const source = positions.get(from)!;
+    const target = positions.get(ids[index + 1]!)!;
+    return `      <bpmndi:BPMNEdge id="flow_${index}_di" bpmnElement="flow_${index}">
+        <di:waypoint x="${source.x + source.width}" y="${CENTRE_Y}" />
+        <di:waypoint x="${target.x}" y="${CENTRE_Y}" />
+      </bpmndi:BPMNEdge>`;
+  });
+
+  return `  <bpmndi:BPMNDiagram id="diagram_1">
+    <bpmndi:BPMNPlane id="plane_1" bpmnElement="${escapeXmlAttr(processId)}">
+${shapes.join("\n")}
+${edges.join("\n")}
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>`;
 }
 
 /** A one-line summary, shown in the generated Workflow Designer. */

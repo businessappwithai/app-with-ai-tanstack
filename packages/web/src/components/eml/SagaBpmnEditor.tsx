@@ -37,7 +37,9 @@ export function SagaBpmnEditor({
   columnsFor,
   onChange,
 }: SagaBpmnEditorProps) {
-  const editorRef = useRef<BpmnWorkflowEditorHandle | null>(null);
+  // State, not a ref: the handle arrives after mount, and the seeding effect
+  // below has to run once it does. A ref would leave the canvas empty.
+  const [editor, setEditor] = useState<BpmnWorkflowEditorHandle | null>(null);
 
   // The diagram is seeded from the model once per workflow. Re-importing on
   // every change would fight the canvas: each keystroke in the drawer would
@@ -48,9 +50,9 @@ export function SagaBpmnEditor({
   latestFlow.current = flow;
 
   useEffect(() => {
-    if (seeded || !editorRef.current) return;
-    void editorRef.current.importXml(initialXml).then(() => setSeeded(true));
-  }, [seeded, initialXml]);
+    if (seeded || !editor) return;
+    void editor.importXml(initialXml).then(() => setSeeded(true));
+  }, [seeded, editor, initialXml]);
 
   const entities = useMemo(
     () => entityNames.map((name) => ({ name, tableName: name })),
@@ -112,7 +114,7 @@ export function SagaBpmnEditor({
 
       <div className="h-[640px]">
         <BpmnWorkflowEditor
-          ref={editorRef}
+          onReady={setEditor}
           entities={entities}
           entityColumns={entityColumns}
           ruleNames={ruleNames}

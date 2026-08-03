@@ -23,6 +23,7 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { CliExecutor } from "../../utils/cli-executor";
 import { BaseGenerator } from "../base.generator";
+import { DEFAULT_FRONTEND_PORT } from "../ports";
 
 /**
  * Resolve template directory path, handling both dev and bundled environments
@@ -63,7 +64,7 @@ export interface TanStackStartFrontendOptions {
   projectVersion: string;
   projectDescription: string;
   apiBaseUrl: string;
-  /** Port the dev/preview server binds to. Defaults to the API port + 1. */
+  /** Port the dev/preview server binds to. Defaults to DEFAULT_FRONTEND_PORT. */
   frontendPort?: number;
   enableDarkMode: boolean;
   stackOption?: "tanstackjs-nestjs" | "tanstack-start-nestjs";
@@ -192,6 +193,8 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       "src/styles",
       "src/types",
       "src/lib/queries",
+      "src/lib/workflow",
+      "src/components/workflow",
       "test",
     ];
 
@@ -236,7 +239,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         })(),
         // package.json's dev/start scripts pass this to vinxi. Left undefined it
         // rendered as `vinxi dev --port ` and the server picked a port at random.
-        frontendPort: this.options.frontendPort ?? 3001,
+        frontendPort: this.options.frontendPort ?? DEFAULT_FRONTEND_PORT,
         enableDarkMode: this.options.enableDarkMode,
       },
       projectName: this.options.projectName,
@@ -667,6 +670,24 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       {
         src: "src/components/admin/bpmn-canvas.tsx",
         dest: "src/components/admin/bpmn-canvas.tsx",
+      },
+      // The workflow editor, shared verbatim with the modelling tool so a
+      // workflow drawn in either behaves the same way.
+      {
+        src: "src/lib/workflow/bpmn-model.ts",
+        dest: "src/lib/workflow/bpmn-model.ts",
+      },
+      {
+        src: "src/components/workflow/BpmnWorkflowEditor.tsx",
+        dest: "src/components/workflow/BpmnWorkflowEditor.tsx",
+      },
+      {
+        src: "src/components/workflow/DecisionTableGrid.tsx",
+        dest: "src/components/workflow/DecisionTableGrid.tsx",
+      },
+      {
+        src: "src/components/workflow/StepPropertyFields.tsx",
+        dest: "src/components/workflow/StepPropertyFields.tsx",
       },
       {
         src: "src/components/admin/decision-table-editor.tsx",
