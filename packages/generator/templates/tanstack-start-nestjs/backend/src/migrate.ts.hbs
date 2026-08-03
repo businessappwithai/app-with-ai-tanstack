@@ -75,8 +75,23 @@ async function getMigratedFiles(db: Kysely<any>): Promise<Map<string, string | n
   }
 }
 
+/**
+ * Fingerprint what a migration *does*, not the file it arrived in.
+ *
+ * Every generated migration carries a `Generated: <timestamp>` header, so
+ * hashing the raw bytes reported drift on every single regeneration — which
+ * made the check noise, and noise gets switched off. Stripping that line (and
+ * normalising line endings, which differ by checkout) leaves a hash that only
+ * moves when the SQL does.
+ */
 function checksumOf(filePath: string): string {
-  return createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+  const normalized = fs
+    .readFileSync(filePath, 'utf8')
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .filter((line) => !/^\s*\*?\s*Generated:\s/.test(line))
+    .join('\n');
+  return createHash('sha256').update(normalized).digest('hex');
 }
 
 async function markMigrationDone(db: Kysely<any>, name: string, checksum: string) {

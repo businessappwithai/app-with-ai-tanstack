@@ -1724,6 +1724,27 @@ export async function seed(db: Kysely<any>): Promise<void> {
       console.warn("Job queue test template not found");
     }
 
+    // Executor and lifecycle tests. These templates existed but were never
+    // rendered, so the suites that cover multi-step workflow ordering,
+    // cross-entity targeting and the promotion pipeline never ran in a
+    // generated app — the code they guard shipped untested.
+    const behaviourTestFiles = [
+      {
+        tpl: "test/workflow-multi-entity.test.ts.hbs",
+        out: "test/workflow-multi-entity.test.ts",
+      },
+      { tpl: "test/entity-promotion.test.ts.hbs", out: "test/entity-promotion.test.ts" },
+    ];
+
+    for (const { tpl, out } of behaviourTestFiles) {
+      try {
+        const content = await this.renderTemplate(tpl, context);
+        await fs.writeFile(path.join(outputDir, out), content);
+      } catch (e) {
+        console.warn(`Behaviour test template not found: ${tpl}`);
+      }
+    }
+
     // Trigger task tests
     const triggerTestFiles = [
       { tpl: "test/trigger/email.task.test.ts.hbs", out: "test/trigger/email.task.test.ts" },

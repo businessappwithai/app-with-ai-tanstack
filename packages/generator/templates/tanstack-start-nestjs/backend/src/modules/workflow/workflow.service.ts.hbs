@@ -14,9 +14,10 @@
  * Project: {{project.name}}
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { Kysely, sql } from 'kysely';
 import { InjectDatabase } from '../../database/database.service.decorator';
+import { RulesEngine } from '../rules/rules-engine.service';
 
 export interface TriggerWorkflowDto {
   entityName: string;
@@ -64,6 +65,16 @@ interface BpmnTaskProps {
   url?: string;
   method?: string;
   bodyTemplate?: string;
+  /**
+   * Decision: a GoRules decision table authored inside this step, as JSON
+   * ({ hitPolicy, inputs, outputs, rules }). The executor wraps it in the
+   * input → table → output graph zen-engine expects.
+   */
+  decisionTable?: string;
+  /** Decision: evaluate a saved rule's JDM instead of an inline table. */
+  rule?: string;
+  /** Decision: comma-separated outputs to publish. Blank publishes them all. */
+  publish?: string;
   [key: string]: string | undefined;
 }
 
@@ -73,6 +84,10 @@ export class WorkflowService {
 
   constructor(
     @InjectDatabase() private readonly db: Kysely<any>,
+    // Decision steps evaluate through the same zen-engine the rules use, so a
+    // table behaves identically whether it guards an entity or sits in a
+    // workflow. forwardRef because rules and workflows import each other.
+    @Inject(forwardRef(() => RulesEngine)) private readonly rulesEngine: RulesEngine,
   ) {}
 
   /**
@@ -403,6 +418,10 @@ export class WorkflowService {
       return this.executeFormula(task, context, vars);
     }
 
+    if (task.nodeType === 'Decision') {
+      return this.executeDecision(task, context, vars, db);
+    }
+
     if (task.nodeType === 'REST') {
       return this.executeRest(task, context);
     }
@@ -472,8 +491,26 @@ export class WorkflowService {
       return { nodeType: 'UpdateEntity', table: targetTable, field, skipped: 'no value to match rows on' };
     }
 
+    const source = task.source?.trim();
+    const hasLiteral = task.value !== undefined && task.value !== '';
     const resolvedValue =
-      task.source && context[task.source] !== undefined ? context[task.source] : task.value;
+      source && context[source] !== undefined ? context[source] : task.value;
+
+    // A step that reads a variable nothing published used to run anyway and
+    // write `undefined`, blanking the column. Silently destroying a value is
+    // worse than not running: a decision that matched no row, or a create that
+    // was skipped, would quietly erase the field the next step meant to set.
+    if (source && context[source] === undefined && !hasLiteral) {
+      this.logger.warn(
+        `UpdateEntity: nothing published "${source}" and there is no literal fallback — skipping ${targetTable}.${field}`,
+      );
+      return {
+        nodeType: 'UpdateEntity',
+        table: targetTable,
+        field,
+        skipped: `no value for source "${source}"`,
+      };
+    }
 
     const result = await db
       .updateTable(targetTable as any)
@@ -717,6 +754,149 @@ export class WorkflowService {
     vars[target] = value;
     this.logger.log(`Formula: ${target} = ${left} ${operation} ${right} = ${value}`);
     return { nodeType: 'Formula', target, value };
+  }
+
+  /**
+   * Evaluate a GoRules decision table as a workflow step and publish its
+   * outputs as variables the following steps can read.
+   *
+   * Two sources, because the two are genuinely different jobs:
+   *   decisionTable  a table authored inside this step, for logic that only
+   *                  this process cares about
+   *   rule           a saved rule's JDM, when the same table already governs
+   *                  the entity and the process should not fork a second copy
+   *
+   * The table is evaluated against the same context every other step sees —
+   * the triggering record's columns plus everything published so far — so a
+   * decision can branch on a value an earlier Formula worked out.
+   */
+  private async executeDecision(
+    task: BpmnTaskProps,
+    context: Record<string, unknown>,
+    vars: Record<string, unknown>,
+    db: Kysely<any> = this.db,
+  ): Promise<Record<string, unknown> | null> {
+    const inline = task.decisionTable?.trim();
+    const ruleName = task.rule?.trim();
+
+    let jdm: string;
+    if (inline) {
+      let content: unknown;
+      try {
+        content = JSON.parse(inline);
+      } catch (err: any) {
+        this.logger.warn(`Decision: decisionTable is not valid JSON — skipping (${err?.message})`);
+        return { nodeType: 'Decision', skipped: 'decisionTable is not valid JSON' };
+      }
+      if (!content || typeof content !== 'object') {
+        return { nodeType: 'Decision', skipped: 'decisionTable must be a JSON object' };
+      }
+      if (!Array.isArray((content as any).rules) || (content as any).rules.length === 0) {
+        return { nodeType: 'Decision', skipped: 'decision table has no rows' };
+      }
+      jdm = this.wrapDecisionTable(content);
+    } else if (ruleName) {
+      let row: any;
+      try {
+        row = await db
+          .selectFrom('sys_rule_definitions')
+          .select(['jdm_content'])
+          .where('rule_name', '=', ruleName)
+          .where('is_active', '=', true)
+          .executeTakeFirst();
+      } catch (err: any) {
+        this.logger.warn(`Decision: could not load rule "${ruleName}": ${err?.message}`);
+        return { nodeType: 'Decision', rule: ruleName, skipped: 'could not load the rule' };
+      }
+      if (!row?.jdm_content) {
+        this.logger.warn(`Decision: no active rule named "${ruleName}" — skipping`);
+        return { nodeType: 'Decision', rule: ruleName, skipped: `no active rule named "${ruleName}"` };
+      }
+      jdm = row.jdm_content as string;
+    } else {
+      this.logger.warn('Decision task has neither a decisionTable nor a rule — skipping');
+      return { nodeType: 'Decision', skipped: 'no decision table and no rule configured' };
+    }
+
+    let outputs: Record<string, unknown>;
+    let matchedRows: number;
+    try {
+      const decision = this.rulesEngine.getEngine().createDecision(Buffer.from(jdm));
+      const evaluated = await decision.evaluate(context);
+      const raw = (evaluated as any)?.result;
+
+      if (Array.isArray(raw)) {
+        matchedRows = raw.length;
+        // A `collect` table returns every matching row. A decision *step* has to
+        // publish one value per variable, so the first match wins — the same
+        // precedence a reader assumes from top-to-bottom rows.
+        outputs = (raw[0] ?? {}) as Record<string, unknown>;
+      } else if (raw && typeof raw === 'object') {
+        matchedRows = 1;
+        outputs = raw as Record<string, unknown>;
+      } else {
+        matchedRows = 0;
+        outputs = {};
+      }
+    } catch (err: any) {
+      this.logger.error(`Decision: evaluation failed — ${err?.message ?? err}`);
+      return { nodeType: 'Decision', skipped: `evaluation failed: ${err?.message ?? err}` };
+    }
+
+    if (matchedRows === 0) {
+      // Not an error: a table that matches nothing is how "leave things alone"
+      // is expressed. Later steps see no new variables and skip themselves.
+      this.logger.log('Decision: no row matched — nothing published');
+      return { nodeType: 'Decision', matchedRows: 0, published: {} };
+    }
+
+    const allowed = (task.publish ?? '')
+      .split(',')
+      .map((name) => name.trim())
+      .filter(Boolean);
+
+    const published: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(outputs)) {
+      if (allowed.length > 0 && !allowed.includes(key)) continue;
+      // zen-engine emits '' for the output cells a row deliberately leaves
+      // blank — every row has to set every column or the row is dropped. Those
+      // are absences, not values, and publishing them would shadow a variable
+      // an earlier step legitimately set.
+      if (value === undefined || value === null || value === '') continue;
+      published[key] = value;
+      vars[key] = value;
+    }
+
+    this.logger.log(
+      `Decision: matched ${matchedRows} row(s), published ${Object.keys(published).join(', ') || '(nothing)'}`,
+    );
+    return { nodeType: 'Decision', matchedRows, published };
+  }
+
+  /**
+   * Wrap a bare decision table in the graph zen-engine evaluates.
+   *
+   * The step stores only the table because that is all the editor asks anyone
+   * to fill in; the input and output nodes are plumbing, identical every time.
+   */
+  private wrapDecisionTable(content: unknown): string {
+    return JSON.stringify({
+      nodes: [
+        { id: 'input', type: 'inputNode', name: 'Input', position: { x: 0, y: 0 } },
+        {
+          id: 'table',
+          type: 'decisionTableNode',
+          name: 'Decision',
+          position: { x: 300, y: 0 },
+          content,
+        },
+        { id: 'output', type: 'outputNode', name: 'Output', position: { x: 600, y: 0 } },
+      ],
+      edges: [
+        { id: 'e1', sourceId: 'input', targetId: 'table' },
+        { id: 'e2', sourceId: 'table', targetId: 'output' },
+      ],
+    });
   }
 
   /** Call an external HTTP endpoint. Never blocks the workflow for more than 10s. */

@@ -86,3 +86,6 @@ test-output/
 *.generated.*
 .gstack/
 .playwright-mcp/
+
+# Checker report artifacts — rewritten on every generate
+*.eml.mmd.error
