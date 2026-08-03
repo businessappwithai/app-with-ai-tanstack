@@ -12,6 +12,7 @@
  */
 
 import { createFileRoute } from "@tanstack/react-router";
+import { requireProjectAccess } from "@/lib/project-access";
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -35,8 +36,11 @@ function failed(error: unknown, action: string): Response {
 export const Route = createFileRoute("/api/projects/$id/eml")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ request, params }) => {
         try {
+          const access = await requireProjectAccess(request, params.id);
+          if (access.response) return access.response;
+
           const { projectDb } = await import("@erdwithai/core/services");
           const { extractRuleSections, extractWorkflowSections } = await import(
             "@erdwithai/generator"
@@ -61,6 +65,9 @@ export const Route = createFileRoute("/api/projects/$id/eml")({
 
       PUT: async ({ request, params }) => {
         try {
+          const access = await requireProjectAccess(request, params.id, "read_write");
+          if (access.response) return access.response;
+
           const { erdVersionDb, projectDb } = await import("@erdwithai/core/services");
           const { mergeSections, extractRuleSections, extractWorkflowSections, parseModel } =
             await import("@erdwithai/generator");

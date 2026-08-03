@@ -279,7 +279,7 @@ describe("projectStore", () => {
     it("goes back to the previous step", () => {
       useProjectStore.setState({ currentStep: "generate" });
       useProjectStore.getState().goToPreviousStep();
-      expect(useProjectStore.getState().currentStep).toBe("workflows");
+      expect(useProjectStore.getState().currentStep).toBe("logic");
     });
 
     it("does not go before the first step", () => {
@@ -300,9 +300,13 @@ describe("projectStore", () => {
       }
     });
 
-    it("visits the rules and workflow steps the wizard displays", () => {
-      expect(STEP_ORDER).toContain("rules");
-      expect(STEP_ORDER).toContain("workflows");
+    // Rules and processes are authored on one screen, so the wizard has one
+    // step for them. They were two, and moving between a rule and the process
+    // that reads its decision meant leaving the page and coming back.
+    it("visits the logic step the wizard displays", () => {
+      expect(STEP_ORDER).toContain("logic");
+      expect(STEP_ORDER).not.toContain("rules");
+      expect(STEP_ORDER).not.toContain("workflows");
     });
   });
 

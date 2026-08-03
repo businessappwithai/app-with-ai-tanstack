@@ -755,7 +755,7 @@ function DesignPage() {
   const handleGenerate = async () => {
     await handleSave();
     goToNextStep();
-    navigate({ to: "/projects/$id/rules-design", params: { id: projectId } });
+    navigate({ to: "/projects/$id/logic", params: { id: projectId } });
   };
 
   const handleAiSubmit = async () => {
@@ -1305,8 +1305,8 @@ function DesignPage() {
                       navigate({ to: "/projects/$id/init", params: { id: projectId } });
                     } else if (step === "design") {
                       // Already on design
-                    } else if (step === "rules") {
-                      navigate({ to: "/projects/$id/rules-design", params: { id: projectId } });
+                    } else if (step === "logic") {
+                      navigate({ to: "/projects/$id/logic", params: { id: projectId } });
                     } else if (step === "generate") {
                       navigate({ to: "/projects/$id/generate", params: { id: projectId } });
                     } else if (step === "enhance") {

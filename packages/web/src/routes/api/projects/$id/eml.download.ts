@@ -13,6 +13,7 @@
  */
 
 import { createFileRoute } from "@tanstack/react-router";
+import { requireProjectAccess } from "@/lib/project-access";
 
 /** A filename someone can find again, derived from the project's own name. */
 function fileNameFor(name: string): string {
@@ -28,8 +29,11 @@ function fileNameFor(name: string): string {
 export const Route = createFileRoute("/api/projects/$id/eml/download")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ request, params }) => {
         try {
+          const access = await requireProjectAccess(request, params.id);
+          if (access.response) return access.response;
+
           const { projectDb } = await import("@erdwithai/core/services");
 
           const project = await projectDb.findById(params.id);

@@ -52,20 +52,19 @@ export interface WorkflowDefinition {
   description?: string;
 }
 
-export type ProjectStep =
-  | "init"
-  | "design"
-  | "rules"
-  | "workflows"
-  | "generate"
-  | "enhance"
-  | "deploy";
+export type ProjectStep = "init" | "design" | "logic" | "generate" | "enhance" | "deploy";
 
+/**
+ * Rules and workflows used to be two steps. They are one thing: a rule decides,
+ * and what it decides is read by the process that acts on it — often in the
+ * same document, now often in the same diagram. Asking someone to finish all
+ * the deciding before they may start on any of the doing was an ordering the
+ * work does not have.
+ */
 export const STEP_ORDER: ProjectStep[] = [
   "init",
   "design",
-  "rules",
-  "workflows",
+  "logic",
   "generate",
   "enhance",
   "deploy",
@@ -74,8 +73,7 @@ export const STEP_ORDER: ProjectStep[] = [
 export const STEP_LABELS: Record<ProjectStep, string> = {
   init: "Init",
   design: "Design",
-  rules: "Rules",
-  workflows: "Flows",
+  logic: "Logic",
   generate: "Gen",
   enhance: "Enhance",
   deploy: "Deploy",
@@ -85,8 +83,7 @@ export const STEP_LABELS: Record<ProjectStep, string> = {
 export const STEP_ROUTES: Record<ProjectStep, string> = {
   init: "/projects/$id/init",
   design: "/projects/$id/design",
-  rules: "/projects/$id/rules-design",
-  workflows: "/projects/$id/workflow-design",
+  logic: "/projects/$id/logic",
   generate: "/projects/$id/generate",
   enhance: "/projects/$id/enhance",
   deploy: "/projects/$id/deploy",
