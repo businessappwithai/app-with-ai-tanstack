@@ -200,6 +200,9 @@ export class NestJsBackendGenerator extends BaseGenerator {
     // Generate workflow-definitions module (static files)
     await this.generateWorkflowDefinitionsModule(outputDir);
 
+    // Generate the model-context module — retrieval over the app's own model
+    await this.generateModelContextModule(outputDir, context);
+
     // Generate migrations and seeds
     await this.generateMigrations(outputDir, context);
 
@@ -1868,6 +1871,43 @@ export async function seed(db: Kysely<any>): Promise<void> {
         console.log(`  ✓ backend/src/migrations/${migrationFile}`);
       } catch (e) {
         console.warn(`  ⚠️  Migration template failed for ${entity.name}: ${(e as Error).message}`);
+      }
+    }
+  }
+
+  /**
+   * The model-context module: retrieval over the `.eml.mmd` this application
+   * was generated from, so an administrator extending it has an assistant that
+   * answers from the model rather than from guesswork.
+   *
+   * `rag.ts` is the generator's own chunker, copied verbatim — it is written
+   * dependency-free precisely so the definition of what an EML document means
+   * does not fork between the tool that writes models and the applications
+   * that run them.
+   */
+  private async generateModelContextModule(
+    outputDir: string,
+    context: Record<string, unknown>
+  ): Promise<void> {
+    const moduleDir = path.join(outputDir, "src/modules/model-context");
+    await fs.mkdir(moduleDir, { recursive: true });
+
+    const files = [
+      "model-context.service.ts",
+      "model-context.controller.ts",
+      "model-context.module.ts",
+      "rag.ts",
+    ];
+
+    for (const file of files) {
+      try {
+        const content = await this.renderTemplate(
+          `src/modules/model-context/${file}.hbs`,
+          context
+        );
+        await fs.writeFile(path.join(moduleDir, file), content);
+      } catch (error) {
+        console.warn(`Model-context file not generated: ${file} — ${(error as Error).message}`);
       }
     }
   }

@@ -307,9 +307,38 @@ export async function generateApplication(
   const generator = new FullStackGenerator(buildGeneratorOptions(model, options));
   await generator.generate(model.entities, model.relationships);
 
+  await writeModelSource(options.outputDir, options.sources);
+
   if (options.writeManifestFile !== false) {
     await writeManifest(options.outputDir, model, options, options.manifest ?? {});
   }
 
   return model;
+}
+
+/**
+ * Ship the model into the application it generated.
+ *
+ * The generated code is the model compiled: reading it back tells you what the
+ * application does but not what it was asked to do, and nothing in it records
+ * that a decision table had three rows for a reason. An administrator extending
+ * the application — and the assistant helping them — needs the source, and the
+ * only copy otherwise lives in the generator's database.
+ *
+ * It also makes the generated app self-describing: regenerating it needs only
+ * the directory it produced.
+ */
+export async function writeModelSource(
+  outputDir: string,
+  sources: string | string[]
+): Promise<void> {
+  const document = (Array.isArray(sources) ? sources : [sources]).filter(Boolean).join("\n\n");
+  if (!document.trim()) return;
+
+  try {
+    await fs.mkdir(path.join(outputDir, "model"), { recursive: true });
+    await fs.writeFile(path.join(outputDir, "model", "model.eml.mmd"), document, "utf-8");
+  } catch {
+    // Non-fatal, exactly like the manifest: the application runs without it.
+  }
 }

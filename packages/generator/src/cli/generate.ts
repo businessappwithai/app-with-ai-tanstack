@@ -578,7 +578,11 @@ program
       // the web app's /api/generate route also calls — that is what keeps a
       // model generating the same application from either entry point.
       await generateApplication({
-        sources: [],
+        // Passed even though the model is already parsed: the pipeline ships
+        // the document into the generated application, and the compiled code
+        // does not record what it was asked to do. `ruleSources` is the same
+        // set of files, already read above.
+        sources: ruleSources,
         model: {
           entities: allEntities,
           relationships: allRelationships,
