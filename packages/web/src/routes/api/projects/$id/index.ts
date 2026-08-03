@@ -87,6 +87,18 @@ export const Route = createFileRoute("/api/projects/$id/")({
             });
           }
 
+          // The model lives in erd_versions, not on the project row. Leaving it
+          // out meant a project whose model came from anywhere but this browser
+          // session opened the design step with an empty canvas — which is what
+          // every imported model does.
+          const currentVersion = await db
+            .selectFrom("erd_versions")
+            .select(["mermaid_code"])
+            .where("project_id", "=", id)
+            .where("is_current", "=", true)
+            .orderBy("created_at", "desc")
+            .executeTakeFirst();
+
           const project = {
             id: (dbProject as any).id,
             name: (dbProject as any).name,
@@ -102,6 +114,7 @@ export const Route = createFileRoute("/api/projects/$id/")({
             port: (dbProject as any).port,
             databaseUrl: (dbProject as any).database_url,
             generatedPath: (dbProject as any).generated_path,
+            erdCode: (currentVersion as any)?.mermaid_code ?? "",
           };
 
           return new Response(JSON.stringify({ project }), {
