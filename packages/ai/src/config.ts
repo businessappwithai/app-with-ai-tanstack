@@ -10,14 +10,11 @@
  *   LOCAL_AI_API_KEY    — API key for the endpoint  (default: local)
  */
 
-export const AI_BASE_URL =
-  process.env.LOCAL_AI_BASE_URL ?? "http://localhost:8000/v1";
+export const AI_BASE_URL = process.env.LOCAL_AI_BASE_URL ?? "http://localhost:8000/v1";
 
-export const AI_MODEL =
-  process.env.LOCAL_AI_MODEL ?? "qwen3.6:27b-mlx";
+export const AI_MODEL = process.env.LOCAL_AI_MODEL ?? "qwen3.6:27b-mlx";
 
-export const AI_API_KEY =
-  process.env.LOCAL_AI_API_KEY ?? "local";
+export const AI_API_KEY = process.env.LOCAL_AI_API_KEY ?? "local";
 
 /**
  * Mastra `OpenAICompatibleConfig` — pass directly as the `model` field of any Agent.

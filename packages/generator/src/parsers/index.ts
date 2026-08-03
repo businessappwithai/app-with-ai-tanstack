@@ -1,2 +1,2 @@
-export * from "./mermaid.parser";
 export * from "./category.parser";
+export * from "./mermaid.parser";

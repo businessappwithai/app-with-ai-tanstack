@@ -50,7 +50,8 @@ function InitPage() {
         name: currentProject.name,
         description: currentProject.description,
         stackType: currentProject.stackType,
-        databaseUrl: currentProject.databaseUrl || `postgresql://erdwithai@127.0.0.1:5432/${projectId}`,
+        databaseUrl:
+          currentProject.databaseUrl || `postgresql://erdwithai@127.0.0.1:5432/${projectId}`,
       });
       setCurrentProject(projectId);
     }

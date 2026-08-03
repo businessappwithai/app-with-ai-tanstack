@@ -1,5 +1,5 @@
+import { AlertCircle, CheckCircle2, Database, Loader2, X } from "lucide-react";
 import { useState } from "react";
-import { Database, Loader2, X, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface DbOperationsModalProps {
   isOpen: boolean;
@@ -82,7 +82,9 @@ export function DbOperationsModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
-      onKeyDown={(e) => { if (e.key === "Escape") onClose(); }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
       role="dialog"
       aria-modal="true"
     >
@@ -110,9 +112,7 @@ export function DbOperationsModal({
         {result && (
           <div
             className={`flex items-start gap-2 p-3 rounded-lg mb-4 text-sm ${
-              result.error
-                ? "bg-red-500/10 text-red-400"
-                : "bg-green-500/10 text-green-400"
+              result.error ? "bg-red-500/10 text-red-400" : "bg-green-500/10 text-green-400"
             }`}
           >
             {result.error ? (

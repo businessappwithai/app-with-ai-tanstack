@@ -202,12 +202,22 @@ describe("{{entity.displayName}} CRUD", () => {
     expect(response.status).toBeLessThan(500);
   });
 
-  it("soft-deletes a record", async () => {
+  // A delete removes the row and reports the workflows that ran clearing it.
+  // It used to stamp `deleted_at` and answer 204, which read the same from the
+  // outside — the record was gone from every query either way — while leaving
+  // the row and its foreign keys in the table.
+  it("deletes a record and reports what ran", async () => {
     const created = await harness.createWithParents(entity);
     expect(created).not.toBeNull();
 
-    const response = await harness.client.delete(`/bus/${entity.route}/${created?.id}`);
-    expect(response.status).toBe(204);
+    const response = await harness.client.delete<{
+      deleted: boolean;
+      promotion: { operation: string; docStatus: string; ranWorkflows: string[] };
+    }>(`/bus/${entity.route}/${created?.id}`);
+    expect(response.status).toBe(200);
+    expect(response.data.deleted).toBe(true);
+    expect(response.data.promotion.operation).toBe("delete");
+    expect(response.data.promotion.docStatus).toBe("deleted");
 
     const after = await harness.client.get(`/bus/${entity.route}/${created?.id}`, {
       allowFailure: true,

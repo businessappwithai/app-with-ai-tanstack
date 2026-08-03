@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { snakeCase } from "../naming";
 
 // Regression: ISSUE-008 — snakeCase("CAPA") returned "c_a_p_a", so the
@@ -34,6 +34,15 @@ describe("snakeCase", () => {
 
   it("passes through names that are already snake_case", () => {
     expect(snakeCase("deviation_report_id")).toBe("deviation_report_id");
+  });
+
+  // A space before a capital hit both the capital rule and the separator rule
+  // and got an underscore from each, so a project called "Drug Discovery Live"
+  // generated a database named "drug__discovery__live".
+  it("collapses a separator that is also a word boundary", () => {
+    expect(snakeCase("Drug Discovery Live")).toBe("drug_discovery_live");
+    expect(snakeCase("Stability Test")).toBe("stability_test");
+    expect(snakeCase("Round-Trip Check")).toBe("round_trip_check");
   });
 
   it("normalizes hyphens", () => {

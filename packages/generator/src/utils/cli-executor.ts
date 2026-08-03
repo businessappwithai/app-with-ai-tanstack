@@ -56,10 +56,16 @@ export class CliExecutor {
 
       console.log(`  🔧 Running: ${command} ${args.join(" ")}`);
 
+      // stdin is never inherited. Generation runs inside a request as often as
+      // it runs in a terminal, and a scaffolding CLI that stops to ask "Enter
+      // your project name:" then waits on an inherited stdin that nobody is
+      // typing into blocks until the timeout — with the answer already known
+      // from the arguments. Closing it makes the prompt read EOF and take its
+      // default, which is what an unattended run wants.
       const child = spawn(command, args, {
         cwd,
         env,
-        stdio: options.stdio === "inherit" ? "inherit" : ["pipe", "pipe", "pipe"],
+        stdio: options.stdio === "inherit" ? ["ignore", "inherit", "inherit"] : "pipe",
       });
 
       let stdout = "";
@@ -76,7 +82,11 @@ export class CliExecutor {
 
       const timeout = options.timeout || 300000; // 5 minute default timeout
       const timer = setTimeout(() => {
-        child.kill();
+        // SIGKILL, not the default SIGTERM: a package runner that has spawned
+        // its own child leaves it running when the parent is asked politely,
+        // and the orphan holds the generation open past the timeout it was
+        // supposed to enforce.
+        child.kill("SIGKILL");
         reject(new Error(`Command timeout after ${timeout}ms: ${command} ${args.join(" ")}`));
       }, timeout);
 

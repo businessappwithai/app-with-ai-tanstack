@@ -1,3 +1,4 @@
+import { useCopilotAction, useCopilotReadable } from "@copilotkit/react-core";
 import { CopilotSidebar } from "@copilotkit/react-ui";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
@@ -36,7 +37,6 @@ import {
 import mermaid from "mermaid";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useCopilotAction, useCopilotReadable } from "@copilotkit/react-core";
 import { CopilotProvider } from "@/components/CopilotProvider";
 import { DbOperationsModal } from "@/components/DbOperationsModal";
 import { ErdFlowViewer } from "@/components/ErdFlowViewer";
@@ -158,7 +158,15 @@ function DesignPage() {
   const [showDbModal, setShowDbModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [importTab, setImportTab] = useState<"local" | "library">("local");
-  const [libraryFiles, setLibraryFiles] = useState<Array<{ filename: string; projectName: string; content: string; downloadUrl: string; createdAt: string }>>([]);
+  const [libraryFiles, setLibraryFiles] = useState<
+    Array<{
+      filename: string;
+      projectName: string;
+      content: string;
+      downloadUrl: string;
+      createdAt: string;
+    }>
+  >([]);
   const [isLoadingLibrary, setIsLoadingLibrary] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -363,8 +371,7 @@ function DesignPage() {
       {
         name: "mermaidCode",
         type: "string",
-        description:
-          "The complete new Mermaid erDiagram code to replace the current ERD with.",
+        description: "The complete new Mermaid erDiagram code to replace the current ERD with.",
         required: true,
       },
     ],
@@ -755,7 +762,7 @@ function DesignPage() {
   const handleGenerate = async () => {
     await handleSave();
     goToNextStep();
-    navigate({ to: "/projects/$id/rules-design", params: { id: projectId } });
+    navigate({ to: "/projects/$id/logic", params: { id: projectId } });
   };
 
   const handleAiSubmit = async () => {
@@ -1109,8 +1116,14 @@ function DesignPage() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const text = ev.target?.result as string;
-      if (!text.trim().startsWith("erDiagram") && !text.trim().startsWith("flowchart") && !text.trim().startsWith("graph")) {
-        setImportError("File does not appear to be a valid Mermaid ERD. Must start with 'erDiagram'.");
+      if (
+        !text.trim().startsWith("erDiagram") &&
+        !text.trim().startsWith("flowchart") &&
+        !text.trim().startsWith("graph")
+      ) {
+        setImportError(
+          "File does not appear to be a valid Mermaid ERD. Must start with 'erDiagram'."
+        );
         return;
       }
       setErdCode(text);
@@ -1182,789 +1195,712 @@ function DesignPage() {
 
   return (
     <CopilotSidebar
-        instructions="You are an ERD design assistant. You can see the current ERD diagram (via the 'Current ERD' context). Use the 'updateERD' action to make surgical changes: add entities, modify attributes, change relationships. For bulk AI generation, use the bottom bar. Ask the user what they'd like to change."
-        defaultOpen={false}
-      >
-        <div className="min-h-screen bg-background flex flex-col">
-          {!isFullscreen && (
-            <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
-              <div className="max-w-[1800px] mx-auto px-6 py-3">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => setShowEntityList(!showEntityList)}
-                        className={`flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors ${
-                          showEntityList
-                            ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
-                            : "bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
-                        }`}
-                        title="Browse entities"
-                      >
-                        <List className="w-4 h-4" />
-                        Entities
-                        {entities.length > 0 && (
-                          <span className="px-1.5 py-0.5 text-xs bg-purple-500 text-white rounded-full">
-                            {entities.length}
-                          </span>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => setShowVersions(!showVersions)}
-                        className={`flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors ${
-                          showVersions
-                            ? "bg-primary/20 text-primary-foreground border border-primary/30"
-                            : "bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
-                        }`}
-                        style={
-                          showVersions
-                            ? { color: "#FF8400", borderColor: "rgba(255, 132, 0, 0.3)" }
-                            : {}
-                        }
-                      >
-                        <History className="w-4 h-4" />
-                        Versions
-                        {versions.length > 0 && (
-                          <span
-                            className="px-1.5 py-0.5 text-xs text-white rounded-full"
-                            style={{ backgroundColor: "#FF8400" }}
-                          >
-                            {versions.length}
-                          </span>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => setShowFlowView(!showFlowView)}
-                        className={`flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors ${
-                          showFlowView
-                            ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                            : "bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
-                        }`}
-                        title="Toggle React Flow view"
-                      >
-                        <Zap className="w-4 h-4" />
-                        {showFlowView ? "Mermaid View" : "Flow View"}
-                      </button>
-                      <button
-                        onClick={() => setShowDbModal(true)}
-                        className="flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
-                        title="Database operations"
-                      >
-                        <Database className="w-4 h-4" />
-                        DB Ops
-                      </button>
-                      <button
-                        onClick={handleValidate}
-                        disabled={isValidating}
-                        className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors disabled:opacity-50"
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                        {isValidating ? "Validating..." : "Validate"}
-                      </button>
-                      <button
-                        onClick={() => handleSave(false)}
-                        disabled={isSaving}
-                        className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors disabled:opacity-50"
-                      >
-                        <Save className="w-4 h-4" />
-                        {isSaving ? "Saving..." : "Save Draft"}
-                      </button>
-                      <button
-                        onClick={handleOpenImportModal}
-                        title="Import .mmd file or load from library"
-                        className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors"
-                      >
-                        <Upload className="w-4 h-4" />
-                        Import
-                      </button>
-                      <button
-                        onClick={handleExportMrd}
-                        title="Download as .mmd file"
-                        className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors"
-                      >
-                        <Download className="w-4 h-4" />
-                        Export
-                      </button>
-                      <button
-                        onClick={handleGenerate}
-                        className="flex items-center gap-2 px-6 py-2 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98]"
-                        style={{ backgroundColor: "#FF8400" }}
-                      >
-                        <Zap className="w-4 h-4" />
-                        Continue to Step 3
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <ProgressStepper
-                  currentStep="design"
-                  completedSteps={["init", "design"]}
-                  onStepClick={(step) => {
-                    if (step === "init") {
-                      navigate({ to: "/projects/$id/init", params: { id: projectId } });
-                    } else if (step === "design") {
-                      // Already on design
-                    } else if (step === "rules") {
-                      navigate({ to: "/projects/$id/rules-design", params: { id: projectId } });
-                    } else if (step === "generate") {
-                      navigate({ to: "/projects/$id/generate", params: { id: projectId } });
-                    } else if (step === "enhance") {
-                      navigate({ to: "/projects/$id/enhance", params: { id: projectId } });
-                    } else if (step === "deploy") {
-                      navigate({ to: "/projects/$id/deploy", params: { id: projectId } });
-                    }
-                  }}
-                />
-              </div>
-            </header>
-          )}
-
-          {!isFullscreen && (
-            <div className="max-w-[1800px] mx-auto px-6 pt-4">
-              <WizardStepHeader
-                stepNumber={2}
-                title="Discover Your Data Model"
-                description="Review the Entity-Relationship Diagram that our AI extracted from your business description. Each entity represents a key concept in your domain. Edit relationships as needed before generating code."
-                estimatedTime="3-5 min"
-              />
-              <JourneyArc currentStep="design" />
-            </div>
-          )}
-
-          <div
-            className={`${isFullscreen ? "fixed inset-0" : "flex-1"} flex overflow-hidden ${isFullscreen ? "z-50" : ""}`}
-          >
-            {showEntityList && !isFullscreen && (
-              <div className="w-96 border-r border-border bg-card flex flex-col">
-                <div className="p-4 border-b border-border">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-5 h-5 text-purple-400" />
-                      <h3 className="font-semibold text-foreground">Entity Browser</h3>
-                    </div>
+      instructions="You are an ERD design assistant. You can see the current ERD diagram (via the 'Current ERD' context). Use the 'updateERD' action to make surgical changes: add entities, modify attributes, change relationships. For bulk AI generation, use the bottom bar. Ask the user what they'd like to change."
+      defaultOpen={false}
+    >
+      <div className="min-h-screen bg-background flex flex-col">
+        {!isFullscreen && (
+          <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
+            <div className="max-w-[1800px] mx-auto px-6 py-3">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <div className="flex items-center gap-3">
                     <button
-                      onClick={() => setShowEntityList(false)}
-                      className="p-1.5 hover:bg-secondary rounded-lg transition-colors"
+                      onClick={() => setShowEntityList(!showEntityList)}
+                      className={`flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors ${
+                        showEntityList
+                          ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                          : "bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
+                      }`}
+                      title="Browse entities"
                     >
-                      <X className="w-4 h-4 text-muted-foreground" />
+                      <List className="w-4 h-4" />
+                      Entities
+                      {entities.length > 0 && (
+                        <span className="px-1.5 py-0.5 text-xs bg-purple-500 text-white rounded-full">
+                          {entities.length}
+                        </span>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setShowVersions(!showVersions)}
+                      className={`flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors ${
+                        showVersions
+                          ? "bg-primary/20 text-primary-foreground border border-primary/30"
+                          : "bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
+                      }`}
+                      style={
+                        showVersions
+                          ? { color: "#FF8400", borderColor: "rgba(255, 132, 0, 0.3)" }
+                          : {}
+                      }
+                    >
+                      <History className="w-4 h-4" />
+                      Versions
+                      {versions.length > 0 && (
+                        <span
+                          className="px-1.5 py-0.5 text-xs text-white rounded-full"
+                          style={{ backgroundColor: "#FF8400" }}
+                        >
+                          {versions.length}
+                        </span>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setShowFlowView(!showFlowView)}
+                      className={`flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors ${
+                        showFlowView
+                          ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                          : "bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
+                      }`}
+                      title="Toggle React Flow view"
+                    >
+                      <Zap className="w-4 h-4" />
+                      {showFlowView ? "Mermaid View" : "Flow View"}
+                    </button>
+                    <button
+                      onClick={() => setShowDbModal(true)}
+                      className="flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
+                      title="Database operations"
+                    >
+                      <Database className="w-4 h-4" />
+                      DB Ops
+                    </button>
+                    <button
+                      onClick={handleValidate}
+                      disabled={isValidating}
+                      className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors disabled:opacity-50"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      {isValidating ? "Validating..." : "Validate"}
+                    </button>
+                    <button
+                      onClick={() => handleSave(false)}
+                      disabled={isSaving}
+                      className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors disabled:opacity-50"
+                    >
+                      <Save className="w-4 h-4" />
+                      {isSaving ? "Saving..." : "Save Draft"}
+                    </button>
+                    <button
+                      onClick={handleOpenImportModal}
+                      title="Import .mmd file or load from library"
+                      className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      Import
+                    </button>
+                    <button
+                      onClick={handleExportMrd}
+                      title="Download as .mmd file"
+                      className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                      Export
+                    </button>
+                    <button
+                      onClick={handleGenerate}
+                      className="flex items-center gap-2 px-6 py-2 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98]"
+                      style={{ backgroundColor: "#FF8400" }}
+                    >
+                      <Zap className="w-4 h-4" />
+                      Continue to Step 3
                     </button>
                   </div>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <input
-                      type="text"
-                      value={entitySearch}
-                      onChange={(e) => setEntitySearch(e.target.value)}
-                      placeholder="Search entities..."
-                      className="w-full pl-9 pr-4 py-2 bg-muted border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex-1 overflow-y-auto">
-                  {entities.length === 0 ? (
-                    <div className="p-4 text-center text-muted-foreground text-sm">
-                      <Database className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                      <p>No entities found</p>
-                      <p className="text-xs mt-1">Add entities to see them here</p>
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-border">
-                      {filteredEntities.map((entity, _idx) => (
-                        <div
-                          key={entity.name}
-                          className="p-3 hover:bg-muted transition-colors cursor-pointer"
-                          onClick={() => jumpToEntity(entity.startLine)}
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-medium text-foreground">{entity.name}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {entity.attributes.length} attrs
-                            </span>
-                          </div>
-                          <div className="text-xs text-muted-foreground truncate">
-                            Line {entity.startLine + 1}
-                          </div>
-                        </div>
-                      ))}
-                      {filteredEntities.length === 0 && entitySearch && (
-                        <div className="p-4 text-center text-muted-foreground text-sm">
-                          No entities match "{entitySearch}"
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
               </div>
-            )}
 
-            {showVersions && !isFullscreen && (
-              <div className="w-80 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex flex-col">
-                <div className="p-4 border-b border-border flex items-center justify-between">
+              <ProgressStepper
+                currentStep="design"
+                completedSteps={["init", "design"]}
+                onStepClick={(step) => {
+                  if (step === "init") {
+                    navigate({ to: "/projects/$id/init", params: { id: projectId } });
+                  } else if (step === "design") {
+                    // Already on design
+                  } else if (step === "logic") {
+                    navigate({ to: "/projects/$id/logic", params: { id: projectId } });
+                  } else if (step === "generate") {
+                    navigate({ to: "/projects/$id/generate", params: { id: projectId } });
+                  } else if (step === "enhance") {
+                    navigate({ to: "/projects/$id/enhance", params: { id: projectId } });
+                  } else if (step === "deploy") {
+                    navigate({ to: "/projects/$id/deploy", params: { id: projectId } });
+                  }
+                }}
+              />
+            </div>
+          </header>
+        )}
+
+        {!isFullscreen && (
+          <div className="max-w-[1800px] mx-auto px-6 pt-4">
+            <WizardStepHeader
+              stepNumber={2}
+              title="Discover Your Data Model"
+              description="Review the Entity-Relationship Diagram that our AI extracted from your business description. Each entity represents a key concept in your domain. Edit relationships as needed before generating code."
+              estimatedTime="3-5 min"
+            />
+            <JourneyArc currentStep="design" />
+          </div>
+        )}
+
+        <div
+          className={`${isFullscreen ? "fixed inset-0" : "flex-1"} flex overflow-hidden ${isFullscreen ? "z-50" : ""}`}
+        >
+          {showEntityList && !isFullscreen && (
+            <div className="w-96 border-r border-border bg-card flex flex-col">
+              <div className="p-4 border-b border-border">
+                <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <History className="w-5 h-5" style={{ color: "#FF8400" }} />
-                    <h3 className="font-semibold text-foreground">Version History</h3>
+                    <FileText className="w-5 h-5 text-purple-400" />
+                    <h3 className="font-semibold text-foreground">Entity Browser</h3>
                   </div>
                   <button
-                    onClick={() => setShowVersions(false)}
-                    className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                    onClick={() => setShowEntityList(false)}
+                    className="p-1.5 hover:bg-secondary rounded-lg transition-colors"
                   >
                     <X className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>
-
-                <div className="p-4 border-b border-border bg-muted/30">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                    Iterative Workflow
-                  </p>
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    <p>1. Design ERD → Save version</p>
-                    <p>2. Generate code</p>
-                    <p>3. Add enhancements</p>
-                    <p className="text-primary" style={{ color: "#FF8400" }}>
-                      4. Loop back to step 1
-                    </p>
-                    <p className="mt-2 text-amber-500 text-xs">
-                      💡 Each version can be regenerated independently
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-4 border-b border-border">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                    Save New Version
-                  </p>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={commitMessage}
-                      onChange={(e) => setCommitMessage(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && commitMessage.trim()) {
-                          handleSave(true);
-                        }
-                      }}
-                      placeholder="Describe changes..."
-                      className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <button
-                      onClick={() => handleSave(true)}
-                      disabled={!commitMessage.trim() || isSaving}
-                      className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <Save className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex-1 overflow-y-auto">
-                  {isLoadingVersions ? (
-                    <div className="p-4 text-center text-slate-500 text-sm flex items-center justify-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Loading versions...
-                    </div>
-                  ) : versions.length === 0 ? (
-                    <div className="p-4 text-center text-slate-500 text-sm">
-                      <GitCommit className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                      <p>No versions yet</p>
-                      <p className="text-xs mt-1">Save your first version to see it here</p>
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-slate-200 dark:divide-slate-800">
-                      {versions.map((version) => (
-                        <div key={version.id} className="version-item">
-                          <button
-                            onClick={() => toggleVersionExpanded(version.id)}
-                            className={`w-full p-4 flex items-start gap-3 text-left transition-colors ${
-                              version.is_current
-                                ? "bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50"
-                                : "hover:bg-slate-50 dark:hover:bg-slate-900"
-                            }`}
-                          >
-                            <div className="flex-shrink-0 mt-0.5">
-                              {expandedVersions.has(version.id) ? (
-                                <ChevronDown className="w-4 h-4 text-slate-400" />
-                              ) : (
-                                <ChevronRight className="w-4 h-4 text-slate-400" />
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-bold text-slate-500">
-                                  v{version.version_number}
-                                </span>
-                                {version.is_current && (
-                                  <span className="px-1.5 py-0.5 text-xs bg-blue-600 text-white rounded-full">
-                                    Current
-                                  </span>
-                                )}
-                                <span className="flex items-center gap-1 text-xs text-slate-400">
-                                  <Clock className="w-3 h-3" />
-                                  {formatTimeAgo(version.created_at)}
-                                </span>
-                              </div>
-                              <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
-                                {version.description || "No description"}
-                              </p>
-                            </div>
-                            {!version.is_current && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleRestoreVersion(version.id);
-                                }}
-                                className="flex-shrink-0 p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                                title="Restore this version"
-                              >
-                                <RotateCcw className="w-4 h-4 text-slate-400 hover:text-blue-600" />
-                              </button>
-                            )}
-                          </button>
-
-                          {expandedVersions.has(version.id) && (
-                            <div className="px-4 pb-4 pl-11 bg-slate-50 dark:bg-slate-900">
-                              <div className="text-xs text-slate-500 space-y-1">
-                                <div className="flex items-center justify-between">
-                                  <span>Created:</span>
-                                  <span>{formatDate(version.created_at)}</span>
-                                </div>
-                                {version.created_by && (
-                                  <div className="flex items-center justify-between">
-                                    <span>By:</span>
-                                    <span className="capitalize">{version.created_by}</span>
-                                  </div>
-                                )}
-                                {version.validation_errors &&
-                                  version.validation_errors.length > 0 && (
-                                    <div className="mt-2">
-                                      <span className="font-medium">Validation:</span>
-                                      <span className="ml-1 text-red-600">
-                                        {version.validation_errors.length} error(s)
-                                      </span>
-                                    </div>
-                                  )}
-                                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 mt-2">
-                                  <button
-                                    onClick={() => setErdCode(version.mermaid_code)}
-                                    className="text-blue-600 hover:text-blue-700 font-medium"
-                                  >
-                                    Preview this version
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {!isFullscreen && (
-              <div
-                className={`${
-                  showVersions || showEntityList ? "w-1/2" : "w-1/2"
-                } border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-slate-950`}
-              >
-                <div className="flex-1 p-6 overflow-auto">
-                  <div className="mb-4 flex items-center justify-between">
-                    <div>
-                      <h2 className="text-lg font-semibold text-foreground">Mermaid ERD Code</h2>
-                      {versions.length > 0 && (
-                        <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-                          <span className="font-mono" style={{ color: "#FF8400" }}>
-                            v{versions.length}
-                          </span>
-                          <span>•</span>
-                          <span>{versions[0]?.description || "Initial version"}</span>
-                          {project.generatedPath && (
-                            <>
-                              <span>•</span>
-                              <span className="text-amber-500">
-                                Update design & regenerate to apply changes
-                              </span>
-                            </>
-                          )}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>{erdCode.split("\n").length} lines</span>
-                      <span>•</span>
-                      <span>{entities.length} entities</span>
-                    </div>
-                  </div>
-                  <div className="relative">
-                    <div className="flex h-[calc(100vh-320px)] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-                      <div
-                        ref={lineNumbersRef}
-                        className="flex-shrink-0 w-12 bg-slate-100 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 text-xs font-mono text-slate-400 dark:text-slate-600 text-right pr-3 pt-4 overflow-hidden select-none"
-                        style={{ lineHeight: "20px" }}
-                      >
-                        {Array.from({ length: Math.max(erdCode.split("\n").length, 1) }, (_, i) => (
-                          <div
-                            key={i + 1}
-                            className={`pr-2 ${i + 1 === errorLine ? "bg-red-200 dark:bg-red-900/50 text-red-700 dark:text-red-400 font-bold" : ""}`}
-                          >
-                            {i + 1}
-                          </div>
-                        ))}
-                      </div>
-                      <textarea
-                        ref={editorRef}
-                        value={erdCode}
-                        onChange={(e) => setErdCode(e.target.value)}
-                        onScroll={(e) => {
-                          if (lineNumbersRef.current) {
-                            lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
-                          }
-                        }}
-                        className="flex-1 p-4 bg-slate-50 dark:bg-slate-900 text-sm font-mono text-slate-900 dark:text-slate-100 focus:outline-none resize-none"
-                        style={{ lineHeight: "20px" }}
-                        spellCheck={false}
-                        placeholder="Enter Mermaid ERD syntax here..."
-                      />
-                    </div>
-                    <div className="absolute bottom-4 right-4 flex items-center gap-3 text-xs text-slate-500">
-                      <span>{erdCode.split("\n").length} lines</span>
-                      <span>•</span>
-                      <span>{entities.length} entities</span>
-                      {errorLine && (
-                        <>
-                          <span>•</span>
-                          <span className="text-red-600">Error on line {errorLine}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div
-              className={`${
-                isFullscreen
-                  ? "w-full h-screen"
-                  : showVersions || showEntityList
-                    ? "w-1/2"
-                    : "w-1/2"
-              } flex flex-col bg-slate-50 dark:bg-slate-900 ${!isFullscreen ? "min-h-[calc(100vh-400px)]" : ""}`}
-            >
-              <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                  Live Preview
-                </h2>
-                <div className="flex items-center gap-2">
-                  {!isFullscreen && (
-                    <>
-                      <button
-                        onClick={handleZoomOut}
-                        className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title="Zoom Out"
-                      >
-                        <ZoomOut className="w-4 h-4" />
-                      </button>
-                      <span className="text-sm font-medium text-slate-600 dark:text-slate-400 min-w-[50px] text-center">
-                        {zoom}%
-                      </span>
-                      <button
-                        onClick={handleZoomIn}
-                        className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title="Zoom In"
-                      >
-                        <ZoomIn className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={handleZoomReset}
-                        className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title="Fit to Screen"
-                      >
-                        <Maximize2 className="w-4 h-4" />
-                      </button>
-                    </>
-                  )}
-                  <button
-                    onClick={() => setIsFullscreen(!isFullscreen)}
-                    className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                    title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-                  >
-                    {isFullscreen ? (
-                      <Minimize2 className="w-4 h-4" />
-                    ) : (
-                      <Maximize2 className="w-4 h-4" />
-                    )}
-                  </button>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <input
+                    type="text"
+                    value={entitySearch}
+                    onChange={(e) => setEntitySearch(e.target.value)}
+                    placeholder="Search entities..."
+                    className="w-full pl-9 pr-4 py-2 bg-muted border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
                 </div>
               </div>
 
-              <div
-                className={`flex-1 overflow-auto ${isFullscreen ? "p-4" : "p-6"} bg-white dark:bg-slate-900`}
-                style={{ position: "relative" }}
-              >
-                {showFlowView ? (
-                  <div style={{ width: "100%", minHeight: "400px", height: "100%" }}>
-                    <ErdFlowViewer erdCode={erdCode} />
+              <div className="flex-1 overflow-y-auto">
+                {entities.length === 0 ? (
+                  <div className="p-4 text-center text-muted-foreground text-sm">
+                    <Database className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p>No entities found</p>
+                    <p className="text-xs mt-1">Add entities to see them here</p>
                   </div>
                 ) : (
-                  <div
-                    ref={previewRef}
-                    style={{
-                      transform: `scale(${zoom / 100})`,
-                      transformOrigin: "top left",
-                      minHeight: "400px",
-                    }}
-                    className="mermaid-preview w-full"
-                  />
+                  <div className="divide-y divide-border">
+                    {filteredEntities.map((entity, _idx) => (
+                      <div
+                        key={entity.name}
+                        className="p-3 hover:bg-muted transition-colors cursor-pointer"
+                        onClick={() => jumpToEntity(entity.startLine)}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-foreground">{entity.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {entity.attributes.length} attrs
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          Line {entity.startLine + 1}
+                        </div>
+                      </div>
+                    ))}
+                    {filteredEntities.length === 0 && entitySearch && (
+                      <div className="p-4 text-center text-muted-foreground text-sm">
+                        No entities match "{entitySearch}"
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
-          </div>
+          )}
 
-          {!isFullscreen && (
-            <div className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
-              <div className="max-w-[1800px] mx-auto px-6 py-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                    <Sparkles className="w-5 h-5 text-blue-600" />
-                    <span className="font-medium">AI Assistant</span>
-                  </div>
-                  <div className="flex-1 relative">
-                    <input
-                      type="text"
-                      value={aiInput}
-                      onChange={(e) => setAiInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                          handleAiSubmit();
-                        }
-                      }}
-                      placeholder="Describe your entities in natural language... (Cmd+Enter to submit)"
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      disabled={isAiLoading}
-                    />
-                  </div>
+          {showVersions && !isFullscreen && (
+            <div className="w-80 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex flex-col">
+              <div className="p-4 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <History className="w-5 h-5" style={{ color: "#FF8400" }} />
+                  <h3 className="font-semibold text-foreground">Version History</h3>
+                </div>
+                <button
+                  onClick={() => setShowVersions(false)}
+                  className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+
+              <div className="p-4 border-b border-border bg-muted/30">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  Iterative Workflow
+                </p>
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p>1. Design ERD → Save version</p>
+                  <p>2. Generate code</p>
+                  <p>3. Add enhancements</p>
+                  <p className="text-primary" style={{ color: "#FF8400" }}>
+                    4. Loop back to step 1
+                  </p>
+                  <p className="mt-2 text-amber-500 text-xs">
+                    💡 Each version can be regenerated independently
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 border-b border-border">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  Save New Version
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={commitMessage}
+                    onChange={(e) => setCommitMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && commitMessage.trim()) {
+                        handleSave(true);
+                      }
+                    }}
+                    placeholder="Describe changes..."
+                    className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                   <button
-                    onClick={handleAiSubmit}
-                    disabled={isAiLoading || isAutoRetrying || !aiInput.trim()}
-                    className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => handleSave(true)}
+                    disabled={!commitMessage.trim() || isSaving}
+                    className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isAiLoading || isAutoRetrying ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        {isAutoRetrying ? "Auto-retrying..." : aiStatus?.message || "Generating..."}
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        Generate
-                      </>
-                    )}
+                    <Save className="w-4 h-4" />
                   </button>
                 </div>
+              </div>
 
-                {aiStatus && (
-                  <div className="mt-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
-                        <div
-                          className="bg-blue-600 h-full transition-all duration-300 ease-out"
-                          style={{ width: `${aiStatus.progress}%` }}
-                        />
-                      </div>
-                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400 min-w-[60px] text-right">
-                        {aiStatus.progress}%
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-                      {aiStatus.step === "analyzing" && (
-                        <>
-                          <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
-                          <span>{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "generating" && (
-                        <>
-                          <div className="w-2 h-2 bg-purple-600 rounded-full animate-pulse" />
-                          <span>{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "validating" && (
-                        <>
-                          <div className="w-2 h-2 bg-yellow-600 rounded-full animate-pulse" />
-                          <span>{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "retrying" && (
-                        <>
-                          <RefreshCw className="w-4 h-4 text-orange-600 animate-spin" />
-                          <span className="text-orange-600 font-medium">{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "retrying-fix" && (
-                        <>
-                          <RefreshCw className="w-4 h-4 text-amber-600 animate-spin" />
-                          <span className="text-amber-600 font-medium">{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "retry-error" && (
-                        <>
-                          <CircleX className="w-4 h-4 text-red-600" />
-                          <span className="text-red-600">{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "retry-exhausted" && (
-                        <>
-                          <CircleX className="w-4 h-4 text-red-600" />
-                          <span className="text-red-600">{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "complete" && (
-                        <>
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                          <span className="text-emerald-600 font-medium">{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "error" && (
-                        <>
-                          <AlertCircle className="w-4 h-4 text-red-600" />
-                          <span className="text-red-600">{aiStatus.message}</span>
-                        </>
-                      )}
-                    </div>
-
-                    {mermaidRenderError && (
-                      <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg">
-                        <div className="flex items-start gap-2">
-                          <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1 text-xs text-red-700 dark:text-red-300">
-                            <p className="font-semibold mb-1">Mermaid Render Error:</p>
-                            <p className="font-mono whitespace-pre-wrap break-words">
-                              {mermaidRenderError}
+              <div className="flex-1 overflow-y-auto">
+                {isLoadingVersions ? (
+                  <div className="p-4 text-center text-slate-500 text-sm flex items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Loading versions...
+                  </div>
+                ) : versions.length === 0 ? (
+                  <div className="p-4 text-center text-slate-500 text-sm">
+                    <GitCommit className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p>No versions yet</p>
+                    <p className="text-xs mt-1">Save your first version to see it here</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-slate-200 dark:divide-slate-800">
+                    {versions.map((version) => (
+                      <div key={version.id} className="version-item">
+                        <button
+                          onClick={() => toggleVersionExpanded(version.id)}
+                          className={`w-full p-4 flex items-start gap-3 text-left transition-colors ${
+                            version.is_current
+                              ? "bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50"
+                              : "hover:bg-slate-50 dark:hover:bg-slate-900"
+                          }`}
+                        >
+                          <div className="flex-shrink-0 mt-0.5">
+                            {expandedVersions.has(version.id) ? (
+                              <ChevronDown className="w-4 h-4 text-slate-400" />
+                            ) : (
+                              <ChevronRight className="w-4 h-4 text-slate-400" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-bold text-slate-500">
+                                v{version.version_number}
+                              </span>
+                              {version.is_current && (
+                                <span className="px-1.5 py-0.5 text-xs bg-blue-600 text-white rounded-full">
+                                  Current
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1 text-xs text-slate-400">
+                                <Clock className="w-3 h-3" />
+                                {formatTimeAgo(version.created_at)}
+                              </span>
+                            </div>
+                            <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
+                              {version.description || "No description"}
                             </p>
                           </div>
-                        </div>
-                      </div>
-                    )}
+                          {!version.is_current && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRestoreVersion(version.id);
+                              }}
+                              className="flex-shrink-0 p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                              title="Restore this version"
+                            >
+                              <RotateCcw className="w-4 h-4 text-slate-400 hover:text-blue-600" />
+                            </button>
+                          )}
+                        </button>
 
-                    {aiStepsLog.length > 0 && (
-                      <button
-                        onClick={() => setShowAiDetails(!showAiDetails)}
-                        className="mt-2 flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                      >
-                        {showAiDetails ? (
-                          <>
-                            <ChevronUp className="w-3 h-3" />
-                            Hide detailed steps
-                          </>
-                        ) : (
-                          <>
-                            <ChevronDown className="w-3 h-3" />
-                            Show detailed steps ({aiStepsLog.length})
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </div>
-                )}
-
-                {previousSteps.length > 0 && (
-                  <div className="mt-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
-                    <button
-                      onClick={() => setShowPreviousSteps(!showPreviousSteps)}
-                      className="w-full flex items-center justify-between px-3 py-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <History className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                        <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                          Previous Steps ({previousSteps.length})
-                        </span>
-                      </div>
-                      {showPreviousSteps ? (
-                        <ChevronUp className="w-4 h-4 text-slate-500" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-slate-500" />
-                      )}
-                    </button>
-                    {showPreviousSteps && (
-                      <div className="max-h-48 overflow-y-auto p-2 space-y-1">
-                        {previousSteps.map((step) => (
-                          <div
-                            key={step.id}
-                            className={`flex items-start gap-2 p-2 rounded-lg text-xs opacity-75 ${
-                              step.status === "completed"
-                                ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300"
-                                : step.status === "error"
-                                  ? "bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300"
-                                  : step.status === "in-progress"
-                                    ? "bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300"
-                                    : step.step === "retrying" || step.step === "retrying-fix"
-                                      ? "bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-300"
-                                      : step.step === "retry-error" ||
-                                          step.step === "retry-exhausted"
-                                        ? "bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300"
-                                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                            }`}
-                          >
-                            <div className="flex-shrink-0 mt-0.5">
-                              {step.status === "completed" && <CheckCircle2 className="w-3 h-3" />}
-                              {step.status === "error" && <AlertCircle className="w-3 h-3" />}
-                              {step.status === "in-progress" && (
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                              )}
-                              {(step.step === "retrying" || step.step === "retrying-fix") && (
-                                <RefreshCw className="w-3 h-3 animate-spin" />
-                              )}
-                              {step.status === "pending" && (
-                                <div className="w-3 h-3 rounded-full border-2 border-current" />
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium truncate">{step.message}</div>
-                              {step.details && (
-                                <div className="text-[10px] opacity-75 mt-0.5 truncate">
-                                  {step.details}
+                        {expandedVersions.has(version.id) && (
+                          <div className="px-4 pb-4 pl-11 bg-slate-50 dark:bg-slate-900">
+                            <div className="text-xs text-slate-500 space-y-1">
+                              <div className="flex items-center justify-between">
+                                <span>Created:</span>
+                                <span>{formatDate(version.created_at)}</span>
+                              </div>
+                              {version.created_by && (
+                                <div className="flex items-center justify-between">
+                                  <span>By:</span>
+                                  <span className="capitalize">{version.created_by}</span>
                                 </div>
                               )}
+                              {version.validation_errors &&
+                                version.validation_errors.length > 0 && (
+                                  <div className="mt-2">
+                                    <span className="font-medium">Validation:</span>
+                                    <span className="ml-1 text-red-600">
+                                      {version.validation_errors.length} error(s)
+                                    </span>
+                                  </div>
+                                )}
+                              <div className="pt-2 border-t border-slate-200 dark:border-slate-800 mt-2">
+                                <button
+                                  onClick={() => setErdCode(version.mermaid_code)}
+                                  className="text-blue-600 hover:text-blue-700 font-medium"
+                                >
+                                  Preview this version
+                                </button>
+                              </div>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {(showAiDetails || aiStepsLog.length > 0) && aiStepsLog.length > 0 && (
-                  <div className="mt-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
-                    <div className="flex items-center justify-between px-3 py-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                          Current Progress
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-slate-500">
-                          {aiStepsLog.filter((s) => s.status === "completed").length}/
-                          {aiStepsLog.length} completed
-                        </span>
-                        {showAiDetails && (
-                          <button
-                            onClick={() => setShowAiDetails(false)}
-                            className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
-                          >
-                            <X className="w-3 h-3 text-slate-500" />
-                          </button>
                         )}
                       </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {!isFullscreen && (
+            <div
+              className={`${
+                showVersions || showEntityList ? "w-1/2" : "w-1/2"
+              } border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-slate-950`}
+            >
+              <div className="flex-1 p-6 overflow-auto">
+                <div className="mb-4 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-foreground">Mermaid ERD Code</h2>
+                    {versions.length > 0 && (
+                      <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+                        <span className="font-mono" style={{ color: "#FF8400" }}>
+                          v{versions.length}
+                        </span>
+                        <span>•</span>
+                        <span>{versions[0]?.description || "Initial version"}</span>
+                        {project.generatedPath && (
+                          <>
+                            <span>•</span>
+                            <span className="text-amber-500">
+                              Update design & regenerate to apply changes
+                            </span>
+                          </>
+                        )}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>{erdCode.split("\n").length} lines</span>
+                    <span>•</span>
+                    <span>{entities.length} entities</span>
+                  </div>
+                </div>
+                <div className="relative">
+                  <div className="flex h-[calc(100vh-320px)] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                    <div
+                      ref={lineNumbersRef}
+                      className="flex-shrink-0 w-12 bg-slate-100 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 text-xs font-mono text-slate-400 dark:text-slate-600 text-right pr-3 pt-4 overflow-hidden select-none"
+                      style={{ lineHeight: "20px" }}
+                    >
+                      {Array.from({ length: Math.max(erdCode.split("\n").length, 1) }, (_, i) => (
+                        <div
+                          key={i + 1}
+                          className={`pr-2 ${i + 1 === errorLine ? "bg-red-200 dark:bg-red-900/50 text-red-700 dark:text-red-400 font-bold" : ""}`}
+                        >
+                          {i + 1}
+                        </div>
+                      ))}
                     </div>
+                    <textarea
+                      ref={editorRef}
+                      value={erdCode}
+                      onChange={(e) => setErdCode(e.target.value)}
+                      onScroll={(e) => {
+                        if (lineNumbersRef.current) {
+                          lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
+                        }
+                      }}
+                      className="flex-1 p-4 bg-slate-50 dark:bg-slate-900 text-sm font-mono text-slate-900 dark:text-slate-100 focus:outline-none resize-none"
+                      style={{ lineHeight: "20px" }}
+                      spellCheck={false}
+                      placeholder="Enter Mermaid ERD syntax here..."
+                    />
+                  </div>
+                  <div className="absolute bottom-4 right-4 flex items-center gap-3 text-xs text-slate-500">
+                    <span>{erdCode.split("\n").length} lines</span>
+                    <span>•</span>
+                    <span>{entities.length} entities</span>
+                    {errorLine && (
+                      <>
+                        <span>•</span>
+                        <span className="text-red-600">Error on line {errorLine}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div
+            className={`${
+              isFullscreen ? "w-full h-screen" : showVersions || showEntityList ? "w-1/2" : "w-1/2"
+            } flex flex-col bg-slate-50 dark:bg-slate-900 ${!isFullscreen ? "min-h-[calc(100vh-400px)]" : ""}`}
+          >
+            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Live Preview</h2>
+              <div className="flex items-center gap-2">
+                {!isFullscreen && (
+                  <>
+                    <button
+                      onClick={handleZoomOut}
+                      className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                      title="Zoom Out"
+                    >
+                      <ZoomOut className="w-4 h-4" />
+                    </button>
+                    <span className="text-sm font-medium text-slate-600 dark:text-slate-400 min-w-[50px] text-center">
+                      {zoom}%
+                    </span>
+                    <button
+                      onClick={handleZoomIn}
+                      className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                      title="Zoom In"
+                    >
+                      <ZoomIn className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={handleZoomReset}
+                      className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                      title="Fit to Screen"
+                    >
+                      <Maximize2 className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={() => setIsFullscreen(!isFullscreen)}
+                  className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                  title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                >
+                  {isFullscreen ? (
+                    <Minimize2 className="w-4 h-4" />
+                  ) : (
+                    <Maximize2 className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div
+              className={`flex-1 overflow-auto ${isFullscreen ? "p-4" : "p-6"} bg-white dark:bg-slate-900`}
+              style={{ position: "relative" }}
+            >
+              {showFlowView ? (
+                <div style={{ width: "100%", minHeight: "400px", height: "100%" }}>
+                  <ErdFlowViewer erdCode={erdCode} />
+                </div>
+              ) : (
+                <div
+                  ref={previewRef}
+                  style={{
+                    transform: `scale(${zoom / 100})`,
+                    transformOrigin: "top left",
+                    minHeight: "400px",
+                  }}
+                  className="mermaid-preview w-full"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+
+        {!isFullscreen && (
+          <div className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+            <div className="max-w-[1800px] mx-auto px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                  <Sparkles className="w-5 h-5 text-blue-600" />
+                  <span className="font-medium">AI Assistant</span>
+                </div>
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    value={aiInput}
+                    onChange={(e) => setAiInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                        handleAiSubmit();
+                      }
+                    }}
+                    placeholder="Describe your entities in natural language... (Cmd+Enter to submit)"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={isAiLoading}
+                  />
+                </div>
+                <button
+                  onClick={handleAiSubmit}
+                  disabled={isAiLoading || isAutoRetrying || !aiInput.trim()}
+                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isAiLoading || isAutoRetrying ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {isAutoRetrying ? "Auto-retrying..." : aiStatus?.message || "Generating..."}
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      Generate
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {aiStatus && (
+                <div className="mt-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-blue-600 h-full transition-all duration-300 ease-out"
+                        style={{ width: `${aiStatus.progress}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-slate-600 dark:text-slate-400 min-w-[60px] text-right">
+                      {aiStatus.progress}%
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                    {aiStatus.step === "analyzing" && (
+                      <>
+                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
+                        <span>{aiStatus.message}</span>
+                      </>
+                    )}
+                    {aiStatus.step === "generating" && (
+                      <>
+                        <div className="w-2 h-2 bg-purple-600 rounded-full animate-pulse" />
+                        <span>{aiStatus.message}</span>
+                      </>
+                    )}
+                    {aiStatus.step === "validating" && (
+                      <>
+                        <div className="w-2 h-2 bg-yellow-600 rounded-full animate-pulse" />
+                        <span>{aiStatus.message}</span>
+                      </>
+                    )}
+                    {aiStatus.step === "retrying" && (
+                      <>
+                        <RefreshCw className="w-4 h-4 text-orange-600 animate-spin" />
+                        <span className="text-orange-600 font-medium">{aiStatus.message}</span>
+                      </>
+                    )}
+                    {aiStatus.step === "retrying-fix" && (
+                      <>
+                        <RefreshCw className="w-4 h-4 text-amber-600 animate-spin" />
+                        <span className="text-amber-600 font-medium">{aiStatus.message}</span>
+                      </>
+                    )}
+                    {aiStatus.step === "retry-error" && (
+                      <>
+                        <CircleX className="w-4 h-4 text-red-600" />
+                        <span className="text-red-600">{aiStatus.message}</span>
+                      </>
+                    )}
+                    {aiStatus.step === "retry-exhausted" && (
+                      <>
+                        <CircleX className="w-4 h-4 text-red-600" />
+                        <span className="text-red-600">{aiStatus.message}</span>
+                      </>
+                    )}
+                    {aiStatus.step === "complete" && (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        <span className="text-emerald-600 font-medium">{aiStatus.message}</span>
+                      </>
+                    )}
+                    {aiStatus.step === "error" && (
+                      <>
+                        <AlertCircle className="w-4 h-4 text-red-600" />
+                        <span className="text-red-600">{aiStatus.message}</span>
+                      </>
+                    )}
+                  </div>
+
+                  {mermaidRenderError && (
+                    <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1 text-xs text-red-700 dark:text-red-300">
+                          <p className="font-semibold mb-1">Mermaid Render Error:</p>
+                          <p className="font-mono whitespace-pre-wrap break-words">
+                            {mermaidRenderError}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {aiStepsLog.length > 0 && (
+                    <button
+                      onClick={() => setShowAiDetails(!showAiDetails)}
+                      className="mt-2 flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      {showAiDetails ? (
+                        <>
+                          <ChevronUp className="w-3 h-3" />
+                          Hide detailed steps
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-3 h-3" />
+                          Show detailed steps ({aiStepsLog.length})
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {previousSteps.length > 0 && (
+                <div className="mt-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+                  <button
+                    onClick={() => setShowPreviousSteps(!showPreviousSteps)}
+                    className="w-full flex items-center justify-between px-3 py-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <History className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                      <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                        Previous Steps ({previousSteps.length})
+                      </span>
+                    </div>
+                    {showPreviousSteps ? (
+                      <ChevronUp className="w-4 h-4 text-slate-500" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-slate-500" />
+                    )}
+                  </button>
+                  {showPreviousSteps && (
                     <div className="max-h-48 overflow-y-auto p-2 space-y-1">
-                      {aiStepsLog.map((step) => (
+                      {previousSteps.map((step) => (
                         <div
                           key={step.id}
-                          className={`flex items-start gap-2 p-2 rounded-lg text-xs ${
+                          className={`flex items-start gap-2 p-2 rounded-lg text-xs opacity-75 ${
                             step.status === "completed"
                               ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300"
                               : step.status === "error"
@@ -2002,221 +1938,306 @@ function DesignPage() {
                         </div>
                       ))}
                     </div>
+                  )}
+                </div>
+              )}
+
+              {(showAiDetails || aiStepsLog.length > 0) && aiStepsLog.length > 0 && (
+                <div className="mt-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+                  <div className="flex items-center justify-between px-3 py-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                        Current Progress
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-500">
+                        {aiStepsLog.filter((s) => s.status === "completed").length}/
+                        {aiStepsLog.length} completed
+                      </span>
+                      {showAiDetails && (
+                        <button
+                          onClick={() => setShowAiDetails(false)}
+                          className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                        >
+                          <X className="w-3 h-3 text-slate-500" />
+                        </button>
+                      )}
+                    </div>
                   </div>
-                )}
-
-                <div className="w-full flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-950/30 border border-blue-500/20 rounded-lg text-xs text-blue-700 dark:text-blue-300 mb-3">
-                  <RefreshCw className="w-4 h-4" />
-                  <span className="font-medium">
-                    Auto-retry enabled: When validation fails, AI will automatically fix errors up
-                    to {import.meta.env.VITE_ERD_DESIGN_AUTO_RETRY_COUNT || 3} times
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2 mt-3 flex-wrap">
-                  <button
-                    onClick={() =>
-                      setAiInput("Create a blog with users, posts, comments, and tags")
-                    }
-                    className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-                  >
-                    Blog Example
-                  </button>
-                  <button
-                    onClick={() =>
-                      setAiInput("E-commerce system with products, orders, and customers")
-                    }
-                    className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-                  >
-                    E-commerce Example
-                  </button>
-                  <button
-                    onClick={() =>
-                      setAiInput("Project management with tasks, teams, and milestones")
-                    }
-                    className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-                  >
-                    Project Management
-                  </button>
-                  <button
-                    onClick={() =>
-                      setAiInput(
-                        "Hospital management with patients, doctors, appointments, and medical records"
-                      )
-                    }
-                    className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-                  >
-                    Hospital Management
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <button
-            className="fixed bottom-6 right-6 w-14 h-14 text-white rounded-full shadow-lg shadow-primary/50 flex items-center justify-center transition-all active:scale-95 z-40"
-            style={{ backgroundColor: "#FF8400" }}
-          >
-            <HelpCircle className="w-6 h-6" />
-          </button>
-        </div>
-        <DbOperationsModal
-          isOpen={showDbModal}
-          onClose={() => setShowDbModal(false)}
-          erdCode={erdCode}
-          projectId={projectId}
-          onReverseEngineered={(code) => {
-            setErdCode(code);
-            setShowDbModal(false);
-          }}
-        />
-
-        {/* Hidden file input for .mmd import */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".mmd,.md"
-          className="hidden"
-          onChange={handleImportFileSelect}
-        />
-
-        {/* Import Modal */}
-        {showImportModal && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-            onClick={(e) => { if (e.target === e.currentTarget) setShowImportModal(false); }}
-            onKeyDown={(e) => { if (e.key === "Escape") setShowImportModal(false); }}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Import ERD"
-          >
-            <div className="bg-background border border-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
-              {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-                <div className="flex items-center gap-2">
-                  <Upload className="w-5 h-5 text-primary" />
-                  <h2 className="text-lg font-semibold">Import ERD</h2>
-                </div>
-                <button
-                  onClick={() => setShowImportModal(false)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label="Close"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Tabs */}
-              <div className="flex border-b border-border">
-                <button
-                  onClick={() => setImportTab("local")}
-                  className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
-                    importTab === "local"
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <FolderOpen className="w-4 h-4" />
-                  Upload File
-                </button>
-                <button
-                  onClick={() => { setImportTab("library"); handleLoadLibraryFiles(); }}
-                  className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
-                    importTab === "library"
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Library className="w-4 h-4" />
-                  Mermaid Library
-                </button>
-              </div>
-
-              {/* Content */}
-              <div className="p-6">
-                {importError && (
-                  <div className="mb-4 flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-300">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                    {importError}
-                  </div>
-                )}
-
-                {importTab === "local" && (
-                  <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      Upload a <code className="px-1 py-0.5 bg-secondary rounded text-xs">.mmd</code> file containing an <code className="px-1 py-0.5 bg-secondary rounded text-xs">erDiagram</code> definition.
-                    </p>
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full flex flex-col items-center gap-3 px-6 py-10 border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 rounded-xl transition-colors cursor-pointer"
-                    >
-                      <FileCode2 className="w-10 h-10 text-muted-foreground" />
-                      <div className="text-center">
-                        <p className="font-medium">Click to browse files</p>
-                        <p className="text-sm text-muted-foreground mt-1">Supports .mmd files</p>
-                      </div>
-                    </button>
-                    {examples.length > 0 && (
-                      <div>
-                        <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Or start from an example</p>
-                        <div className="grid grid-cols-2 gap-2">
-                          {examples.map((ex) => (
-                            <button
-                              key={ex.name}
-                              onClick={() => { setErdCode(ex.content); setShowImportModal(false); }}
-                              className="flex items-center gap-2 px-3 py-2 text-sm bg-secondary hover:bg-secondary/80 rounded-lg transition-colors text-left"
-                            >
-                              <FileText className="w-4 h-4 text-primary flex-shrink-0" />
-                              {ex.name}
-                            </button>
-                          ))}
+                  <div className="max-h-48 overflow-y-auto p-2 space-y-1">
+                    {aiStepsLog.map((step) => (
+                      <div
+                        key={step.id}
+                        className={`flex items-start gap-2 p-2 rounded-lg text-xs ${
+                          step.status === "completed"
+                            ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300"
+                            : step.status === "error"
+                              ? "bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300"
+                              : step.status === "in-progress"
+                                ? "bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300"
+                                : step.step === "retrying" || step.step === "retrying-fix"
+                                  ? "bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-300"
+                                  : step.step === "retry-error" || step.step === "retry-exhausted"
+                                    ? "bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300"
+                                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                        }`}
+                      >
+                        <div className="flex-shrink-0 mt-0.5">
+                          {step.status === "completed" && <CheckCircle2 className="w-3 h-3" />}
+                          {step.status === "error" && <AlertCircle className="w-3 h-3" />}
+                          {step.status === "in-progress" && (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          )}
+                          {(step.step === "retrying" || step.step === "retrying-fix") && (
+                            <RefreshCw className="w-3 h-3 animate-spin" />
+                          )}
+                          {step.status === "pending" && (
+                            <div className="w-3 h-3 rounded-full border-2 border-current" />
+                          )}
                         </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {importTab === "library" && (
-                  <div>
-                    {isLoadingLibrary ? (
-                      <div className="flex items-center justify-center py-10 gap-2 text-muted-foreground">
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span className="text-sm">Loading library...</span>
-                      </div>
-                    ) : libraryFiles.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-10 gap-3 text-muted-foreground">
-                        <Library className="w-10 h-10 opacity-40" />
-                        <div className="text-center">
-                          <p className="font-medium">No ERD files in library</p>
-                          <p className="text-sm mt-1">Export your ERD using the Export button to save it here</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-2 max-h-64 overflow-y-auto">
-                        {libraryFiles.map((file) => (
-                          <button
-                            key={file.filename}
-                            onClick={() => handleLoadFromLibrary(file.content)}
-                            className="w-full flex items-center gap-3 px-4 py-3 bg-secondary hover:bg-secondary/80 rounded-xl transition-colors text-left"
-                          >
-                            <FileCode2 className="w-5 h-5 text-primary flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm truncate">{file.projectName}</p>
-                              <p className="text-xs text-muted-foreground truncate">{file.filename}</p>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium truncate">{step.message}</div>
+                          {step.details && (
+                            <div className="text-[10px] opacity-75 mt-0.5 truncate">
+                              {step.details}
                             </div>
-                            <span className="text-xs text-muted-foreground flex-shrink-0">
-                              {new Date(file.createdAt).toLocaleDateString()}
-                            </span>
-                          </button>
-                        ))}
+                          )}
+                        </div>
                       </div>
-                    )}
+                    ))}
                   </div>
-                )}
+                </div>
+              )}
+
+              <div className="w-full flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-950/30 border border-blue-500/20 rounded-lg text-xs text-blue-700 dark:text-blue-300 mb-3">
+                <RefreshCw className="w-4 h-4" />
+                <span className="font-medium">
+                  Auto-retry enabled: When validation fails, AI will automatically fix errors up to{" "}
+                  {import.meta.env.VITE_ERD_DESIGN_AUTO_RETRY_COUNT || 3} times
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 mt-3 flex-wrap">
+                <button
+                  onClick={() => setAiInput("Create a blog with users, posts, comments, and tags")}
+                  className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
+                >
+                  Blog Example
+                </button>
+                <button
+                  onClick={() =>
+                    setAiInput("E-commerce system with products, orders, and customers")
+                  }
+                  className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
+                >
+                  E-commerce Example
+                </button>
+                <button
+                  onClick={() => setAiInput("Project management with tasks, teams, and milestones")}
+                  className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
+                >
+                  Project Management
+                </button>
+                <button
+                  onClick={() =>
+                    setAiInput(
+                      "Hospital management with patients, doctors, appointments, and medical records"
+                    )
+                  }
+                  className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
+                >
+                  Hospital Management
+                </button>
               </div>
             </div>
           </div>
         )}
+
+        <button
+          className="fixed bottom-6 right-6 w-14 h-14 text-white rounded-full shadow-lg shadow-primary/50 flex items-center justify-center transition-all active:scale-95 z-40"
+          style={{ backgroundColor: "#FF8400" }}
+        >
+          <HelpCircle className="w-6 h-6" />
+        </button>
+      </div>
+      <DbOperationsModal
+        isOpen={showDbModal}
+        onClose={() => setShowDbModal(false)}
+        erdCode={erdCode}
+        projectId={projectId}
+        onReverseEngineered={(code) => {
+          setErdCode(code);
+          setShowDbModal(false);
+        }}
+      />
+
+      {/* Hidden file input for .mmd import */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".mmd,.md"
+        className="hidden"
+        onChange={handleImportFileSelect}
+      />
+
+      {/* Import Modal */}
+      {showImportModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowImportModal(false);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setShowImportModal(false);
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Import ERD"
+        >
+          <div className="bg-background border border-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+              <div className="flex items-center gap-2">
+                <Upload className="w-5 h-5 text-primary" />
+                <h2 className="text-lg font-semibold">Import ERD</h2>
+              </div>
+              <button
+                onClick={() => setShowImportModal(false)}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex border-b border-border">
+              <button
+                onClick={() => setImportTab("local")}
+                className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
+                  importTab === "local"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <FolderOpen className="w-4 h-4" />
+                Upload File
+              </button>
+              <button
+                onClick={() => {
+                  setImportTab("library");
+                  handleLoadLibraryFiles();
+                }}
+                className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
+                  importTab === "library"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Library className="w-4 h-4" />
+                Mermaid Library
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              {importError && (
+                <div className="mb-4 flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-300">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  {importError}
+                </div>
+              )}
+
+              {importTab === "local" && (
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Upload a <code className="px-1 py-0.5 bg-secondary rounded text-xs">.mmd</code>{" "}
+                    file containing an{" "}
+                    <code className="px-1 py-0.5 bg-secondary rounded text-xs">erDiagram</code>{" "}
+                    definition.
+                  </p>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full flex flex-col items-center gap-3 px-6 py-10 border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 rounded-xl transition-colors cursor-pointer"
+                  >
+                    <FileCode2 className="w-10 h-10 text-muted-foreground" />
+                    <div className="text-center">
+                      <p className="font-medium">Click to browse files</p>
+                      <p className="text-sm text-muted-foreground mt-1">Supports .mmd files</p>
+                    </div>
+                  </button>
+                  {examples.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">
+                        Or start from an example
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {examples.map((ex) => (
+                          <button
+                            key={ex.name}
+                            onClick={() => {
+                              setErdCode(ex.content);
+                              setShowImportModal(false);
+                            }}
+                            className="flex items-center gap-2 px-3 py-2 text-sm bg-secondary hover:bg-secondary/80 rounded-lg transition-colors text-left"
+                          >
+                            <FileText className="w-4 h-4 text-primary flex-shrink-0" />
+                            {ex.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {importTab === "library" && (
+                <div>
+                  {isLoadingLibrary ? (
+                    <div className="flex items-center justify-center py-10 gap-2 text-muted-foreground">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span className="text-sm">Loading library...</span>
+                    </div>
+                  ) : libraryFiles.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-10 gap-3 text-muted-foreground">
+                      <Library className="w-10 h-10 opacity-40" />
+                      <div className="text-center">
+                        <p className="font-medium">No ERD files in library</p>
+                        <p className="text-sm mt-1">
+                          Export your ERD using the Export button to save it here
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {libraryFiles.map((file) => (
+                        <button
+                          key={file.filename}
+                          onClick={() => handleLoadFromLibrary(file.content)}
+                          className="w-full flex items-center gap-3 px-4 py-3 bg-secondary hover:bg-secondary/80 rounded-xl transition-colors text-left"
+                        >
+                          <FileCode2 className="w-5 h-5 text-primary flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{file.projectName}</p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {file.filename}
+                            </p>
+                          </div>
+                          <span className="text-xs text-muted-foreground flex-shrink-0">
+                            {new Date(file.createdAt).toLocaleDateString()}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </CopilotSidebar>
   );
 }

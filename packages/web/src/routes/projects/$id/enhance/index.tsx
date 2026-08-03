@@ -29,7 +29,9 @@ const ICON_CYCLE = [
 
 function parseEntityNamesFromErd(erdCode: string): string[] {
   const matches = [...erdCode.matchAll(/^\s*([A-Za-z_]\w*)\s*\{/gm)];
-  return matches.map((m) => m[1]).filter((name): name is string => name !== undefined && name !== "erDiagram");
+  return matches
+    .map((m) => m[1])
+    .filter((name): name is string => name !== undefined && name !== "erDiagram");
 }
 
 function EnhancePage() {

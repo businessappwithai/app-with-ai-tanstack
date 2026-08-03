@@ -9,8 +9,8 @@
     "ignoreUnknown": true,
     "includes": [
       "**",
-      "!packages/generator/templates/**",
-      "!language/cli/runtime/**",
+      "!packages/generator/templates",
+      "!language/cli/runtime",
       "!**/routeTree.gen.ts",
       "!**/*.css"
     ]

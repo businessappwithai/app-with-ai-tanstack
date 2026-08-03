@@ -129,10 +129,9 @@ export class MermaidParser {
     const cardinality = getCardinalityKind(operator);
     if (!cardinality) return null;
 
-    const name =
-      rawLabel?.trim()
-        ? this.normalizeRelationshipName(rawLabel.trim())
-        : `${sourceEntity.toLowerCase()}_${targetEntity.toLowerCase()}`;
+    const name = rawLabel?.trim()
+      ? this.normalizeRelationshipName(rawLabel.trim())
+      : `${sourceEntity.toLowerCase()}_${targetEntity.toLowerCase()}`;
 
     return {
       name,

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { toRenderableMermaid } from "../mermaid-render";
 
 // Regression: ISSUE-003 — examples/drug-discovery.eml.mmd rendered as
@@ -10,10 +10,7 @@ import { toRenderableMermaid } from "../mermaid-render";
 // Found by /qa on 2026-07-30
 // Report: .gstack/qa-reports/qa-report-localhost-3000-2026-07-30.md
 
-const EXAMPLE_PATH = path.resolve(
-  __dirname,
-  "../../../../../examples/drug-discovery.eml.mmd"
-);
+const EXAMPLE_PATH = path.resolve(__dirname, "../../../../../examples/drug-discovery.eml.mmd");
 
 describe("toRenderableMermaid", () => {
   it("strips the %% banner so output starts at erDiagram", () => {

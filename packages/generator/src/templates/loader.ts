@@ -1,3 +1,6 @@
+import { execSync } from "node:child_process";
+import { existsSync, promises as fs } from "node:fs";
+import path from "node:path";
 import { ReferenceType } from "@erdwithai/core/types";
 import {
   addBusPrefix,
@@ -22,10 +25,7 @@ import {
   tableNameToRoutePath,
   tableNameToServiceName,
 } from "@erdwithai/core/utils";
-import { execSync } from "node:child_process";
-import { existsSync, promises as fs } from "node:fs";
 import Handlebars from "handlebars";
-import path from "node:path";
 
 function resolveOsUser(): string {
   if (process.env.PGUSER) return process.env.PGUSER;

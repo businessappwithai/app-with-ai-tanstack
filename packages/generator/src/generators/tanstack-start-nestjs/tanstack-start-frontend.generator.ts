@@ -17,10 +17,10 @@
  * Generated from templates in tanstack-start-nestjs/frontend/
  */
 
-import { type Entity, entityToBusEntity, type Relationship } from "@erdwithai/core/types";
-import { kebabCase } from "@erdwithai/core/utils";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import { type Entity, entityToBusEntity, type Relationship } from "@erdwithai/core/types";
+import { kebabCase } from "@erdwithai/core/utils";
 import { CliExecutor } from "../../utils/cli-executor";
 import { BaseGenerator } from "../base.generator";
 import { DEFAULT_FRONTEND_PORT } from "../ports";

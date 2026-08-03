@@ -9,13 +9,7 @@
     "basedOn": "mermaid",
     "mermaidCompatibility": "All EML documents are valid, renderable Mermaid. EML is a semantic superset that assigns generator meaning to standard Mermaid constructs (erDiagram, flowchart, stateDiagram-v2) and to `%%`-prefixed directive comments.",
     "description": "A single, standalone, Mermaid-based language for describing an application's Entity Relationship Diagram (ERD), its business rules, and its business workflows in one place. EML is the source language read by the ERDwithAI generator to produce full-stack applications (TanStack Start + NestJS, or OpenUI5 + OData V4).",
-    "fileExtensions": [
-      ".eml.mmd",
-      ".erd.mmd",
-      ".flow.mmd",
-      ".rules.mmd",
-      ".mmd"
-    ],
+    "fileExtensions": [".eml.mmd", ".erd.mmd", ".flow.mmd", ".rules.mmd", ".mmd"],
     "encoding": "utf-8",
     "caseSensitivity": {
       "entityNames": "significant (PascalCase recommended)",
@@ -173,16 +167,7 @@
   },
   "types": {
     "description": "Attribute type vocabulary. Aliases are normalized to a canonical type. Canonical types drive TypeScript, Zod, SQL/Kysely, OData EDM, and UI control mapping in the generator.",
-    "canonical": [
-      "string",
-      "text",
-      "integer",
-      "decimal",
-      "boolean",
-      "date",
-      "datetime",
-      "json"
-    ],
+    "canonical": ["string", "text", "integer", "decimal", "boolean", "date", "datetime", "json"],
     "map": {
       "string": "string",
       "varchar": "string",
@@ -242,33 +227,23 @@
       },
       "FK": {
         "meaning": "Foreign key",
-        "effects": [
-          "marks the column as a reference; relationship inference / navigation"
-        ]
+        "effects": ["marks the column as a reference; relationship inference / navigation"]
       },
       "UK": {
         "meaning": "Unique key",
-        "effects": [
-          "unique = true"
-        ]
+        "effects": ["unique = true"]
       },
       "UNIQUE": {
         "meaning": "Alias of UK",
-        "effects": [
-          "unique = true"
-        ]
+        "effects": ["unique = true"]
       },
       "OPTIONAL": {
         "meaning": "Nullable / not required",
-        "effects": [
-          "required = false"
-        ]
+        "effects": ["required = false"]
       },
       "NULL": {
         "meaning": "Alias of OPTIONAL",
-        "effects": [
-          "required = false"
-        ]
+        "effects": ["required = false"]
       }
     },
     "defaults": {
@@ -286,10 +261,7 @@
     ],
     "personRoleColumns": {
       "description": "Columns naming a person by the role they played rather than by entity. All resolve to the model's user entity (bus_user).",
-      "suffixes": [
-        "_by",
-        "_by_id"
-      ],
+      "suffixes": ["_by", "_by_id"],
       "names": [
         "assigned_to",
         "author_id",
@@ -450,10 +422,7 @@
     "directive": {
       "pattern": "%%hook <type> <handlerName> on <Entity>[<params>]",
       "regex": "%%hook\\s+(\\w+)\\s+(\\w+)\\s+on\\s+(\\w+)(\\[(?:field:\\s*\\w+(?:\\s*,\\s*field:\\s*\\w+)*)?\\])?",
-      "paramForms": [
-        "[field: slug]",
-        "[field: slug, field: title]"
-      ]
+      "paramForms": ["[field: slug]", "[field: slug, field: title]"]
     }
   },
   "ruleNodes": {
@@ -504,33 +473,22 @@
         {
           "name": "trigger-workflow",
           "purpose": "Run a workflow definition by name. This is what gates a `kind: saga` workflow declared with `trigger: rule` on a condition.",
-          "required": [
-            "workflow"
-          ],
-          "optional": [
-            "message"
-          ],
+          "required": ["workflow"],
+          "optional": ["message"],
           "example": "%%action escalate trigger-workflow when: severity == \"critical\" workflow: CriticalDeviationEscalation"
         },
         {
           "name": "validation-error",
           "purpose": "Reject the write. The message is returned to the caller.",
-          "required": [
-            "message"
-          ],
+          "required": ["message"],
           "optional": [],
           "example": "%%action requireCause validation-error when: status == \"closed\" and root_cause == null message: A closed deviation needs a root cause"
         },
         {
           "name": "transform",
           "purpose": "Overwrite a field on the record being written.",
-          "required": [
-            "field",
-            "value"
-          ],
-          "optional": [
-            "message"
-          ],
+          "required": ["field", "value"],
+          "optional": ["message"],
           "example": "%%action stampSeverity transform when: true field: severity value: major"
         }
       ]
@@ -587,33 +545,17 @@
         {
           "name": "UpdateEntity",
           "purpose": "Write one column on the triggering record, or on rows of a related entity.",
-          "required": [
-            "field"
-          ],
-          "oneOf": [
-            [
-              "source",
-              "value"
-            ]
-          ],
-          "optional": [
-            "entity",
-            "targetField",
-            "targetSource"
-          ],
+          "required": ["field"],
+          "oneOf": [["source", "value"]],
+          "optional": ["entity", "targetField", "targetSource"],
           "rowTargeting": "Defaults to the record that triggered the workflow. To reach another entity, set `entity` plus either `targetSource` (a context key holding the row id) or `targetField` (a foreign key column matched against the triggering row). Targeting another entity by `id` with no `targetSource` is refused rather than guessed.",
           "example": "%%step D UpdateEntity entity: Capa targetSource: newCapaId field: effectiveness_metric source: resolutionDays"
         },
         {
           "name": "CreateEntity",
           "purpose": "Insert a row, optionally publishing its id for later steps.",
-          "required": [
-            "entity",
-            "fields"
-          ],
-          "optional": [
-            "as"
-          ],
+          "required": ["entity", "fields"],
+          "optional": ["as"],
           "notes": [
             "`fields` is a JSON object of column -> context key or literal. A string that names a context key is substituted; anything else is written as-is.",
             "`as` names the variable the new row's id is published under. It defaults to the table name without its bus_ prefix plus `Id`. Without it a workflow can insert a row and then never reach it again."
@@ -624,12 +566,7 @@
           "name": "DeleteEntity",
           "purpose": "Delete the triggering record or rows of a related entity.",
           "required": [],
-          "optional": [
-            "entity",
-            "targetField",
-            "targetSource",
-            "hard"
-          ],
+          "optional": ["entity", "targetField", "targetSource", "hard"],
           "notes": [
             "Soft by default: stamps deleted_at, so the audit trail still points at a row that exists. `hard: true` removes it.",
             "Row targeting matches UpdateEntity exactly, including the refusal to touch another entity by `id` with no targetSource."
@@ -640,15 +577,8 @@
           "name": "Decision",
           "purpose": "Evaluate a GoRules decision table and publish the matching row's output columns as variables the following steps read.",
           "required": [],
-          "oneOf": [
-            [
-              "decisionTable",
-              "rule"
-            ]
-          ],
-          "optional": [
-            "publish"
-          ],
+          "oneOf": [["decisionTable", "rule"]],
+          "optional": ["publish"],
           "notes": [
             "`decisionTable` is the table itself as JSON — { hitPolicy, inputs, outputs, rules } — for logic only this process cares about. The generator wraps it in the input -> table -> output graph the engine evaluates, so a step never carries that plumbing.",
             "`rule` names a rule declared elsewhere in the model, for when the same table already governs the entity and the process should not fork a second copy of it.",
@@ -661,10 +591,7 @@
         {
           "name": "Formula",
           "purpose": "Publish a value into the workflow context for later steps.",
-          "required": [
-            "target",
-            "operation"
-          ],
+          "required": ["target", "operation"],
           "operations": {
             "multiply": "target = Number(source) * Number(operand)",
             "divide": "target = Number(source) / Number(operand)",
@@ -675,38 +602,22 @@
           },
           "perOperation": {
             "multiply": {
-              "required": [
-                "source",
-                "operand"
-              ]
+              "required": ["source", "operand"]
             },
             "divide": {
-              "required": [
-                "source",
-                "operand"
-              ]
+              "required": ["source", "operand"]
             },
             "add": {
-              "required": [
-                "source",
-                "operand"
-              ]
+              "required": ["source", "operand"]
             },
             "subtract": {
-              "required": [
-                "source",
-                "operand"
-              ]
+              "required": ["source", "operand"]
             },
             "set": {
-              "required": [
-                "value"
-              ]
+              "required": ["value"]
             },
             "copy": {
-              "required": [
-                "source"
-              ]
+              "required": ["source"]
             }
           },
           "example": "%%step B Formula target: resolutionDays source: baseDays operation: multiply operand: 7"
@@ -714,24 +625,15 @@
         {
           "name": "REST",
           "purpose": "Call an external HTTP endpoint.",
-          "required": [
-            "url"
-          ],
-          "optional": [
-            "method",
-            "bodyTemplate"
-          ],
-          "notes": [
-            "`bodyTemplate` interpolates {{key}} from the workflow context."
-          ],
+          "required": ["url"],
+          "optional": ["method", "bodyTemplate"],
+          "notes": ["`bodyTemplate` interpolates {{key}} from the workflow context."],
           "example": "%%step E REST url: https://hooks.example.com/notify method: POST"
         },
         {
           "name": "Agent",
           "purpose": "Invoke an AI agent. Placeholder pending Mastra integration — the executor logs and skips.",
-          "required": [
-            "agentId"
-          ],
+          "required": ["agentId"],
           "shipped": false,
           "example": "%%step G Agent agentId: deviation-triage-v1"
         }
@@ -756,9 +658,7 @@
         "keyword": "%%hook",
         "form": "%%hook <type> <handler> on <Entity>[<params>]",
         "purpose": "Bind a named handler to an entity lifecycle event (SHIPPED, parsed by hook-parser.ts).",
-        "examples": [
-          "%%hook beforeCreate hashPassword on User"
-        ]
+        "examples": ["%%hook beforeCreate hashPassword on User"]
       },
       {
         "keyword": "%%step",
@@ -804,9 +704,7 @@
         "keyword": "%%enum",
         "form": "%%enum <Name>: <value1>, <value2>, ...",
         "purpose": "Declare a named enumeration reusable by fields and by state workflows.",
-        "examples": [
-          "%%enum OrderStatus: draft, submitted, approved, shipped, cancelled"
-        ]
+        "examples": ["%%enum OrderStatus: draft, submitted, approved, shipped, cancelled"]
       },
       {
         "keyword": "%%category",
@@ -821,18 +719,13 @@
         "keyword": "%%index",
         "form": "%%index <Entity>(<attr>[, <attr>...]) [unique]",
         "purpose": "Declare a database index over one or more attributes.",
-        "examples": [
-          "%%index Contact(email) unique",
-          "%%index Order(company_id, status)"
-        ]
+        "examples": ["%%index Contact(email) unique", "%%index Order(company_id, status)"]
       },
       {
         "keyword": "%%rule",
         "form": "%%rule <name> on <Entity> event: <lifecycle> priority: <n>",
         "purpose": "Bind a business-rule decision flow (a rules section) to an entity and lifecycle event.",
-        "examples": [
-          "%%rule pricing on Order event: beforeCreate priority: 10"
-        ]
+        "examples": ["%%rule pricing on Order event: beforeCreate priority: 10"]
       },
       {
         "keyword": "%%guard",
@@ -856,9 +749,7 @@
         "keyword": "%%workflow",
         "form": "%%workflow <name> entity: <Entity> kind: <hook|state|saga>",
         "purpose": "Name and classify a workflow section and bind it to an entity.",
-        "examples": [
-          "%%workflow OrderFulfillment entity: Order kind: state"
-        ]
+        "examples": ["%%workflow OrderFulfillment entity: Order kind: state"]
       }
     ]
   },

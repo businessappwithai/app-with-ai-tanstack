@@ -6,9 +6,9 @@
  * and Frontend Generator for the selected stack option.
  */
 
-import type { Entity, Relationship } from "@erdwithai/core/types";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import type { Entity, Relationship } from "@erdwithai/core/types";
 import { type DictionaryContext, DictionaryGenerator } from "./dictionary.generator";
 import {
   FullStackGenerator,

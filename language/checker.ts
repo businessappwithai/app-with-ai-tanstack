@@ -24,9 +24,9 @@
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { loadLanguageDefinition, stepNodeTypes } from "./index.ts";
 import type { EmlAttribute, EmlEntity, EmlModel, EmlRule, EmlWorkflow } from "./cli/src/model.ts";
 import { parseEml } from "./cli/src/parser.ts";
+import { loadLanguageDefinition, stepNodeTypes } from "./index.ts";
 
 // ---------------------------------------------------------------------------
 // Diagnostic types

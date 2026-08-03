@@ -360,15 +360,18 @@ export class BusController {
   }
 
   /**
-   * Delete a record (soft delete)
+   * Delete a record. The row is removed, and the record's delete workflows run
+   * first in the same transaction — so a workflow that clears its children is
+   * what makes the deletion safe, and a cascade that fails leaves the record
+   * intact.
+   *
    * DELETE /bus/:entity/:id
    */
   @Delete(':entity/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a record (soft delete)' })
+  @ApiOperation({ summary: 'Delete a record' })
   @ApiParam({ name: 'entity', description: 'Entity name' })
   @ApiParam({ name: 'id', description: 'Record UUID' })
-  @ApiResponse({ status: 204, description: 'Record deleted successfully' })
+  @ApiResponse({ status: 200, description: 'Record deleted, with the workflows that ran' })
   @ApiResponse({ status: 404, description: 'Record not found' })
   async delete(
     @Param('entity') entity: string,
@@ -383,9 +386,13 @@ export class BusController {
       try { req.__auditBefore = await this.busService.findById(entity, id); } catch { /* not found is ok */ }
     }
 
-    await this.busService.softDelete(entity, id);
+    // The promotion result is returned rather than swallowed: a delete runs the
+    // record's workflows, and a caller that cannot see whether the cascade ran
+    // has no way to tell a completed delete from one that rolled back.
+    const promotion = await this.busService.remove(entity, id);
 
     this.logger.log(`[${methodName}] Success - entity: ${entity}, id: ${id}`);
+    return { deleted: promotion.promoted, promotion };
   }
 
 }

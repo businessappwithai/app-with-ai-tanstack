@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { createFileRoute } from "@tanstack/react-router";
 
 const GENERATED_HOOKS_BASE_PATH = join(process.cwd(), "generated-projects");
 

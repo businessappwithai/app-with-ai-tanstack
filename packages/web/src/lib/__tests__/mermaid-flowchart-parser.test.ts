@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { parseMermaidFlowchart } from "../mermaid-flowchart-parser";
 
 // Regression: ISSUE-005 — nodes first declared on the right-hand side of an

@@ -1,6 +1,6 @@
 import { Agent } from "@mastra/core/agent";
-import { relationshipCandidateSchema } from "../types";
 import { mastraModelConfig } from "../config";
+import { relationshipCandidateSchema } from "../types";
 
 export const relationshipAgent = new Agent({
   id: "relationship-agent",

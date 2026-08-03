@@ -73,7 +73,9 @@ export const Route = createFileRoute("/api/admin/users/$id/reject")({
           );
         } catch (error) {
           return new Response(
-            JSON.stringify({ error: error instanceof Error ? error.message : "Failed to reject user" }),
+            JSON.stringify({
+              error: error instanceof Error ? error.message : "Failed to reject user",
+            }),
             {
               status: 500,
               headers: { "Content-Type": "application/json" },

@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * EML Language Fixer
  * ==================
@@ -28,9 +29,9 @@
  * All other codes are reported but left for the developer to fix manually.
  */
 
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import { isPersonRoleColumn } from "./checker";
 
 // ---------------------------------------------------------------------------

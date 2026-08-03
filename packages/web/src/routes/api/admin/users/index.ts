@@ -71,7 +71,9 @@ export const Route = createFileRoute("/api/admin/users/")({
           );
         } catch (error) {
           return new Response(
-            JSON.stringify({ error: error instanceof Error ? error.message : "Failed to fetch users" }),
+            JSON.stringify({
+              error: error instanceof Error ? error.message : "Failed to fetch users",
+            }),
             {
               status: 500,
               headers: { "Content-Type": "application/json" },

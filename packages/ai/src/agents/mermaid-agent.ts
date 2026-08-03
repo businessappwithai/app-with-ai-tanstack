@@ -1,7 +1,7 @@
 import { Agent } from "@mastra/core/agent";
 import { z } from "zod";
-import type { EntityCandidate, RelationshipCandidate } from "../types";
 import { mastraModelConfig } from "../config";
+import type { EntityCandidate, RelationshipCandidate } from "../types";
 
 const mermaidOutputSchema = z.object({
   syntax: z.string(),

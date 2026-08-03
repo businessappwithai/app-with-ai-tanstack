@@ -7,7 +7,8 @@ function getKey(): Buffer {
   const raw = process.env.DB_ENCRYPTION_KEY;
   if (!raw) throw new Error("DB_ENCRYPTION_KEY is not set");
   const buf = Buffer.from(raw, "base64");
-  if (buf.length !== KEY_LEN) throw new Error(`DB_ENCRYPTION_KEY must be ${KEY_LEN} bytes (base64-encoded)`);
+  if (buf.length !== KEY_LEN)
+    throw new Error(`DB_ENCRYPTION_KEY must be ${KEY_LEN} bytes (base64-encoded)`);
   return buf;
 }
 
