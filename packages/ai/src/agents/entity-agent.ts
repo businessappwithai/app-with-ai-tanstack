@@ -1,6 +1,6 @@
 import { Agent } from "@mastra/core/agent";
-import { entityCandidateSchema } from "../types";
 import { mastraModelConfig } from "../config";
+import { entityCandidateSchema } from "../types";
 
 export const entityAgent = new Agent({
   id: "entity-agent",

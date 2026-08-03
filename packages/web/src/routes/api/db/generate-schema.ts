@@ -42,10 +42,10 @@ export const Route = createAPIFileRoute("/api/db/generate-schema")({
       try {
         connStr = decryptConnectionString(targetDbConnection);
       } catch {
-        return new Response(
-          JSON.stringify({ error: "Invalid or corrupted connection string" }),
-          { status: 400, headers: { "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "Invalid or corrupted connection string" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
       }
 
       // Connect via pg
@@ -57,9 +57,7 @@ export const Route = createAPIFileRoute("/api/db/generate-schema")({
       const tablesCreated: string[] = [];
 
       for (const entity of schema.entities) {
-        const tableName = entity.name
-          .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
-          .toLowerCase();
+        const tableName = entity.name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
 
         const columns = entity.attributes.map((attr) => {
           const colName = attr.name;
@@ -77,8 +75,7 @@ export const Route = createAPIFileRoute("/api/db/generate-schema")({
 
           const pk = attr.unique && attr.name === "id" ? " PRIMARY KEY" : "";
           const serial = attr.unique && colName === "id" ? "SERIAL" : colType;
-          const notNull =
-            attr.required && !(attr.unique && attr.name === "id") ? " NOT NULL" : "";
+          const notNull = attr.required && !(attr.unique && attr.name === "id") ? " NOT NULL" : "";
           return `  "${colName}" ${pk ? serial : colType}${pk}${notNull}`;
         });
 

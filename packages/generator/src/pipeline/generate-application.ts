@@ -12,9 +12,9 @@
  * something different passes it as a setting; it does not rebuild the options.
  */
 
-import type { Entity, Relationship } from "@erdwithai/core/types";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import type { Entity, Relationship } from "@erdwithai/core/types";
 import { extractRuleSections } from "../eml";
 import {
   FullStackGenerator,

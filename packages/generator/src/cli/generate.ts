@@ -7,12 +7,12 @@
  * One stack is supported: tanstackjs-nestjs (TanStack Start + NestJS).
  */
 
-import type { Entity, Relationship } from "@erdwithai/core/types";
 import { spawnSync } from "node:child_process";
-import { Command } from "commander";
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import * as readline from "node:readline";
+import type { Entity, Relationship } from "@erdwithai/core/types";
+import { Command } from "commander";
 import { extractRuleSections } from "../eml";
 import type { StackOption } from "../generators/full-stack.generator";
 import { NestJsBackendGenerator } from "../generators/tanstack-start-nestjs/nestjs-backend.generator";

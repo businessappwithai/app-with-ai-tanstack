@@ -7,10 +7,10 @@ export const Route = createAPIFileRoute("/api/db/reverse-engineer")({
       const { targetDbConnection } = body;
 
       if (!targetDbConnection) {
-        return new Response(
-          JSON.stringify({ error: "targetDbConnection is required" }),
-          { status: 400, headers: { "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "targetDbConnection is required" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
       }
 
       const { decryptConnectionString } = await import("../../../lib/encrypt");
@@ -18,10 +18,10 @@ export const Route = createAPIFileRoute("/api/db/reverse-engineer")({
       try {
         connStr = decryptConnectionString(targetDbConnection);
       } catch {
-        return new Response(
-          JSON.stringify({ error: "Invalid or corrupted connection string" }),
-          { status: 400, headers: { "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "Invalid or corrupted connection string" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
       }
 
       const { Client } = await import("pg");
@@ -44,11 +44,21 @@ export const Route = createAPIFileRoute("/api/db/reverse-engineer")({
         const tableNames = tablesRes.rows.map((r) => r.table_name);
 
         const toEmlType = (dt: string) => {
-          if (["integer", "int", "int4", "int2", "int8", "bigint", "smallint"].includes(dt)) return "int";
-          if (["numeric", "decimal", "float4", "float8", "real", "double precision"].includes(dt)) return "float";
-          if (["text", "character varying", "varchar", "char", "bpchar"].includes(dt)) return "string";
+          if (["integer", "int", "int4", "int2", "int8", "bigint", "smallint"].includes(dt))
+            return "int";
+          if (["numeric", "decimal", "float4", "float8", "real", "double precision"].includes(dt))
+            return "float";
+          if (["text", "character varying", "varchar", "char", "bpchar"].includes(dt))
+            return "string";
           if (dt === "date") return "date";
-          if (["timestamp", "timestamptz", "timestamp with time zone", "timestamp without time zone"].includes(dt))
+          if (
+            [
+              "timestamp",
+              "timestamptz",
+              "timestamp with time zone",
+              "timestamp without time zone",
+            ].includes(dt)
+          )
             return "datetime";
           if (dt === "boolean" || dt === "bool") return "boolean";
           if (dt === "json" || dt === "jsonb") return "json";
@@ -85,7 +95,12 @@ export const Route = createAPIFileRoute("/api/db/reverse-engineer")({
           mmd += `  ${entityName} {\n`;
           for (const col of colsRes.rows) {
             const emlType = toEmlType(col.data_type);
-            const pk = col.constraint_type === "PRIMARY KEY" ? " PK" : col.constraint_type === "FOREIGN KEY" ? " FK" : "";
+            const pk =
+              col.constraint_type === "PRIMARY KEY"
+                ? " PK"
+                : col.constraint_type === "FOREIGN KEY"
+                  ? " FK"
+                  : "";
             const optional = col.is_nullable === "YES" ? " OPTIONAL" : "";
             mmd += `    ${emlType} ${col.column_name}${pk}${optional}\n`;
           }
@@ -100,8 +115,7 @@ export const Route = createAPIFileRoute("/api/db/reverse-engineer")({
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to reverse-engineer schema";
-      const status =
-        msg.includes("connect ECONNREFUSED") || msg.includes("timeout") ? 504 : 500;
+      const status = msg.includes("connect ECONNREFUSED") || msg.includes("timeout") ? 504 : 500;
       return new Response(JSON.stringify({ error: msg }), {
         status,
         headers: { "Content-Type": "application/json" },

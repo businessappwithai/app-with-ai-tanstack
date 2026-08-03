@@ -1,14 +1,14 @@
-import { useEffect, useRef, useState } from "react";
 import {
-  ReactFlow,
   Background,
   Controls,
-  MiniMap,
-  useNodesState,
-  useEdgesState,
-  type Node,
   type Edge,
+  MiniMap,
+  type Node,
+  ReactFlow,
+  useEdgesState,
+  useNodesState,
 } from "@xyflow/react";
+import { useEffect, useRef, useState } from "react";
 import "@xyflow/react/dist/style.css";
 import { Loader2 } from "lucide-react";
 
@@ -18,7 +18,11 @@ interface ErdFlowViewerProps {
 
 // Parse Mermaid erDiagram syntax to nodes and edges
 function parseMermaidToGraph(code: string): {
-  nodes: Array<{ id: string; position: { x: number; y: number }; data: { name: string; attrs: string[] } }>;
+  nodes: Array<{
+    id: string;
+    position: { x: number; y: number };
+    data: { name: string; attrs: string[] };
+  }>;
   edges: Array<{ id: string; source: string; target: string; label: string }>;
 } {
   const lines = code.split("\n");
@@ -52,9 +56,7 @@ function parseMermaidToGraph(code: string): {
     }
 
     // Relationship line: Entity1 ||--o{ Entity2 : "label"
-    const relMatch = trimmed.match(
-      /^(\w+)\s+[|}o]{2}--[|{o]{2}\s+(\w+)\s*(?::\s*"?(.+)"?)?$/
-    );
+    const relMatch = trimmed.match(/^(\w+)\s+[|}o]{2}--[|{o]{2}\s+(\w+)\s*(?::\s*"?(.+)"?)?$/);
     if (relMatch) {
       edgeList.push({
         source: relMatch[1] ?? "",
@@ -64,7 +66,11 @@ function parseMermaidToGraph(code: string): {
     }
   }
 
-  const nodes: Array<{ id: string; position: { x: number; y: number }; data: { name: string; attrs: string[] } }> = [];
+  const nodes: Array<{
+    id: string;
+    position: { x: number; y: number };
+    data: { name: string; attrs: string[] };
+  }> = [];
   const edges: Array<{ id: string; source: string; target: string; label: string }> = [];
 
   // Create nodes
@@ -106,9 +112,7 @@ function EntityCard({ name, attrs }: { name: string; attrs: string[] }) {
             {a}
           </div>
         ))}
-        {attrs.length > 8 && (
-          <div className="text-slate-500">+{attrs.length - 8} more</div>
-        )}
+        {attrs.length > 8 && <div className="text-slate-500">+{attrs.length - 8} more</div>}
       </div>
     </div>
   );

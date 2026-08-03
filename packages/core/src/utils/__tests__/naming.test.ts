@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { snakeCase } from "../naming";
 
 // Regression: ISSUE-008 — snakeCase("CAPA") returned "c_a_p_a", so the

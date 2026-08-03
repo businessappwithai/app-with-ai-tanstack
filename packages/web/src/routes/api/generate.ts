@@ -13,10 +13,10 @@
  * the model that produced it sitting beside it.
  */
 
-import { createFileRoute } from "@tanstack/react-router";
 import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { createFileRoute } from "@tanstack/react-router";
 
 /** Resolve the generator CLI entry point, preferring the built bundle. */
 async function resolveCli(cwd: string): Promise<string | null> {

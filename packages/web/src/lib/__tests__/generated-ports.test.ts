@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { DEFAULT_BACKEND_PORT, DEFAULT_FRONTEND_PORT } from "@erdwithai/generator/generators/ports";
+import { describe, expect, it } from "vitest";
 import {
   DEFAULT_API_PORT,
   DEFAULT_APP_PORT,

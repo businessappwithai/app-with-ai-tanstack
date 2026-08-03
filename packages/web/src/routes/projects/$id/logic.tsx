@@ -12,12 +12,9 @@ import {
   Workflow as WorkflowIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { type EditableRule, RuleEditor, slugifyRuleName } from "@/components/eml/RuleEditor";
 import { emptyRuleFlow } from "@/components/eml/RuleFlowCanvas";
-import {
-  type EditableRule,
-  RuleEditor,
-  slugifyRuleName,
-} from "@/components/eml/RuleEditor";
+import { emptyStateFlow } from "@/components/eml/StateFlowCanvas";
 import {
   type EditableWorkflow,
   emitWorkflowDiagram,
@@ -35,7 +32,6 @@ import {
   parseSagaFlow,
   parseStateFlow,
 } from "@/lib/eml/workflow-flow";
-import { emptyStateFlow } from "@/components/eml/StateFlowCanvas";
 import { useProjectStore } from "@/store/projectStore";
 
 /**
@@ -207,8 +203,7 @@ function LogicPage() {
   );
 
   const activeRule = selected.kind === "rule" ? (rules[selected.index] ?? null) : null;
-  const activeWorkflow =
-    selected.kind === "workflow" ? (workflows[selected.index] ?? null) : null;
+  const activeWorkflow = selected.kind === "workflow" ? (workflows[selected.index] ?? null) : null;
 
   const patchRule = useCallback(
     (patch: Partial<EditableRule>) => {
@@ -249,10 +244,7 @@ function LogicPage() {
   };
 
   const addWorkflow = (kind: WorkflowKind) => {
-    setWorkflows((current) => [
-      ...current,
-      emptyWorkflow(kind, nextKey(), entityNames[0] ?? ""),
-    ]);
+    setWorkflows((current) => [...current, emptyWorkflow(kind, nextKey(), entityNames[0] ?? "")]);
     setSelected({ kind: "workflow", index: workflows.length });
     setSavedAt(null);
   };

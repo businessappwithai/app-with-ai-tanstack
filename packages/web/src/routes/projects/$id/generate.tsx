@@ -57,32 +57,24 @@ function GeneratePage() {
   const [localProject, setLocalProject] = useState<Project | null>(null);
   const [selectedStack, setSelectedStack] = useState<StackType | null>(null);
   const [selectedDatabase] = useState<"sqlite" | "postgresql">("postgresql");
-  const [selectedPort, setSelectedPort] = useState<number>(9001);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationComplete, setGenerationComplete] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const isGenerated = localProject?.generatedPath && localProject.deploymentStatus === "completed";
+  // Whether this project has already been generated once. A project keeps its
+  // output, so coming back to this step should say so rather than look like a
+  // blank slate.
+  const isGenerated = Boolean(
+    localProject?.generatedPath && localProject.deploymentStatus === "completed"
+  );
   const logsEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const checkPort = async () => {
-      for (let port = 9001; port <= 9999; port++) {
-        try {
-          await fetch(`http://localhost:${port}`, { mode: "no-cors" });
-        } catch {
-          setSelectedPort(port);
-          return;
-        }
-      }
-      setSelectedPort(9001);
-    };
-
-    if (!isGenerated) {
-      checkPort();
-    }
-  }, [isGenerated]);
+  // The port a generated app binds to is the pair the project was allocated,
+  // decided when the project was created and applied by /api/generate. This
+  // page used to hunt for a free port by fetching localhost:9001 through
+  // localhost:9999 on every load — around a thousand failed requests — and send
+  // the winner in a field the route has never read.
 
   useEffect(() => {
     const initProject = async () => {
@@ -136,7 +128,6 @@ function GeneratePage() {
           projectId,
           stackType: selectedStack,
           database: selectedDatabase,
-          port: selectedPort,
           erdCode: localProject.erdCode,
         }),
       });
@@ -236,6 +227,26 @@ function GeneratePage() {
 
       <div className="flex-1 py-8">
         <div className="max-w-7xl mx-auto px-6">
+          {/* Coming back to a project that has already been generated used to
+              look identical to arriving for the first time: the stack picker and
+              nothing else. The output is still on disk and the step can be
+              re-run, but that is a different decision from generating fresh. */}
+          {isGenerated && !isGenerating && !generationComplete && (
+            <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border border-border bg-card px-5 py-4">
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">This project has already been generated</p>
+                <p className="truncate font-mono text-xs text-muted-foreground">
+                  {localProject?.generatedPath}
+                </p>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Generating again overwrites the code and keeps{" "}
+                <code className="font-mono">backend/.env</code>.
+              </p>
+            </div>
+          )}
+
           {!isGenerating && !generationComplete && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {stackOptions.map((stack) => (
@@ -278,7 +289,7 @@ function GeneratePage() {
                 style={{ backgroundColor: "#FF8400" }}
               >
                 <Zap className="w-5 h-5" />
-                Generate Application
+                {isGenerated ? "Regenerate Application" : "Generate Application"}
               </button>
             </div>
           )}

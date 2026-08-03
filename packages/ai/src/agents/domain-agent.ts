@@ -1,6 +1,6 @@
 import { Agent } from "@mastra/core/agent";
-import { domainAnalysisSchema } from "../types";
 import { mastraModelConfig } from "../config";
+import { domainAnalysisSchema } from "../types";
 
 export const domainAgent = new Agent({
   id: "domain-agent",

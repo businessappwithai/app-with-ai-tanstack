@@ -1,7 +1,7 @@
 import { AlertCircle, Code2, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { emptyStateFlow, StateFlowCanvas } from "@/components/eml/StateFlowCanvas";
 import { SagaBpmnEditor } from "@/components/eml/SagaBpmnEditor";
+import { emptyStateFlow, StateFlowCanvas } from "@/components/eml/StateFlowCanvas";
 import {
   emitHookWorkflow,
   emitSagaFlow,
@@ -62,7 +62,8 @@ export function emptyWorkflow(kind: WorkflowKind, key: string, entity: string): 
 
 /** The diagram a workflow serialises to, whichever kind it is. */
 export function emitWorkflowDiagram(workflow: EditableWorkflow): string {
-  if (workflow.kind === "hook") return emitHookWorkflow(workflow.entity || "Entity", workflow.hooks);
+  if (workflow.kind === "hook")
+    return emitHookWorkflow(workflow.entity || "Entity", workflow.hooks);
   if (workflow.kind === "saga") return emitSagaFlow(workflow.saga);
   return emitStateFlow(workflow.states);
 }
@@ -197,9 +198,7 @@ export function WorkflowEditor({
                 </label>
 
                 <label className="block">
-                  <span className="mb-1 block text-[11px] font-medium">
-                    Handler name
-                  </span>
+                  <span className="mb-1 block text-[11px] font-medium">Handler name</span>
                   <input
                     className="w-full rounded-md border border-border px-2 py-1.5 font-mono text-sm"
                     value={hook.handler}
@@ -220,9 +219,7 @@ export function WorkflowEditor({
                 </label>
 
                 <label className="block">
-                  <span className="mb-1 block text-[11px] font-medium">
-                    Field (optional)
-                  </span>
+                  <span className="mb-1 block text-[11px] font-medium">Field (optional)</span>
                   <input
                     className="w-full rounded-md border border-border px-2 py-1.5 font-mono text-sm"
                     value={hook.field ?? ""}
@@ -273,10 +270,7 @@ export function WorkflowEditor({
         />
       ) : (
         <div className="h-[460px]">
-          <StateFlowCanvas
-            flow={workflow.states}
-            onChange={(states) => onChange({ states })}
-          />
+          <StateFlowCanvas flow={workflow.states} onChange={(states) => onChange({ states })} />
         </div>
       )}
 

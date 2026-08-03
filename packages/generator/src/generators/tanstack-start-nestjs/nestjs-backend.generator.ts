@@ -16,17 +16,18 @@
  * Generated from templates in tanstack-start-nestjs/backend/
  */
 
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import {
   type Entity,
   entityToBusEntity,
   generateEntityDictionary,
   type Relationship,
 } from "@erdwithai/core/types";
-import * as fs from "node:fs/promises";
-import * as path from "node:path";
-import type { EntityCategory } from "../../parsers/category.parser";
 import { type CompiledHook, HOOK_CONTRACTS, hooksByEntity } from "../../hooks";
+import type { EntityCategory } from "../../parsers/category.parser";
 import type { CompiledRule } from "../../rules";
+import { CliExecutor } from "../../utils/cli-executor";
 import {
   buildPassThroughBpmn,
   buildSagaBpmn,
@@ -36,7 +37,6 @@ import {
   describeSaga,
   describeWorkflow,
 } from "../../workflows";
-import { CliExecutor } from "../../utils/cli-executor";
 import { BaseGenerator } from "../base.generator";
 import { DEFAULT_FRONTEND_PORT } from "../ports";
 
