@@ -74,7 +74,8 @@ export interface RagRule {
 }
 
 export interface RagStep {
-  id: string;
+  /** Flowchart node the step is bound to — `nodeId`, as the compiler spells it. */
+  nodeId: string;
   type: string;
   props: Record<string, string>;
 }

@@ -24,3 +24,25 @@ export const mastraModelConfig = {
   url: AI_BASE_URL,
   apiKey: AI_API_KEY,
 } as const;
+
+/**
+ * Embeddings for retrieval.
+ *
+ * Served from the same OpenAI-compatible endpoint as everything else, so there
+ * is one base URL to point at a different machine and one key to rotate. A
+ * separate local embedding runtime would be a second thing to install and keep
+ * running for no gain — the endpoint already speaks `/v1/embeddings`.
+ */
+export const AI_EMBEDDING_MODEL = process.env.LOCAL_AI_EMBEDDING_MODEL ?? "bge-small-en-v1.5";
+
+/**
+ * Vector width of `AI_EMBEDDING_MODEL`.
+ *
+ * pgvector fixes the column width when the index is created, so this has to be
+ * known up front rather than discovered from the first response. Changing the
+ * embedding model means changing this and re-ingesting — a mismatch is rejected
+ * at insert time, which is the right place for it to fail.
+ */
+export const AI_EMBEDDING_DIMENSIONS = Number(
+  process.env.LOCAL_AI_EMBEDDING_DIMENSIONS ?? 384
+);

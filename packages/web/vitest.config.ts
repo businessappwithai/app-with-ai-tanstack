@@ -12,6 +12,7 @@ export default defineConfig({
       "src/**/*.{test,spec}.{js,jsx,ts,tsx}",
       "../core/src/**/*.{test,spec}.{js,jsx,ts,tsx}",
       "../generator/src/**/*.{test,spec}.{js,jsx,ts,tsx}",
+      "../ai/src/**/*.{test,spec}.{js,jsx,ts,tsx}",
     ],
     exclude: ["node_modules", "dist", ".next"],
     testTimeout: 10000,

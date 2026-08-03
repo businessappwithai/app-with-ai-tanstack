@@ -11,5 +11,6 @@ export {
 } from "./converter/openai-fallback";
 export { codeAgent, mastra } from "./mastra/index";
 export * from "./providers";
+export * from "./rag";
 export * from "./types";
 export * from "./workflows";
