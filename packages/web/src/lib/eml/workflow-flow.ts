@@ -276,6 +276,7 @@ export function validateStateFlow(flow: StateFlow): string[] {
  * `language/erdwithai-language.json`, which is the canonical declaration.
  */
 export const SAGA_STEP_TYPES = [
+  "Decision",
   "Formula",
   "CreateEntity",
   "UpdateEntity",
@@ -286,6 +287,7 @@ export const SAGA_STEP_TYPES = [
 export type SagaStepType = (typeof SAGA_STEP_TYPES)[number];
 
 export const SAGA_STEP_HINTS: Record<SagaStepType, string> = {
+  Decision: "Run a decision table and publish what it decides for later steps.",
   Formula: "Work out a value — or stage a literal — for a later step to use.",
   CreateEntity: "Insert a row. Name the variable its id lands in so a later step can reach it.",
   UpdateEntity: "Write one column, on this record or on a related one.",
@@ -297,6 +299,7 @@ export const FORMULA_OPERATIONS = ["set", "copy", "multiply", "divide", "add", "
 
 /** Which property fields each step type shows, in the order they read. */
 export const SAGA_STEP_FIELDS: Record<SagaStepType, string[]> = {
+  Decision: ["rule", "publish", "decisionTable"],
   Formula: ["target", "operation", "value", "source", "operand"],
   CreateEntity: ["entity", "fields", "as"],
   UpdateEntity: ["entity", "targetField", "targetSource", "field", "value", "source"],
@@ -305,6 +308,9 @@ export const SAGA_STEP_FIELDS: Record<SagaStepType, string[]> = {
 };
 
 export const SAGA_FIELD_LABELS: Record<string, string> = {
+  rule: "Evaluate the saved rule",
+  publish: "Publish only these outputs",
+  decisionTable: "Decision table (JSON)",
   entity: "Entity",
   field: "Column to write",
   value: "Literal value",
@@ -464,13 +470,16 @@ export function emitSagaFlow(flow: SagaFlow): string {
 
   if (flow.steps.length) lines.push("");
   flow.steps.forEach((step, index) => {
+    const JSON_PROPS = ["fields", "decisionTable"];
     const props = Object.entries(step.props)
-      .filter(([key, value]) => value?.trim() && key !== "fields")
+      .filter(([key, value]) => value?.trim() && !JSON_PROPS.includes(key))
       .map(([key, value]) => `${key}: ${value.trim()}`);
-    // `fields` carries JSON, so it goes last — every other value ends at the
-    // next `key:` token, and JSON is full of them.
-    const fields = step.props.fields?.trim();
-    if (fields) props.push(`fields: ${fields}`);
+    // JSON values go last — every other value ends at the next `key:` token,
+    // and JSON is full of them. Only one of these is ever set on a step.
+    for (const key of JSON_PROPS) {
+      const value = step.props[key]?.trim();
+      if (value) props.push(`${key}: ${value}`);
+    }
     lines.push(
       `    %%step ${stepNodeId(index)} ${step.type}${props.length ? ` ${props.join(" ")}` : ""}`
     );

@@ -13,7 +13,7 @@ import {
   Workflow as WorkflowIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { SagaStepEditor } from "@/components/eml/SagaStepEditor";
+import { SagaBpmnEditor } from "@/components/eml/SagaBpmnEditor";
 import { emptyStateFlow, StateFlowCanvas } from "@/components/eml/StateFlowCanvas";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
@@ -69,14 +69,40 @@ interface EmlResponse {
 }
 
 function readEntityNames(erd: string): string[] {
-  const names: string[] = [];
+  return [...readEntityColumns(erd).keys()];
+}
+
+/**
+ * Every entity's column names, so a step's pickers offer real columns and the
+ * editor can tell "reads a column of the record" apart from "reads a variable
+ * nothing publishes" — the two look identical until one of them silently
+ * skips the step.
+ */
+function readEntityColumns(erd: string): Map<string, string[]> {
+  const columns = new Map<string, string[]>();
+  let current: string | null = null;
+
   for (const rawLine of (erd ?? "").split("\n")) {
     const line = rawLine.trim();
     if (line.startsWith("%%")) continue;
+
     const open = line.match(/^([A-Za-z][A-Za-z0-9_]*)\s*\{$/);
-    if (open?.[1]) names.push(open[1]);
+    if (open?.[1]) {
+      current = open[1];
+      columns.set(current, []);
+      continue;
+    }
+    if (line === "}") {
+      current = null;
+      continue;
+    }
+    if (!current) continue;
+
+    // `<type> <name> [PK|FK|...]` — the name is the second token.
+    const attribute = line.match(/^[A-Za-z][\w[\]]*\s+([A-Za-z_]\w*)/);
+    if (attribute?.[1]) columns.get(current)?.push(attribute[1]);
   }
-  return names;
+  return columns;
 }
 
 function pascal(value: string): string {
@@ -166,6 +192,20 @@ function WorkflowDesignPage() {
   }, [id]);
 
   const entityNames = useMemo(() => readEntityNames(erd), [erd]);
+  const entityColumns = useMemo(() => readEntityColumns(erd), [erd]);
+  const columnsFor = useCallback(
+    (entity: string) => entityColumns.get(entity) ?? [],
+    [entityColumns]
+  );
+  // A Decision step can evaluate a rule the model already declares rather than
+  // carrying its own copy of the same table.
+  const ruleNames = useMemo(
+    () =>
+      (rules as { name?: string }[])
+        .map((rule) => rule?.name)
+        .filter((name): name is string => Boolean(name)),
+    [rules]
+  );
   const active = workflows[activeIndex] ?? null;
 
   const problems = useMemo(() => {
@@ -536,9 +576,13 @@ function WorkflowDesignPage() {
                       </div>
                     </div>
                   ) : active.kind === "saga" ? (
-                    <SagaStepEditor
+                    <SagaBpmnEditor
+                      key={active.key}
                       flow={active.saga}
                       entityNames={entityNames}
+                      entityColumns={columnsFor(active.entity)}
+                      ruleNames={ruleNames}
+                      columnsFor={columnsFor}
                       onChange={(saga) => patchActive({ saga })}
                     />
                   ) : (
