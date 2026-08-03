@@ -488,3 +488,29 @@ flowchart TD
     %%step D CreateEntity entity: CAPA as: newCapaId fields: {"deviation_report_id":"id","title":"CAPA for a critical deviation","root_cause_category":"capaCategory","remediation_owner_id":"reported_by_id","required_resolution_date":"anomaly_timestamp","status":"open"}
     %%step E UpdateEntity field: status value: escalated
     %%step F UpdateEntity entity: CAPA targetSource: newCapaId field: effectiveness_metric source: resolutionDays
+
+%% ---- Section 11: Workflow — sample disposition on update -------------------
+%% The escalation in Section 10 is rule-triggered: a rule decides whether it
+%% runs at all. This one is the other half of the pairing — it runs on the
+%% lifecycle itself, every time a sample is updated, and carries its own
+%% decision instead of being gated by one.
+%%
+%% The shape is the point: a table decides, and what it decides is read by the
+%% steps that create a row on another entity, write back to the record that
+%% triggered the workflow, and then reach into the row just created. Rules and
+%% variables interleaved through create, update and delete — driven by an
+%% entity's own lifecycle rather than by a rule naming the workflow.
+%%meta name: Sample Disposition
+%%meta kind: workflow
+%%workflow SampleDisposition entity: Sample kind: saga trigger: automatic operation: UPDATE
+flowchart TD
+    A([Sample updated]) --> B{Decide the disposition}
+    B --> C[Record the disposition]
+    C --> D[Move the sample]
+    D --> E[Name the disposition record]
+    E --> F([Disposed])
+
+    %%step B Decision decisionTable: {"hitPolicy":"first","inputs":[{"id":"i1","name":"Status","field":"status"}],"outputs":[{"id":"o1","name":"AliasType","field":"dispositionType"},{"id":"o2","name":"Location","field":"dispositionLocation"}],"rules":[{"_id":"consumed","i1":"\"consumed\"","o1":"'disposition_consumed'","o2":"'ARCHIVE-A'"},{"_id":"quarantined","i1":"\"quarantined\"","o1":"'disposition_quarantine'","o2":"'QUARANTINE-1'"},{"_id":"rest","i1":"","o1":"'disposition_active'","o2":"'FREEZER-A'"}]}
+    %%step C CreateEntity entity: CompoundAlias as: dispositionAliasId fields: {"compound_id":"compound_id","alias_name":"pending disposition","alias_type":"dispositionType"}
+    %%step D UpdateEntity field: storage_location source: dispositionLocation
+    %%step E UpdateEntity entity: CompoundAlias targetSource: dispositionAliasId field: alias_name source: dispositionLocation
