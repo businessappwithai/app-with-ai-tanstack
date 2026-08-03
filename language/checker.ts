@@ -1132,6 +1132,15 @@ class CheckEngine {
   private checkStepDirectives(): void {
     const stepTypes = new Map(stepNodeTypes().map((step) => [step.name, step]));
     const entitySpellings = this.entitySpellings();
+    // Rules a Decision step may name. Also picks up `%%rule` lines the model
+    // parser did not turn into a rule, so a naming slip is not reported twice.
+    const ruleNames = new Set<string>([
+      ...this.model.rules.map((rule) => rule.name),
+      ...this.src
+        .findAll(/^%%rule\b/)
+        .map(({ text }) => text.match(/^%%rule\s+(\w+)/)?.[1])
+        .filter((name): name is string => !!name),
+    ]);
 
     for (const section of this.sagaSections()) {
       // Variables a step can read: every entity column is in scope, plus
@@ -1186,7 +1195,7 @@ class CheckEngine {
 
         // EML262: properties the step cannot run without.
         const missing: string[] = [];
-        for (const key of contract.required) {
+        for (const key of contract.required ?? []) {
           if (!has(key)) missing.push(key);
         }
         for (const group of contract.oneOf ?? []) {
@@ -1204,7 +1213,7 @@ class CheckEngine {
             `%%step ${nodeId} (${typeName}) is missing: ${missing.join(", ")}.`,
             {
               line: lineNo,
-              hint: `${typeName} requires ${contract.required.join(", ") || "no fixed properties"}. See spec/03-workflows.md.`,
+              hint: `${typeName} requires ${(contract.required ?? []).join(", ") || "no fixed properties"}. See spec/03-workflows.md.`,
             }
           );
         }
@@ -1212,7 +1221,7 @@ class CheckEngine {
         // EML268: a misspelt key is silently ignored by the executor, so the
         // step runs without the property the author thought they had set.
         const known = new Set([
-          ...contract.required,
+          ...(contract.required ?? []),
           ...(contract.optional ?? []),
           ...(contract.oneOf ?? []).flat(),
           ...(typeName === "Formula" ? ["source", "operand", "value"] : []),
@@ -1260,6 +1269,65 @@ class CheckEngine {
           }
         }
 
+        // EML271: a decision table that will not parse means the step is
+        // skipped, and a workflow whose branch silently never runs looks like
+        // a workflow that ran and decided nothing.
+        if (typeName === "Decision" && has("decisionTable")) {
+          try {
+            const table = JSON.parse(props.decisionTable!) as {
+              outputs?: unknown;
+              rules?: unknown;
+            };
+            if (!table || typeof table !== "object" || Array.isArray(table)) {
+              throw new Error("not an object");
+            }
+            if (!Array.isArray(table.rules) || table.rules.length === 0) {
+              this.error("EML271", `%%step ${nodeId} (Decision) has a table with no rows.`, {
+                line: lineNo,
+                hint: "A table with no rows matches nothing and publishes nothing. Add a row, or drop the step.",
+              });
+            } else if (Array.isArray(table.outputs)) {
+              // Every row must set every output column. The engine drops a row
+              // that does not, without saying so, and one such row is enough to
+              // stop the whole table matching.
+              const columns = (table.outputs as { id?: string }[])
+                .map((output) => output?.id)
+                .filter((id): id is string => Boolean(id));
+              const incomplete = (table.rules as Record<string, unknown>[]).filter((row) =>
+                columns.some((column) => row?.[column] === undefined)
+              );
+              if (incomplete.length > 0) {
+                this.error(
+                  "EML272",
+                  `%%step ${nodeId} (Decision) has ${incomplete.length} row(s) that do not set every output column.`,
+                  {
+                    line: lineNo,
+                    hint: `Give every row a value for each of ${columns.join(", ")} — use "''" for the ones it deliberately leaves blank. The engine discards an incomplete row silently.`,
+                  }
+                );
+              }
+            }
+          } catch {
+            this.error("EML271", `%%step ${nodeId} (Decision) has an invalid "decisionTable".`, {
+              line: lineNo,
+              hint: '`decisionTable` must be a JSON object and the last key on the line, e.g. decisionTable: {"hitPolicy":"collect","inputs":[…],"outputs":[…],"rules":[…]}.',
+            });
+          }
+        }
+
+        // EML273: naming a rule that the model does not declare leaves the step
+        // with nothing to evaluate.
+        if (typeName === "Decision" && has("rule") && !ruleNames.has(props.rule!.trim())) {
+          this.warn(
+            "EML273",
+            `%%step ${nodeId} (Decision) names rule "${props.rule!.trim()}", which the model does not declare.`,
+            {
+              line: lineNo,
+              hint: "Declare it in a `kind: rules` flowchart, or author the table inline with decisionTable. A rule seeded outside the model still resolves at runtime.",
+            }
+          );
+        }
+
         // EML265: the executor refuses a cross-entity write it cannot aim.
         if (
           (typeName === "UpdateEntity" || typeName === "DeleteEntity") &&
@@ -1292,13 +1360,7 @@ class CheckEngine {
           );
         }
 
-        const publishes =
-          typeName === "CreateEntity"
-            ? props.as?.trim() || (entityProp ? `${entityProp.replace(/^bus_/, "")}Id` : undefined)
-            : typeName === "Formula"
-              ? props.target?.trim()
-              : undefined;
-        if (publishes) published.add(publishes);
+        for (const name of this.stepPublishes(typeName, props, entityProp)) published.add(name);
       }
     }
 
@@ -1402,6 +1464,54 @@ class CheckEngine {
       spellings.add(`bus_${bare}`);
     }
     return spellings;
+  }
+
+  /**
+   * The context variables a step makes available to the ones after it.
+   *
+   * A list rather than a single name: a Decision publishes one variable per
+   * output column of whichever row matches. When the table is authored inline
+   * the columns are readable from it; when it names a rule they are not, so
+   * `publish` is the only declaration available and an absent one means the
+   * checker cannot know — it stays quiet rather than guessing wrong.
+   */
+  private stepPublishes(
+    typeName: string,
+    props: Record<string, string>,
+    entityProp: string | undefined
+  ): string[] {
+    if (typeName === "CreateEntity") {
+      const explicit = props.as?.trim();
+      if (explicit) return [explicit];
+      return entityProp ? [`${entityProp.replace(/^bus_/, "")}Id`] : [];
+    }
+
+    if (typeName === "Formula") {
+      const target = props.target?.trim();
+      return target ? [target] : [];
+    }
+
+    if (typeName === "Decision") {
+      const allowed = (props.publish ?? "")
+        .split(",")
+        .map((name) => name.trim())
+        .filter(Boolean);
+      if (allowed.length > 0) return allowed;
+
+      const inline = props.decisionTable?.trim();
+      if (!inline) return [];
+      try {
+        const table = JSON.parse(inline) as { outputs?: { field?: string }[] };
+        return (table.outputs ?? [])
+          .map((output) => output?.field?.trim())
+          .filter((field): field is string => Boolean(field));
+      } catch {
+        // EML271 already reports the parse failure; do not report it twice.
+        return [];
+      }
+    }
+
+    return [];
   }
 
   /** `key: value` pairs, each value running to the next `key:` token. */

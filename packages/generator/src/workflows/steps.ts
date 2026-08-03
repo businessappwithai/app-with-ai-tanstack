@@ -21,6 +21,7 @@ export const STEP_TYPES = [
   "UpdateEntity",
   "CreateEntity",
   "DeleteEntity",
+  "Decision",
   "Formula",
   "REST",
   "Agent",
@@ -38,8 +39,39 @@ export interface StepContract {
   oneOf?: readonly (readonly string[])[];
   /** Properties the step understands but does not require. */
   optional: readonly string[];
-  /** Context variable this step publishes, derived from its properties. */
-  publishes?: (props: Record<string, string>) => string | undefined;
+  /**
+   * Context variables this step publishes, derived from its properties.
+   *
+   * A list rather than a single name because a Decision publishes one variable
+   * per output column of the row that matched.
+   */
+  publishes?: (props: Record<string, string>) => string[];
+}
+
+/**
+ * Output columns a Decision step publishes.
+ *
+ * Read from the table's declared `outputs` when it is authored inline, or from
+ * the `publish` allow-list when it names a rule — the rule's JDM lives
+ * elsewhere in the document, so the columns cannot be read from here.
+ */
+export function decisionPublishes(props: Record<string, string>): string[] {
+  const allowed = (props.publish ?? "")
+    .split(",")
+    .map((name) => name.trim())
+    .filter(Boolean);
+  if (allowed.length > 0) return allowed;
+
+  const inline = props.decisionTable?.trim();
+  if (!inline) return [];
+  try {
+    const table = JSON.parse(inline) as { outputs?: { field?: string }[] };
+    return (table.outputs ?? [])
+      .map((output) => output?.field?.trim())
+      .filter((field): field is string => Boolean(field));
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -60,19 +92,26 @@ export const STEP_CONTRACTS: Record<StepType, StepContract> = {
     optional: ["as"],
     publishes: (props) => {
       const explicit = props.as?.trim();
-      if (explicit) return explicit;
+      if (explicit) return [explicit];
       const table = props.entity?.trim();
-      return table ? `${table.replace(/^bus_/, "")}Id` : undefined;
+      return table ? [`${table.replace(/^bus_/, "")}Id`] : [];
     },
   },
   DeleteEntity: {
     required: [],
     optional: ["entity", "targetField", "targetSource", "hard"],
   },
+  Decision: {
+    required: [],
+    // Either the table lives here, or it names one that lives elsewhere.
+    oneOf: [["decisionTable", "rule"]],
+    optional: ["publish"],
+    publishes: decisionPublishes,
+  },
   Formula: {
     required: ["target", "operation"],
     optional: ["source", "operand", "value"],
-    publishes: (props) => props.target?.trim() || undefined,
+    publishes: (props) => (props.target?.trim() ? [props.target.trim()] : []),
   },
   REST: {
     required: ["url"],

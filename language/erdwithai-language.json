@@ -637,6 +637,28 @@
           "example": "%%step F DeleteEntity entity: Capa targetSource: supersededCapaId"
         },
         {
+          "name": "Decision",
+          "purpose": "Evaluate a GoRules decision table and publish the matching row's output columns as variables the following steps read.",
+          "required": [],
+          "oneOf": [
+            [
+              "decisionTable",
+              "rule"
+            ]
+          ],
+          "optional": [
+            "publish"
+          ],
+          "notes": [
+            "`decisionTable` is the table itself as JSON — { hitPolicy, inputs, outputs, rules } — for logic only this process cares about. The generator wraps it in the input -> table -> output graph the engine evaluates, so a step never carries that plumbing.",
+            "`rule` names a rule declared elsewhere in the model, for when the same table already governs the entity and the process should not fork a second copy of it.",
+            "Outputs become variables under their `field` name. `publish` narrows that to a comma-separated allow-list when a table emits more than the process needs.",
+            "A table that matches no row publishes nothing. That is how 'leave it alone' is expressed, not an error — later steps that read a variable it would have set skip themselves.",
+            "Every row must set every output column: the engine silently discards a row that leaves one unset, and one such row stops the whole table matching."
+          ],
+          "example": "%%step B Decision rule: ClassifySeverity publish: priority, slaDays"
+        },
+        {
           "name": "Formula",
           "purpose": "Publish a value into the workflow context for later steps.",
           "required": [

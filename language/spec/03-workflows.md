@@ -183,8 +183,8 @@ division of labour as `%%hook` — one artifact, both halves in sync.
 
 - `nodeId` — a node in the same flowchart. A `%%step` naming a node that is not
   there is an error, not a silent no-op.
-- `stepType` — `UpdateEntity`, `CreateEntity`, `DeleteEntity`, `Formula`,
-  `REST` or `Agent`.
+- `stepType` — `UpdateEntity`, `CreateEntity`, `DeleteEntity`, `Decision`,
+  `Formula`, `REST` or `Agent`.
 - properties — space-separated `key: value`. A value runs to the next `<key>:`
   token, so it may contain spaces. **`fields` is JSON and must be last on the
   line.**
@@ -215,6 +215,7 @@ previous step published.
 
 - `CreateEntity` publishes the new row's id under `as`
 - `Formula` publishes under `target`
+- `Decision` publishes one variable per output column of the row that matched
 - a later step reads one by naming it in `source` or `targetSource`
 
 Without this a workflow could insert a row and then never reach it again, so it
@@ -227,6 +228,7 @@ could only ever touch the record it started from.
 | `UpdateEntity` | `field`, and one of `source`/`value` | `entity`, `targetField`, `targetSource` | writes one column |
 | `CreateEntity` | `entity`, `fields` | `as` | inserts a row, publishing its id |
 | `DeleteEntity` | — | `entity`, `targetField`, `targetSource`, `hard` | soft-deletes (stamps `deleted_at`); `hard: true` removes the row |
+| `Decision` | one of `decisionTable`/`rule` | `publish` | evaluates a GoRules table and publishes its outputs |
 | `Formula` | `target`, `operation` | see below | publishes a value into the context |
 | `REST` | `url` | `method`, `bodyTemplate` | calls an external endpoint |
 | `Agent` | `agentId` | — | placeholder pending Mastra integration |
@@ -235,6 +237,27 @@ could only ever touch the record it started from.
 `operand`, both coerced to Number), `set` (needs `value`, stored **unchanged** —
 the only way to pass text to a later step) and `copy` (needs `source`, carried
 across unchanged).
+
+**Decision** puts a GoRules decision table inside the process, so a branch lives
+where the process does rather than in a rule that triggers a second workflow.
+
+- `decisionTable` — the table as JSON, `{ hitPolicy, inputs, outputs, rules }`,
+  for logic only this process cares about. The generator wraps it in the
+  input → table → output graph the engine evaluates, so a step never carries
+  that plumbing. Like `fields`, it is JSON and must be last on the line.
+- `rule` — the name of a rule declared elsewhere in the model, for when the same
+  table already governs the entity and the process should not fork a copy of it.
+- `publish` — a comma-separated allow-list, when a table emits more columns than
+  the process needs. Omitted, every output column is published.
+
+Outputs land in the context under their `field` name, so a later step reads one
+exactly as it reads any other variable. A table that matches no row publishes
+nothing — that is how "leave it alone" is expressed, not an error, and the steps
+that would have read its variables skip themselves.
+
+Every row must set every output column. The engine silently discards a row that
+leaves one unset, and a single such row stops the whole table matching, so the
+checker refuses it (EML272).
 
 **Row targeting**, for `UpdateEntity` and `DeleteEntity`. With no `entity` the
 step acts on the record that triggered the workflow. To reach another entity,

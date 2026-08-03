@@ -460,24 +460,31 @@ flowchart TD
     %%hook afterCreate notifyQualityTeam on DeviationReport
 
 %% ---- Section 10: Workflow — critical deviation escalation ------------------
-%% A multi-step process: it stages a value, computes from it, creates a CAPA in
-%% another entity, updates the record that triggered it, and then reaches back
-%% into the row it created using the id that step bound. `trigger: rule` is what
-%% makes the severity condition in Section 3 load-bearing — without it the
-%% workflow would run on every deviation, critical or not.
+%% A multi-step process: it decides an SLA from a table, computes from what the
+%% table published, creates a CAPA in another entity, updates the record that
+%% triggered it, and then reaches back into the row it created using the id that
+%% step bound. `trigger: rule` is what makes the severity condition in Section 3
+%% load-bearing — without it the workflow would run on every deviation, critical
+%% or not.
+%%
+%% Step B is a decision table living inside the process. The base SLA used to be
+%% a literal 3, which meant the number was in the diagram but the reasoning
+%% behind it was nowhere: changing the window for major deviations meant editing
+%% a Formula and hoping the reader inferred why. As a table, the policy is the
+%% artifact, and the two variables it publishes are read by the steps after it.
 %%meta name: Critical Deviation Escalation
 %%meta kind: workflow
 %%workflow CriticalDeviationEscalation entity: DeviationReport kind: saga trigger: rule
 flowchart TD
-    A([Critical deviation reported]) --> B[Stage the base SLA]
+    A([Critical deviation reported]) --> B{Classify the severity}
     B --> C[Compute the resolution window]
     C --> D[Open a CAPA]
     D --> E[Escalate the deviation]
     E --> F[Record the window on the CAPA]
     F --> G([Escalated])
 
-    %%step B Formula target: baseDays operation: set value: 3
+    %%step B Decision decisionTable: {"hitPolicy":"first","inputs":[{"id":"i1","name":"Severity","field":"severity"}],"outputs":[{"id":"o1","name":"BaseDays","field":"baseDays"},{"id":"o2","name":"Category","field":"capaCategory"}],"rules":[{"_id":"critical","i1":"\"critical\"","o1":"1","o2":"'immediate_containment'"},{"_id":"major","i1":"\"major\"","o1":"3","o2":"'under_investigation'"},{"_id":"rest","i1":"","o1":"7","o2":"'under_investigation'"}]}
     %%step C Formula target: resolutionDays source: baseDays operation: multiply operand: 7
-    %%step D CreateEntity entity: CAPA as: newCapaId fields: {"deviation_report_id":"id","title":"CAPA for a critical deviation","root_cause_category":"under_investigation","remediation_owner_id":"reported_by_id","required_resolution_date":"anomaly_timestamp","status":"open"}
+    %%step D CreateEntity entity: CAPA as: newCapaId fields: {"deviation_report_id":"id","title":"CAPA for a critical deviation","root_cause_category":"capaCategory","remediation_owner_id":"reported_by_id","required_resolution_date":"anomaly_timestamp","status":"open"}
     %%step E UpdateEntity field: status value: escalated
     %%step F UpdateEntity entity: CAPA targetSource: newCapaId field: effectiveness_metric source: resolutionDays
