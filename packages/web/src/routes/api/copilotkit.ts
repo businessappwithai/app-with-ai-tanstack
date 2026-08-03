@@ -1,55 +1,29 @@
-import Anthropic from "@anthropic-ai/sdk";
-import {
-  AnthropicAdapter,
-  CopilotRuntime,
-  copilotRuntimeNodeHttpEndpoint,
-} from "@copilotkit/runtime";
+/**
+ * CopilotKit endpoint — exact path.
+ *
+ * The runtime itself lives in `lib/copilot-runtime.ts`; this file and the `$`
+ * splat beside it both delegate to it, so the adapter is configured once
+ * instead of the two routes drifting apart.
+ */
+
 import { createFileRoute } from "@tanstack/react-router";
-
-const runtime = new CopilotRuntime();
-
-function makeServiceAdapter() {
-  return new AnthropicAdapter({
-    anthropic: new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY || "",
-    }) as any,
-    model: "claude-sonnet-4-20250514",
-  });
-}
-
-async function handleCopilotRequest(request: Request): Promise<Response> {
-  const serviceAdapter = makeServiceAdapter();
-  const handler = copilotRuntimeNodeHttpEndpoint({
-    runtime,
-    serviceAdapter,
-    endpoint: "/api/copilotkit",
-  });
-  return handler(request) as Promise<Response>;
-}
+import { copilotError, handleCopilotRequest } from "@/lib/copilot-runtime";
 
 export const Route = createFileRoute("/api/copilotkit")({
   server: {
     handlers: {
       GET: async ({ request }) => {
         try {
-          return await handleCopilotRequest(request);
+          return await handleCopilotRequest(request, "/api/copilotkit");
         } catch (error) {
-          console.error("CopilotKit GET error:", error);
-          return new Response(
-            JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-            { status: 500, headers: { "Content-Type": "application/json" } }
-          );
+          return copilotError(error, "GET");
         }
       },
       POST: async ({ request }) => {
         try {
-          return await handleCopilotRequest(request);
+          return await handleCopilotRequest(request, "/api/copilotkit");
         } catch (error) {
-          console.error("CopilotKit POST error:", error);
-          return new Response(
-            JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-            { status: 500, headers: { "Content-Type": "application/json" } }
-          );
+          return copilotError(error, "POST");
         }
       },
     },
