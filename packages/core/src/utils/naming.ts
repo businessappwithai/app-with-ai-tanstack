@@ -29,11 +29,18 @@ export function snakeCase(str: string): string {
   if (/^[A-Z0-9_]+$/.test(str)) {
     return str.toLowerCase();
   }
-  return str
-    .replace(/([A-Z])/g, "_$1")
-    .replace(/[-\s]+/g, "_")
-    .toLowerCase()
-    .replace(/^_/, "");
+  return (
+    str
+      .replace(/([A-Z])/g, "_$1")
+      .replace(/[-\s]+/g, "_")
+      .toLowerCase()
+      // A boundary that is both a separator and a capital produced two
+      // underscores, one from each rule: "Drug Discovery Live" came out as
+      // "drug__discovery__live", which is what a generated project ended up
+      // naming its database.
+      .replace(/_{2,}/g, "_")
+      .replace(/^_/, "")
+  );
 }
 
 export function kebabCase(str: string): string {

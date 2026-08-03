@@ -353,6 +353,10 @@ program
   // Scope
   .option("--skip-frontend", "Generate backend only (shorthand for generate:backend)")
   .option("--skip-backend", "Generate frontend only (shorthand for generate:frontend)")
+  .option(
+    "--cli-scaffold",
+    "Scaffold with `bun create tanstack-start` / `nest new` before overlaying templates (network, interactive)"
+  )
   // Package manager
   .option("--package-manager <pm>", "Package manager: bun | npm | pnpm | yarn", "bun")
   // Output verbosity
@@ -598,6 +602,7 @@ program
         enableDarkMode: !!options.darkMode,
         skipFrontend: !!options.skipFrontend,
         skipBackend: !!options.skipBackend,
+        skipCliScaffold: !options.cliScaffold,
         skipTests: options.tests === false,
         recordsPerEntity: Number(options.recordsPerEntity) || 1000,
         manifest: {

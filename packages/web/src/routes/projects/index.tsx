@@ -15,6 +15,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { ImportModelModal, NewProjectModal } from "@/components/project";
 import { ShareProjectModal } from "@/components/project/ShareProjectModal";
+import { nextAvailableAppPort } from "@/lib/generated-ports";
 import { useAuthStore } from "@/store/authStore";
 import { useProjectStore } from "@/store/projectStore";
 
@@ -127,11 +128,7 @@ function ProjectsPage() {
   }) => {
     setIsCreatingProject(true);
     try {
-      const usedPorts = projects.map((p) => p.port).filter(Boolean);
-      let availablePort = 4001;
-      while (usedPorts.includes(availablePort)) {
-        availablePort++;
-      }
+      const availablePort = nextAvailableAppPort(projects.map((p) => p.port));
 
       const newProject = await addProject({
         name: data.name,
@@ -160,11 +157,7 @@ function ProjectsPage() {
    * already in place rather than on an empty canvas.
    */
   const handleImportModel = async (input: { name: string; eml: string }) => {
-    const usedPorts = projects.map((p) => p.port).filter(Boolean);
-    let availablePort = 4001;
-    while (usedPorts.includes(availablePort)) {
-      availablePort++;
-    }
+    const availablePort = nextAvailableAppPort(projects.map((p) => p.port));
 
     const imported = await addProject({
       name: input.name,

@@ -34,7 +34,9 @@ const stackOptions: StackOption[] = [
       "Knex.js with PostgreSQL",
       "TanStack Start Frontend",
       "Monorepo Architecture",
-      "API on 4001, Frontend on 3000",
+      // Matches DEFAULT_FRONTEND_PORT / DEFAULT_BACKEND_PORT in
+      // packages/generator/src/generators/ports.ts. 3000 is this tool.
+      "Frontend on 4000, API on 4001",
     ],
     category: "fullstack",
   },

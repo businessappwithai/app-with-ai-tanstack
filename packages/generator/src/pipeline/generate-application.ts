@@ -92,6 +92,20 @@ export const GENERATION_DEFAULTS = {
   enableCors: true,
   enableDarkMode: false,
   recordsPerEntity: 1000,
+  /**
+   * Generate from the bundled templates rather than scaffolding first.
+   *
+   * `bun create tanstack-start` and `nest new` fetch a starter over the network
+   * and then stop to ask questions the arguments already answer. Everything
+   * they write is overwritten by the template overlay in the phase that
+   * follows, so the scaffold buys nothing and costs a network round trip and an
+   * interactive prompt — which is why generation from the web app hung on
+   * "Enter your project name:" while the backend, whose scaffold happened to
+   * fail fast, completed from templates in the same run.
+   *
+   * Pass `--cli-scaffold` to opt back in.
+   */
+  skipCliScaffold: true,
 };
 
 /**
@@ -206,7 +220,7 @@ export function buildGeneratorOptions(
     skipFrontend: !!settings.skipFrontend,
     skipBackend: !!settings.skipBackend,
     skipTests: !!settings.skipTests,
-    skipCliScaffold: settings.skipCliScaffold,
+    skipCliScaffold: settings.skipCliScaffold ?? GENERATION_DEFAULTS.skipCliScaffold,
     recordsPerEntity: settings.recordsPerEntity ?? GENERATION_DEFAULTS.recordsPerEntity,
     categories: model.categories,
     compiledRules: model.rules,

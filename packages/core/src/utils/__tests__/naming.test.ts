@@ -36,6 +36,15 @@ describe("snakeCase", () => {
     expect(snakeCase("deviation_report_id")).toBe("deviation_report_id");
   });
 
+  // A space before a capital hit both the capital rule and the separator rule
+  // and got an underscore from each, so a project called "Drug Discovery Live"
+  // generated a database named "drug__discovery__live".
+  it("collapses a separator that is also a word boundary", () => {
+    expect(snakeCase("Drug Discovery Live")).toBe("drug_discovery_live");
+    expect(snakeCase("Stability Test")).toBe("stability_test");
+    expect(snakeCase("Round-Trip Check")).toBe("round_trip_check");
+  });
+
   it("normalizes hyphens", () => {
     expect(snakeCase("stability-test")).toBe("stability_test");
   });

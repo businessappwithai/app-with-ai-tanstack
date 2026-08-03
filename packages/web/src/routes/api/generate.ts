@@ -99,6 +99,9 @@ export const Route = createFileRoute("/api/generate")({
                   .join(", ")}`
               );
 
+              const { DEFAULT_APP_PORT } = await import("@/lib/generated-ports");
+              const appPort = project.port || DEFAULT_APP_PORT;
+
               const cwd = process.cwd();
               const outputDir = path.join(cwd, "generated-projects", projectId);
               const modelDir = path.join(cwd, "generated-projects", "models");
@@ -132,8 +135,15 @@ export const Route = createFileRoute("/api/generate")({
                 project.description || `Generated ${finalStackType} application`,
                 "--stack",
                 finalStackType,
+                // A project owns an adjacent pair: the app on the port it was
+                // allocated, the API one above. Passing only --port set the
+                // *backend* port and let the frontend default to one above it,
+                // so a project allocated 4003 served its app on 4004 — a port
+                // the next project also thought it owned.
+                "--frontend-port",
+                String(appPort),
                 "--port",
-                String(project.port || 4000),
+                String(appPort + 1),
                 "--db",
                 project.databaseType === "sqlite" ? "sqlite" : "postgresql",
                 "--force",
