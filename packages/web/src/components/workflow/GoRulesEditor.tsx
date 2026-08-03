@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "@gorules/jdm-editor/dist/style.css";
 import { DecisionGraph, JdmConfigProvider } from "@gorules/jdm-editor";
 

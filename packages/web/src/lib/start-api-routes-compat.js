@@ -95,7 +95,7 @@ function findRoute(url, routes) {
           const wild = urlSegments.slice(i).join("/");
           if (wild !== "") {
             params["*"] = wild;
-            params["_splat"] = wild;
+            params._splat = wild;
           } else {
             matches = false;
             break;

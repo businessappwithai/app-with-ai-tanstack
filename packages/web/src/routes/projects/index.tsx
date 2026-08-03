@@ -12,7 +12,7 @@ import {
   User,
   X,
 } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NewProjectModal } from "@/components/project";
 import { ShareProjectModal } from "@/components/project/ShareProjectModal";
 import { useAuthStore } from "@/store/authStore";
@@ -115,7 +115,7 @@ function ProjectsPage() {
   const filteredProjects = projects.filter((p) => {
     const matchesSearch =
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      (p.description?.toLowerCase().includes(searchQuery.toLowerCase()));
     const computedStatus =
       p.deploymentStatus === "running" ? "active" : p.generatedPath ? "complete" : "draft";
     const matchesStatus =

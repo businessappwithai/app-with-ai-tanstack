@@ -24,7 +24,6 @@
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { loadLanguageDefinition, stepNodeTypes } from "./index.ts";
 import type { EmlAttribute, EmlEntity, EmlModel, EmlRule, EmlWorkflow } from "./cli/src/model.ts";
 import { parseEml } from "./cli/src/parser.ts";
@@ -1376,6 +1375,8 @@ class CheckEngine {
       if (edge.test(trimmed) || /[[({]/.test(trimmed)) {
         nodeRef.lastIndex = 0;
         let m: RegExpExecArray | null;
+        // Not matchAll: the body advances lastIndex past zero-length matches.
+        // biome-ignore lint/suspicious/noAssignInExpressions: standard exec-loop idiom
         while ((m = nodeRef.exec(trimmed)) !== null) {
           if (m[0].trim()) current.nodeIds.add(m[1]!);
           if (m.index === nodeRef.lastIndex) nodeRef.lastIndex++;
@@ -1934,7 +1935,7 @@ function buildErrorFile(
 }
 
 function writeErrorFile(filePath: string, content: ErrorFileContent): void {
-  const errorFilePath = filePath.replace(/\.mmd$/, "") + ".mmd.error";
+  const errorFilePath = `${filePath.replace(/\.mmd$/, "")}.mmd.error`;
   writeFileSync(errorFilePath, JSON.stringify(content, null, 2), "utf8");
 }
 
@@ -2017,7 +2018,7 @@ async function checkFile(
   // Always write the .error file (overwrites previous run)
   const errorContent = buildErrorFile(result, filePath, languageVersion);
   writeErrorFile(filePath, errorContent);
-  const errorFilePath = filePath.replace(/\.mmd$/, "") + ".mmd.error";
+  const errorFilePath = `${filePath.replace(/\.mmd$/, "")}.mmd.error`;
 
   return { result, file: filePath, errorFilePath };
 }

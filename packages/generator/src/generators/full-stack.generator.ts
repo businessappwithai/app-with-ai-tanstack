@@ -9,8 +9,8 @@
  */
 
 import type { Entity, Relationship } from "@erdwithai/core/types";
-import * as fs from "fs/promises";
-import * as path from "path";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import type { EntityCategory } from "../parsers/category.parser";
 import {
   NestJsBackendGenerator,
@@ -554,7 +554,7 @@ MIT
    */
   private async runLintingChecks(outputDir: string): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { execFileSync } = require("child_process") as typeof import("child_process");
+    const { execFileSync } = require("node:child_process") as typeof import("child_process");
 
     const runLint = (command: string, args: string[], cwd: string): boolean => {
       try {

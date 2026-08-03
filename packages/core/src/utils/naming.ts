@@ -40,14 +40,14 @@ export function kebabCase(str: string): string {
 
 export function plural(str: string): string {
   if (!str) return "";
-  if (str.endsWith("y")) return str.slice(0, -1) + "ies";
-  if (str.endsWith("s") || str.endsWith("x") || str.endsWith("ch")) return str + "es";
-  return str + "s";
+  if (str.endsWith("y")) return `${str.slice(0, -1)}ies`;
+  if (str.endsWith("s") || str.endsWith("x") || str.endsWith("ch")) return `${str}es`;
+  return `${str}s`;
 }
 
 export function singular(str: string): string {
   if (!str) return "";
-  if (str.endsWith("ies")) return str.slice(0, -3) + "y";
+  if (str.endsWith("ies")) return `${str.slice(0, -3)}y`;
   if (str.endsWith("es")) return str.slice(0, -2);
   if (str.endsWith("s")) return str.slice(0, -1);
   return str;

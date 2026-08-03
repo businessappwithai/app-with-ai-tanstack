@@ -4,6 +4,8 @@
  *
  * Handles:
  * - Idempotent migrations (skips already-run migrations)
+ * - Drift detection: an already-run migration whose contents changed is
+ *   reported instead of silently skipped
  * - Separate seed execution (after all migrations)
  * - Graceful error handling for constraint conflicts
  *
@@ -12,6 +14,7 @@
 
 import * as path from 'path';
 import * as fs from 'fs';
+import { createHash } from 'crypto';
 import { Kysely, PostgresDialect, sql } from 'kysely';
 import { Pool } from 'pg';
 import { config } from 'dotenv';
@@ -34,6 +37,14 @@ function buildPool() {
   });
 }
 
+/**
+ * Set to "true" to downgrade a checksum mismatch from an error to a warning.
+ *
+ * The escape hatch exists for the legitimate case — reformatting a migration,
+ * or fixing a comment — where the author knows the schema is unaffected.
+ */
+const ALLOW_DRIFT = process.env.MIGRATIONS_ALLOW_DRIFT === 'true';
+
 async function ensureMigrationTable(db: Kysely<any>) {
   try {
     await sql`CREATE TABLE IF NOT EXISTS _migrations (
@@ -44,22 +55,47 @@ async function ensureMigrationTable(db: Kysely<any>) {
   } catch (e) {
     // Table might already exist
   }
-}
-
-async function getMigratedFiles(db: Kysely<any>): Promise<Set<string>> {
+  // Added after the fact, so databases created by an earlier version get it too.
   try {
-    const result = await sql<{ name: string }>`SELECT name FROM _migrations`.execute(db);
-    return new Set(result.rows.map(r => r.name));
-  } catch {
-    return new Set();
+    await sql`ALTER TABLE _migrations ADD COLUMN IF NOT EXISTS checksum VARCHAR(64)`.execute(db);
+  } catch (e) {
+    // Older servers without IF NOT EXISTS support: drift checking is skipped.
   }
 }
 
-async function markMigrationDone(db: Kysely<any>, name: string) {
+/** Migrations already applied, mapped to the checksum recorded at the time. */
+async function getMigratedFiles(db: Kysely<any>): Promise<Map<string, string | null>> {
   try {
-    await sql`INSERT INTO _migrations (name) VALUES (${name}) ON CONFLICT (name) DO NOTHING`.execute(db);
+    const result = await sql<{ name: string; checksum: string | null }>`
+      SELECT name, checksum FROM _migrations
+    `.execute(db);
+    return new Map(result.rows.map(r => [r.name, r.checksum]));
+  } catch {
+    return new Map();
+  }
+}
+
+function checksumOf(filePath: string): string {
+  return createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+}
+
+async function markMigrationDone(db: Kysely<any>, name: string, checksum: string) {
+  try {
+    await sql`
+      INSERT INTO _migrations (name, checksum) VALUES (${name}, ${checksum})
+      ON CONFLICT (name) DO UPDATE SET checksum = EXCLUDED.checksum
+    `.execute(db);
   } catch (e) {
     // Already recorded
+  }
+}
+
+/** Record a checksum for a migration that ran before checksums existed. */
+async function backfillChecksum(db: Kysely<any>, name: string, checksum: string) {
+  try {
+    await sql`UPDATE _migrations SET checksum = ${checksum} WHERE name = ${name}`.execute(db);
+  } catch (e) {
+    // Non-fatal: drift checking simply stays off for this row.
   }
 }
 
@@ -76,27 +112,43 @@ async function runMigrations(db: Kysely<any>) {
     .sort();
 
   let migratedCount = 0;
+  const drifted: string[] = [];
+
   for (const file of files) {
+    const migrationPath = path.join(migrationDir, file);
+    const checksum = checksumOf(migrationPath);
+
     if (executed.has(file)) {
+      const recorded = executed.get(file) ?? null;
+      if (recorded === null) {
+        // Ran before checksums existed — adopt the current contents as the
+        // baseline so future edits are caught.
+        await backfillChecksum(db, file, checksum);
+      } else if (recorded !== checksum) {
+        // The runner keys on filename, so this migration will never run again.
+        // Editing it therefore changes what new databases get while leaving
+        // every existing one behind — which surfaces much later as a missing
+        // column, far from the edit that caused it.
+        drifted.push(file);
+      }
       console.log(`⊘ Skipping already-run: ${file}`);
       continue;
     }
 
-    const migrationPath = path.join(migrationDir, file);
     const migrationModule = await import(migrationPath);
 
     if (migrationModule.up) {
       try {
         console.log(`Running migration: ${file}`);
         await migrationModule.up(db);
-        await markMigrationDone(db, file);
+        await markMigrationDone(db, file, checksum);
         console.log(`✓ Migration "${file}" completed\n`);
         migratedCount++;
       } catch (error: any) {
         // Ignore constraint-already-exists errors (idempotent operations)
         if (error?.code === '42710' || error?.message?.includes('already exists')) {
           console.log(`⊘ Migration "${file}" is idempotent (constraint already exists)\n`);
-          await markMigrationDone(db, file);
+          await markMigrationDone(db, file, checksum);
           migratedCount++;
         } else {
           console.error(`✗ Migration "${file}" failed:`, error?.message || error);
@@ -110,6 +162,25 @@ async function runMigrations(db: Kysely<any>) {
     console.log(`✓ Ran ${migratedCount} new migration(s)`);
   } else {
     console.log('✓ All migrations already executed');
+  }
+
+  if (drifted.length > 0) {
+    const detail = drifted.map(f => `  - ${f}`).join('\n');
+    const message =
+      `${drifted.length} already-applied migration(s) have changed since they ran:\n${detail}\n\n` +
+      'Migrations are tracked by filename, so these will never run again — this database\n' +
+      'does not have the change and never will. Add a new migration with the difference\n' +
+      '(ALTER TABLE ... IF NOT EXISTS is usually right) instead of editing one that shipped.\n' +
+      'If the edit was cosmetic, re-run with MIGRATIONS_ALLOW_DRIFT=true to accept it.';
+
+    if (ALLOW_DRIFT) {
+      console.warn(`\n⚠️  ${message}\n`);
+      for (const file of drifted) {
+        await backfillChecksum(db, file, checksumOf(path.join(migrationDir, file)));
+      }
+    } else {
+      throw new Error(message);
+    }
   }
 }
 

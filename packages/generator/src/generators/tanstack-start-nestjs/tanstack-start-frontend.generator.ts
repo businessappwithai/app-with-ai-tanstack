@@ -19,8 +19,8 @@
 
 import { type Entity, entityToBusEntity, type Relationship } from "@erdwithai/core/types";
 import { kebabCase } from "@erdwithai/core/utils";
-import * as fs from "fs/promises";
-import * as path from "path";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import { CliExecutor } from "../../utils/cli-executor";
 import { BaseGenerator } from "../base.generator";
 
@@ -41,7 +41,7 @@ function resolveTemplateDir(subpath: string): string {
 
   for (const possiblePath of possiblePaths) {
     try {
-      const stat = require("fs").statSync(possiblePath);
+      const stat = require("node:fs").statSync(possiblePath);
       if (stat.isDirectory()) {
         return possiblePath;
       }
@@ -53,7 +53,7 @@ function resolveTemplateDir(subpath: string): string {
   // If no path found, return the __dirname relative path and let it fail with a clear error
   const fallbackPath = path.join(__dirname, "../../../templates", subpath);
   console.error(`Template directory not found. Tried paths:`);
-  possiblePaths.forEach((p) => console.error(`  - ${p}`));
+  for (const candidate of possiblePaths) console.error(`  - ${candidate}`);
   console.error(`Using fallback: ${fallbackPath}`);
   return fallbackPath;
 }
@@ -766,7 +766,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         busEntity.name
           .slice(1)
           .toLowerCase()
-          .replace(/_([a-z])/g, (_: string, c: string) => " " + c.toUpperCase());
+          .replace(/_([a-z])/g, (_: string, c: string) => ` ${c.toUpperCase()}`);
     const entityContext = { ...context, entity: { ...busEntity, displayName } };
     await fs.mkdir(path.join(outputDir, "src/routes"), { recursive: true });
 

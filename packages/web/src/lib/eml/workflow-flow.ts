@@ -401,15 +401,17 @@ export function parseSagaFlow(diagram: string): SagaFlow {
     }
     if (line.startsWith("%%")) continue;
 
-    nodeLabel.lastIndex = 0;
-    let match: RegExpExecArray | null;
-    while ((match = nodeLabel.exec(line)) !== null) {
+    for (const match of line.matchAll(nodeLabel)) {
       const id = match[1]!;
       const text = (match[2] ?? match[3] ?? match[4] ?? match[5] ?? "").trim();
       if (text && !labels.has(id)) labels.set(id, text);
     }
 
     edge.lastIndex = 0;
+    let match: RegExpExecArray | null;
+    // Not matchAll: the body rewinds lastIndex so a chained `A --> B --> C`
+    // yields both edges, and matchAll owns the cursor.
+    // biome-ignore lint/suspicious/noAssignInExpressions: standard exec-loop idiom
     while ((match = edge.exec(line)) !== null) {
       const from = match[1]!;
       const to = match[2]!;

@@ -75,7 +75,7 @@ export function generateMermaidProgrammatic(
       const modifiers = [];
       if (attr.name === "id") modifiers.push("PK");
       if (attr.unique) modifiers.push("UK");
-      syntax += `        ${attr.type} ${attr.name}${modifiers.length ? " " + modifiers.join(" ") : ""}\n`;
+      syntax += `        ${attr.type} ${attr.name}${modifiers.length ? ` ${modifiers.join(" ")}` : ""}\n`;
     }
     syntax += `    }\n\n`;
   }

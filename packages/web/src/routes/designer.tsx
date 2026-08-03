@@ -67,7 +67,7 @@ function DesignerPage() {
 
     lines.forEach((line, index) => {
       const match = line.match(entityPattern);
-      if (match && match[1]) {
+      if (match?.[1]) {
         entities.push(match[1]);
       }
 

@@ -65,7 +65,7 @@ export class MermaidParser {
 
       // Parse entity start: "EntityName {", "entity_name {", or "bus_entity {"
       const entityStartMatch = trimmed.match(/^([a-zA-Z][a-zA-Z0-9_]*)\s*\{$/);
-      if (entityStartMatch && entityStartMatch[1]) {
+      if (entityStartMatch?.[1]) {
         // Save previous entity if exists
         if (currentEntity && currentAttributes.length > 0) {
           entities.push(this.completeEntity(currentEntity, currentAttributes));
@@ -120,9 +120,9 @@ export class MermaidParser {
   private parseRelationship(line: string): Relationship | null {
     // Captures: entity  left--right  entity  optional-label
     const rel =
-      /^([a-zA-Z_][a-zA-Z0-9_]*)\s+(\|[\|o]|\}[o|])--(o[\|{]|\|[\|{])\s+([a-zA-Z_][a-zA-Z0-9_]*)(?:\s*:\s*"?([^"]*)"?)?$/;
+      /^([a-zA-Z_][a-zA-Z0-9_]*)\s+(\|[|o]|\}[o|])--(o[|{]|\|[|{])\s+([a-zA-Z_][a-zA-Z0-9_]*)(?:\s*:\s*"?([^"]*)"?)?$/;
     const match = line.match(rel);
-    if (!match || !match[1] || !match[4]) return null;
+    if (!match?.[1] || !match[4]) return null;
 
     const [, sourceEntity, left, right, targetEntity, rawLabel] = match;
     const operator = `${left}--${right}`;
@@ -180,7 +180,7 @@ export class MermaidParser {
 
     // Extract max length if specified (e.g., string(255))
     const lengthMatch = (parts[0] ?? "").match(/\((\d+)\)/);
-    const maxLength = lengthMatch && lengthMatch[1] ? parseInt(lengthMatch[1], 10) : undefined;
+    const maxLength = lengthMatch?.[1] ? parseInt(lengthMatch[1], 10) : undefined;
 
     return {
       name,

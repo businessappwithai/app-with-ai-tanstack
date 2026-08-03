@@ -10,7 +10,6 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import React from "react";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,

@@ -241,7 +241,7 @@ function generateMermaidProgrammatic(
       if (attr.name === "id" || attr.isPrimaryKey) modifiers.push("PK");
       if (attr.isUnique) modifiers.push("UK");
       if (attr.isForeignKey) modifiers.push("FK");
-      syntax += `        ${attr.type} ${attr.name}${modifiers.length ? " " + modifiers.join(" ") : ""}\n`;
+      syntax += `        ${attr.type} ${attr.name}${modifiers.length ? ` ${modifiers.join(" ")}` : ""}\n`;
     }
     syntax += `    }\n\n`;
   }

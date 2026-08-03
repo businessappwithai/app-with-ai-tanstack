@@ -603,7 +603,7 @@ async function main(): Promise<void> {
     errorFiles = [rawArg];
   } else if (rawArg.endsWith(".mmd")) {
     // Derive the error file name
-    const errorFilePath = rawArg + ".error";
+    const errorFilePath = `${rawArg}.error`;
     if (!existsSync(errorFilePath)) {
       console.log(c.yellow(`No error file found for ${rawArg}. Run checker first:`));
       console.log(c.dim(`  bun language/checker.ts ${rawArg}`));

@@ -91,18 +91,18 @@ erDiagram
         {} as Record<string, string>
       );
 
-      expect(attrs["name"]).toBe("string");
-      expect(attrs["email"]).toBe("string");
-      expect(attrs["count"]).toBe("integer");
-      expect(attrs["total"]).toBe("integer");
-      expect(attrs["price"]).toBe("decimal");
-      expect(attrs["weight"]).toBe("decimal");
-      expect(attrs["active"]).toBe("boolean");
-      expect(attrs["verified"]).toBe("boolean");
-      expect(attrs["birthday"]).toBe("date");
-      expect(attrs["createdAt"]).toBe("datetime");
-      expect(attrs["metadata"]).toBe("json");
-      expect(attrs["userId"]).toBe("string"); // uuid → string
+      expect(attrs.name).toBe("string");
+      expect(attrs.email).toBe("string");
+      expect(attrs.count).toBe("integer");
+      expect(attrs.total).toBe("integer");
+      expect(attrs.price).toBe("decimal");
+      expect(attrs.weight).toBe("decimal");
+      expect(attrs.active).toBe("boolean");
+      expect(attrs.verified).toBe("boolean");
+      expect(attrs.birthday).toBe("date");
+      expect(attrs.createdAt).toBe("datetime");
+      expect(attrs.metadata).toBe("json");
+      expect(attrs.userId).toBe("string"); // uuid → string
     });
 
     it("sets required=true by default, false for OPTIONAL", () => {

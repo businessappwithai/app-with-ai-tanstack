@@ -14,9 +14,9 @@
  */
 
 import { createFileRoute } from "@tanstack/react-router";
-import { spawn } from "child_process";
-import fs from "fs/promises";
-import path from "path";
+import { spawn } from "node:child_process";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /** Resolve the generator CLI entry point, preferring the built bundle. */
 async function resolveCli(cwd: string): Promise<string | null> {

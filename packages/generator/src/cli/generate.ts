@@ -8,11 +8,11 @@
  */
 
 import type { Entity, Relationship } from "@erdwithai/core/types";
-import { spawnSync } from "child_process";
+import { spawnSync } from "node:child_process";
 import { Command } from "commander";
-import { promises as fs } from "fs";
-import * as path from "path";
-import * as readline from "readline";
+import { promises as fs } from "node:fs";
+import * as path from "node:path";
+import * as readline from "node:readline";
 import { extractRuleSections } from "../eml";
 import type { StackOption } from "../generators/full-stack.generator";
 import { NestJsBackendGenerator } from "../generators/tanstack-start-nestjs/nestjs-backend.generator";
@@ -1524,7 +1524,7 @@ program
         opts.host = await askInput("SSH host (IP or hostname): ");
       }
       // Only prompt for password if not provided AND no local SSH key exists
-      const os2 = await import("os");
+      const os2 = await import("node:os");
       const earlyKeyCheck = [
         path.join(os2.homedir(), ".ssh", "id_ed25519"),
         path.join(os2.homedir(), ".ssh", "id_rsa"),
@@ -1564,7 +1564,7 @@ program
 
       // ── Connect via SSH ────────────────────────────────────────────────────
       const ssh = new NodeSSH();
-      const os = await import("os");
+      const os = await import("node:os");
       const sshKeyPaths = [
         path.join(os.homedir(), ".ssh", "id_ed25519"),
         path.join(os.homedir(), ".ssh", "id_rsa"),
@@ -1589,12 +1589,12 @@ program
           tryKeyboard: false,
         };
         if (opts.password) {
-          connectOpts["password"] = opts.password;
+          connectOpts.password = opts.password;
         } else if (availableKeys.length > 0) {
-          connectOpts["privateKeyPath"] = availableKeys[0];
+          connectOpts.privateKeyPath = availableKeys[0];
         } else {
           opts.password = await askInput(`SSH password for ${opts.user}@${opts.host}: `);
-          connectOpts["password"] = opts.password;
+          connectOpts.password = opts.password;
         }
         await ssh.connect(connectOpts as Parameters<typeof ssh.connect>[0]);
       } catch (err) {

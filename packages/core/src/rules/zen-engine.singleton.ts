@@ -111,7 +111,7 @@ class ZenEngineSingleton {
           error: {
             code: "INVALID_FORMAT",
             message: "JDM must be a valid object",
-            details: "Received: " + typeof jdm,
+            details: `Received: ${typeof jdm}`,
           },
         };
       }
@@ -123,7 +123,7 @@ class ZenEngineSingleton {
           error: {
             code: "INVALID_DATA_TYPE",
             message: "Input data must be an object",
-            details: "Received: " + typeof input,
+            details: `Received: ${typeof input}`,
           },
         };
       }

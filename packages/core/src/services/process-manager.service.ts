@@ -3,9 +3,9 @@
  * Manages child processes for running generated projects
  */
 
-import { type ChildProcess, execSync, spawn } from "child_process";
-import { existsSync, readFileSync } from "fs";
-import { join } from "path";
+import { type ChildProcess, execSync, spawn } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 interface RunningProcess {
   process: ChildProcess;
@@ -123,7 +123,7 @@ export class ProcessManagerService {
 
     const portValue = portMatch[1] ?? "";
     const port = parseInt(portValue, 10);
-    if (isNaN(port) || port < 1 || port > 65535) {
+    if (Number.isNaN(port) || port < 1 || port > 65535) {
       throw new Error(`Invalid PORT value in .env file: ${portValue}`);
     }
 

@@ -21,6 +21,12 @@ packages/web/generated-projects/
 packages/generator/generated-projects/
 generated-projects/
 
+# Test + build artifacts. These are bundled output — linting or reviewing them
+# says nothing about the source, and playwright-report/index.html alone carried
+# 1380 lint diagnostics from its inlined bundle.
+playwright-report/
+test-results/
+
 # Production
 dist/
 build/

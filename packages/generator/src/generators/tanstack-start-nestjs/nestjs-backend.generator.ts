@@ -22,8 +22,8 @@ import {
   generateEntityDictionary,
   type Relationship,
 } from "@erdwithai/core/types";
-import * as fs from "fs/promises";
-import * as path from "path";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import type { EntityCategory } from "../../parsers/category.parser";
 import { type CompiledHook, HOOK_CONTRACTS, hooksByEntity } from "../../hooks";
 import type { CompiledRule } from "../../rules";
@@ -61,7 +61,7 @@ function resolveTemplateDir(subpath: string): string {
 
   for (const possiblePath of possiblePaths) {
     try {
-      const stat = require("fs").statSync(possiblePath);
+      const stat = require("node:fs").statSync(possiblePath);
       if (stat.isDirectory()) {
         return possiblePath;
       }
@@ -73,7 +73,7 @@ function resolveTemplateDir(subpath: string): string {
   // If no path found, return the __dirname relative path and let it fail with a clear error
   const fallbackPath = path.join(__dirname, "../../../templates", subpath);
   console.error(`Template directory not found. Tried paths:`);
-  possiblePaths.forEach((p) => console.error(`  - ${p}`));
+  for (const candidate of possiblePaths) console.error(`  - ${candidate}`);
   console.error(`Using fallback: ${fallbackPath}`);
   return fallbackPath;
 }
@@ -1574,10 +1574,22 @@ export async function seed(db: Kysely<any>): Promise<void> {
     const seedRunnerContent = await this.renderTemplate("src/seed.ts.hbs", context);
     await fs.writeFile(path.join(outputDir, "src", "seed.ts"), seedRunnerContent);
 
-    // Generate/update environment files
+    // `.env.example` is generated output and always rewritten. `.env` is the
+    // developer's — it holds the real DATABASE_URL, secrets and keys — so it is
+    // only created when absent. Writing both unconditionally meant every
+    // regeneration silently reset the connection string to the template default,
+    // and the next `db:setup` failed against a database that was never the one
+    // being worked on.
     const envContent = await this.renderTemplate(".env.example.hbs", context);
     await fs.writeFile(path.join(outputDir, ".env.example"), envContent);
-    await fs.writeFile(path.join(outputDir, ".env"), envContent);
+
+    const envPath = path.join(outputDir, ".env");
+    try {
+      await fs.access(envPath);
+      console.log("  ↷ Kept existing backend/.env (see .env.example for new keys)");
+    } catch {
+      await fs.writeFile(envPath, envContent);
+    }
 
     // Update Biome configuration
     try {

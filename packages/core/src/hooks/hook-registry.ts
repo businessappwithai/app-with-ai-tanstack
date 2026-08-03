@@ -24,7 +24,7 @@ export class HookRegistry {
       const keysToDelete = Array.from(this.hooks.keys()).filter((key) =>
         key.startsWith(`${entityName}:`)
       );
-      keysToDelete.forEach((key) => this.hooks.delete(key));
+      for (const key of keysToDelete) this.hooks.delete(key);
     } else {
       this.hooks.clear();
     }

@@ -147,9 +147,7 @@ export function parseNodeLabels(diagram: string): Map<string, string> {
   for (const line of diagram.split("\n")) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("%%")) continue;
-    NODE_LABEL.lastIndex = 0;
-    let match: RegExpExecArray | null;
-    while ((match = NODE_LABEL.exec(trimmed)) !== null) {
+    for (const match of trimmed.matchAll(NODE_LABEL)) {
       const id = match[1]!;
       const label = (match[2] ?? match[3] ?? match[4] ?? match[5] ?? match[6] ?? "").trim();
       if (label && !labels.has(id)) labels.set(id, label);
@@ -176,6 +174,9 @@ export function parseEdges(diagram: string): FlowGraph {
     if (!trimmed || trimmed.startsWith("%%")) continue;
     EDGE.lastIndex = 0;
     let match: RegExpExecArray | null;
+    // Not matchAll: the body rewinds lastIndex so a chained `A --> B --> C`
+    // yields both edges, and matchAll owns the cursor.
+    // biome-ignore lint/suspicious/noAssignInExpressions: standard exec-loop idiom
     while ((match = EDGE.exec(trimmed)) !== null) {
       const from = match[1]!;
       const to = match[2]!;

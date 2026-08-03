@@ -18,7 +18,7 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: (process.env.UI5_FRONTEND_URL || "http://localhost:8080") + "/index.html",
+    baseURL: `${process.env.UI5_FRONTEND_URL || "http://localhost:8080"}/index.html`,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",

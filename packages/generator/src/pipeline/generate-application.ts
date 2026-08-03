@@ -13,8 +13,8 @@
  */
 
 import type { Entity, Relationship } from "@erdwithai/core/types";
-import * as fs from "fs/promises";
-import * as path from "path";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import { extractRuleSections } from "../eml";
 import {
   FullStackGenerator,

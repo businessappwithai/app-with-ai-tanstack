@@ -57,7 +57,7 @@ function unfold(source: string): string[] {
     const line = raw.trim();
     const previous = joined[joined.length - 1];
 
-    if (previous !== undefined && previous.endsWith("\\")) {
+    if (previous?.endsWith("\\")) {
       // Continuation: drop the trailing backslash and strip a leading `%%`
       // so wrapped directive lines can stay visually commented.
       joined[joined.length - 1] =
