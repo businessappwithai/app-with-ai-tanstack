@@ -24,7 +24,7 @@ import { spawn } from "bun";
 import { readdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { config } from "./harness/config";
-import { formatSummary, timestampFor, writeReport } from "./harness/report";
+import { formatComparison, formatSummary, timestampFor, writeReport } from "./harness/report";
 import { isServerUp, startServer } from "./harness/server";
 
 const here = import.meta.dir;
@@ -185,10 +185,11 @@ async function main(): Promise<void> {
   // that broke halfway is exactly when you want to know which operation had
   // started getting slower.
   try {
-    const reportPath = writeReport({
+    const written = writeReport({
       outputDir: resultsDir,
       shardDir,
       startedAt: runStartedAt,
+      recordsPerEntity: fast ? 0 : recordsPerEntity,
       suites: {
         total: results.length,
         passed: results.length - failed.length,
@@ -196,11 +197,19 @@ async function main(): Promise<void> {
       },
     });
 
-    if (reportPath) {
-      const report = JSON.parse(await Bun.file(reportPath).text());
-      console.log("  Averages\n");
-      console.log(formatSummary(report));
-      console.log(`\n  Written to ${reportPath}\n`);
+    if (written) {
+      console.log(`  Phases — ${written.report.totalWrites} writes, ${recordsPerEntity} records/entity\n`);
+      console.log(formatSummary(written.report));
+
+      const comparison = formatComparison(written.report);
+      if (comparison) {
+        console.log("\n═══════════════════════════════════════════");
+        console.log("  Against the previous run");
+        console.log("═══════════════════════════════════════════\n");
+        console.log(comparison);
+      }
+
+      console.log(`\n  Written to ${written.path}\n`);
     }
   } catch (error) {
     // Reporting is an observation of the run; it must not change its verdict.

@@ -24,13 +24,36 @@
 import { appendFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
-/** The operations worth averaging over a run. */
-export type MetricOp = "insert" | "update" | "delete" | "rule" | "workflow";
+/**
+ * The write and execution phases every run measures.
+ *
+ * A phase is any named unit of work worth a throughput and a tail latency.
+ * These five come from instrumenting the client and reading the server's
+ * promotion result; the benchmark suite adds read phases ("list deep page",
+ * "search substring") by name, which is why `phase` is a string rather than
+ * this union — a phase the suites invent must not require editing the
+ * collector.
+ */
+export const WRITE_PHASES = ["insert", "update", "delete", "rule", "workflow"] as const;
+
+export type MetricOp = (typeof WRITE_PHASES)[number];
 
 export interface MetricSample {
-  op: MetricOp;
+  /** `insert`, `list deep page`, … — whatever the run wants averaged. */
+  op: string;
   /** Milliseconds. Client round trip for writes; server pipeline for rules and workflows. */
   ms: number;
+  /**
+   * When the sample finished, epoch millis.
+   *
+   * Throughput has to come from the wall-clock span a phase occupied, not from
+   * the sum of its latencies: suites issue requests concurrently, so summed
+   * latency exceeds elapsed time and dividing by it understates throughput —
+   * badly. 870 inserts inside a 41-second run is not 14 per second.
+   *
+   * Stamped by `record` — callers never pass it.
+   */
+  at?: number;
   /** Entity or rule/workflow name, for a per-name breakdown. */
   name?: string;
 }
@@ -63,7 +86,7 @@ if (shardDir) {
 export function record(sample: MetricSample): void {
   if (!shardFile) return;
   try {
-    appendFileSync(shardFile, `${JSON.stringify(sample)}\n`);
+    appendFileSync(shardFile, `${JSON.stringify({ ...sample, at: Date.now() })}\n`);
   } catch {
     // Losing a sample costs an average a little accuracy; failing the test
     // because of it would cost far more.
@@ -109,6 +132,22 @@ export function recordPromotion(payload: unknown): void {
  * check are traffic the run makes but not work the application was asked to
  * do, and averaging them in would flatter or distort every number.
  */
+/**
+ * Time one phase and record it.
+ *
+ * The benchmark suite's whole vocabulary: name what is being measured, run it,
+ * and the sample lands in the same file as everything else. Returns whatever
+ * the body returned, so a phase can assert on its own result.
+ */
+export async function timed<T>(phase: string, body: () => Promise<T>, name?: string): Promise<T> {
+  const startedAt = performance.now();
+  try {
+    return await body();
+  } finally {
+    record({ op: phase, ms: performance.now() - startedAt, name });
+  }
+}
+
 export function classify(method: string, path: string): { op: MetricOp; name: string } | null {
   const match = /^\/bus\/([^/?]+)/.exec(path);
   if (!match?.[1]) return null;
