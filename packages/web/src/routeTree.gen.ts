@@ -20,6 +20,7 @@ import { Route as ApiCopilotkitRouteImport } from './routes/api/copilotkit'
 import { Route as ApiDeployRouteImport } from './routes/api/deploy'
 import { Route as ApiGenerateRouteImport } from './routes/api/generate'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
+import { Route as ApiModelContextRouteImport } from './routes/api/model-context'
 import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as AdminMermaidIndexRouteImport } from './routes/admin/mermaid/index'
 import { Route as AdminRulesIndexRouteImport } from './routes/admin/rules/index'
@@ -132,6 +133,11 @@ const ApiGenerateRoute = ApiGenerateRouteImport.update({
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
   path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiModelContextRoute = ApiModelContextRouteImport.update({
+  id: '/api/model-context',
+  path: '/api/model-context',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
@@ -457,6 +463,7 @@ export interface FileRoutesByFullPath {
   '/api/deploy': typeof ApiDeployRoute
   '/api/generate': typeof ApiGenerateRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/model-context': typeof ApiModelContextRoute
   '/projects/': typeof ProjectsIndexRoute
   '/admin/rules/new': typeof AdminRulesNewRoute
   '/admin/workflows/$workflowId': typeof AdminWorkflowsWorkflowIdRoute
@@ -528,6 +535,7 @@ export interface FileRoutesByTo {
   '/api/deploy': typeof ApiDeployRoute
   '/api/generate': typeof ApiGenerateRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/model-context': typeof ApiModelContextRoute
   '/projects': typeof ProjectsIndexRoute
   '/admin/rules/new': typeof AdminRulesNewRoute
   '/admin/workflows/$workflowId': typeof AdminWorkflowsWorkflowIdRoute
@@ -600,6 +608,7 @@ export interface FileRoutesById {
   '/api/deploy': typeof ApiDeployRoute
   '/api/generate': typeof ApiGenerateRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/model-context': typeof ApiModelContextRoute
   '/projects/': typeof ProjectsIndexRoute
   '/admin/rules/new': typeof AdminRulesNewRoute
   '/admin/workflows/$workflowId': typeof AdminWorkflowsWorkflowIdRoute
@@ -673,6 +682,7 @@ export interface FileRouteTypes {
     | '/api/deploy'
     | '/api/generate'
     | '/api/health'
+    | '/api/model-context'
     | '/projects/'
     | '/admin/rules/new'
     | '/admin/workflows/$workflowId'
@@ -744,6 +754,7 @@ export interface FileRouteTypes {
     | '/api/deploy'
     | '/api/generate'
     | '/api/health'
+    | '/api/model-context'
     | '/projects'
     | '/admin/rules/new'
     | '/admin/workflows/$workflowId'
@@ -815,6 +826,7 @@ export interface FileRouteTypes {
     | '/api/deploy'
     | '/api/generate'
     | '/api/health'
+    | '/api/model-context'
     | '/projects/'
     | '/admin/rules/new'
     | '/admin/workflows/$workflowId'
@@ -887,6 +899,7 @@ export interface RootRouteChildren {
   ApiDeployRoute: typeof ApiDeployRoute
   ApiGenerateRoute: typeof ApiGenerateRoute
   ApiHealthRoute: typeof ApiHealthRoute
+  ApiModelContextRoute: typeof ApiModelContextRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   AdminRulesNewRoute: typeof AdminRulesNewRoute
   AdminWorkflowsWorkflowIdRoute: typeof AdminWorkflowsWorkflowIdRoute
@@ -1022,6 +1035,13 @@ declare module '@tanstack/react-router' {
       path: '/api/health'
       fullPath: '/api/health'
       preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/model-context': {
+      id: '/api/model-context'
+      path: '/api/model-context'
+      fullPath: '/api/model-context'
+      preLoaderRoute: typeof ApiModelContextRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects/': {
@@ -1468,6 +1488,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDeployRoute: ApiDeployRoute,
   ApiGenerateRoute: ApiGenerateRoute,
   ApiHealthRoute: ApiHealthRoute,
+  ApiModelContextRoute: ApiModelContextRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
   AdminRulesNewRoute: AdminRulesNewRoute,
   AdminWorkflowsWorkflowIdRoute: AdminWorkflowsWorkflowIdRoute,

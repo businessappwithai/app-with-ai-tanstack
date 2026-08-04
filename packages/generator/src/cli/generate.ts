@@ -111,7 +111,32 @@ async function runSetup(opts: {
   log("\n📦 Installing dependencies…", quiet);
   run(pm, ["install"], outputDir, `${pm} install`);
 
-  // 2. Copy .env.example → .env in backend (skip if already exists)
+  // 2. Generate the router's route tree.
+  //
+  // Every route file imports the ids declared in `src/routeTree.gen.ts`, and
+  // the Vite plugin only writes it on the first `dev` or `build`. Until then a
+  // freshly generated application does not typecheck — around seventy errors,
+  // all of them the same missing module and none of them a real defect.
+  //
+  // Runs here, straight after the install that provides the CLI, rather than at
+  // the end: the steps below touch a database, and whether the route tree
+  // exists has nothing to do with whether Postgres is reachable. Ordering it
+  // after them meant a failed migration left the application unable to
+  // typecheck for an unrelated reason.
+  //
+  // Non-fatal either way: if it fails, the first `dev` run still writes it.
+  log("\n🧭 Generating the route tree…", quiet);
+  const routes = spawnSync(pm, ["run", "routes:generate"], {
+    cwd: frontendDir,
+    stdio: "pipe",
+  });
+  if (routes.status === 0) {
+    log("   ✓ src/routeTree.gen.ts written", quiet);
+  } else {
+    console.warn("   ⚠️  Could not generate the route tree; the first `dev` run will write it.");
+  }
+
+  // 3. Copy .env.example → .env in backend (skip if already exists)
   const envPath = path.join(backendDir, ".env");
   const envExamplePath = path.join(backendDir, ".env.example");
   try {
@@ -160,6 +185,7 @@ async function runSetup(opts: {
   } catch {
     // no separate frontend package.json — already installed at root
   }
+
 }
 
 // ---------------------------------------------------------------------------
@@ -578,7 +604,11 @@ program
       // the web app's /api/generate route also calls — that is what keeps a
       // model generating the same application from either entry point.
       await generateApplication({
-        sources: [],
+        // Passed even though the model is already parsed: the pipeline ships
+        // the document into the generated application, and the compiled code
+        // does not record what it was asked to do. `ruleSources` is the same
+        // set of files, already read above.
+        sources: ruleSources,
         model: {
           entities: allEntities,
           relationships: allRelationships,

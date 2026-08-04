@@ -1,3 +1,4 @@
+import { CopilotSidebar } from "@copilotkit/react-ui";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   AlertCircle,
@@ -23,8 +24,10 @@ import {
   WorkflowEditor,
   type WorkflowKind,
 } from "@/components/eml/WorkflowEditor";
+import { CopilotProvider } from "@/components/CopilotProvider";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
+import { useModelAssistant } from "@/hooks/useModelAssistant";
 import { emitRuleFlow, parseRuleFlow } from "@/lib/eml/rule-flow";
 import {
   emptySagaFlow,
@@ -50,8 +53,32 @@ import { useProjectStore } from "@/store/projectStore";
  */
 
 export const Route = createFileRoute("/projects/$id/logic")({
-  component: LogicPage,
+  component: LogicRoute,
 });
+
+/**
+ * The provider has to sit above the component that calls the Copilot hooks —
+ * rendering it inside LogicPage's own JSX puts the context below the consumer
+ * and throws "useCopilotKit must be used within CopilotKitProvider".
+ */
+function LogicRoute() {
+  return (
+    <CopilotProvider>
+      <LogicPage />
+      <CopilotSidebar
+        labels={{
+          title: "Rules and processes",
+          initial:
+            "I can see this application's entities, its rules and its processes, and the EML " +
+            "language they are written in. Ask me what already runs on an entity, or describe " +
+            "the behaviour you want and I will tell you which rule or step declares it.",
+        }}
+        defaultOpen={false}
+        clickOutsideToClose={false}
+      />
+    </CopilotProvider>
+  );
+}
 
 type Selection = { kind: "rule" | "workflow"; index: number };
 
@@ -201,6 +228,25 @@ function LogicPage() {
     () => rules.map((rule) => slugifyRuleName(rule.title ?? rule.name)),
     [rules]
   );
+
+  // What is on this screen is names and canvases; the decision tables, step
+  // properties and directive syntax the assistant needs to answer a question
+  // about them come from retrieval.
+  useModelAssistant({
+    projectId: id,
+    surface: "logic",
+    summary: useMemo(
+      () => ({
+        name: currentProject?.name ?? "this application",
+        entities: entities.map((entity) => entity.name),
+        ruleNames,
+        workflowNames: workflows.map((workflow) =>
+          pascalWorkflowName(workflow.title ?? workflow.name)
+        ),
+      }),
+      [currentProject?.name, entities, ruleNames, workflows]
+    ),
+  });
 
   const activeRule = selected.kind === "rule" ? (rules[selected.index] ?? null) : null;
   const activeWorkflow = selected.kind === "workflow" ? (workflows[selected.index] ?? null) : null;
