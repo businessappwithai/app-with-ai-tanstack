@@ -21,13 +21,26 @@
  */
 
 import { spawn } from "bun";
-import { readdir } from "node:fs/promises";
+import { readdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { config } from "./harness/config";
+import { formatSummary, timestampFor, writeReport } from "./harness/report";
 import { isServerUp, startServer } from "./harness/server";
 
 const here = import.meta.dir;
 const suitesDir = join(here, "suites");
+
+/**
+ * When this run started, to the second — the report is named after it, so two
+ * runs in the same minute are still distinguishable and a run's file sorts
+ * next to its neighbours chronologically.
+ */
+const runStartedAt = new Date();
+const runStamp = timestampFor(runStartedAt);
+
+/** Where the report lands, and where suite processes drop their shards. */
+const resultsDir = join(here, "..", "test-results");
+const shardDir = join(resultsDir, `.shards-${runStamp}`);
 const backendDir = join(here, "..", "backend");
 
 const args = process.argv.slice(2);
@@ -94,7 +107,13 @@ async function runSuite(file: string): Promise<SuiteResult> {
     stderr: "inherit",
     // Pin the resolved volume so every suite in the run agrees on it,
     // regardless of which flag or env var selected it.
-    env: { ...process.env, E2E_RECORDS_PER_ENTITY: String(recordsPerEntity) },
+    env: {
+      ...process.env,
+      E2E_RECORDS_PER_ENTITY: String(recordsPerEntity),
+      // Suites run in their own processes, so they cannot share a counter in
+      // memory. Each appends to its own shard here and the runner merges them.
+      E2E_METRICS_DIR: shardDir,
+    },
   });
 
   const exitCode = await child.exited;
@@ -161,6 +180,36 @@ async function main(): Promise<void> {
   console.log(
     `\n  ${results.length - failed.length}/${results.length} suites passed in ${format(totalMs)}\n`
   );
+
+  // Merge the shards into one report. Written even when suites failed — a run
+  // that broke halfway is exactly when you want to know which operation had
+  // started getting slower.
+  try {
+    const reportPath = writeReport({
+      outputDir: resultsDir,
+      shardDir,
+      startedAt: runStartedAt,
+      suites: {
+        total: results.length,
+        passed: results.length - failed.length,
+        failed: failed.length,
+      },
+    });
+
+    if (reportPath) {
+      const report = JSON.parse(await Bun.file(reportPath).text());
+      console.log("  Averages\n");
+      console.log(formatSummary(report));
+      console.log(`\n  Written to ${reportPath}\n`);
+    }
+  } catch (error) {
+    // Reporting is an observation of the run; it must not change its verdict.
+    console.warn(
+      `  ⚠️  Could not write the metrics report: ${error instanceof Error ? error.message : error}`
+    );
+  } finally {
+    await rm(shardDir, { recursive: true, force: true }).catch(() => {});
+  }
 
   process.exit(failed.length === 0 ? 0 : 1);
 }

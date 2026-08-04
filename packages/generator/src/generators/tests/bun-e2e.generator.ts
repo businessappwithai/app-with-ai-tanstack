@@ -61,6 +61,10 @@ const HARNESS_FILES = [
   "rules.ts",
   "workflows.ts",
   "manifest.ts",
+  // What the run did and how long it took: the collector each suite process
+  // appends to, and the merge the runner writes a report from.
+  "metrics.ts",
+  "report.ts",
   "harness.ts",
   "index.ts",
 ];
