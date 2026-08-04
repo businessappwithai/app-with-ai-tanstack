@@ -47,7 +47,10 @@ describe("chunkModel", () => {
     expect(kinds.entity).toBe(17);
     expect(kinds.rule).toBe(3);
     expect(kinds.workflow).toBe(3);
-    expect(kinds.enums).toBe(1);
+    // One per declaration, not one for all of them: pooled, two dozen
+    // enumerations averaged into a vector that matched no question about
+    // any of them.
+    expect(kinds.enums).toBe(22);
   });
 
   it("gives every chunk a stable id, so re-ingesting replaces rather than duplicates", () => {
@@ -92,6 +95,22 @@ describe("chunkModel", () => {
       expect(chunk.metadata.source).toBe("drug-discovery");
       expect(chunk.text.trim().length).toBeGreaterThan(0);
     }
+  });
+
+  // Measured against a real embedding model: pooled into one chunk, two dozen
+  // enumerations averaged into a vector that lost to the entity chunk for
+  // "what statuses can a deviation report have" — and the entity chunk names
+  // the `status` field without saying what may go in it. One chunk each, with
+  // the name beside its values, puts the right answer first.
+  it("gives each enumeration its own chunk, naming it beside its values", () => {
+    const status = byId.get("enum:DeviationStatus");
+
+    expect(status).toBeDefined();
+    expect(status?.name).toBe("DeviationStatus");
+    expect(status?.text).toContain("DeviationStatus");
+    expect(status?.text).toContain("under_investigation");
+    // The severity enum is a separate chunk, not pooled with it.
+    expect(byId.get("enum:DeviationSeverity")?.text).toContain("catastrophic");
   });
 
   it("lists the entities in an overview no single entity chunk could answer", () => {
