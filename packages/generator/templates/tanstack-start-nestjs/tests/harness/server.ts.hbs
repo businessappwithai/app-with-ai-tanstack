@@ -69,6 +69,15 @@ export interface ManagedServer {
 export async function startServer(backendDir: string): Promise<ManagedServer | null> {
   if (await isServerUp()) {
     console.log(`  ✓ Attaching to the backend already listening on ${config.baseUrl}`);
+    // A backend we did not start keeps whatever throttle it was launched with —
+    // 1000 requests a minute by default. Bulk seeding blows straight through
+    // that and the client then sleeps out each 60-second window, which looks
+    // like a slow database rather than a limiter. Say so, because the run will
+    // otherwise take an hour and the report will not explain why.
+    console.log(
+      "    ↳ its rate limit is whatever it was started with; set " +
+        "THROTTLE_LIMIT high there, or let the runner start it"
+    );
     return null;
   }
 
