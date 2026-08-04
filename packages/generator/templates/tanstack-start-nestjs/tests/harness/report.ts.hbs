@@ -1,0 +1,165 @@
+/**
+ * Merge the per-process shards into one report for the run.
+ *
+ * Called by the runner once every suite has exited, so all shards are complete
+ * and nothing is still being appended to.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import type { MetricOp, MetricSample } from "./metrics";
+
+const OPS: MetricOp[] = ["insert", "update", "delete", "rule", "workflow"];
+
+export interface OpSummary {
+  count: number;
+  /** Mean milliseconds — the average asked for. */
+  averageMs: number;
+  minMs: number;
+  maxMs: number;
+  /** Half the samples are faster than this; less swayed by one slow outlier. */
+  medianMs: number;
+  totalMs: number;
+}
+
+export interface RunReport {
+  project: string;
+  /** When the run started, to the second. Matches the filename. */
+  startedAt: string;
+  finishedAt: string;
+  durationMs: number;
+  suites: { total: number; passed: number; failed: number };
+  averages: Record<MetricOp, OpSummary>;
+  /** Per entity, rule and workflow — where an average hides a slow outlier. */
+  byName: Record<string, OpSummary & { op: MetricOp }>;
+}
+
+function summarise(samples: number[]): OpSummary {
+  if (samples.length === 0) {
+    return { count: 0, averageMs: 0, minMs: 0, maxMs: 0, medianMs: 0, totalMs: 0 };
+  }
+  const sorted = [...samples].sort((a, b) => a - b);
+  const total = sorted.reduce((sum, value) => sum + value, 0);
+  const middle = Math.floor(sorted.length / 2);
+
+  return {
+    count: sorted.length,
+    averageMs: round(total / sorted.length),
+    minMs: round(sorted[0] ?? 0),
+    maxMs: round(sorted[sorted.length - 1] ?? 0),
+    medianMs: round(
+      sorted.length % 2 === 0
+        ? ((sorted[middle - 1] ?? 0) + (sorted[middle] ?? 0)) / 2
+        : (sorted[middle] ?? 0)
+    ),
+    totalMs: round(total),
+  };
+}
+
+function round(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+/** Read every shard the run produced. A missing directory means no samples. */
+function readSamples(shardDir: string): MetricSample[] {
+  let files: string[];
+  try {
+    files = readdirSync(shardDir).filter((file) => file.endsWith(".ndjson"));
+  } catch {
+    return [];
+  }
+
+  const samples: MetricSample[] = [];
+  for (const file of files) {
+    let text: string;
+    try {
+      text = readFileSync(join(shardDir, file), "utf-8");
+    } catch {
+      continue;
+    }
+    for (const line of text.split("\n")) {
+      if (!line.trim()) continue;
+      try {
+        samples.push(JSON.parse(line) as MetricSample);
+      } catch {
+        // A torn final line from a process killed mid-write; the rest stands.
+      }
+    }
+  }
+  return samples;
+}
+
+/**
+ * `2026-08-04T05-34-12` — the run's start, to the second.
+ *
+ * Colons are legal in a filename on Linux and a nuisance everywhere else, so
+ * the time separators become hyphens. The unabbreviated instant is kept inside
+ * the report as `startedAt`.
+ */
+export function timestampFor(date: Date): string {
+  return date.toISOString().slice(0, 19).replace(/:/g, "-");
+}
+
+export interface WriteReportInput {
+  outputDir: string;
+  shardDir: string;
+  startedAt: Date;
+  suites: { total: number; passed: number; failed: number };
+}
+
+/** Write the report. Returns where it went, or null if nothing was recorded. */
+export function writeReport(input: WriteReportInput): string | null {
+  const samples = readSamples(input.shardDir);
+  if (samples.length === 0) return null;
+
+  const finishedAt = new Date();
+
+  const byOp = new Map<MetricOp, number[]>(OPS.map((op) => [op, []]));
+  const byName = new Map<string, { op: MetricOp; values: number[] }>();
+
+  for (const sample of samples) {
+    byOp.get(sample.op)?.push(sample.ms);
+    if (!sample.name) continue;
+    const key = `${sample.op}:${sample.name}`;
+    const entry = byName.get(key) ?? { op: sample.op, values: [] };
+    entry.values.push(sample.ms);
+    byName.set(key, entry);
+  }
+
+  const report: RunReport = {
+    project: "{{project.name}}",
+    startedAt: input.startedAt.toISOString(),
+    finishedAt: finishedAt.toISOString(),
+    durationMs: finishedAt.getTime() - input.startedAt.getTime(),
+    suites: input.suites,
+    averages: Object.fromEntries(
+      OPS.map((op) => [op, summarise(byOp.get(op) ?? [])])
+    ) as Record<MetricOp, OpSummary>,
+    byName: Object.fromEntries(
+      [...byName].map(([key, entry]) => [key, { op: entry.op, ...summarise(entry.values) }])
+    ),
+  };
+
+  mkdirSync(input.outputDir, { recursive: true });
+  const path = join(input.outputDir, `e2e-metrics-${timestampFor(input.startedAt)}.json`);
+  writeFileSync(path, `${JSON.stringify(report, null, 2)}\n`);
+  return path;
+}
+
+/** The console summary, so a run says what it measured without opening a file. */
+export function formatSummary(report: RunReport): string {
+  const rows = OPS.filter((op) => report.averages[op].count > 0).map((op) => {
+    const summary = report.averages[op];
+    return `  ${op.padEnd(10)} ${String(summary.count).padStart(6)}  ${`${summary.averageMs}ms`.padStart(10)}  ${`${summary.medianMs}ms`.padStart(10)}  ${`${summary.maxMs}ms`.padStart(10)}`;
+  });
+
+  if (rows.length === 0) return "  (no business-entity operations recorded)";
+
+  return [
+    `  ${"operation".padEnd(10)} ${"count".padStart(6)}  ${"average".padStart(10)}  ${"median".padStart(10)}  ${"slowest".padStart(10)}`,
+    ...rows,
+  ].join("\n");
+}

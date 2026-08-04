@@ -10,6 +10,7 @@
  */
 
 import { config } from "./config";
+import { classify, record, recordPromotion } from "./metrics";
 
 export interface ApiResponse<T = unknown> {
   status: number;
@@ -113,9 +114,17 @@ export class HttpClient {
     body?: unknown,
     options: RequestOptions = {}
   ): Promise<ApiResponse<T>> {
+    // Timed here, around the whole call: this is the one place every suite's
+    // traffic passes through, so instrumenting it cannot be forgotten in a
+    // suite written later.
+    const startedAt = performance.now();
+    let throttled = false;
     let response = await this.send<T>(method, path, body, options);
 
-    if (options.noThrottleRetry) return this.finish(response, method, path, options);
+    if (options.noThrottleRetry) {
+      this.meter(method, path, response, startedAt);
+      return this.finish(response, method, path, options);
+    }
 
     for (let attempt = 0; response.status === 429 && attempt < config.throttleRetries; attempt++) {
       const header = Number(response.headers.get("retry-after"));
@@ -128,10 +137,33 @@ export class HttpClient {
         console.log(`  ⏳ 429 on ${method} ${path} — waiting ${waitMs}ms (attempt ${attempt + 1})`);
       }
       await Bun.sleep(waitMs);
+      throttled = true;
       response = await this.send<T>(method, path, body, options);
     }
 
+    if (!throttled) this.meter(method, path, response, startedAt);
     return this.finish(response, method, path, options);
+  }
+
+  /**
+   * Record what this call did, if it did anything worth averaging.
+   *
+   * Only successful business-entity writes: a rejected insert measures the
+   * validator, not the insert, and averaging the two together would describe
+   * neither. Requests that waited out a 429 are also skipped — their elapsed
+   * time is mostly the back-off, which says nothing about how fast the
+   * application is.
+   */
+  private meter(method: string, path: string, response: ApiResponse<unknown>, startedAt: number): void {
+    if (!response.ok) return;
+
+    const classified = classify(method, path);
+    if (!classified) return;
+
+    record({ op: classified.op, ms: performance.now() - startedAt, name: classified.name });
+    // The server reports which rules and workflows the write set off, so they
+    // are counted from its own account rather than inferred from the model.
+    recordPromotion(response.data);
   }
 
   private finish<T>(
