@@ -388,6 +388,24 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     } catch (e) {
       console.warn("Auth proxy route template not found");
     }
+
+    // CopilotKit runtime for the admin assistant. Served here rather than
+    // proxied to the backend: CopilotKit streams over its own protocol, and
+    // routing that through the backend's request pipeline breaks streaming for
+    // no gain.
+    try {
+      await fs.mkdir(path.join(outputDir, "src/routes/api/copilotkit"), { recursive: true });
+      const copilotRuntime = await this.renderTemplate(
+        "src/routes/api/copilotkit/$.ts.hbs",
+        context
+      );
+      await fs.writeFile(
+        path.join(outputDir, "src/routes/api/copilotkit/$.ts"),
+        copilotRuntime
+      );
+    } catch (e) {
+      console.warn("CopilotKit runtime route template not found");
+    }
   }
 
   private async generateApiLayer(outputDir: string, context: any): Promise<void> {
@@ -451,6 +469,18 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       context
     );
     await fs.writeFile(path.join(outputDir, "src/hooks/use-field-metadata.ts"), fieldHooksContent);
+
+    // The admin assistant's link to the model: a CopilotKit action that
+    // searches what this application declares.
+    try {
+      const modelAssistant = await this.renderTemplate(
+        "src/hooks/useModelAssistant.ts.hbs",
+        context
+      );
+      await fs.writeFile(path.join(outputDir, "src/hooks/useModelAssistant.ts"), modelAssistant);
+    } catch (e) {
+      console.warn("Model assistant hook template not found");
+    }
 
     // Local-first sys_ hooks via TanStack DB + ElectricSQL
     try {

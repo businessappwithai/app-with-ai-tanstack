@@ -1,0 +1,72 @@
+/**
+ * CopilotKit runtime for the administrator's assistant.
+ *
+ * Runs in the frontend server rather than the NestJS backend so the chat
+ * stream never crosses the proxy: CopilotKit streams over its own protocol,
+ * and forwarding that through the backend's request pipeline buys nothing and
+ * breaks streaming. The model context the assistant reasons about still comes
+ * from the backend, over the ordinary API, as a tool the model calls.
+ *
+ * Points at the same OpenAI-compatible endpoint the rest of the application is
+ * configured with, so there is one base URL to repoint and one key to rotate.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { createAPIFileRoute } from '@tanstack/start/api'
+import { CopilotRuntime, OpenAIAdapter, copilotRuntimeNodeHttpEndpoint } from '@copilotkit/runtime'
+
+const AI_BASE_URL = process.env.AI_BASE_URL || 'http://localhost:8000/v1'
+const AI_API_KEY = process.env.AI_API_KEY || 'local'
+const AI_MODEL = process.env.AI_MODEL || 'qwen3.6:27b-mlx'
+
+/** One runtime for the process; it holds no per-request state. */
+const runtime = new CopilotRuntime()
+
+/**
+ * Built per request rather than once at module load: the client captures the
+ * base URL when constructed, so building it lazily means a server that starts
+ * before the model does not need restarting once the model is up.
+ */
+async function handle(request: Request): Promise<Response> {
+  const { default: OpenAI } = await import('openai')
+
+  const handler = copilotRuntimeNodeHttpEndpoint({
+    runtime,
+    serviceAdapter: new OpenAIAdapter({
+      openai: new OpenAI({ apiKey: AI_API_KEY, baseURL: AI_BASE_URL }) as never,
+      model: AI_MODEL,
+    }),
+    endpoint: '/api/copilotkit',
+  })
+
+  return handler(request) as Promise<Response>
+}
+
+/** A thrown error becomes a response rather than a dead socket. */
+function failed(error: unknown, method: string): Response {
+  const message = error instanceof Error ? error.message : 'Unknown error'
+  console.error(`[copilotkit] ${method} failed:`, error)
+  return new Response(JSON.stringify({ error: message }), {
+    status: 500,
+    headers: { 'Content-Type': 'application/json' },
+  })
+}
+
+export const APIRoute = createAPIFileRoute('/api/copilotkit/$')({
+  GET: async ({ request }) => {
+    try {
+      return await handle(request)
+    } catch (error) {
+      return failed(error, 'GET')
+    }
+  },
+  POST: async ({ request }) => {
+    try {
+      return await handle(request)
+    } catch (error) {
+      return failed(error, 'POST')
+    }
+  },
+})
