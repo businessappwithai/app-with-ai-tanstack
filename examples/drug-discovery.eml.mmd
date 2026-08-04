@@ -363,7 +363,6 @@ flowchart TD
 %%meta name: Experiment Lifecycle
 %%meta kind: workflow
 %%workflow ExperimentLifecycle entity: Experiment kind: state
-%%enum ExperimentStatus: draft, submitted, in_review, approved, in_progress, completed, cancelled, on_hold
 stateDiagram-v2
     [*] --> draft
     draft        --> submitted   : submit

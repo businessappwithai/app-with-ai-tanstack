@@ -453,19 +453,24 @@ function entityChunks(model: RagModel, source: string): RagChunk[] {
 }
 
 /** Enums together — each is a line, and one per chunk would be noise. */
-function enumChunk(model: RagModel, source: string): RagChunk | null {
-  if (!model.enums?.length) return null;
-  const lines = ["Enumerations declared by this model. Each lists the values a field may take.", ""];
-  for (const declaration of model.enums) {
-    lines.push(`  - ${declaration.name}: ${declaration.values.join(", ")}`);
-  }
-  return {
-    id: "enums",
-    kind: "enums",
-    name: "enumerations",
-    text: lines.join("\n"),
-    metadata: { kind: "enums", name: "enumerations", source },
-  };
+function enumChunks(model: RagModel, source: string): RagChunk[] {
+  return (model.enums ?? []).map((declaration) => ({
+    id: `enum:${declaration.name}`,
+    kind: "enums" as const,
+    name: declaration.name,
+    // One chunk per enumeration, not one chunk listing all of them.
+    //
+    // Pooled, a model's two dozen enumerations averaged into a single vector
+    // that matched no question about any of them: "what statuses can a
+    // deviation report have" retrieved the DeviationReport entity, which names
+    // its `status` field without saying what may go in it. Alone, each
+    // declaration embeds its own name beside its own values, which is what the
+    // question is actually asking for.
+    text:
+      `The ${declaration.name} enumeration. A field of this type may be ` +
+      `one of: ${declaration.values.join(", ")}.`,
+    metadata: { kind: "enums" as const, name: declaration.name, source },
+  }));
 }
 
 /** One rule, with its decision logic spelled out. */
@@ -573,7 +578,14 @@ function workflowChunks(model: RagModel, source: string): RagChunk[] {
  * else in the model.
  */
 export function extractEnums(eml: string): { name: string; values: string[] }[] {
-  const enums: { name: string; values: string[] }[] = [];
+  // Keyed by name so a redeclaration replaces rather than appends. Models do
+  // repeat a declaration — drug-discovery declares ExperimentStatus twice — and
+  // while a duplicate is harmless while enums are a list, it stops being
+  // harmless the moment each one becomes a chunk with an id derived from its
+  // name: two chunks would claim the same id, and the id is what makes
+  // re-ingesting a model replace its chunks instead of accumulating them.
+  const byName = new Map<string, string[]>();
+
   for (const line of eml.split("\n")) {
     const match = /^\s*%%enum\s+([A-Za-z_][\w]*)\s*:\s*(.+)$/.exec(line);
     if (!match) continue;
@@ -581,9 +593,10 @@ export function extractEnums(eml: string): { name: string; values: string[] }[] 
       .split(",")
       .map((value) => value.trim())
       .filter(Boolean);
-    if (match[1] && values.length) enums.push({ name: match[1], values });
+    if (match[1] && values.length) byName.set(match[1], values);
   }
-  return enums;
+
+  return [...byName].map(([name, values]) => ({ name, values }));
 }
 
 /**
@@ -594,9 +607,12 @@ export function extractEnums(eml: string): { name: string; values: string[] }[] 
  */
 export function chunkModel(model: RagModel, source = "model"): RagChunk[] {
   const chunks: RagChunk[] = [overviewChunk(model, source), ...entityChunks(model, source)];
-  const enums = enumChunk(model, source);
-  if (enums) chunks.push(enums);
-  chunks.push(...ruleChunks(model, source), ...sagaChunks(model, source), ...workflowChunks(model, source));
+  chunks.push(
+    ...enumChunks(model, source),
+    ...ruleChunks(model, source),
+    ...sagaChunks(model, source),
+    ...workflowChunks(model, source)
+  );
   return chunks;
 }
 

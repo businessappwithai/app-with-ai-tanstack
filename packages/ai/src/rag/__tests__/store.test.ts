@@ -64,9 +64,9 @@ describe.skipIf(!reachable)("model context store", () => {
     const result = await ingestProjectModel(PROJECT, EML, { name: "Drug Discovery", embed });
 
     expect(result.entities).toBe(17);
-    // 1 overview + 17 entities + 1 enums + 3 rules + 3 sagas + 2 state workflows
-    expect(result.ingested).toBe(27);
-    expect(await rowCount()).toBe(27);
+    // 1 overview + 17 entities + 22 enums + 3 rules + 3 sagas + 2 state workflows
+    expect(result.ingested).toBe(48);
+    expect(await rowCount()).toBe(48);
   });
 
   // Editing a model must not leave the previous version's chunks behind to be
@@ -75,7 +75,7 @@ describe.skipIf(!reachable)("model context store", () => {
     await ingestProjectModel(PROJECT, EML, { name: "Drug Discovery", embed });
     await ingestProjectModel(PROJECT, EML, { name: "Drug Discovery", embed });
 
-    expect(await rowCount()).toBe(27);
+    expect(await rowCount()).toBe(48);
   });
 
   it("returns the chunk text and its metadata, not just an id", async () => {
