@@ -38,7 +38,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const refreshSession = async () => {
     try {
       const { data } = await getSession();
-      setUser((data as { user?: unknown } | null)?.user ?? null);
+      // Typed as User rather than unknown: `unknown ?? null` widens to
+      // `{} | null`, which does not assign to `User | null`.
+      setUser((data as { user?: User } | null)?.user ?? null);
     } catch (error) {
       console.error("Failed to refresh session:", error);
     }
@@ -65,7 +67,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const { data, error } = await authSignIn(email, password);
       if (error) throw new Error(error);
-      setUser((data as { user?: unknown } | null)?.user ?? null);
+      // Typed as User rather than unknown: `unknown ?? null` widens to
+      // `{} | null`, which does not assign to `User | null`.
+      setUser((data as { user?: User } | null)?.user ?? null);
     } finally {
       setIsLoading(false);
     }

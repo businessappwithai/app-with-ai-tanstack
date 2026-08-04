@@ -415,6 +415,16 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     const apiClientContent = await this.renderTemplate("src/lib/api-client.ts.hbs", context);
     await fs.writeFile(path.join(outputDir, "src/lib/api-client.ts"), apiClientContent);
 
+    // Vite's asset-import suffixes (`?url`, `?raw`), which the compiler cannot
+    // resolve on its own — without these the root route fails to typecheck on a
+    // freshly generated app over an import that is perfectly correct.
+    try {
+      const viteEnv = await this.renderTemplate("src/vite-env.d.ts.hbs", context);
+      await fs.writeFile(path.join(outputDir, "src/vite-env.d.ts"), viteEnv);
+    } catch {
+      // Non-fatal: the app runs either way.
+    }
+
     // Field schema with Zod validation and field type helpers
     try {
       const fieldSchemaContent = await this.renderTemplate("src/lib/field-schema.ts.hbs", context);
@@ -785,12 +795,27 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       }
     }
 
-    // routeTree.gen.ts is deliberately NOT emitted. TanStack Router's Vite
-    // plugin writes it from the route files on both `dev` and `build` (see
-    // `generatedRouteTree` in app.config.ts), so shipping a copy only creates a
-    // file that is wrong until the first run — the template copy named a
-    // different sample app's entities (account/contact/activity/opportunity) in
-    // every generated project. It is gitignored for the same reason.
+    // routeTree.gen.ts is never *copied* from a template — a shipped copy named
+    // a different sample app's entities (account/contact/activity/opportunity)
+    // in every generated project, and stayed wrong until the first dev run.
+    //
+    // It is *generated* instead, from this project's own route files, once the
+    // dependencies are installed (see the CLI's route-tree step). Leaving it to
+    // the first `dev` meant a freshly generated application could not typecheck:
+    // every route file referenced a module that did not exist yet, which reads
+    // like 70-odd bugs and is none.
+    //
+    // `tsr.config.json` is what the router CLI reads; app.config.ts carries the
+    // same settings for the Vite plugin.
+    try {
+      const tsrConfig = await this.renderTemplate("tsr.config.json.hbs", _context);
+      await fs.writeFile(path.join(outputDir, "tsr.config.json"), tsrConfig);
+    } catch (error) {
+      // The Vite plugin still writes the tree on the first dev run, so this is
+      // not fatal — but it is reported rather than swallowed. A silent catch
+      // here hid a ReferenceError for a whole generation cycle.
+      console.warn(`tsr.config.json not written: ${(error as Error).message}`);
+    }
   }
 
   // ---------------------------------------------------------------------------

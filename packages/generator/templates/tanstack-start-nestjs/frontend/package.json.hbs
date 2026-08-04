@@ -11,6 +11,8 @@
     "lint": "biome lint --write src",
     "lint:fix": "biome lint --write src",
     "format": "biome format --write src",
+    "routes:generate": "bunx --bun @tanstack/router-cli@1.132.0 generate",
+    "pretype-check": "bun run routes:generate",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

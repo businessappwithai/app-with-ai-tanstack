@@ -120,7 +120,9 @@ function Dashlet({
   href,
 }: {
   name: string;
-  description: string;
+  // Optional: callers deliberately pass `undefined` for a dashlet that has
+  // nothing to add beyond its name.
+  description?: string;
   icon?: any;
   href: string;
 }) {
