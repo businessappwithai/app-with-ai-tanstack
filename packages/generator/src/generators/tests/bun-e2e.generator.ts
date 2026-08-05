@@ -79,6 +79,8 @@ const SHARED_SUITES = [
   "07-workflow-random.test.ts",
   "08-users-roles.test.ts",
   "09-workflow-multistep.test.ts",
+  // Last, so it measures the fullest the tables will be this run.
+  "10-benchmark.test.ts",
 ];
 
 /** Root-level files. */

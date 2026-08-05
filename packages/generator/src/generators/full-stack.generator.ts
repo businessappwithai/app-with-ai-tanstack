@@ -287,31 +287,70 @@ npm-debug.log*
 `;
     await fs.writeFile(path.join(outputDir, ".gitignore"), gitignore);
 
-    // docker-compose.yml
-    try {
-      const templateDir = await this.findTemplatesDir();
-      const dockerComposeTpl = path.join(
-        templateDir,
-        "tanstack-start-nestjs/docker-compose.yml.hbs"
-      );
-      const tplContent = await fs.readFile(dockerComposeTpl, "utf-8");
-      const backendPort = this.options.port;
-      const frontendPort = this.options.frontendPort ?? DEFAULT_FRONTEND_PORT;
-      const projectId = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      const projectSnake = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "_");
-      const dockerCompose = tplContent
-        .replace(/\{\{project\.name\}\}/g, this.options.projectName)
-        .replace(/\{\{project\.id\}\}/g, projectId)
-        .replace(/\{\{project\.name \| replace '-' '_'\}\}/g, projectSnake)
-        .replace(/\{\{project\.backendPort\}\}/g, String(backendPort))
-        .replace(/\{\{project\.frontendPort\}\}/g, String(frontendPort));
-      await fs.writeFile(path.join(outputDir, "docker-compose.yml"), dockerCompose);
-    } catch (e) {
-      console.warn(`docker-compose.yml generation skipped: ${(e as Error).message}`);
-    }
+    // Container assets: the compose file that runs the split services, the
+    // root Dockerfile that packages the whole application as one image, and the
+    // start script that image runs.
+    await this.writeContainerFiles(outputDir);
 
     // Copy GitHub Actions workflows
     await this.copyGitHubWorkflows(outputDir);
+  }
+
+  /**
+   * Render the root-level container files.
+   *
+   * These use plain substitution rather than Handlebars: the templates are YAML
+   * and shell, both of which are full of braces of their own, and compiling
+   * them would mean escaping every one. The placeholders here are a fixed,
+   * documented handful.
+   *
+   * A missing template is a warning, not a failure — an application that cannot
+   * be containerised is still an application, and the generate step should not
+   * die over it.
+   */
+  private async writeContainerFiles(outputDir: string): Promise<void> {
+    const files: Array<{ template: string; output: string; executable?: boolean }> = [
+      { template: "docker-compose.yml.hbs", output: "docker-compose.yml" },
+      { template: "Dockerfile.hbs", output: "Dockerfile" },
+      { template: "docker-start.sh.hbs", output: "docker-start.sh", executable: true },
+    ];
+
+    // The Dockerfile copies this directory unconditionally, so it has to exist
+    // even when nobody has put a certificate in it.
+    const certsDir = path.join(outputDir, "docker", "ca-certificates");
+    await fs.mkdir(certsDir, { recursive: true });
+    await fs.writeFile(
+      path.join(certsDir, ".gitkeep"),
+      "Certificates placed here are trusted while the image builds.\n" +
+        "Needed only behind a TLS-intercepting proxy. See the Dockerfile.\n"
+    );
+
+    const backendPort = this.options.port;
+    const frontendPort = this.options.frontendPort ?? DEFAULT_FRONTEND_PORT;
+    const projectId = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const projectSnake = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+
+    const render = (content: string): string =>
+      content
+        .replace(/\{\{project\.name \| replace '-' '_'\}\}/g, projectSnake)
+        .replace(/\{\{project\.name\}\}/g, this.options.projectName)
+        .replace(/\{\{project\.id\}\}/g, projectId)
+        .replace(/\{\{project\.backendPort\}\}/g, String(backendPort))
+        .replace(/\{\{project\.frontendPort\}\}/g, String(frontendPort));
+
+    for (const file of files) {
+      try {
+        const templateDir = await this.findTemplatesDir();
+        const source = path.join(templateDir, "tanstack-start-nestjs", file.template);
+        const rendered = render(await fs.readFile(source, "utf-8"));
+        const destination = path.join(outputDir, file.output);
+        await fs.writeFile(destination, rendered);
+        // chmod is best-effort: Windows and some CI filesystems reject it.
+        if (file.executable) await fs.chmod(destination, 0o755).catch(() => {});
+      } catch (error) {
+        console.warn(`${file.output} generation skipped: ${(error as Error).message}`);
+      }
+    }
   }
 
   private async findTemplatesDir(): Promise<string> {

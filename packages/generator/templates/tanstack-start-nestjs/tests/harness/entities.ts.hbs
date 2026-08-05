@@ -161,8 +161,58 @@ export function getEntity(name: string): EntityMeta {
 }
 
 /**
+ * FK columns naming a person by the role they played rather than by entity.
+ * Mirrors `foreignKeys.personRoleColumns` in erdwithai-language.json and the
+ * backend's own COLUMN_TABLE_ALIASES.
+ */
+const PERSON_ROLE_COLUMNS = new Set([
+  "assigned_to",
+  "author_id",
+  "lab_manager_id",
+  "manager_id",
+  "owner_id",
+  "pi_id",
+  "remediation_owner_id",
+  "user_id",
+]);
+
+/**
+ * Map a foreign-key column (`customer_id`) to the entity it points at.
+ *
+ * A `_by` column points at a user, so it resolves to the user entity rather
+ * than to an entity literally named after the column stem.
+ */
+export function parentEntityForColumn(columnName: string): EntityMeta | null {
+  const findByStem = (stem: string): EntityMeta | null =>
+    entities.find(
+      (e) =>
+        e.route === stem ||
+        e.tableName === `bus_${stem}` ||
+        e.name.toLowerCase() === stem.toLowerCase()
+    ) ?? null;
+
+  if (
+    columnName.endsWith("_by_id") ||
+    columnName.endsWith("_by") ||
+    PERSON_ROLE_COLUMNS.has(columnName)
+  ) {
+    const user = findByStem("user");
+    if (user) return user;
+  }
+
+  if (!columnName.endsWith("_id")) return null;
+  return findByStem(columnName.slice(0, -3));
+}
+
+/**
  * Entities ordered so that a record's foreign-key targets are created first.
  * Falls back to declaration order for cycles.
+ *
+ * Edges come from the FK *columns*, not only from the ERD's declared
+ * relationships: conventions like `registered_by_id → user` create a real
+ * ordering constraint that no relationship line in the diagram records. Seeding
+ * by the declared graph alone put the child first and every insert was rejected
+ * for a missing required parent.
  */
 export function topologicalEntities(): EntityMeta[] {
   const byName = new Map(entities.map((e) => [e.name, e]));
@@ -170,6 +220,14 @@ export function topologicalEntities(): EntityMeta[] {
 
   for (const entity of entities) {
     dependencies.set(entity.name, new Set());
+  }
+  for (const entity of entities) {
+    for (const fk of foreignKeyFields(entity)) {
+      const parent = parentEntityForColumn(fk.name);
+      if (parent && parent.name !== entity.name) {
+        dependencies.get(entity.name)?.add(parent.name);
+      }
+    }
   }
   for (const rel of relationships) {
     // manyToOne / oneToOne: the source holds the FK, so the target must exist first.

@@ -1,18 +1,66 @@
+# {{project.name}}
+#
+#   docker compose up --build
+#
+# Everything the application needs runs here, database included — no external
+# service has to exist first. Point DATABASE_URL somewhere else and the bundled
+# database is simply unused.
+#
+#   app        the whole application in one container (Dockerfile at the root)
+#   backend    } the same application split in two, which is what you want
+#   frontend   } when the two halves scale differently
+#
+# The split pair is the default. `docker compose --profile single up app` runs
+# the one-container build instead.
+
 services:
   postgres:
-    image: postgres:16-alpine
+    # pgvector rather than stock Postgres: the model-context assistant stores
+    # embeddings, and `CREATE EXTENSION vector` fails on an image without it.
+    image: pgvector/pgvector:pg18
     restart: unless-stopped
     environment:
       POSTGRES_DB: {{project.name | replace '-' '_'}}
       POSTGRES_USER: ${DB_USER:-app}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-app}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      # Postgres 18 wants one mount at /var/lib/postgresql and puts its data in a
+
+      # subdirectory; mounting the old /data path directly makes the image refuse
+
+      # to start.
+
+      - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-app}"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # The single-image build. Not started by default — name it, or use the profile.
+  app:
+    profiles: ["single"]
+    image: {{project.name}}:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:{{project.backendPort}}}
+        VITE_APP_URL: ${VITE_APP_URL:-http://localhost:{{project.frontendPort}}}
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-{{project.frontendPort}}}:{{project.frontendPort}}"
+      - "${BACKEND_PORT:-{{project.backendPort}}}:{{project.backendPort}}"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:-postgres://${DB_USER:-app}:${DB_PASSWORD:-app}@postgres:5432/{{project.name | replace '-' '_'}}}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      SESSION_SECRET: ${SESSION_SECRET:-change-me-in-production}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-change-me-in-production}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:{{project.frontendPort}}}
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   backend:
     image: {{project.name}}-backend:${IMAGE_TAG:-latest}
@@ -24,17 +72,17 @@ services:
       - "${BACKEND_PORT:-{{project.backendPort}}}:{{project.backendPort}}"
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://${DB_USER:-app}:${DB_PASSWORD}@postgres:5432/{{project.name | replace '-' '_'}}
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
-      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
+      DATABASE_URL: postgres://${DB_USER:-app}:${DB_PASSWORD:-app}@postgres:5432/{{project.name | replace '-' '_'}}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      SESSION_SECRET: ${SESSION_SECRET:-change-me-in-production}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-change-me-in-production}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:{{project.frontendPort}}}
       PORT: {{project.backendPort}}
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:{{project.backendPort}}/api/health || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:{{project.backendPort}}/api/me/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

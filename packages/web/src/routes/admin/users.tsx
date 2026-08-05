@@ -1,25 +1,10 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { AlertCircle, CheckCircle2, Clock, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
+import { requestContext } from "@/lib/request-context";
 
 async function checkAdminAuth() {
-  let fetchInit: RequestInit = {};
-  let baseUrl = "";
-
-  if (typeof window === "undefined") {
-    try {
-      const { getRequest } = await import(/* @vite-ignore */ "@tanstack/react-start/server");
-      const req = getRequest();
-      if (req) {
-        const cookie = req.headers.get("cookie") ?? "";
-        if (cookie) fetchInit = { headers: { cookie } };
-        baseUrl = new URL(req.url).origin;
-      }
-    } catch {
-      baseUrl = process.env.VITE_APP_URL ?? "http://localhost:3000";
-    }
-  }
-
+  const { baseUrl, fetchInit } = requestContext();
   const res = await fetch(`${baseUrl}/api/auth/me`, fetchInit);
   return res.json() as Promise<{ user: { id: string; email: string; role: string } | null }>;
 }

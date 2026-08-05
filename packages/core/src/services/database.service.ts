@@ -485,7 +485,12 @@ export const projectDb = {
         : undefined,
       workflows,
       entities,
-      generatedPath: (latestGeneration as any)?.generated_path,
+      // The generation-history row is the better source when it exists — it
+      // describes one specific run — but the generate step records the path on
+      // the project and does not always write history. Preferring history
+      // unconditionally reported "not generated yet" for a project whose files
+      // were sitting on disk, which is what the deploy step refused to build.
+      generatedPath: (latestGeneration as any)?.generated_path ?? dbProject.generated_path,
       fileManifest: (latestGeneration as any)?.file_manifest
         ? JSON.parse((latestGeneration as any).file_manifest)
         : undefined,

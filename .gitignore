@@ -89,3 +89,4 @@ test-output/
 
 # Checker report artifacts — rewritten on every generate
 *.eml.mmd.error
+docker/ca-certificates/*.crt

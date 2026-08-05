@@ -352,7 +352,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     const stylesContent = await this.renderTemplate("src/styles/globals.css.hbs", context);
     await fs.writeFile(path.join(outputDir, "src/styles/globals.css"), stylesContent);
 
-    // Auth pages (login and signup)
+    // Auth pages. Login only — see below.
     try {
       const loginPageContent = await this.renderTemplate("src/routes/auth/login.tsx.hbs", context);
       await fs.writeFile(path.join(outputDir, "src/routes/auth/login.tsx"), loginPageContent);
@@ -360,15 +360,9 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("Login page template not found");
     }
 
-    try {
-      const signupPageContent = await this.renderTemplate(
-        "src/routes/auth/signup.tsx.hbs",
-        context
-      );
-      await fs.writeFile(path.join(outputDir, "src/routes/auth/signup.tsx"), signupPageContent);
-    } catch (e) {
-      console.warn("Signup page template not found");
-    }
+    // No sign-up page. Accounts are created by an administrator from the user
+    // management screen, and the backend refuses public sign-up outright — a
+    // route that renders a form the server will reject is worse than no route.
 
     // Auth lib file (static)
     try {

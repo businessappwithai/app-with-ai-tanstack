@@ -28,6 +28,22 @@ import {
 /** Ids created per entity, reused to satisfy the next entity's foreign keys. */
 const createdIds = new Map<string, string[]>();
 
+/**
+ * Ids for a parent this run has not seeded yet.
+ *
+ * The topological order puts parents first, so this is normally unreachable —
+ * but a cycle in the model leaves one edge unsatisfiable by ordering alone, and
+ * a required FK with no value fails every insert in the batch. Rows created by
+ * the earlier CRUD suites are enough to break the tie.
+ */
+async function borrowParentIds(entity: EntityMeta): Promise<string[]> {
+  const response = await harness.client.get<{ data?: Array<{ id: string }> }>(
+    `/bus/${entity.route}?page=1&limit=50`,
+    { allowFailure: true }
+  );
+  return (response.data?.data ?? []).map((row) => row.id).filter(Boolean);
+}
+
 /** Insert records in bounded-concurrency batches so we do not open 1000 sockets. */
 async function seedEntity(
   entity: EntityMeta,
@@ -37,15 +53,23 @@ async function seedEntity(
   const ids: string[] = [];
   let failed = 0;
 
+  // Resolve every parent pool once, before the batches start.
+  const pools = new Map<string, string[]>();
+  for (const fk of fks) {
+    const parent = harness.resolveParentEntity(fk.name);
+    if (!parent) continue;
+    const seeded = createdIds.get(parent.route);
+    const pool = seeded && seeded.length > 0 ? seeded : await borrowParentIds(parent);
+    if (pool.length > 0) pools.set(fk.name, pool);
+  }
+
   for (let offset = 0; offset < count; offset += config.seedBatchSize) {
     const size = Math.min(config.seedBatchSize, count - offset);
 
     const payloads = Array.from({ length: size }, (_unused, index) => {
       const foreignKeys: Record<string, string> = {};
       for (const fk of fks) {
-        const parent = harness.resolveParentEntity(fk.name);
-        if (!parent) continue;
-        const pool = createdIds.get(parent.route);
+        const pool = pools.get(fk.name);
         if (pool && pool.length > 0) {
           foreignKeys[fk.name] = pool[(offset + index) % pool.length]!;
         }
