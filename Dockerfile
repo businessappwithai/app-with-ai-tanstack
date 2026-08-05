@@ -35,20 +35,26 @@
 # ─── certificates ───────────────────────────────────────────────────────────
 # One stage, reused by both of the real ones, so the trust store is assembled
 # identically in each and the install layer is cached once.
-FROM oven/bun:1.3.14-alpine AS certs
+FROM oven/bun:1.3.14 AS certs
 
 # The directory always exists, so this COPY always succeeds; whether it carries
 # anything is up to whoever is building.
 COPY docker/ca-certificates/ /usr/local/share/ca-certificates/
-RUN if ls /usr/local/share/ca-certificates/*.crt >/dev/null 2>&1; then \
-      cat /usr/local/share/ca-certificates/*.crt >> /etc/ssl/certs/ca-certificates.crt; \
-      echo "installed $(ls /usr/local/share/ca-certificates/*.crt | wc -l) extra CA certificate(s)"; \
+
+# Always produce /ca-bundle.crt, even with nothing to add and even if the base
+# image ships no bundle of its own — the later stages copy this path
+# unconditionally, and a COPY of a file that does not exist fails the build.
+RUN touch /ca-bundle.crt \
+ && cat /etc/ssl/certs/ca-certificates.crt >> /ca-bundle.crt 2>/dev/null || true; \
+    if ls /usr/local/share/ca-certificates/*.crt >/dev/null 2>&1; then \
+      cat /usr/local/share/ca-certificates/*.crt >> /ca-bundle.crt; \
+      echo "added $(ls /usr/local/share/ca-certificates/*.crt | wc -l) extra CA certificate(s)"; \
     else \
       echo "no extra CA certificates supplied"; \
     fi
 
 # ─── build ──────────────────────────────────────────────────────────────────
-FROM oven/bun:1.3.14-alpine AS build
+FROM oven/bun:1.3.14 AS build
 
 ARG HTTP_PROXY=""
 ARG HTTPS_PROXY=""
@@ -58,7 +64,7 @@ ENV HTTP_PROXY=${HTTP_PROXY} \
     NO_PROXY=${NO_PROXY} \
     NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 
-COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=certs /ca-bundle.crt /etc/ssl/certs/ca-certificates.crt
 
 WORKDIR /app
 
@@ -87,13 +93,13 @@ RUN bun install --frozen-lockfile --production \
  && rm -rf /root/.bun/install/cache node_modules/.cache packages/*/node_modules/.cache
 
 # ─── runtime ────────────────────────────────────────────────────────────────
-FROM oven/bun:1.3.14-alpine
+FROM oven/bun:1.3.14
 
 ARG HTTP_PROXY=""
 ARG HTTPS_PROXY=""
 ARG NO_PROXY=""
 
-COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=certs /ca-bundle.crt /etc/ssl/certs/ca-certificates.crt
 
 WORKDIR /app
 
@@ -102,10 +108,26 @@ ENV NODE_ENV=production \
     NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt \
     DEFAULT_OUTPUT_DIR=/app/generated-projects
 
-# docker-cli    build the generated application's image at the deploy step
+# Debian, not Alpine, and not by preference: the embedding model behind the
+# model-context assistant pulls in onnxruntime-node, whose prebuilt
+# `libonnxruntime.so` is linked against glibc. On musl it fails to load with
+# "Error loading shared library ld-linux-x86-64.so.2", which surfaces as a 500
+# from the assistant and nothing else — the rest of the app looks fine.
+#
 # postgresql-client  wait for the database before migrating
-# git           the generator initialises a repository in each generated project
-RUN apk add --no-cache docker-cli postgresql-client git
+# git                the generator initialises a repository in each project
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends postgresql-client git ca-certificates curl wget \
+ && rm -rf /var/lib/apt/lists/*
+
+# Just the docker client, so the deploy step can build an image on the host's
+# daemon. The distro package would drag in a daemon this container never runs.
+ARG DOCKER_CLI_VERSION=27.5.1
+RUN curl -fsSL "https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_CLI_VERSION}.tgz" \
+      -o /tmp/docker.tgz \
+ && tar -xzf /tmp/docker.tgz -C /usr/local/bin --strip-components=1 docker/docker \
+ && rm /tmp/docker.tgz \
+ && docker --version
 
 # The whole workspace, not just the build output. The generator shells out to its
 # own CLI, reads Handlebars templates off disk and runs `bun install` inside each
