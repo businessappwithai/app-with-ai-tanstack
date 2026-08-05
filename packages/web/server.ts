@@ -42,7 +42,11 @@ function staticFile(pathname: string): string | null {
 
 const server = Bun.serve({
   port,
-  idleTimeout: 120,
+  // The longest Bun allows. Generation and image builds stream progress for
+  // minutes and can go quiet for a while inside one slow step — a 120-second
+  // idle timeout cut those responses off mid-build. The routes that stream also
+  // send heartbeats, so this is the backstop rather than the mechanism.
+  idleTimeout: 255,
   async fetch(request) {
     const { pathname } = new URL(request.url);
 

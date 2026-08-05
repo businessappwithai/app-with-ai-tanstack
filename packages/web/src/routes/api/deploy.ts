@@ -67,9 +67,24 @@ export const Route = createFileRoute("/api/deploy")({
               controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`));
             };
             const log = (level: string, message: string) => send({ log: message, level });
+
+            // A single image-build step can be silent for minutes — copying a
+            // dependency tree, or a slow compile. Without something on the wire
+            // the connection is closed as idle and the build dies with it, so a
+            // comment goes out on a timer. SSE ignores comment frames.
+            const heartbeat = setInterval(() => {
+              if (closed) return;
+              try {
+                controller.enqueue(encoder.encode(": keep-alive\n\n"));
+              } catch {
+                // The client is gone; the close path below will tidy up.
+              }
+            }, 15_000);
+
             const finish = () => {
               if (closed) return;
               closed = true;
+              clearInterval(heartbeat);
               controller.close();
             };
             const fail = (error: string) => {

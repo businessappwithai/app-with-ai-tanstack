@@ -20,6 +20,25 @@ if [ -z "$DATABASE_URL" ]; then
   exit 1
 fi
 
+# The API refuses to boot without its signing secrets. Rather than let it die
+# with a stack trace, generate throwaway ones so `docker run` with a database is
+# enough to see the application work — and say plainly that they are throwaway.
+#
+# They are regenerated every start, so every restart invalidates every session.
+# That is the right behaviour for something nobody configured: annoying enough
+# to notice, and it cannot be mistaken for a durable secret.
+for secret in BETTER_AUTH_SECRET JWT_SECRET SESSION_SECRET; do
+  if [ -z "$(printenv "$secret")" ]; then
+    generated=$(head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n')
+    export "$secret=$generated"
+    log "$secret was not set — generated an ephemeral one for this container"
+    ephemeral=yes
+  fi
+done
+if [ -n "$ephemeral" ]; then
+  log "  sessions will not survive a restart. Set these before running for real."
+fi
+
 # Wait for the database using the driver the application already depends on.
 # `pg_isready` would mean installing postgresql-client, and a package install is
 # the one thing a build behind a locked-down proxy cannot do.
@@ -30,9 +49,14 @@ log "waiting for the database…"
 (cd backend && bun --eval "
   const { Client } = require('pg');
   const url = process.env.DATABASE_URL;
-  const ssl = /localhost|127\.0\.0\.1|@postgres[:\/]|@db[:\/]/.test(url)
-    ? undefined
-    : { rejectUnauthorized: false };
+  // TLS when the string asks for it, or when the host is a public DNS name.
+  // A compose service is a single label with no dot — 'db', 'postgres',
+  // 'drug-discovery-db' — and offers no TLS at all, so requesting it there
+  // means the connection is refused and the wait never ends.
+  const host = (() => { try { return new URL(url).hostname; } catch { return ''; } })();
+  const asked = /sslmode=(require|verify)/.test(url);
+  const external = host.includes('.') && !/^127\.|^localhost$/.test(host);
+  const ssl = asked || external ? { rejectUnauthorized: false } : undefined;
   const deadline = Date.now() + Number(process.env.DB_WAIT_SECONDS ?? 120) * 1000;
   for (;;) {
     const client = new Client({ connectionString: url, connectionTimeoutMillis: 5000, ...(ssl ? { ssl } : {}) });

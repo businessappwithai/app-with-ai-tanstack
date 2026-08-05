@@ -21,8 +21,24 @@ import type { Database } from "./db.types.js";
 
 export type { Database };
 
-/** Hosts where TLS is pointless and usually unavailable. */
-const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "0.0.0.0", "postgres", "db"]);
+/** Loopback, where TLS is pointless and usually unavailable. */
+const LOOPBACK = new Set(["localhost", "127.0.0.1", "::1", "0.0.0.0"]);
+
+/**
+ * Whether a host is somewhere TLS is worth asking for.
+ *
+ * A hosted database is always a public DNS name, and one thing every public
+ * name has that a private one does not is a dot. Container and compose
+ * hostnames are single labels — `postgres`, `db`, `drug-discovery-db` — and
+ * those servers usually have no certificate at all, so asking for TLS there
+ * does not degrade, it fails the connection outright.
+ */
+function looksRemote(host: string | undefined): boolean {
+  if (!host) return false;
+  const name = host.toLowerCase();
+  if (LOOPBACK.has(name)) return false;
+  return name.includes(".");
+}
 
 /**
  * The `ssl` value for a connection, or undefined to leave it off.
@@ -47,8 +63,7 @@ function sslConfig(host: string | undefined, urlMode?: string): pg.PoolConfig["s
   if (mode === "verify-full" || mode === "verify-ca") return { rejectUnauthorized: true };
   if (mode) return { rejectUnauthorized: false };
 
-  const isLocal = !host || LOCAL_HOSTS.has(host.toLowerCase());
-  return isLocal ? undefined : { rejectUnauthorized: false };
+  return looksRemote(host) ? { rejectUnauthorized: false } : undefined;
 }
 
 function buildPoolConfig(): pg.PoolConfig {
