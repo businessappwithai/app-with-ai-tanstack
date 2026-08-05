@@ -1,0 +1,85 @@
+#!/bin/sh
+# Start {{project.name}} inside the single-image build.
+#
+# Two servers in one container, which is not how you would run this at scale but
+# is exactly what "here is the application, run it" should mean. The API and the
+# web front end are one deployable unit here; the compose file runs them as two
+# when you want them separate.
+#
+# Order matters: nothing can start until the schema exists, and the frontend is
+# useless without the API behind it.
+set -e
+
+log() { echo "[{{project.name}}] $*"; }
+
+: "${PORT:={{project.frontendPort}}}"
+: "${BACKEND_PORT:={{project.backendPort}}}"
+
+if [ -z "$DATABASE_URL" ]; then
+  log "DATABASE_URL is not set — the application has no database to talk to"
+  exit 1
+fi
+
+# Wait for the database using the driver the application already depends on.
+# `pg_isready` would mean installing postgresql-client, and a package install is
+# the one thing a build behind a locked-down proxy cannot do.
+#
+# Run from `backend`, not the project root: `pg` is a dependency of that
+# workspace, and module resolution for `--eval` starts at the working directory.
+log "waiting for the database…"
+(cd backend && bun --eval "
+  const { Client } = require('pg');
+  const url = process.env.DATABASE_URL;
+  const ssl = /localhost|127\.0\.0\.1|@postgres[:\/]|@db[:\/]/.test(url)
+    ? undefined
+    : { rejectUnauthorized: false };
+  const deadline = Date.now() + Number(process.env.DB_WAIT_SECONDS ?? 120) * 1000;
+  for (;;) {
+    const client = new Client({ connectionString: url, connectionTimeoutMillis: 5000, ...(ssl ? { ssl } : {}) });
+    try {
+      await client.connect();
+      await client.end();
+      process.exit(0);
+    } catch (error) {
+      try { await client.end(); } catch {}
+      if (Date.now() > deadline) {
+        console.error('database never became reachable:', error.message);
+        process.exit(1);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+  }
+")
+log "database is up"
+
+log "applying migrations…"
+(cd backend && bun run migrate)
+
+# Seeding is idempotent and cheap, and a container with an empty dictionary
+# renders empty screens — so it runs every start rather than only the first.
+if [ "${SKIP_SEED:-false}" != "true" ]; then
+  log "seeding…"
+  (cd backend && bun run seed) || log "seed reported a problem — continuing"
+fi
+
+# Both servers run under this shell. If either exits the container should exit
+# too: a half-running application that still answers its health check is worse
+# than one that restarts.
+log "starting the API on :${BACKEND_PORT}"
+(cd backend && PORT="$BACKEND_PORT" bun run dist/src/main.js) &
+api=$!
+
+log "starting the web front end on :${PORT}"
+PORT="$PORT" bun run frontend/.output/server/index.mjs &
+web=$!
+
+# Forward a stop signal to both, so `docker stop` is a clean shutdown rather
+# than a ten-second wait followed by SIGKILL.
+trap 'log "stopping…"; kill "$api" "$web" 2>/dev/null; wait "$api" "$web" 2>/dev/null; exit 0' TERM INT
+
+# `wait -n` returns as soon as either half exits; whichever it was, we are done.
+wait -n "$api" "$web"
+status=$?
+log "a process exited (status $status) — shutting the container down"
+kill "$api" "$web" 2>/dev/null || true
+exit "$status"

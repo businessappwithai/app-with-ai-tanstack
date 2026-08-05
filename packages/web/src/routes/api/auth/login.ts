@@ -12,16 +12,7 @@ export const Route = createFileRoute("/api/auth/login")({
 
         const { setSessionCookie } = await import("@/lib/auth-server");
         const { getDatabase } = await import("@erdwithai/core/services");
-
-        // Must match the hashing in register endpoint
-        async function hashPassword(password: string): Promise<string> {
-          const encoder = new TextEncoder();
-          const data = encoder.encode(`${password}salt-key`);
-          const hash = await crypto.subtle.digest("SHA-256", data);
-          return Array.from(new Uint8Array(hash))
-            .map((b) => b.toString(16).padStart(2, "0"))
-            .join("");
-        }
+        const { hashPassword } = await import("@/lib/password");
         try {
           const body = await request.json();
           const { email, password } = body as { email: string; password: string };

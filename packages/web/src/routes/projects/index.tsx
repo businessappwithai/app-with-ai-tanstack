@@ -16,29 +16,15 @@ import { useEffect, useRef, useState } from "react";
 import { ImportModelModal, NewProjectModal } from "@/components/project";
 import { ShareProjectModal } from "@/components/project/ShareProjectModal";
 import { nextAvailableAppPort } from "@/lib/generated-ports";
+import { requestContext } from "@/lib/request-context";
 import { useAuthStore } from "@/store/authStore";
 import { useProjectStore } from "@/store/projectStore";
 
 async function checkAuthMe() {
-  // Server-side: forward the incoming request's cookies to /api/auth/me.
-  // Client-side: use relative URL — browser automatically includes cookies.
-  let fetchInit: RequestInit = {};
-  let baseUrl = "";
-
-  if (typeof window === "undefined") {
-    try {
-      const { getRequest } = await import("@tanstack/react-start/server");
-      const req = getRequest();
-      if (req) {
-        const cookie = req.headers.get("cookie") ?? "";
-        if (cookie) fetchInit = { headers: { cookie } };
-        baseUrl = new URL(req.url).origin;
-      }
-    } catch {
-      baseUrl = process.env.VITE_APP_URL ?? "http://localhost:3000";
-    }
-  }
-
+  // On the server the caller's cookies have to be forwarded by hand and the URL
+  // has to be absolute; in the browser both are automatic. `requestContext`
+  // holds that difference.
+  const { baseUrl, fetchInit } = requestContext();
   const res = await fetch(`${baseUrl}/api/auth/me`, fetchInit);
   return res.json() as Promise<{ user: { id: string; email: string; role: string } | null }>;
 }

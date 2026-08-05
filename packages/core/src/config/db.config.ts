@@ -8,6 +8,11 @@
  *   PGUSER         default: current OS user
  *   PGPASSWORD     default: (empty)
  *   PGDATABASE     default: erdwithai
+ *   PGSSLMODE      disable | require | verify-full — overrides what the URL says
+ *
+ * Hosted Postgres (Neon, Supabase, RDS) requires TLS and will refuse the
+ * connection outright without it, so `sslConfig` below decides when to ask for
+ * it. See the note there about why `sslmode` in the URL is not enough.
  */
 
 import { Kysely, PostgresDialect } from "kysely";
@@ -16,20 +21,67 @@ import type { Database } from "./db.types.js";
 
 export type { Database };
 
+/** Hosts where TLS is pointless and usually unavailable. */
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "0.0.0.0", "postgres", "db"]);
+
+/**
+ * The `ssl` value for a connection, or undefined to leave it off.
+ *
+ * `pg` reads `sslmode` from a connection string, but only far enough to turn
+ * TLS on — for `require` it also demands a CA it can chain to, and Neon's
+ * certificate is signed by a root that is not in every image's trust store.
+ * The result is a `SELF_SIGNED_CERT_IN_CHAIN` failure on a string that works
+ * fine in psql. So the decision is made here instead:
+ *
+ *   verify-full → verify the chain, as asked
+ *   require     → encrypt without demanding a verifiable chain (what psql does)
+ *   disable     → no TLS
+ *
+ * With nothing specified, a remote host gets `require` and a local one gets
+ * nothing, which is the right default in both directions.
+ */
+function sslConfig(host: string | undefined, urlMode?: string): pg.PoolConfig["ssl"] {
+  const mode = (process.env.PGSSLMODE ?? urlMode ?? "").toLowerCase();
+
+  if (mode === "disable") return undefined;
+  if (mode === "verify-full" || mode === "verify-ca") return { rejectUnauthorized: true };
+  if (mode) return { rejectUnauthorized: false };
+
+  const isLocal = !host || LOCAL_HOSTS.has(host.toLowerCase());
+  return isLocal ? undefined : { rejectUnauthorized: false };
+}
+
 function buildPoolConfig(): pg.PoolConfig {
   const url = process.env.DATABASE_URL;
 
   if (url && (url.startsWith("postgresql://") || url.startsWith("postgres://"))) {
-    return { connectionString: url, max: 10 };
+    // A malformed URL should fail when pg dials it, with pg's message, rather
+    // than here while we are only trying to read the host off it.
+    let host: string | undefined;
+    let urlMode: string | undefined;
+    try {
+      const parsed = new URL(url);
+      host = parsed.hostname;
+      urlMode = parsed.searchParams.get("sslmode") ?? undefined;
+    } catch {
+      /* leave both unset — the defaults below are safe */
+    }
+
+    const ssl = sslConfig(host, urlMode);
+    return ssl ? { connectionString: url, max: 10, ssl } : { connectionString: url, max: 10 };
   }
 
+  const host = process.env.PGHOST ?? "localhost";
+  const ssl = sslConfig(host);
+
   return {
-    host: process.env.PGHOST ?? "localhost",
+    host,
     port: Number(process.env.PGPORT ?? 5432),
     user: process.env.PGUSER,
     password: process.env.PGPASSWORD ?? "",
     database: process.env.PGDATABASE ?? "erdwithai",
     max: 10,
+    ...(ssl ? { ssl } : {}),
   };
 }
 
