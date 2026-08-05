@@ -1,5 +1,5 @@
 import { AlertCircle, FileCode2, Loader2, Upload, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Start a project from a model someone already has.
@@ -39,6 +39,13 @@ function nameFrom(fileName: string): string {
   );
 }
 
+interface ExampleModel {
+  id: string;
+  name: string;
+  label: string;
+  entities: number;
+}
+
 export function ImportModelModal({ open, onClose, onImport }: ImportModelModalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState("");
@@ -47,6 +54,27 @@ export function ImportModelModal({ open, onClose, onImport }: ImportModelModalPr
   const [reading, setReading] = useState(false);
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [examples, setExamples] = useState<ExampleModel[]>([]);
+  const [selectedExample, setSelectedExample] = useState("");
+
+  // Fetched when the modal opens rather than on mount: the list is only ever
+  // looked at here, and it costs a directory read on the server.
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    fetch("/api/models/examples")
+      .then((response) => response.json())
+      .then((data: { models?: ExampleModel[] }) => {
+        if (!cancelled) setExamples(data.models ?? []);
+      })
+      .catch(() => {
+        // A missing list is not an error worth showing — the file picker below
+        // is the primary path and still works.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
 
   if (!open) return null;
 
@@ -55,16 +83,29 @@ export function ImportModelModal({ open, onClose, onImport }: ImportModelModalPr
     setEml("");
     setSummary(null);
     setError(null);
+    setSelectedExample("");
   };
 
   const handleFile = async (file: File) => {
+    // A file chosen from disk replaces whatever example was selected, so the
+    // dropdown should not keep claiming to be the source.
+    setSelectedExample("");
+    await acceptModel(await file.text(), nameFrom(file.name));
+  };
+
+  /**
+   * Validate a document and summarise it, whichever way it arrived.
+   *
+   * Shared by the file picker and the bundled-model dropdown so that both show
+   * the same "17 entities, 3 rules" confirmation before anything is created.
+   */
+  const acceptModel = async (text: string, suggestedName: string) => {
     setReading(true);
     setError(null);
     setSummary(null);
     try {
-      const text = await file.text();
       setEml(text);
-      setName((current) => current || nameFrom(file.name));
+      setName(suggestedName);
 
       const response = await fetch("/api/eml/validate", {
         method: "POST",
@@ -74,9 +115,25 @@ export function ImportModelModal({ open, onClose, onImport }: ImportModelModalPr
       if (!response.ok) throw new Error(`The model could not be read (${response.status})`);
       setSummary((await response.json()) as Summary);
     } catch (readError) {
-      setError(readError instanceof Error ? readError.message : "Could not read the file");
+      setError(readError instanceof Error ? readError.message : "Could not read the model");
     } finally {
       setReading(false);
+    }
+  };
+
+  const handleExample = async (id: string) => {
+    setSelectedExample(id);
+    if (!id) {
+      reset();
+      return;
+    }
+    try {
+      const response = await fetch(`/api/models/examples?id=${encodeURIComponent(id)}`);
+      const data = (await response.json()) as { eml?: string; name?: string; error?: string };
+      if (!response.ok || !data.eml) throw new Error(data.error ?? "That model could not be read");
+      await acceptModel(data.eml, nameFrom(data.name ?? id));
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "Could not load that model");
     }
   };
 
@@ -111,6 +168,35 @@ export function ImportModelModal({ open, onClose, onImport }: ImportModelModalPr
         </div>
 
         <div className="space-y-4 px-5 py-4">
+          {examples.length > 0 && (
+            <div className="space-y-1.5">
+              <label
+                htmlFor="example-model"
+                className="text-xs font-medium text-muted-foreground"
+              >
+                Start from a bundled model
+              </label>
+              <select
+                id="example-model"
+                value={selectedExample}
+                onChange={(event) => void handleExample(event.target.value)}
+                disabled={reading || importing}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              >
+                <option value="">Choose a model…</option>
+                {examples.map((example) => (
+                  <option key={example.id} value={example.id}>
+                    {example.label}
+                    {example.entities > 0 ? ` — ${example.entities} entities` : ""}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground">
+                Or upload your own below — that replaces the selection.
+              </p>
+            </div>
+          )}
+
           <button
             type="button"
             onClick={() => inputRef.current?.click()}

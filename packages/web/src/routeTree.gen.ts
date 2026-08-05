@@ -43,6 +43,7 @@ import { Route as ApiEmlValidateRouteImport } from './routes/api/eml/validate'
 import { Route as ApiMermaidIndexRouteImport } from './routes/api/mermaid/index'
 import { Route as ApiMermaidFilenameRouteImport } from './routes/api/mermaid/$filename'
 import { Route as ApiMermaidParseRouteImport } from './routes/api/mermaid/parse'
+import { Route as ApiModelsExamplesRouteImport } from './routes/api/models/examples'
 import { Route as ApiProjectsIndexRouteImport } from './routes/api/projects/index'
 import { Route as ApiRulesIndexRouteImport } from './routes/api/rules/index'
 import { Route as ApiRulesValidateRouteImport } from './routes/api/rules/validate'
@@ -249,6 +250,11 @@ const ApiMermaidFilenameRoute = ApiMermaidFilenameRouteImport.update({
 const ApiMermaidParseRoute = ApiMermaidParseRouteImport.update({
   id: '/api/mermaid/parse',
   path: '/api/mermaid/parse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiModelsExamplesRoute = ApiModelsExamplesRouteImport.update({
+  id: '/api/models/examples',
+  path: '/api/models/examples',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiProjectsIndexRoute = ApiProjectsIndexRouteImport.update({
@@ -482,6 +488,7 @@ export interface FileRoutesByFullPath {
   '/api/eml/validate': typeof ApiEmlValidateRoute
   '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
   '/api/mermaid/parse': typeof ApiMermaidParseRoute
+  '/api/models/examples': typeof ApiModelsExamplesRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
   '/projects/$id/deploy': typeof ProjectsIdDeployRoute
   '/projects/$id/design': typeof ProjectsIdDesignRoute
@@ -554,6 +561,7 @@ export interface FileRoutesByTo {
   '/api/eml/validate': typeof ApiEmlValidateRoute
   '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
   '/api/mermaid/parse': typeof ApiMermaidParseRoute
+  '/api/models/examples': typeof ApiModelsExamplesRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
   '/projects/$id/deploy': typeof ProjectsIdDeployRoute
   '/projects/$id/design': typeof ProjectsIdDesignRoute
@@ -627,6 +635,7 @@ export interface FileRoutesById {
   '/api/eml/validate': typeof ApiEmlValidateRoute
   '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
   '/api/mermaid/parse': typeof ApiMermaidParseRoute
+  '/api/models/examples': typeof ApiModelsExamplesRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
   '/projects/$id/deploy': typeof ProjectsIdDeployRoute
   '/projects/$id/design': typeof ProjectsIdDesignRoute
@@ -701,6 +710,7 @@ export interface FileRouteTypes {
     | '/api/eml/validate'
     | '/api/mermaid/$filename'
     | '/api/mermaid/parse'
+    | '/api/models/examples'
     | '/api/rules/validate'
     | '/projects/$id/deploy'
     | '/projects/$id/design'
@@ -773,6 +783,7 @@ export interface FileRouteTypes {
     | '/api/eml/validate'
     | '/api/mermaid/$filename'
     | '/api/mermaid/parse'
+    | '/api/models/examples'
     | '/api/rules/validate'
     | '/projects/$id/deploy'
     | '/projects/$id/design'
@@ -845,6 +856,7 @@ export interface FileRouteTypes {
     | '/api/eml/validate'
     | '/api/mermaid/$filename'
     | '/api/mermaid/parse'
+    | '/api/models/examples'
     | '/api/rules/validate'
     | '/projects/$id/deploy'
     | '/projects/$id/design'
@@ -917,6 +929,7 @@ export interface RootRouteChildren {
   ApiEmlValidateRoute: typeof ApiEmlValidateRoute
   ApiMermaidFilenameRoute: typeof ApiMermaidFilenameRoute
   ApiMermaidParseRoute: typeof ApiMermaidParseRoute
+  ApiModelsExamplesRoute: typeof ApiModelsExamplesRoute
   ApiRulesValidateRoute: typeof ApiRulesValidateRoute
   ProjectsIdDeployRoute: typeof ProjectsIdDeployRoute
   ProjectsIdDesignRoute: typeof ProjectsIdDesignRoute
@@ -1196,6 +1209,13 @@ declare module '@tanstack/react-router' {
       path: '/api/mermaid/parse'
       fullPath: '/api/mermaid/parse'
       preLoaderRoute: typeof ApiMermaidParseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/models/examples': {
+      id: '/api/models/examples'
+      path: '/api/models/examples'
+      fullPath: '/api/models/examples'
+      preLoaderRoute: typeof ApiModelsExamplesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/projects/': {
@@ -1506,6 +1526,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiEmlValidateRoute: ApiEmlValidateRoute,
   ApiMermaidFilenameRoute: ApiMermaidFilenameRoute,
   ApiMermaidParseRoute: ApiMermaidParseRoute,
+  ApiModelsExamplesRoute: ApiModelsExamplesRoute,
   ApiRulesValidateRoute: ApiRulesValidateRoute,
   ProjectsIdDeployRoute: ProjectsIdDeployRoute,
   ProjectsIdDesignRoute: ProjectsIdDesignRoute,

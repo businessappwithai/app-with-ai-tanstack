@@ -153,8 +153,9 @@ export const Route = createFileRoute("/api/deploy")({
                   tag,
                   "-t",
                   latest,
-                  "--progress",
-                  "plain",
+                  // No `--progress plain`: it is a buildx flag, and a daemon
+                  // without the buildx plugin rejects it outright with exit 125.
+                  // Output is plain anyway when nothing is attached to a TTY.
                   ".",
                 ],
                 { cwd: projectPath, stdio: ["ignore", "pipe", "pipe"] }

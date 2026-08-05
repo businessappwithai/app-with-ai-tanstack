@@ -99,6 +99,9 @@ ARG HTTP_PROXY=""
 ARG HTTPS_PROXY=""
 ARG NO_PROXY=""
 
+# A first copy, so the package installs below can themselves reach the network
+# through a TLS-intercepting proxy. It is written again after those installs —
+# see the second copy for why.
 COPY --from=certs /ca-bundle.crt /etc/ssl/certs/ca-certificates.crt
 
 WORKDIR /app
@@ -128,6 +131,13 @@ RUN curl -fsSL "https://download.docker.com/linux/static/stable/x86_64/docker-${
  && tar -xzf /tmp/docker.tgz -C /usr/local/bin --strip-components=1 docker/docker \
  && rm /tmp/docker.tgz \
  && docker --version
+
+# Again, and this is the copy that matters: installing `ca-certificates` runs
+# update-ca-certificates, which rebuilds this exact file from /usr/share and
+# throws away anything appended to it. The container ended up with the stock
+# 150-certificate bundle and no proxy CA, and the only symptom was that the
+# deploy step's builds could not verify the package registry.
+COPY --from=certs /ca-bundle.crt /etc/ssl/certs/ca-certificates.crt
 
 # The whole workspace, not just the build output. The generator shells out to its
 # own CLI, reads Handlebars templates off disk and runs `bun install` inside each

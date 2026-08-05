@@ -102,9 +102,15 @@ export const Route = createFileRoute("/api/generate")({
               const { DEFAULT_APP_PORT } = await import("@/lib/generated-ports");
               const appPort = project.port || DEFAULT_APP_PORT;
 
+              // Where generated applications land. `DEFAULT_OUTPUT_DIR` exists
+              // so a container can point this at a mounted volume: written
+              // under the process's working directory instead, every generated
+              // application lives in the container's writable layer and is lost
+              // the moment the image is replaced.
               const cwd = process.cwd();
-              const outputDir = path.join(cwd, "generated-projects", projectId);
-              const modelDir = path.join(cwd, "generated-projects", "models");
+              const root = process.env.DEFAULT_OUTPUT_DIR || path.join(cwd, "generated-projects");
+              const outputDir = path.join(root, projectId);
+              const modelDir = path.join(root, "models");
               await fs.mkdir(modelDir, { recursive: true });
 
               const slug =
