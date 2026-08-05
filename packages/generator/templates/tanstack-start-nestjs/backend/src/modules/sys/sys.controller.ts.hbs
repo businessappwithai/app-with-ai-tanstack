@@ -24,6 +24,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { SysService } from './sys.service';
 
 function parseFilters(rawFilters: Record<string, any>): Record<string, any> {
@@ -478,6 +479,21 @@ export class SysController {
   @ApiOperation({ summary: 'List all system users with their roles' })
   async findAllSysUsers() {
     return this.sysService.findAllSysUsers();
+  }
+
+  /**
+   * Create an account. Administrators only — there is no public sign-up.
+   *
+   * `@Roles('admin')` is the whole access policy for this endpoint: a signed-in
+   * non-admin who posts here is refused by the guard before the handler runs.
+   */
+  @Post('users')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Create a user account (administrators only)' })
+  async createSysUser(
+    @Body() body: { name: string; email: string; password: string; roleName?: string }
+  ) {
+    return this.sysService.createSysUser(body);
   }
 
   // ============================================================================

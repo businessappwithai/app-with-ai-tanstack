@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { apiClient } from '@/lib/api-client';
-import { Users, ArrowLeft, Shield, Loader2, AlertCircle } from 'lucide-react';
+import { Users, ArrowLeft, Shield, Loader2, AlertCircle, UserPlus } from 'lucide-react';
 
 export const Route = createFileRoute('/admin/users')({
   component: UsersPage,
@@ -17,9 +18,25 @@ interface SysUser {
 }
 
 function UsersPage() {
+  const queryClient = useQueryClient();
   const { data, isLoading, error } = useQuery<{ data: SysUser[] }>({
     queryKey: ['admin', 'sys-users'],
     queryFn: () => apiClient.get('/sys/users'),
+  });
+
+  // This screen is the only way an account comes into existence — the
+  // application has no sign-up page and the server refuses public sign-up.
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
+
+  const createUser = useMutation({
+    mutationFn: (input: { name: string; email: string; password: string }) =>
+      apiClient.post('/sys/users', input),
+    onSuccess: () => {
+      setForm({ name: '', email: '', password: '' });
+      setShowForm(false);
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'sys-users'] });
+    },
   });
 
   const users = data?.data ?? [];
@@ -34,11 +51,76 @@ function UsersPage() {
             </Link>
             <Users className="w-4 h-4 text-primary" />
             <h1 className="font-display text-lg font-semibold">User Management</h1>
+            <button
+              type="button"
+              onClick={() => setShowForm((open) => !open)}
+              className="ml-auto inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+            >
+              <UserPlus className="w-4 h-4" />
+              {showForm ? 'Cancel' : 'New user'}
+            </button>
           </div>
         </div>
       </header>
 
       <main className="container-swiss py-8">
+        {showForm && (
+          <form
+            className="swiss-card mb-6 p-4 space-y-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              createUser.mutate(form);
+            }}
+          >
+            <div className="grid gap-3 sm:grid-cols-3">
+              <label className="text-sm">
+                <span className="mb-1 block text-muted-foreground">Name</span>
+                <input
+                  required
+                  value={form.name}
+                  onChange={(event) => setForm({ ...form, name: event.target.value })}
+                  className="w-full rounded-md border border-border bg-background px-3 py-2"
+                />
+              </label>
+              <label className="text-sm">
+                <span className="mb-1 block text-muted-foreground">Email</span>
+                <input
+                  required
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => setForm({ ...form, email: event.target.value })}
+                  className="w-full rounded-md border border-border bg-background px-3 py-2"
+                />
+              </label>
+              <label className="text-sm">
+                <span className="mb-1 block text-muted-foreground">
+                  Password (8 characters or more)
+                </span>
+                <input
+                  required
+                  minLength={8}
+                  type="password"
+                  value={form.password}
+                  onChange={(event) => setForm({ ...form, password: event.target.value })}
+                  className="w-full rounded-md border border-border bg-background px-3 py-2"
+                />
+              </label>
+            </div>
+            {createUser.isError && (
+              <p className="text-sm text-destructive">
+                {(createUser.error as Error)?.message ?? 'Could not create the account'}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={createUser.isPending}
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
+            >
+              {createUser.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+              Create account
+            </button>
+          </form>
+        )}
         {isLoading && (
           <div className="swiss-card p-12 text-center">
             <Loader2 className="w-8 h-8 mx-auto animate-spin text-primary" />

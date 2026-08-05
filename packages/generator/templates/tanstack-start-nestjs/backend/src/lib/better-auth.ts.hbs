@@ -54,8 +54,13 @@ export async function initAuth() {
       })(),
       emailAndPassword: {
         enabled: true,
+        // No self-service accounts. An administrator creates them from the user
+        // management screen, which reaches Better Auth through its own server
+        // API rather than this HTTP endpoint — so the route is closed to the
+        // public while remaining the single place a credential is written.
+        disableSignUp: true,
         requireEmailVerification: false,
-        minPasswordLength: 4,
+        minPasswordLength: 8,
         sendResetPassword: async ({ user, url: _url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
           console.log('Password reset requested for:', user.email || user.id);
         },

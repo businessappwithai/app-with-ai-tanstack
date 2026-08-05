@@ -1001,6 +1001,94 @@ export class SysService {
     return { data: Array.from(map.values()) };
   }
 
+  /**
+   * Create a user account.
+   *
+   * There is no self-service sign-up: an administrator creates accounts here.
+   * That means this has to do everything the bootstrap does for the first admin
+   * — a Better Auth identity so the person can sign in, a `sys_user` row so the
+   * dictionary and audit trail have somebody to attribute work to, the link
+   * between the two, and a role.
+   *
+   * Better Auth owns the password. Rather than reimplement its hashing, the
+   * account is created through its own sign-up handler with sign-up otherwise
+   * closed, so there is exactly one place a credential is ever written.
+   */
+  async createSysUser(input: {
+    name: string;
+    email: string;
+    password: string;
+    roleName?: string;
+  }) {
+    const email = input.email.trim().toLowerCase();
+    const name = input.name.trim();
+
+    if (!email || !name) throw new ConflictException('A name and an email address are required');
+    if ((input.password ?? '').length < 8) {
+      throw new ConflictException('The password must be at least 8 characters');
+    }
+
+    const existing = await this.db.kysely
+      .selectFrom('sys_user')
+      .select('sys_user_id')
+      .where('email', '=', email)
+      .executeTakeFirst();
+    if (existing) throw new ConflictException(`${email} already has an account`);
+
+    // `auth` is the getter, not the instance — it throws if initAuth has not run.
+    const { getAuth } = await import('../../lib/better-auth');
+    try {
+      await getAuth().api.signUpEmail({ body: { email, password: input.password, name } });
+    } catch (error: any) {
+      // Better Auth refuses duplicates itself; anything else is worth showing.
+      throw new ConflictException(error?.message ?? 'Could not create the sign-in account');
+    }
+
+    const sysUserId = randomUUID();
+    await this.db.kysely
+      .insertInto('sys_user')
+      .values({
+        sys_user_id: sysUserId,
+        name,
+        email,
+        password_hash: 'managed-by-better-auth',
+        is_system_user: false,
+        is_active: true,
+        created_by: 'admin',
+        updated_by: 'admin',
+      } as any)
+      .execute();
+
+    await this.db.kysely
+      .updateTable('user' as any)
+      .set({ sysUserId } as any)
+      .where('email' as any, '=', email)
+      .execute();
+
+    const role = await this.db.kysely
+      .selectFrom('sys_role')
+      .select(['sys_role_id'])
+      .where('name', '=', input.roleName ?? 'User')
+      .executeTakeFirst();
+
+    if (role) {
+      await this.db.kysely
+        .insertInto('sys_user_roles')
+        .values({
+          sys_user_roles_id: randomUUID(),
+          sys_user_id: sysUserId,
+          sys_role_id: role.sys_role_id,
+          entity_type: 'S',
+          is_active: true,
+          created_by: 'admin',
+          updated_by: 'admin',
+        } as any)
+        .execute();
+    }
+
+    return { data: { sys_user_id: sysUserId, name, email, is_active: true } };
+  }
+
   async findAllSysRoles() {
     const roles = await this.db.kysely
       .selectFrom('sys_role')
