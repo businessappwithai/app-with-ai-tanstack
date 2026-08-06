@@ -73,6 +73,18 @@ on:
           - public
         default: private
 
+  # TEMPORARY — self-test trigger. workflow_dispatch is only registered for
+  # workflows already on the default branch, so until this merges the only way
+  # to exercise it on a runner is a push event. Remove this block once the
+  # workflow is on main; the resolved-input defaults below make a push run
+  # behave like a dispatch with the drug-discovery model.
+  push:
+    branches:
+      - claude/github-neon-deployment-action-rf6oir
+    paths:
+      - ".github/workflows/github-neon.yml"
+      - "scripts/ci/neon-db.ts"
+
 permissions:
   contents: read
 
@@ -95,6 +107,21 @@ jobs:
       APP_ADMIN_EMAIL: admin@admin.com
       APP_ADMIN_PASSWORD: admin
 
+      # Each setting is resolved once here, so no step below has to know which
+      # event started the run. On a push (the temporary self-test above) the
+      # inputs are empty, so each falls back to a value that exercises the
+      # workflow against the drug-discovery model.
+      MMD_URL: ${{ github.event_name == 'push' && 'https://raw.githubusercontent.com/businessappwithai/app-with-ai-tanstack/claude/github-neon-deployment-action-rf6oir/examples/drug-discovery.eml.mmd' || inputs.mmd_url }}
+      APP_NAME: ${{ github.event_name == 'push' && 'drug-discovery' || inputs.app_name }}
+      # Deliberately false for the self-test: the migrations are idempotent, so
+      # a push run proves the path without dropping a schema on a database that
+      # is not this workflow's to destroy.
+      RESET_SCHEMA: ${{ github.event_name == 'push' && 'false' || inputs.reset_schema }}
+      RUN_E2E: ${{ github.event_name == 'push' && 'smoke' || inputs.run_e2e }}
+      RUN_FRONTEND: ${{ github.event_name == 'push' && 'true' || inputs.run_frontend }}
+      PUBLISH_REPO: ${{ inputs.publish_repo }}
+      PUBLISH_VISIBILITY: ${{ inputs.publish_visibility }}
+
     steps:
       - name: Checkout the generator
         uses: actions/checkout@v4
@@ -110,10 +137,6 @@ jobs:
       # data and not code.
 
       - name: Validate the inputs
-        env:
-          MMD_URL: ${{ inputs.mmd_url }}
-          APP_NAME: ${{ inputs.app_name }}
-          PUBLISH_REPO: ${{ inputs.publish_repo }}
         run: |
           set -euo pipefail
 
@@ -131,8 +154,6 @@ jobs:
             echo "::error::publish_repo must be in owner/repo form"
             exit 1
           fi
-
-          echo "APP_NAME=$APP_NAME" >> "$GITHUB_ENV"
 
       - name: Resolve the Neon connection string
         env:
@@ -168,8 +189,6 @@ jobs:
         run: bun run build:core
 
       - name: Download the model
-        env:
-          MMD_URL: ${{ inputs.mmd_url }}
         run: |
           set -euo pipefail
           echo "Downloading $MMD_URL"
@@ -227,7 +246,7 @@ jobs:
           bun run routes:generate || echo "::warning::routes:generate failed — the dev server will write routeTree.gen.ts"
 
       - name: Reset the Neon schema
-        if: ${{ inputs.reset_schema }}
+        if: ${{ env.RESET_SCHEMA == 'true' }}
         run: bun scripts/ci/neon-db.ts reset
 
       - name: Migrate Neon
@@ -236,6 +255,10 @@ jobs:
 
       - name: Seed Neon
         working-directory: ${{ env.APP_DIR }}/backend
+        # `migrate` already runs the seeds once it has applied the schema. This
+        # runs them again as a separate, visible step so a seeding failure is
+        # reported as one; the seeds are idempotent (verified: a second run
+        # leaves row counts unchanged), so it costs a no-op pass.
         run: bun run seed
 
       - name: Verify what landed in Neon
@@ -315,7 +338,7 @@ jobs:
           echo "✓ /api/me served the session from Neon"
 
       - name: Start the frontend
-        if: ${{ inputs.run_frontend }}
+        if: ${{ env.RUN_FRONTEND == 'true' }}
         run: |
           set -euo pipefail
           cd "$APP_DIR/frontend"
@@ -324,9 +347,22 @@ jobs:
 
           echo "Waiting for the frontend on :$FRONTEND_PORT …"
           for attempt in $(seq 1 180); do
-            if curl -fsS "http://127.0.0.1:$FRONTEND_PORT/" -o /dev/null; then
-              echo "✓ Frontend serving after ${attempt}s"
-              exit 0
+            # -L because / answers 307 → /dashboard, and a bare 307 with an
+            # empty body would otherwise "succeed" while proving nothing.
+            SIZE="$(curl -fsSL "http://127.0.0.1:$FRONTEND_PORT/" -o /dev/null -w '%{size_download}' 2>/dev/null || echo 0)"
+            if [ "${SIZE:-0}" -gt 0 ]; then
+              echo "✓ Frontend served ${SIZE} bytes after ${attempt}s"
+
+              # The dev server proxies /api to the backend. Exercising it here
+              # proves the browser-facing path to the database, not just that
+              # two processes happen to be listening.
+              if curl -fsS "http://127.0.0.1:$FRONTEND_PORT/api/me/health" | grep -q '"status"'; then
+                echo "✓ Frontend proxies /api through to the backend"
+                exit 0
+              fi
+              echo "::error::The frontend is serving but /api does not reach the backend."
+              tail -n 100 "$GITHUB_WORKSPACE/run-logs/frontend.log"
+              exit 1
             fi
             if ! kill -0 "$(cat "$GITHUB_WORKSPACE/run-logs/frontend.pid")" 2>/dev/null; then
               echo "::error::The frontend exited before serving."
@@ -341,14 +377,14 @@ jobs:
           exit 1
 
       - name: Exercise the running app
-        if: ${{ inputs.run_e2e != 'none' }}
+        if: ${{ env.RUN_E2E != 'none' }}
         working-directory: ${{ env.APP_DIR }}/tests
         env:
           E2E_BASE_URL: http://127.0.0.1:${{ env.BACKEND_PORT }}
           E2E_ORIGIN: http://localhost:${{ env.FRONTEND_PORT }}
           E2E_ADMIN_EMAIL: ${{ env.APP_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ env.APP_ADMIN_PASSWORD }}
-          E2E_MODE: ${{ inputs.run_e2e }}
+          E2E_MODE: ${{ env.RUN_E2E }}
         run: |
           set -euo pipefail
           # --no-server: attach to the backend already running against Neon
@@ -363,11 +399,9 @@ jobs:
       # ── Publish (optional) ──────────────────────────────────────────────────
 
       - name: Publish the generated application
-        if: ${{ inputs.publish_repo != '' }}
+        if: ${{ env.PUBLISH_REPO != '' }}
         env:
           PUBLISH_TOKEN: ${{ secrets.EML_PUBLISH_TOKEN }}
-          PUBLISH_REPO: ${{ inputs.publish_repo }}
-          PUBLISH_VISIBILITY: ${{ inputs.publish_visibility }}
         run: |
           set -euo pipefail
 
@@ -422,7 +456,7 @@ jobs:
               add -A
           git -c user.name='github-actions[bot]' \
               -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
-              commit -q -m "Generated from ${{ inputs.mmd_url }}" -m "Produced by the GitHubNeon workflow."
+              commit -q -m "Generated from $MMD_URL" -m "Produced by the GitHubNeon workflow."
 
           git remote add origin "https://x-access-token:$PUBLISH_TOKEN@github.com/$OWNER/$REPO.git"
           for delay in 2 4 8 16; do
@@ -492,9 +526,6 @@ jobs:
 
       - name: Summary
         if: always()
-        env:
-          MMD_URL: ${{ inputs.mmd_url }}
-          PUBLISH_REPO: ${{ inputs.publish_repo }}
         run: |
           {
             echo "### GitHubNeon"
@@ -504,9 +535,9 @@ jobs:
             echo "| Model | \`$MMD_URL\` |"
             echo "| Application | \`$APP_NAME\` |"
             echo "| Database | Neon PostgreSQL (connection string masked) |"
-            echo "| Schema reset | ${{ inputs.reset_schema }} |"
-            echo "| E2E | ${{ inputs.run_e2e }} |"
-            echo "| Frontend started | ${{ inputs.run_frontend }} |"
+            echo "| Schema reset | $RESET_SCHEMA |"
+            echo "| E2E | $RUN_E2E |"
+            echo "| Frontend started | $RUN_FRONTEND |"
             if [ -n "$PUBLISH_REPO" ]; then
               echo "| Published to | [\`$PUBLISH_REPO\`](https://github.com/$PUBLISH_REPO) |"
             fi
