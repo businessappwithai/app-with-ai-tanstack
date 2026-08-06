@@ -56,6 +56,12 @@ on:
           - fast
           - full
           - none
+        # smoke is the default because it is the part that is green today.
+        # `fast` and `full` also run 08-users-roles, which asserts that public
+        # sign-up succeeds while the generated backend sets disableSignUp: true
+        # on purpose ("no self-service accounts"). That suite therefore fails
+        # for every app this generator emits, on any database — reconcile the
+        # template with the suite before relying on those modes.
         default: smoke
       run_frontend:
         description: "Also start the generated frontend and check that it serves"
