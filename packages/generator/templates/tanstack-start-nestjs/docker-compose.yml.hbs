@@ -12,6 +12,20 @@
 #
 # The split pair is the default. `docker compose --profile single up app` runs
 # the one-container build instead.
+#
+# Either way the browser talks to one address — {{project.frontendPort}}. The web front end
+# serves /api itself and forwards it to the API (see frontend/src/routes/api/$.ts),
+# so there is no second origin, no CORS negotiation, and the session cookie is an
+# ordinary same-origin cookie that works over plain HTTP. The API's own port is
+# published as well, but only for curl and health checks; nothing in the browser
+# uses it.
+#
+# Reaching the application by any name other than localhost means naming it, so
+# that the sign-in request's Origin is one the API recognises:
+#
+#   CORS_ORIGIN=http://app.internal:{{project.frontendPort}} docker compose up
+#
+# Left unset on a non-localhost host, sign-in answers "Invalid origin".
 
 services:
   postgres:
@@ -45,7 +59,9 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:{{project.backendPort}}}
+        # Empty: the client calls /api on whatever origin it was served from.
+        # See the note at the top of this file.
+        VITE_API_URL: ${VITE_API_URL:-}
         VITE_APP_URL: ${VITE_APP_URL:-http://localhost:{{project.frontendPort}}}
     restart: unless-stopped
     ports:
@@ -93,13 +109,19 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:{{project.backendPort}}}
+        # Empty: the client calls /api on whatever origin it was served from.
+        # See the note at the top of this file.
+        VITE_API_URL: ${VITE_API_URL:-}
         VITE_APP_URL: ${VITE_APP_URL:-http://localhost:{{project.frontendPort}}}
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-{{project.frontendPort}}}:{{project.frontendPort}}"
     environment:
       NODE_ENV: production
+      PORT: {{project.frontendPort}}
+      # Where this server forwards /api/*. Container-to-container, so it names
+      # the service rather than a published port.
+      BACKEND_URL: http://backend:{{project.backendPort}}
     depends_on:
       backend:
         condition: service_healthy

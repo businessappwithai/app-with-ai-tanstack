@@ -1,64 +1,52 @@
+/**
+ * Better Auth, on the front end's own origin.
+ *
+ * Same forwarding as the sibling /api/$ route — the reasoning is in
+ * src/lib/api-proxy.ts — with one addition: when the API cannot be reached, a
+ * session lookup answers "nobody is signed in" rather than an error. The login
+ * page asks for the session before it renders, and an application that shows a
+ * blank screen because the API is still starting is worse than one that shows
+ * the login form.
+ *
+ * Better Auth checks the browser's Origin against its own trustedOrigins list
+ * and rejects anything else, so the header is passed through untouched. On a
+ * host other than localhost that means naming it: CORS_ORIGIN=http://your-host:{{config.frontendPort}}.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
 import { createAPIFileRoute } from '@tanstack/start/api'
+// Relative rather than the `@/` alias — see the note in ../$.ts.
+import { apiUnavailable, proxyToBackend } from '../../../lib/api-proxy'
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:{{config.backendPort}}'
-
-async function proxyToBackend(request: Request, path: string, method: string): Promise<Response> {
-  const targetUrl = `${BACKEND_URL}/api/auth/${path}`
-  const headers: Record<string, string> = {}
-  const cookie = request.headers.get('cookie')
-  const auth = request.headers.get('authorization')
-  const contentType = request.headers.get('content-type')
-  // Forward origin so better-auth CSRF check passes
-  const origin = request.headers.get('origin') || `http://localhost:{{config.frontendPort}}`
-  if (cookie) headers['cookie'] = cookie
-  if (auth) headers['authorization'] = auth
-  if (contentType) headers['content-type'] = contentType
-  headers['origin'] = origin
-
-  const init: RequestInit = { method, headers }
-  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-    init.body = await request.text()
-  }
-
-  const upstream = await fetch(targetUrl, init)
-  const body = await upstream.text()
-
-  // Use Headers to support multiple Set-Cookie values
-  const responseHeaders = new Headers()
-  responseHeaders.set('content-type', upstream.headers.get('content-type') ?? 'application/json')
-  // getSetCookie() returns each cookie separately (avoids comma-joining Set-Cookie values)
-  const setCookies = typeof (upstream.headers as any).getSetCookie === 'function'
-    ? (upstream.headers as any).getSetCookie() as string[]
-    : [upstream.headers.get('set-cookie')].filter(Boolean) as string[]
-  for (const c of setCookies) {
-    responseHeaders.append('set-cookie', c)
-  }
-
-  return new Response(body, { status: upstream.status, headers: responseHeaders })
+/** No session, as a successful answer. What the login page needs to render. */
+function noSession(): Response {
+  return new Response(JSON.stringify({ user: null, session: null }), {
+    status: 200,
+    headers: { 'content-type': 'application/json' },
+  })
 }
 
-export const Route = createAPIFileRoute('/api/auth/$')({
-  GET: async ({ request, params }) => {
-    const path = (params as Record<string, string>)['_splat'] ?? ''
+const route = createAPIFileRoute('/api/auth/$')({
+  GET: async ({ request, params }: { request: Request; params: Record<string, string> }) => {
+    const path = params['_splat'] ?? ''
     try {
-      return await proxyToBackend(request, path, 'GET')
+      return await proxyToBackend(request, `auth/${path}`)
     } catch {
-      // Backend unavailable — return empty session so the frontend degrades gracefully
-      return new Response(JSON.stringify({ user: null, session: null }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      })
+      return noSession()
     }
   },
-  POST: async ({ request, params }) => {
-    const path = (params as Record<string, string>)['_splat'] ?? ''
+  POST: async ({ request, params }: { request: Request; params: Record<string, string> }) => {
+    const path = params['_splat'] ?? ''
     try {
-      return await proxyToBackend(request, path, 'POST')
-    } catch {
-      return new Response(JSON.stringify({ error: 'Auth service unavailable' }), {
-        status: 503,
-        headers: { 'content-type': 'application/json' },
-      })
+      return await proxyToBackend(request, `auth/${path}`)
+    } catch (error) {
+      return apiUnavailable(error, 'POST', `auth/${path}`)
     }
   },
 })
+
+// Both names, on purpose — see the note in ../$.ts.
+export const APIRoute = route
+export const Route = route

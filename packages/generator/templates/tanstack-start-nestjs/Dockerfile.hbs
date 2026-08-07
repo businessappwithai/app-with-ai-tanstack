@@ -55,8 +55,16 @@ COPY . .
 RUN if [ -f bun.lock ]; then bun install --frozen-lockfile; else bun install; fi
 
 # Baked into the client bundle at build time, so they cannot be changed by an
-# environment variable afterwards — a client bundle is static files.
-ARG VITE_API_URL=http://localhost:{{project.backendPort}}
+# environment variable afterwards — a client bundle is static files. Which is
+# exactly why VITE_API_URL is empty: an address compiled into the bundle is one
+# the image cannot be run under any other name.
+#
+# Empty means "same origin as the page", and the web front end forwards /api/*
+# to the API from inside the container (src/routes/api/$.ts). So the browser
+# only ever sees one port, the session cookie is an ordinary same-origin cookie,
+# and the image works on localhost, on a LAN address, or behind a reverse proxy
+# without being rebuilt. Set it only to point at an API somewhere else entirely.
+ARG VITE_API_URL=
 ARG VITE_APP_URL=http://localhost:{{project.frontendPort}}
 ENV VITE_API_URL=${VITE_API_URL} \
     VITE_APP_URL=${VITE_APP_URL}

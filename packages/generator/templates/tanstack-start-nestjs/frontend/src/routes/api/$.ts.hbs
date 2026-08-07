@@ -1,0 +1,54 @@
+/**
+ * Everything under /api, served from the front end's own origin and forwarded
+ * to the NestJS API. The reasoning lives in src/lib/api-proxy.ts.
+ *
+ * Two things are not forwarded. /api/auth/* has its own file, matched before
+ * this one because the router tries routes with more path segments first. And
+ * the assistant is answered here — see the note on it below.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { createAPIFileRoute } from '@tanstack/start/api'
+// Relative rather than the `@/` alias: this module is bundled by the API
+// router, which is configured separately from the client and the SSR server,
+// and a path that does not depend on an alias being wired there cannot break.
+import { apiUnavailable, proxyToBackend } from '../../lib/api-proxy'
+import { handleCopilotRequest, isCopilotPath } from '../../lib/copilot-runtime'
+
+function handler(method: string) {
+  return async ({ request, params }: { request: Request; params: Record<string, string> }) => {
+    const path = params['_splat'] ?? ''
+
+    // The assistant is served here rather than forwarded. It is answered from
+    // this route and not from a /api/copilotkit/$ file of its own because the
+    // client posts to /api/copilotkit exactly, and a splat route requires
+    // something after the slash — so such a file can never match the one
+    // address the client actually uses.
+    if (isCopilotPath(path)) return handleCopilotRequest(request)
+
+    try {
+      return await proxyToBackend(request, path)
+    } catch (error) {
+      return apiUnavailable(error, method, path)
+    }
+  }
+}
+
+const route = createAPIFileRoute('/api/$')({
+  GET: handler('GET'),
+  HEAD: handler('HEAD'),
+  POST: handler('POST'),
+  PUT: handler('PUT'),
+  PATCH: handler('PATCH'),
+  DELETE: handler('DELETE'),
+  OPTIONS: handler('OPTIONS'),
+})
+
+// Both names, on purpose. The router registers a route file by its `APIRoute`
+// export and ignores anything else, so a file that exports only `Route` is
+// silently absent — and an absent API route answers with the HTML of a missing
+// page, not a 404 anyone would recognise as a routing problem.
+export const APIRoute = route
+export const Route = route

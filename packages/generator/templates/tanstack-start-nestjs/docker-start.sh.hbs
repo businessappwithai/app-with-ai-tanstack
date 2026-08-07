@@ -15,6 +15,12 @@ log() { echo "[{{project.name}}] $*"; }
 : "${PORT:={{project.frontendPort}}}"
 : "${BACKEND_PORT:={{project.backendPort}}}"
 
+# The web front end serves /api itself, forwarding to the API over the loopback
+# interface inside this container. That is what makes the browser see one origin
+# and one port, and it is the only reason signing in works over plain HTTP.
+: "${BACKEND_URL:=http://127.0.0.1:${BACKEND_PORT}}"
+export BACKEND_URL
+
 if [ -z "$DATABASE_URL" ]; then
   log "DATABASE_URL is not set — the application has no database to talk to"
   exit 1

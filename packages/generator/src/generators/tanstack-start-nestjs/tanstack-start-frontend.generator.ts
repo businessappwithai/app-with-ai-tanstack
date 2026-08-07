@@ -374,6 +374,47 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("Auth lib file not found");
     }
 
+    // The entry point that mounts the API router at all. Without this file
+    // TanStack Start skips it, and every route under src/routes/api is served
+    // by the page router as a missing page — see the file's own comment.
+    try {
+      const apiEntry = await this.renderTemplate("src/api.ts.hbs", context);
+      await fs.writeFile(path.join(outputDir, "src/api.ts"), apiEntry);
+    } catch (e) {
+      console.warn("API entry template not found");
+    }
+
+    // The forwarding both API routes are built on.
+    try {
+      const apiProxy = await this.renderTemplate("src/lib/api-proxy.ts.hbs", context);
+      await fs.writeFile(path.join(outputDir, "src/lib/api-proxy.ts"), apiProxy);
+    } catch (e) {
+      console.warn("API proxy lib template not found");
+    }
+
+    // The assistant's runtime, served by the front end rather than proxied:
+    // CopilotKit streams over its own protocol, and routing that through the
+    // backend's request pipeline breaks streaming for no gain.
+    try {
+      const copilotRuntime = await this.renderTemplate("src/lib/copilot-runtime.ts.hbs", context);
+      await fs.writeFile(path.join(outputDir, "src/lib/copilot-runtime.ts"), copilotRuntime);
+    } catch (e) {
+      console.warn("CopilotKit runtime lib template not found");
+    }
+
+    // The API, on the front end's own origin. Everything under /api/* is
+    // forwarded to NestJS from inside the server, so the browser never learns
+    // the API's port and the session cookie is a plain same-origin cookie. It
+    // also answers /api/copilotkit itself — the client posts to that exact
+    // address, which the splat route below can never match.
+    try {
+      await fs.mkdir(path.join(outputDir, "src/routes/api"), { recursive: true });
+      const apiProxyContent = await this.renderTemplate("src/routes/api/$.ts.hbs", context);
+      await fs.writeFile(path.join(outputDir, "src/routes/api/$.ts"), apiProxyContent);
+    } catch (e) {
+      console.warn("API proxy route template not found");
+    }
+
     // Auth proxy API route — catches /api/auth/* and proxies to NestJS backend
     try {
       await fs.mkdir(path.join(outputDir, "src/routes/api/auth"), { recursive: true });
@@ -383,10 +424,8 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("Auth proxy route template not found");
     }
 
-    // CopilotKit runtime for the admin assistant. Served here rather than
-    // proxied to the backend: CopilotKit streams over its own protocol, and
-    // routing that through the backend's request pipeline breaks streaming for
-    // no gain.
+    // The assistant's sub-paths. The address the client actually uses is
+    // handled by the /api/$ route above; this covers anything below it.
     try {
       await fs.mkdir(path.join(outputDir, "src/routes/api/copilotkit"), { recursive: true });
       const copilotRuntime = await this.renderTemplate(
@@ -1083,16 +1122,23 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("Custom Biome config template not found, using defaults");
     }
 
-    // Generate environment configuration for TanStack Start
-    // VITE_API_URL points to the frontend (port 3001) so the Vite proxy
-    // forwards /api/* requests to the NestJS backend, keeping cookies same-origin
+    // Generate environment configuration for TanStack Start.
+    //
+    // VITE_API_URL is deliberately empty: the client then calls /api on its own
+    // origin, which this server forwards to the API — the Vite proxy in
+    // development, src/routes/api/$.ts once built. One origin means the session
+    // cookie is an ordinary same-origin cookie, which is the only arrangement
+    // that works over plain HTTP without configuring CORS for each host.
     const envLocalContent = `VITE_API_URL=
 VITE_BACKEND_URL=${context.config.baseUrl}
 VITE_MASTRA_URL=http://localhost:4111
 # Set VITE_ELECTRIC_URL to enable ElectricSQL real-time sync (requires ELECTRIC_URL on backend)
 # Leave empty to use HTTP API fallback
 VITE_ELECTRIC_URL=
-PORT=3001
+# Where a built server forwards /api/*. Only read outside \`vinxi dev\`, which
+# proxies through Vite instead.
+BACKEND_URL=${context.config.baseUrl}
+PORT=${context.config.frontendPort}
 `;
     await fs.writeFile(path.join(outputDir, ".env.local"), envLocalContent);
 

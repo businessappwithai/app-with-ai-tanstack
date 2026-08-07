@@ -41,12 +41,23 @@ export async function initAuth() {
     authInstance = betterAuth({
       database: kyselyAdapter(kysely),
       baseURL: process.env.BETTER_AUTH_URL || `http://localhost:${process.env.PORT || '{{config.port}}'}`,
+      // Better Auth rejects a state-changing request whose Origin is not listed
+      // here, and the front end's /api/auth proxy passes the browser's Origin
+      // through unchanged — so this list has to contain the address people
+      // actually type. The defaults cover a local run; anywhere else, name it:
+      //
+      //   CORS_ORIGIN=http://app.internal:{{config.frontendPort}}
+      //
+      // Getting this wrong looks like a wrong password, not a misconfiguration,
+      // which is why the list is deliberately generous about localhost.
       trustedOrigins: [
         ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map((o: string) => o.trim()) : []),
         `http://localhost:${process.env.PORT || '{{config.port}}'}`,
+        'http://localhost:{{config.frontendPort}}',
+        'http://127.0.0.1:{{config.frontendPort}}',
         'http://localhost:3001',
         'http://localhost:3000',
-      ],
+      ].filter(Boolean),
       secret: (() => {
         const s = process.env.BETTER_AUTH_SECRET;
         if (!s) throw new Error('BETTER_AUTH_SECRET environment variable is required');
