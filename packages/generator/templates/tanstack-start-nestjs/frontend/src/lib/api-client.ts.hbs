@@ -4,14 +4,20 @@
  * Generated: {{now}}
  */
 
-const API_BASE_URL = (() => {
-  const url = import.meta.env.VITE_API_URL;
-  if (!url && import.meta.env.MODE === "production") {
-    console.warn("[ApiClient] VITE_API_URL is not set in production. API calls may fail.");
-  }
-  // Empty string → use relative /api path via Vite proxy (same origin, cookies work).
-  return url || "";
-})();
+// Empty is the recommended setting, in development and in production alike: it
+// makes every call a relative /api/… request against the page's own origin,
+// which the front end server forwards to the API (src/routes/api/$.ts in
+// production, the Vite proxy in development).
+//
+// That is what keeps the session cookie working. Pointing this at the API's own
+// port instead makes every call cross-origin, and the browser will then only
+// store the cookie if the API happens to have been told this exact origin in
+// advance — so sign-in succeeds on the wire and fails in the UI the moment the
+// application is reached by any name other than the one that was configured.
+//
+// Set it only to talk to an API somewhere else entirely, and expect to set
+// CORS_ORIGIN on that API to match.
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
 // ============================================================================
 // 401 Unauthorized Interceptor
@@ -240,7 +246,15 @@ class ApiClient {
   }
 
   private buildUrl(path: string, params?: Record<string, unknown>): string {
-    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+    // A relative path needs an origin to become a URL. In the browser that is
+    // the page's own; while rendering on the server there is no page, and the
+    // shortest route to the API is straight to it rather than back through our
+    // own proxy.
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env
+            ?.BACKEND_URL ?? "http://127.0.0.1:{{config.backendPort}}";
     let basePath = this.baseUrl || "/api";
 
     // If baseUrl is an absolute URL without /api, append /api

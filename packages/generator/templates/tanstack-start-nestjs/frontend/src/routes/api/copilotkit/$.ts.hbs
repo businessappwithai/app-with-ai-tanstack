@@ -54,7 +54,7 @@ function failed(error: unknown, method: string): Response {
   })
 }
 
-export const APIRoute = createAPIFileRoute('/api/copilotkit/$')({
+const route = createAPIFileRoute('/api/copilotkit/$')({
   GET: async ({ request }) => {
     try {
       return await handle(request)
@@ -70,3 +70,7 @@ export const APIRoute = createAPIFileRoute('/api/copilotkit/$')({
     }
   },
 })
+
+// Both names, on purpose — see the note in ../$.ts.
+export const Route = route
+export const APIRoute = route

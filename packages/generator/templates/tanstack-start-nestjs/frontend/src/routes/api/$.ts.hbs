@@ -1,0 +1,45 @@
+/**
+ * Everything under /api, served from the front end's own origin and forwarded
+ * to the NestJS API. The reasoning lives in src/lib/api-proxy.ts.
+ *
+ * More specific routes still win — /api/auth/* and /api/copilotkit/* have their
+ * own files and are matched before this one, because the router tries routes
+ * with more path segments first.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { createAPIFileRoute } from '@tanstack/start/api'
+// Relative rather than the `@/` alias: this module is bundled by the API
+// router, which is configured separately from the client and the SSR server,
+// and a path that does not depend on an alias being wired there cannot break.
+import { apiUnavailable, proxyToBackend } from '../../lib/api-proxy'
+
+function handler(method: string) {
+  return async ({ request, params }: { request: Request; params: Record<string, string> }) => {
+    const path = params['_splat'] ?? ''
+    try {
+      return await proxyToBackend(request, path)
+    } catch (error) {
+      return apiUnavailable(error, method, path)
+    }
+  }
+}
+
+const route = createAPIFileRoute('/api/$')({
+  GET: handler('GET'),
+  HEAD: handler('HEAD'),
+  POST: handler('POST'),
+  PUT: handler('PUT'),
+  PATCH: handler('PATCH'),
+  DELETE: handler('DELETE'),
+  OPTIONS: handler('OPTIONS'),
+})
+
+// Both names, on purpose. The router registers a route file by its `APIRoute`
+// export and ignores anything else, so a file that exports only `Route` is
+// silently absent — and an absent API route answers with the HTML of a missing
+// page, not a 404 anyone would recognise as a routing problem.
+export const APIRoute = route
+export const Route = route
