@@ -20,11 +20,25 @@ export const Route = createFileRoute("/api/rules/")({
           const entityName = url.searchParams.get("entityName") ?? undefined;
           const operation = url.searchParams.get("operation") ?? undefined;
 
-          const rules = await rulesDb.findAll({ entityName, operation });
+          // Paged at 200, which is also the ceiling. A list endpoint that can be
+          // asked for everything eventually is, and then the page it feeds stops
+          // loading for the person with the most rules — the one who needs it most.
+          const limit = Math.min(Math.max(Number(url.searchParams.get("limit") ?? 200), 1), 200);
+          const offset = Math.max(Number(url.searchParams.get("offset") ?? 0), 0);
 
-          return new Response(JSON.stringify({ rules }), {
-            headers: { "Content-Type": "application/json" },
-          });
+          const all = await rulesDb.findAll({ entityName, operation });
+          const rules = all.slice(offset, offset + limit);
+
+          return new Response(
+            JSON.stringify({
+              rules,
+              total: all.length,
+              limit,
+              offset,
+              hasMore: offset + rules.length < all.length,
+            }),
+            { headers: { "Content-Type": "application/json" } }
+          );
         } catch (error) {
           console.error("Error fetching rules:", error);
           return new Response(JSON.stringify({ error: "Failed to fetch rules" }), {

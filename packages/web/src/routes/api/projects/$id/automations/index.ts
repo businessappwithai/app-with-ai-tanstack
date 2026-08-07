@@ -56,21 +56,29 @@ function entitiesFromErd(mermaid: string): { name: string; attributes: { name: s
 export const Route = createFileRoute("/api/projects/$id/automations/")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ request, params }) => {
         try {
           const { workflowDb } = await import("@erdwithai/core/services");
           const rows = await workflowDb.getWorkflows(params.id);
 
-          const automations = rows
-            .filter((row) => (row.workflow_type ?? "") === "automation")
-            .map((row) => ({
-              id: row.id,
-              name: row.name,
-              serviceName: row.service_name,
-              mermaid: row.mermaid_code,
-              description: row.description ?? undefined,
-              updatedAt: row.updated_at ?? row.created_at ?? undefined,
-            }));
+          // Paged at 200. A project accumulates automations faster than anyone
+          // prunes them, and a rail that fetches every one eventually stops
+          // painting — 200 fills the longest list anyone scrolls in one go.
+          const url = new URL(request.url);
+          const limit = Math.min(Math.max(Number(url.searchParams.get("limit") ?? 200), 1), 200);
+          const offset = Math.max(Number(url.searchParams.get("offset") ?? 0), 0);
+
+          const matching = rows.filter((row) => (row.workflow_type ?? "") === "automation");
+          const total = matching.length;
+
+          const automations = matching.slice(offset, offset + limit).map((row) => ({
+            id: row.id,
+            name: row.name,
+            serviceName: row.service_name,
+            mermaid: row.mermaid_code,
+            description: row.description ?? undefined,
+            updatedAt: row.updated_at ?? row.created_at ?? undefined,
+          }));
 
           // The current ERD, so the builder's pickers have something in them.
           const { getDb } = await import("@erdwithai/core/config");
@@ -84,9 +92,19 @@ export const Route = createFileRoute("/api/projects/$id/automations/")({
 
           const entities = erd?.mermaid_code ? entitiesFromErd(erd.mermaid_code) : [];
 
-          return new Response(JSON.stringify({ automations, entities }), {
-            headers: { "Content-Type": "application/json" },
-          });
+          return new Response(
+            JSON.stringify({
+              automations,
+              entities,
+              total,
+              limit,
+              offset,
+              hasMore: offset + automations.length < total,
+            }),
+            {
+              headers: { "Content-Type": "application/json" },
+            }
+          );
         } catch (error) {
           console.error("Failed to list automations:", error);
           return new Response(JSON.stringify({ error: "Failed to list automations" }), {

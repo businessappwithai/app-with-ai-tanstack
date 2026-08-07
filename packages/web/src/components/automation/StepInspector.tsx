@@ -248,6 +248,15 @@ export function StepInspector({
       <div className="flex-1 overflow-y-auto px-4">
         <p className="mb-4 text-xs leading-snug text-muted-foreground">{STEP_HINTS[step.type]}</p>
 
+        {/* One list per step, not per field: every input that offers references
+            points at this id, and emitting it only under some fields left the
+            others with an autocomplete that quietly did nothing. */}
+        <datalist id={`vals-${step.id}`}>
+          {available.map((v) => (
+            <option key={v.path} value={`{{${v.path}}}`} />
+          ))}
+        </datalist>
+
         {fields.includes("ruleTable") ? (
           <Field
             label="Rule table"
@@ -325,11 +334,6 @@ export function StepInspector({
               onChange={(e) => setProp("values", e.target.value)}
               placeholder={"status: open\nraised_by: {{order.id}}"}
             />
-            <datalist id={`vals-${step.id}`}>
-              {available.map((v) => (
-                <option key={v.path} value={`{{${v.path}}}`} />
-              ))}
-            </datalist>
           </Field>
         ) : null}
 
@@ -349,11 +353,6 @@ export function StepInspector({
               onChange={(e) => setProp("target", e.target.value)}
               list={`vals-${step.id}`}
             />
-            <datalist id={`vals-${step.id}`}>
-              {available.map((v) => (
-                <option key={v.path} value={`{{${v.path}}}`} />
-              ))}
-            </datalist>
           </Field>
         ) : null}
 
@@ -391,11 +390,6 @@ export function StepInspector({
               list={`vals-${step.id}`}
               placeholder="high"
             />
-            <datalist id={`vals-${step.id}`}>
-              {available.map((v) => (
-                <option key={v.path} value={`{{${v.path}}}`} />
-              ))}
-            </datalist>
           </Field>
         ) : null}
 

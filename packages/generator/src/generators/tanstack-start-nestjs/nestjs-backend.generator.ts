@@ -1245,6 +1245,12 @@ export async function executeCustomValidateHooks(
       { slug: "create_sys_category", template: "src/migrations/005_create_sys_category.ts.hbs" },
       // audit_log — immutable trail of every mutation, read by /admin/audit
       { slug: "create_audit_log", template: "src/migrations/006_create_audit_log.ts.hbs" },
+      // mermaid_code + kind on sys_workflow_definitions, so an automation the
+      // builder writes can be stored at all — before this, bpmn_xml was NOT NULL.
+      {
+        slug: "add_automation_definitions",
+        template: "src/migrations/008_add_automation_definitions.ts.hbs",
+      },
       // trigger_type / source / workflow_name. Also declared in 004's
       // createTable for a fresh database; repeated here because the runner
       // tracks by filename, so an app generated before those columns existed

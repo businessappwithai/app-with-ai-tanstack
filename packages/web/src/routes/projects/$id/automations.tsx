@@ -15,6 +15,7 @@ import {
   type RuleTableSummary,
 } from "@/components/automation/AutomationBuilder";
 import { AutomationHelp } from "@/components/automation/AutomationHelp";
+import { RailSection } from "@/components/automation/RailList";
 import { RuleTableEditor } from "@/components/automation/RuleTableEditor";
 import {
   type Automation,
@@ -23,7 +24,6 @@ import {
   serializeAutomation,
   validateAutomation,
 } from "@/lib/automation/model";
-import { cn } from "@/lib/utils";
 import { type DecisionTable, emptyDecisionTable } from "@/lib/workflow/bpmn-model";
 
 export const Route = createFileRoute("/projects/$id/automations")({
@@ -58,6 +58,9 @@ function AutomationsPage() {
   const [view, setView] = useState<View>({ kind: "help" });
   const [loading, setLoading] = useState(true);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [autoTotal, setAutoTotal] = useState(0);
+  const [tableTotal, setTableTotal] = useState(0);
+  const [loadingMore, setLoadingMore] = useState<"automations" | "tables" | null>(null);
 
   /* ---------------------------------------------------------------- load */
 
@@ -77,7 +80,9 @@ function AutomationsPage() {
           const data = (await autoRes.json()) as {
             automations: StoredAutomation[];
             entities?: { name: string; attributes?: { name: string }[] }[];
+            total?: number;
           };
+          setAutoTotal(data.total ?? data.automations.length);
 
           const entityList = data.entities ?? [];
           setEntities(entityList.map((e) => e.name));
@@ -111,7 +116,9 @@ function AutomationsPage() {
               entity_name?: string;
               jdm_content?: unknown;
             }[];
+            total?: number;
           };
+          setTableTotal(data.total ?? (data.rules ?? []).length);
           setTables(
             (data.rules ?? []).map((r) => ({
               id: r.id,
@@ -133,6 +140,77 @@ function AutomationsPage() {
       cancelled = true;
     };
   }, [projectId]);
+
+  /* ------------------------------------------------------------ load more */
+
+  /**
+   * The next page. Lists come back 200 at a time, so this asks for the slice
+   * after whatever is already on screen rather than refetching the lot.
+   */
+  const loadMoreAutomations = async () => {
+    setLoadingMore("automations");
+    try {
+      const res = await fetch(
+        `/api/projects/${projectId}/automations?offset=${automations.length}`
+      );
+      if (res.ok) {
+        const data = (await res.json()) as { automations: StoredAutomation[]; total?: number };
+        const parsed = data.automations.map((row) => ({
+          stored: row.id,
+          automation: {
+            ...parseAutomation(row.mermaid, row.serviceName || "Record"),
+            name: row.name,
+            updatedAt: row.updatedAt,
+          },
+        }));
+        setAutomations((list) => [...list, ...parsed.map((p) => p.automation)]);
+        setStoredIds((m) => ({
+          ...m,
+          ...Object.fromEntries(parsed.map((p) => [p.automation.id, p.stored])),
+        }));
+        if (data.total !== undefined) setAutoTotal(data.total);
+      }
+    } catch (error) {
+      console.error("Failed to load more automations:", error);
+    } finally {
+      setLoadingMore(null);
+    }
+  };
+
+  const loadMoreTables = async () => {
+    setLoadingMore("tables");
+    try {
+      const res = await fetch(`/api/rules?offset=${tables.length}`);
+      if (res.ok) {
+        const data = (await res.json()) as {
+          rules?: {
+            id: string;
+            ruleName?: string;
+            entityName?: string;
+            jdmContent?: unknown;
+            rule_name?: string;
+            entity_name?: string;
+            jdm_content?: unknown;
+          }[];
+          total?: number;
+        };
+        setTables((list) => [
+          ...list,
+          ...(data.rules ?? []).map((r) => ({
+            id: r.id,
+            name: r.ruleName ?? r.rule_name ?? "Untitled rule",
+            entity: r.entityName ?? r.entity_name ?? "",
+            table: asDecisionTable(r.jdmContent ?? r.jdm_content),
+          })),
+        ]);
+        if (data.total !== undefined) setTableTotal(data.total);
+      }
+    } catch (error) {
+      console.error("Failed to load more rule tables:", error);
+    } finally {
+      setLoadingMore(null);
+    }
+  };
 
   /* ---------------------------------------------------------------- derive */
 
@@ -283,44 +361,42 @@ function AutomationsPage() {
           // work area off screen with it.
           className="flex w-[248px] shrink-0 flex-col overflow-y-auto border-r border-border bg-card"
         >
-          <h2 className="px-4 pb-1.5 pt-4 text-[11px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">
-            Automations
-          </h2>
-          {automations.length === 0 ? (
-            <p className="px-4 pb-2 text-xs text-muted-foreground">None yet.</p>
-          ) : null}
-          {automations.map((a) => {
-            const problems = validateAutomation(a).length;
-            return (
-              <RailItem
-                key={a.id}
-                selected={view.kind === "automation" && view.id === a.id}
-                onSelect={() => setView({ kind: "automation", id: a.id })}
-                dot={a.status === "live" ? "live" : problems > 0 ? "draft" : "paused"}
-                title={a.name}
-                subtitle={`${a.trigger.entity || "no record type"} · ${a.steps.length} step${
-                  a.steps.length === 1 ? "" : "s"
-                }`}
-              />
-            );
-          })}
+          <RailSection
+            heading="Automations"
+            total={autoTotal}
+            items={automations.map((a) => ({
+              id: a.id,
+              title: a.name,
+              subtitle: `${a.trigger.entity || "no record type"} · ${a.steps.length} step${
+                a.steps.length === 1 ? "" : "s"
+              }`,
+              state:
+                a.status === "live"
+                  ? ("live" as const)
+                  : validateAutomation(a).length > 0
+                    ? ("draft" as const)
+                    : ("paused" as const),
+            }))}
+            selectedId={view.kind === "automation" ? view.id : undefined}
+            onSelect={(id) => setView({ kind: "automation", id })}
+            onLoadMore={loadMoreAutomations}
+            loadingMore={loadingMore === "automations"}
+          />
 
-          <h2 className="px-4 pb-1.5 pt-4 text-[11px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">
-            Rule tables
-          </h2>
-          {tables.length === 0 ? (
-            <p className="px-4 pb-2 text-xs text-muted-foreground">None yet.</p>
-          ) : null}
-          {tables.map((t) => (
-            <RailItem
-              key={t.id}
-              selected={view.kind === "table" && view.id === t.id}
-              onSelect={() => setView({ kind: "table", id: t.id })}
-              dot="live"
-              title={t.name}
-              subtitle={`${t.table.inputs.length} inputs · ${t.table.rules.length} rows`}
-            />
-          ))}
+          <RailSection
+            heading="Rule tables"
+            total={tableTotal}
+            items={tables.map((t) => ({
+              id: t.id,
+              title: t.name,
+              subtitle: `${t.table.inputs.length} inputs · ${t.table.rules.length} rows`,
+              state: "live" as const,
+            }))}
+            selectedId={view.kind === "table" ? view.id : undefined}
+            onSelect={(id) => setView({ kind: "table", id })}
+            onLoadMore={loadMoreTables}
+            loadingMore={loadingMore === "tables"}
+          />
 
           <div className="mt-auto border-t border-border p-3">
             <button
@@ -373,51 +449,6 @@ function AutomationsPage() {
         ) : null}
       </div>
     </div>
-  );
-}
-
-function RailItem({
-  selected,
-  onSelect,
-  dot,
-  title,
-  subtitle,
-}: {
-  selected: boolean;
-  onSelect: () => void;
-  dot: "live" | "draft" | "paused";
-  title: string;
-  subtitle: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-current={selected ? "page" : undefined}
-      className={cn(
-        "mx-2 flex items-start gap-2.5 rounded-lg px-2.5 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-        selected ? "bg-primary/10" : "hover:bg-muted"
-      )}
-    >
-      <span
-        aria-hidden="true"
-        className={cn(
-          "mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full",
-          dot === "live" ? "bg-emerald-500" : dot === "draft" ? "bg-amber-500" : "bg-neutral-400"
-        )}
-      />
-      <span className="min-w-0">
-        <span
-          className={cn(
-            "block truncate text-[13px]",
-            selected ? "font-semibold text-foreground" : "text-foreground"
-          )}
-        >
-          {title}
-        </span>
-        <span className="block truncate text-[11.5px] text-muted-foreground">{subtitle}</span>
-      </span>
-    </button>
   );
 }
 

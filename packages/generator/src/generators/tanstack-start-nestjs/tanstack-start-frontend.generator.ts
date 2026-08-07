@@ -759,6 +759,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/automation/LadderCard.tsx",
       },
       {
+        src: "src/components/automation/RailList.tsx",
+        dest: "src/components/automation/RailList.tsx",
+      },
+      {
         src: "src/components/automation/StepInspector.tsx",
         dest: "src/components/automation/StepInspector.tsx",
       },
