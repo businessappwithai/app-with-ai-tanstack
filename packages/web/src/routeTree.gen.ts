@@ -48,6 +48,7 @@ import { Route as ApiProjectsIndexRouteImport } from './routes/api/projects/inde
 import { Route as ApiRulesIndexRouteImport } from './routes/api/rules/index'
 import { Route as ApiRulesValidateRouteImport } from './routes/api/rules/validate'
 import { Route as ApiWorkflowsIndexRouteImport } from './routes/api/workflows/index'
+import { Route as ProjectsIdAutomationsRouteImport } from './routes/projects/$id/automations'
 import { Route as ProjectsIdDeployRouteImport } from './routes/projects/$id/deploy'
 import { Route as ProjectsIdDesignRouteImport } from './routes/projects/$id/design'
 import { Route as ProjectsIdGenerateRouteImport } from './routes/projects/$id/generate'
@@ -65,6 +66,8 @@ import { Route as ProjectsIdEnhanceIndexRouteImport } from './routes/projects/$i
 import { Route as ProjectsIdEnhanceServiceNameRouteImport } from './routes/projects/$id/enhance/$serviceName'
 import { Route as ApiAdminUsersIdApproveRouteImport } from './routes/api/admin/users/$id/approve'
 import { Route as ApiAdminUsersIdRejectRouteImport } from './routes/api/admin/users/$id/reject'
+import { Route as ApiProjectsIdAutomationsIndexRouteImport } from './routes/api/projects/$id/automations/index'
+import { Route as ApiProjectsIdAutomationsAutomationIdRouteImport } from './routes/api/projects/$id/automations/$automationId'
 import { Route as ApiProjectsIdDeploymentIndexRouteImport } from './routes/api/projects/$id/deployment/index'
 import { Route as ApiProjectsIdEmlDownloadRouteImport } from './routes/api/projects/$id/eml.download'
 import { Route as ApiProjectsIdErdVersionsIndexRouteImport } from './routes/api/projects/$id/erd-versions/index'
@@ -277,6 +280,11 @@ const ApiWorkflowsIndexRoute = ApiWorkflowsIndexRouteImport.update({
   path: '/api/workflows/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsIdAutomationsRoute = ProjectsIdAutomationsRouteImport.update({
+  id: '/projects/$id/automations',
+  path: '/projects/$id/automations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProjectsIdDeployRoute = ProjectsIdDeployRouteImport.update({
   id: '/projects/$id/deploy',
   path: '/projects/$id/deploy',
@@ -366,6 +374,18 @@ const ApiAdminUsersIdRejectRoute = ApiAdminUsersIdRejectRouteImport.update({
   path: '/api/admin/users/$id/reject',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiProjectsIdAutomationsIndexRoute =
+  ApiProjectsIdAutomationsIndexRouteImport.update({
+    id: '/api/projects/$id/automations/',
+    path: '/api/projects/$id/automations/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiProjectsIdAutomationsAutomationIdRoute =
+  ApiProjectsIdAutomationsAutomationIdRouteImport.update({
+    id: '/api/projects/$id/automations/$automationId',
+    path: '/api/projects/$id/automations/$automationId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiProjectsIdDeploymentIndexRoute =
   ApiProjectsIdDeploymentIndexRouteImport.update({
     id: '/api/projects/$id/deployment/',
@@ -490,6 +510,7 @@ export interface FileRoutesByFullPath {
   '/api/mermaid/parse': typeof ApiMermaidParseRoute
   '/api/models/examples': typeof ApiModelsExamplesRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
+  '/projects/$id/automations': typeof ProjectsIdAutomationsRoute
   '/projects/$id/deploy': typeof ProjectsIdDeployRoute
   '/projects/$id/design': typeof ProjectsIdDesignRoute
   '/projects/$id/generate': typeof ProjectsIdGenerateRoute
@@ -514,7 +535,9 @@ export interface FileRoutesByFullPath {
   '/projects/$id/enhance/': typeof ProjectsIdEnhanceIndexRoute
   '/api/admin/users/$id/approve': typeof ApiAdminUsersIdApproveRoute
   '/api/admin/users/$id/reject': typeof ApiAdminUsersIdRejectRoute
+  '/api/projects/$id/automations/$automationId': typeof ApiProjectsIdAutomationsAutomationIdRoute
   '/api/projects/$id/eml/download': typeof ApiProjectsIdEmlDownloadRoute
+  '/api/projects/$id/automations/': typeof ApiProjectsIdAutomationsIndexRoute
   '/api/projects/$id/deployment/': typeof ApiProjectsIdDeploymentIndexRoute
   '/api/projects/$id/erd-versions/': typeof ApiProjectsIdErdVersionsIndexRoute
   '/api/projects/$id/members/': typeof ApiProjectsIdMembersIndexRoute
@@ -563,6 +586,7 @@ export interface FileRoutesByTo {
   '/api/mermaid/parse': typeof ApiMermaidParseRoute
   '/api/models/examples': typeof ApiModelsExamplesRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
+  '/projects/$id/automations': typeof ProjectsIdAutomationsRoute
   '/projects/$id/deploy': typeof ProjectsIdDeployRoute
   '/projects/$id/design': typeof ProjectsIdDesignRoute
   '/projects/$id/generate': typeof ProjectsIdGenerateRoute
@@ -587,7 +611,9 @@ export interface FileRoutesByTo {
   '/projects/$id/enhance': typeof ProjectsIdEnhanceIndexRoute
   '/api/admin/users/$id/approve': typeof ApiAdminUsersIdApproveRoute
   '/api/admin/users/$id/reject': typeof ApiAdminUsersIdRejectRoute
+  '/api/projects/$id/automations/$automationId': typeof ApiProjectsIdAutomationsAutomationIdRoute
   '/api/projects/$id/eml/download': typeof ApiProjectsIdEmlDownloadRoute
+  '/api/projects/$id/automations': typeof ApiProjectsIdAutomationsIndexRoute
   '/api/projects/$id/deployment': typeof ApiProjectsIdDeploymentIndexRoute
   '/api/projects/$id/erd-versions': typeof ApiProjectsIdErdVersionsIndexRoute
   '/api/projects/$id/members': typeof ApiProjectsIdMembersIndexRoute
@@ -637,6 +663,7 @@ export interface FileRoutesById {
   '/api/mermaid/parse': typeof ApiMermaidParseRoute
   '/api/models/examples': typeof ApiModelsExamplesRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
+  '/projects/$id/automations': typeof ProjectsIdAutomationsRoute
   '/projects/$id/deploy': typeof ProjectsIdDeployRoute
   '/projects/$id/design': typeof ProjectsIdDesignRoute
   '/projects/$id/generate': typeof ProjectsIdGenerateRoute
@@ -661,7 +688,9 @@ export interface FileRoutesById {
   '/projects/$id/enhance/': typeof ProjectsIdEnhanceIndexRoute
   '/api/admin/users/$id/approve': typeof ApiAdminUsersIdApproveRoute
   '/api/admin/users/$id/reject': typeof ApiAdminUsersIdRejectRoute
+  '/api/projects/$id/automations/$automationId': typeof ApiProjectsIdAutomationsAutomationIdRoute
   '/api/projects/$id/eml/download': typeof ApiProjectsIdEmlDownloadRoute
+  '/api/projects/$id/automations/': typeof ApiProjectsIdAutomationsIndexRoute
   '/api/projects/$id/deployment/': typeof ApiProjectsIdDeploymentIndexRoute
   '/api/projects/$id/erd-versions/': typeof ApiProjectsIdErdVersionsIndexRoute
   '/api/projects/$id/members/': typeof ApiProjectsIdMembersIndexRoute
@@ -712,6 +741,7 @@ export interface FileRouteTypes {
     | '/api/mermaid/parse'
     | '/api/models/examples'
     | '/api/rules/validate'
+    | '/projects/$id/automations'
     | '/projects/$id/deploy'
     | '/projects/$id/design'
     | '/projects/$id/generate'
@@ -736,7 +766,9 @@ export interface FileRouteTypes {
     | '/projects/$id/enhance/'
     | '/api/admin/users/$id/approve'
     | '/api/admin/users/$id/reject'
+    | '/api/projects/$id/automations/$automationId'
     | '/api/projects/$id/eml/download'
+    | '/api/projects/$id/automations/'
     | '/api/projects/$id/deployment/'
     | '/api/projects/$id/erd-versions/'
     | '/api/projects/$id/members/'
@@ -785,6 +817,7 @@ export interface FileRouteTypes {
     | '/api/mermaid/parse'
     | '/api/models/examples'
     | '/api/rules/validate'
+    | '/projects/$id/automations'
     | '/projects/$id/deploy'
     | '/projects/$id/design'
     | '/projects/$id/generate'
@@ -809,7 +842,9 @@ export interface FileRouteTypes {
     | '/projects/$id/enhance'
     | '/api/admin/users/$id/approve'
     | '/api/admin/users/$id/reject'
+    | '/api/projects/$id/automations/$automationId'
     | '/api/projects/$id/eml/download'
+    | '/api/projects/$id/automations'
     | '/api/projects/$id/deployment'
     | '/api/projects/$id/erd-versions'
     | '/api/projects/$id/members'
@@ -858,6 +893,7 @@ export interface FileRouteTypes {
     | '/api/mermaid/parse'
     | '/api/models/examples'
     | '/api/rules/validate'
+    | '/projects/$id/automations'
     | '/projects/$id/deploy'
     | '/projects/$id/design'
     | '/projects/$id/generate'
@@ -882,7 +918,9 @@ export interface FileRouteTypes {
     | '/projects/$id/enhance/'
     | '/api/admin/users/$id/approve'
     | '/api/admin/users/$id/reject'
+    | '/api/projects/$id/automations/$automationId'
     | '/api/projects/$id/eml/download'
+    | '/api/projects/$id/automations/'
     | '/api/projects/$id/deployment/'
     | '/api/projects/$id/erd-versions/'
     | '/api/projects/$id/members/'
@@ -931,6 +969,7 @@ export interface RootRouteChildren {
   ApiMermaidParseRoute: typeof ApiMermaidParseRoute
   ApiModelsExamplesRoute: typeof ApiModelsExamplesRoute
   ApiRulesValidateRoute: typeof ApiRulesValidateRoute
+  ProjectsIdAutomationsRoute: typeof ProjectsIdAutomationsRoute
   ProjectsIdDeployRoute: typeof ProjectsIdDeployRoute
   ProjectsIdDesignRoute: typeof ProjectsIdDesignRoute
   ProjectsIdGenerateRoute: typeof ProjectsIdGenerateRoute
@@ -955,6 +994,8 @@ export interface RootRouteChildren {
   ProjectsIdEnhanceIndexRoute: typeof ProjectsIdEnhanceIndexRoute
   ApiAdminUsersIdApproveRoute: typeof ApiAdminUsersIdApproveRoute
   ApiAdminUsersIdRejectRoute: typeof ApiAdminUsersIdRejectRoute
+  ApiProjectsIdAutomationsAutomationIdRoute: typeof ApiProjectsIdAutomationsAutomationIdRoute
+  ApiProjectsIdAutomationsIndexRoute: typeof ApiProjectsIdAutomationsIndexRoute
   ApiProjectsIdDeploymentIndexRoute: typeof ApiProjectsIdDeploymentIndexRoute
   ApiProjectsIdErdVersionsIndexRoute: typeof ApiProjectsIdErdVersionsIndexRoute
   ApiProjectsIdMembersIndexRoute: typeof ApiProjectsIdMembersIndexRoute
@@ -1246,6 +1287,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWorkflowsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/$id/automations': {
+      id: '/projects/$id/automations'
+      path: '/projects/$id/automations'
+      fullPath: '/projects/$id/automations'
+      preLoaderRoute: typeof ProjectsIdAutomationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/projects/$id/deploy': {
       id: '/projects/$id/deploy'
       path: '/projects/$id/deploy'
@@ -1363,6 +1411,20 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/users/$id/reject'
       fullPath: '/api/admin/users/$id/reject'
       preLoaderRoute: typeof ApiAdminUsersIdRejectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/$id/automations/': {
+      id: '/api/projects/$id/automations/'
+      path: '/api/projects/$id/automations'
+      fullPath: '/api/projects/$id/automations/'
+      preLoaderRoute: typeof ApiProjectsIdAutomationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/$id/automations/$automationId': {
+      id: '/api/projects/$id/automations/$automationId'
+      path: '/api/projects/$id/automations/$automationId'
+      fullPath: '/api/projects/$id/automations/$automationId'
+      preLoaderRoute: typeof ApiProjectsIdAutomationsAutomationIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/projects/$id/deployment/': {
@@ -1528,6 +1590,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMermaidParseRoute: ApiMermaidParseRoute,
   ApiModelsExamplesRoute: ApiModelsExamplesRoute,
   ApiRulesValidateRoute: ApiRulesValidateRoute,
+  ProjectsIdAutomationsRoute: ProjectsIdAutomationsRoute,
   ProjectsIdDeployRoute: ProjectsIdDeployRoute,
   ProjectsIdDesignRoute: ProjectsIdDesignRoute,
   ProjectsIdGenerateRoute: ProjectsIdGenerateRoute,
@@ -1552,6 +1615,9 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsIdEnhanceIndexRoute: ProjectsIdEnhanceIndexRoute,
   ApiAdminUsersIdApproveRoute: ApiAdminUsersIdApproveRoute,
   ApiAdminUsersIdRejectRoute: ApiAdminUsersIdRejectRoute,
+  ApiProjectsIdAutomationsAutomationIdRoute:
+    ApiProjectsIdAutomationsAutomationIdRoute,
+  ApiProjectsIdAutomationsIndexRoute: ApiProjectsIdAutomationsIndexRoute,
   ApiProjectsIdDeploymentIndexRoute: ApiProjectsIdDeploymentIndexRoute,
   ApiProjectsIdErdVersionsIndexRoute: ApiProjectsIdErdVersionsIndexRoute,
   ApiProjectsIdMembersIndexRoute: ApiProjectsIdMembersIndexRoute,
