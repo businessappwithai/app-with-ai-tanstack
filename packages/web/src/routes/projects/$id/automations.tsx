@@ -9,7 +9,7 @@
  */
 
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import {
   AutomationBuilder,
   type RuleTableSummary,
@@ -87,58 +87,85 @@ function AutomationsPage() {
 
         if (cancelled) return;
 
-        if (autoRes.ok) {
-          const data = (await autoRes.json()) as {
-            automations: StoredAutomation[];
-            entities?: { name: string; attributes?: { name: string }[] }[];
-            total?: number;
-          };
-          setAutoTotal(data.total ?? data.automations.length);
+        // Parse first, then apply. Everything that touches state goes inside one
+        // startTransition below.
+        const autoData = autoRes.ok
+          ? ((await autoRes.json()) as {
+              automations: StoredAutomation[];
+              entities?: { name: string; attributes?: { name: string }[] }[];
+              total?: number;
+            })
+          : null;
 
-          const entityList = data.entities ?? [];
-          setEntities(entityList.map((e) => e.name));
-          setEntityFields(
-            Object.fromEntries(
-              entityList.map((e) => [e.name, (e.attributes ?? []).map((a) => a.name)])
-            )
-          );
-          const parsed = data.automations.map((row) => ({
+        const rulePayload = ruleRes.ok
+          ? ((await ruleRes.json()) as
+              | RuleRow[]
+              | { rules?: RuleRow[]; items?: RuleRow[]; total?: number })
+          : null;
+
+        if (cancelled) return;
+
+        const parsed =
+          autoData?.automations.map((row) => ({
             stored: row.id,
             automation: {
               ...parseAutomation(row.mermaid, row.serviceName || "Record"),
               name: row.name,
               updatedAt: row.updatedAt,
             },
-          }));
-          setAutomations(parsed.map((p) => p.automation));
-          setStoredIds(Object.fromEntries(parsed.map((p) => [p.automation.id, p.stored])));
-          const first = parsed[0];
-          if (first) setView({ kind: "automation", id: first.automation.id });
-        }
+          })) ?? [];
 
-        if (ruleRes.ok) {
-          // Wrapped or bare — accept whichever arrives rather than silently
-          // showing an empty rail when the shape changes underneath.
-          const payload = (await ruleRes.json()) as
-            | RuleRow[]
-            | { rules?: RuleRow[]; items?: RuleRow[]; total?: number };
-          const rows: RuleRow[] = Array.isArray(payload)
-            ? payload
-            : (payload.rules ?? payload.items ?? []);
-          setTableTotal((Array.isArray(payload) ? undefined : payload.total) ?? rows.length);
-          setTables(
-            rows.map((r) => ({
-              id: r.id,
-              name: r.ruleName ?? r.rule_name ?? "Untitled rule",
-              entity: r.entityName ?? r.entity_name ?? "",
-              table: asDecisionTable(r.jdmContent ?? r.jdm_content),
-            }))
-          );
-        }
+        const entityList = autoData?.entities ?? [];
+
+        const ruleRows: RuleRow[] = rulePayload
+          ? Array.isArray(rulePayload)
+            ? rulePayload
+            : (rulePayload.rules ?? rulePayload.items ?? [])
+          : [];
+
+        // The page streams from the server showing "Loading automations…", so
+        // this is the first update while hydration is still in flight. React
+        // treats an urgent update inside a hydrating Suspense boundary as a
+        // reason to discard the server HTML and re-render on the client — the
+        // "received an update before it finished hydrating" warning. Marking it
+        // non-urgent lets hydration finish first.
+        startTransition(() => {
+          if (autoData) {
+            setAutoTotal(autoData.total ?? autoData.automations.length);
+            setEntities(entityList.map((e) => e.name));
+            setEntityFields(
+              Object.fromEntries(
+                entityList.map((e) => [e.name, (e.attributes ?? []).map((a) => a.name)])
+              )
+            );
+            setAutomations(parsed.map((p) => p.automation));
+            setStoredIds(Object.fromEntries(parsed.map((p) => [p.automation.id, p.stored])));
+            const first = parsed[0];
+            if (first) setView({ kind: "automation", id: first.automation.id });
+          }
+
+          if (rulePayload) {
+            setTableTotal(
+              (Array.isArray(rulePayload) ? undefined : rulePayload.total) ?? ruleRows.length
+            );
+            setTables(
+              ruleRows.map((r) => ({
+                id: r.id,
+                name: r.ruleName ?? r.rule_name ?? "Untitled rule",
+                entity: r.entityName ?? r.entity_name ?? "",
+                table: asDecisionTable(r.jdmContent ?? r.jdm_content),
+              }))
+            );
+          }
+        });
       } catch (error) {
         console.error("Failed to load automations:", error);
       } finally {
-        if (!cancelled) setLoading(false);
+        // This is the update that actually swaps the "Loading automations…"
+        // placeholder for the builder, so it has to be non-urgent too — a
+        // transition around the data alone still leaves this one able to
+        // interrupt hydration.
+        if (!cancelled) startTransition(() => setLoading(false));
       }
     };
 
