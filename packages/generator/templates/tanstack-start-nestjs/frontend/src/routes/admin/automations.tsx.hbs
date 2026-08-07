@@ -51,6 +51,17 @@ interface StoredAutomation {
   mermaid_code?: string;
 }
 
+/** A rule as the endpoint returns it, in either casing. */
+interface RuleRow {
+  id: string;
+  ruleName?: string;
+  entityName?: string;
+  jdmContent?: unknown;
+  rule_name?: string;
+  entity_name?: string;
+  jdm_content?: unknown;
+}
+
 interface RuleTableRecord {
   id: string;
   name: string;
@@ -102,27 +113,28 @@ function AutomationsPage() {
         }
 
         if (ruleRes.ok) {
-          const data = (await ruleRes.json()) as {
-            rules?: {
-              id: string;
-              ruleName?: string;
-              entityName?: string;
-              jdmContent?: unknown;
-              rule_name?: string;
-              entity_name?: string;
-              jdm_content?: unknown;
-            }[];
-          };
-          setTableTotal(data.total ?? (data.rules ?? []).length);
+          // The rules endpoint returns a bare array; other callers in this
+          // codebase wrap it. Accept whichever arrives rather than silently
+          // showing an empty rail when the shape changes underneath.
+          const payload = (await ruleRes.json()) as
+            | RuleRow[]
+            | { rules?: RuleRow[]; items?: RuleRow[]; total?: number };
+          const rows: RuleRow[] = Array.isArray(payload)
+            ? payload
+            : (payload.rules ?? payload.items ?? []);
+          setTableTotal(
+            (Array.isArray(payload) ? undefined : payload.total) ?? rows.length
+          );
           setTables(
-            (data.rules ?? []).map((r) => ({
+            rows.map((r) => ({
               id: r.id,
-              name: r.ruleName ?? r.rule_name ?? "Untitled rule",
-              entity: r.entityName ?? r.entity_name ?? "",
+              name: r.ruleName ?? r.rule_name ?? 'Untitled rule',
+              entity: r.entityName ?? r.entity_name ?? '',
               table: asDecisionTable(r.jdmContent ?? r.jdm_content),
             }))
           );
         }
+
       } catch (error) {
         console.error('Failed to load automations:', error);
       } finally {
@@ -332,6 +344,8 @@ function AutomationsPage() {
           />
         ) : null}
 
+        {/* No onOpenHelp is passed: the header above already offers Help, and
+            two identical controls on one screen is one more decision than needed. */}
         {view.kind === 'automation' && current ? (
           <AutomationBuilder
             automation={current}
@@ -339,7 +353,6 @@ function AutomationsPage() {
             entities={ENTITIES}
             entityFields={ENTITY_FIELDS}
             ruleTables={ruleTableSummaries}
-            {/* No onOpenHelp: the header above already offers Help. */}
             onOpenRuleTable={(name) => {
               const table = tables.find((t) => t.name === name);
               if (table) setView({ kind: 'table', id: table.id });

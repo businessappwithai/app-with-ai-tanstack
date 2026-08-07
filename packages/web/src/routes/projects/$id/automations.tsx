@@ -38,6 +38,17 @@ interface StoredAutomation {
   updatedAt?: string;
 }
 
+/** A rule as the endpoint returns it, in either casing. */
+interface RuleRow {
+  id: string;
+  ruleName?: string;
+  entityName?: string;
+  jdmContent?: unknown;
+  rule_name?: string;
+  entity_name?: string;
+  jdm_content?: unknown;
+}
+
 interface RuleTableRecord {
   id: string;
   name: string;
@@ -106,21 +117,17 @@ function AutomationsPage() {
         }
 
         if (ruleRes.ok) {
-          const data = (await ruleRes.json()) as {
-            rules?: {
-              id: string;
-              ruleName?: string;
-              entityName?: string;
-              jdmContent?: unknown;
-              rule_name?: string;
-              entity_name?: string;
-              jdm_content?: unknown;
-            }[];
-            total?: number;
-          };
-          setTableTotal(data.total ?? (data.rules ?? []).length);
+          // Wrapped or bare — accept whichever arrives rather than silently
+          // showing an empty rail when the shape changes underneath.
+          const payload = (await ruleRes.json()) as
+            | RuleRow[]
+            | { rules?: RuleRow[]; items?: RuleRow[]; total?: number };
+          const rows: RuleRow[] = Array.isArray(payload)
+            ? payload
+            : (payload.rules ?? payload.items ?? []);
+          setTableTotal((Array.isArray(payload) ? undefined : payload.total) ?? rows.length);
           setTables(
-            (data.rules ?? []).map((r) => ({
+            rows.map((r) => ({
               id: r.id,
               name: r.ruleName ?? r.rule_name ?? "Untitled rule",
               entity: r.entityName ?? r.entity_name ?? "",
@@ -182,28 +189,23 @@ function AutomationsPage() {
     try {
       const res = await fetch(`/api/rules?offset=${tables.length}`);
       if (res.ok) {
-        const data = (await res.json()) as {
-          rules?: {
-            id: string;
-            ruleName?: string;
-            entityName?: string;
-            jdmContent?: unknown;
-            rule_name?: string;
-            entity_name?: string;
-            jdm_content?: unknown;
-          }[];
-          total?: number;
-        };
+        const payload = (await res.json()) as
+          | RuleRow[]
+          | { rules?: RuleRow[]; items?: RuleRow[]; total?: number };
+        const rows: RuleRow[] = Array.isArray(payload)
+          ? payload
+          : (payload.rules ?? payload.items ?? []);
         setTables((list) => [
           ...list,
-          ...(data.rules ?? []).map((r) => ({
+          ...rows.map((r) => ({
             id: r.id,
             name: r.ruleName ?? r.rule_name ?? "Untitled rule",
             entity: r.entityName ?? r.entity_name ?? "",
             table: asDecisionTable(r.jdmContent ?? r.jdm_content),
           })),
         ]);
-        if (data.total !== undefined) setTableTotal(data.total);
+        const total = Array.isArray(payload) ? undefined : payload.total;
+        if (total !== undefined) setTableTotal(total);
       }
     } catch (error) {
       console.error("Failed to load more rule tables:", error);
@@ -420,6 +422,8 @@ function AutomationsPage() {
           />
         ) : null}
 
+        {/* No onOpenHelp is passed: the header above already offers Help, and
+            two identical controls on one screen is one more decision than needed. */}
         {view.kind === "automation" && current ? (
           <AutomationBuilder
             automation={current}
@@ -427,8 +431,6 @@ function AutomationsPage() {
             entities={entities}
             entityFields={entityFields}
             ruleTables={ruleTableSummaries}
-            // No onOpenHelp: this page already puts Help in its header, and two
-            // identical controls on one screen is one more decision than needed.
             onOpenRuleTable={(name) => {
               const table = tables.find((t) => t.name === name);
               if (table) setView({ kind: "table", id: table.id });
