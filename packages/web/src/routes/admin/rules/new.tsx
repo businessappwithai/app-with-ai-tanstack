@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeftIcon, SaveIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { type JDMContent, JDMEditor } from "@/components/rules/JDMEditor";
+import { RuleTableEditor } from "@/components/automation/RuleTableEditor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { type DecisionTable, emptyDecisionTable } from "@/lib/workflow/bpmn-model";
 
 export const Route = createFileRoute("/admin/rules/new")({
   component: NewRulePage,
@@ -29,27 +30,7 @@ function NewRulePage() {
     operation: "CREATE" as "CREATE" | "READ" | "UPDATE" | "DELETE" | "ALL",
   });
 
-  const [jdmContent, setJdmContent] = useState<JDMContent>({
-    name: formData.ruleName || "New Rule",
-    nodes: [
-      {
-        id: "rule-1",
-        type: "decisionTable",
-        name: "Decision Table",
-        content: {
-          inputs: ["entity"],
-          outputs: ["result"],
-          rules: [
-            {
-              id: "rule-1-1",
-              condition: "true",
-              output: { result: "default" },
-            },
-          ],
-        },
-      },
-    ],
-  });
+  const [table, setTable] = useState<DecisionTable>(emptyDecisionTable());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +44,7 @@ function NewRulePage() {
           entityName: formData.entityName,
           ruleName: formData.ruleName,
           operation: formData.operation,
-          jdmContent,
+          jdmContent: table,
         }),
       });
 
@@ -88,7 +69,7 @@ function NewRulePage() {
         </Button>
         <h1 className="text-3xl font-bold">Create New Rule</h1>
         <p className="text-muted-foreground">
-          Define a business rule using JSON Decision Model (JDM)
+          Rows are read top to bottom. The first row where every check fits is the answer.
         </p>
       </div>
 
@@ -157,13 +138,18 @@ function NewRulePage() {
 
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Rule Definition (JDM)</CardTitle>
+            <CardTitle>The rules</CardTitle>
             <CardDescription>
-              Define the rule logic using JSON Decision Model format
+              Give the table its inputs and outcomes, then add a row per decision. End with a
+              catch-all so it always returns an answer.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <JDMEditor value={jdmContent} onChange={setJdmContent} />
+            <RuleTableEditor
+              name={formData.ruleName || "New rule"}
+              table={table}
+              onChange={setTable}
+            />
           </CardContent>
         </Card>
 

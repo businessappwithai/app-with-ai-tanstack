@@ -195,7 +195,6 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       "src/lib/queries",
       "src/lib/workflow",
       "src/lib/automation",
-      "src/components/workflow",
       "src/components/automation",
       "test",
     ];
@@ -739,33 +738,21 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         src: "src/components/admin/bus-entity-detail-page.tsx",
         dest: "src/components/admin/bus-entity-detail-page.tsx",
       },
-      {
-        src: "src/components/admin/bpmn-canvas.tsx",
-        dest: "src/components/admin/bpmn-canvas.tsx",
-      },
       // The workflow editor, shared verbatim with the modelling tool so a
       // workflow drawn in either behaves the same way.
       {
         src: "src/lib/workflow/bpmn-model.ts",
         dest: "src/lib/workflow/bpmn-model.ts",
       },
-      {
-        src: "src/components/workflow/BpmnWorkflowEditor.tsx",
-        dest: "src/components/workflow/BpmnWorkflowEditor.tsx",
-      },
-      {
-        src: "src/components/workflow/DecisionTableGrid.tsx",
-        dest: "src/components/workflow/DecisionTableGrid.tsx",
-      },
-      {
-        src: "src/components/workflow/StepPropertyFields.tsx",
-        dest: "src/components/workflow/StepPropertyFields.tsx",
-      },
       // The automation builder, shared verbatim with the modelling tool so an
       // automation reads and behaves the same in both.
       {
         src: "src/lib/automation/model.ts",
         dest: "src/lib/automation/model.ts",
+      },
+      {
+        src: "src/lib/automation/rule-content.ts",
+        dest: "src/lib/automation/rule-content.ts",
       },
       {
         src: "src/components/automation/LadderCard.tsx",
@@ -786,10 +773,6 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       {
         src: "src/components/automation/AutomationHelp.tsx",
         dest: "src/components/automation/AutomationHelp.tsx",
-      },
-      {
-        src: "src/components/admin/decision-table-editor.tsx",
-        dest: "src/components/admin/decision-table-editor.tsx",
       },
       {
         src: "src/components/admin/doc-status-badge.tsx",

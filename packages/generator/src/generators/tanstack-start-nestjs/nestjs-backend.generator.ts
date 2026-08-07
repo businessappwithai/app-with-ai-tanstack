@@ -1901,10 +1901,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
 
     for (const file of files) {
       try {
-        const content = await this.renderTemplate(
-          `src/modules/model-context/${file}.hbs`,
-          context
-        );
+        const content = await this.renderTemplate(`src/modules/model-context/${file}.hbs`, context);
         await fs.writeFile(path.join(moduleDir, file), content);
       } catch (error) {
         console.warn(`Model-context file not generated: ${file} — ${(error as Error).message}`);

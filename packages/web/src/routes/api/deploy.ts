@@ -45,9 +45,10 @@ async function dockerAvailable(): Promise<{ ok: boolean; reason?: string }> {
       if (code === 0) return resolve({ ok: true });
       resolve({
         ok: false,
-        reason: stderr.includes("Cannot connect") || stderr.includes("docker.sock")
-          ? "no docker daemon is reachable — mount /var/run/docker.sock into this container"
-          : stderr.trim() || "docker is not usable here",
+        reason:
+          stderr.includes("Cannot connect") || stderr.includes("docker.sock")
+            ? "no docker daemon is reachable — mount /var/run/docker.sock into this container"
+            : stderr.trim() || "docker is not usable here",
       });
     });
   });
@@ -102,7 +103,9 @@ export const Route = createFileRoute("/api/deploy")({
 
               const projectPath = project.generatedPath;
               if (!projectPath) {
-                return fail("This project has not been generated yet — run the generate step first");
+                return fail(
+                  "This project has not been generated yet — run the generate step first"
+                );
               }
 
               // The Dockerfile is what makes the project buildable. An older
@@ -145,7 +148,10 @@ export const Route = createFileRoute("/api/deploy")({
               }
 
               log("info", `Building ${tag} from ${projectPath}`);
-              log("info", "This takes a few minutes the first time — layers are cached after that.");
+              log(
+                "info",
+                "This takes a few minutes the first time — layers are cached after that."
+              );
 
               // Proxy settings are passed through rather than assumed absent:
               // the build runs on the host daemon, which does not inherit this

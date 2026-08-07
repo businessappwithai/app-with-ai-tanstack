@@ -2,11 +2,13 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeftIcon, CheckIcon, SaveIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { type JDMContent, JDMEditor } from "@/components/rules/JDMEditor";
+import { RuleTableEditor } from "@/components/automation/RuleTableEditor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { asDecisionTable, wouldReplaceStoredContent } from "@/lib/automation/rule-content";
+import type { DecisionTable } from "@/lib/workflow/bpmn-model";
 
 export const Route = createFileRoute("/admin/rules/$entity/$ruleId")({
   component: RuleEditorPage,
@@ -19,7 +21,7 @@ interface RuleDefinition {
   operation: string;
   version: number;
   isActive: boolean;
-  jdmContent: JDMContent;
+  jdmContent: unknown;
   createdAt: string;
   updatedAt: string;
 }
@@ -29,7 +31,9 @@ function RuleEditorPage() {
   const { ruleId } = Route.useParams();
 
   const [rule, setRule] = useState<RuleDefinition | null>(null);
-  const [jdmContent, setJdmContent] = useState<JDMContent | null>(null);
+  const [table, setTable] = useState<DecisionTable | null>(null);
+  // True when the stored rule was not a table, so saving would replace it.
+  const [replacesStored, setReplacesStored] = useState(false);
   const [loading, setLoading] = useState(false);
   const [validationResult, setValidationResult] = useState<{
     valid: boolean;
@@ -48,7 +52,8 @@ function RuleEditorPage() {
 
       const data = await response.json();
       setRule(data);
-      setJdmContent(data.jdmContent);
+      setTable(asDecisionTable(data.jdmContent));
+      setReplacesStored(wouldReplaceStoredContent(data.jdmContent));
     } catch (error) {
       toast.error("Failed to load rule");
       console.error(error);
@@ -56,7 +61,7 @@ function RuleEditorPage() {
   };
 
   const handleSave = async () => {
-    if (!jdmContent) return;
+    if (!table) return;
 
     setLoading(true);
     try {
@@ -64,7 +69,7 @@ function RuleEditorPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          jdmContent,
+          jdmContent: table,
         }),
       });
 
@@ -81,13 +86,13 @@ function RuleEditorPage() {
   };
 
   const handleValidate = async () => {
-    if (!jdmContent) return;
+    if (!table) return;
 
     try {
       const response = await fetch("/api/rules/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jdm: jdmContent }),
+        body: JSON.stringify({ jdm: table }),
       });
 
       if (!response.ok) throw new Error("Failed to validate rule");
@@ -100,7 +105,7 @@ function RuleEditorPage() {
     }
   };
 
-  if (!rule || !jdmContent) {
+  if (!rule || !table) {
     return (
       <div className="container mx-auto py-8">
         <p>Loading...</p>
@@ -136,11 +141,17 @@ function RuleEditorPage() {
             <CardHeader>
               <CardTitle>Rule Editor</CardTitle>
               <CardDescription>
-                Edit the JDM (JSON Decision Model) definition using visual editor or JSON
+                Rows are read top to bottom. The first row where every check fits is the answer.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <JDMEditor value={jdmContent} onChange={setJdmContent} />
+              {replacesStored ? (
+                <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                  This rule was saved in the older decision-graph format, which this editor cannot
+                  show. It is starting from an empty table — saving will replace what was stored.
+                </p>
+              ) : null}
+              <RuleTableEditor name={rule.ruleName} table={table} onChange={setTable} />
               <div className="flex justify-end mt-4">
                 <Button onClick={handleSave} disabled={loading}>
                   {loading ? "Saving..." : "Save"}
