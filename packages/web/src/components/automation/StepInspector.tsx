@@ -162,8 +162,11 @@ function Field({
   hint?: React.ReactNode;
   children: React.ReactNode;
 }) {
+  // A real <label> wrapping the control, not a styled <span> beside it: without
+  // it the selects announce as "combobox" with no name at all, which is the
+  // difference between a usable panel and an unusable one on a screen reader.
   return (
-    <div className="mb-3.5">
+    <label className="mb-3.5 block">
       <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
         {label}
       </span>
@@ -171,7 +174,7 @@ function Field({
       {hint ? (
         <p className="mt-1.5 text-[11.5px] leading-snug text-muted-foreground">{hint}</p>
       ) : null}
-    </div>
+    </label>
   );
 }
 
@@ -303,6 +306,54 @@ export function StepInspector({
                 </option>
               ))}
             </select>
+          </Field>
+        ) : null}
+
+        {fields.includes("values") ? (
+          <Field
+            label="Columns to set"
+            hint={
+              <>
+                One <code className="font-mono text-[11px]">column: value</code> per line. A value
+                can be a reference to an earlier step, like <Ref>{"{{tier.discount_pct}}"}</Ref>.
+              </>
+            }
+          >
+            <textarea
+              className={cn(inputClass, "min-h-[76px] font-mono text-xs")}
+              value={step.props.values ?? ""}
+              onChange={(e) => setProp("values", e.target.value)}
+              placeholder={"status: open\nraised_by: {{order.id}}"}
+            />
+            <datalist id={`vals-${step.id}`}>
+              {available.map((v) => (
+                <option key={v.path} value={`{{${v.path}}}`} />
+              ))}
+            </datalist>
+          </Field>
+        ) : null}
+
+        {fields.includes("target") ? (
+          <Field
+            label="Which record"
+            hint={
+              <>
+                The record to delete, usually a reference from an earlier step —{" "}
+                <Ref>{"{{invoiceId}}"}</Ref>.
+              </>
+            }
+          >
+            <input
+              className={inputClass}
+              value={step.props.target ?? ""}
+              onChange={(e) => setProp("target", e.target.value)}
+              list={`vals-${step.id}`}
+            />
+            <datalist id={`vals-${step.id}`}>
+              {available.map((v) => (
+                <option key={v.path} value={`{{${v.path}}}`} />
+              ))}
+            </datalist>
           </Field>
         ) : null}
 
