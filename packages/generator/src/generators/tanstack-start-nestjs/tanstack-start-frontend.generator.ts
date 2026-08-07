@@ -392,10 +392,21 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("API proxy lib template not found");
     }
 
+    // The assistant's runtime, served by the front end rather than proxied:
+    // CopilotKit streams over its own protocol, and routing that through the
+    // backend's request pipeline breaks streaming for no gain.
+    try {
+      const copilotRuntime = await this.renderTemplate("src/lib/copilot-runtime.ts.hbs", context);
+      await fs.writeFile(path.join(outputDir, "src/lib/copilot-runtime.ts"), copilotRuntime);
+    } catch (e) {
+      console.warn("CopilotKit runtime lib template not found");
+    }
+
     // The API, on the front end's own origin. Everything under /api/* is
     // forwarded to NestJS from inside the server, so the browser never learns
-    // the API's port and the session cookie is a plain same-origin cookie. The
-    // two routes below it are matched first and handle themselves.
+    // the API's port and the session cookie is a plain same-origin cookie. It
+    // also answers /api/copilotkit itself — the client posts to that exact
+    // address, which the splat route below can never match.
     try {
       await fs.mkdir(path.join(outputDir, "src/routes/api"), { recursive: true });
       const apiProxyContent = await this.renderTemplate("src/routes/api/$.ts.hbs", context);
@@ -413,10 +424,8 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("Auth proxy route template not found");
     }
 
-    // CopilotKit runtime for the admin assistant. Served here rather than
-    // proxied to the backend: CopilotKit streams over its own protocol, and
-    // routing that through the backend's request pipeline breaks streaming for
-    // no gain.
+    // The assistant's sub-paths. The address the client actually uses is
+    // handled by the /api/$ route above; this covers anything below it.
     try {
       await fs.mkdir(path.join(outputDir, "src/routes/api/copilotkit"), { recursive: true });
       const copilotRuntime = await this.renderTemplate(

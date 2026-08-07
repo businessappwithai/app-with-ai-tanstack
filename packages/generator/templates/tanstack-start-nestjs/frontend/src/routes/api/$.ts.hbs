@@ -2,9 +2,9 @@
  * Everything under /api, served from the front end's own origin and forwarded
  * to the NestJS API. The reasoning lives in src/lib/api-proxy.ts.
  *
- * More specific routes still win — /api/auth/* and /api/copilotkit/* have their
- * own files and are matched before this one, because the router tries routes
- * with more path segments first.
+ * Two things are not forwarded. /api/auth/* has its own file, matched before
+ * this one because the router tries routes with more path segments first. And
+ * the assistant is answered here — see the note on it below.
  *
  * Generated: {{now}}
  * Project: {{project.name}}
@@ -15,10 +15,19 @@ import { createAPIFileRoute } from '@tanstack/start/api'
 // router, which is configured separately from the client and the SSR server,
 // and a path that does not depend on an alias being wired there cannot break.
 import { apiUnavailable, proxyToBackend } from '../../lib/api-proxy'
+import { handleCopilotRequest, isCopilotPath } from '../../lib/copilot-runtime'
 
 function handler(method: string) {
   return async ({ request, params }: { request: Request; params: Record<string, string> }) => {
     const path = params['_splat'] ?? ''
+
+    // The assistant is served here rather than forwarded. It is answered from
+    // this route and not from a /api/copilotkit/$ file of its own because the
+    // client posts to /api/copilotkit exactly, and a splat route requires
+    // something after the slash — so such a file can never match the one
+    // address the client actually uses.
+    if (isCopilotPath(path)) return handleCopilotRequest(request)
+
     try {
       return await proxyToBackend(request, path)
     } catch (error) {
