@@ -194,7 +194,9 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       "src/types",
       "src/lib/queries",
       "src/lib/workflow",
+      "src/lib/automation",
       "src/components/workflow",
+      "src/components/automation",
       "test",
     ];
 
@@ -432,10 +434,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         "src/routes/api/copilotkit/$.ts.hbs",
         context
       );
-      await fs.writeFile(
-        path.join(outputDir, "src/routes/api/copilotkit/$.ts"),
-        copilotRuntime
-      );
+      await fs.writeFile(path.join(outputDir, "src/routes/api/copilotkit/$.ts"), copilotRuntime);
     } catch (e) {
       console.warn("CopilotKit runtime route template not found");
     }
@@ -762,6 +761,32 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         src: "src/components/workflow/StepPropertyFields.tsx",
         dest: "src/components/workflow/StepPropertyFields.tsx",
       },
+      // The automation builder, shared verbatim with the modelling tool so an
+      // automation reads and behaves the same in both.
+      {
+        src: "src/lib/automation/model.ts",
+        dest: "src/lib/automation/model.ts",
+      },
+      {
+        src: "src/components/automation/LadderCard.tsx",
+        dest: "src/components/automation/LadderCard.tsx",
+      },
+      {
+        src: "src/components/automation/StepInspector.tsx",
+        dest: "src/components/automation/StepInspector.tsx",
+      },
+      {
+        src: "src/components/automation/AutomationBuilder.tsx",
+        dest: "src/components/automation/AutomationBuilder.tsx",
+      },
+      {
+        src: "src/components/automation/RuleTableEditor.tsx",
+        dest: "src/components/automation/RuleTableEditor.tsx",
+      },
+      {
+        src: "src/components/automation/AutomationHelp.tsx",
+        dest: "src/components/automation/AutomationHelp.tsx",
+      },
       {
         src: "src/components/admin/decision-table-editor.tsx",
         dest: "src/components/admin/decision-table-editor.tsx",
@@ -971,6 +996,19 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       await fs.writeFile(path.join(adminDir, "categories.tsx"), categoriesContent);
     } catch (e) {
       console.warn("Admin categories page template not found");
+    }
+
+    // The automation builder - renders as /admin/automations. This is where
+    // multi-step workflows and business rules are authored; admin/workflows.tsx
+    // below stays as the monitoring view for runs that have already happened.
+    try {
+      const automationsContent = await this.renderTemplate(
+        "src/routes/admin/automations.tsx.hbs",
+        context
+      );
+      await fs.writeFile(path.join(adminDir, "automations.tsx"), automationsContent);
+    } catch (e) {
+      console.warn("Admin automations page template not found");
     }
 
     // Workflow monitoring - renders as /admin/workflows via admin/workflows.tsx
