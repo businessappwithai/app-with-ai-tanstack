@@ -66,16 +66,26 @@ function AutomationsPage() {
 
     const load = async () => {
       try {
-        const [autoRes, ruleRes, entityRes] = await Promise.all([
+        const [autoRes, ruleRes] = await Promise.all([
           fetch(`/api/projects/${projectId}/automations`),
           fetch("/api/rules"),
-          fetch(`/api/projects/${projectId}/entities`).catch(() => null),
         ]);
 
         if (cancelled) return;
 
         if (autoRes.ok) {
-          const data = (await autoRes.json()) as { automations: StoredAutomation[] };
+          const data = (await autoRes.json()) as {
+            automations: StoredAutomation[];
+            entities?: { name: string; attributes?: { name: string }[] }[];
+          };
+
+          const entityList = data.entities ?? [];
+          setEntities(entityList.map((e) => e.name));
+          setEntityFields(
+            Object.fromEntries(
+              entityList.map((e) => [e.name, (e.attributes ?? []).map((a) => a.name)])
+            )
+          );
           const parsed = data.automations.map((row) => ({
             stored: row.id,
             automation: {
@@ -92,26 +102,23 @@ function AutomationsPage() {
 
         if (ruleRes.ok) {
           const data = (await ruleRes.json()) as {
-            rules: { id: string; rule_name: string; entity_name: string; jdm_content: unknown }[];
+            rules?: {
+              id: string;
+              ruleName?: string;
+              entityName?: string;
+              jdmContent?: unknown;
+              rule_name?: string;
+              entity_name?: string;
+              jdm_content?: unknown;
+            }[];
           };
           setTables(
-            data.rules.map((r) => ({
+            (data.rules ?? []).map((r) => ({
               id: r.id,
-              name: r.rule_name,
-              entity: r.entity_name,
-              table: asDecisionTable(r.jdm_content),
+              name: r.ruleName ?? r.rule_name ?? "Untitled rule",
+              entity: r.entityName ?? r.entity_name ?? "",
+              table: asDecisionTable(r.jdmContent ?? r.jdm_content),
             }))
-          );
-        }
-
-        if (entityRes?.ok) {
-          const data = (await entityRes.json()) as {
-            entities?: { name: string; attributes?: { name: string }[] }[];
-          };
-          const list = data.entities ?? [];
-          setEntities(list.map((e) => e.name));
-          setEntityFields(
-            Object.fromEntries(list.map((e) => [e.name, (e.attributes ?? []).map((a) => a.name)]))
           );
         }
       } catch (error) {
@@ -271,7 +278,10 @@ function AutomationsPage() {
       <div className="flex min-h-0 flex-1">
         <nav
           aria-label="Automations and rule tables"
-          className="flex w-[248px] shrink-0 flex-col border-r border-border bg-card"
+          // Scrolls on its own: with a few hundred automations an unscrolled rail
+          // grows the document instead, and selecting one further down takes the
+          // work area off screen with it.
+          className="flex w-[248px] shrink-0 flex-col overflow-y-auto border-r border-border bg-card"
         >
           <h2 className="px-4 pb-1.5 pt-4 text-[11px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">
             Automations
@@ -341,7 +351,8 @@ function AutomationsPage() {
             entities={entities}
             entityFields={entityFields}
             ruleTables={ruleTableSummaries}
-            onOpenHelp={() => setView({ kind: "help" })}
+            // No onOpenHelp: this page already puts Help in its header, and two
+            // identical controls on one screen is one more decision than needed.
             onOpenRuleTable={(name) => {
               const table = tables.find((t) => t.name === name);
               if (table) setView({ kind: "table", id: table.id });

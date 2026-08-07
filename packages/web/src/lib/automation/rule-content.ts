@@ -32,6 +32,50 @@ export function asDecisionTable(content: unknown): DecisionTable {
   return emptyDecisionTable();
 }
 
+/** The older decision-graph shape, still accepted on write for existing tooling. */
+export function isJdmGraph(content: unknown): boolean {
+  if (!content || typeof content !== "object") return false;
+  const c = content as { name?: unknown; nodes?: unknown };
+  return typeof c.name === "string" && Array.isArray(c.nodes) && c.nodes.length > 0;
+}
+
+/**
+ * What is wrong with a rule someone is trying to save, in the words they would
+ * use to fix it. Empty means it is fine.
+ *
+ * Both shapes are accepted: a decision table, which is what the rule table
+ * editor writes, and a JDM graph, which is what older rules and any external
+ * tooling still write. Validating only the graph shape is what made the table
+ * editor unable to save at all.
+ */
+export function validateStoredRuleContent(content: unknown): string[] {
+  if (!content || typeof content !== "object") {
+    return ["The rule has no content. Add at least one row."];
+  }
+
+  if (isDecisionTable(content)) {
+    const table = content as DecisionTable;
+    const problems: string[] = [];
+    if (table.inputs.length === 0) problems.push("Add at least one input column to test against.");
+    if (table.outputs.length === 0) {
+      problems.push("Add at least one outcome column — a table that decides nothing does nothing.");
+    }
+    if (table.rules.length === 0) problems.push("Add at least one row.");
+    for (const column of [...table.inputs, ...table.outputs]) {
+      if (!String(column.field ?? "").trim()) {
+        problems.push(`Column "${column.name || column.id}" does not say which field it reads.`);
+      }
+    }
+    return problems;
+  }
+
+  if (isJdmGraph(content)) return [];
+
+  return [
+    "The rule content is neither a decision table nor a decision graph. Build it in the rule table editor.",
+  ];
+}
+
 /**
  * Whether opening this rule will lose what was stored.
  *

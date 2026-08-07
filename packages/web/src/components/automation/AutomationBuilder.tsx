@@ -481,9 +481,12 @@ function EmptyInspector() {
 
 function TriggerTitle({ trigger }: { trigger: Trigger }) {
   if (!trigger.entity) return <span className="text-muted-foreground">Pick a record type…</span>;
+  // "An Compound" read as a typo on every card that was not a vowel-initial
+  // entity; the article has to follow the name the author actually picked.
+  const article = /^[aeiou]/i.test(trigger.entity) ? "An" : "A";
   return (
     <>
-      An <Token>{trigger.entity}</Token> {TRIGGER_LABELS[trigger.event]}
+      {article} <Token>{trigger.entity}</Token> {TRIGGER_LABELS[trigger.event]}
     </>
   );
 }

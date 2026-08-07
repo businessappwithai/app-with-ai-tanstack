@@ -53,16 +53,20 @@ export const Route = createFileRoute("/api/rules/")({
             );
           }
 
-          const errors: string[] = [];
-          if (!jdmContent.name) errors.push("Rule name is required in jdmContent");
-          if (!jdmContent.nodes || jdmContent.nodes.length === 0)
-            errors.push("At least one node is required in jdmContent");
+          // Accepts both shapes: the decision table the rule table editor writes,
+          // and the older decision graph. Validating only the graph shape is what
+          // stopped the table editor being able to save at all.
+          const { validateStoredRuleContent } = await import("@/lib/automation/rule-content");
+          const errors = validateStoredRuleContent(jdmContent);
 
           if (errors.length > 0) {
-            return new Response(JSON.stringify({ error: "Invalid JDM content", errors }), {
-              status: 400,
-              headers: { "Content-Type": "application/json" },
-            });
+            return new Response(
+              JSON.stringify({ error: "This rule cannot be saved yet", errors }),
+              {
+                status: 400,
+                headers: { "Content-Type": "application/json" },
+              }
+            );
           }
 
           const id = `rule_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
