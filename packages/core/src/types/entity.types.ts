@@ -10,6 +10,19 @@ export interface EntityAttribute {
   isForeignKey?: boolean;
 }
 
+/**
+ * An index the model asked for explicitly, via `%%index Entity(a, b) [unique]`.
+ *
+ * Separate from the single-column indexes derived from `UK` and from a column
+ * called `name`: those are conventions the generator applies, this is a request
+ * the author wrote down, and it is the only way to express a composite one.
+ */
+export interface EntityIndex {
+  /** Columns in the order given, which is the order the index is useful in. */
+  columns: string[];
+  unique: boolean;
+}
+
 export interface Entity {
   name: string;
   tableName: string;
@@ -17,6 +30,8 @@ export interface Entity {
   attributes: EntityAttribute[];
   primaryKey: string;
   timestamps: boolean;
+  /** Explicit `%%index` declarations bound to this entity. */
+  indexes?: EntityIndex[];
 }
 
 export interface Relationship {

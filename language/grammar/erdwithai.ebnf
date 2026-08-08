@@ -21,7 +21,7 @@ blank           = { WS } ;
    -------------------------------------------------------------------------- *)
 comment         = "%%" , { CHAR - reservedStart } , { CHAR } ;
 directive       = metaDir | hookDir | stepDir | entityDir | fieldDir | enumDir
-                | indexDir | ruleDir | guardDir | triggerDir | workflowDir ;
+                | indexDir | ruleDir | guardDir | rbacDir | triggerDir | workflowDir ;
 
 metaDir         = "%%meta" , WS , key , ":" , WS , value ;
 (* Two forms. With a handler name it binds a named handler to a lifecycle
@@ -42,14 +42,12 @@ indexDir        = "%%index" , WS , ident , "(" , ident , { "," , WS , ident } ,
                   ")" , [ WS , "unique" ] ;
 ruleDir         = "%%rule" , WS , ident , WS , "on" , WS , ident , WS ,
                   "event:" , WS , hookType , [ WS , "priority:" , WS , NUMBER ] ;
-(* Two unrelated meanings on one keyword — a collision, not an overload. The
-   RBAC form is told apart by its "role:" prefix and trailing "on <E>.<op>";
-   the condition form is what the automation builder writes and what every
-   stored automation uses. See automations.conditions.conflict. *)
-guardDir        = rbacGuardDir | conditionDir ;
-rbacGuardDir    = "%%guard" , WS , roleExpr , WS , "on" , WS , ident , "." ,
+(* %%guard is an automation condition, and nothing else. It once also spelled
+   an RBAC restriction; that sense is %%rbac now. A reader meeting the old
+   shape under %%guard skips it rather than reading "role:admin" as a field. *)
+guardDir        = "%%guard" , WS , fieldPath , WS , operator , [ WS , jsonValue ] ;
+rbacDir         = "%%rbac" , WS , roleExpr , WS , "on" , WS , ident , "." ,
                   ident ;
-conditionDir    = "%%guard" , WS , fieldPath , WS , operator , [ WS , jsonValue ] ;
 fieldPath       = ident , { "." , ident } ;
 operator        = "eq" | "neq" | "gt" | "gte" | "lt" | "lte"
                 | "contains" | "startsWith" | "isEmpty" | "isNotEmpty"
@@ -182,7 +180,7 @@ DIGIT           = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
 WS              = ? one or more spaces or tabs ? ;
 NEWLINE         = ? line feed, optionally preceded by carriage return ? ;
 CHAR            = ? any Unicode character ? ;
-reservedStart   = ? one of: meta hook step entity field enum index category
-                    rule guard trigger workflow — i.e. a reserved directive
-                    keyword ? ;
+reservedStart   = ? one of: meta hook step action entity field enum index
+                    category rule guard rbac trigger workflow — i.e. a reserved
+                    directive keyword ? ;
 shapeClose      = ? the closing delimiter of the current shape ? ;

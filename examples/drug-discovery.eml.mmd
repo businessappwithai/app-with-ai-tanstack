@@ -24,11 +24,12 @@
 %%     definitions with source: 'model'
 %%   - the 3 unique indexes
 %%
-%% One gap remains, on the application side rather than in this file: the 3
-%% non-unique %%index declarations below (Experiment(project_code),
-%% InstrumentBooking(instrument_id, start_time),
-%% WorkflowEvent(experiment_id, event_timestamp)) produce no index in the
-%% generated database. Only the unique ones are emitted.
+%% No gaps remain. The %%index declarations below were unread by the generator
+%% until recently — all six of them, not only the composite ones: the three
+%% `unique` declarations name columns that also carry `UK`, and the `UK`
+%% convention emits an index of its own, so the expected index existed and the
+%% directive looked like it was working. All six now reach the database, the
+%% composites included.
 %%
 %% ---- On the two dialects ----------------------------------------------------
 %% The workflows here are written in the saga dialect

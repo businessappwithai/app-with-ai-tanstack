@@ -6,7 +6,7 @@ shipped compilers; the rest are the documented, reserved extension surface — t
 are renderer-safe today and adopted by the generator incrementally.
 
 All directive keywords are reserved: `%%meta`, `%%hook`, `%%step`, `%%entity`,
-`%%field`, `%%enum`, `%%category`, `%%index`, `%%rule`, `%%guard`, `%%trigger`,
+`%%field`, `%%enum`, `%%category`, `%%index`, `%%rule`, `%%guard`, `%%rbac`, `%%trigger`,
 `%%workflow`.
 
 ---
@@ -186,19 +186,42 @@ multiple rules.
 %%rule pricing on Order event: beforeCreate priority: 10
 ```
 
-## `%%guard` — RBAC guard
+## `%%guard` — automation condition
 
 ```
-%%guard <roleExpr> on <Entity>.<op>
+%%guard <field> <operator> <jsonValue>
+```
+
+A check that must pass for an automation's steps to run. All of an automation's
+guards must pass; there is no OR. See
+[03-workflows.md](03-workflows.md#conditions) for the operators.
+
+```
+%%guard status eq "open"
+%%guard order.total gt 1000
+```
+
+## `%%rbac` — RBAC guard
+
+```
+%%rbac <roleExpr> on <Entity>.<op>
 ```
 
 `roleExpr` uses `role:<name>` with `|` for OR. Integrates with core
 `rbac.types`.
 
 ```
-%%guard role:admin on Order.delete
-%%guard role:sales|manager on Deal.update
+%%rbac role:admin on Order.delete
+%%rbac role:sales|manager on Deal.update
 ```
+
+> Spelled `%%guard` before that keyword was needed unambiguously for automation
+> conditions. This sense had no shipped parser and no stored data, so it is the
+> side that moved — renaming the condition form would have meant rewriting every
+> stored automation. A model still carrying `%%guard role:… on <Entity>.<op>` is
+> skipped by the automation reader rather than parsed as a check on a field
+> called `role:admin`, which could never pass and would silently disable the
+> automation.
 
 ## `%%trigger` — event / schedule source
 

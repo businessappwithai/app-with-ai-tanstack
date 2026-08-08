@@ -17,7 +17,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { OPERATORS, STEP_FIELDS, TRIGGER_EVENTS, TRIGGER_HOOKS } from "../model";
+import { OPERATORS, parseAutomation, STEP_FIELDS, TRIGGER_EVENTS, TRIGGER_HOOKS } from "../model";
 
 const definition = JSON.parse(
   readFileSync(
@@ -83,18 +83,46 @@ describe("language definition ↔ automation model", () => {
     }
   });
 
-  it("records that %%guard carries two unrelated meanings", () => {
-    // The builder writes conditions as %%guard, but %%guard was already
-    // reserved for RBAC. Whatever the eventual resolution, the definition must
-    // not quietly present one meaning as the only one.
+  it("gives %%guard one meaning, and RBAC its own keyword", () => {
+    // %%guard used to mean both an automation condition and an RBAC
+    // restriction. The RBAC sense moved to %%rbac; %%guard must not drift back
+    // into carrying both, because the two forms are only distinguishable by
+    // shape and a misread turns a live automation into one that never runs.
     const guard = definition.directives.reserved.find((d) => d.keyword === "%%guard");
-    expect(guard).toBeDefined();
-    expect(guard?.form).toContain("<operator>");
-    expect(guard?.form).toContain("role");
+    expect(guard?.form).toBe("%%guard <field> <operator> <jsonValue>");
+    expect(guard?.form).not.toContain("role");
+
+    const rbac = definition.directives.reserved.find((d) => d.keyword === "%%rbac");
+    expect(rbac?.form).toContain("<roleExpr>");
   });
 
   it("documents the two-token %%hook form the automation trigger uses", () => {
     const hook = definition.directives.reserved.find((d) => d.keyword === "%%hook");
     expect(hook?.form).toContain("%%hook <type> on <Entity>");
+  });
+});
+
+describe("reading a model written before %%rbac existed", () => {
+  const legacy = [
+    "flowchart TD",
+    "%%hook afterCreate on Order",
+    "%%guard role:admin on Order.delete",
+    '%%guard status eq "open"',
+  ].join("\n");
+
+  it("skips the old RBAC shape instead of reading it as a check", () => {
+    // Parsed naively this becomes `role:admin on "Order.delete"` — a condition
+    // on a field that does not exist, with an operator that is not one. It can
+    // never pass, so the automation would look fine and never run.
+    const automation = parseAutomation(legacy, "Order");
+    expect(automation.conditions).toHaveLength(1);
+    expect(automation.conditions[0]).toMatchObject({ field: "status", operator: "eq" });
+  });
+
+  it("still reads the rest of the automation", () => {
+    expect(parseAutomation(legacy, "Order").trigger).toEqual({
+      entity: "Order",
+      event: "created",
+    });
   });
 });
