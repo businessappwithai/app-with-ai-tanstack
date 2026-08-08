@@ -20,8 +20,9 @@ blank           = { WS } ;
    Comments and directives
    -------------------------------------------------------------------------- *)
 comment         = "%%" , { CHAR - reservedStart } , { CHAR } ;
-directive       = metaDir | hookDir | stepDir | entityDir | fieldDir | enumDir
-                | indexDir | ruleDir | guardDir | rbacDir | triggerDir | workflowDir ;
+directive       = metaDir | hookDir | stepDir | loopDir | entityDir | fieldDir
+                | enumDir | indexDir | ruleDir | guardDir | rbacDir | triggerDir
+                | workflowDir ;
 
 metaDir         = "%%meta" , WS , key , ":" , WS , value ;
 (* Two forms. With a handler name it binds a named handler to a lifecycle
@@ -84,7 +85,16 @@ autoStepProp    = "%%step" , WS , ident , WS , autoStepKey , ":" , WS ,
                   stepValue ;
 autoStepKey     = "ruleTable" | "inputs" | "entity" | "values" | "field"
                 | "value" | "target" | "operation" | "left" | "right"
-                | "method" | "url" | "body" | "table" ;
+                | "method" | "url" | "body" | "table" | "in" ;
+
+(* Repeat while a rule holds. The member steps run in order and repeat for as
+   long as the check passes, ending the first time it fails. The check is
+   re-evaluated before every pass against the record as it stands then, so a
+   step inside the loop is what ends it. Bounded only by a safety limit, after
+   which the run is reported as failed. Loops do not nest: a step names at most
+   one `in:`, and a loop id may not itself appear as a member. *)
+loopDir         = "%%loop" , WS , ident , WS , "while:" , WS , fieldPath ,
+                  WS , operator , [ WS , jsonValue ] ;
 
 stepType        = "UpdateEntity" | "CreateEntity" | "DeleteEntity"
                 | "Decision" | "Formula" | "REST" | "Agent" ;
@@ -181,6 +191,6 @@ WS              = ? one or more spaces or tabs ? ;
 NEWLINE         = ? line feed, optionally preceded by carriage return ? ;
 CHAR            = ? any Unicode character ? ;
 reservedStart   = ? one of: meta hook step action entity field enum index
-                    category rule guard rbac trigger workflow — i.e. a reserved
+                    category rule guard rbac loop trigger workflow — i.e. a reserved
                     directive keyword ? ;
 shapeClose      = ? the closing delimiter of the current shape ? ;

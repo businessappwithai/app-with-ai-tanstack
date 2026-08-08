@@ -429,6 +429,77 @@ Operators: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `contains`, `startsWith`,
 | `Formula` | `operation`, `left`, `right` | Computes a value and publishes it |
 | `REST` | `method`, `url`, `body` | Calls an external service |
 
+### Loops — repeating steps while a rule holds
+
+```
+%%loop <loopId> while: <field> <operator> <value>
+%%step <nodeId> in: <loopId>
+```
+
+The steps that name a loop run in order and repeat for as long as the check
+passes. The loop ends the first time it fails. Members are drawn as a Mermaid
+`subgraph`, so the repetition is visible in any renderer rather than living only
+in the directives:
+
+```mermaid
+flowchart TD
+%%meta kind: workflow
+%%workflow name: Drain the retry backlog
+%%hook afterUpdate on Sample
+  start([Sample is updated])
+%%loop L1 while: retry_count lt 5
+  subgraph L1[Repeat while retry_count is less than 5]
+    s1[Call a web service]
+    s2[Update a field]
+  end
+%%step s1 type: REST
+%%step s1 method: POST
+%%step s1 url: https://lims.example.com/sync
+%%step s1 in: L1
+%%step s2 type: UpdateEntity
+%%step s2 field: retry_count
+%%step s2 value: {{L1.iteration}}
+%%step s2 in: L1
+  done([Done])
+  start --> L1
+  L1 --> done
+```
+
+**The check is re-read before every pass**, against the record as it stands
+then. That is the point: a step inside the loop changes the record, and that
+change is what ends the loop. It uses the same eleven operators as an
+automation's conditions — one vocabulary for every check in the language.
+
+#### The safety limit
+
+A while-loop is genuinely unbounded, and an automation runs **inside the write
+that triggered it**. A check that never fails does not spin a harmless
+background job — it holds a database transaction open until something times out.
+
+After **1000 passes** the loop is abandoned, and the run is marked `FAILED` with
+the loop named. This is a backstop, not a second way to spell a count: reaching
+it means the automation is wrong, so it is reported rather than finishing
+quietly as though the loop had ended on its own.
+
+#### The check must be able to change
+
+A loop whose check reads a field that no member step writes is **refused when
+the model compiles**. It would read the same on every pass, so it either never
+runs or runs until the safety limit cuts it off — and both are invisible until
+it is live.
+
+The check is deliberately shallow: it matches `UpdateEntity` writes by field
+name and treats every other step type as able to change anything. A `REST` call
+or a `Decision` can change the world in ways static analysis cannot see, so it
+reports only the case it is certain about.
+
+**Loops do not nest.** A step names at most one `in:`. Flattening nested repeats
+is what keeps the ladder readable and the cost predictable.
+
+Inside a loop, a step sees everything it would outside, plus
+`{{<loopId>.iteration}}` — the 1-based pass number. A value published inside the
+loop is overwritten each pass, so afterwards it holds what the last pass left.
+
 ### References
 
 A step can read fields of the triggering record and the published results of

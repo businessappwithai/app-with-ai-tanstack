@@ -783,11 +783,28 @@
         "{{<resultName>}} — the result of an earlier step, named by its `as:`"
       ]
     },
+    "loops": {
+      "description": "Repeat while a rule holds. `%%loop <loopId> while: <field> <operator> <value>` declares one, and a step joins it with `%%step <nodeId> in: <loopId>`. The member steps run in order and repeat for as long as the check passes; the loop ends the first time it fails. The check is re-evaluated before every pass against the record as it stands then — a step inside the loop changes the record, and that change is what ends the loop.",
+      "directives": [
+        "%%loop <loopId> while: <field> <operator> <value>",
+        "%%step <nodeId> in: <loopId>"
+      ],
+      "operators": "The same eleven as automations.conditions — one vocabulary for every check in the language.",
+      "safety": {
+        "limit": 1000,
+        "note": "A while-loop is genuinely unbounded, and an automation runs inside the write that triggered it, so a check that never fails holds a database transaction open until something times out. After this many passes the loop is abandoned and the run is marked FAILED with the loop named. This is a backstop, not a second way to spell the count: reaching it means the automation is wrong, so it is reported rather than finishing quietly as though the loop had ended on its own."
+      },
+      "staticCheck": "A loop whose check reads a field that no member step writes is refused when the model is compiled: it would read the same every pass, so it either never runs or runs until the safety limit cuts it off. The check is deliberately shallow — only UpdateEntity writes are matched by field name, and every other step type is treated as able to change anything, so it reports only the case it is certain about.",
+      "nesting": "Not supported. A loop may not contain another loop; a step names at most one `in:`. Flattening nested repeats is what makes the ladder readable and the cost predictable.",
+      "references": "Steps inside a loop see the same values as steps outside it, plus `{{<loopId>.iteration}}` — the 1-based pass number. A value published by a step inside the loop is overwritten on each pass, so after the loop it holds what the last pass produced.",
+      "drawnAs": "A Mermaid `subgraph <loopId>[Repeat while <check>]` wrapping the member nodes, so the repetition is visible in any renderer rather than living only in the directives."
+    },
     "nodes": {
       "description": "The drawn flowchart carries no semantics — it exists so the document renders as a diagram. Every node is regenerated from the directives on write, and readers take meaning only from the %% lines.",
       "start": "start([<Entity> <trigger label>])",
       "guard": "guard{<conditions joined by ' and '}}",
       "step": "s<n>[<step summary>]",
+      "loop": "subgraph <loopId>[Repeat <n> times] … end",
       "done": "done([Done])"
     }
   },
@@ -886,6 +903,12 @@
         "form": "%%guard <field> <operator> <jsonValue>",
         "purpose": "Automation condition — a check that must pass for an automation's steps to run (SHIPPED, parsed by automation/model.ts, and the form all stored automations use). This keyword once also meant an RBAC role restriction; that sense is now %%rbac. A reader encountering the old RBAC shape here skips it rather than reading it as a condition on a field called \"role:admin\".",
         "examples": ["%%guard status eq \"open\"", "%%guard order.total gt 1000"]
+      },
+      {
+        "keyword": "%%loop",
+        "form": "%%loop <loopId> while: <field> <operator> <value>",
+        "purpose": "Declare a repeat-while-a-rule-holds loop inside an automation (SHIPPED, parsed by automation/model.ts and the generator's saga compiler). Steps join it with `%%step <nodeId> in: <loopId>` and repeat in order for as long as the check passes, ending the first time it fails. The check is re-read before every pass, so a step inside the loop is what ends it. Bounded only by a safety limit; loops do not nest. See automations.loops.",
+        "examples": ["%%loop L1 while: status eq \"pending\"", "%%step s2 in: L1"]
       },
       {
         "keyword": "%%rbac",

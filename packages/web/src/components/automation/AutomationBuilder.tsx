@@ -17,7 +17,10 @@ import {
   type Condition,
   describeCondition,
   describeStep,
+  type Loop,
+  loopsOf,
   newCondition,
+  newLoop,
   newStep,
   type Problem,
   STEP_GLYPHS,
@@ -33,8 +36,13 @@ import {
   valuesAvailableAt,
 } from "@/lib/automation/model";
 import { cn } from "@/lib/utils";
-import { LadderCard, LadderRung, Token } from "./LadderCard";
-import { ConditionInspector, StepInspector, type StepRunResult } from "./StepInspector";
+import { LadderCard, LadderRung, LoopFrame, Token } from "./LadderCard";
+import {
+  ConditionInspector,
+  LoopInspector,
+  StepInspector,
+  type StepRunResult,
+} from "./StepInspector";
 
 /* -------------------------------------------------------------------------- */
 /*  Trigger inspector                                                          */
@@ -122,10 +130,12 @@ function TriggerInspector({
 
 function AddMenu({
   onAddCondition,
+  onAddLoop,
   onAddStep,
   onCancel,
 }: {
   onAddCondition: () => void;
+  onAddLoop: () => void;
   onAddStep: (type: StepType) => void;
   onCancel: () => void;
 }) {
@@ -168,6 +178,26 @@ function AddMenu({
         </span>
       </button>
 
+      <button
+        type="button"
+        role="menuitem"
+        onClick={onAddLoop}
+        className="mb-2 flex w-full items-start gap-2.5 rounded-lg border border-border p-2.5 text-left hover:border-teal-300 hover:bg-teal-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      >
+        <span
+          aria-hidden="true"
+          className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-md border border-teal-200 bg-teal-50 text-xs text-teal-700"
+        >
+          ↻
+        </span>
+        <span>
+          <strong className="block text-[12.5px]">A repeat</strong>
+          <span className="text-[11.5px] leading-snug text-muted-foreground">
+            Do the same steps over and over while something stays true.
+          </span>
+        </span>
+      </button>
+
       <div className="grid grid-cols-2 gap-2">
         {STEP_TYPES.map((type) => (
           <button
@@ -203,6 +233,7 @@ function AddMenu({
 type Selection =
   | { kind: "trigger" }
   | { kind: "condition"; id: string }
+  | { kind: "loop"; id: string }
   | { kind: "step"; id: string }
   | null;
 
@@ -286,11 +317,73 @@ export function AutomationBuilder({
   const addStep = (type: StepType, at: number) => {
     const step = newStep(type);
     const steps = [...automation.steps];
+    // A step lands inside a repeat only when it is dropped strictly between two
+    // of its members. Inserting at the boundary goes outside, which is the
+    // reading that matches where the click was; the frame carries its own
+    // "add inside" button for the other case.
+    const before = steps[at - 1];
+    const after = steps[at];
+    if (before?.loopId && before.loopId === after?.loopId) step.loopId = before.loopId;
     steps.splice(at, 0, step);
     onChange({ ...automation, steps });
     setSelection({ kind: "step", id: step.id });
     setAddingAt(null);
   };
+
+  /**
+   * A repeat arrives with one step already in it.
+   *
+   * An empty repeat is invalid the moment it exists, so offering one would mean
+   * every author sees an error before they have done anything wrong. Starting
+   * with an UpdateEntity is also the nudge the loop needs: the check can only
+   * stop the loop if something inside it writes that field.
+   */
+  const addLoop = (at: number) => {
+    const loop = newLoop(loopsOf(automation));
+    const step = newStep("UpdateEntity");
+    step.loopId = loop.id;
+    const steps = [...automation.steps];
+    steps.splice(at, 0, step);
+    onChange({ ...automation, loops: [...loopsOf(automation), loop], steps });
+    setSelection({ kind: "loop", id: loop.id });
+    setAddingAt(null);
+  };
+
+  const updateLoop = (next: Loop) =>
+    onChange({
+      ...automation,
+      loops: loopsOf(automation).map((l) => (l.id === next.id ? next : l)),
+    });
+
+  /** Removing a repeat keeps its steps — they stop repeating, they do not vanish. */
+  const removeLoop = (id: string) => {
+    onChange({
+      ...automation,
+      loops: loopsOf(automation).filter((l) => l.id !== id),
+      steps: automation.steps.map((s) => (s.loopId === id ? { ...s, loopId: undefined } : s)),
+    });
+    setSelection((s) => (s?.kind === "loop" && s.id === id ? null : s));
+  };
+
+  /**
+   * The flat step list grouped into consecutive runs, so each repeat can be
+   * drawn as one frame around its members while the list itself stays flat.
+   */
+  const runs = useMemo(() => {
+    const out: Array<{ loop?: Loop; steps: Array<{ step: AutomationStep; index: number }> }> = [];
+    automation.steps.forEach((step, index) => {
+      const last = out[out.length - 1];
+      if (last && last.loop?.id === step.loopId) {
+        last.steps.push({ step, index });
+        return;
+      }
+      out.push({
+        loop: step.loopId ? loopsOf(automation).find((l) => l.id === step.loopId) : undefined,
+        steps: [{ step, index }],
+      });
+    });
+    return out;
+  }, [automation]);
 
   const selectedStepIndex =
     selection?.kind === "step" ? automation.steps.findIndex((s) => s.id === selection.id) : -1;
@@ -336,28 +429,63 @@ export function AutomationBuilder({
             />
           ))}
 
-          {automation.steps.map((step, i) => (
-            <StepRow
-              key={step.id}
-              step={step}
-              index={i}
-              selected={selection?.kind === "step" && selection.id === step.id}
-              problem={problemFor(step.id)}
-              adding={addingAt === i}
-              onSelect={() => setSelection({ kind: "step", id: step.id })}
-              onRemove={() => removeStep(step.id)}
-              onOpenAdd={() => setAddingAt(i)}
-              onCancelAdd={() => setAddingAt(null)}
-              onAddCondition={addCondition}
-              onAddStep={(type) => addStep(type, i)}
-            />
-          ))}
+          {runs.map((run) => {
+            const rows = run.steps.map(({ step, index }) => (
+              <StepRow
+                key={step.id}
+                step={step}
+                index={index}
+                selected={selection?.kind === "step" && selection.id === step.id}
+                problem={problemFor(step.id)}
+                adding={addingAt === index}
+                onSelect={() => setSelection({ kind: "step", id: step.id })}
+                onRemove={() => removeStep(step.id)}
+                onOpenAdd={() => setAddingAt(index)}
+                onCancelAdd={() => setAddingAt(null)}
+                onAddCondition={addCondition}
+                onAddLoop={() => addLoop(index)}
+                onAddStep={(type) => addStep(type, index)}
+              />
+            ));
+
+            if (!run.loop) return rows;
+
+            const last = run.steps[run.steps.length - 1];
+            return (
+              <div key={run.loop.id} className="w-full">
+                <LadderRung onAdd={() => setAddingAt(run.steps[0]?.index ?? 0)} />
+                <LadderCard
+                  kind="loop"
+                  glyph="↻"
+                  title={<LoopTitle loop={run.loop} />}
+                  selected={selection?.kind === "loop" && selection.id === run.loop.id}
+                  problem={problemFor(run.loop.id)}
+                  onSelect={() => setSelection({ kind: "loop", id: run.loop?.id as string })}
+                  onRemove={() => removeLoop(run.loop?.id as string)}
+                />
+                <LoopFrame stepCount={run.steps.length} problem={Boolean(problemFor(run.loop.id))}>
+                  {rows}
+                  <div className="mt-1 flex flex-col items-center">
+                    <LadderRung onAdd={() => setAddingAt(last ? last.index + 1 : 0)} />
+                    <button
+                      type="button"
+                      onClick={() => setAddingAt(last ? last.index + 1 : 0)}
+                      className="w-full rounded-lg border border-dashed border-teal-300 bg-card py-2 text-xs font-semibold text-teal-700 hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      ＋ Add a step inside this repeat
+                    </button>
+                  </div>
+                </LoopFrame>
+              </div>
+            );
+          })}
 
           {addingAt === automation.steps.length ? (
             <>
               <LadderRung onAdd={() => setAddingAt(null)} active />
               <AddMenu
                 onAddCondition={addCondition}
+                onAddLoop={() => addLoop(automation.steps.length)}
                 onAddStep={(type) => addStep(type, automation.steps.length)}
                 onCancel={() => setAddingAt(null)}
               />
@@ -445,6 +573,28 @@ export function AutomationBuilder({
               })()
             : null}
 
+          {selection?.kind === "loop"
+            ? (() => {
+                const loop = loopsOf(automation).find((l) => l.id === selection.id);
+                if (!loop) return <EmptyInspector />;
+                // The check reads values as they stand at the top of a pass, so
+                // it is offered the same list a step in the loop would see.
+                const firstMember = automation.steps.findIndex((s) => s.loopId === loop.id);
+                return (
+                  <LoopInspector
+                    loop={loop}
+                    stepCount={automation.steps.filter((s) => s.loopId === loop.id).length}
+                    available={valuesAvailableAt(
+                      automation,
+                      firstMember < 0 ? 0 : firstMember,
+                      entityFields
+                    )}
+                    onChange={updateLoop}
+                  />
+                );
+              })()
+            : null}
+
           {selection?.kind === "step" && selectedStepIndex >= 0 ? (
             <StepInspector
               step={automation.steps[selectedStepIndex] as AutomationStep}
@@ -522,6 +672,24 @@ function ConditionRow({
   );
 }
 
+/**
+ * The clause on a repeat's card.
+ *
+ * Worded as the stopping rule rather than the continuing one — "until … stops
+ * being true" is how people describe a loop they are debugging, and it puts the
+ * end condition, which is the part that goes wrong, in the reader's mind.
+ */
+function LoopTitle({ loop }: { loop: Loop }) {
+  if (!loop.condition.field) {
+    return <span className="text-muted-foreground">Say what to check, or this never stops.</span>;
+  }
+  return (
+    <>
+      until <Token value>{describeCondition(loop.condition)}</Token> stops being true
+    </>
+  );
+}
+
 function StepRow({
   step,
   index,
@@ -533,6 +701,7 @@ function StepRow({
   onOpenAdd,
   onCancelAdd,
   onAddCondition,
+  onAddLoop,
   onAddStep,
 }: {
   step: AutomationStep;
@@ -545,6 +714,7 @@ function StepRow({
   onOpenAdd: () => void;
   onCancelAdd: () => void;
   onAddCondition: () => void;
+  onAddLoop: () => void;
   onAddStep: (type: StepType) => void;
 }) {
   return (
@@ -552,7 +722,12 @@ function StepRow({
       <LadderRung onAdd={adding ? onCancelAdd : onOpenAdd} active={adding} />
       {adding ? (
         <div className={cn("mb-2 w-full")}>
-          <AddMenu onAddCondition={onAddCondition} onAddStep={onAddStep} onCancel={onCancelAdd} />
+          <AddMenu
+            onAddCondition={onAddCondition}
+            onAddLoop={onAddLoop}
+            onAddStep={onAddStep}
+            onCancel={onCancelAdd}
+          />
         </div>
       ) : null}
       <LadderCard

@@ -6,7 +6,7 @@ shipped compilers; the rest are the documented, reserved extension surface — t
 are renderer-safe today and adopted by the generator incrementally.
 
 All directive keywords are reserved: `%%meta`, `%%hook`, `%%step`, `%%entity`,
-`%%field`, `%%enum`, `%%category`, `%%index`, `%%rule`, `%%guard`, `%%rbac`, `%%trigger`,
+`%%field`, `%%enum`, `%%category`, `%%index`, `%%rule`, `%%guard`, `%%rbac`, `%%loop`, `%%trigger`,
 `%%workflow`.
 
 ---
@@ -185,6 +185,33 @@ multiple rules.
 ```
 %%rule pricing on Order event: beforeCreate priority: 10
 ```
+
+## `%%loop` — repeat while a rule holds *(shipped)*
+
+```
+%%loop <loopId> while: <field> <operator> <value>
+%%step <nodeId> in: <loopId>
+```
+
+The steps naming a loop run in order and repeat for as long as the check passes,
+ending the first time it fails. The check is re-read before every pass against
+the current record, so a step inside the loop is what ends it. Operators are the
+same eleven as automation conditions. Loops do not nest.
+
+```
+%%loop L1 while: retry_count lt 5
+%%step s1 in: L1
+%%step s2 in: L1
+```
+
+Bounded only by a safety limit of **1000 passes**, after which the run is marked
+`FAILED` — an automation that hits it is wrong, so it is reported rather than
+passing quietly. A loop whose check reads a field no member writes is refused at
+compile time.
+
+Members are drawn as a Mermaid `subgraph L1[Repeat while …]`, and a step inside
+can read `{{L1.iteration}}` — the 1-based pass number. Full semantics in
+[`03-workflows.md`](03-workflows.md#loops--repeating-steps-while-a-rule-holds).
 
 ## `%%guard` — automation condition
 

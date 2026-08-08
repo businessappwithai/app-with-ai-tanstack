@@ -13,6 +13,8 @@ import {
   type AutomationStep,
   type AvailableValue,
   type Condition,
+  LOOP_SAFETY_LIMIT,
+  type Loop,
   OPERATORS,
   operatorArity,
   STEP_FIELDS,
@@ -578,6 +580,122 @@ export function ConditionInspector({
             />
           </Field>
         ) : null}
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Loop inspector                                                             */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The panel for a repeat.
+ *
+ * It edits one thing — the check that ends the loop — so most of the panel is
+ * spent explaining the consequences instead. A repeat is the only construct in
+ * the builder that can hang a request, and the place to say so is where someone
+ * is deciding what to check, not in help they would have to go looking for.
+ */
+export function LoopInspector({
+  loop,
+  stepCount,
+  available,
+  onChange,
+}: {
+  loop: Loop;
+  stepCount: number;
+  available: AvailableValue[];
+  onChange: (next: Loop) => void;
+}) {
+  const needsValue = operatorArity(loop.condition.operator) === 1;
+  const set = (patch: Partial<Condition>) =>
+    onChange({ ...loop, condition: { ...loop.condition, ...patch } });
+
+  return (
+    <div className="flex h-full flex-col">
+      <header className="flex items-center gap-3 px-4 py-3.5">
+        <span
+          aria-hidden="true"
+          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-teal-200 bg-teal-50 text-sm text-teal-700"
+        >
+          ↻
+        </span>
+        <div>
+          <span className="block text-[10px] font-bold uppercase tracking-[0.1em] text-teal-700">
+            Keep repeating
+          </span>
+          <h3 className="text-[15px] font-bold">A repeat</h3>
+        </div>
+      </header>
+
+      <div className="flex-1 overflow-y-auto px-4">
+        <p className="mb-4 text-xs leading-snug text-muted-foreground">
+          The {stepCount === 1 ? "step" : `${stepCount} steps`} inside run over and over while this
+          check passes. It is re-checked before every pass, so something inside the repeat has to
+          change what it looks at — otherwise it never stops.
+        </p>
+
+        <Field label="Field to look at">
+          <select
+            className={inputClass}
+            value={loop.condition.field}
+            onChange={(e) => set({ field: e.target.value })}
+          >
+            <option value="">Choose a field…</option>
+            {available.map((v) => (
+              <option key={v.path} value={v.path}>
+                {v.path}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label="Keep going while">
+          <select
+            className={inputClass}
+            value={loop.condition.operator}
+            onChange={(e) => set({ operator: e.target.value })}
+          >
+            {OPERATORS.map((op) => (
+              <option key={op.id} value={op.id}>
+                {op.label}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        {needsValue ? (
+          <Field label="Value" hint="A fixed value, or another field to compare against.">
+            <input
+              className={inputClass}
+              value={loop.condition.value}
+              onChange={(e) => set({ value: e.target.value })}
+              placeholder="5"
+            />
+          </Field>
+        ) : null}
+
+        <div className="mb-4 rounded-lg border border-teal-200 bg-teal-50/60 p-3">
+          <p className="text-[11.5px] font-semibold text-teal-800">
+            Inside the repeat you can use {`{{${loop.id}.iteration}}`}
+          </p>
+          <p className="mt-1 text-[11.5px] leading-snug text-teal-800/80">
+            The pass number, counting from 1. Handy for writing an attempt count, or for building a
+            value that changes each time round.
+          </p>
+        </div>
+
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50/60 p-3">
+          <p className="text-[11.5px] font-semibold text-amber-900">
+            If the check never fails, the run is stopped at {LOOP_SAFETY_LIMIT} passes
+          </p>
+          <p className="mt-1 text-[11.5px] leading-snug text-amber-900/80">
+            An automation runs inside the save that triggered it, so a repeat that cannot end holds
+            the record open. Hitting the limit marks the whole run failed rather than letting it
+            look like it finished.
+          </p>
+        </div>
       </div>
     </div>
   );

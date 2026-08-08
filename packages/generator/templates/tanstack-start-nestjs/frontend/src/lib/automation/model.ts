@@ -185,6 +185,11 @@ export interface AutomationStep {
   resultName: string;
   /** Type-specific configuration. Keys are documented per type in STEP_FIELDS. */
   props: Record<string, string>;
+  /**
+   * The loop this step belongs to, if any. At most one: loops do not nest, so
+   * a step is either inside exactly one repeat or outside them all.
+   */
+  loopId?: string;
   /** Only set on Decision steps that own an inline table rather than a shared one. */
   table?: DecisionTable;
 }
@@ -200,6 +205,73 @@ export const STEP_FIELDS: Record<StepType, readonly string[]> = {
 };
 
 /* -------------------------------------------------------------------------- */
+/*  Loops                                                                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Repeat while a rule holds — the steps run again and again until the check
+ * fails.
+ *
+ * The check is re-evaluated before every pass against the record *as it stands
+ * then*, which is the point: a step inside the loop changes the record, and
+ * that change is what eventually ends the loop.
+ *
+ * This is genuinely unbounded, and an automation runs inside the write that
+ * triggered it — so a check that never fails does not spin a harmless
+ * background job, it holds a database transaction open until something times
+ * out. `LOOP_SAFETY_LIMIT` is the backstop. It is not a second way to say "how
+ * many times": reaching it means the automation was wrong, so the run is marked
+ * failed and says so, rather than finishing quietly as though the loop had
+ * ended on its own.
+ */
+export interface Loop {
+  id: string;
+  /** Re-checked before each pass. The loop ends the first time it fails. */
+  condition: Condition;
+}
+
+/** Passes after which a loop is abandoned and the run reported as failed. */
+export const LOOP_SAFETY_LIMIT = 1000;
+
+/**
+ * A tolerant read of `loops`.
+ *
+ * Automations stored before loops existed have no such field, and they are the
+ * majority of what is in any database today. Defaulting here rather than at
+ * each call site means an old record opens and serialises unchanged instead of
+ * throwing in whichever function reaches it first.
+ */
+export function loopsOf(automation: Automation): Loop[] {
+  return automation.loops ?? [];
+}
+
+/** The steps belonging to a loop, in ladder order. */
+export function stepsInLoop(automation: Automation, loopId: string): AutomationStep[] {
+  return automation.steps.filter((step) => step.loopId === loopId);
+}
+
+/** The loop a step sits in, if any. */
+export function loopOf(automation: Automation, step: AutomationStep): Loop | undefined {
+  return step.loopId ? loopsOf(automation).find((l) => l.id === step.loopId) : undefined;
+}
+
+/**
+ * A loop's members must sit together in the ladder.
+ *
+ * The list is the running order, so members split by an outside step would mean
+ * the workflow runs A, (something else), B and repeats only part of it — a
+ * shape the drawn subgraph could not honestly represent either.
+ */
+export function loopIsContiguous(automation: Automation, loopId: string): boolean {
+  const positions = automation.steps
+    .map((step, i) => (step.loopId === loopId ? i : -1))
+    .filter((i) => i >= 0);
+  if (positions.length === 0) return true;
+  const first = positions[0] as number;
+  return positions.every((position, offset) => position === first + offset);
+}
+
+/* -------------------------------------------------------------------------- */
 /*  The automation                                                             */
 /* -------------------------------------------------------------------------- */
 
@@ -211,6 +283,8 @@ export interface Automation {
   description?: string;
   trigger: Trigger;
   conditions: Condition[];
+  /** Bounded repeats. A step joins one by carrying its id in `loopId`. */
+  loops: Loop[];
   steps: AutomationStep[];
   status: AutomationStatus;
   updatedAt?: string;
@@ -228,6 +302,7 @@ export function emptyAutomation(entity: string): Automation {
     name: "Untitled automation",
     trigger: { entity, event: "created" },
     conditions: [],
+    loops: [],
     steps: [],
     status: "draft",
   };
@@ -235,6 +310,25 @@ export function emptyAutomation(entity: string): Automation {
 
 export function newCondition(): Condition {
   return { id: newId("cond"), field: "", operator: "eq", value: "" };
+}
+
+/**
+ * A new loop, named `L1`, `L2`, … rather than with the opaque id every other
+ * object gets. The id is what an author types in `{{L1.iteration}}` and what
+ * they read in the serialised model, so it has to be short and predictable.
+ */
+export function newLoop(existing: Loop[]): Loop {
+  let n = existing.length + 1;
+  while (existing.some((loop) => loop.id === `L${n}`)) n += 1;
+  return { id: `L${n}`, condition: newCondition() };
+}
+
+/** How a loop reads on its card: "Repeat while status is open". */
+export function describeLoop(loop: Loop): string {
+  const check = loop.condition.field
+    ? describeCondition(loop.condition)
+    : "a check that is not set yet";
+  return `Repeat while ${check}`;
 }
 
 export function newStep(type: StepType): AutomationStep {
@@ -347,6 +441,19 @@ export function valuesAvailableAt(
     out.push({ path: `${root}.id`, type: "uuid", origin: entity });
   }
 
+  // Only offered to steps actually inside the repeat — outside it the pass
+  // number has no meaning, and a picker that offers it anyway teaches the
+  // wrong model of when a loop variable exists.
+  const own = automation.steps[index];
+  const loop = own ? loopOf(automation, own) : undefined;
+  if (loop) {
+    out.push({
+      path: `${loop.id}.iteration`,
+      type: "number",
+      origin: `repeat ${loop.id}`,
+    });
+  }
+
   automation.steps.slice(0, Math.max(0, index)).forEach((step, i) => {
     if (!step.resultName) return;
     const origin = `step ${i + 1}`;
@@ -436,7 +543,68 @@ export function validateAutomation(automation: Automation): Problem[] {
     }
   });
 
+  for (const loop of loopsOf(automation)) {
+    const members = stepsInLoop(automation, loop.id);
+    if (members.length === 0) {
+      problems.push({
+        target: loop.id,
+        message: `Repeat ${loop.id} has no steps in it. Add one, or remove the repeat.`,
+      });
+      continue;
+    }
+
+    if (!loopIsContiguous(automation, loop.id)) {
+      problems.push({
+        target: loop.id,
+        message: `The steps in repeat ${loop.id} have something else between them. Move them together.`,
+      });
+    }
+
+    const check = loop.condition;
+    if (!check.field.trim()) {
+      problems.push({
+        target: loop.id,
+        message: `Repeat ${loop.id} does not say what to check, so it would never stop.`,
+      });
+    } else if (operatorArity(check.operator) === 1 && !check.value.trim()) {
+      problems.push({
+        target: loop.id,
+        message: `"${check.field} ${operatorLabel(check.operator)}" needs a value to compare against.`,
+      });
+    }
+
+    // A check on a field no step in the loop writes cannot change between
+    // passes, so the loop either never runs or runs until the safety limit
+    // aborts it. Both are bugs, and both are invisible until it is live.
+    if (check.field.trim() && !membersCanChange(members, check.field)) {
+      problems.push({
+        target: loop.id,
+        message:
+          `Nothing inside repeat ${loop.id} changes "${check.field}", so the check will ` +
+          `read the same every pass. Add a step that updates it, or the repeat will run ` +
+          `until it is cut off at ${LOOP_SAFETY_LIMIT} passes.`,
+      });
+    }
+  }
+
   return problems;
+}
+
+/**
+ * Does any step in the loop write the field the loop checks?
+ *
+ * Deliberately shallow — it matches an `UpdateEntity` on the field by name and
+ * treats every other step type as opaque. A `REST` call or a `Decision` can
+ * change the world in ways this cannot see, so this only ever reports the case
+ * it is certain about: a loop whose body contains no write to that field at all.
+ */
+function membersCanChange(members: AutomationStep[], field: string): boolean {
+  const bare = field.includes(".") ? (field.split(".").pop() as string) : field;
+  return members.some((step) => {
+    if (step.type !== "UpdateEntity") return true;
+    const written = (step.props.field ?? "").trim();
+    return written === "" || written === bare || written === field;
+  });
 }
 
 function humanField(field: string): string {
@@ -486,6 +654,14 @@ export function serializeAutomation(a: Automation): string {
     lines.push(`%%guard ${c.field} ${c.operator} ${JSON.stringify(c.value)}`);
   }
 
+  for (const loop of loopsOf(a)) {
+    if (stepsInLoop(a, loop.id).length === 0) continue;
+    const c = loop.condition;
+    lines.push(`%%loop ${loop.id} while: ${c.field} ${c.operator} ${JSON.stringify(c.value)}`);
+  }
+
+  // The edge chain, where a loop contributes its subgraph id once rather than
+  // each of its members — the repeat is one unit in the flow.
   const ids: string[] = ["start"];
   lines.push(`  start([${a.trigger.entity} ${TRIGGER_LABELS[a.trigger.event]}])`);
 
@@ -494,20 +670,42 @@ export function serializeAutomation(a: Automation): string {
     lines.push(`  guard{${a.conditions.map(describeCondition).join(" and ")}}`);
   }
 
-  a.steps.forEach((step, i) => {
-    const nodeId = `s${i + 1}`;
-    ids.push(nodeId);
-    lines.push(`  ${nodeId}[${describeStep(step)}]`);
-    lines.push(
+  /** Directives for one step, kept out of the node loop so the subgraph body stays clean. */
+  const directives: string[] = [];
+  const emit = (step: AutomationStep, nodeId: string) => {
+    directives.push(
       `%%step ${nodeId} type: ${step.type}${step.resultName ? ` as: ${step.resultName}` : ""}`
     );
     for (const [k, v] of Object.entries(step.props)) {
-      if (v) lines.push(`%%step ${nodeId} ${k}: ${v}`);
+      if (v) directives.push(`%%step ${nodeId} ${k}: ${v}`);
     }
-    if (step.table) {
-      lines.push(`%%step ${nodeId} table: ${JSON.stringify(step.table)}`);
+    if (step.table) directives.push(`%%step ${nodeId} table: ${JSON.stringify(step.table)}`);
+    if (step.loopId) directives.push(`%%step ${nodeId} in: ${step.loopId}`);
+  };
+
+  let openLoop: string | null = null;
+  a.steps.forEach((step, i) => {
+    const nodeId = `s${i + 1}`;
+
+    if (step.loopId !== openLoop) {
+      if (openLoop) lines.push("  end");
+      openLoop = step.loopId ?? null;
+      if (openLoop) {
+        const loop = loopsOf(a).find((l) => l.id === openLoop);
+        // A `subgraph` is real Mermaid, so the repeat is visible to any
+        // renderer rather than being knowable only from the directives.
+        lines.push(`  subgraph ${openLoop}[${loop ? describeLoop(loop) : "Repeat"}]`);
+        ids.push(openLoop);
+      }
     }
+
+    lines.push(`  ${openLoop ? "  " : ""}${nodeId}[${describeStep(step)}]`);
+    if (!openLoop) ids.push(nodeId);
+    emit(step, nodeId);
   });
+  if (openLoop) lines.push("  end");
+
+  lines.push(...directives);
 
   ids.push("done");
   lines.push("  done([Done])");
@@ -526,6 +724,104 @@ export function serializeAutomation(a: Automation): string {
  * a half-understood automation that silently loses a step is worse than one
  * that opens with the steps it could actually read.
  */
+/**
+ * Which trigger a saga's `operation:` denotes.
+ *
+ * A saga names the CRUD operation; an automation names the moment. Sagas run
+ * after the write, so each maps to the corresponding `after` event.
+ */
+const SAGA_OPERATION_EVENTS: Record<string, TriggerEvent> = {
+  CREATE: "created",
+  UPDATE: "updated",
+  DELETE: "deleted",
+};
+
+/**
+ * Split a saga step's one-line property list.
+ *
+ * A value runs to the next `key:` token, so it may contain spaces — a title, a
+ * URL, a JSON blob. This is the same rule the generator's own step compiler
+ * uses, deliberately: two readers of one directive that disagree about where a
+ * value ends is a bug waiting to happen.
+ */
+function parseSagaProps(rest: string): Record<string, string> {
+  const props: Record<string, string> = {};
+  for (const part of rest.trim().split(/\s+(?=[A-Za-z_]\w*:)/)) {
+    const match = part.match(/^([A-Za-z_]\w*):\s*(.*)$/s);
+    if (match?.[1]) props[match[1]] = (match[2] ?? "").trim();
+  }
+  return props;
+}
+
+/**
+ * Translate saga property names into the automation model's.
+ *
+ * The two dialects name the same things differently — a saga's `fields` is an
+ * automation's `values`, its `target`/`source` pair on a Formula is `as` plus
+ * `left`. Mapping rather than passing through matters: an unmapped key lands in
+ * `props` where no inspector renders it, so the step opens looking empty and an
+ * author who saves it silently drops the configuration.
+ *
+ * Anything with no counterpart is kept under its own name rather than dropped,
+ * so nothing is lost on a round trip even where the builder cannot yet edit it.
+ */
+function applySagaProps(entry: AutomationStep, props: Record<string, string>): void {
+  const take = (key: string): string | undefined => {
+    const value = props[key];
+    delete props[key];
+    return value;
+  };
+
+  // `as:` names the result on every step type that publishes one.
+  const as = take("as");
+  if (as) entry.resultName = as;
+
+  if (entry.type === "Decision") {
+    const table = take("decisionTable");
+    if (table) {
+      try {
+        entry.table = JSON.parse(table) as DecisionTable;
+      } catch {
+        /* an unreadable table is left off rather than replaced with an empty one */
+      }
+    }
+  } else if (entry.type === "Formula") {
+    // A saga writes its result name as `target:` and its operands as
+    // `source:`/`value:` and `operand:`.
+    const target = take("target");
+    if (target && !entry.resultName) entry.resultName = target;
+    const source = take("source");
+    const value = take("value");
+    if (source) entry.props.left = `{{${source}}}`;
+    else if (value !== undefined) entry.props.left = value;
+    const operand = take("operand");
+    if (operand !== undefined) entry.props.right = operand;
+  } else if (entry.type === "CreateEntity") {
+    const fields = take("fields");
+    if (fields !== undefined) entry.props.values = fields;
+  } else if (entry.type === "UpdateEntity") {
+    // `source:` reads another step's published value; `value:` is a literal.
+    const source = take("source");
+    if (source) entry.props.value = `{{${source}}}`;
+    // A saga aims at another row with targetSource/targetField; the automation
+    // model has one `target`, so the row reference wins over the column.
+    const targetSource = take("targetSource");
+    if (targetSource) entry.props.target = `{{${targetSource}}}`;
+  } else if (entry.type === "DeleteEntity") {
+    const targetSource = take("targetSource");
+    const targetField = take("targetField");
+    if (targetSource) entry.props.target = `{{${targetSource}}}`;
+    else if (targetField) entry.props.target = targetField;
+  } else if (entry.type === "REST") {
+    const body = take("bodyTemplate");
+    if (body !== undefined) entry.props.body = body;
+  }
+
+  for (const [key, value] of Object.entries(props)) {
+    if (value) entry.props[key] ??= value;
+  }
+}
+
 export function parseAutomation(source: string, fallbackEntity = "Record"): Automation {
   const a = emptyAutomation(fallbackEntity);
   const stepsById = new Map<string, AutomationStep>();
@@ -540,9 +836,35 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
       continue;
     }
 
+    // The saga form carries the name, entity and operation on one line. Read
+    // before the generic %%workflow match so the positional form is not
+    // mistaken for a name.
+    const saga = line.match(/^%%workflow\s+(\w+)\s+entity:\s*(\w+)(.*)$/);
+    if (saga?.[1] && saga[2]) {
+      a.name = saga[1];
+      const operation = saga[3]?.match(/operation:\s*(\w+)/)?.[1]?.toUpperCase();
+      a.trigger = { entity: saga[2], event: SAGA_OPERATION_EVENTS[operation ?? ""] ?? "created" };
+      continue;
+    }
+
     const hook = line.match(/^%%hook\s+(\w+)\s+on\s+(\w+)/);
     if (hook?.[1] && hook[2]) {
       a.trigger = { entity: hook[2], event: HOOK_TO_EVENT[hook[1]] ?? "created" };
+      continue;
+    }
+
+    const loop = line.match(/^%%loop\s+(\w+)\s+while:\s*(\S+)\s+(\S+)\s*(.*)$/);
+    if (loop?.[1] && loop[2] && loop[3]) {
+      let value = (loop[4] ?? "").trim();
+      try {
+        if (value.startsWith('"')) value = JSON.parse(value) as string;
+      } catch {
+        /* leave the raw text — better than dropping the check that ends the loop */
+      }
+      a.loops.push({
+        id: loop[1],
+        condition: { id: newId("cond"), field: loop[2], operator: loop[3], value },
+      });
       continue;
     }
 
@@ -570,6 +892,24 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
       continue;
     }
 
+    // Saga form: the type sits where the automation form puts `type:`, and
+    // every property shares the one line. Matched first because the automation
+    // pattern below would read `Decision decisionTable:` as a property named
+    // `decisionTable` on an untyped step.
+    const sagaStep = line.match(/^%%step\s+(\S+)\s+([A-Za-z]\w*)\s+(.*)$/);
+    if (sagaStep?.[2] && STEP_TYPES.includes(sagaStep[2] as StepType)) {
+      const [, nodeId = "", typeName = "", rest = ""] = sagaStep;
+      let entry = stepsById.get(nodeId);
+      if (!entry) {
+        entry = { id: newId("step"), type: "Formula", resultName: "", props: {} };
+        stepsById.set(nodeId, entry);
+        order.push(nodeId);
+      }
+      entry.type = typeName as StepType;
+      applySagaProps(entry, parseSagaProps(rest));
+      continue;
+    }
+
     const step = line.match(/^%%step\s+(\S+)\s+(\w+):\s*(.*)$/);
     if (step?.[1] && step[2]) {
       const [, nodeId, key, rest = ""] = step;
@@ -594,6 +934,8 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
         } catch {
           /* an unreadable table is left off rather than replaced with an empty one */
         }
+      } else if (key === "in") {
+        entry.loopId = value;
       } else {
         entry.props[key] = value;
       }
@@ -601,5 +943,16 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
   }
 
   a.steps = order.map((id) => stepsById.get(id)).filter((s): s is AutomationStep => Boolean(s));
+
+  // A membership naming a loop that was never declared would render as a box
+  // with no repeat count and execute once, which is not what the document says.
+  // Dropping the membership keeps the step, which is the recoverable half.
+  const declared = new Set(loopsOf(a).map((loop) => loop.id));
+  for (const step of a.steps) {
+    if (step.loopId && !declared.has(step.loopId)) step.loopId = undefined;
+  }
+  // An empty loop is not drawn and not run, so it is not kept either.
+  a.loops = loopsOf(a).filter((loop) => a.steps.some((step) => step.loopId === loop.id));
+
   return a;
 }
