@@ -24,23 +24,21 @@
 %%     definitions with source: 'model'
 %%   - the 3 unique indexes
 %%
-%% Two gaps found, both on the application side rather than in this file:
+%% One gap remains, on the application side rather than in this file: the 3
+%% non-unique %%index declarations below (Experiment(project_code),
+%% InstrumentBooking(instrument_id, start_time),
+%% WorkflowEvent(experiment_id, event_timestamp)) produce no index in the
+%% generated database. Only the unique ones are emitted.
 %%
-%%   1. The 3 non-unique %%index declarations below (Experiment(project_code),
-%%      InstrumentBooking(instrument_id, start_time),
-%%      WorkflowEvent(experiment_id, event_timestamp)) produce no index in the
-%%      generated database. Only the unique ones are emitted.
-%%   2. The saga sections here do not open in the automation builder, which is
-%%      now how workflows and rules are authored in the running application.
-%%      The builder reads the automation dialect (`%%workflow name:`,
-%%      `%%step <id> type: <T>`) and this file is written in the saga dialect
-%%      (`%%workflow <Name> entity: <E> kind: saga`, `%%step <node> <Type>`).
-%%      Each dialect is read by exactly one side: the generator compiles the
-%%      saga form and cannot read `type:`; the builder reads `type:` and parses
-%%      these sections to zero steps. Rewriting this file into the builder's
-%%      dialect would stop these three workflows generating, so it is
-%%      deliberately left in the form the generator compiles.
-%%      Both dialects are specified in language/spec/03-workflows.md.
+%% ---- On the two dialects ----------------------------------------------------
+%% The workflows here are written in the saga dialect
+%% (`%%workflow <Name> entity: <E> kind: saga`, `%%step <node> <Type> <k>: <v>`).
+%% The automation builder in the running application writes a second dialect
+%% (`%%step <id> type: <T>`, one property per line). Both are now read by both
+%% sides, so these sections open in the builder and anything built there
+%% compiles here — the file did not need rewriting to become editable in the
+%% application, and it stays in the form it was authored in.
+%% Both dialects are specified in language/spec/03-workflows.md.
 %% ============================================================================
 
 %% ---- Section 1: ERD --------------------------------------------------------

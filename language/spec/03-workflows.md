@@ -369,7 +369,14 @@ flowchart TD
 | Properties | all on one line | one line per key, sharing the node id |
 | Conditions | drawn as decision nodes | `%%guard` lines |
 
-Both compile to the same executable steps, and both are read.
+Both compile to the same executable steps, and **both are read by both sides**:
+a model authored by hand opens in the builder, and an automation built in a
+running application compiles through the generator. The translation happens at
+the edges — the builder maps a saga's `fields` onto `values` and a Formula's
+`target`/`source`/`operand` onto `as`/`left`/`right`; the generator maps back and
+unwraps `{{name}}` references into the bare `source:` a saga uses. Downstream,
+only saga vocabulary exists, so the checker and the BPMN emitter never learn
+there is a second dialect.
 
 ### Triggers
 

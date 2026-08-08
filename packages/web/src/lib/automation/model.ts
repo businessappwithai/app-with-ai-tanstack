@@ -526,6 +526,104 @@ export function serializeAutomation(a: Automation): string {
  * a half-understood automation that silently loses a step is worse than one
  * that opens with the steps it could actually read.
  */
+/**
+ * Which trigger a saga's `operation:` denotes.
+ *
+ * A saga names the CRUD operation; an automation names the moment. Sagas run
+ * after the write, so each maps to the corresponding `after` event.
+ */
+const SAGA_OPERATION_EVENTS: Record<string, TriggerEvent> = {
+  CREATE: "created",
+  UPDATE: "updated",
+  DELETE: "deleted",
+};
+
+/**
+ * Split a saga step's one-line property list.
+ *
+ * A value runs to the next `key:` token, so it may contain spaces — a title, a
+ * URL, a JSON blob. This is the same rule the generator's own step compiler
+ * uses, deliberately: two readers of one directive that disagree about where a
+ * value ends is a bug waiting to happen.
+ */
+function parseSagaProps(rest: string): Record<string, string> {
+  const props: Record<string, string> = {};
+  for (const part of rest.trim().split(/\s+(?=[A-Za-z_]\w*:)/)) {
+    const match = part.match(/^([A-Za-z_]\w*):\s*(.*)$/s);
+    if (match?.[1]) props[match[1]] = (match[2] ?? "").trim();
+  }
+  return props;
+}
+
+/**
+ * Translate saga property names into the automation model's.
+ *
+ * The two dialects name the same things differently — a saga's `fields` is an
+ * automation's `values`, its `target`/`source` pair on a Formula is `as` plus
+ * `left`. Mapping rather than passing through matters: an unmapped key lands in
+ * `props` where no inspector renders it, so the step opens looking empty and an
+ * author who saves it silently drops the configuration.
+ *
+ * Anything with no counterpart is kept under its own name rather than dropped,
+ * so nothing is lost on a round trip even where the builder cannot yet edit it.
+ */
+function applySagaProps(entry: AutomationStep, props: Record<string, string>): void {
+  const take = (key: string): string | undefined => {
+    const value = props[key];
+    delete props[key];
+    return value;
+  };
+
+  // `as:` names the result on every step type that publishes one.
+  const as = take("as");
+  if (as) entry.resultName = as;
+
+  if (entry.type === "Decision") {
+    const table = take("decisionTable");
+    if (table) {
+      try {
+        entry.table = JSON.parse(table) as DecisionTable;
+      } catch {
+        /* an unreadable table is left off rather than replaced with an empty one */
+      }
+    }
+  } else if (entry.type === "Formula") {
+    // A saga writes its result name as `target:` and its operands as
+    // `source:`/`value:` and `operand:`.
+    const target = take("target");
+    if (target && !entry.resultName) entry.resultName = target;
+    const source = take("source");
+    const value = take("value");
+    if (source) entry.props.left = `{{${source}}}`;
+    else if (value !== undefined) entry.props.left = value;
+    const operand = take("operand");
+    if (operand !== undefined) entry.props.right = operand;
+  } else if (entry.type === "CreateEntity") {
+    const fields = take("fields");
+    if (fields !== undefined) entry.props.values = fields;
+  } else if (entry.type === "UpdateEntity") {
+    // `source:` reads another step's published value; `value:` is a literal.
+    const source = take("source");
+    if (source) entry.props.value = `{{${source}}}`;
+    // A saga aims at another row with targetSource/targetField; the automation
+    // model has one `target`, so the row reference wins over the column.
+    const targetSource = take("targetSource");
+    if (targetSource) entry.props.target = `{{${targetSource}}}`;
+  } else if (entry.type === "DeleteEntity") {
+    const targetSource = take("targetSource");
+    const targetField = take("targetField");
+    if (targetSource) entry.props.target = `{{${targetSource}}}`;
+    else if (targetField) entry.props.target = targetField;
+  } else if (entry.type === "REST") {
+    const body = take("bodyTemplate");
+    if (body !== undefined) entry.props.body = body;
+  }
+
+  for (const [key, value] of Object.entries(props)) {
+    if (value) entry.props[key] ??= value;
+  }
+}
+
 export function parseAutomation(source: string, fallbackEntity = "Record"): Automation {
   const a = emptyAutomation(fallbackEntity);
   const stepsById = new Map<string, AutomationStep>();
@@ -537,6 +635,17 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
     const name = line.match(/^%%workflow\s+name:\s*(.+)$/);
     if (name?.[1]) {
       a.name = name[1].trim();
+      continue;
+    }
+
+    // The saga form carries the name, entity and operation on one line. Read
+    // before the generic %%workflow match so the positional form is not
+    // mistaken for a name.
+    const saga = line.match(/^%%workflow\s+(\w+)\s+entity:\s*(\w+)(.*)$/);
+    if (saga?.[1] && saga[2]) {
+      a.name = saga[1];
+      const operation = saga[3]?.match(/operation:\s*(\w+)/)?.[1]?.toUpperCase();
+      a.trigger = { entity: saga[2], event: SAGA_OPERATION_EVENTS[operation ?? ""] ?? "created" };
       continue;
     }
 
@@ -560,6 +669,24 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
         operator: guard[2],
         value,
       });
+      continue;
+    }
+
+    // Saga form: the type sits where the automation form puts `type:`, and
+    // every property shares the one line. Matched first because the automation
+    // pattern below would read `Decision decisionTable:` as a property named
+    // `decisionTable` on an untyped step.
+    const sagaStep = line.match(/^%%step\s+(\S+)\s+([A-Za-z]\w*)\s+(.*)$/);
+    if (sagaStep?.[2] && STEP_TYPES.includes(sagaStep[2] as StepType)) {
+      const [, nodeId = "", typeName = "", rest = ""] = sagaStep;
+      let entry = stepsById.get(nodeId);
+      if (!entry) {
+        entry = { id: newId("step"), type: "Formula", resultName: "", props: {} };
+        stepsById.set(nodeId, entry);
+        order.push(nodeId);
+      }
+      entry.type = typeName as StepType;
+      applySagaProps(entry, parseSagaProps(rest));
       continue;
     }
 

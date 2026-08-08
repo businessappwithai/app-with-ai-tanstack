@@ -159,6 +159,81 @@ export interface CompiledSaga {
  */
 const STEP_DIRECTIVE = /^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z]\w*)\s*(.*)$/;
 
+/**
+ * `%%step <nodeId> type: <StepType> [as: <name>]` — the automation dialect.
+ *
+ * The builder writes one line per property, all sharing the node id, with the
+ * type behind a `type:` key. Read here so an automation authored in the
+ * application can be exported to a model and regenerated: without it the lines
+ * parse as a step type literally called "type" and the whole workflow is
+ * dropped with a warning.
+ */
+const AUTO_TYPE_DIRECTIVE = /^%%step\s+([A-Za-z_]\w*)\s+type:\s*([A-Za-z]\w*)\s*(.*)$/;
+
+/** `%%step <nodeId> <key>: <value>` — one property of an automation step. */
+const AUTO_PROP_DIRECTIVE = /^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z_]\w*):\s*(.*)$/;
+
+/**
+ * Rewrite automation property names as the saga names the compiler consumes.
+ *
+ * The two dialects describe the same steps with different words. Translating
+ * here keeps one contract downstream — STEP_CONTRACTS, the checker and the BPMN
+ * emitter all continue to see saga vocabulary and need no knowledge that a
+ * second dialect exists.
+ *
+ * `{{name}}` is how an automation references an earlier step's result; a saga
+ * spells the same thing as a bare `source:`/`targetSource:`, so the braces are
+ * unwrapped rather than passed through as a literal value.
+ */
+export function sagaPropsFromAutomation(
+  type: StepType,
+  props: Record<string, string>
+): Record<string, string> {
+  const out: Record<string, string> = { ...props };
+  /** `{{x}}` -> `x`, anything else -> null. */
+  const ref = (value?: string): string | null => {
+    const match = value?.trim().match(/^\{\{\s*([^}]+?)\s*\}\}$/);
+    return match?.[1] ?? null;
+  };
+  const move = (from: string, to: string) => {
+    const value = out[from];
+    if (value !== undefined && out[to] === undefined) out[to] = value;
+    delete out[from];
+  };
+
+  if (type === "Decision") {
+    move("ruleTable", "rule");
+    move("table", "decisionTable");
+    delete out.inputs;
+  } else if (type === "CreateEntity") {
+    move("values", "fields");
+  } else if (type === "UpdateEntity" || type === "DeleteEntity") {
+    const target = ref(out.target);
+    if (target) {
+      out.targetSource = out.targetSource ?? target;
+      delete out.target;
+    } else move("target", "targetField");
+
+    const value = ref(out.value);
+    if (value) {
+      out.source = out.source ?? value;
+      delete out.value;
+    }
+  } else if (type === "Formula") {
+    // An automation names the result with `as:`; a saga calls it `target:`.
+    move("as", "target");
+    const left = ref(out.left);
+    if (left) out.source = out.source ?? left;
+    else if (out.left !== undefined) out.value = out.value ?? out.left;
+    delete out.left;
+    move("right", "operand");
+  } else if (type === "REST") {
+    move("body", "bodyTemplate");
+  }
+
+  return out;
+}
+
 /** `key:` starts a new property; everything up to the next one is the value. */
 const PROP_SPLIT = /\s+(?=[A-Za-z_]\w*:)/;
 
@@ -292,12 +367,53 @@ export function compileSagas(
 
     const labels = parseNodeLabels(section.diagram ?? "");
     const declared = new Map<string, CompiledStep>();
+    /** Nodes written in the automation dialect, whose props need translating. */
+    const autoNodes = new Set<string>();
 
     for (const rawLine of (section.diagram ?? "").split("\n")) {
       const line = rawLine.trim();
       // `%%%%step` is an escaped literal, not a directive — the same escape the
       // hook compiler honours, so a doc example can show one without binding it.
       if (!line.startsWith("%%step")) continue;
+
+      // The automation dialect spreads one step over several lines, so it is
+      // accumulated rather than declared in one go. Matched before the saga
+      // pattern, which would otherwise read `type:` as the step type.
+      const autoType = line.match(AUTO_TYPE_DIRECTIVE);
+      if (autoType?.[1] && autoType[2]) {
+        const [, nodeId = "", typeName = "", rest = ""] = autoType;
+        if (!STEP_TYPES.includes(typeName as StepType)) {
+          onWarn(
+            `Workflow "${section.name}": unknown step type "${typeName}" on node ${nodeId} — skipped.`
+          );
+          continue;
+        }
+        const existing = declared.get(nodeId);
+        declared.set(nodeId, {
+          nodeId,
+          type: typeName as StepType,
+          label: labels.get(nodeId) ?? nodeId,
+          props: { ...existing?.props, ...parseStepProps(rest) },
+        });
+        autoNodes.add(nodeId);
+        continue;
+      }
+
+      const autoProp = line.match(AUTO_PROP_DIRECTIVE);
+      if (autoProp?.[1] && autoProp[2] && autoProp[2] !== "type") {
+        const [, nodeId = "", key = "", value = ""] = autoProp;
+        const existing = declared.get(nodeId);
+        // A property may precede its own `type:` line, so a placeholder is
+        // created and the real type fills in when that line arrives.
+        declared.set(nodeId, {
+          nodeId,
+          type: existing?.type ?? ("Formula" as StepType),
+          label: labels.get(nodeId) ?? nodeId,
+          props: { ...existing?.props, [key]: value.trim() },
+        });
+        autoNodes.add(nodeId);
+        continue;
+      }
 
       const match = line.match(STEP_DIRECTIVE);
       if (!match) {
@@ -325,6 +441,13 @@ export function compileSagas(
         label: labels.get(nodeId) ?? nodeId,
         props: parseStepProps(rest ?? ""),
       });
+    }
+
+    // Translate once the type is settled — a property line can arrive before
+    // the `type:` line that gives it meaning, so this cannot be done inline.
+    for (const nodeId of autoNodes) {
+      const step = declared.get(nodeId);
+      if (step) step.props = sagaPropsFromAutomation(step.type, step.props);
     }
 
     if (!declared.size) {
