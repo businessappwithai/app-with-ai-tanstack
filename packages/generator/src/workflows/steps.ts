@@ -417,18 +417,26 @@ export function compileSagas(
     /** Nodes written in the automation dialect, whose props need translating. */
     const autoNodes = new Set<string>();
     /** `%%loop <id> while: <field> <op> <value>` declarations in this section. */
-    const loops = new Map<string, { field: string; operator: string; value: string }>();
+    const loops = new Map<
+      string,
+      { field: string; operator: string; value: string; max: string }
+    >();
 
     for (const rawLine of (section.diagram ?? "").split("\n")) {
       const match = rawLine.trim().match(/^%%loop\s+(\w+)\s+while:\s*(\S+)\s+(\S+)\s*(.*)$/);
       if (!match?.[1] || !match[2] || !match[3]) continue;
-      let value = (match[4] ?? "").trim();
+      let rest = (match[4] ?? "").trim();
+      // `max:` closes the directive, so the check's value is what precedes it.
+      const maxMatch = rest.match(/\s*max:\s*(\S+)\s*$/);
+      const max = maxMatch?.[1] ?? "";
+      if (maxMatch) rest = rest.slice(0, rest.length - maxMatch[0].length);
+      let value = rest.trim();
       try {
         if (value.startsWith('"')) value = JSON.parse(value) as string;
       } catch {
         /* keep the raw text — the check that ends the loop is worth preserving */
       }
-      loops.set(match[1], { field: match[2], operator: match[3], value });
+      loops.set(match[1], { field: match[2], operator: match[3], value, max });
     }
 
     for (const rawLine of (section.diagram ?? "").split("\n")) {
@@ -531,6 +539,12 @@ export function compileSagas(
       step.props.loopField = loop.field;
       step.props.loopOperator = loop.operator;
       step.props.loopValue = loop.value;
+      step.props.loopMax = loop.max;
+      if (!loop.max.trim()) {
+        onWarn(
+          `Workflow "${section.name}": loop "${loopId}" has no max: — it cannot be given up on, so it is refused.`
+        );
+      }
     }
 
     for (const loopId of loops.keys()) {

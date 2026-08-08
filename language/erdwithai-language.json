@@ -786,13 +786,18 @@
     "loops": {
       "description": "Repeat while a rule holds. `%%loop <loopId> while: <field> <operator> <value>` declares one, and a step joins it with `%%step <nodeId> in: <loopId>`. The member steps run in order and repeat for as long as the check passes; the loop ends the first time it fails. The check is re-evaluated before every pass against the record as it stands then — a step inside the loop changes the record, and that change is what ends the loop.",
       "directives": [
-        "%%loop <loopId> while: <field> <operator> <value>",
+        "%%loop <loopId> while: <field> <operator> <value> max: <n>",
         "%%step <nodeId> in: <loopId>"
       ],
       "operators": "The same eleven as automations.conditions — one vocabulary for every check in the language.",
       "safety": {
-        "limit": 1000,
-        "note": "A while-loop is genuinely unbounded, and an automation runs inside the write that triggered it, so a check that never fails holds a database transaction open until something times out. After this many passes the loop is abandoned and the run is marked FAILED with the loop named. This is a backstop, not a second way to spell the count: reaching it means the automation is wrong, so it is reported rather than finishing quietly as though the loop had ended on its own."
+        "required": true,
+        "form": "max: <n>",
+        "note": "Every loop must declare its own ceiling; there is no default and no engine-wide constant. A while-loop is genuinely unbounded, and an automation runs inside the write that triggered it, so a check that never fails holds a database transaction open until something times out. After `max` passes the loop is abandoned and the run is marked FAILED with the loop and the limit named. This is a backstop, not a second way to spell the count: reaching it means the automation is wrong, so it is reported rather than finishing quietly as though the loop had ended on its own.",
+        "whyPerLoop": "How many passes is obviously too many is a property of the work, not of the engine. A retry that should give up after 5 and a reconciliation that legitimately runs 800 cannot share one number without the ceiling being meaningless for one of them.",
+        "minimum": 1,
+        "maximum": "none — the author owns the number",
+        "missing": "A loop with no `max` is refused by the builder and warned about by the compiler. An executor meeting one anyway runs a single pass and gives up, because the safe direction for a loop nobody bounded is not to run it."
       },
       "staticCheck": "A loop whose check reads a field that no member step writes is refused when the model is compiled: it would read the same every pass, so it either never runs or runs until the safety limit cuts it off. The check is deliberately shallow — only UpdateEntity writes are matched by field name, and every other step type is treated as able to change anything, so it reports only the case it is certain about.",
       "nesting": "Not supported. A loop may not contain another loop; a step names at most one `in:`. Flattening nested repeats is what makes the ladder readable and the cost predictable.",
@@ -906,9 +911,9 @@
       },
       {
         "keyword": "%%loop",
-        "form": "%%loop <loopId> while: <field> <operator> <value>",
-        "purpose": "Declare a repeat-while-a-rule-holds loop inside an automation (SHIPPED, parsed by automation/model.ts and the generator's saga compiler). Steps join it with `%%step <nodeId> in: <loopId>` and repeat in order for as long as the check passes, ending the first time it fails. The check is re-read before every pass, so a step inside the loop is what ends it. Bounded only by a safety limit; loops do not nest. See automations.loops.",
-        "examples": ["%%loop L1 while: status eq \"pending\"", "%%step s2 in: L1"]
+        "form": "%%loop <loopId> while: <field> <operator> <value> max: <n>",
+        "purpose": "Declare a repeat-while-a-rule-holds loop inside an automation (SHIPPED, parsed by automation/model.ts and the generator's saga compiler). Steps join it with `%%step <nodeId> in: <loopId>` and repeat in order for as long as the check passes, ending the first time it fails. The check is re-read before every pass, so a step inside the loop is what ends it. Bounded by the `max:` the author must declare; loops do not nest. See automations.loops.",
+        "examples": ["%%loop L1 while: status eq \"pending\" max: 20", "%%step s2 in: L1"]
       },
       {
         "keyword": "%%rbac",

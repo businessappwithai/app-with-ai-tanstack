@@ -13,7 +13,7 @@ import {
   type AutomationStep,
   type AvailableValue,
   type Condition,
-  LOOP_SAFETY_LIMIT,
+  LOOP_MIN_PASSES,
   type Loop,
   OPERATORS,
   operatorArity,
@@ -676,6 +676,20 @@ export function LoopInspector({
           </Field>
         ) : null}
 
+        <Field
+          label="Give up after (required)"
+          hint="How many passes is obviously too many for this loop? There is no default — only you know what this work should cost."
+        >
+          <input
+            className={inputClass}
+            inputMode="numeric"
+            value={loop.maxPasses}
+            onChange={(e) => onChange({ ...loop, maxPasses: e.target.value })}
+            placeholder="e.g. 10"
+            aria-invalid={!loop.maxPasses.trim() || Number(loop.maxPasses) < LOOP_MIN_PASSES}
+          />
+        </Field>
+
         <div className="mb-4 rounded-lg border border-teal-200 bg-teal-50/60 p-3">
           <p className="text-[11.5px] font-semibold text-teal-800">
             Inside the repeat you can use {`{{${loop.id}.iteration}}`}
@@ -688,7 +702,8 @@ export function LoopInspector({
 
         <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50/60 p-3">
           <p className="text-[11.5px] font-semibold text-amber-900">
-            If the check never fails, the run is stopped at {LOOP_SAFETY_LIMIT} passes
+            If the check never fails, the run is stopped at{" "}
+            {loop.maxPasses.trim() ? `${loop.maxPasses} passes` : "the limit you set"}
           </p>
           <p className="mt-1 text-[11.5px] leading-snug text-amber-900/80">
             An automation runs inside the save that triggered it, so a repeat that cannot end holds

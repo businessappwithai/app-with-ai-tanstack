@@ -189,7 +189,7 @@ multiple rules.
 ## `%%loop` — repeat while a rule holds *(shipped)*
 
 ```
-%%loop <loopId> while: <field> <operator> <value>
+%%loop <loopId> while: <field> <operator> <value> max: <n>
 %%step <nodeId> in: <loopId>
 ```
 
@@ -199,15 +199,15 @@ the current record, so a step inside the loop is what ends it. Operators are the
 same eleven as automation conditions. Loops do not nest.
 
 ```
-%%loop L1 while: retry_count lt 5
+%%loop L1 while: retry_count lt 5 max: 10
 %%step s1 in: L1
 %%step s2 in: L1
 ```
 
-Bounded only by a safety limit of **1000 passes**, after which the run is marked
-`FAILED` — an automation that hits it is wrong, so it is reported rather than
-passing quietly. A loop whose check reads a field no member writes is refused at
-compile time.
+`max:` is **required** — the passes after which the loop is abandoned and the run
+marked `FAILED`. There is no default: the right ceiling depends on the work, not
+the engine. A loop whose check reads a field no member writes is refused at
+compile time, as is one with no `max`.
 
 Members are drawn as a Mermaid `subgraph L1[Repeat while …]`, and a step inside
 can read `{{L1.iteration}}` — the 1-based pass number. Full semantics in

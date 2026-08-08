@@ -13,7 +13,6 @@ import {
   type Automation,
   type AutomationStep,
   emptyAutomation,
-  LOOP_SAFETY_LIMIT,
   loopIsContiguous,
   loopsOf,
   newLoop,
@@ -41,6 +40,7 @@ function looping(): Automation {
   a.trigger.event = "updated";
   const loop = newLoop(a.loops);
   loop.condition = { id: "c1", field: "retry_count", operator: "lt", value: "5" };
+  loop.maxPasses = "10";
   a.loops.push(loop);
   a.steps.push(update("retry_count", "{{L1.iteration}}", loop.id));
   a.steps.push(update("status", "drained"));
@@ -51,7 +51,7 @@ describe("serialising a loop", () => {
   const mermaid = serializeAutomation(looping());
 
   it("writes the check as a %%loop directive", () => {
-    expect(mermaid).toContain('%%loop L1 while: retry_count lt "5"');
+    expect(mermaid).toContain('%%loop L1 while: retry_count lt "5" max: 10');
   });
 
   it("marks each member with in:", () => {
@@ -74,6 +74,10 @@ describe("serialising a loop", () => {
 
 describe("reading a loop back", () => {
   const back = parseAutomation(serializeAutomation(looping()), "Sample");
+
+  it("recovers the give-up limit", () => {
+    expect(loopsOf(back)[0]?.maxPasses).toBe("10");
+  });
 
   it("recovers the check exactly", () => {
     expect(loopsOf(back)[0]?.condition).toMatchObject({
@@ -132,7 +136,7 @@ describe("what the model refuses", () => {
     expect(
       problems.some((p) => p.target === "L1" && /Nothing inside repeat L1 changes/.test(p.message))
     ).toBe(true);
-    expect(problems.some((p) => p.message.includes(String(LOOP_SAFETY_LIMIT)))).toBe(true);
+    expect(problems.some((p) => p.message.includes("10 passes"))).toBe(true);
   });
 
   it("a loop with no check at all", () => {
@@ -161,6 +165,34 @@ describe("what the model refuses", () => {
     expect(loopIsContiguous(a, "L1")).toBe(false);
     expect(
       validateAutomation(a).some((p) => p.target === "L1" && /between them/.test(p.message))
+    ).toBe(true);
+  });
+
+  it("a repeat with no give-up limit", () => {
+    // There is no default: an unbounded repeat is the one thing that can hold a
+    // write open, so the author has to state what "too many" means here.
+    const a = looping();
+    (loopsOf(a)[0] as { maxPasses: string }).maxPasses = "";
+    expect(
+      validateAutomation(a).some((p) => p.target === "L1" && /how many passes/.test(p.message))
+    ).toBe(true);
+  });
+
+  it("a limit that is not a whole number", () => {
+    const a = looping();
+    (loopsOf(a)[0] as { maxPasses: string }).maxPasses = "lots";
+    expect(
+      validateAutomation(a).some(
+        (p) => p.target === "L1" && /whole number of passes/.test(p.message)
+      )
+    ).toBe(true);
+  });
+
+  it("a limit below one pass", () => {
+    const a = looping();
+    (loopsOf(a)[0] as { maxPasses: string }).maxPasses = "0";
+    expect(
+      validateAutomation(a).some((p) => p.target === "L1" && /at least 1 pass/.test(p.message))
     ).toBe(true);
   });
 

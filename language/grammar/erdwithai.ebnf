@@ -90,11 +90,12 @@ autoStepKey     = "ruleTable" | "inputs" | "entity" | "values" | "field"
 (* Repeat while a rule holds. The member steps run in order and repeat for as
    long as the check passes, ending the first time it fails. The check is
    re-evaluated before every pass against the record as it stands then, so a
-   step inside the loop is what ends it. Bounded only by a safety limit, after
-   which the run is reported as failed. Loops do not nest: a step names at most
+   step inside the loop is what ends it. `max:` is mandatory and is the number
+   of passes after which the loop is abandoned and the run reported as failed;
+   there is no default. Loops do not nest: a step names at most
    one `in:`, and a loop id may not itself appear as a member. *)
 loopDir         = "%%loop" , WS , ident , WS , "while:" , WS , fieldPath ,
-                  WS , operator , [ WS , jsonValue ] ;
+                  WS , operator , [ WS , jsonValue ] , WS , "max:" , WS , NUMBER ;
 
 stepType        = "UpdateEntity" | "CreateEntity" | "DeleteEntity"
                 | "Decision" | "Formula" | "REST" | "Agent" ;

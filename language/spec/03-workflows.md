@@ -432,7 +432,7 @@ Operators: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `contains`, `startsWith`,
 ### Loops — repeating steps while a rule holds
 
 ```
-%%loop <loopId> while: <field> <operator> <value>
+%%loop <loopId> while: <field> <operator> <value> max: <n>
 %%step <nodeId> in: <loopId>
 ```
 
@@ -447,7 +447,7 @@ flowchart TD
 %%workflow name: Drain the retry backlog
 %%hook afterUpdate on Sample
   start([Sample is updated])
-%%loop L1 while: retry_count lt 5
+%%loop L1 while: retry_count lt 5 max: 10
   subgraph L1[Repeat while retry_count is less than 5]
     s1[Call a web service]
     s2[Update a field]
@@ -470,16 +470,26 @@ then. That is the point: a step inside the loop changes the record, and that
 change is what ends the loop. It uses the same eleven operators as an
 automation's conditions — one vocabulary for every check in the language.
 
-#### The safety limit
+#### `max:` — every loop declares its own ceiling
 
 A while-loop is genuinely unbounded, and an automation runs **inside the write
 that triggered it**. A check that never fails does not spin a harmless
 background job — it holds a database transaction open until something times out.
 
-After **1000 passes** the loop is abandoned, and the run is marked `FAILED` with
-the loop named. This is a backstop, not a second way to spell a count: reaching
-it means the automation is wrong, so it is reported rather than finishing
-quietly as though the loop had ended on its own.
+So `max:` is **required**. There is no default and no engine-wide constant:
+how many passes is obviously too many is a property of the work, not of the
+engine. A retry that should give up after 5 and a reconciliation that
+legitimately runs 800 cannot share one number without the ceiling being
+meaningless for one of them.
+
+After `max` passes the loop is abandoned and the run is marked `FAILED`, naming
+the loop and the limit. This is a backstop, not a second way to spell a count:
+reaching it means the automation is wrong, so it is reported rather than
+finishing quietly as though the loop had ended on its own.
+
+A loop with no `max` is refused by the builder and warned about by the compiler.
+An executor meeting one anyway runs a single pass and gives up — the safe
+direction for a loop nobody bounded is not to run it.
 
 #### The check must be able to change
 

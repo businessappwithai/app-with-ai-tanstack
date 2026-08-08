@@ -43,6 +43,7 @@ type SectionId =
   | "triggers"
   | "checks"
   | "steps"
+  | "repeats"
   | "naming"
   | "references"
   | "tables"
@@ -58,6 +59,7 @@ const SECTIONS: { group: string; items: { id: SectionId; label: string }[] }[] =
       { id: "triggers", label: "Picking a trigger" },
       { id: "checks", label: "Adding checks" },
       { id: "steps", label: "Adding steps" },
+      { id: "repeats", label: "Repeating steps" },
     ],
   },
   {
@@ -149,6 +151,8 @@ function Section({ id, example }: { id: SectionId; example: HelpExample }) {
       return <Checks example={example} />;
     case "steps":
       return <Steps />;
+    case "repeats":
+      return <Repeats example={example} />;
     case "naming":
       return <Naming example={example} />;
     case "references":
@@ -495,6 +499,60 @@ function Steps() {
           </div>
         ))}
       </div>
+    </>
+  );
+}
+
+function Repeats({ example }: { example: HelpExample }) {
+  return (
+    <>
+      <H1>Repeating steps</H1>
+      <Lede>
+        A <b>repeat</b> runs the steps inside it over and over, for as long as a check keeps
+        passing. It stops the first time that check fails.
+      </Lede>
+
+      <H2>There is no separate &ldquo;break&rdquo; step</H2>
+      <P>
+        The rule on the repeat <em>is</em> the break. It is re-read before every pass, against the
+        record as it stands at that moment — so a step inside the repeat is what eventually ends it.
+      </P>
+      <Example>
+        Repeat while <b>{`${example.entity}.attempts`}</b> is less than <b>3</b> → inside: call the
+        service, then set <b>{`${example.entity}.attempts`}</b> to <Code>{"{{L1.iteration}}"}</Code>
+      </Example>
+
+      <H2>Something inside must change what the check reads</H2>
+      <P>
+        If nothing in the repeat writes the field the check looks at, it reads the same every pass
+        and the repeat can never end. The builder refuses that before you can publish, naming the
+        field.
+      </P>
+
+      <H2>You must say when to give up</H2>
+      <P>
+        Every repeat needs a <b>Give up after</b> number, and there is no default. An automation
+        runs inside the save that triggered it, so a repeat that cannot end holds the record open
+        rather than spinning harmlessly in the background. Reaching your limit marks the whole run
+        failed and names the repeat — which is what you want, because a repeat that gets there is
+        wrong.
+      </P>
+      <P>
+        Pick the number that would obviously be too many <em>for this work</em>. A retry that should
+        give up after 5 and a clean-up that legitimately runs 800 have nothing in common, so there
+        is no sensible shared default to fall back on.
+      </P>
+
+      <H2>Counting the passes</H2>
+      <P>
+        Inside a repeat you can use <Code>{"{{L1.iteration}}"}</Code> — the pass number, counting
+        from 1. Useful for recording an attempt count, or for building a value that changes each
+        time round.
+      </P>
+      <P>
+        Repeats do not nest, and the steps in one have to sit together. Both keep the ladder
+        readable, and keep the cost of a run something you can see rather than work out.
+      </P>
     </>
   );
 }

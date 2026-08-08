@@ -42,12 +42,12 @@ export interface WorkflowStatus {
 }
 
 /**
- * Passes after which a loop is abandoned and the run reported as failed.
- *
- * Not a count: a loop that reaches this is wrong, and the run is marked FAILED
- * so it is visible rather than looking like it ended on its own.
+ * Used only when a loop arrives without its own `max:`, which the builder and
+ * the compiler both refuse — so reaching this means a definition was written by
+ * hand or predates the requirement. One pass, then give up: the safe direction
+ * for a loop nobody set a ceiling on is not to run it.
  */
-const LOOP_SAFETY_LIMIT = 1000;
+const LOOP_MAX_FALLBACK = 1;
 
 interface BpmnTaskProps {
   nodeType: string;
@@ -57,6 +57,8 @@ interface BpmnTaskProps {
   loopField?: string;
   loopOperator?: string;
   loopValue?: string;
+  /** Passes this loop may run before it is abandoned. Set per loop by its author. */
+  loopMax?: string;
   entity?: string;
   field?: string;
   source?: string;
@@ -357,7 +359,8 @@ export class WorkflowService {
    * evaluated a stale snapshot the loop would never see the change that is
    * supposed to end it.
    *
-   * LOOP_SAFETY_LIMIT is a backstop, not a count. An automation runs inside the
+   * The limit is a backstop, not a count, and each loop carries its own. An
+   * automation runs inside the
    * write that triggered it, so a check that never fails holds a transaction
    * open until something times out. Reaching the limit throws, which marks the
    * whole run FAILED — an automation that gets there is wrong, and finishing
@@ -376,6 +379,9 @@ export class WorkflowService {
     const field = first.loopField ?? '';
     const operator = first.loopOperator ?? 'eq';
     const compareTo = first.loopValue ?? '';
+    const declaredMax = Number.parseInt(first.loopMax ?? '', 10);
+    const maxPasses =
+      Number.isInteger(declaredMax) && declaredMax >= 1 ? declaredMax : LOOP_MAX_FALLBACK;
 
     let pass = 0;
     for (;;) {
@@ -383,9 +389,9 @@ export class WorkflowService {
       const context = { ...vars, ...current };
       if (!this.checkHolds(context, field, operator, compareTo)) break;
 
-      if (pass >= LOOP_SAFETY_LIMIT) {
+      if (pass >= maxPasses) {
         throw new Error(
-          `Loop "${loopId}" did not finish after ${LOOP_SAFETY_LIMIT} passes — ` +
+          `Loop "${loopId}" did not finish within its limit of ${maxPasses} passes — ` +
             `"${field} ${operator} ${compareTo}" never stopped being true. ` +
             `Check that a step inside the loop changes "${field}".`,
         );

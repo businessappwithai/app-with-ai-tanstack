@@ -20,7 +20,7 @@ const WITH_LOOP = `flowchart TD
 %%meta kind: workflow
 %%workflow DrainBacklog entity: Sample kind: saga trigger: automatic operation: UPDATE
 %%hook afterUpdate on Sample
-%%loop L1 while: retry_count lt "5"
+%%loop L1 while: retry_count lt "5" max: 4
   start([Sample is updated])
   subgraph L1[Repeat while retry_count is less than 5]
     s1[Call a web service]
@@ -79,6 +79,7 @@ describe("compiling a workflow with a loop", () => {
         loopField: "retry_count",
         loopOperator: "lt",
         loopValue: "5",
+        loopMax: "4",
       });
     }
     expect(outside?.props.loopId).toBeUndefined();
@@ -101,7 +102,7 @@ describe("compiling a workflow with a loop", () => {
 
 describe("loops that do not add up", () => {
   it("warns when a step names a loop that was never declared", () => {
-    const orphan = WITH_LOOP.replace('%%loop L1 while: retry_count lt "5"\n', "");
+    const orphan = WITH_LOOP.replace('%%loop L1 while: retry_count lt "5" max: 4\n', "");
     const warnings: string[] = [];
     compileSagaWorkflows(orphan, ["Sample"], (w) => warnings.push(w));
     expect(warnings.some((w) => /never declared/.test(w))).toBe(true);
@@ -115,7 +116,7 @@ describe("loops that do not add up", () => {
   });
 
   it("still compiles the rest when a loop is broken", () => {
-    const orphan = WITH_LOOP.replace('%%loop L1 while: retry_count lt "5"\n', "");
+    const orphan = WITH_LOOP.replace('%%loop L1 while: retry_count lt "5" max: 4\n', "");
     const saga = compileSagaWorkflows(orphan, ["Sample"], () => {})[0];
     expect(saga?.steps).toHaveLength(3);
   });

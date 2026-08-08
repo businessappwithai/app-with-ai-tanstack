@@ -219,19 +219,35 @@ export const STEP_FIELDS: Record<StepType, readonly string[]> = {
  * This is genuinely unbounded, and an automation runs inside the write that
  * triggered it — so a check that never fails does not spin a harmless
  * background job, it holds a database transaction open until something times
- * out. `LOOP_SAFETY_LIMIT` is the backstop. It is not a second way to say "how
- * many times": reaching it means the automation was wrong, so the run is marked
- * failed and says so, rather than finishing quietly as though the loop had
- * ended on its own.
+ * out. `maxPasses` is the backstop, and every loop must state its own. It is
+ * not a second way to say "how many times": reaching it means the automation
+ * was wrong, so the run is marked failed and says so, rather than finishing
+ * quietly as though the loop had ended on its own.
  */
 export interface Loop {
   id: string;
   /** Re-checked before each pass. The loop ends the first time it fails. */
   condition: Condition;
+  /**
+   * Passes after which this loop is abandoned and the run reported as failed.
+   *
+   * Required, and deliberately per-loop rather than a constant: how many passes
+   * is "obviously too many" is a property of the work, not of the engine. A
+   * retry loop that should give up after 5 and a reconciliation that legitimately
+   * runs 800 cannot share one number without the ceiling being meaningless for
+   * one of them.
+   *
+   * Held as a string because it is bound to a text input; validation is what
+   * turns it into a number.
+   */
+  maxPasses: string;
 }
 
-/** Passes after which a loop is abandoned and the run reported as failed. */
-export const LOOP_SAFETY_LIMIT = 1000;
+/**
+ * Smallest sensible ceiling. There is no upper bound — the author owns the
+ * number, and capping it here would be the hardcoded limit this replaced.
+ */
+export const LOOP_MIN_PASSES = 1;
 
 /**
  * A tolerant read of `loops`.
@@ -320,7 +336,9 @@ export function newCondition(): Condition {
 export function newLoop(existing: Loop[]): Loop {
   let n = existing.length + 1;
   while (existing.some((loop) => loop.id === `L${n}`)) n += 1;
-  return { id: `L${n}`, condition: newCondition() };
+  // Empty rather than pre-filled: the ceiling is a decision about this
+  // particular loop, and a default would be accepted unread by most authors.
+  return { id: `L${n}`, condition: newCondition(), maxPasses: "" };
 }
 
 /** How a loop reads on its card: "Repeat while status is open". */
@@ -573,6 +591,27 @@ export function validateAutomation(automation: Automation): Problem[] {
       });
     }
 
+    const max = loop.maxPasses.trim();
+    if (!max) {
+      problems.push({
+        target: loop.id,
+        message: `Say how many passes ${loop.id} may run before it gives up. There is no default.`,
+      });
+    } else {
+      const n = Number(max);
+      if (!Number.isInteger(n)) {
+        problems.push({
+          target: loop.id,
+          message: `"${max}" is not a whole number of passes for repeat ${loop.id}.`,
+        });
+      } else if (n < LOOP_MIN_PASSES) {
+        problems.push({
+          target: loop.id,
+          message: `Repeat ${loop.id} must be allowed at least ${LOOP_MIN_PASSES} pass.`,
+        });
+      }
+    }
+
     // A check on a field no step in the loop writes cannot change between
     // passes, so the loop either never runs or runs until the safety limit
     // aborts it. Both are bugs, and both are invisible until it is live.
@@ -582,7 +621,7 @@ export function validateAutomation(automation: Automation): Problem[] {
         message:
           `Nothing inside repeat ${loop.id} changes "${check.field}", so the check will ` +
           `read the same every pass. Add a step that updates it, or the repeat will run ` +
-          `until it is cut off at ${LOOP_SAFETY_LIMIT} passes.`,
+          `until it is cut off at its limit of ${loop.maxPasses || "?"} passes.`,
       });
     }
   }
@@ -657,7 +696,9 @@ export function serializeAutomation(a: Automation): string {
   for (const loop of loopsOf(a)) {
     if (stepsInLoop(a, loop.id).length === 0) continue;
     const c = loop.condition;
-    lines.push(`%%loop ${loop.id} while: ${c.field} ${c.operator} ${JSON.stringify(c.value)}`);
+    lines.push(
+      `%%loop ${loop.id} while: ${c.field} ${c.operator} ${JSON.stringify(c.value)} max: ${loop.maxPasses}`
+    );
   }
 
   // The edge chain, where a loop contributes its subgraph id once rather than
@@ -855,7 +896,12 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
 
     const loop = line.match(/^%%loop\s+(\w+)\s+while:\s*(\S+)\s+(\S+)\s*(.*)$/);
     if (loop?.[1] && loop[2] && loop[3]) {
-      let value = (loop[4] ?? "").trim();
+      let rest = (loop[4] ?? "").trim();
+      // `max:` closes the directive, so the check's value is whatever precedes it.
+      const maxMatch = rest.match(/\s*max:\s*(\S+)\s*$/);
+      const maxPasses = maxMatch?.[1] ?? "";
+      if (maxMatch) rest = rest.slice(0, rest.length - maxMatch[0].length);
+      let value = rest.trim();
       try {
         if (value.startsWith('"')) value = JSON.parse(value) as string;
       } catch {
@@ -864,6 +910,7 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
       a.loops.push({
         id: loop[1],
         condition: { id: newId("cond"), field: loop[2], operator: loop[3], value },
+        maxPasses,
       });
       continue;
     }
