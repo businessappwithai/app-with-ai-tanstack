@@ -70,18 +70,29 @@ export async function login(
 }
 
 /** Register a new account. Returns the created user. */
+/**
+ * Create an account.
+ *
+ * There is no public sign-up: the backend sets `disableSignUp`, so
+ * `/api/auth/sign-up/email` refuses every caller. Accounts come from the
+ * administrator-only endpoint instead, which is what this posts to — so the
+ * client's session has to be an administrator's.
+ *
+ * The return shape is unchanged, because callers assert on both a successful
+ * creation and a rejected duplicate.
+ */
 export async function register(
   client: HttpClient,
   email: string,
   password: string,
   name: string
 ): Promise<{ ok: boolean; status: number; user?: SessionUser }> {
-  const response = await client.post<{ user?: SessionUser }>(
-    "/api/auth/sign-up/email",
+  const response = await client.post<{ data?: SessionUser }>(
+    "/sys/users",
     { email, password, name },
-    { absolute: true, allowFailure: true }
+    { allowFailure: true }
   );
-  return { ok: response.ok, status: response.status, user: response.data?.user };
+  return { ok: response.ok, status: response.status, user: response.data?.data };
 }
 
 export async function logout(client: HttpClient): Promise<void> {

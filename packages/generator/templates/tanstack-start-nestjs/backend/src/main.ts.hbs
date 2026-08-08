@@ -234,6 +234,20 @@ async function bootstrap() {
       reply.status(204).send();
       return;
     }
+
+    // No self-service accounts: an administrator creates them from the user
+    // management screen. The block belongs here, on the public HTTP surface,
+    // rather than on better-auth's `disableSignUp` — that flag also disables
+    // `auth.api.signUpEmail`, which is how the admin endpoint writes the
+    // credential, so setting it leaves no way to create anyone at all.
+    if (request.url.includes('/sign-up')) {
+      reply.status(403).send({
+        statusCode: 403,
+        error: 'Forbidden',
+        message: 'Accounts are created by an administrator, not by signing up.',
+      });
+      return;
+    }
     try {
       const url = new URL(request.url, `http://localhost:${port}`);
       const headers = new Headers();
