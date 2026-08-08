@@ -392,8 +392,8 @@ export class WorkflowService {
       }
       pass += 1;
 
-      // 1-based, so `{{L1.iteration}}` reads as "which pass is this" rather
-      // than as an array index.
+      // 1-based, so `\{{L1.iteration}}` reads as "which pass is this" rather
+      // than as an array index. (Escaped: this file is a Handlebars template.)
       vars[`${loopId}.iteration`] = pass;
 
       for (const task of body) {
