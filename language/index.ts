@@ -86,6 +86,34 @@ export interface StepNodeDefinition {
   example: string;
 }
 
+/** One lifecycle event an automation can be triggered by. */
+export interface AutomationTrigger {
+  /** How the builder names it, e.g. "created". */
+  event: string;
+  /** The hook it maps to on the generated service, e.g. "afterCreate". */
+  hook: string;
+  phase: "before" | "after";
+  /** Whether the automation can still stop the write. */
+  blocking: boolean;
+  purpose: string;
+}
+
+/** A comparison operator usable in an automation condition. */
+export interface AutomationOperator {
+  id: string;
+  label: string;
+  /** 0 means the operator takes no right-hand value ("is empty"). */
+  arity: 0 | 1;
+}
+
+/** One step type in the automation dialect. */
+export interface AutomationStepDefinition {
+  type: string;
+  purpose: string;
+  properties: string[];
+  example: string;
+}
+
 export interface LanguageDefinition {
   $schema: string;
   $id: string;
@@ -162,6 +190,35 @@ export interface LanguageDefinition {
       variables: string;
       types: StepNodeDefinition[];
     };
+  };
+  /** The automation dialect — the form the shipped builder reads and writes. */
+  automations: {
+    description: string;
+    relationshipToSaga: string;
+    shipped: boolean;
+    writer: string;
+    reader: string;
+    envelope: { description: string; lines: string[]; note: string };
+    triggers: {
+      description: string;
+      directive: string;
+      note: string;
+      events: AutomationTrigger[];
+    };
+    conditions: {
+      description: string;
+      directive: string;
+      valueEncoding: string;
+      conflict: { with: string; description: string; status: string };
+      operators: AutomationOperator[];
+    };
+    steps: {
+      description: string;
+      directives: string[];
+      types: AutomationStepDefinition[];
+    };
+    references: { description: string; form: string; sources: string[] };
+    nodes: Record<string, string>;
   };
   directives: {
     description: string;
@@ -247,4 +304,53 @@ export function stepNodeTypes(): StepNodeDefinition[] {
 /** Look up one step type's contract by name. */
 export function stepNode(name: string): StepNodeDefinition | undefined {
   return stepNodeTypes().find((step) => step.name === name);
+}
+
+// ---------------------------------------------------------------------------
+// Automations
+// ---------------------------------------------------------------------------
+
+/** The lifecycle events an automation can be triggered by. */
+export function automationTriggers(): AutomationTrigger[] {
+  return loadLanguageDefinition().automations.triggers.events;
+}
+
+/**
+ * The hook name a trigger event maps to, or null if the event is unknown.
+ *
+ * This is the mapping the serialiser writes into `%%hook`, so a tool that
+ * needs to read or emit an automation should take it from here rather than
+ * restating it.
+ */
+export function triggerHook(event: string): string | null {
+  return automationTriggers().find((t) => t.event === event)?.hook ?? null;
+}
+
+/** The reverse: which trigger event a `%%hook` name denotes. */
+export function hookTriggerEvent(hook: string): string | null {
+  return automationTriggers().find((t) => t.hook === hook)?.event ?? null;
+}
+
+/** Comparison operators available to an automation condition. */
+export function automationOperators(): AutomationOperator[] {
+  return loadLanguageDefinition().automations.conditions.operators;
+}
+
+/**
+ * How many operands an operator takes: 1 normally, 0 for checks like
+ * "is empty" that have nothing on the right-hand side. Unknown operators are
+ * reported as 1, matching the builder's own fallback.
+ */
+export function operatorArity(id: string): 0 | 1 {
+  return automationOperators().find((o) => o.id === id)?.arity ?? 1;
+}
+
+/** The step types an automation may use. */
+export function automationStepTypes(): AutomationStepDefinition[] {
+  return loadLanguageDefinition().automations.steps.types;
+}
+
+/** Look up one automation step type by name. */
+export function automationStep(type: string): AutomationStepDefinition | undefined {
+  return automationStepTypes().find((step) => step.type === type);
 }
