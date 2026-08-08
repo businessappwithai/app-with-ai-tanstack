@@ -314,6 +314,7 @@ export function parseEdges(diagram: string): FlowGraph {
 export function orderSteps(diagram: string, declared: Map<string, CompiledStep>): CompiledStep[] {
   const { next, hasIncoming } = parseEdges(diagram);
   const roots = [...new Set([...next.keys()].filter((id) => !hasIncoming.has(id)))];
+  const subgraphs = parseSubgraphs(diagram);
 
   const ordered: CompiledStep[] = [];
   const seen = new Set<string>();
@@ -321,6 +322,19 @@ export function orderSteps(diagram: string, declared: Map<string, CompiledStep>)
   const walk = (id: string): void => {
     if (seen.has(id)) return; // edges can loop back
     seen.add(id);
+
+    // A loop is drawn as a subgraph, and the edge chain names the subgraph
+    // rather than each member — so reaching one means running its body, in the
+    // order the members were written. Without this the members are unreachable
+    // from any edge and fall through to the "unwired" pass at the end, which
+    // runs them after everything else.
+    for (const member of subgraphs.get(id) ?? []) {
+      if (seen.has(member)) continue;
+      seen.add(member);
+      const memberStep = declared.get(member);
+      if (memberStep) ordered.push(memberStep);
+    }
+
     const step = declared.get(id);
     if (step) ordered.push(step);
     for (const child of next.get(id) ?? []) walk(child);
@@ -331,6 +345,39 @@ export function orderSteps(diagram: string, declared: Map<string, CompiledStep>)
     if (!seen.has(id)) ordered.push(step);
   }
   return ordered;
+}
+
+/**
+ * Node ids inside each `subgraph`, in the order they are written.
+ *
+ * Mermaid's `subgraph <id>[label]` … `end` is how a loop is drawn, and the ids
+ * between them are its body. Nesting is not supported by the language, so a
+ * single open subgraph at a time is the whole shape this needs to handle.
+ */
+export function parseSubgraphs(diagram: string): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  let open: string | null = null;
+
+  for (const raw of diagram.split("\n")) {
+    const line = raw.trim();
+    if (line.startsWith("%%")) continue;
+
+    const start = line.match(/^subgraph\s+([A-Za-z_]\w*)/);
+    if (start?.[1]) {
+      open = start[1];
+      out.set(open, []);
+      continue;
+    }
+    if (line === "end") {
+      open = null;
+      continue;
+    }
+    if (!open) continue;
+
+    const node = line.match(/^([A-Za-z_]\w*)\s*[[({]/);
+    if (node?.[1]) out.get(open)?.push(node[1]);
+  }
+  return out;
 }
 
 export interface SagaSection {
@@ -369,6 +416,28 @@ export function compileSagas(
     const declared = new Map<string, CompiledStep>();
     /** Nodes written in the automation dialect, whose props need translating. */
     const autoNodes = new Set<string>();
+    /** `%%loop <id> while: <field> <op> <value>` declarations in this section. */
+    const loops = new Map<
+      string,
+      { field: string; operator: string; value: string; max: string }
+    >();
+
+    for (const rawLine of (section.diagram ?? "").split("\n")) {
+      const match = rawLine.trim().match(/^%%loop\s+(\w+)\s+while:\s*(\S+)\s+(\S+)\s*(.*)$/);
+      if (!match?.[1] || !match[2] || !match[3]) continue;
+      let rest = (match[4] ?? "").trim();
+      // `max:` closes the directive, so the check's value is what precedes it.
+      const maxMatch = rest.match(/\s*max:\s*(\S+)\s*$/);
+      const max = maxMatch?.[1] ?? "";
+      if (maxMatch) rest = rest.slice(0, rest.length - maxMatch[0].length);
+      let value = rest.trim();
+      try {
+        if (value.startsWith('"')) value = JSON.parse(value) as string;
+      } catch {
+        /* keep the raw text — the check that ends the loop is worth preserving */
+      }
+      loops.set(match[1], { field: match[2], operator: match[3], value, max });
+    }
 
     for (const rawLine of (section.diagram ?? "").split("\n")) {
       const line = rawLine.trim();
@@ -448,6 +517,41 @@ export function compileSagas(
     for (const nodeId of autoNodes) {
       const step = declared.get(nodeId);
       if (step) step.props = sagaPropsFromAutomation(step.type, step.props);
+    }
+
+    // Flatten each member's loop onto the step itself. The executor groups
+    // consecutive tasks by `loopId` and repeats them, so the repeat needs no
+    // BPMN element of its own — which keeps every existing definition, and
+    // every renderer, working unchanged.
+    for (const step of declared.values()) {
+      const loopId = (step.props.in ?? "").trim();
+      delete step.props.in;
+      if (!loopId) continue;
+
+      const loop = loops.get(loopId);
+      if (!loop) {
+        onWarn(
+          `Workflow "${section.name}": step ${step.nodeId} is in loop "${loopId}", which is never declared — it will run once.`
+        );
+        continue;
+      }
+      step.props.loopId = loopId;
+      step.props.loopField = loop.field;
+      step.props.loopOperator = loop.operator;
+      step.props.loopValue = loop.value;
+      step.props.loopMax = loop.max;
+      if (!loop.max.trim()) {
+        onWarn(
+          `Workflow "${section.name}": loop "${loopId}" has no max: — it cannot be given up on, so it is refused.`
+        );
+      }
+    }
+
+    for (const loopId of loops.keys()) {
+      const members = [...declared.values()].filter((s) => s.props.loopId === loopId);
+      if (members.length === 0) {
+        onWarn(`Workflow "${section.name}": loop "${loopId}" has no steps in it — ignored.`);
+      }
     }
 
     if (!declared.size) {

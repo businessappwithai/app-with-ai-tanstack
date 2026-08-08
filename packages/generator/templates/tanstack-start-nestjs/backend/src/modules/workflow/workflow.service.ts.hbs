@@ -41,8 +41,24 @@ export interface WorkflowStatus {
   durationMs?: number;
 }
 
+/**
+ * Used only when a loop arrives without its own `max:`, which the builder and
+ * the compiler both refuse — so reaching this means a definition was written by
+ * hand or predates the requirement. One pass, then give up: the safe direction
+ * for a loop nobody set a ceiling on is not to run it.
+ */
+const LOOP_MAX_FALLBACK = 1;
+
 interface BpmnTaskProps {
   nodeType: string;
+  /** Set on every member of a repeat; consecutive equal ids are one loop body. */
+  loopId?: string;
+  /** The check that keeps the loop going, carried on each member. */
+  loopField?: string;
+  loopOperator?: string;
+  loopValue?: string;
+  /** Passes this loop may run before it is abandoned. Set per loop by its author. */
+  loopMax?: string;
   entity?: string;
   field?: string;
   source?: string;
@@ -309,11 +325,165 @@ export class WorkflowService {
     const tasks = this.parseBpmnServiceTasks(bpmnXml);
     const mutations: Record<string, unknown>[] = [];
 
-    for (const task of tasks) {
-      const result = await this.executeTask(task, triggeringTable, entityData, vars, db);
-      if (result) mutations.push(result);
+    for (let i = 0; i < tasks.length; ) {
+      const task = tasks[i] as BpmnTaskProps;
+      const loopId = task.loopId;
+
+      if (!loopId) {
+        const result = await this.executeTask(task, triggeringTable, entityData, vars, db);
+        if (result) mutations.push(result);
+        i += 1;
+        continue;
+      }
+
+      // Consecutive tasks sharing a loopId are one repeat. The members are
+      // contiguous by construction — the builder refuses a loop whose steps are
+      // split — so a run of equal ids is the whole body.
+      let end = i;
+      while (end < tasks.length && (tasks[end] as BpmnTaskProps).loopId === loopId) end += 1;
+      const body = tasks.slice(i, end);
+
+      mutations.push(
+        ...(await this.runLoop(loopId, body, triggeringTable, entityData, vars, db)),
+      );
+      i = end;
     }
     return mutations;
+  }
+
+  /**
+   * Repeat a loop's steps while its check passes.
+   *
+   * The check is re-read from the database before every pass, not from the
+   * in-memory copy of the record: a step in the body writes the row, and if we
+   * evaluated a stale snapshot the loop would never see the change that is
+   * supposed to end it.
+   *
+   * The limit is a backstop, not a count, and each loop carries its own. An
+   * automation runs inside the
+   * write that triggered it, so a check that never fails holds a transaction
+   * open until something times out. Reaching the limit throws, which marks the
+   * whole run FAILED — an automation that gets there is wrong, and finishing
+   * quietly would hide it.
+   */
+  private async runLoop(
+    loopId: string,
+    body: BpmnTaskProps[],
+    triggeringTable: string,
+    entityData: Record<string, unknown>,
+    vars: Record<string, unknown>,
+    db: Kysely<any>,
+  ): Promise<Record<string, unknown>[]> {
+    const mutations: Record<string, unknown>[] = [];
+    const first = body[0] as BpmnTaskProps;
+    const field = first.loopField ?? '';
+    const operator = first.loopOperator ?? 'eq';
+    const compareTo = first.loopValue ?? '';
+    const declaredMax = Number.parseInt(first.loopMax ?? '', 10);
+    const maxPasses =
+      Number.isInteger(declaredMax) && declaredMax >= 1 ? declaredMax : LOOP_MAX_FALLBACK;
+
+    let pass = 0;
+    for (;;) {
+      const current = await this.reloadRecord(triggeringTable, entityData, db);
+      const context = { ...vars, ...current };
+      if (!this.checkHolds(context, field, operator, compareTo)) break;
+
+      if (pass >= maxPasses) {
+        throw new Error(
+          `Loop "${loopId}" did not finish within its limit of ${maxPasses} passes — ` +
+            `"${field} ${operator} ${compareTo}" never stopped being true. ` +
+            `Check that a step inside the loop changes "${field}".`,
+        );
+      }
+      pass += 1;
+
+      // 1-based, so `\{{L1.iteration}}` reads as "which pass is this" rather
+      // than as an array index. (Escaped: this file is a Handlebars template.)
+      vars[`${loopId}.iteration`] = pass;
+
+      for (const task of body) {
+        const result = await this.executeTask(task, triggeringTable, current, vars, db);
+        if (result) mutations.push({ ...result, loop: loopId, iteration: pass });
+      }
+    }
+
+    mutations.push({ nodeType: 'Loop', loop: loopId, passes: pass, endedBecause: `${field} ${operator} ${compareTo} is no longer true` });
+    return mutations;
+  }
+
+  /** Re-read the triggering row, so a loop check sees what its body just wrote. */
+  private async reloadRecord(
+    table: string,
+    entityData: Record<string, unknown>,
+    db: Kysely<any>,
+  ): Promise<Record<string, unknown>> {
+    const id = entityData.id;
+    if (!id) return entityData;
+    try {
+      const row = await db
+        .selectFrom(table as any)
+        .selectAll()
+        .where('id', '=', id as any)
+        .executeTakeFirst();
+      return (row as Record<string, unknown>) ?? entityData;
+    } catch {
+      // A row that cannot be re-read leaves the loop reading its last known
+      // state, which still terminates via the safety limit rather than hanging.
+      return entityData;
+    }
+  }
+
+  /** The same eleven operators the automation builder offers for a check. */
+  private checkHolds(
+    context: Record<string, unknown>,
+    field: string,
+    operator: string,
+    compareTo: string,
+  ): boolean {
+    if (!field) return false;
+    const bare = field.includes('.') ? (field.split('.').pop() as string) : field;
+    const raw = context[field] ?? context[bare];
+
+    switch (operator) {
+      case 'isEmpty':
+        return raw === null || raw === undefined || raw === '';
+      case 'isNotEmpty':
+        return !(raw === null || raw === undefined || raw === '');
+      case 'changed':
+        // Nothing here can know what the value was before the write, so a loop
+        // gated on "changed" would spin. Treated as never true rather than
+        // always true: the safe direction is not running.
+        return false;
+      default:
+        break;
+    }
+
+    const left = raw;
+    const rightNum = Number(compareTo);
+    const leftNum = Number(left);
+    const numeric = !Number.isNaN(rightNum) && !Number.isNaN(leftNum) && left !== null && left !== '';
+
+    switch (operator) {
+      case 'eq':
+        return numeric ? leftNum === rightNum : String(left ?? '') === compareTo;
+      case 'neq':
+        return numeric ? leftNum !== rightNum : String(left ?? '') !== compareTo;
+      case 'gt':
+        return numeric && leftNum > rightNum;
+      case 'gte':
+        return numeric && leftNum >= rightNum;
+      case 'lt':
+        return numeric && leftNum < rightNum;
+      case 'lte':
+        return numeric && leftNum <= rightNum;
+      case 'contains':
+        return String(left ?? '').includes(compareTo);
+      case 'startsWith':
+        return String(left ?? '').startsWith(compareTo);
+      default:
+        return false;
+    }
   }
 
   /**

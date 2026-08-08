@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
  * `await`ing or dynamically importing anything holding it behaves oddly. The
  * label the author reads is still "Then do this".
  */
-export type LadderKind = "when" | "if" | "action";
+export type LadderKind = "when" | "if" | "action" | "loop";
 
 const KIND_STYLES: Record<LadderKind, { icon: string; kicker: string; label: string }> = {
   when: {
@@ -31,6 +31,13 @@ const KIND_STYLES: Record<LadderKind, { icon: string; kicker: string; label: str
     icon: "bg-primary/10 text-primary border-primary/30",
     kicker: "text-primary",
     label: "Then do this",
+  },
+  // Teal rather than another shade of the accent: a repeat is control flow, not
+  // a fourth kind of action, and it should not read as one at a glance.
+  loop: {
+    icon: "bg-teal-50 text-teal-700 border-teal-200",
+    kicker: "text-teal-700",
+    label: "Keep repeating",
   },
 };
 
@@ -132,6 +139,40 @@ export function Token({ children, value = false }: { children: React.ReactNode; 
     >
       {children}
     </span>
+  );
+}
+
+/**
+ * The bracket drawn around the steps a loop repeats.
+ *
+ * A repeat is the one place the ladder stops being a flat list, so it needs to
+ * look like containment rather than another rung: the steps inside are indented
+ * behind a rail, and the rail carries the count of what it holds. Without the
+ * frame the only clue that three steps repeat would be a word on a card above
+ * them, which reads as a sequence, not a cycle.
+ */
+export function LoopFrame({
+  children,
+  stepCount,
+  problem,
+}: {
+  children: React.ReactNode;
+  stepCount: number;
+  problem?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "relative rounded-xl border-l-[3px] bg-teal-50/30 py-2 pl-4 pr-1",
+        problem ? "border-l-amber-400" : "border-l-teal-300"
+      )}
+    >
+      {children}
+      <p className="mt-2 pl-1 text-[11px] text-teal-700">
+        ↻ {stepCount === 1 ? "This step repeats" : `These ${stepCount} steps repeat`} until the
+        check above fails
+      </p>
+    </div>
   );
 }
 

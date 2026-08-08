@@ -38,7 +38,7 @@ A single file may hold several sections separated by blank lines.
 
   ```
   %%meta     %%hook     %%entity    %%field    %%enum
-  %%index    %%rule     %%guard     %%rbac     %%trigger  %%workflow
+  %%index    %%rule     %%guard     %%rbac     %%loop     %%trigger  %%workflow
   ```
 
   Only `%%hook` is parsed by the currently shipped parser; the rest form the
