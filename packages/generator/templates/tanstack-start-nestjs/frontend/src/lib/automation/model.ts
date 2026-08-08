@@ -546,6 +546,13 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
       continue;
     }
 
+    // An RBAC restriction, not a condition. %%guard used to mean both; the
+    // RBAC sense is now spelled %%rbac, but a model written before that would
+    // otherwise be read as a check on a field literally called "role:admin"
+    // with an operator of "on" — a condition that can never pass, silently
+    // disabling the automation. Skipped rather than guessed at.
+    if (/^%%guard\s+role:\S+\s+on\s+\w+\.\w+\s*$/.test(line)) continue;
+
     const guard = line.match(/^%%guard\s+(\S+)\s+(\S+)\s*(.*)$/);
     if (guard?.[1] && guard[2]) {
       let value = (guard[3] ?? "").trim();

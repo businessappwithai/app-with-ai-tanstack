@@ -69,10 +69,11 @@ export async function up(db: Kysely<any>): Promise<void> {
     )
   `.execute(db);
 
-  {{#each attributes}}
-  {{#if (or (eq name 'name') unique)}}
-  await sql`CREATE INDEX IF NOT EXISTS idx_{{../tableName}}_{{name}} ON {{../tableName}} ({{name}})`.execute(db);
-  {{/if}}
+  {{!-- One list: the model's own %%index declarations, including composite
+        ones, merged with the conventional single-column indexes. Merged in
+        entityToBusEntity so both share a naming scheme without colliding. --}}
+  {{#each indexes}}
+  await sql`CREATE {{#if unique}}UNIQUE {{/if}}INDEX IF NOT EXISTS idx_{{../tableName}}_{{join columns '_'}} ON {{../tableName}} ({{join columns ', '}})`.execute(db);
   {{/each}}
 
   {{/each}}

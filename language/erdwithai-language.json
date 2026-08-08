@@ -710,10 +710,10 @@
       "description": "A flat list of checks that must ALL pass for the steps to run. There is no OR and no nesting: an author who needs alternatives writes a second automation, which stays readable where a boolean tree does not. Zero conditions means the automation always runs.",
       "directive": "%%guard <field> <operator> <jsonValue>",
       "valueEncoding": "JSON.stringify — so a string value is quoted (`\"open\"`) and a number is bare (`3`). Operators of arity 0 still emit a value token, which readers ignore.",
-      "conflict": {
-        "with": "%%guard (RBAC form)",
-        "description": "%%guard is also reserved for RBAC role restrictions (`%%guard role:admin on Order.delete`). The two forms are textually distinguishable — the RBAC form begins with a `role:` prefix and ends with ` on <Entity>.<op>` — but they are the same keyword with unrelated meanings, which is a genuine collision in the language rather than an intended overload.",
-        "status": "The automation form is the one that ships and the one stored data uses; the RBAC form is documented extension surface with no shipped parser. Resolving it means renaming one of the two — the automation form to %%when is the smaller change in code, but it needs a migration for stored automations plus a reader that accepts both, so it is deliberately left as a documented conflict rather than changed silently."
+      "resolvedConflict": {
+        "was": "%%guard once meant both an automation condition and an RBAC role restriction — one keyword, two unrelated meanings.",
+        "resolution": "The RBAC sense was renamed to %%rbac. That side was renamed rather than the automation side because it had no shipped parser and no stored data: it existed only in this definition and the spec, so the rename costs nothing, while renaming the condition form would have meant rewriting every stored automation.",
+        "compatibility": "A model written before the rename may still carry `%%guard role:... on <Entity>.<op>`. The automation reader detects that shape and skips it instead of parsing it as a check on a field called \"role:admin\" with an operator of \"on\" — a condition that can never pass, which would silently disable the automation."
       },
       "operators": [
         { "id": "eq", "label": "is", "arity": 1 },
@@ -883,14 +883,15 @@
       },
       {
         "keyword": "%%guard",
-        "form": "%%guard <field> <operator> <jsonValue>   |   %%guard <roleExpr> on <Entity>.<op>",
-        "purpose": "Two unrelated meanings share this keyword. (1) Automation condition — a check that must pass for an automation's steps to run (SHIPPED, parsed by automation/model.ts, and the form all stored automations use). (2) RBAC guard — restrict a workflow step or CRUD op to roles (extension surface, no shipped parser). The forms are textually distinguishable by the `role:` prefix and trailing ` on <Entity>.<op>`, but this is a collision rather than an intended overload; see automations.conditions.conflict.",
-        "examples": [
-          "%%guard status eq \"open\"",
-          "%%guard order.total gt 1000",
-          "%%guard role:admin on Order.delete",
-          "%%guard role:sales|manager on Deal.update"
-        ]
+        "form": "%%guard <field> <operator> <jsonValue>",
+        "purpose": "Automation condition — a check that must pass for an automation's steps to run (SHIPPED, parsed by automation/model.ts, and the form all stored automations use). This keyword once also meant an RBAC role restriction; that sense is now %%rbac. A reader encountering the old RBAC shape here skips it rather than reading it as a condition on a field called \"role:admin\".",
+        "examples": ["%%guard status eq \"open\"", "%%guard order.total gt 1000"]
+      },
+      {
+        "keyword": "%%rbac",
+        "form": "%%rbac <roleExpr> on <Entity>.<op>",
+        "purpose": "RBAC guard: restrict a workflow step or CRUD op to roles (integrates with core rbac.types). Spelled %%guard until that keyword was needed unambiguously for automation conditions; this sense had no shipped parser and no stored data, so it is the side that moved.",
+        "examples": ["%%rbac role:admin on Order.delete", "%%rbac role:sales|manager on Deal.update"]
       },
       {
         "keyword": "%%trigger",

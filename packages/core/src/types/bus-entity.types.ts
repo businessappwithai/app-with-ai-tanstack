@@ -7,7 +7,7 @@
  */
 
 import { z } from "zod";
-import type { Entity, EntityAttribute, Relationship } from "./entity.types";
+import type { Entity, EntityAttribute, EntityIndex, Relationship } from "./entity.types";
 import {
   AccessLevel,
   BUS_TABLE_PREFIX,
@@ -121,10 +121,42 @@ export function entityToBusEntity(entity: Entity): BusEntity {
     tableName,
     originalName: entity.name,
     displayName: formatDisplayName(entity.name),
+    indexes: mergeIndexes(entity),
     attributes: entity.attributes.map((attr, index) =>
       attributeToBusAttribute(attr, index, entity.primaryKey)
     ),
   };
+}
+
+/**
+ * The indexes a table actually gets: what the model asked for, plus the
+ * conventional single-column ones, minus the overlap.
+ *
+ * Both sources name an index after its columns, so an explicit
+ * `%%index Compound(smiles) unique` and the convention that indexes every `UK`
+ * column both want `idx_bus_compound_smiles`. Emitted separately the second
+ * `CREATE INDEX IF NOT EXISTS` is a silent no-op, and since the conventional
+ * one is written first, the author's `unique` is the half that gets dropped —
+ * the model asks for a constraint and the database quietly does not have it.
+ *
+ * Merging here rather than in the template means every stack's migration gets
+ * the same answer from one place, and the explicit declaration wins on overlap
+ * because it is the one carrying intent.
+ */
+function mergeIndexes(entity: Entity): EntityIndex[] {
+  const merged = [...(entity.indexes ?? [])];
+  const claimed = new Set(merged.map((index) => index.columns.join(",")));
+
+  for (const attribute of entity.attributes) {
+    // The convention: a column called `name` is what people search by, and a
+    // unique column needs the index to enforce itself.
+    if (attribute.name !== "name" && !attribute.unique) continue;
+    if (claimed.has(attribute.name)) continue;
+    claimed.add(attribute.name);
+    merged.push({ columns: [attribute.name], unique: Boolean(attribute.unique) });
+  }
+
+  return merged;
 }
 
 /**

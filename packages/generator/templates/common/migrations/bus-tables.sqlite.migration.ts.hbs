@@ -67,10 +67,10 @@ export async function up(db: Kysely<any>): Promise<void> {
     )
   `.execute(db);
 
-  {{#each attributes}}
-  {{#if (or (eq name 'name') unique)}}
-  await sql`CREATE INDEX IF NOT EXISTS idx_{{../tableName}}_{{name}} ON {{../tableName}} ({{name}})`.execute(db);
-  {{/if}}
+  {{!-- Same merged list as the Postgres migration: %%index declarations plus
+        the conventional single-column ones, deduplicated by column. --}}
+  {{#each indexes}}
+  await sql`CREATE {{#if unique}}UNIQUE {{/if}}INDEX IF NOT EXISTS idx_{{../tableName}}_{{join columns '_'}} ON {{../tableName}} ({{join columns ', '}})`.execute(db);
   {{/each}}
 
   {{/each}}

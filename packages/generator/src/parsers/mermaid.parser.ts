@@ -21,7 +21,7 @@
  * ```
  */
 
-import type { Entity, EntityAttribute, Relationship } from "@erdwithai/core/types";
+import type { Entity, EntityAttribute, EntityIndex, Relationship } from "@erdwithai/core/types";
 import { getCardinalityKind, getDefaultType, getTypeMap } from "./language-maps";
 
 // Type mapping from Mermaid types to our standard types.
@@ -47,12 +47,27 @@ export class MermaidParser {
     let currentAttributes: EntityAttribute[] = [];
     let inEntityBlock = false;
 
+    /**
+     * `%%index` names its entity, so declarations are collected as they appear
+     * and attached at the end. Binding them as we go would depend on the
+     * directive following the entity block it refers to, which the language
+     * does not require.
+     */
+    const declaredIndexes: Array<{ entity: string } & EntityIndex> = [];
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i] ?? "";
       const trimmed = line.trim();
 
-      // Skip empty lines, comments, and erDiagram declaration
-      if (!trimmed || trimmed === "erDiagram" || trimmed.startsWith("%%")) {
+      // Skip empty lines, comments, and erDiagram declaration. `%%index` is the
+      // exception: it is a directive, not prose, and is read before the blanket
+      // comment skip that would otherwise swallow it.
+      if (!trimmed || trimmed === "erDiagram") {
+        continue;
+      }
+      if (trimmed.startsWith("%%")) {
+        const index = this.parseIndexDirective(trimmed);
+        if (index) declaredIndexes.push(index);
         continue;
       }
 
@@ -104,7 +119,52 @@ export class MermaidParser {
       entities.push(this.completeEntity(currentEntity, currentAttributes));
     }
 
+    this.attachIndexes(entities, declaredIndexes);
+
     return { entities, relationships };
+  }
+
+  /**
+   * `%%index Entity(col)` or `%%index Entity(a, b) unique`.
+   *
+   * Returns null for any other `%%` line, which is how the caller tells a
+   * directive from a comment.
+   */
+  private parseIndexDirective(line: string): ({ entity: string } & EntityIndex) | null {
+    const match = line.match(/^%%index\s+([A-Za-z_]\w*)\s*\(([^)]*)\)\s*(unique)?\s*$/i);
+    if (!match?.[1]) return null;
+
+    const columns = (match[2] ?? "")
+      .split(",")
+      .map((column) => column.trim())
+      .filter(Boolean);
+    if (columns.length === 0) return null;
+
+    return { entity: match[1], columns, unique: Boolean(match[3]) };
+  }
+
+  /**
+   * Bind each declaration to the entity it names.
+   *
+   * A declaration naming an unknown entity, or a column the entity does not
+   * have, is dropped rather than emitted: the migration would fail at run time
+   * on a column that does not exist, and a migration that cannot apply is worse
+   * than a missing index. The checker is what reports these to the author.
+   */
+  private attachIndexes(
+    entities: Entity[],
+    declared: Array<{ entity: string } & EntityIndex>
+  ): void {
+    for (const { entity: entityName, columns, unique } of declared) {
+      const entity = entities.find((candidate) => candidate.name === entityName);
+      if (!entity) continue;
+
+      const known = new Set(entity.attributes.map((attribute) => attribute.name));
+      if (!columns.every((column) => known.has(column))) continue;
+
+      entity.indexes = entity.indexes ?? [];
+      entity.indexes.push({ columns, unique });
+    }
   }
 
   /**

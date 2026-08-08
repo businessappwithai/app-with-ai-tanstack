@@ -124,8 +124,8 @@ LastState  --> [*]
 - States are treated as a **status enum** for the bound entity.
 - Transitions define the **allowed status changes**; the transition label is the
   triggering event/action.
-- Bind with `%%workflow ... kind: state` and (optionally) guard transitions with
-  `%%guard`.
+- Bind with `%%workflow ... kind: state` and (optionally) restrict transitions
+  by role with `%%rbac`.
 
 ### What a state workflow generates
 
@@ -161,8 +161,8 @@ stateDiagram-v2
     approved  --> cancelled : cancel
     shipped   --> [*]
 
-    %%guard role:sales|manager on Order.update
-    %%guard role:manager on Order.approve
+    %%rbac role:sales|manager on Order.update
+    %%rbac role:manager on Order.approve
     %%trigger webhook:carrier -> markShipped on Order
 ```
 
@@ -403,15 +403,17 @@ automation always runs.
 Operators: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `contains`, `startsWith`,
 `isEmpty`, `isNotEmpty`, `changed`. The last three take no value.
 
-> **`%%guard` carries two unrelated meanings.** It is also reserved for RBAC
-> role restrictions (`%%guard role:admin on Order.delete`). The forms are
-> distinguishable — RBAC has a `role:` prefix and a trailing `on <E>.<op>` —
-> but this is a genuine collision in the language, not an intended overload.
-> The condition form is the one that ships and the one all stored automations
-> use; the RBAC form is documented extension surface with no shipped parser.
-> Resolving it means renaming one of the two, which needs a migration for
-> stored automations and a reader that accepts both, so it is recorded here
-> rather than changed silently.
+> **`%%guard` used to mean two unrelated things.** It also spelled an RBAC role
+> restriction (`%%guard role:admin on Order.delete`). That sense is now
+> [`%%rbac`](05-directives.md#rbac--rbac-guard). The RBAC side was the one
+> renamed because it had no shipped parser and no stored data — it lived only in
+> this spec — whereas renaming the condition form would have meant rewriting
+> every stored automation.
+>
+> A model written before the rename may still carry the old RBAC shape under
+> `%%guard`. The automation reader detects it and skips it, rather than reading
+> it as a check on a field called `role:admin` with an operator of `on` — a
+> condition that can never pass, which would silently disable the automation.
 
 ### Steps
 
