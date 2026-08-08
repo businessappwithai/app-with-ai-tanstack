@@ -640,8 +640,159 @@
       ]
     }
   },
+  "automations": {
+    "description": "The automation dialect: the form a workflow takes when it is authored in the automation builder, which is the shipped way to build workflows and business rules in both the generator and generated applications. An automation is one sentence — a trigger, a flat list of conditions that must all pass, and an ordered list of steps. There is deliberately no graph: the executor runs steps in order and stops at the first failure, so a list is the honest representation. It is a constrained profile of `workflowConstructs.stepNodes`, not a second language: it serialises to the same mermaid flowchart with the same %%step directives, so an automation opens in a Mermaid renderer and runs through the existing executor.",
+    "relationshipToSaga": "The saga form (`%%workflow <Name> entity: <E> kind: saga`, positional `%%step <node> <StepType> <k>: <v>`) is the older, more general surface. The automation form differs in three ways: the workflow is named with `%%workflow name:` and takes its entity from `%%hook`; the step type is a `type:` key rather than a positional token; and conditions are expressed as `%%guard` lines instead of being drawn as decision nodes. Both compile to the same executable steps.",
+    "interoperability": "Both dialects are read by both sides. The builder's parser reads the saga form (mapping `fields`->`values`, a Formula's `target`/`source`/`operand` onto `as`/`left`/`right`, and `decisionTable` onto an inline table), and the generator reads the automation form (translating back, and unwrapping `{{name}}` references into the bare `source:`/`targetSource:` a saga uses). So a model authored by hand opens in the builder, and an automation built in a running application compiles through the generator. Downstream of that translation only saga vocabulary exists — STEP_CONTRACTS, the checker and the BPMN emitter need no knowledge that a second dialect exists.",
+    "shipped": true,
+    "writer": "packages/web/src/lib/automation/model.ts serializeAutomation()",
+    "reader": "packages/web/src/lib/automation/model.ts parseAutomation()",
+    "envelope": {
+      "description": "Every serialised automation opens with these lines, in this order.",
+      "lines": [
+        "flowchart TD",
+        "%%meta kind: workflow",
+        "%%workflow name: <name>",
+        "%%hook <hookName> on <Entity>"
+      ],
+      "note": "The entity is carried by %%hook, not by %%workflow. A reader that cannot find %%hook has no entity binding and falls back to the caller-supplied default."
+    },
+    "triggers": {
+      "description": "The events an automation can start from. These are the entity lifecycle hooks the generated services already fire, so a trigger is not a new concept — it is the hook, named the way someone describing their business would name it. `%%hook` carries the hook name; the builder shows the event name.",
+      "directive": "%%hook <hookName> on <Entity>",
+      "note": "This is the two-token form of %%hook — event and entity, with no handler name. The three-token handler form (`%%hook beforeCreate hashPassword on User`) is the hook-binding directive documented under `hooks` and is a different construct.",
+      "events": [
+        {
+          "event": "created",
+          "hook": "afterCreate",
+          "phase": "after",
+          "blocking": false,
+          "purpose": "Runs after the record is written. The record already exists."
+        },
+        {
+          "event": "beforeCreated",
+          "hook": "beforeCreate",
+          "phase": "before",
+          "blocking": true,
+          "purpose": "Runs before the record is written, so it can still block the write."
+        },
+        {
+          "event": "updated",
+          "hook": "afterUpdate",
+          "phase": "after",
+          "blocking": false,
+          "purpose": "Runs after the change is saved."
+        },
+        {
+          "event": "beforeUpdated",
+          "hook": "beforeUpdate",
+          "phase": "before",
+          "blocking": true,
+          "purpose": "Runs before the change is saved, so it can still block it."
+        },
+        {
+          "event": "deleted",
+          "hook": "afterDelete",
+          "phase": "after",
+          "blocking": false,
+          "purpose": "Runs after the record is removed."
+        },
+        {
+          "event": "beforeDeleted",
+          "hook": "beforeDelete",
+          "phase": "before",
+          "blocking": true,
+          "purpose": "Runs before the record is removed, so it can still block it."
+        }
+      ]
+    },
+    "conditions": {
+      "description": "A flat list of checks that must ALL pass for the steps to run. There is no OR and no nesting: an author who needs alternatives writes a second automation, which stays readable where a boolean tree does not. Zero conditions means the automation always runs.",
+      "directive": "%%guard <field> <operator> <jsonValue>",
+      "valueEncoding": "JSON.stringify — so a string value is quoted (`\"open\"`) and a number is bare (`3`). Operators of arity 0 still emit a value token, which readers ignore.",
+      "conflict": {
+        "with": "%%guard (RBAC form)",
+        "description": "%%guard is also reserved for RBAC role restrictions (`%%guard role:admin on Order.delete`). The two forms are textually distinguishable — the RBAC form begins with a `role:` prefix and ends with ` on <Entity>.<op>` — but they are the same keyword with unrelated meanings, which is a genuine collision in the language rather than an intended overload.",
+        "status": "The automation form is the one that ships and the one stored data uses; the RBAC form is documented extension surface with no shipped parser. Resolving it means renaming one of the two — the automation form to %%when is the smaller change in code, but it needs a migration for stored automations plus a reader that accepts both, so it is deliberately left as a documented conflict rather than changed silently."
+      },
+      "operators": [
+        { "id": "eq", "label": "is", "arity": 1 },
+        { "id": "neq", "label": "is not", "arity": 1 },
+        { "id": "gt", "label": "is greater than", "arity": 1 },
+        { "id": "gte", "label": "is greater than or equal to", "arity": 1 },
+        { "id": "lt", "label": "is less than", "arity": 1 },
+        { "id": "lte", "label": "is less than or equal to", "arity": 1 },
+        { "id": "contains", "label": "contains", "arity": 1 },
+        { "id": "startsWith", "label": "starts with", "arity": 1 },
+        { "id": "isEmpty", "label": "is empty", "arity": 0 },
+        { "id": "isNotEmpty", "label": "is not empty", "arity": 0 },
+        { "id": "changed", "label": "changed", "arity": 0 }
+      ]
+    },
+    "steps": {
+      "description": "An ordered list. Each step gets a generated node id (`s1`, `s2`, …) and one `type:` line, followed by one line per property. A step may name its result with `as:`, which publishes a reference later steps can read.",
+      "directives": [
+        "%%step <nodeId> type: <StepType> [as: <resultName>]",
+        "%%step <nodeId> <propertyKey>: <value>",
+        "%%step <nodeId> table: <decisionTableJson>"
+      ],
+      "types": [
+        {
+          "type": "Decision",
+          "purpose": "Evaluate a rule table and publish its outputs.",
+          "properties": ["ruleTable", "inputs"],
+          "example": "%%step s1 type: Decision as: tier\n%%step s1 ruleTable: Assay tier"
+        },
+        {
+          "type": "CreateEntity",
+          "purpose": "Create a record on another entity.",
+          "properties": ["entity", "values"],
+          "example": "%%step s2 type: CreateEntity as: newId\n%%step s2 entity: ChemicalInventory"
+        },
+        {
+          "type": "UpdateEntity",
+          "purpose": "Write a field, by default on the triggering record.",
+          "properties": ["entity", "field", "value"],
+          "example": "%%step s3 type: UpdateEntity\n%%step s3 field: status\n%%step s3 value: {{tier}}"
+        },
+        {
+          "type": "DeleteEntity",
+          "purpose": "Remove a record.",
+          "properties": ["entity", "target"],
+          "example": "%%step s4 type: DeleteEntity\n%%step s4 entity: Vendor"
+        },
+        {
+          "type": "Formula",
+          "purpose": "Compute a value from two operands and publish it.",
+          "properties": ["operation", "left", "right"],
+          "example": "%%step s5 type: Formula as: total\n%%step s5 operation: add\n%%step s5 left: {{order.subtotal}}\n%%step s5 right: 9"
+        },
+        {
+          "type": "REST",
+          "purpose": "Call an external service.",
+          "properties": ["method", "url", "body"],
+          "example": "%%step s6 type: REST\n%%step s6 method: POST\n%%step s6 url: https://lims.example.com/hook"
+        }
+      ]
+    },
+    "references": {
+      "description": "What a step can read: fields of the triggering record, and the published results of every step above it. A reference is written in double braces and resolved positionally — a step can only see what precedes it, which is what makes the ladder safe to reorder.",
+      "form": "{{<name>}}",
+      "sources": [
+        "{{<entity>.<field>}} — a field of the triggering record, entity name lowercased",
+        "{{<resultName>}} — the result of an earlier step, named by its `as:`"
+      ]
+    },
+    "nodes": {
+      "description": "The drawn flowchart carries no semantics — it exists so the document renders as a diagram. Every node is regenerated from the directives on write, and readers take meaning only from the %% lines.",
+      "start": "start([<Entity> <trigger label>])",
+      "guard": "guard{<conditions joined by ' and '}}",
+      "step": "s<n>[<step summary>]",
+      "done": "done([Done])"
+    }
+  },
   "directives": {
-    "description": "Reserved %% directive comments. All are renderer-safe (ignored by Mermaid) and interpreted by the generator. %%hook, %%step and %%action are parsed by the shipped compilers; the remainder are the EML extension surface, documented here as the authoritative language contract.",
+    "description": "Reserved %% directive comments. All are renderer-safe (ignored by Mermaid) and interpreted by the generator. %%hook, %%step, %%action, %%workflow and %%guard are parsed by the shipped compilers; the remainder are the EML extension surface, documented here as the authoritative language contract.",
     "reserved": [
       {
         "keyword": "%%meta",
@@ -656,13 +807,16 @@
       },
       {
         "keyword": "%%hook",
-        "form": "%%hook <type> <handler> on <Entity>[<params>]",
-        "purpose": "Bind a named handler to an entity lifecycle event (SHIPPED, parsed by hook-parser.ts).",
-        "examples": ["%%hook beforeCreate hashPassword on User"]
+        "form": "%%hook <type> <handler> on <Entity>[<params>]   |   %%hook <type> on <Entity>",
+        "purpose": "Bind an entity lifecycle event. The three-token form names a handler to run (SHIPPED, parsed by hook-parser.ts). The two-token form omits the handler and is the automation trigger: it says which event starts the automation and on which entity, with the steps carried by %%step (SHIPPED, parsed by automation/model.ts).",
+        "examples": [
+          "%%hook beforeCreate hashPassword on User",
+          "%%hook afterCreate on DeviationReport"
+        ]
       },
       {
         "keyword": "%%step",
-        "form": "%%step <nodeId> <stepType> <key>: <value> ...",
+        "form": "%%step <nodeId> <stepType> <key>: <value> ...   |   %%step <nodeId> type: <stepType> [as: <name>]",
         "purpose": "Bind a flowchart node in a `kind: saga` workflow to an executable step. `nodeId` is the node's id in the flowchart; `stepType` is one of workflowConstructs.stepNodes.types. Compiles to a bpmn:serviceTask (SHIPPED, parsed by packages/generator/src/workflows/index.ts).",
         "examples": [
           "%%step B Formula target: baseDays operation: set value: 3",
@@ -729,9 +883,11 @@
       },
       {
         "keyword": "%%guard",
-        "form": "%%guard <roleExpr> on <Entity>.<op>",
-        "purpose": "RBAC guard: restrict a workflow step or CRUD op to roles (integrates with core rbac.types).",
+        "form": "%%guard <field> <operator> <jsonValue>   |   %%guard <roleExpr> on <Entity>.<op>",
+        "purpose": "Two unrelated meanings share this keyword. (1) Automation condition — a check that must pass for an automation's steps to run (SHIPPED, parsed by automation/model.ts, and the form all stored automations use). (2) RBAC guard — restrict a workflow step or CRUD op to roles (extension surface, no shipped parser). The forms are textually distinguishable by the `role:` prefix and trailing ` on <Entity>.<op>`, but this is a collision rather than an intended overload; see automations.conditions.conflict.",
         "examples": [
+          "%%guard status eq \"open\"",
+          "%%guard order.total gt 1000",
           "%%guard role:admin on Order.delete",
           "%%guard role:sales|manager on Deal.update"
         ]
@@ -747,9 +903,12 @@
       },
       {
         "keyword": "%%workflow",
-        "form": "%%workflow <name> entity: <Entity> kind: <hook|state|saga>",
-        "purpose": "Name and classify a workflow section and bind it to an entity.",
-        "examples": ["%%workflow OrderFulfillment entity: Order kind: state"]
+        "form": "%%workflow <name> entity: <Entity> kind: <hook|state|saga>   |   %%workflow name: <name>",
+        "purpose": "Name and classify a workflow section. The positional form binds the entity itself. The `name:` form is what the automation builder writes (SHIPPED): it carries only the name and takes its entity binding from the accompanying %%hook line.",
+        "examples": [
+          "%%workflow OrderFulfillment entity: Order kind: state",
+          "%%workflow name: Escalate critical deviations"
+        ]
       }
     ]
   },

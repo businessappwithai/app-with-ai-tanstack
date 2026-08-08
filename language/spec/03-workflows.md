@@ -314,6 +314,136 @@ value. The executor runs a linear chain, so compensation is expressed as
 explicit steps rather than inferred; automatic compensating-transaction
 orchestration remains extended conformance.
 
+## Automations — the form the builder writes
+
+A saga is the general surface. The **automation** is the constrained profile of
+it that the shipped builder reads and writes, and it is how workflows and
+business rules are authored in both the generator and generated applications.
+
+An automation is one sentence:
+
+> When a `DeviationReport` **is created**, only if `status` **is** `"open"`,
+> then look up a rule table, create a record, and write a field back.
+
+A trigger, a flat list of conditions that must all pass, and an ordered list of
+steps. There is deliberately no graph — the executor runs steps in order and
+stops at the first failure, so a list is the honest representation, and it is
+what lets the builder draw a ladder without inventing layout nobody asked for.
+
+It is not a second language. It serialises to the same mermaid flowchart with
+the same `%%step` directives, so an automation renders as a diagram anywhere
+Mermaid runs and executes through the existing executor.
+
+```mermaid
+flowchart TD
+%%meta kind: workflow
+%%workflow name: Escalate critical deviations
+%%hook afterCreate on DeviationReport
+%%guard severity eq "critical"
+  start([DeviationReport is created])
+  guard{severity is "critical"}
+  s1[Look up Escalation tier]
+%%step s1 type: Decision as: tier
+%%step s1 ruleTable: Escalation tier
+  s2[Create a CAPA]
+%%step s2 type: CreateEntity as: capaId
+%%step s2 entity: CAPA
+  s3[Set status]
+%%step s3 type: UpdateEntity
+%%step s3 field: status
+%%step s3 value: {{tier}}
+  done([Done])
+  start --> guard
+  guard --> s1
+  s1 --> s2
+  s2 --> s3
+  s3 --> done
+```
+
+### How it differs from a saga
+
+| | Saga | Automation |
+|---|---|---|
+| Name and entity | `%%workflow <Name> entity: <E> kind: saga` | `%%workflow name: <name>`, entity from `%%hook` |
+| Step type | positional — `%%step B Formula …` | a key — `%%step s1 type: Formula` |
+| Properties | all on one line | one line per key, sharing the node id |
+| Conditions | drawn as decision nodes | `%%guard` lines |
+
+Both compile to the same executable steps, and **both are read by both sides**:
+a model authored by hand opens in the builder, and an automation built in a
+running application compiles through the generator. The translation happens at
+the edges — the builder maps a saga's `fields` onto `values` and a Formula's
+`target`/`source`/`operand` onto `as`/`left`/`right`; the generator maps back and
+unwraps `{{name}}` references into the bare `source:` a saga uses. Downstream,
+only saga vocabulary exists, so the checker and the BPMN emitter never learn
+there is a second dialect.
+
+### Triggers
+
+`%%hook <hookName> on <Entity>` — the two-token form of `%%hook`, with no
+handler name. The event is the lifecycle hook the generated services already
+fire, so a trigger is not a new concept.
+
+| Builder wording | `%%hook` name | Can still block the write |
+|---|---|---|
+| is created | `afterCreate` | no |
+| is about to be created | `beforeCreate` | yes |
+| is updated | `afterUpdate` | no |
+| is about to be updated | `beforeUpdate` | yes |
+| is deleted | `afterDelete` | no |
+| is about to be deleted | `beforeDelete` | yes |
+
+### Conditions
+
+`%%guard <field> <operator> <jsonValue>`. All of them must pass. There is no OR
+and no nesting: an author who needs alternatives writes a second automation,
+which stays readable where a boolean tree does not. Zero conditions means the
+automation always runs.
+
+Operators: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `contains`, `startsWith`,
+`isEmpty`, `isNotEmpty`, `changed`. The last three take no value.
+
+> **`%%guard` carries two unrelated meanings.** It is also reserved for RBAC
+> role restrictions (`%%guard role:admin on Order.delete`). The forms are
+> distinguishable — RBAC has a `role:` prefix and a trailing `on <E>.<op>` —
+> but this is a genuine collision in the language, not an intended overload.
+> The condition form is the one that ships and the one all stored automations
+> use; the RBAC form is documented extension surface with no shipped parser.
+> Resolving it means renaming one of the two, which needs a migration for
+> stored automations and a reader that accepts both, so it is recorded here
+> rather than changed silently.
+
+### Steps
+
+`%%step <nodeId> type: <StepType> [as: <name>]`, then one line per property.
+`as:` publishes a result that later steps can read.
+
+| Type | Properties | Does |
+|---|---|---|
+| `Decision` | `ruleTable`, `inputs` | Evaluates a rule table, publishes its outputs |
+| `CreateEntity` | `entity`, `values` | Creates a record on another entity |
+| `UpdateEntity` | `entity`, `field`, `value` | Writes a field, by default on the triggering record |
+| `DeleteEntity` | `entity`, `target` | Removes a record |
+| `Formula` | `operation`, `left`, `right` | Computes a value and publishes it |
+| `REST` | `method`, `url`, `body` | Calls an external service |
+
+### References
+
+A step can read fields of the triggering record and the published results of
+every step above it, written in double braces:
+
+- `{{deviationreport.severity}}` — a field of the triggering record, entity name lowercased
+- `{{tier}}` — the result of an earlier step, named by its `as:`
+
+Resolution is positional: a step sees only what precedes it, which is what makes
+the ladder safe to reorder.
+
+### The drawn nodes carry no meaning
+
+Every node is regenerated from the directives on write, and readers take meaning
+only from the `%%` lines. The flowchart exists so the document renders as a
+diagram — editing the boxes by hand changes nothing.
+
 ## Combining hooks, rules, and state
 
 A single entity can carry all three: an ERD block (structure), `%%rule`

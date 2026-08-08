@@ -24,8 +24,13 @@ directive       = metaDir | hookDir | stepDir | entityDir | fieldDir | enumDir
                 | indexDir | ruleDir | guardDir | triggerDir | workflowDir ;
 
 metaDir         = "%%meta" , WS , key , ":" , WS , value ;
-hookDir         = "%%hook" , WS , hookType , WS , ident , WS , "on" , WS ,
+(* Two forms. With a handler name it binds a named handler to a lifecycle
+   event. Without one it is an automation's trigger: the event and the entity,
+   with the work carried by the %%step directives that follow. *)
+hookDir         = hookBindDir | autoTriggerDir ;
+hookBindDir     = "%%hook" , WS , hookType , WS , ident , WS , "on" , WS ,
                   ident , [ hookParams ] ;
+autoTriggerDir  = "%%hook" , WS , hookType , WS , "on" , WS , ident ;
 hookParams      = "[" , [ fieldRef , { "," , WS , fieldRef } ] , "]" ;
 fieldRef        = "field:" , WS , ident ;
 entityDir       = "%%entity" , WS , ident , WS , key , ":" , WS , value ;
@@ -37,28 +42,58 @@ indexDir        = "%%index" , WS , ident , "(" , ident , { "," , WS , ident } ,
                   ")" , [ WS , "unique" ] ;
 ruleDir         = "%%rule" , WS , ident , WS , "on" , WS , ident , WS ,
                   "event:" , WS , hookType , [ WS , "priority:" , WS , NUMBER ] ;
-guardDir        = "%%guard" , WS , roleExpr , WS , "on" , WS , ident , "." ,
+(* Two unrelated meanings on one keyword — a collision, not an overload. The
+   RBAC form is told apart by its "role:" prefix and trailing "on <E>.<op>";
+   the condition form is what the automation builder writes and what every
+   stored automation uses. See automations.conditions.conflict. *)
+guardDir        = rbacGuardDir | conditionDir ;
+rbacGuardDir    = "%%guard" , WS , roleExpr , WS , "on" , WS , ident , "." ,
                   ident ;
+conditionDir    = "%%guard" , WS , fieldPath , WS , operator , [ WS , jsonValue ] ;
+fieldPath       = ident , { "." , ident } ;
+operator        = "eq" | "neq" | "gt" | "gte" | "lt" | "lte"
+                | "contains" | "startsWith" | "isEmpty" | "isNotEmpty"
+                | "changed" ;
+jsonValue       = { CHAR - NEWLINE } ;   (* JSON.stringify output *)
 triggerDir      = "%%trigger" , WS , source , WS , "->" , WS , ident , WS ,
                   "on" , WS , ident ;
-workflowDir     = "%%workflow" , WS , ident , WS , "entity:" , WS , ident ,
+(* The positional form binds the entity itself. The "name:" form is what the
+   automation builder writes: it carries only the name and takes its entity
+   from the %%hook line beside it. *)
+workflowDir     = sagaWorkflowDir | autoWorkflowDir ;
+sagaWorkflowDir = "%%workflow" , WS , ident , WS , "entity:" , WS , ident ,
                   WS , "kind:" , WS , ( "hook" | "state" | "saga" ) ,
                   [ WS , "trigger:" , WS , ( "automatic" | "rule" ) ] ,
                   [ WS , "operation:" , WS ,
                     ( "CREATE" | "UPDATE" | "DELETE" | "ALL" ) ] ;
+autoWorkflowDir = "%%workflow" , WS , "name:" , WS , { CHAR - NEWLINE } ;
 
 (* A %%step binds one flowchart node of a `kind: saga` workflow to an
    executable step. `nodeId` must be a node in the same flowchart; the edges
    give the running order. `fields` carries JSON and so must be the last key
    on the line — every other value runs to the next `key:` token. *)
-stepDir         = "%%step" , WS , ident , WS , stepType ,
+stepDir         = sagaStepDir | autoStepDir ;
+sagaStepDir     = "%%step" , WS , ident , WS , stepType ,
                   { WS , stepKey , ":" , WS , stepValue } ;
+
+(* The automation form puts the type behind a "type:" key and splits the
+   properties across one line per key, all sharing the node id. Order within a
+   node does not matter; the node ids give the running order. *)
+autoStepDir     = autoStepType | autoStepProp ;
+autoStepType    = "%%step" , WS , ident , WS , "type:" , WS , stepType ,
+                  [ WS , "as:" , WS , ident ] ;
+autoStepProp    = "%%step" , WS , ident , WS , autoStepKey , ":" , WS ,
+                  stepValue ;
+autoStepKey     = "ruleTable" | "inputs" | "entity" | "values" | "field"
+                | "value" | "target" | "operation" | "left" | "right"
+                | "method" | "url" | "body" | "table" ;
+
 stepType        = "UpdateEntity" | "CreateEntity" | "DeleteEntity"
-                | "Formula" | "REST" | "Agent" ;
+                | "Decision" | "Formula" | "REST" | "Agent" ;
 stepKey         = "entity" | "field" | "value" | "source" | "target"
                 | "targetField" | "targetSource" | "operation" | "operand"
                 | "as" | "hard" | "url" | "method" | "bodyTemplate"
-                | "agentId" | "fields" ;
+                | "agentId" | "fields" | "decisionTable" ;
 stepValue       = { CHAR - NEWLINE } ;   (* ends at the next `key:` token *)
 
 roleExpr        = role , { "|" , role } ;

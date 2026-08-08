@@ -10,6 +10,35 @@
 %%
 %% Generate: bun run generate:tanstack -- -i examples/drug-discovery.eml.mmd \
 %%            -o generated-projects/drug-discovery-clone -n drug-discovery-clone
+%%
+%% ---- Checked against a running generated application ------------------------
+%% This model was diffed against a live generated instance (17 bus_ tables,
+%% seeded and exercised through the UI). What matched, exactly:
+%%
+%%   - all 17 entities, and every declared field, against the real columns
+%%     (ignoring the 8 system columns the generator adds to every table:
+%%      created_at, updated_at, deleted_at, version, workflow_status,
+%%      workflow_run_id, doc_status, doc_status_message)
+%%   - the 3 business rules in Sections 3-5, all present as rule definitions
+%%   - the 3 saga workflows in Sections 10-12, all present as workflow
+%%     definitions with source: 'model'
+%%   - the 3 unique indexes
+%%
+%% One gap remains, on the application side rather than in this file: the 3
+%% non-unique %%index declarations below (Experiment(project_code),
+%% InstrumentBooking(instrument_id, start_time),
+%% WorkflowEvent(experiment_id, event_timestamp)) produce no index in the
+%% generated database. Only the unique ones are emitted.
+%%
+%% ---- On the two dialects ----------------------------------------------------
+%% The workflows here are written in the saga dialect
+%% (`%%workflow <Name> entity: <E> kind: saga`, `%%step <node> <Type> <k>: <v>`).
+%% The automation builder in the running application writes a second dialect
+%% (`%%step <id> type: <T>`, one property per line). Both are now read by both
+%% sides, so these sections open in the builder and anything built there
+%% compiles here — the file did not need rewriting to become editable in the
+%% application, and it stays in the form it was authored in.
+%% Both dialects are specified in language/spec/03-workflows.md.
 %% ============================================================================
 
 %% ---- Section 1: ERD --------------------------------------------------------

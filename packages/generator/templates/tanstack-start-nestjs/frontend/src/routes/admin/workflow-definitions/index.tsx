@@ -73,14 +73,12 @@ function WorkflowDefinitionsList() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Workflow Designer</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Workflows</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Visual BPMN action graphs that run after GoRules decisions
+            Everything that runs automatically on your records. Built in the automation builder.
           </p>
         </div>
-        <Button onClick={() => navigate({ to: "/admin/workflow-definitions/new" })}>
-          + New Workflow
-        </Button>
+        <Button onClick={() => navigate({ to: "/admin/automations" })}>+ New Workflow</Button>
       </div>
 
       {/* Stats */}
@@ -120,8 +118,8 @@ function WorkflowDefinitionsList() {
         <div className="text-center py-12 text-gray-400">Loading…</div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-gray-400">
-          No workflow definitions yet.{" "}
-          <Link to="/admin/workflow-definitions/new" className="text-teal-600 underline">
+          No workflows yet.{" "}
+          <Link to="/admin/automations" className="text-teal-600 underline">
             Create one
           </Link>
         </div>
@@ -191,15 +189,13 @@ function WorkflowDefinitionsList() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex gap-2 justify-end">
+                        {/* The builder selects from its own rail rather than
+                            taking an id in the URL, so this opens it rather
+                            than deep-linking to this row. */}
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() =>
-                            navigate({
-                              to: "/admin/workflow-definitions/$id/edit",
-                              params: { id: d.id },
-                            })
-                          }
+                          onClick={() => navigate({ to: "/admin/automations" })}
                         >
                           {d.source === "model" ? "View" : "Edit"}
                         </Button>
