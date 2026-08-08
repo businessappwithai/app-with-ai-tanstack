@@ -79,17 +79,6 @@ on:
           - public
         default: private
 
-  # TEMPORARY — self-test trigger. workflow_dispatch is only registered for
-  # workflows already on the default branch, so until this merges the only way
-  # to exercise it on a runner is a push event. Remove this block once the
-  # workflow is on main; the resolved-input defaults below make a push run
-  # behave like a dispatch with the drug-discovery model.
-  push:
-    branches:
-      - claude/github-neon-deployment-action-rf6oir
-    paths:
-      - ".github/workflows/github-neon.yml"
-      - "scripts/ci/neon-db.ts"
 
 permissions:
   contents: read
