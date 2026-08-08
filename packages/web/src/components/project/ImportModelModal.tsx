@@ -170,10 +170,7 @@ export function ImportModelModal({ open, onClose, onImport }: ImportModelModalPr
         <div className="space-y-4 px-5 py-4">
           {examples.length > 0 && (
             <div className="space-y-1.5">
-              <label
-                htmlFor="example-model"
-                className="text-xs font-medium text-muted-foreground"
-              >
+              <label htmlFor="example-model" className="text-xs font-medium text-muted-foreground">
                 Start from a bundled model
               </label>
               <select

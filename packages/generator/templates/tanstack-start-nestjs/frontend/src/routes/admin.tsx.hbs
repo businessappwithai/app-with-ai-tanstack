@@ -57,7 +57,18 @@ const ASSISTANT_LABELS = {
 
 function AdminLayout() {
   return (
-    <CopilotKit runtimeUrl="/api/copilotkit">
+    <CopilotKit
+      runtimeUrl="/api/copilotkit"
+      // The inspector is gated on `enableInspector`, NOT `showDevConsole` —
+      // the <CopilotKit> wrapper reads them from different props, and
+      // `showDevConsole` only silences error toasts and banners. Left unset,
+      // `enableInspector` falls back to "is this localhost?", so it mounts a
+      // <cpk-web-inspector> floating button above everything at z-index
+      // 2147483646 that swallows clicks landing under it — including from any
+      // script driving the UI. Off unless someone asks for it.
+      enableInspector={false}
+      showDevConsole={false}
+    >
       <AdminContent />
       <CopilotSidebar
         labels={ASSISTANT_LABELS}

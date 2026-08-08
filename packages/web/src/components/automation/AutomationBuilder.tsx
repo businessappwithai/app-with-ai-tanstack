@@ -74,7 +74,7 @@ function TriggerInspector({
           The event that starts the run. One per automation.
         </p>
 
-        <div className="mb-3.5">
+        <label className="mb-3.5 block">
           <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
             Record type
           </span>
@@ -90,9 +90,9 @@ function TriggerInspector({
               </option>
             ))}
           </select>
-        </div>
+        </label>
 
-        <div className="mb-3.5">
+        <label className="mb-3.5 block">
           <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
             What happens to it
           </span>
@@ -110,7 +110,7 @@ function TriggerInspector({
           <p className="mt-1.5 text-[11.5px] leading-snug text-muted-foreground">
             {TRIGGER_HINTS[trigger.event]}
           </p>
-        </div>
+        </label>
       </div>
     </div>
   );
@@ -481,9 +481,12 @@ function EmptyInspector() {
 
 function TriggerTitle({ trigger }: { trigger: Trigger }) {
   if (!trigger.entity) return <span className="text-muted-foreground">Pick a record type…</span>;
+  // "An Compound" read as a typo on every card that was not a vowel-initial
+  // entity; the article has to follow the name the author actually picked.
+  const article = /^[aeiou]/i.test(trigger.entity) ? "An" : "A";
   return (
     <>
-      An <Token>{trigger.entity}</Token> {TRIGGER_LABELS[trigger.event]}
+      {article} <Token>{trigger.entity}</Token> {TRIGGER_LABELS[trigger.event]}
     </>
   );
 }

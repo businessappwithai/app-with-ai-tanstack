@@ -3,12 +3,9 @@ import {
   AlertCircle,
   ArrowLeft,
   CheckCircle2,
-  ChevronDown,
   Clock,
   Code,
   Download,
-  Eye,
-  EyeOff,
   FileCode,
   GitBranch,
   Loader2,
@@ -17,9 +14,9 @@ import {
   Trash2,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AutomationBuilder } from "@/components/automation/AutomationBuilder";
 import { ProgressStepper } from "@/components/ProgressStepper";
-import { FlowchartPreview } from "@/components/workflow/FlowchartPreview";
-import { WorkflowEditor } from "@/components/workflow/WorkflowEditor";
+import { parseAutomation, serializeAutomation } from "@/lib/automation/model";
 import { generateFlowchartFromHooks, type ParsedHookDefinition } from "@/lib/workflow/hook-parser";
 import { useProjectStore } from "@/store/projectStore";
 
@@ -302,7 +299,6 @@ function ServiceWorkflowPage() {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [showHooksList, setShowHooksList] = useState(true);
-  const [showFlowchartPreview, setShowFlowchartPreview] = useState(false);
   const [generatedFiles, setGeneratedFiles] = useState<GeneratedHookFile[]>([]);
   const [selectedFileIndex, setSelectedFileIndex] = useState<number>(0);
   const [showGeneratedCode, setShowGeneratedCode] = useState(false);
@@ -310,6 +306,18 @@ function ServiceWorkflowPage() {
 
   const draftSaveTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const isDirtyRef = useRef(false);
+
+  /**
+   * The automation the builder edits.
+   *
+   * The route's source of truth is still the mermaid in `flowchartCode`, so
+   * the ladder reads from it and writes back to it. That keeps the raw editor
+   * beside it honest — both panes show the same document.
+   */
+  const automation = useMemo(
+    () => parseAutomation(flowchartCode, serviceName),
+    [flowchartCode, serviceName]
+  );
 
   const entities = useMemo(() => {
     if (!project?.erdCode) return [];
@@ -1020,22 +1028,6 @@ function ServiceWorkflowPage() {
                       <FileCode className="w-4 h-4" />
                       Flowchart Code
                     </h3>
-                    <button
-                      onClick={() => setShowFlowchartPreview(!showFlowchartPreview)}
-                      className="flex items-center gap-1 px-3 py-1.5 text-xs bg-secondary hover:bg-secondary/80 text-foreground rounded-lg transition-colors"
-                    >
-                      {showFlowchartPreview ? (
-                        <>
-                          <EyeOff className="w-3 h-3" />
-                          Hide Preview
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="w-3 h-3" />
-                          Show Preview
-                        </>
-                      )}
-                    </button>
                   </div>
                   <textarea
                     value={flowchartCode}
@@ -1045,41 +1037,14 @@ function ServiceWorkflowPage() {
                     placeholder="Enter Mermaid flowchart syntax here..."
                   />
                 </div>
-
-                {showFlowchartPreview && (
-                  <div className="h-96 border-t border-border bg-card p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                        <GitBranch className="w-4 h-4" />
-                        Flowchart Preview
-                      </h3>
-                      <button
-                        onClick={() => setShowFlowchartPreview(false)}
-                        className="p-1 hover:bg-secondary rounded transition-colors"
-                      >
-                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                      </button>
-                    </div>
-                    <div className="h-[calc(100%-2rem)] overflow-hidden rounded-lg border border-border bg-muted">
-                      <FlowchartPreview
-                        flowchartCode={flowchartCode}
-                        showZoomControls={true}
-                        showDownloadButton={false}
-                        onError={setValidationErrors}
-                        className="h-full"
-                      />
-                    </div>
-                  </div>
-                )}
               </div>
             </>
           ) : (
-            <WorkflowEditor
-              serviceName={serviceName}
-              projectId={projectId}
-              entities={entities}
-              hooks={selectedHooks}
-              flowchartCode={flowchartCode}
+            <AutomationBuilder
+              automation={automation}
+              onChange={(next) => setFlowchartCode(serializeAutomation(next))}
+              entities={entities.map((e) => e.name)}
+              entityFields={Object.fromEntries(entities.map((e) => [e.name, e.attributes]))}
             />
           )}
         </div>

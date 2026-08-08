@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { parseRuleActions } from "@erdwithai/generator/rules";
+import { describe, expect, it } from "vitest";
 import { emitRuleFlow, parseRuleFlow } from "@/lib/eml/rule-flow";
 
 /**

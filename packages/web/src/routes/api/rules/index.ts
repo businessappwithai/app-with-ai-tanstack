@@ -20,11 +20,25 @@ export const Route = createFileRoute("/api/rules/")({
           const entityName = url.searchParams.get("entityName") ?? undefined;
           const operation = url.searchParams.get("operation") ?? undefined;
 
-          const rules = await rulesDb.findAll({ entityName, operation });
+          // Paged at 200, which is also the ceiling. A list endpoint that can be
+          // asked for everything eventually is, and then the page it feeds stops
+          // loading for the person with the most rules — the one who needs it most.
+          const limit = Math.min(Math.max(Number(url.searchParams.get("limit") ?? 200), 1), 200);
+          const offset = Math.max(Number(url.searchParams.get("offset") ?? 0), 0);
 
-          return new Response(JSON.stringify({ rules }), {
-            headers: { "Content-Type": "application/json" },
-          });
+          const all = await rulesDb.findAll({ entityName, operation });
+          const rules = all.slice(offset, offset + limit);
+
+          return new Response(
+            JSON.stringify({
+              rules,
+              total: all.length,
+              limit,
+              offset,
+              hasMore: offset + rules.length < all.length,
+            }),
+            { headers: { "Content-Type": "application/json" } }
+          );
         } catch (error) {
           console.error("Error fetching rules:", error);
           return new Response(JSON.stringify({ error: "Failed to fetch rules" }), {
@@ -53,16 +67,20 @@ export const Route = createFileRoute("/api/rules/")({
             );
           }
 
-          const errors: string[] = [];
-          if (!jdmContent.name) errors.push("Rule name is required in jdmContent");
-          if (!jdmContent.nodes || jdmContent.nodes.length === 0)
-            errors.push("At least one node is required in jdmContent");
+          // Accepts both shapes: the decision table the rule table editor writes,
+          // and the older decision graph. Validating only the graph shape is what
+          // stopped the table editor being able to save at all.
+          const { validateStoredRuleContent } = await import("@/lib/automation/rule-content");
+          const errors = validateStoredRuleContent(jdmContent);
 
           if (errors.length > 0) {
-            return new Response(JSON.stringify({ error: "Invalid JDM content", errors }), {
-              status: 400,
-              headers: { "Content-Type": "application/json" },
-            });
+            return new Response(
+              JSON.stringify({ error: "This rule cannot be saved yet", errors }),
+              {
+                status: 400,
+                headers: { "Content-Type": "application/json" },
+              }
+            );
           }
 
           const id = `rule_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;

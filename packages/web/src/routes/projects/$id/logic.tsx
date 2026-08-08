@@ -13,6 +13,7 @@ import {
   Workflow as WorkflowIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { CopilotProvider } from "@/components/CopilotProvider";
 import { type EditableRule, RuleEditor, slugifyRuleName } from "@/components/eml/RuleEditor";
 import { emptyRuleFlow } from "@/components/eml/RuleFlowCanvas";
 import { emptyStateFlow } from "@/components/eml/StateFlowCanvas";
@@ -24,7 +25,6 @@ import {
   WorkflowEditor,
   type WorkflowKind,
 } from "@/components/eml/WorkflowEditor";
-import { CopilotProvider } from "@/components/CopilotProvider";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { useModelAssistant } from "@/hooks/useModelAssistant";

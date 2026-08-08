@@ -54,5 +54,15 @@ interface CopilotProviderProps {
 }
 
 export function CopilotProvider({ children }: CopilotProviderProps) {
-  return <CopilotKit runtimeUrl="/api/copilotkit">{children}</CopilotKit>;
+  // The inspector is gated on `enableInspector`, NOT `showDevConsole` — the
+  // <CopilotKit> wrapper reads them from different props, and `showDevConsole`
+  // only silences error toasts and banners. Left unset, `enableInspector`
+  // falls back to "is this localhost?", so it mounts a <cpk-web-inspector>
+  // floating button that sits above everything at z-index 2147483646 and
+  // swallows clicks landing under it.
+  return (
+    <CopilotKit runtimeUrl="/api/copilotkit" enableInspector={false} showDevConsole={false}>
+      {children}
+    </CopilotKit>
+  );
 }

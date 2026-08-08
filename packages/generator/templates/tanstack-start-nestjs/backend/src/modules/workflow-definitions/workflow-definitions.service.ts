@@ -6,7 +6,12 @@ export type WorkflowDefinitionDto = {
   name: string;
   entityName: string;
   operation: "CREATE" | "UPDATE" | "DELETE" | "ALL";
-  bpmnXml: string;
+  /** BPMN diagrams carry XML; automations carry mermaid. Exactly one is required. */
+  bpmnXml?: string;
+  /** Mermaid with `%%` directives, as the automation builder writes it. */
+  mermaid?: string;
+  /** "bpmn" or "automation". Defaults to bpmn, which is what every older row is. */
+  kind?: "bpmn" | "automation";
   description?: string;
   isActive?: boolean;
   /**
@@ -39,12 +44,49 @@ const MODEL_OWNED_FIELDS = [
 export class WorkflowDefinitionsService {
   constructor(@InjectDatabase() private readonly db: Kysely<any>) {}
 
-  async findAll(filters?: { entityName?: string; operation?: string; isActive?: boolean }) {
-    let query = this.db.selectFrom("sys_workflow_definitions").selectAll();
-    if (filters?.entityName) query = query.where("entity_name", "=", filters.entityName);
-    if (filters?.operation) query = query.where("operation", "=", filters.operation);
-    if (filters?.isActive !== undefined) query = query.where("is_active", "=", filters.isActive);
-    return query.orderBy("created_at", "desc").execute();
+  /**
+   * A page of definitions, newest first.
+   *
+   * Paged rather than unbounded: an app that has been running a while
+   * accumulates definitions faster than anyone deletes them, and a list
+   * endpoint that returns all of them eventually times out the page that
+   * depends on it. 200 is the default because it fills the longest rail the
+   * builder draws without a second request.
+   */
+  async findAll(filters?: {
+    entityName?: string;
+    operation?: string;
+    isActive?: boolean;
+    kind?: string;
+    limit?: number;
+    offset?: number;
+  }) {
+    const limit = Math.min(Math.max(filters?.limit ?? 200, 1), 200);
+    const offset = Math.max(filters?.offset ?? 0, 0);
+
+    const where = <T extends { where: any }>(q: T): T => {
+      let query: any = q;
+      if (filters?.entityName) query = query.where("entity_name", "=", filters.entityName);
+      if (filters?.operation) query = query.where("operation", "=", filters.operation);
+      if (filters?.isActive !== undefined) query = query.where("is_active", "=", filters.isActive);
+      if (filters?.kind) query = query.where("kind", "=", filters.kind);
+      return query as T;
+    };
+
+    const items = await where(this.db.selectFrom("sys_workflow_definitions").selectAll())
+      .orderBy("created_at", "desc")
+      .limit(limit)
+      .offset(offset)
+      .execute();
+
+    const counted = await where(
+      this.db
+        .selectFrom("sys_workflow_definitions")
+        .select((eb: any) => eb.fn.countAll().as("total"))
+    ).executeTakeFirst();
+
+    const total = Number((counted as { total?: number | string })?.total ?? items.length);
+    return { items, total, limit, offset, hasMore: offset + items.length < total };
   }
 
   async findOne(id: string) {
@@ -76,8 +118,19 @@ export class WorkflowDefinitionsService {
   }
 
   async create(dto: WorkflowDefinitionDto, userId?: string) {
-    if (!dto.bpmnXml?.trim()) throw new BadRequestException("bpmnXml is required");
-    if (!dto.bpmnXml.includes("<bpmn:")) throw new BadRequestException("Invalid BPMN XML");
+    // A definition is either a BPMN diagram or a mermaid automation. Demanding
+    // BPMN of both is what stopped the automation builder saving anything.
+    const kind = dto.kind ?? (dto.mermaid?.trim() ? "automation" : "bpmn");
+
+    if (kind === "automation") {
+      if (!dto.mermaid?.trim()) throw new BadRequestException("mermaid is required");
+      if (!/^\s*(flowchart|graph)\b/m.test(dto.mermaid)) {
+        throw new BadRequestException("An automation must be a mermaid flowchart");
+      }
+    } else {
+      if (!dto.bpmnXml?.trim()) throw new BadRequestException("bpmnXml is required");
+      if (!dto.bpmnXml.includes("<bpmn:")) throw new BadRequestException("Invalid BPMN XML");
+    }
 
     const [result] = await this.db
       .insertInto("sys_workflow_definitions")
@@ -85,7 +138,9 @@ export class WorkflowDefinitionsService {
         name: dto.name,
         entity_name: dto.entityName,
         operation: dto.operation ?? "ALL",
-        bpmn_xml: dto.bpmnXml,
+        bpmn_xml: dto.bpmnXml ?? null,
+        mermaid_code: dto.mermaid ?? null,
+        kind,
         description: dto.description ?? null,
         trigger_type: dto.triggerType ?? "automatic",
         // Anything created through the API was built in the app, so the model

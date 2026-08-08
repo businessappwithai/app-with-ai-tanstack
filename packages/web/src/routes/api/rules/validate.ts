@@ -18,6 +18,21 @@ export const Route = createFileRoute("/api/rules/validate")({
           const errors: string[] = [];
           const warnings: string[] = [];
 
+          // A decision table is a complete rule on its own — the node walk below
+          // only applies to the older decision-graph shape.
+          const { isDecisionTable, validateStoredRuleContent } = await import(
+            "@/lib/automation/rule-content"
+          );
+          if (isDecisionTable(jdm)) {
+            const problems = validateStoredRuleContent(jdm);
+            return new Response(
+              JSON.stringify({ valid: problems.length === 0, errors: problems }),
+              {
+                headers: { "Content-Type": "application/json" },
+              }
+            );
+          }
+
           // Validate required fields
           if (!jdm.name) {
             errors.push("Rule name is required");
@@ -28,7 +43,7 @@ export const Route = createFileRoute("/api/rules/validate")({
           }
 
           // Validate each node
-          jdm.nodes.forEach(
+          jdm.nodes?.forEach(
             (
               node: { id?: string; type?: string; content?: Record<string, unknown> },
               index: number

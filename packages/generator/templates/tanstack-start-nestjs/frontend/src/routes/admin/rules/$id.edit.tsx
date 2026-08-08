@@ -14,7 +14,8 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { DecisionTableEditor } from "@/components/admin/decision-table-editor";
+import { RuleTableEditor } from "@/components/automation/RuleTableEditor";
+import { asDecisionTable } from "@/lib/automation/rule-content";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -370,12 +371,10 @@ function EditRulePage() {
                 </Button>
               </div>
             </div>
-            <DecisionTableEditor
-              value={jdmContent}
+            <RuleTableEditor
+              name={rule.ruleName}
+              table={asDecisionTable(jdmContent)}
               onChange={setJdmContent}
-              entityName={rule.entityName}
-              entityFields={entityFields}
-              availableWorkflows={availableWorkflows}
             />
             {errors.jdmContent && (
               <p className="text-xs text-red-600 px-4 pb-2">{errors.jdmContent}</p>

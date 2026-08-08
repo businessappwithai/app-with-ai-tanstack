@@ -21,11 +21,11 @@ export interface CreateRuleDto {
   entityName: string;
   ruleName: string;
   operation: 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'ALL';
-  jdmContent: string;
+  jdmContent: string | Record<string, unknown>;
 }
 
 export interface UpdateRuleDto {
-  jdmContent?: string;
+  jdmContent?: string | Record<string, unknown>;
   isActive?: boolean;
 }
 
@@ -56,7 +56,7 @@ export interface Rule {
   entityName: string;
   ruleName: string;
   operation: string;
-  jdmContent: string;
+  jdmContent: string | Record<string, unknown>;
   version: number;
   isActive: boolean;
   createdBy: string;
@@ -78,10 +78,19 @@ export class RulesService {
   /**
    * Get all rules with optional filtering
    */
+  /**
+   * A page of rules, capped at 200.
+   *
+   * Rules accumulate — one per entity per operation, plus every table an
+   * automation looks up — so the list endpoint has to be bounded or the admin
+   * page that reads it eventually stops loading.
+   */
   async findAll(filters?: {
     entityName?: string;
     operation?: string;
     isActive?: boolean;
+    limit?: number;
+    offset?: number;
   }): Promise<Rule[]> {
     let query = this.db.selectFrom('sys_rule_definitions').selectAll();
 
@@ -97,10 +106,15 @@ export class RulesService {
       query = query.where('is_active', '=', filters.isActive);
     }
 
+    const limit = Math.min(Math.max(filters?.limit ?? 200, 1), 200);
+    const offset = Math.max(filters?.offset ?? 0, 0);
+
     const rules = await query
       .orderBy('entity_name', 'asc')
       .orderBy('operation', 'asc')
       .orderBy('rule_name', 'asc')
+      .limit(limit)
+      .offset(offset)
       .execute();
 
     return rules.map((rule) => this.mapDbRuleToRule(rule));
@@ -152,7 +166,7 @@ export class RulesService {
         entity_name: dto.entityName,
         rule_name: dto.ruleName,
         operation: dto.operation.toUpperCase(),
-        jdm_content: dto.jdmContent,
+        jdm_content: this.serializeJdm(dto.jdmContent),
         version: 1,
         is_active: true,
         created_by: userId,
@@ -231,6 +245,18 @@ export class RulesService {
     return [await this.findById(ruleId)];
   }
 
+
+  /**
+   * Store JDM as text, whichever way it arrived.
+   *
+   * The column is text and the engine parses it, so an object from the rule
+   * table editor and a string from an older caller have to converge here —
+   * otherwise the same rule reads back differently depending on who wrote it.
+   */
+  private serializeJdm(content: string | Record<string, unknown>): string {
+    return typeof content === 'string' ? content : JSON.stringify(content);
+  }
+
   /**
    * Validate JDM content
    */
@@ -239,7 +265,29 @@ export class RulesService {
     errors: string[];
   }> {
     try {
-      const parsed = JSON.parse(jdmContent);
+      const parsed = typeof jdmContent === 'string' ? JSON.parse(jdmContent) : jdmContent;
+
+      // A decision table is a complete rule on its own — it is what the rule
+      // table editor writes. Demanding a node graph of it is what stopped the
+      // editor being able to save anything at all.
+      if (
+        Array.isArray(parsed?.inputs) &&
+        Array.isArray(parsed?.outputs) &&
+        Array.isArray(parsed?.rules)
+      ) {
+        const errors: string[] = [];
+        if (parsed.inputs.length === 0) errors.push('Add at least one input column to test against.');
+        if (parsed.outputs.length === 0) {
+          errors.push('Add at least one outcome column — a table that decides nothing does nothing.');
+        }
+        if (parsed.rules.length === 0) errors.push('Add at least one row.');
+        for (const column of [...parsed.inputs, ...parsed.outputs]) {
+          if (!String(column?.field ?? '').trim()) {
+            errors.push(`Column "${column?.name ?? column?.id}" does not say which field it reads.`);
+          }
+        }
+        return { valid: errors.length === 0, errors };
+      }
 
       if (!parsed.nodes || !Array.isArray(parsed.nodes)) {
         return { valid: false, errors: ['JDM must have a nodes array'] };

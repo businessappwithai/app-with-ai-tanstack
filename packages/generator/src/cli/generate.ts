@@ -185,7 +185,6 @@ async function runSetup(opts: {
   } catch {
     // no separate frontend package.json — already installed at root
   }
-
 }
 
 // ---------------------------------------------------------------------------

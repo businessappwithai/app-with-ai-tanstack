@@ -1,4 +1,11 @@
-import React, { createContext, type ReactNode, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  type ReactNode,
+  startTransition,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { setUnauthorizedCallback } from "@/lib/api-client";
 import {
   signIn as authSignIn,
@@ -40,7 +47,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const { data } = await getSession();
       // Typed as User rather than unknown: `unknown ?? null` widens to
       // `{} | null`, which does not assign to `User | null`.
-      setUser((data as { user?: User } | null)?.user ?? null);
+      const next = (data as { user?: User } | null)?.user ?? null;
+      // Non-urgent for the same reason as the mount effect below — on a first
+      // load this resolves while the page is still hydrating.
+      startTransition(() => setUser(next));
     } catch (error) {
       console.error("Failed to refresh session:", error);
     }
@@ -49,7 +59,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const checkSession = async () => {
       await refreshSession();
-      setIsLoading(false);
+      // Non-urgent: this provider wraps every route, and the session fetch can
+      // resolve while the page is still hydrating. An urgent update there makes
+      // React discard the server HTML for the boundary and re-render on the
+      // client.
+      startTransition(() => setIsLoading(false));
     };
 
     checkSession();

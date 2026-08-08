@@ -1,6 +1,6 @@
 import { AlertCircle, Code2, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { SagaBpmnEditor } from "@/components/eml/SagaBpmnEditor";
+import { SagaLadder } from "@/components/eml/SagaLadder";
 import { emptyStateFlow, StateFlowCanvas } from "@/components/eml/StateFlowCanvas";
 import {
   emitHookWorkflow,
@@ -259,7 +259,7 @@ export function WorkflowEditor({
           </div>
         </div>
       ) : workflow.kind === "saga" ? (
-        <SagaBpmnEditor
+        <SagaLadder
           key={workflow.key}
           flow={workflow.saga}
           entityNames={entityNames}

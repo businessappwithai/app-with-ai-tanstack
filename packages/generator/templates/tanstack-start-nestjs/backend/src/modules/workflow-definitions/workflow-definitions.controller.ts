@@ -27,16 +27,26 @@ import type { WorkflowDefinitionDto } from "./workflow-definitions.service";
 export class WorkflowDefinitionsController {
   constructor(private readonly service: WorkflowDefinitionsService) {}
 
+  /**
+   * A page of definitions. Defaults to 200, which is also the ceiling — a list
+   * endpoint that can be asked for everything eventually is, and then times out.
+   */
   @Get()
   findAll(
     @Query('entityName') entityName?: string,
     @Query('operation') operation?: string,
-    @Query('isActive') isActive?: string
+    @Query('isActive') isActive?: string,
+    @Query('kind') kind?: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string
   ) {
     return this.service.findAll({
       entityName,
       operation,
       isActive: isActive !== undefined ? isActive === "true" : undefined,
+      kind,
+      limit: limit ? Number(limit) : undefined,
+      offset: offset ? Number(offset) : undefined,
     });
   }
 

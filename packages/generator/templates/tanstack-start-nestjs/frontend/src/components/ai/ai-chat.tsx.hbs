@@ -66,6 +66,11 @@ export function AIChatProvider({ children }: AIChatProviderProps) {
     <CopilotKit
       runtimeUrl="/api/copilotkit"
       publicApiKey={import.meta.env.VITE_COPILOT_API_KEY}
+      // Same reason as the admin layout: the dev inspector floats above the
+      // app and eats pointer events aimed at it. Note `enableInspector` is the
+      // prop that governs it — `showDevConsole` only covers toasts/banners.
+      enableInspector={false}
+      showDevConsole={false}
     >
       {children}
     </CopilotKit>

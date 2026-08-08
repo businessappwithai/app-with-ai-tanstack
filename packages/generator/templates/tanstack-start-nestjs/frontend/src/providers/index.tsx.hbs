@@ -14,7 +14,7 @@
  * Generated: {{now}}
  */
 
-import React, { type ReactNode, useEffect, useState } from 'react';
+import React, { startTransition, type ReactNode, useEffect, useState } from 'react';
 import { QueryProvider } from './query-provider';
 import { ElectricProvider } from './electric-provider';
 import { AuthProvider, useAuth } from '@/contexts/auth-context';
@@ -27,7 +27,12 @@ interface ProvidersProps {
 
 function ClientToaster() {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  // Non-urgent on purpose. This sits at the root of every route, so an urgent
+  // update here lands while the page is still hydrating and React throws away
+  // the server HTML for the whole boundary — "received an update before it
+  // finished hydrating". Nothing is waiting on the toaster, so it can arrive a
+  // tick late.
+  useEffect(() => startTransition(() => setMounted(true)), []);
   return mounted ? <Toaster position="top-right" richColors /> : null;
 }
 
