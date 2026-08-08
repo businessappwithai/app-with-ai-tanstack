@@ -1010,9 +1010,10 @@ export class SysService {
    * dictionary and audit trail have somebody to attribute work to, the link
    * between the two, and a role.
    *
-   * Better Auth owns the password. Rather than reimplement its hashing, the
-   * account is created through its own sign-up handler with sign-up otherwise
-   * closed, so there is exactly one place a credential is ever written.
+   * Better Auth owns the password. Rather than reimplement its hashing, this
+   * calls its server-side sign-up directly — the public HTTP sign-up route is
+   * blocked in main.ts, which closes the door to the outside without closing
+   * this one, so there is exactly one place a credential is ever written.
    */
   async createSysUser(input: {
     name: string;

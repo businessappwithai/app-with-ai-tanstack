@@ -91,8 +91,14 @@ describe("users and roles", () => {
 
       for (let i = 0; i < config.usersToCreate; i++) {
         const candidate = buildUser(i);
-        const client = new HttpClient();
-        const result = await register(client, candidate.email, candidate.password, candidate.name);
+        // The administrator's client, not a fresh one: accounts are created
+        // through the admin-only endpoint, so an anonymous caller is refused.
+        const result = await register(
+          harness.client,
+          candidate.email,
+          candidate.password,
+          candidate.name
+        );
 
         if (result.ok) {
           succeeded += 1;
@@ -134,10 +140,44 @@ describe("users and roles", () => {
     if (createdUsers.length === 0) return;
 
     const existing = createdUsers[0]!;
-    const client = new HttpClient();
-    const result = await register(client, existing.email, existing.password, "Duplicate");
+    const result = await register(
+      harness.client,
+      existing.email,
+      existing.password,
+      "Duplicate"
+    );
 
     expect(result.ok).toBe(false);
+  });
+
+  it("refuses to create an account for an anonymous caller", async () => {
+    // The reason there is no sign-up page: an account is something an
+    // administrator grants, so the endpoint has to refuse everyone else.
+    const candidate = buildUser(9_000);
+    const anonymous = new HttpClient();
+    const result = await register(
+      anonymous,
+      candidate.email,
+      candidate.password,
+      candidate.name
+    );
+
+    expect(result.ok).toBe(false);
+    expect([401, 403]).toContain(result.status);
+  });
+
+  it("refuses to create an account for a signed-in non-administrator", async () => {
+    if (createdUsers.length === 0) return;
+
+    const candidate = createdUsers[0]!;
+    const client = new HttpClient();
+    await login(client, candidate.email, candidate.password);
+
+    const fresh = buildUser(9_001);
+    const result = await register(client, fresh.email, fresh.password, fresh.name);
+
+    expect(result.ok).toBe(false);
+    expect([401, 403]).toContain(result.status);
   });
 
   it("refuses rule creation for a non-admin user", async () => {

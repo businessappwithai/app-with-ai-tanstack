@@ -76,20 +76,24 @@ describe("authentication", () => {
     expect(Array.isArray(perms.windows)).toBe(true);
   });
 
-  it("registers a new account and signs it in", async () => {
-    const client = new HttpClient();
+  it("creates an account as the administrator and signs it in", async () => {
     const candidate = buildUser(0);
 
-    const created = await register(client, candidate.email, candidate.password, candidate.name);
-    expect(created.status).toBeLessThan(500);
+    // The administrator's client: accounts come from the admin-only endpoint,
+    // so an anonymous caller would simply be refused and this would assert
+    // nothing. Creation has to actually succeed for the sign-in below to mean
+    // anything.
+    const created = await register(
+      harness.client,
+      candidate.email,
+      candidate.password,
+      candidate.name
+    );
+    expect(created.ok).toBe(true);
 
-    // Registration may or may not auto-sign-in depending on better-auth config;
-    // an explicit login must work either way.
-    if (created.ok) {
-      const fresh = new HttpClient();
-      const user = await login(fresh, candidate.email, candidate.password);
-      expect(String(user.email).toLowerCase()).toBe(candidate.email.toLowerCase());
-    }
+    const fresh = new HttpClient();
+    const user = await login(fresh, candidate.email, candidate.password);
+    expect(String(user.email).toLowerCase()).toBe(candidate.email.toLowerCase());
   });
 
   it("drops the session on logout", async () => {
