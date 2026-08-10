@@ -113,13 +113,7 @@ export interface RagModel {
 /*  Output                                                                     */
 /* -------------------------------------------------------------------------- */
 
-export type ChunkKind =
-  | "overview"
-  | "entity"
-  | "enums"
-  | "rule"
-  | "workflow"
-  | "spec";
+export type ChunkKind = "overview" | "entity" | "enums" | "rule" | "workflow" | "spec";
 
 export interface RagChunk {
   /**
@@ -346,7 +340,9 @@ function overviewChunk(model: RagModel, source: string): RagChunk {
 
   lines.push("", `Entities (${model.entities.length}):`);
   for (const entity of model.entities) {
-    lines.push(`  - ${entity.name} (table ${entity.tableName}, ${entity.attributes.length} fields)`);
+    lines.push(
+      `  - ${entity.name} (table ${entity.tableName}, ${entity.attributes.length} fields)`
+    );
   }
 
   if (model.categories?.length) {
@@ -391,9 +387,7 @@ function overviewChunk(model: RagModel, source: string): RagChunk {
  */
 function entityChunks(model: RagModel, source: string): RagChunk[] {
   return model.entities.map((entity) => {
-    const lines: string[] = [
-      `Entity ${entity.name} (database table ${entity.tableName}).`,
-    ];
+    const lines: string[] = [`Entity ${entity.name} (database table ${entity.tableName}).`];
     if (entity.description) lines.push(entity.description);
 
     const category = model.categories?.find((c) => c.entities.includes(entity.name));

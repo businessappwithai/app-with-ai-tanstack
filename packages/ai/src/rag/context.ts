@@ -9,7 +9,7 @@
  */
 
 import type { Embedder } from "./embedder";
-import { retrieve, type RetrievedChunk } from "./store";
+import { type RetrievedChunk, retrieve } from "./store";
 
 /** What the assistant is being asked to help with, which changes what it needs. */
 export type AssistantSurface = "entities" | "logic" | "general";

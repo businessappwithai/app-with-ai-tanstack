@@ -43,6 +43,4 @@ export const AI_EMBEDDING_MODEL = process.env.LOCAL_AI_EMBEDDING_MODEL ?? "bge-s
  * embedding model means changing this and re-ingesting — a mismatch is rejected
  * at insert time, which is the right place for it to fail.
  */
-export const AI_EMBEDDING_DIMENSIONS = Number(
-  process.env.LOCAL_AI_EMBEDDING_DIMENSIONS ?? 384
-);
+export const AI_EMBEDDING_DIMENSIONS = Number(process.env.LOCAL_AI_EMBEDDING_DIMENSIONS ?? 384);

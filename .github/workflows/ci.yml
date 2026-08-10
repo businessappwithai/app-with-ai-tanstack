@@ -1,0 +1,194 @@
+# CI — check the generator, and check what it generates.
+#
+# The second half is the point. Type-checking this repository says nothing about
+# whether a generated application compiles, because the templates are `.hbs`
+# text until something renders them. Two bugs reached main that way: an admin
+# endpoint that could never create a user, and three type errors that stopped
+# every generated backend building. Both were invisible to `tsc` here and would
+# have been caught by generating one application and building it.
+#
+# So that is what the second job does — generate, build both halves, run the
+# suite the generator emits against a real database.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push makes an in-flight run redundant, except on main, where each
+# commit's result is worth keeping.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  checks:
+    name: Type-check, lint and unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Type-check
+        run: bun run type-check
+
+      # Error-level only. The tree carries several hundred style warnings that
+      # predate this workflow; failing on those would mean the first red build
+      # is noise nobody reads. Errors — formatting and unorganised imports — are
+      # auto-fixable with `bun run lint:fix` and stay enforced.
+      - name: Lint
+        run: bunx biome check . --max-diagnostics=2000 --diagnostic-level=error
+
+      - name: Unit tests
+        run: bun run test
+
+  generated-app:
+    name: Generate an application and build it
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    services:
+      postgres:
+        # pgvector rather than stock Postgres: the model-context assistant
+        # stores embeddings, and `CREATE EXTENSION vector` fails without it.
+        image: pgvector/pgvector:pg18
+        env:
+          POSTGRES_DB: generated
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      APP_DIR: generated-app
+      BACKEND_PORT: "4601"
+      FRONTEND_PORT: "4600"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Build the packages the generator needs
+        run: |
+          bun run build:core
+          bun run build:generator
+
+      - name: Generate an application
+        # 25 records per entity rather than the default 1000: this job is here
+        # to prove the generated application compiles and behaves, not to
+        # measure it under load. The benchmark suite still runs, against a
+        # smaller table.
+        run: |
+          bun packages/generator/src/cli/generate.ts generate \
+            --input examples/drug-discovery.eml.mmd \
+            --output "$APP_DIR" \
+            --name ci-generated \
+            --port "$BACKEND_PORT" \
+            --frontend-port "$FRONTEND_PORT" \
+            --records-per-entity 25 \
+            --force \
+            --no-setup
+
+      - name: Install the generated application
+        working-directory: ${{ env.APP_DIR }}
+        run: bun install
+
+      # The three builds below are the checks that were missing. Each one fails
+      # on a template that renders code which does not compile.
+
+      - name: Build the generated backend
+        working-directory: ${{ env.APP_DIR }}/backend
+        run: bun run build
+
+      - name: Build the generated frontend
+        working-directory: ${{ env.APP_DIR }}/frontend
+        run: bun run build
+
+      - name: Type-check the generated test suite
+        working-directory: ${{ env.APP_DIR }}/tests
+        run: bunx tsc --noEmit
+
+      - name: Point the generated backend at Postgres
+        run: |
+          cat > "$APP_DIR/backend/.env" <<EOF
+          PORT=$BACKEND_PORT
+          HOST=127.0.0.1
+          NODE_ENV=development
+          DATABASE_URL=postgresql://app:app@127.0.0.1:5432/generated
+          CORS_ORIGIN=http://localhost:$FRONTEND_PORT
+          BETTER_AUTH_URL=http://localhost:$BACKEND_PORT
+          BETTER_AUTH_SECRET=$(head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n')
+          ADMIN_EMAIL=admin@admin.com
+          ADMIN_PASSWORD=admin
+          THROTTLE_TTL=60000
+          THROTTLE_LIMIT=1000000
+          IMMUDB_ENABLED=false
+          EOF
+
+      - name: Migrate and seed
+        working-directory: ${{ env.APP_DIR }}/backend
+        run: bun run migrate
+
+      - name: Start the generated backend
+        working-directory: ${{ env.APP_DIR }}/backend
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/run-logs"
+          bun run start > "$GITHUB_WORKSPACE/run-logs/backend.log" 2>&1 &
+          echo $! > "$GITHUB_WORKSPACE/run-logs/backend.pid"
+
+          for attempt in $(seq 1 90); do
+            if curl -fsS "http://127.0.0.1:$BACKEND_PORT/api/me/health" -o /dev/null; then
+              echo "✓ healthy after ${attempt}s"
+              exit 0
+            fi
+            if ! kill -0 "$(cat "$GITHUB_WORKSPACE/run-logs/backend.pid")" 2>/dev/null; then
+              echo "::error::The generated backend exited before becoming healthy."
+              tail -n 200 "$GITHUB_WORKSPACE/run-logs/backend.log"
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "::error::The generated backend did not become healthy within 90s."
+          tail -n 200 "$GITHUB_WORKSPACE/run-logs/backend.log"
+          exit 1
+
+      - name: Run the generated E2E suite
+        working-directory: ${{ env.APP_DIR }}/tests
+        env:
+          E2E_BASE_URL: http://127.0.0.1:${{ env.BACKEND_PORT }}
+          E2E_ORIGIN: http://localhost:${{ env.FRONTEND_PORT }}
+        run: bun test --timeout 180000
+
+      - name: The application's own logs, whatever happened
+        if: always()
+        run: |
+          LOG="$GITHUB_WORKSPACE/run-logs/backend.log"
+          [ -f "$LOG" ] || exit 0
+          echo "::group::backend.log (last 200 lines)"
+          tail -n 200 "$LOG"
+          echo "::endgroup::"

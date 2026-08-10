@@ -29,11 +29,7 @@
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { basename } from "node:path";
-import {
-  getDatabase,
-  introspectDatabase,
-  runMigrations,
-} from "@erdwithai/core/services";
+import { getDatabase, introspectDatabase, runMigrations } from "@erdwithai/core/services";
 import { hashPassword } from "../packages/web/src/lib/password";
 
 interface Options {
@@ -64,8 +60,7 @@ function parseArgs(argv: string[]): Options {
     file: first(value("--file"), process.env.SEED_MODEL),
     fromDatabase: first(value("--from-database"), process.env.SEED_DATABASE_URL),
     name: first(value("--name"), process.env.SEED_PROJECT_NAME),
-    ownerEmail:
-      first(value("--owner"), process.env.SEED_OWNER_EMAIL) ?? "admin@erdwithai.local",
+    ownerEmail: first(value("--owner"), process.env.SEED_OWNER_EMAIL) ?? "admin@erdwithai.local",
     ownerPassword: first(process.env.SEED_OWNER_PASSWORD) ?? "erdwithai",
   };
 }

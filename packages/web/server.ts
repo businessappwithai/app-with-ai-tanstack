@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * Production server for the generator app.
  *
@@ -15,9 +16,9 @@
  * Run with `bun run start` after `bun run build`.
  */
 
-import { file } from "bun";
 import { existsSync } from "node:fs";
 import { join, normalize } from "node:path";
+import { file } from "bun";
 
 const handler = (await import("./dist/server/server.js")) as {
   default: { fetch: (request: Request) => Promise<Response> };
