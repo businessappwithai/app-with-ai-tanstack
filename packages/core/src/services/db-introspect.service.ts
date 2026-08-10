@@ -47,7 +47,9 @@ function toEmlType(dataType: string): string {
   const type = dataType.toLowerCase();
   if (["integer", "int", "int4", "int2", "int8", "bigint", "smallint", "serial"].includes(type))
     return "int";
-  if (["numeric", "decimal", "float4", "float8", "real", "double precision", "money"].includes(type))
+  if (
+    ["numeric", "decimal", "float4", "float8", "real", "double precision", "money"].includes(type)
+  )
     return "float";
   if (type === "date") return "date";
   if (type.startsWith("timestamp") || type.startsWith("time ")) return "datetime";
@@ -78,9 +80,7 @@ function sslFor(connectionString: string): pg.ClientConfig["ssl"] {
   return { rejectUnauthorized: false };
 }
 
-export async function introspectDatabase(
-  options: IntrospectOptions
-): Promise<IntrospectedSchema> {
+export async function introspectDatabase(options: IntrospectOptions): Promise<IntrospectedSchema> {
   const schema = options.schema ?? "public";
   const ssl = sslFor(options.connectionString);
 

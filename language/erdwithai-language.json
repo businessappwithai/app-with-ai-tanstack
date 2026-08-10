@@ -919,7 +919,10 @@
         "keyword": "%%rbac",
         "form": "%%rbac <roleExpr> on <Entity>.<op>",
         "purpose": "RBAC guard: restrict a workflow step or CRUD op to roles (integrates with core rbac.types). Spelled %%guard until that keyword was needed unambiguously for automation conditions; this sense had no shipped parser and no stored data, so it is the side that moved.",
-        "examples": ["%%rbac role:admin on Order.delete", "%%rbac role:sales|manager on Deal.update"]
+        "examples": [
+          "%%rbac role:admin on Order.delete",
+          "%%rbac role:sales|manager on Deal.update"
+        ]
       },
       {
         "keyword": "%%trigger",
