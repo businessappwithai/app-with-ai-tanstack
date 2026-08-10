@@ -260,7 +260,7 @@ export class RulesService {
   /**
    * Validate JDM content
    */
-  async validateJDM(jdmContent: string): Promise<{
+  async validateJDM(jdmContent: string | Record<string, unknown>): Promise<{
     valid: boolean;
     errors: string[];
   }> {
@@ -303,7 +303,7 @@ export class RulesService {
       }
 
       const engine = this.rulesEngine.getEngine();
-      const decision = engine.createDecision(Buffer.from(jdmContent));
+      const decision = engine.createDecision(Buffer.from(this.serializeJdm(jdmContent)));
       await decision.evaluate({});
 
       return { valid: true, errors: [] };
@@ -361,14 +361,18 @@ export class RulesService {
   /**
    * Dry run - evaluate rule with sample context
    */
-  async dryRun(jdmContent: string, context: Record<string, unknown>): Promise<{
+  async dryRun(jdmContent: string | Record<string, unknown>, context: Record<string, unknown>): Promise<{
     success: boolean;
     result?: unknown;
     errors?: string[];
   }> {
     try {
       const engine = this.rulesEngine.getEngine();
-      const decision = engine.createDecision(Buffer.from(jdmContent));
+      // The editor holds its table as an object and posts it as one. Buffer.from
+      // needs the serialised form, so an object goes through the same helper
+      // that writes it to the column rather than reaching the engine as
+      // "[object Object]".
+      const decision = engine.createDecision(Buffer.from(this.serializeJdm(jdmContent)));
       const result = await decision.evaluate(context);
 
       return { success: true, result };
