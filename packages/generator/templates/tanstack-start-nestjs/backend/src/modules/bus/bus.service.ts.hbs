@@ -335,7 +335,8 @@ export class BusService {
 
   private async verifyEntity(entity: string): Promise<void> {
     const tableName = this.getTableName(entity);
-    const bareEntity = entity.startsWith('bus_') ? entity.slice(4) : entity;
+    const normalized = entity.toLowerCase().replace(/-/g, '_');
+    const bareEntity = normalized.startsWith('bus_') ? normalized.slice(4) : normalized;
 
     let tableRecord = await this.kysely
       .selectFrom('sys_table')
@@ -366,7 +367,8 @@ export class BusService {
       return this.metadataCache.get(tableName)!;
     }
 
-    const bareEntity = entity.startsWith('bus_') ? entity.slice(4) : entity;
+    const normalizedEntity = entity.toLowerCase().replace(/-/g, '_');
+    const bareEntity = normalizedEntity.startsWith('bus_') ? normalizedEntity.slice(4) : normalizedEntity;
     let table = await this.kysely
       .selectFrom('sys_table')
       .selectAll()
@@ -663,7 +665,8 @@ export class BusService {
     const systemUser = 'system';
 
     // 1. Find the sys_table record — try both bus_entity and entity (user-created tables store plain name)
-    const bareEntity = entity.startsWith('bus_') ? entity.slice(4) : entity;
+    const normalizedEntity = entity.toLowerCase().replace(/-/g, '_');
+    const bareEntity = normalizedEntity.startsWith('bus_') ? normalizedEntity.slice(4) : normalizedEntity;
     let sysTable = await this.kysely
       .selectFrom('sys_table')
       .selectAll()

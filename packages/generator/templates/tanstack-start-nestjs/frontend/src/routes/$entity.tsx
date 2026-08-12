@@ -9,6 +9,7 @@ function DynamicEntityListPage() {
   const { entity } = Route.useParams();
   const childMatches = useChildMatches();
   if (childMatches.length > 0) return <Outlet />;
-  const entityName = entity.startsWith("bus_") ? entity.slice(4) : entity;
+  const normalized = entity.toLowerCase().replace(/-/g, "_");
+  const entityName = normalized.startsWith("bus_") ? normalized.slice(4) : normalized;
   return <BusEntityPage entityName={entityName} />;
 }

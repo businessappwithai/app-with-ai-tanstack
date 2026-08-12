@@ -519,6 +519,7 @@ export function ADListShell({
             </div>
             <DynamicForm
               tableName={level.id}
+              idField={level.idField}
               fields={level.formFields}
               initialData={{}}
               onSubmit={(fd) => createMutation.mutate(fd)}

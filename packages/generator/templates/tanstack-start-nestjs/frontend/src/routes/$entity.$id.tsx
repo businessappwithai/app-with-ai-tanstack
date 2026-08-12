@@ -7,6 +7,7 @@ export const Route = createFileRoute("/$entity/$id")({
 
 function DynamicEntityDetailPage() {
   const { entity, id } = Route.useParams();
-  const entityName = entity.startsWith("bus_") ? entity.slice(4) : entity;
+  const normalized = entity.toLowerCase().replace(/-/g, "_");
+  const entityName = normalized.startsWith("bus_") ? normalized.slice(4) : normalized;
   return <BusEntityDetailPage entityName={entityName} recordId={id} />;
 }

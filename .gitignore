@@ -20,6 +20,8 @@ coverage/
 packages/web/generated-projects/
 packages/generator/generated-projects/
 generated-projects/
+generated-app/
+run-logs/
 
 # Test + build artifacts. These are bundled output — linting or reviewing them
 # says nothing about the source, and playwright-report/index.html alone carried
