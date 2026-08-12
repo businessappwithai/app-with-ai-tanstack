@@ -272,6 +272,16 @@ export class SysService {
       return inserted;
     });
 
+    // Bootstrap a sys_field for the new column so it shows up in the entity's
+    // form/grid immediately, the same way createTable bootstraps window/tab.
+    // setupEntityDictionary is incremental — it only inserts fields for
+    // columns that don't have one yet — so this is safe to call every time.
+    try {
+      await this.busService.setupEntityDictionary(parentTable.table_name as string);
+    } catch (_e) {
+      // Non-fatal — the column and its sys_column metadata already exist.
+    }
+
     this.busService.clearMetadataCache();
     return column;
   }
