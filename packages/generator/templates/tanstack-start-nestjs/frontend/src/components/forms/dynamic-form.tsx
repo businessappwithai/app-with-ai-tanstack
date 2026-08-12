@@ -47,6 +47,11 @@ interface DynamicFormProps {
   serverErrors?: Record<string, string>;
   parentField?: string;
   readOnlyFields?: string[];
+  /** Explicit primary key column name. Defaults to the `bus_<x> → <x>_id`
+   *  convention when omitted, which does not hold for dictionary levels
+   *  (e.g. table → sys_table_id, column → sys_column_id) — pass level.idField
+   *  there so the auto-generated create-mode UUID lands on the real PK column. */
+  idField?: string;
   /** Data from the immediate parent record — used to filter lookup dropdowns (e.g. filter columns by parent tab's sys_table_id) */
   parentContext?: Record<string, unknown>;
 }
@@ -749,6 +754,7 @@ export function DynamicForm({
   parentField,
   readOnlyFields = [],
   parentContext,
+  idField,
 }: DynamicFormProps) {
   const { t } = useTranslations();
   const {
@@ -759,8 +765,9 @@ export function DynamicForm({
   const fields = externalFields || fetchedFields;
   const [zodErrors, setZodErrors] = useState<Record<string, string>>({});
 
-  // Derive the entity PK column name from the table name (bus_patient → patient_id)
-  const pkColumnName = tableName.replace(/^bus_/, "") + "_id";
+  // Derive the entity PK column name from the table name (bus_patient → patient_id),
+  // unless the caller knows the real PK (dictionary levels don't follow that convention).
+  const pkColumnName = idField ?? tableName.replace(/^bus_/, "") + "_id";
 
   const form = useForm<FormValues>({
     defaultValues: initialData,

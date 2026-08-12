@@ -555,6 +555,7 @@ export function ADDetailShell({
             <div className="p-6 border-b border-border">
               <DynamicForm
                 tableName={level.id}
+                idField={level.idField}
                 fields={level.formFields}
                 initialData={currentRecord}
                 onSubmit={(fd) => {

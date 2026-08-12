@@ -147,24 +147,33 @@ export class SysService {
 
   async createTable(data: Record<string, unknown>) {
     const now = new Date().toISOString();
-    const [table] = await this.db.kysely.insertInto('sys_table')
-      .values({ is_active: true, entity_type: 'U', ...data, created_at: now, updated_at: now, created_by: 'system', updated_by: 'system' } as any)
-      .returningAll()
-      .execute();
-
-    // Create actual Postgres table with standard bus columns
     const dbTableName = `bus_${data.table_name}`;
-    await sql`
-      CREATE TABLE IF NOT EXISTS ${sql.id(dbTableName)} (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-        deleted_at TIMESTAMPTZ,
-        created_by VARCHAR(100),
-        updated_by VARCHAR(100),
-        version INTEGER NOT NULL DEFAULT 0
-      )
-    `.execute(this.db.kysely);
+
+    const table = await this.db.kysely.transaction().execute(async (trx) => {
+      const [inserted] = await trx.insertInto('sys_table')
+        .values({ is_active: true, entity_type: 'U', ...data, created_at: now, updated_at: now, created_by: 'system', updated_by: 'system' } as any)
+        .returningAll()
+        .execute();
+
+      // Create actual Postgres table with standard bus columns
+      try {
+        await sql`
+          CREATE TABLE IF NOT EXISTS ${sql.id(dbTableName)} (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+            deleted_at TIMESTAMPTZ,
+            created_by VARCHAR(100),
+            updated_by VARCHAR(100),
+            version INTEGER NOT NULL DEFAULT 0
+          )
+        `.execute(trx);
+      } catch (error: any) {
+        throw new ConflictException(error?.message ?? 'Could not create the table');
+      }
+
+      return inserted;
+    });
 
     // Auto-bootstrap sys_window / sys_tab / sys_field for the new entity
     try {
@@ -176,22 +185,30 @@ export class SysService {
     return table;
   }
 
-  private mapRefToSqlType(refId: number): string {
+  private mapRefToSqlType(refId: number, fieldLength?: number): string {
+    const length = typeof fieldLength === 'number' && fieldLength > 0 ? fieldLength : undefined;
     const map: Record<number, string> = {
-      10: 'VARCHAR(255)',
+      10: length ? `VARCHAR(${length})` : 'VARCHAR(255)',
       11: 'INTEGER',
       12: 'DECIMAL(20,2)',
       13: 'UUID',
       14: 'TEXT',
       15: 'DATE',
       16: 'TIMESTAMPTZ',
-      17: 'VARCHAR(40)',
+      17: length ? `VARCHAR(${length})` : 'VARCHAR(40)',
       18: 'UUID',
       19: 'UUID',
       20: 'BOOLEAN',
-      24: 'VARCHAR(255)',
+      24: length ? `VARCHAR(${length})` : 'VARCHAR(255)',
     };
     return map[refId] ?? 'TEXT';
+  }
+
+  /** Safely embed a dictionary-supplied default value as a quoted SQL literal.
+   *  Postgres implicitly casts a quoted literal to the target column's type,
+   *  so a single quoting strategy covers strings, numbers, booleans and dates. */
+  private formatSqlLiteral(value: unknown): string {
+    return `'${String(value).replace(/'/g, "''")}'`;
   }
 
   async createColumn(data: Record<string, unknown>) {
@@ -200,50 +217,72 @@ export class SysService {
     if (!tableId) throw new NotFoundException('sys_table_id is required');
     const parentTable = await this.findTableById(tableId);
     const dbTableName = `bus_${parentTable.table_name}`;
-    const sqlType = this.mapRefToSqlType(data.sys_reference_id as number);
+    const columnName = data.column_name as string;
+    const sqlType = this.mapRefToSqlType(data.sys_reference_id as number, data.field_length as number | undefined);
 
-    // ALTER TABLE ADD COLUMN on the actual Postgres table
-    await sql`
-      ALTER TABLE ${sql.id(dbTableName)}
-      ADD COLUMN IF NOT EXISTS ${sql.id(data.column_name as string)} ${sql.raw(sqlType)}
-    `.execute(this.db.kysely);
+    const constraints: string[] = [];
+    if (data.default_value !== undefined && data.default_value !== null && data.default_value !== '') {
+      constraints.push(`DEFAULT ${this.formatSqlLiteral(data.default_value)}`);
+    }
+    if (data.is_mandatory) constraints.push('NOT NULL');
+    const constraintSql = constraints.length ? ` ${constraints.join(' ')}` : '';
 
-    // Insert sys_column metadata
     const now = new Date().toISOString();
-    const [column] = await this.db.kysely.insertInto('sys_column')
-      .values({
-        sys_column_id: randomUUID(),
-        sys_table_id: tableId,
-        column_name: data.column_name,
-        name: data.name ?? data.column_name,
-        description: data.description ?? null,
-        sys_reference_id: data.sys_reference_id,
-        field_length: data.field_length ?? null,
-        default_value: data.default_value ?? null,
-        is_key: data.is_key ?? false,
-        is_parent: data.is_parent ?? false,
-        is_mandatory: data.is_mandatory ?? false,
-        is_updateable: data.is_updateable ?? true,
-        is_identifier: data.is_identifier ?? false,
-        is_selection_column: data.is_selection_column ?? false,
-        is_encrypted: data.is_encrypted ?? false,
-        seq_no: data.seq_no ?? 0,
-        entity_type: data.entity_type ?? 'U',
-        is_active: true,
-        created_by: 'system',
-        updated_by: 'system',
-        created_at: now,
-        updated_at: now,
-      } as any)
-      .returningAll()
-      .execute();
+    const column = await this.db.kysely.transaction().execute(async (trx) => {
+      // ALTER TABLE ADD COLUMN on the actual Postgres table — DDL and the
+      // dictionary metadata insert share a transaction so they can't desync
+      // if either half fails partway through.
+      try {
+        await sql`
+          ALTER TABLE ${sql.id(dbTableName)}
+          ADD COLUMN IF NOT EXISTS ${sql.id(columnName)} ${sql.raw(sqlType + constraintSql)}
+        `.execute(trx);
+      } catch (error: any) {
+        throw new ConflictException(error?.message ?? 'Could not add the column to the table');
+      }
+
+      // Insert sys_column metadata
+      const [inserted] = await trx.insertInto('sys_column')
+        .values({
+          sys_column_id: randomUUID(),
+          sys_table_id: tableId,
+          column_name: columnName,
+          name: data.name ?? columnName,
+          description: data.description ?? null,
+          sys_reference_id: data.sys_reference_id,
+          field_length: data.field_length ?? null,
+          default_value: data.default_value ?? null,
+          is_key: data.is_key ?? false,
+          is_parent: data.is_parent ?? false,
+          is_mandatory: data.is_mandatory ?? false,
+          is_updateable: data.is_updateable ?? true,
+          is_identifier: data.is_identifier ?? false,
+          is_selection_column: data.is_selection_column ?? false,
+          is_encrypted: data.is_encrypted ?? false,
+          seq_no: data.seq_no ?? 0,
+          entity_type: data.entity_type ?? 'U',
+          is_active: true,
+          created_by: 'system',
+          updated_by: 'system',
+          created_at: now,
+          updated_at: now,
+        } as any)
+        .returningAll()
+        .execute();
+      return inserted;
+    });
 
     this.busService.clearMetadataCache();
     return column;
   }
 
   async updateTable(id: string, data: Record<string, unknown>) {
-    await this.findTableById(id);
+    const table = await this.findTableById(id);
+    if ('table_name' in data && data.table_name !== table.table_name) {
+      // Renaming the live bus_ table would desync it from the NestJS
+      // controllers/services already generated against the old name.
+      throw new ConflictException('The database table name cannot be changed after creation');
+    }
     await this.db.kysely.updateTable('sys_table')
       .set({ ...data, updated_at: new Date().toISOString(), updated_by: 'system' } as any)
       .where('sys_table_id', '=', id)
@@ -309,11 +348,65 @@ export class SysService {
   }
 
   async updateColumn(id: string, data: Record<string, unknown>) {
-    await this.findColumnById(id);
-    await this.db.kysely.updateTable('sys_column')
-      .set({ ...data, updated_at: new Date().toISOString(), updated_by: 'system' } as any)
-      .where('sys_column_id', '=', id)
-      .execute();
+    const existing = await this.findColumnById(id);
+    if ('column_name' in data && data.column_name !== existing.column_name) {
+      throw new ConflictException('The database column name cannot be changed after creation');
+    }
+    if ('sys_reference_id' in data && data.sys_reference_id !== existing.sys_reference_id) {
+      throw new ConflictException(
+        'The column type cannot be changed after creation; delete and recreate the column instead'
+      );
+    }
+
+    const parentTable = await this.findTableById(existing.sys_table_id as string);
+    const dbTableName = `bus_${parentTable.table_name}`;
+    const columnName = existing.column_name as string;
+
+    await this.db.kysely.transaction().execute(async (trx) => {
+      try {
+        if ('field_length' in data && data.field_length !== existing.field_length) {
+          const sqlType = this.mapRefToSqlType(
+            existing.sys_reference_id as number,
+            data.field_length as number | undefined
+          );
+          await sql`
+            ALTER TABLE ${sql.id(dbTableName)}
+            ALTER COLUMN ${sql.id(columnName)} TYPE ${sql.raw(sqlType)}
+          `.execute(trx);
+        }
+
+        if ('is_mandatory' in data && data.is_mandatory !== existing.is_mandatory) {
+          await sql`
+            ALTER TABLE ${sql.id(dbTableName)}
+            ALTER COLUMN ${sql.id(columnName)} ${sql.raw(data.is_mandatory ? 'SET NOT NULL' : 'DROP NOT NULL')}
+          `.execute(trx);
+        }
+
+        if ('default_value' in data && data.default_value !== existing.default_value) {
+          if (data.default_value === null || data.default_value === undefined || data.default_value === '') {
+            await sql`
+              ALTER TABLE ${sql.id(dbTableName)}
+              ALTER COLUMN ${sql.id(columnName)} DROP DEFAULT
+            `.execute(trx);
+          } else {
+            await sql`
+              ALTER TABLE ${sql.id(dbTableName)}
+              ALTER COLUMN ${sql.id(columnName)} SET DEFAULT ${sql.raw(this.formatSqlLiteral(data.default_value))}
+            `.execute(trx);
+          }
+        }
+      } catch (error: any) {
+        throw new ConflictException(error?.message ?? 'Could not alter the column');
+      }
+
+      await trx.updateTable('sys_column')
+        .set({ ...data, updated_at: new Date().toISOString(), updated_by: 'system' } as any)
+        .where('sys_column_id', '=', id)
+        .execute();
+    });
+
+    this.invalidateFieldCache();
+    this.busService.clearMetadataCache();
     return this.findColumnById(id);
   }
 
