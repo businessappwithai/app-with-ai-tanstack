@@ -869,7 +869,17 @@ export class TemplateLoader {
       if (n === "room_number") return `10${i + 1}`;
       if (n === "year" || n === "academic_year") return String(2024 + i);
       if (n === "section") return String.fromCharCode(65 + i); // A, B, C, D
-      return `Sample ${i + 1}`;
+      // Fields outside the vocabulary above all fell back to the identical
+      // literal "Sample N" regardless of field name, so every unmatched
+      // string column on a row showed the exact same text (e.g. a chemistry
+      // model's smiles/inchi_key/formula/compound_class/registration_status
+      // all read "Sample 1"). Fold the field name in so columns stay
+      // distinguishable for any domain vocabulary doesn't cover.
+      const humanized = (fieldName ?? "")
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase())
+        .trim();
+      return humanized ? `${humanized} ${i + 1}` : `Sample ${i + 1}`;
     });
   }
 }
