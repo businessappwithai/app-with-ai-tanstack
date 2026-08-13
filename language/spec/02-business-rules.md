@@ -92,6 +92,39 @@ flowchart TD
     R --> E([End])
 ```
 
+## Action directives — rule side-effects
+
+A plain decision flow (as above) compiles to a node-graph JDM that can only
+**decide** — it carries no outputs, so the rules engine finds nothing to act
+on. To let a rule **act** (reject a write, stamp a field, or trigger a
+`kind: saga` workflow), declare one or more `%%action` directives in the same
+section instead of drawing the decision as nodes:
+
+```
+%%action <name> <actionType> when: <expr> <key>: <value> ...
+```
+
+A section carrying `%%action` directives compiles to a GoRules **decision
+table** — one row per directive, `hitPolicy: collect` so more than one can
+match a single write — rather than the node-graph shape a plain flow produces.
+`when` is a zen expression over the record being written (`true` fires on
+every write).
+
+```mermaid
+%%meta name: Deviation Escalation
+%%meta kind: rules
+%%rule deviationEscalation on DeviationReport event: beforeUpdate priority: 10
+flowchart TD
+    %%action escalate trigger-workflow when: severity == "critical" workflow: CriticalDeviationEscalation
+    %%action requireCause validation-error when: status == "closed" and root_cause == null message: A closed deviation needs a root cause
+```
+
+The three action types — `trigger-workflow`, `validation-error`, `transform` —
+and their keys are in
+[`05-directives.md`](05-directives.md#action--rule-side-effect-shipped).
+`trigger-workflow` is how a rule reaches a `kind: saga` workflow declared with
+`trigger: rule`: the rule's `when` decides, and the action names the workflow.
+
 ## Authoring guidance
 
 - Give every flow exactly one Start stadium and at least one End stadium.

@@ -1010,10 +1010,10 @@
       },
       {
         "keyword": "%%category",
-        "form": "%%category name: <Name>; description: <text>; icon: <LucideIcon>; color: <#hex>; seq: <n>; default: true; entities: <A>, <B>",
+        "form": "%%category name: <Name>; code: <id>; description: <text>; icon: <LucideIcon>; color: <#hex>; seq: <n>; default: true; entities: <A>, <B>",
         "status": "compiled",
         "consumedBy": ["packages/generator/src/parsers/category.parser.ts"],
-        "purpose": "Group business entities into a named Application Dictionary category. The dashboard renders one block per category, ordered by name; the admin dictionary maintains them. Keys after `name` are optional and `;`-separated. A model that declares none gets a single \"General\" default holding every entity.",
+        "purpose": "Group business entities into a named Application Dictionary category. The dashboard renders one block per category, ordered by name; the admin dictionary maintains them. Only `name` is required; the rest are `;`-separated and may appear in any order. `code` is a stable short identifier, slugified from `name` when omitted — it is the dictionary row's key, so setting it explicitly keeps that key stable across a rename. A directive may span several lines by ending each continued line with `\\`. A model that declares none gets a single \"General\" default holding every entity.",
         "examples": [
           "%%category name: Compound Registry; description: Structures and aliases; icon: FlaskConical; color: #6366f1; entities: Compound, CompoundAlias",
           "%%category name: People and Teams; default: true; entities: User, Team"
