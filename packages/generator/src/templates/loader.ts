@@ -845,7 +845,23 @@ export class TemplateLoader {
 
       if (n === "first_name") return pick(FIRST_NAMES);
       if (n === "last_name") return pick(LAST_NAMES);
-      if (n === "name" || n.endsWith("_name")) return `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`;
+      // A bare "name" (or "*_name") field is usually an entity's own name —
+      // Instrument.name, Team.name, Vendor.name, CompoundAlias.alias_name —
+      // not a person. Assuming person here seeded a lab instrument literally
+      // named "James Smith". Fields that really do hold a person's full name
+      // are named specifically enough to say so.
+      if (
+        n === "full_name" ||
+        n === "contact_name" ||
+        n === "customer_name" ||
+        n === "manager_name" ||
+        n === "employee_name" ||
+        n === "student_name" ||
+        n === "teacher_name" ||
+        n === "guardian_name" ||
+        n === "parent_name"
+      )
+        return `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`;
       if (n === "gender") return i % 2 === 0 ? "Male" : "Female";
       if (n === "relationship" || n === "relationship_type")
         return pick(["Mother", "Father", "Guardian", "Grandmother", "Grandfather"]);
