@@ -845,7 +845,23 @@ export class TemplateLoader {
 
       if (n === "first_name") return pick(FIRST_NAMES);
       if (n === "last_name") return pick(LAST_NAMES);
-      if (n === "name" || n.endsWith("_name")) return `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`;
+      // A bare "name" (or "*_name") field is usually an entity's own name —
+      // Instrument.name, Team.name, Vendor.name, CompoundAlias.alias_name —
+      // not a person. Assuming person here seeded a lab instrument literally
+      // named "James Smith". Fields that really do hold a person's full name
+      // are named specifically enough to say so.
+      if (
+        n === "full_name" ||
+        n === "contact_name" ||
+        n === "customer_name" ||
+        n === "manager_name" ||
+        n === "employee_name" ||
+        n === "student_name" ||
+        n === "teacher_name" ||
+        n === "guardian_name" ||
+        n === "parent_name"
+      )
+        return `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`;
       if (n === "gender") return i % 2 === 0 ? "Male" : "Female";
       if (n === "relationship" || n === "relationship_type")
         return pick(["Mother", "Father", "Guardian", "Grandmother", "Grandfather"]);
@@ -869,7 +885,17 @@ export class TemplateLoader {
       if (n === "room_number") return `10${i + 1}`;
       if (n === "year" || n === "academic_year") return String(2024 + i);
       if (n === "section") return String.fromCharCode(65 + i); // A, B, C, D
-      return `Sample ${i + 1}`;
+      // Fields outside the vocabulary above all fell back to the identical
+      // literal "Sample N" regardless of field name, so every unmatched
+      // string column on a row showed the exact same text (e.g. a chemistry
+      // model's smiles/inchi_key/formula/compound_class/registration_status
+      // all read "Sample 1"). Fold the field name in so columns stay
+      // distinguishable for any domain vocabulary doesn't cover.
+      const humanized = (fieldName ?? "")
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase())
+        .trim();
+      return humanized ? `${humanized} ${i + 1}` : `Sample ${i + 1}`;
     });
   }
 }

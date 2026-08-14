@@ -31,7 +31,7 @@ import { apiClient } from "@/lib/api-client";
 import { getFieldTypeColor, getFieldTypeLabel, validateFormData } from "@/lib/field-schema";
 import { getFieldLabel } from "@/lib/i18n-fields";
 import { useTranslations } from "@/lib/translations";
-import { cn } from "@/lib/utils";
+import { cn, referenceLabel } from "@/lib/utils";
 
 interface DynamicFormProps {
   tableName: string;
@@ -108,20 +108,31 @@ function getFieldIcon(sysReferenceId: number) {
 }
 
 function TableReferenceViewValue({ field, id }: { field: FieldMetadata; id: string }) {
-  const customEndpoint = field.ref_endpoint || null;
   const idField = field.ref_id_field || "id";
-  const labelField = field.ref_label_field || "name";
+  // Honour `ref_label_fields` (a list, so an entity identified by more than
+  // one column reads properly) before the single `ref_label_field`. This
+  // previously fell back to `ref_endpoint` only, so any FK to a plain
+  // business table (ref_table_name, no custom endpoint) never fired the
+  // query and always rendered the raw id — see dynamic-table.tsx for the
+  // matching fix on the list view.
+  const labelFields: string[] = (field as any).ref_label_fields?.length
+    ? (field as any).ref_label_fields
+    : field.ref_label_field
+      ? [field.ref_label_field]
+      : ["name"];
+  const endpoint =
+    field.ref_endpoint || (field.ref_table_name ? `/bus/${field.ref_table_name.replace(/^bus_/, "")}` : null);
 
   const { data } = useQuery({
-    queryKey: ["table-ref-view", customEndpoint, id],
-    queryFn: () => apiClient.get<{ data: any[] }>(customEndpoint!, { limit: 500 }),
-    enabled: !!customEndpoint && !!id,
+    queryKey: ["table-ref-view", endpoint, id],
+    queryFn: () => apiClient.get<{ data: any[] }>(endpoint!, { limit: 500 }),
+    enabled: !!endpoint && !!id,
   });
 
   const records = (data as any)?.data ?? [];
   const record = records.find((r: any) => String(r[idField]) === String(id));
-  const label = record ? record[labelField] : id;
-  return <span>{label}</span>;
+  if (!record) return <span>{id}</span>;
+  return <span>{referenceLabel(record, labelFields, id)}</span>;
 }
 
 interface TableReferenceFieldProps {
@@ -141,7 +152,11 @@ function TableReferenceField({
 }: TableReferenceFieldProps) {
   const referencedTableName = field.ref_table_name || null;
   const idField = field.ref_id_field || "id";
-  const labelField = field.ref_label_field || "name";
+  const labelFields: string[] = (field as any).ref_label_fields?.length
+    ? (field as any).ref_label_fields
+    : field.ref_label_field
+      ? [field.ref_label_field]
+      : ["name"];
 
   // Resolve filtered endpoint: append ref_filter_param=<parentContext[ref_filter_source]> when configured
   const filterValue =
@@ -212,10 +227,7 @@ function TableReferenceField({
       <option value="">Select {field.name}...</option>
       {tableRecords.map((record: any) => {
         const optValue = record[idField];
-        const optLabel =
-          record[labelField] ||
-          `${record.first_name || ""} ${record.last_name || ""}`.trim() ||
-          String(optValue);
+        const optLabel = referenceLabel(record, labelFields, String(optValue));
         return (
           <option key={String(optValue)} value={String(optValue)}>
             {optLabel}
