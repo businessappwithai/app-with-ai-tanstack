@@ -5,7 +5,6 @@
  * Shows groups with their column layouts and field counts.
  */
 
-"use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, GripVertical, LayoutGrid, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";

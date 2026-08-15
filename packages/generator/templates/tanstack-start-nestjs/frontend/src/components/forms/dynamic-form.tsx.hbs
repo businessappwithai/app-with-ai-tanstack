@@ -1,4 +1,3 @@
-"use client";
 
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";

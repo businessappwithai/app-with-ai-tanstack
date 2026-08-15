@@ -1,4 +1,3 @@
-"use client";
 
 /**
  * Dynamic Table Component

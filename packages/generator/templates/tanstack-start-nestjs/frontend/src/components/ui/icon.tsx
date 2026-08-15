@@ -1,4 +1,3 @@
-"use client";
 
 /**
  * Dynamic Icon Component

@@ -1,4 +1,3 @@
-"use client";
 
 /**
  * Dropdown Menu Component

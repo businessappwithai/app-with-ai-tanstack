@@ -1,4 +1,3 @@
-"use client";
 
 /**
  * Scroll Area Component

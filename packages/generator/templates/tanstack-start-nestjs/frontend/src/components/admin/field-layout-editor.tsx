@@ -1,4 +1,3 @@
-"use client";
 
 /**
  * Field Layout Editor
