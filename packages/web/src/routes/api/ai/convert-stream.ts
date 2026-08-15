@@ -6,7 +6,10 @@ export const Route = createFileRoute("/api/ai/convert-stream")({
       POST: async ({ request }) => {
         try {
           const body = await request.json();
-          const { description } = body;
+          const { description, currentErdCode } = body as {
+            description: string;
+            currentErdCode?: string;
+          };
 
           if (!description || typeof description !== "string") {
             return new Response(JSON.stringify({ error: "Description is required" }), {
@@ -23,14 +26,44 @@ export const Route = createFileRoute("/api/ai/convert-stream")({
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
               };
 
+              // Send a heartbeat every 5 s so the client knows we're still alive
+              const heartbeat = setInterval(() => {
+                try {
+                  controller.enqueue(encoder.encode(": heartbeat\n\n"));
+                } catch {
+                  clearInterval(heartbeat);
+                }
+              }, 5000);
+
               try {
                 send({
                   step: "analyzing",
                   message: "Analyzing business domain and entity relationships...",
                 });
 
-                const { convertToMermaid } = await import("@erdwithai/ai");
-                const mermaidSyntax = await convertToMermaid(description);
+                const { analyzeDomainWithOpenAI, generateMermaidWithValidation } =
+                  await import("@erdwithai/ai");
+
+                const domainAnalysis = await analyzeDomainWithOpenAI(
+                  description,
+                  currentErdCode ?? ""
+                );
+
+                if (!domainAnalysis) {
+                  send({
+                    step: "error",
+                    message: "AI returned an empty domain analysis — please try again.",
+                  });
+                  controller.close();
+                  return;
+                }
+
+                send({ step: "generating", message: "Building entity model and relationships..." });
+
+                const { mermaidSyntax } = await generateMermaidWithValidation(
+                  domainAnalysis.entities,
+                  domainAnalysis.relationships
+                );
 
                 if (!mermaidSyntax) {
                   send({
@@ -41,13 +74,13 @@ export const Route = createFileRoute("/api/ai/convert-stream")({
                   return;
                 }
 
-                send({ step: "generating", message: "Building entity model and relationships..." });
                 send({ step: "validating", message: "Validating ERD diagram syntax..." });
                 send({ mermaidSyntax });
               } catch (error) {
                 const message = error instanceof Error ? error.message : "Conversion failed";
                 send({ step: "error", message });
               } finally {
+                clearInterval(heartbeat);
                 controller.close();
               }
             },

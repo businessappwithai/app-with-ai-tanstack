@@ -383,17 +383,23 @@ erDiagram
 `;
 
 /**
- * Analyze domain and generate Mermaid ERD with retry logic
+ * Analyze domain and extract entities/relationships.
+ * When currentErdCode is provided the AI is instructed to extend/modify the
+ * existing diagram rather than start from scratch.
  */
-export async function analyzeDomainWithOpenAI(description: string) {
+export async function analyzeDomainWithOpenAI(
+  description: string,
+  currentErdCode: string = ""
+) {
   console.log("[Local AI Analysis] Starting analysis with", AI_MODEL, "at", AI_BASE_URL);
 
   const openai = makeLocalClient();
 
-  const conversationHistory: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
-    {
-      role: "system",
-      content: `You are an expert data modeler specializing in Entity-Relationship Diagram analysis and Mermaid ERD syntax.
+  const existingContext = currentErdCode.trim()
+    ? `\n\nThe user already has this Mermaid ERD. Extend or modify it according to the request — preserve existing entities and relationships unless the request explicitly asks to remove them:\n\`\`\`mermaid\n${currentErdCode}\n\`\`\``
+    : "";
+
+  const systemPrompt = `You are an expert data modeler specializing in Entity-Relationship Diagram analysis and Mermaid ERD syntax.
 
 ${MERMAID_ERD_DOCUMENTATION}
 
@@ -425,9 +431,7 @@ Response format:
     }
   ],
   "summary": "Brief analysis summary"
-}`,
-    },
-  ];
+}`;
 
   console.log("[Local AI Analysis] Calling API...");
 
@@ -435,12 +439,12 @@ Response format:
     const response = await openai.chat.completions.create({
       model: AI_MODEL,
       messages: [
-        ...conversationHistory,
+        { role: "system", content: systemPrompt },
         {
           role: "user",
           content: `Analyze this domain description and extract entities and relationships:
 
-${description}`,
+${description}${existingContext}`,
         },
       ],
       response_format: { type: "json_object" },
@@ -461,20 +465,9 @@ ${description}`,
       `[OpenAI Analysis] Extracted ${parsed.entities?.length || 0} entities, ${parsed.relationships?.length || 0} relationships`
     );
 
-    // Generate Mermaid with retry logic
-    const entities = parsed.entities || [];
-    const relationships = parsed.relationships || [];
-
-    console.log("[OpenAI Analysis] Generating Mermaid syntax with validation...");
-    const mermaidResult = await generateMermaidWithRetry(openai, entities, relationships, 3);
-
-    console.log(
-      `[OpenAI Analysis] Generated Mermaid with ${mermaidResult.entityCount} entities, ${mermaidResult.relationshipCount} relationships`
-    );
-
     return {
-      entities,
-      relationships,
+      entities: parsed.entities || [],
+      relationships: parsed.relationships || [],
       summary: parsed.summary || "",
     };
   } catch (error) {

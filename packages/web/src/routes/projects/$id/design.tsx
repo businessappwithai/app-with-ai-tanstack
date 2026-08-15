@@ -80,13 +80,11 @@ function DesignPage() {
     currentProject,
     isLoading,
   } = useProjectStore();
-  const project = getProject(projectId) || currentProject;
+  const project = currentProject?.id === projectId ? currentProject : getProject(projectId);
 
   useEffect(() => {
-    if (!getProject(projectId) && !currentProject) {
-      loadProject(projectId);
-    }
-  }, [projectId, getProject, currentProject, loadProject]);
+    loadProject(projectId);
+  }, [projectId, loadProject]);
 
   const [erdCode, setErdCode] = useState("");
   const [_validationErrors, setValidationErrors] = useState<string[]>([]);

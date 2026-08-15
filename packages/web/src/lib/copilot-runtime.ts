@@ -25,14 +25,15 @@ export const copilotRuntime = new CopilotRuntime();
  * that starts before the model server does not need restarting once it is up.
  */
 export async function makeServiceAdapter() {
-  const [{ default: OpenAI }, { AI_API_KEY, AI_BASE_URL, AI_MODEL }] = await Promise.all([
-    import("openai"),
-    import("@erdwithai/ai"),
-  ]);
+  const { default: OpenAI } = await import("openai");
+
+  const apiKey = process.env.LOCAL_AI_API_KEY ?? "local";
+  const baseURL = process.env.LOCAL_AI_BASE_URL ?? "http://127.0.0.1:8000/v1";
+  const model = process.env.LOCAL_AI_MODEL ?? "mlx-community/Qwen3.8-27B-4bit";
 
   return new OpenAIAdapter({
-    openai: new OpenAI({ apiKey: AI_API_KEY, baseURL: AI_BASE_URL }) as never,
-    model: AI_MODEL,
+    openai: new OpenAI({ apiKey, baseURL }) as never,
+    model,
   });
 }
 
