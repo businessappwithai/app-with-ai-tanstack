@@ -127,13 +127,6 @@ export const Route = createFileRoute("/api/projects/")({
             });
           }
 
-          if (user.role === "admin") {
-            return new Response(JSON.stringify({ error: "Admins cannot create projects" }), {
-              status: 403,
-              headers: { "Content-Type": "application/json" },
-            });
-          }
-
           const body = await request.json();
           const {
             name,
