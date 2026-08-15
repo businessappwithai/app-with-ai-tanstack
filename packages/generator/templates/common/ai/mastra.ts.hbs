@@ -8,7 +8,7 @@
  * Project: {{project.name}}
  */
 
-import { Mastra } from '@mastra/core';
+import { Mastra } from '@mastra/core/mastra';
 import { dataQueryAgent } from './agents/data-query-agent';
 {{#if (eq config.aiNlAddon 'advanced')}}
 import { insightsAgent } from './agents/insights-agent';
@@ -16,7 +16,8 @@ import { insightsAgent } from './agents/insights-agent';
 import { dataQueryWorkflow } from './workflows/data-query-workflow';
 
 /**
- * Mastra instance for AI Natural Language features
+ * Mastra instance for AI Natural Language features.
+ * Run with: bunx mastra dev --dir src/mastra --env .env
  */
 export const mastra = new Mastra({
   agents: {
@@ -27,6 +28,10 @@ export const mastra = new Mastra({
   },
   workflows: {
     dataQueryWorkflow,
+  },
+  server: {
+    port: Number(process.env.MASTRA_PORT ?? 4111),
+    host: process.env.MASTRA_HOST ?? 'localhost',
   },
 });
 

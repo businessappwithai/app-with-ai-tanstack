@@ -140,20 +140,11 @@ PACKAGES=("core" "generator" "ai" "web")
 ALL_BUILT=true
 
 for pkg in "${PACKAGES[@]}"; do
-    if [ "$pkg" = "web" ]; then
-        if [ -d "packages/$pkg/.next" ]; then
-            print_success "packages/$pkg/.next exists"
-        else
-            print_error "packages/$pkg/.next not found"
-            ALL_BUILT=false
-        fi
+    if [ -d "packages/$pkg/dist" ]; then
+        print_success "packages/$pkg/dist exists"
     else
-        if [ -d "packages/$pkg/dist" ]; then
-            print_success "packages/$pkg/dist exists"
-        else
-            print_error "packages/$pkg/dist not found"
-            ALL_BUILT=false
-        fi
+        print_error "packages/$pkg/dist not found"
+        ALL_BUILT=false
     fi
 done
 

@@ -5,14 +5,14 @@
  * strings or base URLs in individual files.
  *
  * Runtime env vars (set in .env):
- *   LOCAL_AI_BASE_URL   — OpenAI-compatible base URL (default: http://localhost:8000/v1)
- *   LOCAL_AI_MODEL      — model identifier          (default: qwen3.6:27b-mlx)
+ *   LOCAL_AI_BASE_URL   — OpenAI-compatible base URL (default: http://127.0.0.1:8000/v1)
+ *   LOCAL_AI_MODEL      — model identifier          (default: mlx-community/Qwen3.8-27B-4bit)
  *   LOCAL_AI_API_KEY    — API key for the endpoint  (default: local)
  */
 
-export const AI_BASE_URL = process.env.LOCAL_AI_BASE_URL ?? "http://localhost:8000/v1";
+export const AI_BASE_URL = process.env.LOCAL_AI_BASE_URL ?? "http://127.0.0.1:8000/v1";
 
-export const AI_MODEL = process.env.LOCAL_AI_MODEL ?? "qwen3.6:27b-mlx";
+export const AI_MODEL = process.env.LOCAL_AI_MODEL ?? "mlx-community/Qwen3.8-27B-4bit";
 
 export const AI_API_KEY = process.env.LOCAL_AI_API_KEY ?? "local";
 

@@ -1,54 +1,58 @@
 #!/bin/bash
 
-# Run E2E tests with the dev server
-# This script starts the dev server in background, runs tests, then cleans up
+# Run Playwright E2E tests against the dev server.
+# Starts the dev server, waits until it is ready, runs tests, then tears down.
 
 set -e
 
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+APP_PORT=3000
+
 echo "=========================================="
-echo "Running E2E Tests with Dev Server"
+echo "E2E Tests with Dev Server"
 echo "=========================================="
 
-# Kill any existing dev server
-echo "Stopping any existing dev server..."
-pkill -f "bun.*dev" || true
-sleep 2
+# Kill any leftover dev processes on port 3000
+echo "Stopping any existing dev server on :$APP_PORT..."
+lsof -ti:"$APP_PORT" | xargs kill -9 2>/dev/null || true
+sleep 1
 
 # Start dev server in background
 echo "Starting dev server..."
-bun run dev > /tmp/dev-server.log 2>&1 &
+cd "$PROJECT_ROOT"
+bun run dev > /tmp/erdwithai-dev-server.log 2>&1 &
 DEV_SERVER_PID=$!
 
-# Wait for server to start
-echo "Waiting for server to start..."
-for i in {1..60}; do
-  if curl -s http://localhost:3002 > /dev/null 2>&1 || curl -s http://localhost:3000 > /dev/null 2>&1; then
-    echo "Server is ready!"
-    break
-  fi
-  if [ $i -eq 60 ]; then
-    echo "Server failed to start within 60 seconds"
-    cat /tmp/dev-server.log
-    exit 1
-  fi
-  sleep 1
+# Wait for server (up to 90 s)
+echo "Waiting for server on http://localhost:$APP_PORT ..."
+for i in $(seq 1 90); do
+    if curl -sf "http://localhost:$APP_PORT" > /dev/null 2>&1; then
+        echo "Server ready (${i}s)"
+        break
+    fi
+    if [ "$i" -eq 90 ]; then
+        echo "Server failed to start within 90 seconds"
+        cat /tmp/erdwithai-dev-server.log
+        kill "$DEV_SERVER_PID" 2>/dev/null || true
+        exit 1
+    fi
+    sleep 1
 done
 
-# Run the tests
+# Run Playwright tests
 echo "Running E2E tests..."
-bun test test/comprehensive-e2e.test.ts
+bunx playwright test
 TEST_EXIT_CODE=$?
 
-# Kill the dev server
+# Tear down
 echo "Stopping dev server..."
-kill $DEV_SERVER_PID 2>/dev/null || true
-pkill -f "bun.*dev" || true
+kill "$DEV_SERVER_PID" 2>/dev/null || true
+lsof -ti:"$APP_PORT" | xargs kill -9 2>/dev/null || true
 
-# Exit with test exit code
 if [ $TEST_EXIT_CODE -eq 0 ]; then
-  echo "✓ All E2E tests passed!"
+    echo "All E2E tests passed."
 else
-  echo "✗ Some E2E tests failed"
+    echo "Some E2E tests failed."
 fi
 
 exit $TEST_EXIT_CODE

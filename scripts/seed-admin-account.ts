@@ -72,7 +72,7 @@ async function seedAdminAccount() {
     console.log(`   Role: admin`);
     console.log(`   Status: approved`);
     console.log(``);
-    console.log(`🔐 You can now log in at: http://localhost:3001/login`);
+    console.log(`🔐 You can now log in at: http://localhost:3000/login`);
     process.exit(0);
   } catch (error) {
     console.error("❌ Error creating admin account:", error);
