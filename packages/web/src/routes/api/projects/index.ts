@@ -213,6 +213,7 @@ export const Route = createFileRoute("/api/projects/")({
                 port: (dbProject as any).port,
                 databaseUrl: (dbProject as any).database_url,
                 generatedPath: (dbProject as any).generated_path,
+                erdCode: typeof erdCode === "string" && erdCode.trim() ? erdCode : "",
               }
             : null;
 
