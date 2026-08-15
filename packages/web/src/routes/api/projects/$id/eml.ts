@@ -121,7 +121,7 @@ export const Route = createFileRoute("/api/projects/$id/eml")({
             const { ingestProjectModel } = await import("@erdwithai/ai");
             await ingestProjectModel(params.id, eml, { name: project.name });
           } catch (ingestError) {
-            console.error("[eml] model saved but not re-embedded:", ingestError);
+            console.warn("[eml] model saved but not re-embedded:", ingestError);
           }
 
           return json({
