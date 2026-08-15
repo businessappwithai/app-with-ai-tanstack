@@ -226,8 +226,6 @@ function ProjectsPage() {
                   Rules Admin
                 </Link>
               </div>
-              {/* Desktop create button - admins cannot create projects */}
-              {user?.role !== "admin" && (
                 <button
                   onClick={() => setShowNewProjectModal(true)}
                   disabled={isLoading || isCreatingProject}
@@ -241,9 +239,6 @@ function ProjectsPage() {
                   )}
                   {isCreatingProject ? "Creating..." : "Create New Project"}
                 </button>
-              )}
-              {/* A model that already exists is a way in, not just prose. */}
-              {user?.role !== "admin" && (
                 <button
                   type="button"
                   onClick={() => setShowImportModal(true)}
@@ -253,9 +248,6 @@ function ProjectsPage() {
                   <FileCode2 className="w-4 h-4" />
                   Import a model
                 </button>
-              )}
-              {/* Mobile: icon-only create button + hamburger - admins cannot create projects */}
-              {user?.role !== "admin" && (
                 <button
                   onClick={() => setShowNewProjectModal(true)}
                   disabled={isLoading || isCreatingProject}
@@ -269,7 +261,6 @@ function ProjectsPage() {
                     <Plus className="w-4 h-4 text-white" />
                   )}
                 </button>
-              )}
               {/* User menu */}
               <div className="relative" ref={userMenuRef}>
                 <button
