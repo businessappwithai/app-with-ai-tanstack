@@ -41,7 +41,7 @@ function WorkflowDefinitionsList() {
 
   const { data: defs = [], isLoading } = useQuery<WfDef[]>({
     queryKey: ["workflow-definitions"],
-    queryFn: () => apiClient.get("/workflow-definitions"),
+    queryFn: () => apiClient.get<any>("/workflow-definitions").then((r: any) => Array.isArray(r) ? r : (r?.items ?? r?.data ?? [])),
   });
 
   const deleteMutation = useMutation({

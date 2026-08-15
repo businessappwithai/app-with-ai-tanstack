@@ -195,7 +195,7 @@ export class BusService {
 
     // The row is committed as a draft. Promotion runs the associated rules and
     // workflows and decides whether it becomes final — see EntityPromotionService.
-    const promotion = await this.promotionDispatcher.dispatch(entity, result.id, 'create', result);
+    const promotion = await this.promotionDispatcher.dispatch(tableName, result.id, 'create', result);
 
     this.logger.log(`create: entity=${entity}, id=${result?.id}, doc_status=${promotion.docStatus}`);
     return this.withPromotion(tableName, result.id, result, promotion);
@@ -271,7 +271,7 @@ export class BusService {
 
     await executeAfterUpdateHooks(entity, result);
 
-    const promotion = await this.promotionDispatcher.dispatch(entity, id, 'update', result);
+    const promotion = await this.promotionDispatcher.dispatch(tableName, id, 'update', result);
 
     this.logger.log(`update: entity=${entity}, id=${id}, doc_status=${promotion.docStatus}`);
     return this.withPromotion(tableName, id, result, promotion);
@@ -290,7 +290,7 @@ export class BusService {
       throw new NotFoundException(`Record not found in ${tableName} with id: ${id}`);
     }
 
-    const promotion = await this.promotionDispatcher.dispatch(entity, id, 'update', current);
+    const promotion = await this.promotionDispatcher.dispatch(tableName, id, 'update', current);
     return this.withPromotion(tableName, id, current, promotion);
   }
 
@@ -327,7 +327,7 @@ export class BusService {
 
     await this.enforceBusinessRules(tableName, current, 'delete');
 
-    const promotion = await this.promotionDispatcher.dispatch(entity, id, 'delete', current);
+    const promotion = await this.promotionDispatcher.dispatch(tableName, id, 'delete', current);
     await executeAfterDeleteHooks(entity, promotion.promoted);
 
     return promotion;

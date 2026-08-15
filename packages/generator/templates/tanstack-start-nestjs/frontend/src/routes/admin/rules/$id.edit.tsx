@@ -27,90 +27,6 @@ export const Route = createFileRoute("/admin/rules/$id/edit")({
   component: EditRulePage,
 });
 
-const ENTITY_FIELDS: Record<string, string[]> = {
-  bus_patient: [
-    "patient_id",
-    "first_name",
-    "last_name",
-    "birth_date",
-    "gender",
-    "national_id",
-    "prov_health_number",
-    "email",
-    "phone",
-    "residence_country",
-  ],
-  bus_appointment: [
-    "appointment_id",
-    "patient_id",
-    "practitioner_id",
-    "scheduled_start",
-    "scheduled_end",
-    "current_state",
-  ],
-  bus_practitioner: [
-    "practitioner_id",
-    "npi_number",
-    "billing_number",
-    "license_number",
-    "first_name",
-    "last_name",
-    "specialty",
-  ],
-  bus_encounter: [
-    "encounter_id",
-    "appointment_id",
-    "patient_id",
-    "practitioner_id",
-    "subjective_notes",
-    "objective_notes",
-    "assessment",
-    "plan_notes",
-  ],
-  bus_claim: [
-    "claim_id",
-    "encounter_id",
-    "payer_type",
-    "icd_code",
-    "procedure_code",
-    "total_charge",
-    "claim_state",
-  ],
-  Account: [
-    "name",
-    "email",
-    "phone",
-    "website",
-    "industry",
-    "type",
-    "status",
-    "annual_revenue",
-    "employee_count",
-    "description",
-    "is_active",
-  ],
-  Contact: [
-    "first_name",
-    "last_name",
-    "email",
-    "phone",
-    "title",
-    "department",
-    "status",
-    "is_active",
-  ],
-  Opportunity: [
-    "name",
-    "stage",
-    "amount",
-    "probability",
-    "close_date",
-    "status",
-    "type",
-    "is_active",
-  ],
-  Activity: ["subject", "type", "status", "priority", "due_date", "description", "is_active"],
-};
 
 interface Rule {
   id: string;
@@ -252,8 +168,6 @@ function EditRulePage() {
       </div>
     );
   }
-
-  const entityFields = ENTITY_FIELDS[rule.entityName];
 
   return (
     <div className="min-h-screen bg-white">
