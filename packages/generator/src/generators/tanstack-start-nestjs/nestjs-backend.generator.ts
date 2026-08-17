@@ -20,6 +20,7 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import {
   type Entity,
+  type EntityEnum,
   entityToBusEntity,
   generateEntityDictionary,
   type Relationship,
@@ -140,6 +141,8 @@ export interface NestJsBackendOptions {
    * `%%category` directives. When absent a single "General" default is seeded.
    */
   categories?: EntityCategory[];
+  /** `%%enum` declarations bound to columns, each with its list reference id. */
+  modelEnums?: EntityEnum[];
   /** Business rules compiled from the model's `%%rule` sections. */
   compiledRules?: CompiledRule[];
   /** Lifecycle handlers compiled from the model's `%%hook` directives. */
@@ -304,6 +307,11 @@ export class NestJsBackendGenerator extends BaseGenerator {
     // Extract sys_table entries from dictionary
     const sysTables = dictionaryEntries.map((entry) => entry.dictionaryPlaceholders.table);
 
+    // `%%enum` declarations bound to a column. The references seed writes one
+    // sys_reference (validation type L) plus its sys_ref_list values per entry,
+    // and the columns above already point at the matching id.
+    const modelEnums = this.options.modelEnums ?? [];
+
     // Generate sys_column entries from bus attributes
     const sysColumns = dictionaryEntries.flatMap((entry, entityIndex) => {
       const busAttrs = entry.busAttributes;
@@ -369,6 +377,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
       relationships,
       sysTables,
       sysColumns,
+      modelEnums,
       sysFields,
       categories: this.prepareCategories(busEntities),
       compiledRules: (this.options.compiledRules ?? []).map((rule) => ({
@@ -1383,9 +1392,22 @@ export async function executeCustomValidateHooks(
         : `No state machine declared for ${entity.displayName ?? tableName}.`;
 
       for (const operation of ["create", "update"]) {
-        const bpmn = workflow
-          ? buildStateEntryBpmn(workflow, tableName, statusField)
-          : buildPassThroughBpmn(tableName);
+        // The state-entry task belongs to CREATE alone. Seeding it for UPDATE
+        // too meant every update re-asserted the machine's *initial* state, so
+        // the write that moved a record forward was immediately undone: a lead
+        // set to "qualified" came back "new", and the conversion workflow that
+        // had just set it to "converted" was overwritten by the same reset.
+        // Status was effectively read-only in any generated application whose
+        // model declared a state machine.
+        //
+        // On update the definition is a pass-through, so the run is still
+        // created and visible in the run list — the transitions the model
+        // declares constrain what an update may do, and nothing here should be
+        // deciding the state on the record's behalf.
+        const bpmn =
+          workflow && operation === "create"
+            ? buildStateEntryBpmn(workflow, tableName, statusField)
+            : buildPassThroughBpmn(tableName);
 
         rows.push(
           `  {\n` +

@@ -387,10 +387,7 @@ erDiagram
  * When currentErdCode is provided the AI is instructed to extend/modify the
  * existing diagram rather than start from scratch.
  */
-export async function analyzeDomainWithOpenAI(
-  description: string,
-  currentErdCode: string = ""
-) {
+export async function analyzeDomainWithOpenAI(description: string, currentErdCode: string = "") {
   console.log("[Local AI Analysis] Starting analysis with", AI_MODEL, "at", AI_BASE_URL);
 
   const openai = makeLocalClient();

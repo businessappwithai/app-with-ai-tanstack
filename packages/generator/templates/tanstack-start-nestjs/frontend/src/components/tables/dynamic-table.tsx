@@ -74,6 +74,16 @@ interface DynamicTableProps {
 // Reference Type Constants
 // ============================================================================
 
+/**
+ * The key a resolved lookup is stored under. A field usually names the table
+ * behind it; the Application Dictionary's own grids name only the endpoint
+ * (/sys/tables), and both have to land in the same map for the cell to find
+ * the label it fetched.
+ */
+function lookupKey(field: { ref_table_name?: string | null; ref_endpoint?: string | null }): string {
+  return field.ref_table_name ?? field.ref_endpoint ?? "";
+}
+
 const REFERENCE_TYPE = {
   STRING: 10,
   INTEGER: 11,
@@ -186,8 +196,12 @@ function generateColumns(
       const isLookup =
         field.sys_reference_id === REFERENCE_TYPE.TABLE ||
         field.sys_reference_id === REFERENCE_TYPE.TABLE_DIRECT;
-      if (isLookup && value != null && field.ref_table_name) {
-        const tableMap = lookupMap[field.ref_table_name];
+      // Same condition as lookupFieldDefs: either the table name or the
+      // endpoint is enough to have fetched a label, so gating the cell on
+      // ref_table_name alone printed the raw id for the dictionary's own grids
+      // even after the fetch had succeeded.
+      if (isLookup && value != null && (field.ref_table_name || field.ref_endpoint)) {
+        const tableMap = lookupMap[lookupKey(field)];
         const displayName = tableMap?.[String(value)];
         return <span className="block truncate max-w-[200px]">{displayName ?? String(value)}</span>;
       }
@@ -272,11 +286,16 @@ export function DynamicTable({
   // Collect unique lookup fields from the current data
   const lookupFieldDefs = useMemo(() => {
     if (!fields) return [];
+    // A field resolves its labels if it names either the table behind it or
+    // the endpoint to read them from. Requiring ref_table_name alone left the
+    // Application Dictionary's own grids printing raw UUIDs: sys_tab.Table is
+    // declared with ref_endpoint /sys/tables and no table name, so it was
+    // filtered out here and the id rendered as-is.
     return fields.filter(
       (f) =>
         (f.sys_reference_id === REFERENCE_TYPE.TABLE ||
           f.sys_reference_id === REFERENCE_TYPE.TABLE_DIRECT) &&
-        !!f.ref_table_name
+        (!!f.ref_table_name || !!f.ref_endpoint)
     );
   }, [fields]);
 
@@ -308,9 +327,9 @@ export function DynamicTable({
       { field: (typeof lookupFieldDefs)[number]; endpoint: string }
     >();
     for (const { field } of lookupQueries) {
-      const refTable = field.ref_table_name!;
+      const refTable = lookupKey(field);
       if (byTable.has(refTable)) continue;
-      const entity = refTable.replace(/^bus_/, "");
+      const entity = (field.ref_table_name ?? "").replace(/^bus_/, "");
       byTable.set(refTable, { field, endpoint: field.ref_endpoint ?? `/bus/${entity}` });
     }
     return Array.from(byTable.entries()).map(([refTable, v]) => ({ refTable, ...v }));
@@ -348,7 +367,7 @@ export function DynamicTable({
         const id = String((rec as any)[idField] ?? "");
         if (id) tableMap[id] = referenceLabel(rec as Record<string, unknown>, labelFields, id);
       }
-      map[field.ref_table_name!] = tableMap;
+      map[lookupKey(field)] = tableMap;
     });
     return map;
   }, [lookupSources, lookupResults]);

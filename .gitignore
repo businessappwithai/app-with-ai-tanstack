@@ -19,7 +19,7 @@ coverage/
 # Generated projects runtime artifacts
 packages/web/generated-projects/
 packages/generator/generated-projects/
-generated-projects/
+generated-projects/*
 generated-app/
 run-logs/
 
@@ -92,3 +92,18 @@ test-output/
 # Checker report artifacts — rewritten on every generate
 *.eml.mmd.error
 docker/ca-certificates/*.crt
+
+# Generated CRM reference application — the source is committed on purpose (it
+# is the worked example for language/examples/crm.eml.mmd), but never its
+# dependencies, build output or lockfile.
+!generated-projects/crm/
+generated-projects/crm/**/node_modules/
+generated-projects/crm/**/dist/
+generated-projects/crm/**/.output/
+generated-projects/crm/**/build/
+generated-projects/crm/**/.vinxi/
+generated-projects/crm/**/.tanstack/
+generated-projects/crm/**/*.log
+generated-projects/crm/**/.env
+generated-projects/crm/bun.lock
+generated-projects/crm/**/app.config.timestamp_*.js

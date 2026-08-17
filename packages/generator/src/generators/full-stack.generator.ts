@@ -10,7 +10,7 @@
 
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import type { Entity, Relationship } from "@erdwithai/core/types";
+import type { Entity, EntityEnum, Relationship } from "@erdwithai/core/types";
 import type { CompiledHook } from "../hooks";
 import type { EntityCategory } from "../parsers/category.parser";
 import type { CompiledRule } from "../rules";
@@ -62,6 +62,8 @@ export interface FullStackGeneratorOptions {
    * `%%category` directives. Falls back to a single "General" default.
    */
   categories?: EntityCategory[];
+  /** `%%enum` declarations bound to columns, each with its list reference id. */
+  modelEnums?: EntityEnum[];
 
   /**
    * Business rules compiled from the model's `%%rule` sections. Seeded into
@@ -148,6 +150,7 @@ export class FullStackGenerator {
       enableCors: true,
       skipCliScaffold: this.options.skipCliScaffold,
       categories: this.options.categories,
+      modelEnums: this.options.modelEnums,
       compiledRules: this.options.compiledRules,
       compiledHooks: this.options.compiledHooks,
       compiledWorkflows: this.options.compiledWorkflows,

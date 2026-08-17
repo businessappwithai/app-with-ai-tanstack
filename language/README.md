@@ -69,7 +69,8 @@ language/
 │   ├── src/                      # parser, validator, model, generators
 │   └── runtime/                  # static runtime for generated apps
 └── examples/
-    ├── crm.eml.mmd               # Full CRM model (ERD + rules + workflows)
+    ├── crm.eml.mmd               # Enterprise CRM — the reference model: 17 entities,
+    │                             #   8 rules, 5 state machines, 6 hook workflows, 5 sagas
     ├── ecommerce.eml.mmd         # Full e-commerce model
     ├── helpdesk.eml.mmd          # Support-ticketing model (used by the CLI test)
     └── minimal.eml.mmd           # Smallest complete example

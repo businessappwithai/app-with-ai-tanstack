@@ -11,7 +11,7 @@ import { spawnSync } from "node:child_process";
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import * as readline from "node:readline";
-import type { Entity, Relationship } from "@erdwithai/core/types";
+import type { Entity, EntityEnum, Relationship } from "@erdwithai/core/types";
 import { Command } from "commander";
 import { extractRuleSections } from "../eml";
 import type { StackOption } from "../generators/full-stack.generator";
@@ -43,7 +43,7 @@ function getStackDescription(_stack: StackOption): string {
 /** Parse an ERD / EML / Mermaid file and return entities + relationships. */
 async function parseFile(
   filePath: string
-): Promise<{ entities: Entity[]; relationships: Relationship[] }> {
+): Promise<{ entities: Entity[]; relationships: Relationship[]; enums: EntityEnum[] }> {
   const absPath = resolvePath(filePath);
   await fs.access(absPath);
   const content = await fs.readFile(absPath, "utf-8");
@@ -433,6 +433,8 @@ program
       // ── Parse ERD ───────────────────────────────────────────────────────
       let allEntities: Entity[] = [];
       let allRelationships: Relationship[] = [];
+      /** `%%enum` declarations a `%%field` binds to a column, with their ids. */
+      let allEnums: EntityEnum[] = [];
 
       if (isMultiFileMode) {
         for (const [flag, label] of [
@@ -442,9 +444,10 @@ program
         ] as [string | undefined, string][]) {
           if (!flag) continue;
           log(`📄 Reading ${label} entities from: ${resolvePath(flag)}`, quiet);
-          const { entities, relationships } = await parseFile(flag);
+          const { entities, relationships, enums } = await parseFile(flag);
           allEntities.push(...entities);
           allRelationships.push(...relationships);
+          allEnums.push(...enums);
           log(`   ✓ Parsed ${entities.length} ${label} entities`, quiet);
         }
         log(
@@ -454,9 +457,10 @@ program
       } else {
         const inputPath = resolvePath(options.input);
         log(`📄 Reading ERD from: ${inputPath}`, quiet);
-        const { entities, relationships } = await parseFile(options.input);
+        const { entities, relationships, enums } = await parseFile(options.input);
         allEntities = entities;
         allRelationships = relationships;
+        allEnums = enums;
         log(
           `   ✓ Parsed ${entities.length} entities, ${relationships.length} relationships`,
           quiet
@@ -612,6 +616,7 @@ program
           entities: allEntities,
           relationships: allRelationships,
           categories,
+          enums: allEnums,
           rules: compiledRules,
           hooks: compiledHooks,
           workflows: compiledWorkflows,

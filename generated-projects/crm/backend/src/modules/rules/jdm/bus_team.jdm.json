@@ -1,0 +1,181 @@
+{
+  "nodes": [
+    {
+      "id": "input",
+      "type": "inputNode",
+      "name": "Input",
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": "bus_team-validation",
+      "type": "decisionTableNode",
+      "name": "Team Validation",
+      "position": {
+        "x": 300,
+        "y": 0
+      },
+      "content": {
+        "hitPolicy": "collect",
+        "inputs": [
+          {
+            "id": "iop",
+            "name": "Operation",
+            "field": "_operation"
+          },
+          {
+            "id": "i1",
+            "name": "Name",
+            "field": "name"
+          },
+          {
+            "id": "i2",
+            "name": "Manager Id",
+            "field": "manager_id"
+          },
+          {
+            "id": "i3",
+            "name": "Region",
+            "field": "region"
+          },
+          {
+            "id": "i4",
+            "name": "Quota Annual",
+            "field": "quota_annual"
+          },
+          {
+            "id": "i5",
+            "name": "Is Active",
+            "field": "is_active"
+          }
+        ],
+        "outputs": [
+          {
+            "id": "o1",
+            "name": "Action",
+            "field": "action"
+          },
+          {
+            "id": "o2",
+            "name": "Message",
+            "field": "message"
+          },
+          {
+            "id": "o3",
+            "name": "Rule ID",
+            "field": "ruleId"
+          },
+          {
+            "id": "o4",
+            "name": "Workflow Name",
+            "field": "workflowName"
+          },
+          {
+            "id": "o5",
+            "name": "Target Entity",
+            "field": "targetEntity"
+          },
+          {
+            "id": "o6",
+            "name": "Link Field",
+            "field": "linkField"
+          },
+          {
+            "id": "o7",
+            "name": "Update Data",
+            "field": "updateData"
+          },
+          {
+            "id": "o8",
+            "name": "Create Data",
+            "field": "createData"
+          },
+          {
+            "id": "o9",
+            "name": "Transform Data",
+            "field": "transformData"
+          }
+        ],
+        "rules": [
+          {
+            "_id": "bus_team-name-required",
+            "i1": "name == null",
+            "o1": "'prevent'",
+            "o2": "'Name is required'",
+            "o3": "'bus_team-name-required'",
+            "o4": "''",
+            "o5": "''",
+            "o6": "''",
+            "o7": "''",
+            "o8": "''",
+            "o9": "''",
+            "iop": "",
+            "i2": "",
+            "i3": "",
+            "i4": "",
+            "i5": ""
+          },
+          {
+            "_id": "bus_team-quota_annual-non-negative",
+            "i4": "quota_annual < 0",
+            "o1": "'prevent'",
+            "o2": "'Quota Annual must not be negative'",
+            "o3": "'bus_team-quota_annual-non-negative'",
+            "o4": "''",
+            "o5": "''",
+            "o6": "''",
+            "o7": "''",
+            "o8": "''",
+            "o9": "''",
+            "iop": "",
+            "i1": "",
+            "i2": "",
+            "i3": "",
+            "i5": ""
+          },
+          {
+            "_id": "bus_team-is_active-required",
+            "i5": "is_active == null",
+            "o1": "'prevent'",
+            "o2": "'Is Active is required'",
+            "o3": "'bus_team-is_active-required'",
+            "o4": "''",
+            "o5": "''",
+            "o6": "''",
+            "o7": "''",
+            "o8": "''",
+            "o9": "''",
+            "iop": "",
+            "i1": "",
+            "i2": "",
+            "i3": "",
+            "i4": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "output",
+      "type": "outputNode",
+      "name": "Output",
+      "position": {
+        "x": 600,
+        "y": 0
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "sourceId": "input",
+      "targetId": "bus_team-validation"
+    },
+    {
+      "id": "e2",
+      "sourceId": "bus_team-validation",
+      "targetId": "output"
+    }
+  ]
+}

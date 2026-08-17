@@ -14,7 +14,7 @@
 
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import type { Entity, Relationship } from "@erdwithai/core/types";
+import type { Entity, EntityEnum, Relationship } from "@erdwithai/core/types";
 import { extractRuleSections } from "../eml";
 import {
   FullStackGenerator,
@@ -37,6 +37,8 @@ export interface ParsedModel {
   entities: Entity[];
   relationships: Relationship[];
   categories: EntityCategory[];
+  /** `%%enum` declarations bound to a column by `%%field`, with their ids. */
+  enums: EntityEnum[];
   /** Rules compiled from the model's `%%rule` decision flowcharts. */
   rules: CompiledRule[];
   /** Lifecycle handlers declared by the model's `%%hook` directives. */
@@ -121,11 +123,13 @@ export function parseModel(sources: string | string[]): ParsedModel {
   const parser = new MermaidParser();
 
   const entities: Entity[] = [];
+  const enums: EntityEnum[] = [];
   const relationships: Relationship[] = [];
 
   for (const source of list) {
     const parsed = parser.parse(source);
     entities.push(...parsed.entities);
+    enums.push(...parsed.enums);
     relationships.push(...parsed.relationships);
   }
 
@@ -163,7 +167,7 @@ export function parseModel(sources: string | string[]): ParsedModel {
     warn
   );
 
-  return { entities, relationships, categories, rules, hooks, workflows, sagas };
+  return { entities, relationships, categories, enums, rules, hooks, workflows, sagas };
 }
 
 /** Read model sources from disk, skipping any that are absent. */
@@ -223,6 +227,7 @@ export function buildGeneratorOptions(
     skipCliScaffold: settings.skipCliScaffold ?? GENERATION_DEFAULTS.skipCliScaffold,
     recordsPerEntity: settings.recordsPerEntity ?? GENERATION_DEFAULTS.recordsPerEntity,
     categories: model.categories,
+    modelEnums: model.enums,
     compiledRules: model.rules,
     compiledHooks: model.hooks,
     compiledWorkflows: model.workflows,

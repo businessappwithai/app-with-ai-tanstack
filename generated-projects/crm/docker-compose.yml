@@ -1,0 +1,130 @@
+# crm
+#
+#   docker compose up --build
+#
+# Everything the application needs runs here, database included — no external
+# service has to exist first. Point DATABASE_URL somewhere else and the bundled
+# database is simply unused.
+#
+#   app        the whole application in one container (Dockerfile at the root)
+#   backend    } the same application split in two, which is what you want
+#   frontend   } when the two halves scale differently
+#
+# The split pair is the default. `docker compose --profile single up app` runs
+# the one-container build instead.
+#
+# Either way the browser talks to one address — 4000. The web front end
+# serves /api itself and forwards it to the API (see frontend/src/routes/api/$.ts),
+# so there is no second origin, no CORS negotiation, and the session cookie is an
+# ordinary same-origin cookie that works over plain HTTP. The API's own port is
+# published as well, but only for curl and health checks; nothing in the browser
+# uses it.
+#
+# Reaching the application by any name other than localhost means naming it, so
+# that the sign-in request's Origin is one the API recognises:
+#
+#   CORS_ORIGIN=http://app.internal:4000 docker compose up
+#
+# Left unset on a non-localhost host, sign-in answers "Invalid origin".
+
+services:
+  postgres:
+    # pgvector rather than stock Postgres: the model-context assistant stores
+    # embeddings, and `CREATE EXTENSION vector` fails on an image without it.
+    image: pgvector/pgvector:pg18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: crm
+      POSTGRES_USER: ${DB_USER:-app}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-app}
+    volumes:
+      # Postgres 18 wants one mount at /var/lib/postgresql and puts its data in a
+
+      # subdirectory; mounting the old /data path directly makes the image refuse
+
+      # to start.
+
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-app}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # The single-image build. Not started by default — name it, or use the profile.
+  app:
+    profiles: ["single"]
+    image: crm:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Empty: the client calls /api on whatever origin it was served from.
+        # See the note at the top of this file.
+        VITE_API_URL: ${VITE_API_URL:-}
+        VITE_APP_URL: ${VITE_APP_URL:-http://localhost:4000}
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-4000}:4000"
+      - "${BACKEND_PORT:-4001}:4001"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:-postgres://${DB_USER:-app}:${DB_PASSWORD:-app}@postgres:5432/crm}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      SESSION_SECRET: ${SESSION_SECRET:-change-me-in-production}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-change-me-in-production}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:4000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  backend:
+    image: crm-backend:${IMAGE_TAG:-latest}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-4001}:4001"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${DB_USER:-app}:${DB_PASSWORD:-app}@postgres:5432/crm
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      SESSION_SECRET: ${SESSION_SECRET:-change-me-in-production}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-change-me-in-production}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:4000}
+      PORT: 4001
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4001/api/me/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    image: crm-frontend:${IMAGE_TAG:-latest}
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Empty: the client calls /api on whatever origin it was served from.
+        # See the note at the top of this file.
+        VITE_API_URL: ${VITE_API_URL:-}
+        VITE_APP_URL: ${VITE_APP_URL:-http://localhost:4000}
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-4000}:4000"
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      # Where this server forwards /api/*. Container-to-container, so it names
+      # the service rather than a published port.
+      BACKEND_URL: http://backend:4001
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

@@ -1,0 +1,229 @@
+#!/usr/bin/env bun
+/**
+ * E2E runner.
+ *
+ * Starts the backend (unless one is already listening), waits for it to become
+ * healthy, then runs the suites **in order** — each in its own `bun test`
+ * process so a crash in one suite cannot take the rest down, and so the
+ * ordering the suites depend on (seed before rules before workflows) holds.
+ *
+ * Usage:
+ *   bun run run.ts                 # everything, in order (1000 records/entity)
+ *   bun run run.ts --small         # 10 records per entity — quick smoke run
+ *   bun run run.ts --full          # 1000 records per entity (the default)
+ *   bun run run.ts --records 250   # an arbitrary volume
+ *   bun run run.ts --fast          # skip the bulk-seed suite entirely
+ *   bun run run.ts --only crud     # substring filter on suite file names
+ *   bun run run.ts --no-server     # attach to an already-running backend
+ *
+ * Generated: 2026-08-17T17:20:18.799Z
+ * Project: crm
+ */
+
+import { spawn } from "bun";
+import { readdir, rm } from "node:fs/promises";
+import { join } from "node:path";
+import { config } from "./harness/config";
+import { formatComparison, formatSummary, timestampFor, writeReport } from "./harness/report";
+import { isServerUp, startServer } from "./harness/server";
+
+const here = import.meta.dir;
+const suitesDir = join(here, "suites");
+
+/**
+ * When this run started, to the second — the report is named after it, so two
+ * runs in the same minute are still distinguishable and a run's file sorts
+ * next to its neighbours chronologically.
+ */
+const runStartedAt = new Date();
+const runStamp = timestampFor(runStartedAt);
+
+/** Where the report lands, and where suite processes drop their shards. */
+const resultsDir = join(here, "..", "test-results");
+const shardDir = join(resultsDir, `.shards-${runStamp}`);
+const backendDir = join(here, "..", "backend");
+
+const args = process.argv.slice(2);
+const fast = args.includes("--fast");
+const noServer = args.includes("--no-server");
+const onlyIndex = args.indexOf("--only");
+const only = onlyIndex >= 0 ? args[onlyIndex + 1] : undefined;
+
+/**
+ * Volume selection. Precedence, highest first:
+ *   --records <n>  →  --small / --full  →  E2E_RECORDS_PER_ENTITY  →  default
+ *
+ * Whatever is resolved is exported to the child processes, so the suites see a
+ * single consistent value however it was chosen.
+ */
+function resolveRecordsPerEntity(): number {
+  const recordsIndex = args.indexOf("--records");
+  if (recordsIndex >= 0) {
+    const raw = Number(args[recordsIndex + 1]);
+    if (!Number.isFinite(raw) || raw < 1) {
+      console.error(`✗ --records expects a positive integer, got "${args[recordsIndex + 1]}"`);
+      process.exit(1);
+    }
+    return Math.floor(raw);
+  }
+  if (args.includes("--small")) return config.recordPresets.small;
+  if (args.includes("--full")) return config.recordPresets.full;
+  return config.recordsPerEntity;
+}
+
+const recordsPerEntity = resolveRecordsPerEntity();
+
+interface SuiteResult {
+  file: string;
+  ok: boolean;
+  durationMs: number;
+  exitCode: number;
+}
+
+async function orderedSuites(): Promise<string[]> {
+  const entries = await readdir(suitesDir);
+  return entries
+    .filter((name) => name.endsWith(".test.ts"))
+    // Numeric prefixes define the run order; the generator emits per-entity
+    // files with the same prefix as their group so they stay grouped.
+    .sort((a, b) => a.localeCompare(b, "en"))
+    .filter((name) => {
+      if (fast && name.includes("bulk-seed")) return false;
+      if (only && !name.includes(only)) return false;
+      return true;
+    });
+}
+
+async function runSuite(file: string): Promise<SuiteResult> {
+  const started = Date.now();
+
+  const child = spawn({
+    // bun:test defaults to a 5s per-test timeout, which is too tight for
+    // suites that make several round trips against a populated database.
+    // Individual heavy tests set their own longer timeouts on top of this.
+    cmd: ["bun", "test", "--timeout", String(config.suiteTimeoutMs), join(suitesDir, file)],
+    cwd: here,
+    stdout: "inherit",
+    stderr: "inherit",
+    // Pin the resolved volume so every suite in the run agrees on it,
+    // regardless of which flag or env var selected it.
+    env: {
+      ...process.env,
+      E2E_RECORDS_PER_ENTITY: String(recordsPerEntity),
+      // Suites run in their own processes, so they cannot share a counter in
+      // memory. Each appends to its own shard here and the runner merges them.
+      E2E_METRICS_DIR: shardDir,
+    },
+  });
+
+  const exitCode = await child.exited;
+  return {
+    file,
+    ok: exitCode === 0,
+    durationMs: Date.now() - started,
+    exitCode,
+  };
+}
+
+function format(ms: number): string {
+  return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`;
+}
+
+async function main(): Promise<void> {
+  console.log("\n═══════════════════════════════════════════");
+  console.log("  crm — end-to-end tests");
+  console.log("═══════════════════════════════════════════\n");
+  console.log(`  Target:            ${config.baseUrl}`);
+  console.log(`  Records/entity:    ${fast ? "skipped (--fast)" : recordsPerEntity}`);
+  console.log(`  Faker seed:        ${config.fakerSeed}`);
+  if (only) console.log(`  Filter:            ${only}`);
+  console.log("");
+
+  let managed: Awaited<ReturnType<typeof startServer>> = null;
+
+  if (noServer) {
+    if (!(await isServerUp())) {
+      console.error(`✗ --no-server was given but nothing is listening on ${config.baseUrl}`);
+      process.exit(1);
+    }
+  } else {
+    managed = await startServer(backendDir);
+  }
+
+  const suites = await orderedSuites();
+  if (suites.length === 0) {
+    console.error("✗ No suites matched.");
+    await managed?.stop();
+    process.exit(1);
+  }
+
+  const results: SuiteResult[] = [];
+  try {
+    for (const file of suites) {
+      console.log(`\n── ${file} ${"─".repeat(Math.max(0, 44 - file.length))}`);
+      results.push(await runSuite(file));
+    }
+  } finally {
+    await managed?.stop();
+  }
+
+  const failed = results.filter((result) => !result.ok);
+  const totalMs = results.reduce((sum, result) => sum + result.durationMs, 0);
+
+  console.log("\n═══════════════════════════════════════════");
+  console.log("  Summary");
+  console.log("═══════════════════════════════════════════\n");
+  for (const result of results) {
+    const mark = result.ok ? "✓" : "✗";
+    console.log(`  ${mark} ${result.file.padEnd(44)} ${format(result.durationMs)}`);
+  }
+  console.log(
+    `\n  ${results.length - failed.length}/${results.length} suites passed in ${format(totalMs)}\n`
+  );
+
+  // Merge the shards into one report. Written even when suites failed — a run
+  // that broke halfway is exactly when you want to know which operation had
+  // started getting slower.
+  try {
+    const written = writeReport({
+      outputDir: resultsDir,
+      shardDir,
+      startedAt: runStartedAt,
+      recordsPerEntity: fast ? 0 : recordsPerEntity,
+      suites: {
+        total: results.length,
+        passed: results.length - failed.length,
+        failed: failed.length,
+      },
+    });
+
+    if (written) {
+      console.log(`  Phases — ${written.report.totalWrites} writes, ${recordsPerEntity} records/entity\n`);
+      console.log(formatSummary(written.report));
+
+      const comparison = formatComparison(written.report);
+      if (comparison) {
+        console.log("\n═══════════════════════════════════════════");
+        console.log("  Against the previous run");
+        console.log("═══════════════════════════════════════════\n");
+        console.log(comparison);
+      }
+
+      console.log(`\n  Written to ${written.path}\n`);
+    }
+  } catch (error) {
+    // Reporting is an observation of the run; it must not change its verdict.
+    console.warn(
+      `  ⚠️  Could not write the metrics report: ${error instanceof Error ? error.message : error}`
+    );
+  } finally {
+    await rm(shardDir, { recursive: true, force: true }).catch(() => {});
+  }
+
+  process.exit(failed.length === 0 ? 0 : 1);
+}
+
+main().catch((error) => {
+  console.error("\n✗ Runner failed:", error instanceof Error ? error.message : error);
+  process.exit(1);
+});

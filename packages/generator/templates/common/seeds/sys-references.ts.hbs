@@ -57,4 +57,61 @@ export async function seed(db: Kysely<any>): Promise<void> {
   }
 
   console.log(`✓ Seeded ${references.length} sys_reference types`);
+
+  // ==========================================================================
+  // Model enums — one list reference per `%%enum` a `%%field` binds a column to
+  // ==========================================================================
+  // Ids run from 1000 up. The generated forms render any reference at or above
+  // 1000 as a dropdown fed by /sys/ref-list, so seeding these is what turns a
+  // modelled enum into a select: before this, a column the model constrained to
+  // six values was a free-text box, and `status` accepted anything typed into
+  // it — including values the state machine has no transition for.
+  const modelEnums = [
+{{#each modelEnums}}
+    { id: {{referenceId}}, name: '{{name}}', values: [{{#each values}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}] },
+{{/each}}
+  ];
+
+  for (const modelEnum of modelEnums) {
+    await db.insertInto('sys_reference')
+      .values({
+        sys_reference_id: modelEnum.id,
+        name: modelEnum.name,
+        description: `Values allowed for ${modelEnum.name}`,
+        validation_type: 'L',
+        entity_type: 'U',
+        is_active: true,
+        created_by: createdBy,
+        updated_by: createdBy,
+        created_at: now,
+        updated_at: now,
+      })
+      .onConflict((oc) => oc.column('sys_reference_id').doNothing())
+      .execute();
+
+    for (const value of modelEnum.values) {
+      await db.insertInto('sys_ref_list')
+        .values({
+          sys_ref_list_id: uuidv4(),
+          sys_reference_id: modelEnum.id,
+          value,
+          // `pending_review` reads as "Pending Review" in a dropdown; the raw
+          // value is what is stored and what every rule and workflow compares.
+          name: value.split('_').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' '),
+          entity_type: 'U',
+          is_active: true,
+          created_by: createdBy,
+          updated_by: createdBy,
+          created_at: now,
+          updated_at: now,
+        })
+        .onConflict((oc) => oc.doNothing())
+        .execute();
+    }
+  }
+
+  if (modelEnums.length > 0) {
+    const valueCount = modelEnums.reduce((total, e) => total + e.values.length, 0);
+    console.log(`✓ Seeded ${modelEnums.length} model enums (${valueCount} values)`);
+  }
 }

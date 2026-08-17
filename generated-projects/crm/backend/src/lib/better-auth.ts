@@ -1,0 +1,128 @@
+/**
+ * BetterAuth Configuration
+ *
+ * Modern authentication for crm
+ * - Email/Password authentication
+ * - Session management
+ * - Role-based access control
+ */
+
+import { betterAuth } from 'better-auth';
+import { kyselyAdapter } from '@better-auth/kysely-adapter';
+import { Kysely, PostgresDialect } from 'kysely';
+import { Pool } from 'pg';
+import { config } from 'dotenv';
+import * as path from 'path';
+
+// Load .env from backend root regardless of cwd
+config({ path: path.join(__dirname, '..', '..', '.env'), override: true });
+config({ path: path.join(__dirname, '..', '..', '.env.local'), override: true });
+
+let authInstance: any = null;
+
+function buildPool() {
+  const url = process.env.DATABASE_URL;
+  if (url) {
+    return new Pool({ connectionString: url });
+  }
+  return new Pool({
+    host: process.env.DB_HOST ?? '127.0.0.1',
+    port: Number(process.env.DB_PORT ?? 5432),
+    user: process.env.DB_USER ?? 'crm',
+    password: process.env.DB_PASSWORD ?? '',
+    database: process.env.DB_NAME ?? 'crm',
+  });
+}
+
+export async function initAuth() {
+  if (!authInstance) {
+    const kysely = new Kysely<any>({ dialect: new PostgresDialect({ pool: buildPool() }) });
+
+    authInstance = betterAuth({
+      database: kyselyAdapter(kysely),
+      baseURL: process.env.BETTER_AUTH_URL || `http://localhost:${process.env.PORT || '4001'}`,
+      // Better Auth rejects a state-changing request whose Origin is not listed
+      // here, and the front end's /api/auth proxy passes the browser's Origin
+      // through unchanged — so this list has to contain the address people
+      // actually type. The defaults cover a local run; anywhere else, name it:
+      //
+      //   CORS_ORIGIN=http://app.internal:4000
+      //
+      // Getting this wrong looks like a wrong password, not a misconfiguration,
+      // which is why the list is deliberately generous about localhost.
+      trustedOrigins: [
+        ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map((o: string) => o.trim()) : []),
+        `http://localhost:${process.env.PORT || '4001'}`,
+        'http://localhost:4000',
+        'http://127.0.0.1:4000',
+        'http://localhost:3001',
+        'http://localhost:3000',
+      ].filter(Boolean),
+      secret: (() => {
+        const s = process.env.BETTER_AUTH_SECRET;
+        if (!s) throw new Error('BETTER_AUTH_SECRET environment variable is required');
+        return s;
+      })(),
+      emailAndPassword: {
+        enabled: true,
+        // Sign-up stays enabled *here* on purpose. `disableSignUp` turns off
+        // `auth.api.signUpEmail` as well as the HTTP route, and that server-side
+        // call is how the administrator-only endpoint writes a password — with
+        // the flag set, nobody can be created at all. The public route is
+        // blocked in main.ts instead, where it only affects HTTP callers.
+        requireEmailVerification: false,
+        minPasswordLength: 8,
+        sendResetPassword: async ({ user, url: _url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
+          console.log('Password reset requested for:', user.email || user.id);
+        },
+        sendVerificationEmail: async ({ user, url: _url }: { user: { email?: string; id: string; name: string }; url: string; token: string }) => {
+          console.log('Verification email sent to:', user.email || user.id);
+        },
+      },
+      session: {
+        expiresIn: 60 * 60 * 24,
+        updateAge: 60 * 60 * 12,
+        cookieCache: {
+          enabled: true,
+          maxAge: 5 * 60,
+        },
+      },
+      account: {
+        accountLinking: {
+          enabled: false,
+        },
+      },
+      user: {
+        additionalFields: {
+          role: {
+            type: 'string',
+            required: false,
+            defaultValue: 'user',
+          },
+          sysUserId: {
+            type: 'string',
+            required: false,
+          },
+        },
+      },
+      advanced: {
+        cookiePrefix: 'crm_app',
+        crossSubDomainCookies: {
+          enabled: false,
+        },
+      },
+    });
+  }
+
+  return authInstance;
+}
+
+export function getAuth(): any {
+  if (!authInstance) {
+    throw new Error('Auth not initialized. Call initAuth() first.');
+  }
+  return authInstance;
+}
+
+export { getAuth as auth };
+export type Session = any;
