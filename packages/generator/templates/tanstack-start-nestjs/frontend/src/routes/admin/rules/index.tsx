@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { WindowHelpDialog } from "@/components/admin/window-help-dialog";
 import { apiClient } from "@/lib/api-client";
 
 export const Route = createFileRoute("/admin/rules/")({
@@ -133,7 +134,10 @@ function AdminRulesPage() {
               <div className="flex items-center gap-4 mb-4">
                 <Scale className="h-8 w-8 text-black" />
                 <div>
-                  <h1 className="text-6xl font-bold tracking-tight text-black">Business Rules</h1>
+                  <div className="flex items-center gap-3">
+                    <h1 className="text-6xl font-bold tracking-tight text-black">Business Rules</h1>
+                    <WindowHelpDialog windowName="Business Rules" entityLabel="Business Rules" />
+                  </div>
                   <p className="text-xl text-gray-600 font-light mt-2">
                     Manage validation rules and business logic with JDM Editor
                   </p>
@@ -358,7 +362,7 @@ function AdminRulesPage() {
 
       <footer className="border-t-2 border-black mt-16">
         <div className="max-w-7xl mx-auto px-8 py-8">
-          <p className="text-sm text-gray-500">clinic-app · Business Rules Management</p>
+          <p className="text-sm text-gray-500">Business Rules Management</p>
         </div>
       </footer>
     </div>

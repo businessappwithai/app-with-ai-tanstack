@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
+import { WindowHelpDialog } from '@/components/admin/window-help-dialog';
 import { apiClient } from '@/lib/api-client';
 import { UserCog, ArrowLeft, Loader2, AlertCircle, Star } from 'lucide-react';
 
@@ -34,6 +35,7 @@ function RolesPage() {
             </Link>
             <UserCog className="w-4 h-4 text-primary" />
             <h1 className="font-display text-lg font-semibold">Role Management</h1>
+            <WindowHelpDialog windowName="Role" entityLabel="Role" />
           </div>
         </div>
       </header>

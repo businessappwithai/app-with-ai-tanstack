@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WindowHelpDialog } from "@/components/admin/window-help-dialog";
 import { apiClient } from "@/lib/api-client";
 
 export const Route = createFileRoute("/admin/audit")({
@@ -502,6 +503,7 @@ function AuditLogPage() {
         </Link>
         <span className="text-muted-foreground">/</span>
         <span className="font-medium text-foreground">Audit Log</span>
+        <WindowHelpDialog windowName="Audit Log" entityLabel="Audit Log" />
         {hasFilters && (
           <span className="text-xs text-muted-foreground ml-1">
             ({total.toLocaleString()} filtered)

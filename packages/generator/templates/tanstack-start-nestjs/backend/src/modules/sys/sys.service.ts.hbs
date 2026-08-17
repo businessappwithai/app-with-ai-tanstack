@@ -1027,18 +1027,35 @@ export class SysService {
       .where('is_active', '=', true)
       .executeTakeFirst();
 
-    if (!table?.sys_window_id) return null;
+    // The Application Dictionary windows — Business Rules, Workflow Designer,
+    // Audit Log and the rest — describe how the application is built rather
+    // than an entity, so they have no sys_table row to look up. Fall back to
+    // the window's own name, which is what those screens pass, so they can
+    // carry help like every other window instead of being the only screens in
+    // the application that cannot explain themselves.
+    const windowId =
+      table?.sys_window_id ??
+      (
+        await this.db.kysely
+          .selectFrom('sys_window')
+          .select(['sys_window_id'])
+          .where('name', '=', tableName)
+          .where('is_active', '=', true)
+          .executeTakeFirst()
+      )?.sys_window_id;
+
+    if (!windowId) return null;
 
     const [window, tabs, fields] = await Promise.all([
       this.db.kysely
         .selectFrom('sys_window')
         .select(['sys_window_id', 'name', 'description', 'help'])
-        .where('sys_window_id', '=', table.sys_window_id)
+        .where('sys_window_id', '=', windowId)
         .executeTakeFirst(),
       this.db.kysely
         .selectFrom('sys_tab')
         .select(['sys_tab_id', 'name', 'description', 'help', 'seq_no', 'tab_level'])
-        .where('sys_window_id', '=', table.sys_window_id)
+        .where('sys_window_id', '=', windowId)
         .where('is_active', '=', true)
         .orderBy('seq_no')
         .execute(),
@@ -1057,7 +1074,7 @@ export class SysService {
           'sys_column.column_name',
           'sys_column.is_mandatory',
         ])
-        .where('sys_tab.sys_window_id', '=', table.sys_window_id)
+        .where('sys_tab.sys_window_id', '=', windowId)
         .where('sys_field.is_active', '=', true)
         .where('sys_field.is_displayed', '=', true)
         .where('sys_field.help', 'is not', null)

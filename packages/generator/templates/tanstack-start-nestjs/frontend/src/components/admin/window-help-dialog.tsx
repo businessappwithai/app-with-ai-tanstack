@@ -3,15 +3,32 @@ import { useEffect, useState } from "react";
 import { useWindowHelp } from "@/hooks/use-entities";
 
 /**
- * `/bus/sales-order` → `bus_sales_order`.
+ * The dictionary windows that describe the application rather than an entity.
+ * They have no sys_table row, so they are resolved by window name instead —
+ * `/sys/windows` is the "Window, Tab and Field" window, and so on. Without this
+ * the six screens explaining how the application fits together were the only
+ * ones with no help of their own.
+ */
+const SYS_ENDPOINT_WINDOWS: Record<string, string> = {
+  tables: "Table and Column",
+  columns: "Table and Column",
+  windows: "Window, Tab and Field",
+  tabs: "Window, Tab and Field",
+  fields: "Window, Tab and Field",
+};
+
+/**
+ * `/bus/sales-order` → `bus_sales_order`, resolved against sys_table.
+ * `/sys/windows` → `Window, Tab and Field`, resolved against sys_window.name.
  *
- * Anything not served from /bus/ (the admin windows on /sys/) has no business
- * window in the dictionary to describe, so it resolves to an empty name and the
- * dialog hides itself.
+ * Anything else resolves to an empty key and the dialog hides itself rather
+ * than opening on nothing.
  */
 export function helpTableNameFromEndpoint(endpoint: string): string {
-  const match = /^\/bus\/([^/?]+)/.exec(endpoint);
-  return match ? `bus_${match[1].replace(/-/g, "_")}` : "";
+  const bus = /^\/bus\/([^/?]+)/.exec(endpoint);
+  if (bus) return `bus_${bus[1].replace(/-/g, "_")}`;
+  const sys = /^\/sys\/([^/?]+)/.exec(endpoint);
+  return sys ? (SYS_ENDPOINT_WINDOWS[sys[1]] ?? "") : "";
 }
 
 /**
@@ -24,13 +41,21 @@ export function helpTableNameFromEndpoint(endpoint: string): string {
  */
 export function WindowHelpDialog({
   tableName,
+  windowName,
   entityLabel,
 }: {
-  tableName: string;
+  tableName?: string;
+  /**
+   * For a window with no table behind it — the Application Dictionary screens,
+   * which describe how the application is assembled rather than an entity. The
+   * API resolves a table name first and falls back to the window's own name, so
+   * these screens carry help from the dictionary like every other window.
+   */
+  windowName?: string;
   entityLabel: string;
 }) {
   const [open, setOpen] = useState(false);
-  const { data: helpData } = useWindowHelp(tableName);
+  const { data: helpData } = useWindowHelp(tableName || windowName || "");
 
   const windowHelp = helpData?.window;
   const tabs = (helpData?.tabs ?? []).filter((t) => t.help);

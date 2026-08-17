@@ -16,6 +16,7 @@ import {
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
+import { WindowHelpDialog } from "../../../components/admin/window-help-dialog";
 import { apiClient } from "../../../lib/api-client";
 
 export const Route = createFileRoute("/admin/workflow-definitions/")({
@@ -73,7 +74,10 @@ function WorkflowDefinitionsList() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Workflows</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-gray-900">Workflows</h1>
+            <WindowHelpDialog windowName="Workflow Designer" entityLabel="Workflow Designer" />
+          </div>
           <p className="text-sm text-gray-500 mt-1">
             Everything that runs automatically on your records. Built in the automation builder.
           </p>

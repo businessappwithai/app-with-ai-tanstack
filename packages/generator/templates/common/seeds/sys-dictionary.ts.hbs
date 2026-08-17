@@ -621,24 +621,108 @@ export async function seed(db: Kysely<any>): Promise<void> {
   // ============================================================================
   // Admin Windows (entity_type = 'S') — Application Dictionary section on dashboard
   // ============================================================================
+  // Every business window carries help generated from the model. These seven do
+  // not describe an entity, so nothing generated help for them and the Help
+  // button hid itself — the six screens that explain how the application is put
+  // together were the six with no explanation of their own. The text lives in
+  // the dictionary rather than in the pages so an administrator can rewrite it
+  // from Window, Tab and Field like any other help.
   const adminWindowDefs = [
-    { name: 'Business Rules',        route: '/admin/rules' },
-    { name: 'Workflow Designer',     route: '/admin/workflow-definitions' },
-    { name: 'Audit Log',             route: '/admin/audit' },
-    { name: 'Table and Column',      route: '/admin/tables' },
-    { name: 'Window, Tab and Field', route: '/admin/windows' },
-    { name: 'User',                  route: '/admin/users' },
-    { name: 'Role',                  route: '/admin/roles' },
+    {
+      name: 'Business Rules',
+      route: '/admin/rules',
+      help:
+        'Every rule that runs when a record is written. A rule belongs to one entity and one ' +
+        'operation — CREATE, UPDATE or ALL — and is evaluated as a decision table: the inputs are ' +
+        'columns of the record being saved, and the outputs are what the rule decides.\n\n' +
+        'Rules declared in the model are seeded here on generation. A rule can also emit an action: ' +
+        'reject the write with a message, overwrite a field, or trigger a workflow by name, which is ' +
+        'how a condition on a record starts a multi-step process.\n\n' +
+        'Rules run inside the transaction that saved the record. If one fails the write is rolled ' +
+        'back, so a rule is a guarantee about the data rather than a reminder after the fact.',
+    },
+    {
+      name: 'Workflow Designer',
+      route: '/admin/workflow-definitions',
+      help:
+        'Everything that runs automatically on your records. Each workflow is bound to one entity ' +
+        'and lists its steps in the order they run: look up a decision table, create a record on ' +
+        'another entity, write a field back, delete related rows, call an external service.\n\n' +
+        'The Runs when column is the difference that matters. EVERY WRITE means the workflow runs on ' +
+        'each matching save. WHEN A RULE TRIGGERS IT means it runs only when a business rule names ' +
+        'it, so the rule decides.\n\n' +
+        'Workflows marked FROM THE MODEL are owned by the model and are rewritten on the next ' +
+        'generation; anything built here is yours and is never overwritten. A run that fails rolls ' +
+        'back everything it changed and records the reason against the record.',
+    },
+    {
+      name: 'Audit Log',
+      route: '/admin/audit',
+      help:
+        'The record of who changed what. One entry per insert, update and delete, holding the entity, ' +
+        'the row, the user, the time and the before and after values of every column that moved.\n\n' +
+        'Entries are written by the same transaction as the change, so the log cannot drift from the ' +
+        'data. It is append-only: nothing here can be edited or deleted from the application.\n\n' +
+        'Use it to answer who set this field, when did this record change state, and what did it look ' +
+        'like before. Filter by entity to follow one table, or open a record to see its whole history.',
+    },
+    {
+      name: 'Table and Column',
+      route: '/admin/tables',
+      help:
+        'The database as the application understands it. One row per table, with its columns, their ' +
+        'types, and the flags that decide behaviour everywhere else: mandatory, unique, and which ' +
+        'table a foreign key points at.\n\n' +
+        'This is the layer the rest of the dictionary builds on. A column marked mandatory here is ' +
+        'required in every form; a column with a reference is a lookup rather than a free-text box.\n\n' +
+        'Tables are created from the model on generation. Editing a definition here changes how the ' +
+        'application treats the column, not the database schema itself — a new column still needs a ' +
+        'migration.',
+    },
+    {
+      name: 'Window, Tab and Field',
+      route: '/admin/windows',
+      help:
+        'How each entity is presented. A window is one screen, a tab is one record view inside it, ' +
+        'and a field is one column shown on that tab, in the order and grouping given by its sequence ' +
+        'and field group.\n\n' +
+        'Every screen in the application is drawn from these rows, so this is where you change what a ' +
+        'form looks like without touching code: reorder fields, hide one, mark it read-only, or ' +
+        'rewrite its label and help.\n\n' +
+        'The help you are reading now lives here too. Window, tab and field help is what the Help ' +
+        'button shows on every screen, so improving it here improves it everywhere it is read.',
+    },
+    {
+      name: 'User',
+      route: '/admin/users',
+      help:
+        'The people who can sign in, and the role each of them holds. A user with no role can ' +
+        'authenticate but reach nothing, and deactivating a user ends their access without deleting ' +
+        'the records they created.\n\n' +
+        'Role assignment is what decides which windows a user sees and whether they can write in ' +
+        'them. Change the role here; change what the role allows under Role.',
+    },
+    {
+      name: 'Role',
+      route: '/admin/roles',
+      help:
+        'What each role is allowed to reach. Access is granted per window: a role either sees a ' +
+        'window or does not, and can be given it read-only.\n\n' +
+        'Roles are additive over users, not over each other — a user holds one role, and that role ' +
+        'is the whole of their access. A window with no grant is invisible rather than forbidden, so ' +
+        'removing access removes the screen from the dashboard as well.',
+    },
   ];
 
   for (const wd of adminWindowDefs) {
-    const existing = await db.selectFrom('sys_window').select('sys_window_id').where('name', '=', wd.name).executeTakeFirst();
+    const existing = await db.selectFrom('sys_window').select(['sys_window_id', 'help']).where('name', '=', wd.name).executeTakeFirst();
     const windowId = existing?.sys_window_id ?? uuidv4();
     if (!existing) {
       await db.insertInto('sys_window').values({
         sys_window_id: windowId,
         name: wd.name,
         description: wd.route,
+        help: wd.help,
         entity_type: 'S',
         is_active: true,
         created_by: createdBy,
@@ -646,6 +730,13 @@ export async function seed(db: Kysely<any>): Promise<void> {
         created_at: now,
         updated_at: now,
       }).execute();
+    } else if (!existing.help) {
+      // Backfill only. An administrator who has rewritten this text keeps it —
+      // re-seeding is not a licence to overwrite what someone edited.
+      await db.updateTable('sys_window')
+        .set({ help: wd.help, updated_by: createdBy, updated_at: now })
+        .where('sys_window_id', '=', windowId)
+        .execute();
     }
     const existingAccess = await db.selectFrom('sys_access').select('sys_access_id').where('sys_role_id', '=', adminRoleId).where('sys_window_id', '=', windowId).executeTakeFirst();
     if (!existingAccess) {
