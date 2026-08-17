@@ -1,1 +1,10 @@
-[{"name":"@mastra/client-js","version":"1.40.0"},{"name":"@mastra/core","version":"1.59.0"},{"name":"@mastra/fastembed","version":"1.2.0"},{"name":"@mastra/libsql","version":"1.20.0"},{"name":"@mastra/loggers","version":"1.2.0"},{"name":"@mastra/memory","version":"1.26.2"},{"name":"@mastra/pg","version":"1.20.0"},{"name":"@mastra/rag","version":"2.5.0"}]
+[
+  { "name": "@mastra/client-js", "version": "1.40.0" },
+  { "name": "@mastra/core", "version": "1.59.0" },
+  { "name": "@mastra/fastembed", "version": "1.2.0" },
+  { "name": "@mastra/libsql", "version": "1.20.0" },
+  { "name": "@mastra/loggers", "version": "1.2.0" },
+  { "name": "@mastra/memory", "version": "1.26.2" },
+  { "name": "@mastra/pg", "version": "1.20.0" },
+  { "name": "@mastra/rag", "version": "2.5.0" }
+]

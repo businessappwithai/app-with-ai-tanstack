@@ -41,8 +41,9 @@ export const Route = createFileRoute("/api/ai/convert-stream")({
                   message: "Analyzing business domain and entity relationships...",
                 });
 
-                const { analyzeDomainWithOpenAI, generateMermaidWithValidation } =
-                  await import("@erdwithai/ai");
+                const { analyzeDomainWithOpenAI, generateMermaidWithValidation } = await import(
+                  "@erdwithai/ai"
+                );
 
                 const domainAnalysis = await analyzeDomainWithOpenAI(
                   description,
