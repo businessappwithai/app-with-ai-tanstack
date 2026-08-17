@@ -288,6 +288,44 @@
   </figcaption>
 </figure>
 
+<h2>Open one</h2>
+<p>
+  A list of definitions proves the model was read. Opening one proves it was understood. This is
+  <code>LeadConversion</code> — the saga written as a <code>flowchart</code> earlier in this chapter — as
+  the running application renders it.
+</p>
+
+<figure>
+  <img src="img/30-crm-workflow-editor-leadconversion.png" alt="The LeadConversion workflow open in the editor. A black trigger card reads 'When a Lead record is CREATED · runs when triggered by a rule'. Below it a Rule Gates panel lists bus_lead_validation with nine conditions, leadRouting and leadScoring, each linking to its rule, with an Add another rule button. Then numbered steps: 1 Size the account, 2 Create Record — Open the account, 3 Create Record — Create the primary contact. A Details sidebar shows entity Lead, trigger operation CREATE, run mode Rule-gated, 6 steps, 3 rule gates and the created and updated dates; a Linked Rules panel lists the three rules with a New rule button; and a Recent Runs panel lists two successful runs.">
+  <figcaption>
+    <b>The workflow editor, opened.</b> The trigger at the top, the three rule gates that must pass before
+    anything runs, then the steps in order. The right-hand column is the part that matters: run mode
+    <em>Rule-gated</em>, six steps, three gates, the rules linked by name — each one a click away — and the
+    runs it has actually performed. Every value on this screen was derived from <code>%%step</code> and
+    <code>%%rule</code> directives; none of it was configured by hand after generation.
+  </figcaption>
+</figure>
+
+<figure>
+  <img src="img/31-crm-workflow-editor-steps.png" alt="The step list of the LeadConversion workflow: create record, create record, create record, update record, update record, each typed and titled.">
+  <figcaption>
+    <b>The steps, in order.</b> Each is typed — <em>Create Record</em>, <em>Update Record</em> — and titled
+    with the label from the flowchart node it was bound to. Three creates and two updates: the account, the
+    contact and the opportunity come into existence, then the lead is stamped converted and the campaign
+    member is closed off. Write readable node labels in the model and this list reads like documentation.
+  </figcaption>
+</figure>
+
+<div class="note tip">
+  <div class="note-title">This is an editor, not a viewer</div>
+  <p>
+    <em>Add another rule</em>, <em>New rule</em> and the step list are live. A definition marked
+    <em>from the model</em> is owned by regeneration, so treat the model as the source of truth for
+    anything you want to keep — but an operator can inspect, disable or extend a process without waiting
+    for a release.
+  </p>
+</div>
+
 <nav class="pager">
   <a href="02-business-rules.html"><span class="dir">Previous</span><div class="ttl">← 02 · Business rules</div></a>
   <a class="next" href="04-generate.html"><span class="dir">Next</span><div class="ttl">04 · Generate the app →</div></a>

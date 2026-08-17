@@ -135,16 +135,31 @@ bun run db:setup   <span class="c-com"># migrations, then every seed in order</s
     <figcaption><b>Sign in.</b> The first account you register needs promoting to admin: <code>bun run seed:admin -- --email you@example.com</code>.</figcaption>
   </figure>
   <figure>
-    <img src="img/03-generator-import-model.png" alt="The Import a model dialog, asking for a .mmd file and a project name.">
-    <figcaption><b>Import a model.</b> Start from a <code>.mmd</code> file you already have rather than describing a domain from scratch.</figcaption>
+    <img src="img/02-generator-dashboard.png" alt="The generator's project dashboard with an empty state reading 'No projects yet', a project search box, status and type filters, and buttons for Mermaid Library, Rules Admin, Create New Project and Import a model.">
+    <figcaption><b>Where you land.</b> Projects, a Mermaid library, a rules administration area, and two ways in: describe a domain from scratch, or import a model you already have.</figcaption>
   </figure>
 </div>
+
+<figure>
+  <img src="img/03-generator-import-model.png" alt="The Import a model dialog, asking for a .mmd file and a project name.">
+  <figcaption><b>Import a model.</b> Start from a <code>.mmd</code> file you already have rather than describing a domain from scratch.</figcaption>
+</figure>
 
 <figure>
   <img src="img/04-generator-crm-design.png" alt="The design step: Mermaid ERD source on the left, live rendered ERD on the right, with entity count and toolbar.">
   <figcaption>
     <b>The design step.</b> Source on the left, live ERD on the right, entity count in the header. The
     toolbar carries Entities, Versions, Flow View, DB Ops, Validate, Save Draft, Import and Export.
+  </figcaption>
+</figure>
+
+<figure>
+  <img src="img/05-generator-validate.png" alt="Step 2 of 6, Discover Your Data Model: a six-stage progress stepper reading Init, Design, Logic, Gen, Enhance, Deploy; a Your Journey strip reading Define, Discover, Generate, Add Features, Deploy; the 1,117-line Mermaid ERD source on the left; a live preview of all 17 entity boxes and their relationships on the right; and an AI Assistant bar at the foot with auto-retry enabled.">
+  <figcaption>
+    <b>The whole journey on one screen.</b> Six steps across the top, the model's 1,117 lines on the left,
+    every one of its seventeen entities drawn on the right, and an AI assistant at the foot that takes a
+    plain-English instruction and edits the model — with auto-retry, so a failed validation is handed back
+    to the model to fix up to three times rather than to you.
   </figcaption>
 </figure>
 

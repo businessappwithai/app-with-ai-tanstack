@@ -102,6 +102,52 @@
   </figure>
 </div>
 
+<h3>The same screen, seventeen times</h3>
+<p>
+  None of these is special-cased. Every list below came out of the same generator pass and the same
+  template; the only thing that differs between them is the entity's own field definitions. That is the
+  claim worth checking, so here is the rest of the application rather than a flattering selection of it.
+</p>
+
+<div class="fig-row">
+  <figure>
+    <img src="img/09-crm-lead-list.png" alt="The Leads list showing first name, last name, company name, email, phone, job title and industry columns, with search and a New button.">
+    <figcaption><b>Leads.</b> The marketing end of the model — seven columns, each sortable, with the same search box and Help chip as every other screen.</figcaption>
+  </figure>
+  <figure>
+    <img src="img/43-crm-contacts.png" alt="The Contacts list showing account id, first name, last name, email, phone, mobile and job title columns.">
+    <figcaption><b>Contacts.</b> Account Id leads the row, because a contact belongs to an account and the ERD says so.</figcaption>
+  </figure>
+</div>
+<div class="fig-row">
+  <figure>
+    <img src="img/45-crm-quotes.png" alt="The Quotes list showing quote number, opportunity id, account id, name, status, version number and valid until columns.">
+    <figcaption><b>Quotes.</b> Three references on a single row — opportunity, account and the quote's own name — alongside a status, a version number and a validity date.</figcaption>
+  </figure>
+  <figure>
+    <img src="img/47-crm-campaigns.png" alt="The Campaigns list showing name, campaign type, status, start date, end date, budgeted cost and actual cost columns.">
+    <figcaption><b>Campaigns.</b> Dates render as dates and costs as decimals because the model said <code>date</code> and <code>decimal</code> — nothing here was formatted by hand.</figcaption>
+  </figure>
+</div>
+
+<figure>
+  <img src="img/48-crm-products.png" alt="The Products list showing product code, name, description, family, list price, unit cost and billing frequency columns.">
+  <figcaption>
+    <b>Products.</b> The catalogue every opportunity line item and quote line item points at. Seven columns,
+    a search box, sortable headers, a New button — the same furniture as Leads, because it is the same
+    template reading a different row of the dictionary.
+  </figcaption>
+</figure>
+
+<div class="note win">
+  <div class="note-title">What "seventeen entities" actually costs you</div>
+  <p>
+    Nothing, per entity. Adding an eighteenth means adding a block to the <code>erDiagram</code> and
+    regenerating; the list, the form, the lookups, the help text, the audit coverage and the REST routes
+    arrive with it. The screens above are evidence of that, not a portfolio.
+  </p>
+</div>
+
 <h2>Forms, and where each control comes from</h2>
 <p>
   This is the part worth studying, because it is where the model's decisions become visible one at a time.
@@ -140,7 +186,24 @@
   </figcaption>
 </figure>
 
-<h2>Records: draft, then final</h2>
+<h2>From the list to the record</h2>
+<p>
+  The three screens every entity has are the same three screens: a list you search and sort, a form you
+  fill in, and a detail view of what you saved. Here is one entity through all three, so the progression is
+  visible rather than implied.
+</p>
+
+<div class="fig-row">
+  <figure>
+    <img src="img/09-crm-lead-list.png" alt="The Leads list showing four leads with first name, last name, company name, email, phone, job title and industry columns, a search box, and Search, New and Save buttons.">
+    <figcaption><b>1 · The list.</b> Search, sortable columns, a Help chip, and <em>New</em>.</figcaption>
+  </figure>
+  <figure>
+    <img src="img/10-crm-lead-new-form.png" alt="The New Lead form with its fields laid out and required fields marked, showing the field and required counts in the header.">
+    <figcaption><b>2 · The form.</b> Controls chosen by field type, required fields marked, the counts in the header.</figcaption>
+  </figure>
+</div>
+
 <p>
   Saving is not a single event. Every save starts as a <strong>Draft</strong>; then the rules and workflows
   attached to the entity run together in one transaction. If all of them succeed the record is promoted to
@@ -151,7 +214,7 @@
 <figure>
   <img src="img/11-crm-lead-created.png" alt="A Lead detail view for Dana Whitfield showing a FINAL badge, 17 fields with 7 required, grouped into General and Details.">
   <figcaption>
-    <b>A saved record.</b> The <em>FINAL</em> badge means every rule and workflow bound to Lead ran and
+    <b>3 · The record.</b> The <em>FINAL</em> badge means every rule and workflow bound to Lead ran and
     succeeded. Fields are grouped — General carries the identifying columns, Details the rest — and the
     record counter lets you page through the list without going back to it.
   </figcaption>

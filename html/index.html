@@ -152,6 +152,69 @@
   <li><strong>Five sagas</strong> — lead conversion, quote approval escalation, critical case escalation, closed-won handoff and the renewal playbook.</li>
 </ul>
 
+<h2>What arrives with it, unasked</h2>
+<p>
+  The screens below are not part of the CRM's specification. Nobody described a workflow editor, an audit
+  trail or a help system in the model — they come with every application the generator produces, wired to
+  the entities you did describe. This is the difference between generating CRUD and generating a system.
+</p>
+
+<figure>
+  <img src="img/30-crm-workflow-editor-leadconversion.png" alt="The LeadConversion workflow open in the editor, showing its trigger card, three rule gates, numbered steps, and a details sidebar listing the entity, trigger operation, run mode, step count, linked rules and recent runs.">
+  <figcaption>
+    <b>A workflow editor, populated.</b> The lead-conversion saga as the running application renders it:
+    the trigger, the three rules that gate it, its six steps in order, and the runs it has performed —
+    all compiled from <code>%%step</code> directives in the model. <a href="03-workflows.html">Chapter 03</a>.
+  </figcaption>
+</figure>
+
+<div class="fig-row">
+  <figure>
+    <img src="img/50-crm-audit-log.png" alt="The audit log showing auth login, entity create and entity update events with timestamp, user, action, entity, the columns that changed, the source and a verify action.">
+    <figcaption>
+      <b>An audit trail you cannot forget to switch on.</b> One entry per insert, update and delete, written
+      by the same transaction as the change, holding the before and after value of every column that moved.
+      Append-only, and each entry independently verifiable. <a href="06-dictionary.html">Chapter 06</a>.
+    </figcaption>
+  </figure>
+  <figure>
+    <img src="img/19-crm-help-entity.png" alt="The Lead help dialog with a window overview, a tabs section and a fields section listing each field and its help text.">
+    <figcaption>
+      <b>Help on every screen, written from the model.</b> It names the required fields, says which columns
+      are lookups, names the entities that point back, and explains the draft-to-final save cycle — then
+      lists every field with its own rule. <a href="05-application.html">Chapter 05</a>.
+    </figcaption>
+  </figure>
+</div>
+
+<div class="fig-row">
+  <figure>
+    <img src="img/12-crm-business-rules.png" alt="The Business Rules screen listing 25 active rules across 17 entities, each with its entity and the operation it fires on.">
+    <figcaption>
+      <b>Twenty-five decision tables, editable.</b> The eight rules from the model plus a validation rule per
+      entity — each one a table an operations person can change without a deploy.
+      <a href="02-business-rules.html">Chapter 02</a>.
+    </figcaption>
+  </figure>
+  <figure>
+    <img src="img/51-crm-roles.png" alt="The Role Management screen listing Administrator as a master role and Analyst, Manager and User as standard roles, each active with a description.">
+    <figcaption>
+      <b>Roles, seeded and enforced.</b> A transition your state machine guards with <code>[Manager]</code>
+      is a permission check against this table at runtime. <a href="06-dictionary.html">Chapter 06</a>.
+    </figcaption>
+  </figure>
+</div>
+
+<div class="note win">
+  <div class="note-title">The list nobody wrote a line of code for</div>
+  <p>
+    A REST API with Swagger, an admin dictionary of windows, tabs and fields, a rules engine with a decision
+    table editor, a workflow engine with a visual designer, role-based access control, an append-only audit
+    log, generated per-screen help, and an end-to-end test suite. Every one of them present in the
+    application above, and none of them mentioned in the model that produced it.
+  </p>
+</div>
+
 <h2>How the guide is arranged</h2>
 <p>
   Each chapter builds one layer and then shows it running. You can read straight through, or jump to the
