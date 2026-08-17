@@ -6,7 +6,7 @@
  *
  * Configure your email provider (SendGrid, Resend, etc.) in the run() body.
  *
- * Generated: 2026-08-17T16:41:43.405Z
+ * Generated: 2026-08-17T17:20:18.410Z
  * Project: crm
  */
 

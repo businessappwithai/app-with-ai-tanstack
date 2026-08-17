@@ -7,7 +7,7 @@
  * that belong to the current role are loaded into the local PGlite instance and
  * subsequently into TanStack DB Collections — nothing else is synced client-side.
  *
- * Generated: 2026-08-17T16:41:43.715Z
+ * Generated: 2026-08-17T17:20:18.725Z
  * Project: crm
  */
 

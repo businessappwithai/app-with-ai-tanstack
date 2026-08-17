@@ -2,7 +2,7 @@
  * Business Data Seed
  * Sample records for each business entity for E2E testing
  *
- * Generated: 2026-08-17T16:41:43.598Z
+ * Generated: 2026-08-17T17:20:18.600Z
  */
 
 import { Kysely, sql } from 'kysely';

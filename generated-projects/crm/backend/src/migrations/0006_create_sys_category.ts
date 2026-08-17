@@ -7,7 +7,7 @@
  * The dashboard renders one block per category, ordered by name, and the admin
  * dictionary exposes a maintenance form for them.
  *
- * Generated: 2026-08-17T16:41:43.539Z
+ * Generated: 2026-08-17T17:20:18.545Z
  * Project: crm
  */
 

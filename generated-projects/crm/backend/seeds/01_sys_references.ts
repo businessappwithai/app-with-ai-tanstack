@@ -1,7 +1,7 @@
 /**
  * System Reference Types Seed
  *
- * Generated: 2026-08-17T16:41:43.543Z
+ * Generated: 2026-08-17T17:20:18.549Z
  */
 
 import { Kysely } from 'kysely';
@@ -57,4 +57,84 @@ export async function seed(db: Kysely<any>): Promise<void> {
   }
 
   console.log(`✓ Seeded ${references.length} sys_reference types`);
+
+  // ==========================================================================
+  // Model enums — one list reference per `%%enum` a `%%field` binds a column to
+  // ==========================================================================
+  // Ids run from 1000 up. The generated forms render any reference at or above
+  // 1000 as a dropdown fed by /sys/ref-list, so seeding these is what turns a
+  // modelled enum into a select: before this, a column the model constrained to
+  // six values was a free-text box, and `status` accepted anything typed into
+  // it — including values the state machine has no transition for.
+  const modelEnums = [
+    { id: 1000, name: 'AccountStatus', values: ['active', 'on_hold', 'churned'] },
+    { id: 1001, name: 'AccountTier', values: ['strategic', 'enterprise', 'mid_market', 'smb'] },
+    { id: 1002, name: 'AccountType', values: ['prospect', 'customer', 'partner', 'reseller', 'former_customer'] },
+    { id: 1003, name: 'ActivityPriority', values: ['low', 'medium', 'high', 'urgent'] },
+    { id: 1004, name: 'ActivityStatus', values: ['planned', 'in_progress', 'completed', 'cancelled'] },
+    { id: 1005, name: 'ActivityType', values: ['call', 'email', 'meeting', 'task', 'note', 'demo'] },
+    { id: 1006, name: 'CampaignMemberStatus', values: ['targeted', 'invited', 'registered', 'attended', 'responded', 'converted', 'unsubscribed'] },
+    { id: 1007, name: 'CampaignStatus', values: ['planning', 'active', 'completed', 'cancelled'] },
+    { id: 1008, name: 'CampaignType', values: ['email', 'webinar', 'conference', 'paid_search', 'content', 'field_event', 'partner'] },
+    { id: 1009, name: 'CaseOrigin', values: ['email', 'phone', 'web', 'chat', 'partner_portal'] },
+    { id: 1010, name: 'CasePriority', values: ['low', 'medium', 'high', 'critical'] },
+    { id: 1011, name: 'CaseStatus', values: ['new', 'assigned', 'in_progress', 'waiting_on_customer', 'escalated', 'resolved', 'closed'] },
+    { id: 1012, name: 'CaseType', values: ['question', 'incident', 'defect', 'feature_request', 'billing'] },
+    { id: 1013, name: 'ContactStatus', values: ['active', 'inactive', 'bounced', 'do_not_contact'] },
+    { id: 1014, name: 'ContractStatus', values: ['draft', 'in_approval', 'active', 'expiring', 'renewed', 'expired', 'terminated'] },
+    { id: 1015, name: 'ForecastCategory', values: ['pipeline', 'best_case', 'commit', 'closed', 'omitted'] },
+    { id: 1016, name: 'Industry', values: ['technology', 'financial_services', 'healthcare', 'manufacturing', 'retail', 'public_sector', 'energy', 'education', 'other'] },
+    { id: 1017, name: 'LeadRating', values: ['hot', 'warm', 'cold'] },
+    { id: 1018, name: 'LeadSource', values: ['web', 'inbound_call', 'referral', 'event', 'partner', 'outbound', 'advertisement'] },
+    { id: 1019, name: 'LeadStatus', values: ['new', 'working', 'nurturing', 'qualified', 'converted', 'disqualified'] },
+    { id: 1020, name: 'LossReason', values: ['price', 'product_fit', 'competitor', 'no_decision', 'timing', 'budget'] },
+    { id: 1021, name: 'OpportunityStage', values: ['prospecting', 'qualification', 'needs_analysis', 'proposal', 'negotiation', 'closed_won', 'closed_lost'] },
+    { id: 1022, name: 'ProductFamily', values: ['platform', 'add_on', 'professional_services', 'support_plan', 'training'] },
+    { id: 1023, name: 'QuoteStatus', values: ['draft', 'in_review', 'approved', 'rejected', 'presented', 'accepted', 'expired'] },
+    { id: 1024, name: 'SlaTier', values: ['standard', 'premium', 'enterprise', 'platinum'] },
+    { id: 1025, name: 'UserRole', values: ['sales_rep', 'account_executive', 'sales_manager', 'sales_ops', 'marketing_manager', 'support_agent', 'support_manager', 'administrator'] },
+  ];
+
+  for (const modelEnum of modelEnums) {
+    await db.insertInto('sys_reference')
+      .values({
+        sys_reference_id: modelEnum.id,
+        name: modelEnum.name,
+        description: `Values allowed for ${modelEnum.name}`,
+        validation_type: 'L',
+        entity_type: 'U',
+        is_active: true,
+        created_by: createdBy,
+        updated_by: createdBy,
+        created_at: now,
+        updated_at: now,
+      })
+      .onConflict((oc) => oc.column('sys_reference_id').doNothing())
+      .execute();
+
+    for (const value of modelEnum.values) {
+      await db.insertInto('sys_ref_list')
+        .values({
+          sys_ref_list_id: uuidv4(),
+          sys_reference_id: modelEnum.id,
+          value,
+          // `pending_review` reads as "Pending Review" in a dropdown; the raw
+          // value is what is stored and what every rule and workflow compares.
+          name: value.split('_').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' '),
+          entity_type: 'U',
+          is_active: true,
+          created_by: createdBy,
+          updated_by: createdBy,
+          created_at: now,
+          updated_at: now,
+        })
+        .onConflict((oc) => oc.doNothing())
+        .execute();
+    }
+  }
+
+  if (modelEnums.length > 0) {
+    const valueCount = modelEnums.reduce((total, e) => total + e.values.length, 0);
+    console.log(`✓ Seeded ${modelEnums.length} model enums (${valueCount} values)`);
+  }
 }

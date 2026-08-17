@@ -2,7 +2,7 @@
  * Database Seed Runner
  * Run with: bun run src/seed.ts
  *
- * Generated: 2026-08-17T16:41:43.642Z
+ * Generated: 2026-08-17T17:20:18.640Z
  */
 
 import * as path from 'path';

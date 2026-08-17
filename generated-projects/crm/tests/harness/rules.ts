@@ -5,7 +5,7 @@
  * zen-engine on every bus_ write, and a rule may emit a `trigger-workflow`
  * action that the workflow suite then follows.
  *
- * Generated: 2026-08-17T16:41:43.797Z
+ * Generated: 2026-08-17T17:20:18.813Z
  * Project: crm
  */
 

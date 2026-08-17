@@ -12,7 +12,7 @@
  * and rejects anything else, so the header is passed through untouched. On a
  * host other than localhost that means naming it: CORS_ORIGIN=http://your-host:4000.
  *
- * Generated: 2026-08-17T16:41:43.708Z
+ * Generated: 2026-08-17T17:20:18.719Z
  * Project: crm
  */
 

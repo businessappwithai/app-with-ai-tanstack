@@ -3,7 +3,7 @@
  * Ensures DECIMAL/FLOAT columns are correctly typed and user-reference
  * VARCHAR columns use the right SQL type. Safe to re-run (uses TRY blocks).
  *
- * Generated: 2026-08-17T16:41:43.537Z
+ * Generated: 2026-08-17T17:20:18.543Z
  */
 
 import { Kysely, sql } from 'kysely';

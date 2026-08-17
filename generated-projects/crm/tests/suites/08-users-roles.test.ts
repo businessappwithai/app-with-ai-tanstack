@@ -4,7 +4,7 @@
  * Covers the seeded role hierarchy, faker-generated user registration at
  * volume, and the access-control surface that role membership drives.
  *
- * Generated: 2026-08-17T16:41:43.815Z
+ * Generated: 2026-08-17T17:20:18.827Z
  * Project: crm
  */
 

@@ -9,7 +9,7 @@
  * been migrated still records events; keeping the schema here as well means it
  * is versioned, indexed, and present before the first request arrives.
  *
- * Generated: 2026-08-17T16:41:43.540Z
+ * Generated: 2026-08-17T17:20:18.546Z
  * Project: crm
  */
 

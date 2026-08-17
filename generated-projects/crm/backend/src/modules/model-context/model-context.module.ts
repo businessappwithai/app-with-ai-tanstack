@@ -5,7 +5,7 @@
  * administrator extending it has an assistant that can answer from what the
  * application declares.
  *
- * Generated: 2026-08-17T16:41:43.497Z
+ * Generated: 2026-08-17T17:20:18.504Z
  * Project: crm
  */
 

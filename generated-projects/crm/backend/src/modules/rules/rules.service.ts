@@ -4,7 +4,7 @@
  * Provides CRUD operations for managing business rules in the database.
  * Integrates with GoRules Zen Engine for rule evaluation.
  *
- * Generated: 2026-08-17T16:41:43.414Z
+ * Generated: 2026-08-17T17:20:18.420Z
  * Project: crm
  */
 

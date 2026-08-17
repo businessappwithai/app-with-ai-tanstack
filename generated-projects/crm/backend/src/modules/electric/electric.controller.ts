@@ -9,7 +9,7 @@
  * Clients: GET /v1/shape?table=sys_table&role=admin&...
  * Upstream: GET ELECTRIC_URL/v1/shape?table=sys_table&where=<role-clause>&...
  *
- * Generated: 2026-08-17T16:41:43.480Z
+ * Generated: 2026-08-17T17:20:18.485Z
  * Project: crm
  */
 

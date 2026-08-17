@@ -2,7 +2,7 @@
  * System Tables Migration (sys_ prefix)
  * Application Dictionary tables following Compiere pattern
  *
- * Generated: 2026-08-17T16:41:43.502Z
+ * Generated: 2026-08-17T17:20:18.509Z
  */
 
 import { Kysely, sql } from 'kysely';

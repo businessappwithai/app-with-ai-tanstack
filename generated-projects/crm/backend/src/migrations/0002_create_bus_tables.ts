@@ -2,7 +2,7 @@
  * Business Tables Migration
  * Creates all business entity tables
  *
- * Generated: 2026-08-17T16:41:43.515Z
+ * Generated: 2026-08-17T17:20:18.523Z
  */
 
 import { Kysely, sql } from 'kysely';

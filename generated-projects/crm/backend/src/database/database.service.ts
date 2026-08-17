@@ -1,7 +1,7 @@
 /**
  * Database Service with Kysely
  *
- * Generated: 2026-08-17T16:41:43.650Z
+ * Generated: 2026-08-17T17:20:18.648Z
  */
 
 import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';

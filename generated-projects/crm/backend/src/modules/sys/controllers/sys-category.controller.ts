@@ -3,7 +3,7 @@
  *
  * REST API for Application Dictionary entity categories.
  *
- * Generated: 2026-08-17T16:41:43.479Z
+ * Generated: 2026-08-17T17:20:18.484Z
  * Project: crm
  */
 

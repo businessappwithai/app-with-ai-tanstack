@@ -3,7 +3,7 @@
  *
  * One file per entity, so a failure names the entity that broke.
  *
- * Generated: 2026-08-17T16:41:43.833Z
+ * Generated: 2026-08-17T17:20:18.836Z
  * Project: crm
  */
 

@@ -4,7 +4,7 @@
  * Generates a JDM validation rule set for this entity, registers it, then
  * proves it actually fires: valid records pass, invalid records are prevented.
  *
- * Generated: 2026-08-17T16:41:43.850Z
+ * Generated: 2026-08-17T17:20:18.847Z
  * Project: crm
  */
 

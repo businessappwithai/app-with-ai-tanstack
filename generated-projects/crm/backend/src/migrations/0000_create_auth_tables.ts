@@ -2,7 +2,7 @@
  * Auth Tables Migration - BetterAuth schema
  * Creates user, session, account, verification tables for better-auth
  *
- * Generated: 2026-08-17T16:41:43.501Z
+ * Generated: 2026-08-17T17:20:18.508Z
  */
 
 import { Kysely, sql } from 'kysely';

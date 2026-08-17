@@ -5,7 +5,7 @@
  * requests to the upstream Electric server, adding role-based
  * filtering for sys_ entity metadata.
  *
- * Generated: 2026-08-17T16:41:43.481Z
+ * Generated: 2026-08-17T17:20:18.486Z
  * Project: crm
  */
 

@@ -2,7 +2,7 @@
  * Hook System
  *
  * Standalone hook system for managing entity lifecycle events.
- * Generated: 2026-08-17T16:41:43.402Z
+ * Generated: 2026-08-17T17:20:18.408Z
  */
 
 export * from './hook.types';

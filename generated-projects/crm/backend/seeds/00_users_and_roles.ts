@@ -3,7 +3,7 @@
  * Creates system roles and initial users with Better-Auth integration
  * Default password for all users: "admin"
  *
- * Generated: 2026-08-17T16:41:43.542Z
+ * Generated: 2026-08-17T17:20:18.548Z
  */
 
 import { Kysely } from 'kysely';

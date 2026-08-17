@@ -3,7 +3,7 @@
  *
  * Provides data access for all sys_ tables using Kysely.
  *
- * Generated: 2026-08-17T16:41:43.477Z
+ * Generated: 2026-08-17T17:20:18.479Z
  */
 
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';

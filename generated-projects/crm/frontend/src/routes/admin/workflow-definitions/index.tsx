@@ -193,13 +193,22 @@ function WorkflowDefinitionsList() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex gap-2 justify-end">
-                        {/* The builder selects from its own rail rather than
-                            taking an id in the URL, so this opens it rather
-                            than deep-linking to this row. */}
+                        {/* Opens this row. It used to send every workflow to
+                            the builder's own rail at /admin/automations, which
+                            lists nothing a model declared — so View on a model
+                            workflow landed on a page reading "None yet", and
+                            the detail screen that does show the trigger, the
+                            rule gates and each step was reachable only by
+                            typing its URL. */}
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => navigate({ to: "/admin/automations" })}
+                          onClick={() =>
+                            navigate({
+                              to: "/admin/workflow-definitions/$id/edit",
+                              params: { id: d.id },
+                            })
+                          }
                         >
                           {d.source === "model" ? "View" : "Edit"}
                         </Button>

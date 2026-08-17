@@ -23,7 +23,7 @@
  * run when its rule does not fire. Definitions used to be auto-run purely on
  * entity + operation, so a workflow gated on a condition ran regardless of it.
  *
- * Generated: 2026-08-17T16:41:43.816Z
+ * Generated: 2026-08-17T17:20:18.828Z
  * Project: crm
  */
 

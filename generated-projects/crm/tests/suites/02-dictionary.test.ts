@@ -4,7 +4,7 @@
  * Every entity in the ERD must be registered with columns and field layouts,
  * otherwise the frontend renders an empty form for it.
  *
- * Generated: 2026-08-17T16:41:43.805Z
+ * Generated: 2026-08-17T17:20:18.824Z
  * Project: crm
  */
 

@@ -4,7 +4,7 @@
  * Sign-in goes through better-auth, which is mounted outside the `api` global
  * prefix at /api/auth/* — hence `absolute: true` on those calls.
  *
- * Generated: 2026-08-17T16:41:43.785Z
+ * Generated: 2026-08-17T17:20:18.804Z
  * Project: crm
  */
 

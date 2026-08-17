@@ -5,7 +5,7 @@
  * the RulesEngine enforces them: required-field violations are reported for
  * empty payloads and clean payloads pass without violations.
  *
- * Generated: 2026-08-17T16:41:43.681Z
+ * Generated: 2026-08-17T17:20:18.687Z
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test';

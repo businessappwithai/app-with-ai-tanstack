@@ -3,7 +3,7 @@
  * Loads the generated GoRules JDM decision models into sys_rule_definitions
  * so business rules are enforced on entity create/update/delete out of the box.
  *
- * Generated: 2026-08-17T16:41:43.630Z
+ * Generated: 2026-08-17T17:20:18.628Z
  */
 
 import * as fs from 'fs';

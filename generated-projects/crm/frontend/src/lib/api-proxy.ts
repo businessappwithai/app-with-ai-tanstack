@@ -19,7 +19,7 @@
  * negotiation, and it works unchanged on localhost, on a LAN address, behind a
  * reverse proxy, and over plain HTTP.
  *
- * Generated: 2026-08-17T16:41:43.705Z
+ * Generated: 2026-08-17T17:20:18.716Z
  * Project: crm
  */
 

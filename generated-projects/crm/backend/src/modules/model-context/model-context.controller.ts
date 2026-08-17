@@ -5,7 +5,7 @@
  * including entities a given user may have no access to, so retrieval must not
  * become a way to read the shape of data the row-level checks would refuse.
  *
- * Generated: 2026-08-17T16:41:43.496Z
+ * Generated: 2026-08-17T17:20:18.503Z
  * Project: crm
  */
 

@@ -14,7 +14,7 @@
  * splat route can never match, so the routing lives in the /api/$ route and
  * both shapes land here. `isCopilotPath` is what that route asks.
  *
- * Generated: 2026-08-17T16:41:43.706Z
+ * Generated: 2026-08-17T17:20:18.717Z
  * Project: crm
  */
 

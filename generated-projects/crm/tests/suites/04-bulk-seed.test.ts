@@ -10,7 +10,7 @@
  * Every id is written to `.e2e-seed-manifest.json` instead, so `bun run clean`
  * can remove exactly this data later without touching the app's own seed rows.
  *
- * Generated: 2026-08-17T16:41:43.806Z
+ * Generated: 2026-08-17T17:20:18.824Z
  * Project: crm
  */
 

@@ -13,7 +13,7 @@
  * Which is why the entity benchmarked is the one with the most rows: a phase
  * measured against a hundred rows tells you nothing about a hundred thousand.
  *
- * Generated: 2026-08-17T16:41:43.818Z
+ * Generated: 2026-08-17T17:20:18.830Z
  * Project: crm
  */
 

@@ -5,7 +5,7 @@
  * write a record → rule matches → workflow run is enqueued → run reaches a
  * terminal state.
  *
- * Generated: 2026-08-17T16:41:43.807Z
+ * Generated: 2026-08-17T17:20:18.825Z
  * Project: crm
  */
 

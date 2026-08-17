@@ -9,7 +9,7 @@
  * declaration the root route fails to typecheck on a freshly generated app,
  * which is not a real problem with the code and reads like one.
  *
- * Generated: 2026-08-17T16:41:43.713Z
+ * Generated: 2026-08-17T17:20:18.723Z
  * Project: crm
  */
 

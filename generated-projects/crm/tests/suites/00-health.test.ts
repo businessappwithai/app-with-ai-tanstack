@@ -5,7 +5,7 @@
  * message should say why the app is unreachable rather than surfacing as a
  * cascade of auth errors.
  *
- * Generated: 2026-08-17T16:41:43.803Z
+ * Generated: 2026-08-17T17:20:18.822Z
  * Project: crm
  */
 

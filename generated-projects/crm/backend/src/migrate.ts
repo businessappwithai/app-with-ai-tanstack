@@ -9,7 +9,7 @@
  * - Separate seed execution (after all migrations)
  * - Graceful error handling for constraint conflicts
  *
- * Generated: 2026-08-17T16:41:43.641Z
+ * Generated: 2026-08-17T17:20:18.639Z
  */
 
 import * as path from 'path';

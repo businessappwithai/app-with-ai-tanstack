@@ -10,7 +10,7 @@
  *
  * Called from BusService after successful entity CRUD (fire-and-forget so
  * workflow errors never fail the originating CRUD request).
- * Generated: 2026-08-17T16:41:43.427Z
+ * Generated: 2026-08-17T17:20:18.432Z
  * Project: crm
  */
 
