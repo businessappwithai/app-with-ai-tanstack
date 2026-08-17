@@ -172,6 +172,12 @@ export function attributeReferenceId(attr: EntityAttribute, entityPrimaryKey?: s
   if (attr.name === "id") return ReferenceType.ID;
   if (entityPrimaryKey && attr.name === entityPrimaryKey) return ReferenceType.ID;
   if (attr.isForeignKey && isForeignKeyColumnName(attr.name)) return ReferenceType.TABLE_DIRECT;
+  // A column bound to a `%%enum` points at that enum's own list reference. The
+  // generated forms render any reference at or above 1000 as a dropdown fed by
+  // /sys/ref-list, so this is what stops a modelled status being a text box the
+  // user can type anything into — including values the state machine cannot act
+  // on.
+  if (attr.enumReferenceId) return attr.enumReferenceId;
   return attributeTypeToReferenceId(attr.type);
 }
 

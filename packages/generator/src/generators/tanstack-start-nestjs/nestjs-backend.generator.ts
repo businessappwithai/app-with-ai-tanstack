@@ -20,6 +20,7 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import {
   type Entity,
+  type EntityEnum,
   entityToBusEntity,
   generateEntityDictionary,
   type Relationship,
@@ -140,6 +141,8 @@ export interface NestJsBackendOptions {
    * `%%category` directives. When absent a single "General" default is seeded.
    */
   categories?: EntityCategory[];
+  /** `%%enum` declarations bound to columns, each with its list reference id. */
+  modelEnums?: EntityEnum[];
   /** Business rules compiled from the model's `%%rule` sections. */
   compiledRules?: CompiledRule[];
   /** Lifecycle handlers compiled from the model's `%%hook` directives. */
@@ -304,6 +307,11 @@ export class NestJsBackendGenerator extends BaseGenerator {
     // Extract sys_table entries from dictionary
     const sysTables = dictionaryEntries.map((entry) => entry.dictionaryPlaceholders.table);
 
+    // `%%enum` declarations bound to a column. The references seed writes one
+    // sys_reference (validation type L) plus its sys_ref_list values per entry,
+    // and the columns above already point at the matching id.
+    const modelEnums = this.options.modelEnums ?? [];
+
     // Generate sys_column entries from bus attributes
     const sysColumns = dictionaryEntries.flatMap((entry, entityIndex) => {
       const busAttrs = entry.busAttributes;
@@ -369,6 +377,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
       relationships,
       sysTables,
       sysColumns,
+      modelEnums,
       sysFields,
       categories: this.prepareCategories(busEntities),
       compiledRules: (this.options.compiledRules ?? []).map((rule) => ({

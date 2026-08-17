@@ -21,7 +21,13 @@
  * ```
  */
 
-import type { Entity, EntityAttribute, EntityIndex, Relationship } from "@erdwithai/core/types";
+import type {
+  Entity,
+  EntityAttribute,
+  EntityEnum,
+  EntityIndex,
+  Relationship,
+} from "@erdwithai/core/types";
 import { getCardinalityKind, getDefaultType, getTypeMap } from "./language-maps";
 
 // Type mapping from Mermaid types to our standard types.
@@ -35,7 +41,11 @@ export class MermaidParser {
    * @param mermaidSyntax - Raw Mermaid ERD content
    * @returns Parsed entities and relationships
    */
-  parse(mermaidSyntax: string): { entities: Entity[]; relationships: Relationship[] } {
+  parse(mermaidSyntax: string): {
+    entities: Entity[];
+    relationships: Relationship[];
+    enums: EntityEnum[];
+  } {
     const entities: Entity[] = [];
     const relationships: Relationship[] = [];
 
@@ -55,6 +65,15 @@ export class MermaidParser {
      */
     const declaredIndexes: Array<{ entity: string } & EntityIndex> = [];
 
+    /**
+     * `%%enum Name: a, b, c` and the `%%field Entity.column enum: Name` lines
+     * that bind columns to it. Both are collected as they appear and resolved
+     * at the end, for the same reason as `%%index`: the language does not say
+     * a directive has to follow the block it refers to.
+     */
+    const declaredEnums = new Map<string, string[]>();
+    const enumBindings: Array<{ entity: string; column: string; enumName: string }> = [];
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i] ?? "";
       const trimmed = line.trim();
@@ -68,6 +87,12 @@ export class MermaidParser {
       if (trimmed.startsWith("%%")) {
         const index = this.parseIndexDirective(trimmed);
         if (index) declaredIndexes.push(index);
+        const declaredEnum = this.parseEnumDirective(trimmed);
+        if (declaredEnum && !declaredEnums.has(declaredEnum.name)) {
+          declaredEnums.set(declaredEnum.name, declaredEnum.values);
+        }
+        const binding = this.parseFieldEnumDirective(trimmed);
+        if (binding) enumBindings.push(binding);
         continue;
       }
 
@@ -120,8 +145,9 @@ export class MermaidParser {
     }
 
     this.attachIndexes(entities, declaredIndexes);
+    const enums = this.attachEnums(entities, declaredEnums, enumBindings);
 
-    return { entities, relationships };
+    return { entities, relationships, enums };
   }
 
   /**
@@ -165,6 +191,78 @@ export class MermaidParser {
       entity.indexes = entity.indexes ?? [];
       entity.indexes.push({ columns, unique });
     }
+  }
+
+  /** `%%enum OrderStatus: draft, submitted, approved` */
+  private parseEnumDirective(line: string): { name: string; values: string[] } | null {
+    const match = line.match(/^%%enum\s+([A-Za-z_]\w*)\s*:\s*(.+)$/);
+    if (!match?.[1] || !match[2]) return null;
+    const values = match[2]
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+    return values.length > 0 ? { name: match[1], values } : null;
+  }
+
+  /** `%%field Order.status enum: OrderStatus` — the only %%field key read here. */
+  private parseFieldEnumDirective(
+    line: string
+  ): { entity: string; column: string; enumName: string } | null {
+    const match = line.match(
+      /^%%field\s+([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s+enum\s*:\s*([A-Za-z_]\w*)\s*$/
+    );
+    if (!match?.[1] || !match[2] || !match[3]) return null;
+    return { entity: match[1], column: match[2], enumName: match[3] };
+  }
+
+  /**
+   * Bind columns to their enums and allocate a sys_reference_id per enum.
+   *
+   * Ids run from 1000 up in sorted name order, which keeps them stable for a
+   * given model: the generated forms render any reference at or above 1000 as a
+   * dropdown fed by /sys/ref-list, so this allocation is what turns a modelled
+   * enum into a select rather than a free-text box.
+   *
+   * Only enums something actually binds to get an id. A declared-but-unused
+   * enum is documentation, and seeding a reference nothing points at would put
+   * a dropdown in the dictionary that no field can ever show.
+   */
+  private attachEnums(
+    entities: Entity[],
+    declared: Map<string, string[]>,
+    bindings: Array<{ entity: string; column: string; enumName: string }>
+  ): EntityEnum[] {
+    const used = new Set<string>();
+    for (const binding of bindings) {
+      if (!declared.has(binding.enumName)) continue;
+      const entity = entities.find((candidate) => candidate.name === binding.entity);
+      const attribute = entity?.attributes.find((candidate) => candidate.name === binding.column);
+      if (attribute) used.add(binding.enumName);
+    }
+
+    const referenceIds = new Map<string, number>();
+    let nextId = 1000;
+    for (const name of [...used].sort()) {
+      referenceIds.set(name, nextId++);
+    }
+
+    for (const binding of bindings) {
+      const values = declared.get(binding.enumName);
+      const referenceId = referenceIds.get(binding.enumName);
+      if (!values || !referenceId) continue;
+      const entity = entities.find((candidate) => candidate.name === binding.entity);
+      const attribute = entity?.attributes.find((candidate) => candidate.name === binding.column);
+      if (!attribute) continue;
+      attribute.enumRef = binding.enumName;
+      attribute.enumValues = values;
+      attribute.enumReferenceId = referenceId;
+    }
+
+    return [...referenceIds.entries()].map(([name, referenceId]) => ({
+      name,
+      values: declared.get(name) ?? [],
+      referenceId,
+    }));
   }
 
   /**

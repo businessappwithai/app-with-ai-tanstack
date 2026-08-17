@@ -8,6 +8,25 @@ export interface EntityAttribute {
   minLength?: number;
   pattern?: string;
   isForeignKey?: boolean;
+  /** Name of the `%%enum` this column is bound to, via `%%field E.c enum: N`. */
+  enumRef?: string;
+  /** The enum's values, in declaration order. */
+  enumValues?: string[];
+  /**
+   * sys_reference_id allocated to this column's enum. Ids from 1000 up are the
+   * per-model list references — the generated forms already render anything at
+   * or above 1000 as a dropdown fed by /sys/ref-list, so binding the column to
+   * one is what turns a modelled enum into a select instead of a text box.
+   */
+  enumReferenceId?: number;
+}
+
+/** A `%%enum Name: a, b, c` declaration, with the reference id it was given. */
+export interface EntityEnum {
+  name: string;
+  values: string[];
+  /** Allocated from 1000 up, stable for a given set of enum names. */
+  referenceId: number;
 }
 
 /**
