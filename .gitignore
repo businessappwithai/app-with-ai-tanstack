@@ -106,3 +106,4 @@ generated-projects/crm/**/.tanstack/
 generated-projects/crm/**/*.log
 generated-projects/crm/**/.env
 generated-projects/crm/bun.lock
+generated-projects/crm/**/app.config.timestamp_*.js
