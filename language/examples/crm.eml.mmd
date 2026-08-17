@@ -127,7 +127,7 @@ erDiagram
     Account {
         string  id PK
         string  name
-        string  account_number UK
+        string  account_number UK OPTIONAL
         string  account_type
         string  tier OPTIONAL
         string  industry OPTIONAL
@@ -255,7 +255,7 @@ erDiagram
 
     Quote {
         string   id PK
-        string   quote_number UK
+        string   quote_number UK OPTIONAL
         string   opportunity_id FK
         string   account_id FK
         string   name
@@ -286,7 +286,7 @@ erDiagram
 
     Contract {
         string   id PK
-        string   contract_number UK
+        string   contract_number UK OPTIONAL
         string   account_id FK
         string   quote_id FK OPTIONAL
         string   status
@@ -303,7 +303,7 @@ erDiagram
 
     SupportCase {
         string   id PK
-        string   case_number UK
+        string   case_number UK OPTIONAL
         string   account_id FK
         string   contact_id FK OPTIONAL
         string   sla_policy_id FK OPTIONAL
@@ -847,9 +847,13 @@ flowchart TD
     I --> J[beforeDelete: blockDeleteWithOpenBusiness]
     J --> K[Response]
 
-    %% account_number is required and unique, and the conversion saga in
-    %% Section 22 creates accounts without one — the number is minted here so
-    %% every write path gets it, not only the ones that remember to pass it.
+    %% account_number is unique and minted here rather than supplied by the
+    %% caller. That is why it is OPTIONAL in the ERD: the conversion saga in
+    %% Section 22 inserts an account without one, and a NOT NULL column would
+    %% fail that insert before the hook ever ran. Postgres allows repeated NULLs
+    %% under a unique index, so nothing collides in the window before the hook
+    %% stamps a value. quote_number, contract_number and case_number are the
+    %% same shape for the same reason.
     %%hook beforeCreate normalizeAccountName on Account[field: name]
     %%hook beforeCreate assignAccountNumber on Account[field: account_number]
     %%hook customValidate ensureAccountNumberUnique on Account[field: account_number]
