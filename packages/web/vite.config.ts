@@ -22,7 +22,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // process.env only — nothing is injected into import.meta.env, so a secret in
 // .env cannot reach the client bundle. A variable already present in the real
 // environment wins, which keeps deployed configuration authoritative.
-const rootEnv = loadEnv(process.env.NODE_ENV ?? "development", path.resolve(__dirname, "../.."), "");
+const rootEnv = loadEnv(
+  process.env.NODE_ENV ?? "development",
+  path.resolve(__dirname, "../.."),
+  ""
+);
 for (const [key, value] of Object.entries(rootEnv)) {
   if (process.env[key] === undefined) process.env[key] = value;
 }

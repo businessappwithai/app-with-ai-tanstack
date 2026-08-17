@@ -11,6 +11,7 @@
       "**",
       "!packages/generator/templates",
       "!language/cli/runtime",
+      "!generated-projects",
       "!**/routeTree.gen.ts",
       "!**/*.css"
     ]
