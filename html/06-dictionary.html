@@ -67,6 +67,16 @@
 </figure>
 
 <figure>
+  <img src="img/23-crm-help-table-column.png" alt="The Tables screen showing all seventeen generated tables — bus_account, bus_activity, bus_campaign, bus_campaign_member, bus_contact, bus_contract, bus_lead, bus_opportunity, bus_opportunity_line_item, bus_product, bus_quote, bus_quote_line_item, bus_sla_policy, bus_support_case, bus_team, bus_territory and bus_user — with a Table help dialog open over it explaining what the layer is for.">
+  <figcaption>
+    <b>All seventeen, and the help that explains them.</b> One <code>bus_</code> table per entity in the
+    model, each with a label and a description the dashboard reuses. The dialog is careful about the
+    boundary: editing a definition here changes how the application treats a column, not the database
+    schema — a new column still needs a migration.
+  </figcaption>
+</figure>
+
+<figure>
   <img src="img/15-crm-windows-tabs-fields.png" alt="The Windows list showing 23 windows: 17 entity windows plus the six admin ones.">
   <figcaption>
     <b>Twenty-three windows.</b> Seventeen entities plus the six Application Dictionary screens. The
@@ -85,6 +95,17 @@
     <figcaption><b>Its fields.</b> Every displayed column with its sequence — reorder here and the form reorders.</figcaption>
   </figure>
 </div>
+
+<figure>
+  <img src="img/17-crm-window-tab-fields.png" alt="The Opportunity window record in the dictionary, showing eight fields and, under Help, a generated paragraph describing the entity: that Account Id, Name, Currency Code, Stage and Owner Id must be filled in before saving, that Opportunity points at Account, Contact and Campaign, that Opportunity Line Item, Quote and Activity refer back to it, and that every save starts as a Draft which becomes Final only if all rules and workflows succeed.">
+  <figcaption>
+    <b>The paragraph nobody wrote.</b> This is the Opportunity window's stored help, generated from the
+    model: the required fields by name, the three references out, the three entities that point back in,
+    and the exact transactional promise — all rules and workflows succeed and the record goes Final, any
+    one fails and nothing is kept and the reason is written onto the record. Seventeen of these exist, one
+    per entity, and an administrator can rewrite any of them.
+  </figcaption>
+</figure>
 
 <figure>
   <img src="img/34-crm-tab-reference-resolved.png" alt="The tab grid inside the Opportunity window, with the Table column reading 'Opportunity'.">
@@ -152,6 +173,31 @@
   <figcaption>
     <b>Who changed what.</b> Timestamp, user, action, entity, the columns that moved, and the source. The
     <em>Verify</em> action checks the entry's integrity — useful when the log is the evidence.
+  </figcaption>
+</figure>
+
+<figure>
+  <img src="img/24-crm-help-audit-log.png" alt="The audit log with its help dialog open, explaining that there is one entry per insert, update and delete holding the entity, the row, the user, the time and the before and after values of every column that moved; that entries are written by the same transaction as the change so the log cannot drift; and that the log is append-only.">
+  <figcaption>
+    <b>The guarantee, stated on the screen.</b> Before and after values for every column that moved,
+    written by the transaction that moved them, append-only. An audit trail you have to remember to switch
+    on is not an audit trail; this one is a property of how every write works.
+  </figcaption>
+</figure>
+
+<h2>Roles</h2>
+<p>
+  Access control is generated too. Four roles are seeded, and the guards the state machines declare on
+  their transitions — <code>[Manager]</code>, <code>[Administrator]</code> — resolve against this list
+  rather than against strings scattered through service code.
+</p>
+
+<figure>
+  <img src="img/51-crm-roles.png" alt="The Role Management screen listing four roles: Administrator, marked Master and Active, described as system administrator with full access to all modules; Analyst, Standard and Active, reviews and analyses application data; Manager, Standard and Active, manages operations and team assignments; and User, Standard and Active, standard user with basic access.">
+  <figcaption>
+    <b>Four roles, seeded with the application.</b> One master and three standard. A transition guarded by
+    <code>[Manager]</code> in the model is a permission check against this row at runtime — which is why
+    chapter 03's state machines could name roles without anyone wiring them up.
   </figcaption>
 </figure>
 

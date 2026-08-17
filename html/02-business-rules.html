@@ -237,6 +237,33 @@
   </figcaption>
 </figure>
 
+<h2>Rules an administrator can write without you</h2>
+<p>
+  The 25 seeded rule tables are not the ceiling. The same screen carries an automation builder, and it
+  ships with its own documentation — written for the person configuring the system, not for the person who
+  generated it.
+</p>
+
+<figure>
+  <img src="img/14-crm-automations-rule-tables.png" alt="The Automations help screen. A left rail lists 25 rule tables including bus_account_validation, bus_activity_validation, renewalRisk, leadRouting, leadScoring, leadQualification, opportunityCloseGate and opportunityForecast. The main panel, titled 'How an automation runs', explains the trigger, the checks and the steps, and lists the six step types: look up a rule table, create a record, update a field, delete a record, work out a value, and call a web service.">
+  <figcaption>
+    <b>One sentence: when, only if, then.</b> Every rule table in the application is listed down the left —
+    the eight from the model and the seventeen per-entity validations. The panel explains the six things a
+    step can do, including calling an external web service, and how to reference an earlier step's result
+    with <code>&#123;&#123;tier.discount_pct&#125;&#125;</code>. None of this text was written for the CRM; it is generated
+    alongside it.
+  </figcaption>
+</figure>
+
+<div class="note tip">
+  <div class="note-title">Why this matters more than the rule count</div>
+  <p>
+    A generator that emits logic you cannot change afterwards has only moved the bottleneck. Here the
+    decision tables are data, the editor is part of the application, and the person changing a threshold
+    needs neither the repository nor a deploy window.
+  </p>
+</div>
+
 <h2>When rules run</h2>
 <p>
   Rules are evaluated inside the transaction that saves the record. If one fails, the write is rolled back
