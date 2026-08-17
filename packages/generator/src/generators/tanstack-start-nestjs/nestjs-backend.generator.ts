@@ -1383,9 +1383,22 @@ export async function executeCustomValidateHooks(
         : `No state machine declared for ${entity.displayName ?? tableName}.`;
 
       for (const operation of ["create", "update"]) {
-        const bpmn = workflow
-          ? buildStateEntryBpmn(workflow, tableName, statusField)
-          : buildPassThroughBpmn(tableName);
+        // The state-entry task belongs to CREATE alone. Seeding it for UPDATE
+        // too meant every update re-asserted the machine's *initial* state, so
+        // the write that moved a record forward was immediately undone: a lead
+        // set to "qualified" came back "new", and the conversion workflow that
+        // had just set it to "converted" was overwritten by the same reset.
+        // Status was effectively read-only in any generated application whose
+        // model declared a state machine.
+        //
+        // On update the definition is a pass-through, so the run is still
+        // created and visible in the run list — the transitions the model
+        // declares constrain what an update may do, and nothing here should be
+        // deciding the state on the record's behalf.
+        const bpmn =
+          workflow && operation === "create"
+            ? buildStateEntryBpmn(workflow, tableName, statusField)
+            : buildPassThroughBpmn(tableName);
 
         rows.push(
           `  {\n` +
