@@ -1,42 +1,12 @@
 {
-  "file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai-tanstack/language/examples/crm.eml.mmd",
-  "checkedAt": "2026-07-29T08:59:37.086Z",
+  "file": "/home/user/app-with-ai-tanstack/language/examples/crm.eml.mmd",
+  "checkedAt": "2026-08-17T15:43:11.577Z",
   "languageVersion": "1.0.0",
   "summary": {
     "errors": 0,
-    "warnings": 1,
-    "infos": 3,
+    "warnings": 0,
+    "infos": 0,
     "ok": true
   },
-  "issues": [
-    {
-      "severity": "warning",
-      "code": "EML114",
-      "message": "Foreign key \"Task.assigned_to\" does not end with \"_id\".",
-      "line": 60,
-      "hint": "Convention: rename to \"assigned_to_id\" so the generator can derive the referenced table.",
-      "autoFixable": false
-    },
-    {
-      "severity": "info",
-      "code": "EML502",
-      "message": "FK attribute \"Deal.owner_id\" has no relationship to \"Owner\".",
-      "hint": "Add:  Owner ||--o{ Deal : \"...\"  (or reverse for manyToOne).",
-      "autoFixable": false
-    },
-    {
-      "severity": "info",
-      "code": "EML502",
-      "message": "FK attribute \"Company.owner_id\" has no relationship to \"Owner\".",
-      "hint": "Add:  Owner ||--o{ Company : \"...\"  (or reverse for manyToOne).",
-      "autoFixable": false
-    },
-    {
-      "severity": "info",
-      "code": "EML502",
-      "message": "FK attribute \"Contact.owner_id\" has no relationship to \"Owner\".",
-      "hint": "Add:  Owner ||--o{ Contact : \"...\"  (or reverse for manyToOne).",
-      "autoFixable": false
-    }
-  ]
+  "issues": []
 }
