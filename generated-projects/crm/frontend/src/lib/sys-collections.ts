@@ -1,0 +1,68 @@
+/**
+ * In-memory cache for sys_ (Application Dictionary) entities.
+ *
+ * Data is populated from the local PGlite database after ElectricSQL sync
+ * completes. Components read from this cache via `getSysCache()` — reads are
+ * instant because they skip the network entirely.
+ *
+ * Generated: 2026-08-17T16:41:43.715Z
+ * Project: crm
+ */
+
+import type { FieldMetadata, ColumnMetadata, SysTable, SysReference } from '@/hooks/use-field-metadata';
+import { getDb } from './electric';
+
+/* -------------------------------------------------------------------------- */
+/*  Cache state                                                                */
+/* -------------------------------------------------------------------------- */
+
+export interface SysCache {
+  tables: SysTable[];
+  columns: ColumnMetadata[];
+  fields: FieldMetadata[];
+  references: SysReference[];
+  loaded: boolean;
+}
+
+let _cache: SysCache = { tables: [], columns: [], fields: [], references: [], loaded: false };
+const _listeners = new Set<() => void>();
+
+/* -------------------------------------------------------------------------- */
+/*  Public API                                                                 */
+/* -------------------------------------------------------------------------- */
+
+/** Subscribe to cache invalidations. Returns an unsubscribe function. */
+export function subscribeSysCache(fn: () => void): () => void {
+  _listeners.add(fn);
+  return () => _listeners.delete(fn);
+}
+
+/** Read the current cache snapshot (synchronous, zero-cost). */
+export function getSysCache(): SysCache {
+  return _cache;
+}
+
+/**
+ * Reload all sys_ collections from PGlite.
+ * Called by ElectricProvider after each sync batch completes.
+ */
+export async function reloadSysCollections(): Promise<void> {
+  const db = await getDb();
+
+  const [tables, columns, fields, references] = await Promise.all([
+    db.query<SysTable>('SELECT * FROM sys_table WHERE is_active = TRUE ORDER BY name'),
+    db.query<ColumnMetadata>('SELECT * FROM sys_column ORDER BY seq_no'),
+    db.query<FieldMetadata>('SELECT * FROM sys_field ORDER BY seq_no'),
+    db.query<SysReference>('SELECT * FROM sys_reference ORDER BY name'),
+  ]);
+
+  _cache = {
+    tables: tables.rows,
+    columns: columns.rows,
+    fields: fields.rows,
+    references: references.rows,
+    loaded: true,
+  };
+
+  _listeners.forEach((fn) => fn());
+}

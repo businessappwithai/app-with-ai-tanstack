@@ -1,0 +1,508 @@
+/**
+ * System Controller (Application Dictionary)
+ *
+ * Handles CRUD operations for all sys_ tables.
+ * The sys_field endpoints are critical for runtime UI modification.
+ *
+ * Generated: 2026-08-17T16:41:43.473Z
+ */
+
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  Headers,
+  ParseUUIDPipe,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { SysService } from './sys.service';
+
+function parseFilters(rawFilters: Record<string, any>): Record<string, any> {
+  const parsed: Record<string, any> = {};
+  for (const [key, value] of Object.entries(rawFilters)) {
+    if (key.startsWith('filter.') && typeof value === 'string' && value.includes(':')) {
+      const fieldName = key.substring(7);
+      const [operator, searchValue] = value.split(':', 2);
+      switch (operator) {
+        case 'contains':   parsed[fieldName] = `%${searchValue}%`; break;
+        case 'startsWith': parsed[fieldName] = `${searchValue}%`; break;
+        case 'endsWith':   parsed[fieldName] = `%${searchValue}`; break;
+        case 'equals':
+        case 'eq':         parsed[fieldName] = searchValue; break;
+        case 'gt':         parsed[fieldName] = { operator: '>', value: searchValue }; break;
+        case 'gte':        parsed[fieldName] = { operator: '>=', value: searchValue }; break;
+        case 'lt':         parsed[fieldName] = { operator: '<', value: searchValue }; break;
+        case 'lte':        parsed[fieldName] = { operator: '<=', value: searchValue }; break;
+        default:           parsed[fieldName] = searchValue;
+      }
+    }
+  }
+  return parsed;
+}
+
+/**
+ * The Application Dictionary, plus the user and role directories.
+ *
+ * Guarded. This controller shipped open: `GET /api/sys/users` returned every
+ * user's name, email and roles to an unauthenticated caller, and the rest of
+ * the dictionary — tables, columns, windows, validation rules — was equally
+ * readable and writable without signing in.
+ */
+@ApiTags('sys')
+@ApiBearerAuth()
+@UseGuards(SessionAuthGuard, RolesGuard)
+@Controller('sys')
+export class SysController {
+  constructor(private readonly sysService: SysService) {}
+
+  // ============================================================================
+  // SYS_TABLE Endpoints
+  // ============================================================================
+
+  @Get('tables')
+  @ApiOperation({ summary: 'List all tables' })
+  async findAllTables(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('search') search?: string,
+    @Query('prefix') prefix?: string,
+    @Query() query?: Record<string, any>,
+  ) {
+    const { page: _p, limit: _l, search: _s, prefix: _pr, ...rawFilters } = query || {};
+    return this.sysService.findAllTables({ page: page ? (Number.parseInt(page, 10) || 1) : 1, limit: limit ? (Number.parseInt(limit, 10) || 100) : 100, search, prefix }, parseFilters(rawFilters));
+  }
+
+  @Get('tables/all')
+  @ApiOperation({ summary: 'List all database tables including sys_ tables' })
+  async findAllDatabaseTables(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('search') search?: string,
+    @Query('prefix') prefix?: string,
+  ) {
+    return this.sysService.findAllDatabaseTables({
+      page: page ? (Number.parseInt(page, 10) || 1) : 1,
+      limit: limit ? (Number.parseInt(limit, 10) || 100) : 100,
+      search,
+      prefix,
+    });
+  }
+
+  @Get('tables/:id')
+  @ApiOperation({ summary: 'Get table by ID' })
+  async findTableById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.findTableById(id);
+  }
+
+  @Post('tables')
+  @ApiOperation({ summary: 'Create new table' })
+  async createTable(@Body() data: Record<string, unknown>) {
+    return this.sysService.createTable(data);
+  }
+
+  @Patch('tables/:id')
+  @ApiOperation({ summary: 'Update table' })
+  async updateTable(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: Record<string, unknown>,
+  ) {
+    return this.sysService.updateTable(id, data);
+  }
+
+  @Delete('tables/:id')
+  @ApiOperation({ summary: 'Delete table (soft-delete + DROP TABLE)' })
+  async deleteTable(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.deleteTable(id);
+  }
+
+  // ============================================================================
+  // SYS_COLUMN Endpoints
+  // ============================================================================
+
+  @Get('columns')
+  @ApiOperation({ summary: 'List all columns' })
+  async findAllColumns(
+    @Query('tableId') tableId?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query() query?: Record<string, any>,
+  ) {
+    const { tableId: _ti, page: _p, limit: _l, ...rawFilters } = query || {};
+    return this.sysService.findAllColumns({ tableId, page: page ? (Number.parseInt(page, 10) || 1) : 1, limit: limit ? (Number.parseInt(limit, 10) || 100) : 100 }, parseFilters(rawFilters));
+  }
+
+  @Post('columns')
+  @ApiOperation({ summary: 'Create a new column (inserts sys_column metadata + ALTER TABLE ADD COLUMN)' })
+  async createColumn(@Body() data: Record<string, unknown>) {
+    return this.sysService.createColumn(data);
+  }
+
+  @Get('columns/:id')
+  @ApiOperation({ summary: 'Get column by ID' })
+  async findColumnById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.findColumnById(id);
+  }
+
+  @Get('columns/direct')
+  @ApiOperation({ summary: 'Get columns directly from database schema' })
+  async findColumnsDirect(@Query('tableName') tableName: string) {
+    return this.sysService.findColumnsFromSchema(tableName);
+  }
+
+  @Patch('columns/:id')
+  @ApiOperation({ summary: 'Update column' })
+  async updateColumn(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: Record<string, unknown>,
+  ) {
+    return this.sysService.updateColumn(id, data);
+  }
+
+  @Delete('columns/:id')
+  @ApiOperation({ summary: 'Delete column (soft-delete + DROP COLUMN)' })
+  async deleteColumn(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.deleteColumn(id);
+  }
+
+  // ============================================================================
+  // SYS_FIELD Endpoints (Critical for Runtime UI Modification)
+  // ============================================================================
+
+  @Get('fields')
+  @ApiOperation({ summary: 'List all fields' })
+  async findAllFields(
+    @Query('tabId') tabId?: string,
+    @Query('tableId') tableId?: string,
+    @Query('table_name') tableName?: string,
+    @Query('view') view?: 'form' | 'grid',
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query() query?: Record<string, any>,
+  ) {
+    const { tabId: _ti, tableId: _tbl, table_name: _tn, view: _v, page: _p, limit: _l, ...rawFilters } = query || {};
+    return this.sysService.findAllFields({ tabId, tableId, tableName, view, page: page ? (Number.parseInt(page, 10) || 1) : 1, limit: limit ? (Number.parseInt(limit, 10) || 100) : 100 }, parseFilters(rawFilters));
+  }
+
+  @Get('fields/:id')
+  @ApiOperation({ summary: 'Get field by ID' })
+  async findFieldById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.findFieldById(id);
+  }
+
+  @Patch('fields/:id')
+  @ApiOperation({ summary: 'Update field (seq_no, is_displayed, etc.)' })
+  async updateField(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: Record<string, unknown>,
+    @Headers('if-match') ifMatch?: string,
+  ) {
+    const version = ifMatch ? Number.parseInt(ifMatch.replace(/"/g, ''), 10) : undefined;
+    return this.sysService.updateField(id, data, version);
+  }
+
+  @Put('fields/batch-reorder')
+  @ApiOperation({ summary: 'Batch update field order (seq_no)' })
+  async batchReorderFields(
+    @Body() data: { fields: Array<{ id: string; seq_no: number }> },
+  ) {
+    return this.sysService.batchReorderFields(data.fields);
+  }
+
+  @Post('fields')
+  @ApiOperation({ summary: 'Create field' })
+  async createField(@Body() data: Record<string, unknown>) {
+    return this.sysService.createField(data);
+  }
+
+  @Delete('fields/:id')
+  @ApiOperation({ summary: 'Delete field (soft-delete)' })
+  async deleteField(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.deleteField(id);
+  }
+
+  @Put('fields/:id')
+  @ApiOperation({ summary: 'Replace field (seq_no, is_displayed, etc.)' })
+  async replaceField(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: Record<string, unknown>,
+    @Headers('if-match') ifMatch?: string,
+  ) {
+    const version = ifMatch ? Number.parseInt(ifMatch.replace(/"/g, ''), 10) : undefined;
+    return this.sysService.updateField(id, data, version);
+  }
+
+  @Get('fields/form')
+  @ApiOperation({ summary: 'Get fields for form display by table name' })
+  async getFormFields(
+    @Query('entity') entity: string,
+    @Query('includeHidden') includeHidden?: string,
+  ) {
+    return this.sysService.getFormFields(entity, includeHidden === 'true');
+  }
+
+  @Get('fields/grid')
+  @ApiOperation({ summary: 'Get fields for grid display by table name' })
+  async getGridFields(
+    @Query('entity') entity: string,
+    @Query('includeHidden') includeHidden?: string,
+  ) {
+    return this.sysService.getGridFields(entity, includeHidden === 'true');
+  }
+
+  @Get('window-help/:tableName')
+  @ApiOperation({ summary: 'Get window, tab and field help text for a business table' })
+  async getWindowHelp(@Param('tableName') tableName: string) {
+    return this.sysService.getWindowHelp(tableName);
+  }
+
+  // ============================================================================
+  // SYS_FIELD_GROUP Endpoints
+  // ============================================================================
+
+  @Get('field-groups')
+  @ApiOperation({ summary: 'List all field groups' })
+  async findAllFieldGroups(@Query('entity') entity?: string) {
+    return this.sysService.findAllFieldGroups(entity);
+  }
+
+  @Get('field-groups/:id')
+  @ApiOperation({ summary: 'Get field group by ID' })
+  async findFieldGroupById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.findFieldGroupById(id);
+  }
+
+  @Post('field-groups')
+  @ApiOperation({ summary: 'Create field group' })
+  async createFieldGroup(
+    @Query('entity') entity: string | undefined,
+    @Body() data: Record<string, unknown>,
+  ) {
+    return this.sysService.createFieldGroup(entity, data);
+  }
+
+  @Patch('field-groups/:id')
+  @ApiOperation({ summary: 'Update field group' })
+  async updateFieldGroup(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: Record<string, unknown>,
+  ) {
+    return this.sysService.updateFieldGroup(id, data);
+  }
+
+  @Put('field-groups/:id')
+  @ApiOperation({ summary: 'Replace field group' })
+  async replaceFieldGroup(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: Record<string, unknown>,
+  ) {
+    return this.sysService.updateFieldGroup(id, data);
+  }
+
+  @Delete('field-groups/:id')
+  @ApiOperation({ summary: 'Delete field group' })
+  async deleteFieldGroup(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.deleteFieldGroup(id);
+  }
+
+  // ============================================================================
+  // SYS_REFERENCE Endpoints
+  // ============================================================================
+
+  @Get('ref-list')
+  @ApiOperation({ summary: 'Get reference list values by sys_reference_id' })
+  async findRefList(@Query('sys_reference_id') sysReferenceId: string) {
+    return this.sysService.findRefListBySysReferenceId(Number.parseInt(sysReferenceId, 10) || 0);
+  }
+
+  @Get('references')
+  @ApiOperation({ summary: 'List all references (lookup types)' })
+  async findAllReferences(@Query('page') page?: string, @Query('limit') limit?: string, @Query() query?: Record<string, any>) {
+    const { page: _p, limit: _l, ...rawFilters } = query || {};
+    return this.sysService.findAllReferences({ page: page ? (Number.parseInt(page, 10) || 1) : 1, limit: limit ? (Number.parseInt(limit, 10) || 100) : 100 }, parseFilters(rawFilters));
+  }
+
+  @Post('references')
+  @ApiOperation({ summary: 'Create reference' })
+  async createReference(@Body() data: Record<string, unknown>) {
+    return this.sysService.createReference(data);
+  }
+
+  @Get('references/:id')
+  @ApiOperation({ summary: 'Get reference by ID' })
+  async findReferenceById(@Param('id') id: string) {
+    return this.sysService.findReferenceById(Number.parseInt(id, 10));
+  }
+
+  @Patch('references/:id')
+  @ApiOperation({ summary: 'Update reference' })
+  async updateReference(@Param('id') id: string, @Body() data: Record<string, unknown>) {
+    return this.sysService.updateReference(Number.parseInt(id, 10), data);
+  }
+
+  @Delete('references/:id')
+  @ApiOperation({ summary: 'Delete reference (soft-delete)' })
+  async deleteReference(@Param('id') id: string) {
+    return this.sysService.deleteReference(Number.parseInt(id, 10));
+  }
+
+  // ============================================================================
+  // SYS_WINDOW Endpoints
+  // ============================================================================
+
+  @Get('windows')
+  @ApiOperation({ summary: 'List all windows' })
+  async findAllWindows(@Query('page') page?: string, @Query('limit') limit?: string, @Query() query?: Record<string, any>) {
+    const { page: _p, limit: _l, ...rawFilters } = query || {};
+    return this.sysService.findAllWindows({ page: page ? (Number.parseInt(page, 10) || 1) : 1, limit: limit ? (Number.parseInt(limit, 10) || 100) : 100 }, parseFilters(rawFilters));
+  }
+
+  @Get('windows/:id')
+  @ApiOperation({ summary: 'Get window by ID' })
+  async findWindowById(@Param('id') id: string) {
+    return this.sysService.findWindowById(id);
+  }
+
+  @Post('windows')
+  @ApiOperation({ summary: 'Create window' })
+  async createWindow(@Body() data: Record<string, unknown>) {
+    return this.sysService.createWindow(data);
+  }
+
+  @Patch('windows/:id')
+  @ApiOperation({ summary: 'Update window' })
+  async updateWindow(@Param('id') id: string, @Body() data: Record<string, unknown>) {
+    return this.sysService.updateWindow(id, data);
+  }
+
+  @Delete('windows/:id')
+  @ApiOperation({ summary: 'Delete window (soft-delete, cascades to tabs and fields)' })
+  async deleteWindow(@Param('id') id: string) {
+    return this.sysService.deleteWindow(id);
+  }
+
+  // ============================================================================
+  // SYS_TAB Endpoints
+  // ============================================================================
+
+  @Get('tabs')
+  @ApiOperation({ summary: 'List all tabs' })
+  async findAllTabs(
+    @Query('windowId') windowId?: string,
+    @Query('tableId') tableId?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query() query?: Record<string, any>,
+  ) {
+    const { windowId: _wi, tableId: _ti, page: _p, limit: _l, ...rawFilters } = query || {};
+    return this.sysService.findAllTabs({
+      windowId,
+      tableId,
+      page: page ? (Number.parseInt(page, 10) || 1) : 1,
+      limit: limit ? (Number.parseInt(limit, 10) || 100) : 100,
+    }, parseFilters(rawFilters));
+  }
+
+  @Get('tabs/:id')
+  @ApiOperation({ summary: 'Get tab by ID' })
+  async findTabById(@Param('id') id: string) {
+    return this.sysService.findTabById(id);
+  }
+
+  @Post('tabs')
+  @ApiOperation({ summary: 'Create tab' })
+  async createTab(@Body() data: Record<string, unknown>) {
+    return this.sysService.createTab(data);
+  }
+
+  @Patch('tabs/:id')
+  @ApiOperation({ summary: 'Update tab' })
+  async updateTab(@Param('id') id: string, @Body() data: Record<string, unknown>) {
+    return this.sysService.updateTab(id, data);
+  }
+
+  @Delete('tabs/:id')
+  @ApiOperation({ summary: 'Delete tab (soft-delete, cascades to fields)' })
+  async deleteTab(@Param('id') id: string) {
+    return this.sysService.deleteTab(id);
+  }
+
+  // ============================================================================
+  // SYS_ELEMENT Endpoints
+  // ============================================================================
+
+  @Get('elements')
+  @ApiOperation({ summary: 'List all elements' })
+  async findAllElements(@Query('page') page?: string, @Query('limit') limit?: string, @Query() query?: Record<string, any>) {
+    const { page: _p, limit: _l, ...rawFilters } = query || {};
+    return this.sysService.findAllElements({ page: page ? (Number.parseInt(page, 10) || 1) : 1, limit: limit ? (Number.parseInt(limit, 10) || 100) : 100 }, parseFilters(rawFilters));
+  }
+
+  @Get('elements/:id')
+  @ApiOperation({ summary: 'Get element by ID' })
+  async findElementById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.findElementById(id);
+  }
+
+  @Post('elements')
+  @ApiOperation({ summary: 'Create element' })
+  async createElement(@Body() data: Record<string, unknown>) {
+    return this.sysService.createElement(data);
+  }
+
+  @Patch('elements/:id')
+  @ApiOperation({ summary: 'Update element' })
+  async updateElement(@Param('id', ParseUUIDPipe) id: string, @Body() data: Record<string, unknown>) {
+    return this.sysService.updateElement(id, data);
+  }
+
+  @Delete('elements/:id')
+  @ApiOperation({ summary: 'Delete element' })
+  async deleteElement(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.deleteElement(id);
+  }
+
+  // ============================================================================
+  // SYS_USER Endpoints
+  // ============================================================================
+
+  @Get('users')
+  @ApiOperation({ summary: 'List all system users with their roles' })
+  async findAllSysUsers() {
+    return this.sysService.findAllSysUsers();
+  }
+
+  /**
+   * Create an account. Administrators only — there is no public sign-up.
+   *
+   * `@Roles('admin')` is the whole access policy for this endpoint: a signed-in
+   * non-admin who posts here is refused by the guard before the handler runs.
+   */
+  @Post('users')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Create a user account (administrators only)' })
+  async createSysUser(
+    @Body() body: { name: string; email: string; password: string; roleName?: string }
+  ) {
+    return this.sysService.createSysUser(body);
+  }
+
+  // ============================================================================
+  // SYS_ROLE Endpoints
+  // ============================================================================
+
+  @Get('roles')
+  @ApiOperation({ summary: 'List all system roles' })
+  async findAllSysRoles() {
+    return this.sysService.findAllSysRoles();
+  }
+}

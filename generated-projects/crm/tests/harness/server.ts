@@ -1,0 +1,144 @@
+/**
+ * Server lifecycle helpers.
+ *
+ * The runner (`run.ts`) can start the backend itself, or attach to one that is
+ * already listening. Either way the suites do not begin until /api/me/health
+ * answers.
+ *
+ * Generated: 2026-08-17T16:41:43.786Z
+ * Project: crm
+ */
+
+import { spawn, type Subprocess } from "bun";
+import { config } from "./config";
+
+const HEALTH_PATH = "/api/me/health";
+
+/** Poll the health endpoint until it answers or the deadline passes. */
+export async function waitForServer(
+  timeoutMs: number = config.serverReadyTimeoutMs
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  let lastError = "never attempted";
+
+  while (Date.now() < deadline) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 3000);
+      const response = await fetch(`${config.baseUrl}${HEALTH_PATH}`, {
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+      if (response.ok) return;
+      lastError = `status ${response.status}`;
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+    }
+    await Bun.sleep(500);
+  }
+
+  throw new Error(
+    `Backend at ${config.baseUrl} was not ready within ${timeoutMs}ms (last: ${lastError}). ` +
+      `Start it with "bun run dev" in the project root, or let "bun run test:e2e" start it for you.`
+  );
+}
+
+/** True when something is already serving the health endpoint. */
+export async function isServerUp(): Promise<boolean> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
+    const response = await fetch(`${config.baseUrl}${HEALTH_PATH}`, { signal: controller.signal });
+    clearTimeout(timer);
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+export interface ManagedServer {
+  process: Subprocess;
+  stop: () => Promise<void>;
+}
+
+/**
+ * Start the backend as a child process and wait for it to become healthy.
+ * Returns null when a server is already up — we attach instead of starting a
+ * second one that would fail to bind the port.
+ */
+export async function startServer(backendDir: string): Promise<ManagedServer | null> {
+  if (await isServerUp()) {
+    console.log(`  ✓ Attaching to the backend already listening on ${config.baseUrl}`);
+    // A backend we did not start keeps whatever throttle it was launched with —
+    // 1000 requests a minute by default. Bulk seeding blows straight through
+    // that and the client then sleeps out each 60-second window, which looks
+    // like a slow database rather than a limiter. Say so, because the run will
+    // otherwise take an hour and the report will not explain why.
+    console.log(
+      "    ↳ its rate limit is whatever it was started with; set " +
+        "THROTTLE_LIMIT high there, or let the runner start it"
+    );
+    return null;
+  }
+
+  console.log(`  ▸ Starting backend from ${backendDir}…`);
+
+  // stdout is discarded rather than piped: the backend logs every request, and
+  // an unread pipe fills its OS buffer and blocks the server mid-run. stderr is
+  // piped but actively drained below for the same reason — we keep only a
+  // rolling tail, which is all a startup failure needs.
+  const child = spawn({
+    cmd: ["bun", "run", "start"],
+    cwd: backendDir,
+    stdout: config.verbose ? "inherit" : "ignore",
+    stderr: "pipe",
+    env: {
+      ...process.env,
+      NODE_ENV: process.env.NODE_ENV ?? "test",
+      // Bulk seeding intentionally exceeds the default 1000 req/min throttle.
+      // The client still backs off on a 429; this just avoids paying for it.
+      THROTTLE_LIMIT: process.env.THROTTLE_LIMIT ?? "1000000",
+    },
+  });
+
+  let stderrTail = "";
+  const drain = (async () => {
+    if (!child.stderr) return;
+    const reader = (child.stderr as ReadableStream<Uint8Array>).getReader();
+    const decoder = new TextDecoder();
+    try {
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        stderrTail = (stderrTail + decoder.decode(value, { stream: true })).slice(-4000);
+        if (config.verbose) process.stderr.write(value);
+      }
+    } catch {
+      // stream closed with the process
+    }
+  })();
+
+  const stop = async (): Promise<void> => {
+    try {
+      child.kill();
+      await child.exited;
+      await drain;
+    } catch {
+      // already gone
+    }
+  };
+
+  try {
+    await waitForServer();
+  } catch (error) {
+    // Surface why the server never came up rather than just the timeout.
+    await stop();
+    throw new Error(
+      `${error instanceof Error ? error.message : String(error)}` +
+        (stderrTail ? `\n\nBackend stderr:\n${stderrTail}` : "")
+    );
+  }
+
+  console.log("  ✓ Backend is healthy");
+  return { process: child, stop };
+}

@@ -1,0 +1,257 @@
+/**
+ * Users and Roles Seed
+ * Creates system roles and initial users with Better-Auth integration
+ * Default password for all users: "admin"
+ *
+ * Generated: 2026-08-17T16:41:43.542Z
+ */
+
+import { Kysely } from 'kysely';
+import { v4 as uuidv4 } from 'uuid';
+
+// Better-Auth credential hash for password "admin" (generated via better-auth internal hasher)
+function createBetterAuthPassword(_password: string): string {
+  // Known hash for "admin" password compatible with better-auth credential provider
+  return 'e5e1ee3b93fa0dd2a2eb900e7d8a9da4:fe3dfa2b6d9e05c570a9518d19dccf7f795dda25362d4aa93314dd89291b3004e7773c39138849c71223aebc81d77023bed93d6a295614303b9d93865b21deb7';
+}
+
+interface RoleDefinition {
+  name: string;
+  description: string;
+  level: 'S' | 'C';
+  canExport: boolean;
+  canReport: boolean;
+}
+
+interface UserDefinition {
+  email: string;
+  name: string;
+  roleName: string;
+  description: string;
+}
+
+const ROLES: RoleDefinition[] = [
+  {
+    name: 'Administrator',
+    description: 'System administrator with full access to all modules',
+    level: 'S',
+    canExport: true,
+    canReport: true,
+  },
+  {
+    name: 'Manager',
+    description: 'Manages operations and team assignments',
+    level: 'C',
+    canExport: true,
+    canReport: true,
+  },
+  {
+    name: 'Analyst',
+    description: 'Reviews and analyses application data',
+    level: 'C',
+    canExport: true,
+    canReport: true,
+  },
+  {
+    name: 'User',
+    description: 'Standard user with basic access',
+    level: 'C',
+    canExport: false,
+    canReport: false,
+  },
+];
+
+const USERS: UserDefinition[] = [
+  {
+    email: 'admin@admin.com',
+    name: 'Admin User',
+    roleName: 'Administrator',
+    description: 'System administrator account',
+  },
+  {
+    email: 'manager@crm.com',
+    name: 'Manager User',
+    roleName: 'Manager',
+    description: 'Operations manager account',
+  },
+  {
+    email: 'analyst@crm.com',
+    name: 'Analyst User',
+    roleName: 'Analyst',
+    description: 'Data analyst account',
+  },
+  {
+    email: 'user@crm.com',
+    name: 'Standard User',
+    roleName: 'User',
+    description: 'Standard user account',
+  },
+];
+
+export async function seed(db: Kysely<any>): Promise<void> {
+  const now = new Date();
+  const createdBy = 'system';
+
+  console.log('🔐 Creating users and roles...');
+
+  // ============================================================================
+  // Create Roles
+  // ============================================================================
+  const roleMap = new Map<string, string>();
+
+  for (const roleDef of ROLES) {
+    const existing = await db
+      .selectFrom('sys_role')
+      .select('sys_role_id')
+      .where('name', '=', roleDef.name)
+      .executeTakeFirst();
+
+    let roleId: string;
+    if (existing) {
+      roleId = existing.sys_role_id;
+      console.log(`  ✓ Role "${roleDef.name}" already exists`);
+    } else {
+      roleId = uuidv4();
+      await db
+        .insertInto('sys_role')
+        .values({
+          sys_role_id: roleId,
+          name: roleDef.name,
+          description: roleDef.description,
+          user_level: roleDef.level,
+          is_master_role: roleDef.level === 'S',
+          is_can_export: roleDef.canExport,
+          is_can_report: roleDef.canReport,
+          is_personal_lock: false,
+          is_personal_access: false,
+          max_query_records: 0,
+          is_show_accounting: roleDef.level === 'S',
+          entity_type: 'D',
+          is_active: true,
+          created_by: createdBy,
+          updated_by: createdBy,
+          created_at: now,
+          updated_at: now,
+        })
+        .execute();
+      console.log(`  ✓ Created role "${roleDef.name}"`);
+    }
+    roleMap.set(roleDef.name, roleId);
+  }
+
+  // ============================================================================
+  // Create Users with Better-Auth Integration
+  // ============================================================================
+  for (const userDef of USERS) {
+    const roleId = roleMap.get(userDef.roleName);
+    if (!roleId) {
+      console.error(`  ✗ Role "${userDef.roleName}" not found for user ${userDef.email}`);
+      continue;
+    }
+
+    // Create or retrieve sys_user
+    const existingSysUser = await db
+      .selectFrom('sys_user')
+      .select('sys_user_id')
+      .where('email', '=', userDef.email)
+      .executeTakeFirst();
+
+    let sysUserId: string;
+    if (existingSysUser) {
+      sysUserId = existingSysUser.sys_user_id;
+      console.log(`  ✓ User ${userDef.email} already exists`);
+    } else {
+      sysUserId = uuidv4();
+      await db
+        .insertInto('sys_user')
+        .values({
+          sys_user_id: sysUserId,
+          name: userDef.name,
+          email: userDef.email,
+          password_hash: 'managed-by-better-auth',
+          description: userDef.description,
+          is_system_user: userDef.roleName === 'Administrator',
+          is_sales_rep: false,
+          login_failure_count: 0,
+          is_locked: false,
+          is_account_verified: true,
+          default_sys_role_id: roleId,
+          entity_type: 'D',
+          is_active: true,
+          created_by: createdBy,
+          updated_by: createdBy,
+          created_at: now,
+          updated_at: now,
+        })
+        .execute();
+      console.log(`  ✓ Created sys_user: ${userDef.email}`);
+    }
+
+    // Assign role
+    await db
+      .insertInto('sys_user_roles')
+      .values({
+        sys_user_roles_id: uuidv4(),
+        sys_user_id: sysUserId,
+        sys_role_id: roleId,
+        entity_type: 'D',
+        is_active: true,
+        created_by: createdBy,
+        updated_by: createdBy,
+        created_at: now,
+        updated_at: now,
+      })
+      .onConflict((oc) => oc.doNothing())
+      .execute();
+
+    // Create better-auth user and account
+    const existingBaUser = await db
+      .selectFrom('user')
+      .select('id')
+      .where('email', '=', userDef.email)
+      .executeTakeFirst();
+
+    if (!existingBaUser) {
+      const userId = uuidv4();
+      const role = userDef.roleName === 'Administrator' ? 'admin' : 'user';
+
+      await db
+        .insertInto('user')
+        .values({
+          id: userId,
+          name: userDef.name,
+          email: userDef.email,
+          emailVerified: 1,
+          image: null,
+          createdAt: now.toISOString(),
+          updatedAt: now.toISOString(),
+          role: role,
+          sysUserId: sysUserId,
+        })
+        .execute();
+
+      await db
+        .insertInto('account')
+        .values({
+          id: uuidv4(),
+          accountId: `credential-${userId}`,
+          providerId: 'credential',
+          userId: userId,
+          password: createBetterAuthPassword('admin'),
+          createdAt: now.toISOString(),
+          updatedAt: now.toISOString(),
+        })
+        .execute();
+
+      console.log(`  ✓ Created better-auth user: ${userDef.email} (password: "admin")`);
+    }
+  }
+
+  console.log('✓ Users and roles seeded successfully');
+  console.log('\n📋 Default Credentials:');
+  console.log('   All users can log in with password: "admin"');
+  console.log('\n👥 Users Created:');
+  for (const user of USERS) {
+    console.log(`   - ${user.email} (${user.roleName})`);
+  }
+}

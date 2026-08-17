@@ -1,0 +1,448 @@
+/**
+ * Automations — build multi-step workflows and business rules.
+ *
+ * One screen holds the automations, the rule tables they look up, and the help,
+ * because a rule table is only ever reached from a step that uses it.
+ *
+ * The entity list is baked in at generation time from this app's own model, so
+ * the pickers and the help examples name User rather than a
+ * stand-in the reader has to translate.
+ *
+ * Generated for: crm
+ */
+
+import { createFileRoute } from '@tanstack/react-router';
+import { startTransition, useCallback, useEffect, useMemo, useState } from 'react';
+import { AutomationBuilder, type RuleTableSummary } from '@/components/automation/AutomationBuilder';
+import { AutomationHelp } from '@/components/automation/AutomationHelp';
+import { RailSection } from '@/components/automation/RailList';
+import { RuleTableEditor } from '@/components/automation/RuleTableEditor';
+import {
+  type Automation,
+  emptyAutomation,
+  parseAutomation,
+  serializeAutomation,
+  validateAutomation,
+} from '@/lib/automation/model';
+import { type DecisionTable, emptyDecisionTable } from '@/lib/workflow/bpmn-model';
+
+export const Route = createFileRoute('/admin/automations')({
+  component: AutomationsPage,
+});
+
+/** This app's entities and their fields, from the model it was generated from. */
+const ENTITIES: string[] = [
+  'User',
+  'Team',
+  'Territory',
+  'Account',
+  'Contact',
+  'Lead',
+  'Campaign',
+  'CampaignMember',
+  'Opportunity',
+  'OpportunityLineItem',
+  'Product',
+  'Quote',
+  'QuoteLineItem',
+  'Contract',
+  'SupportCase',
+  'SlaPolicy',
+  'Activity',
+];
+
+const ENTITY_FIELDS: Record<string, string[]> = {
+  'User': ['id', 'email', 'first_name', 'last_name', 'role', 'job_title', 'phone', 'team_id', 'quota_annual', 'is_active', 'last_login'],
+  'Team': ['id', 'name', 'manager_id', 'region', 'quota_annual', 'is_active'],
+  'Territory': ['id', 'name', 'region', 'country_code', 'manager_id', 'employee_count_floor', 'employee_count_ceiling', 'is_active'],
+  'Account': ['id', 'name', 'account_number', 'account_type', 'tier', 'industry', 'website', 'phone', 'billing_street', 'billing_city', 'billing_postal_code', 'billing_country', 'employee_count', 'annual_revenue', 'health_score', 'territory_id', 'sla_policy_id', 'status', 'owner_id'],
+  'Contact': ['id', 'account_id', 'first_name', 'last_name', 'email', 'phone', 'mobile', 'job_title', 'department', 'lead_source', 'is_primary', 'email_opt_out', 'do_not_call', 'status', 'owner_id'],
+  'Lead': ['id', 'first_name', 'last_name', 'company_name', 'email', 'phone', 'job_title', 'industry', 'employee_count', 'annual_revenue', 'lead_source', 'rating', 'score', 'campaign_id', 'status', 'owner_id', 'converted_at', 'disqualification_reason'],
+  'Campaign': ['id', 'name', 'campaign_type', 'status', 'start_date', 'end_date', 'budgeted_cost', 'actual_cost', 'expected_revenue', 'expected_response_count', 'target_audience', 'owner_id'],
+  'CampaignMember': ['id', 'campaign_id', 'lead_id', 'contact_id', 'member_status', 'responded_at', 'has_responded'],
+  'Opportunity': ['id', 'account_id', 'contact_id', 'campaign_id', 'name', 'description', 'amount', 'currency_code', 'stage', 'probability', 'forecast_category', 'expected_close_date', 'actual_close_date', 'lead_source', 'next_step', 'loss_reason', 'owner_id'],
+  'OpportunityLineItem': ['id', 'opportunity_id', 'product_id', 'quantity', 'unit_price', 'discount_percent', 'line_total', 'line_description'],
+  'Product': ['id', 'product_code', 'name', 'description', 'family', 'list_price', 'unit_cost', 'billing_frequency', 'is_active'],
+  'Quote': ['id', 'quote_number', 'opportunity_id', 'account_id', 'name', 'status', 'version_number', 'valid_until', 'subtotal', 'discount_percent', 'discount_amount', 'tax_amount', 'grand_total', 'approved_by_id', 'approved_at', 'approval_notes', 'owner_id'],
+  'QuoteLineItem': ['id', 'quote_id', 'product_id', 'quantity', 'unit_price', 'discount_percent', 'line_total', 'sort_order'],
+  'Contract': ['id', 'contract_number', 'account_id', 'quote_id', 'status', 'start_date', 'end_date', 'term_months', 'annual_value', 'auto_renew', 'renewal_notice_days', 'signed_by_id', 'signed_at', 'owner_id'],
+  'SupportCase': ['id', 'case_number', 'account_id', 'contact_id', 'sla_policy_id', 'subject', 'description', 'case_type', 'priority', 'origin', 'status', 'first_response_due_at', 'first_response_at', 'resolution_due_at', 'resolved_at', 'is_sla_breached', 'resolution_notes', 'satisfaction_score', 'escalated_by_id', 'owner_id'],
+  'SlaPolicy': ['id', 'name', 'tier', 'first_response_minutes', 'resolution_hours', 'business_hours_only', 'is_active'],
+  'Activity': ['id', 'activity_type', 'subject', 'description', 'status', 'priority', 'due_at', 'completed_at', 'duration_minutes', 'account_id', 'contact_id', 'lead_id', 'opportunity_id', 'support_case_id', 'contract_id', 'owner_id'],
+};
+
+/** A row as sys_workflow_definitions returns it. */
+interface StoredAutomation {
+  id: string;
+  name: string;
+  entity_name?: string;
+  mermaid_code?: string;
+}
+
+/** A rule as the endpoint returns it, in either casing. */
+interface RuleRow {
+  id: string;
+  ruleName?: string;
+  entityName?: string;
+  jdmContent?: unknown;
+  rule_name?: string;
+  entity_name?: string;
+  jdm_content?: unknown;
+}
+
+interface RuleTableRecord {
+  id: string;
+  name: string;
+  entity: string;
+  table: DecisionTable;
+}
+
+type View =
+  | { kind: 'automation'; id: string }
+  | { kind: 'table'; id: string }
+  | { kind: 'help' };
+
+function AutomationsPage() {
+  const [automations, setAutomations] = useState<Automation[]>([]);
+  const [storedIds, setStoredIds] = useState<Record<string, string>>({});
+  const [tables, setTables] = useState<RuleTableRecord[]>([]);
+  const [view, setView] = useState<View>({ kind: 'help' });
+  const [loading, setLoading] = useState(true);
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [autoTotal, setAutoTotal] = useState(0);
+  const [tableTotal, setTableTotal] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const [autoRes, ruleRes] = await Promise.all([
+          fetch('/api/workflow-definitions?kind=automation&limit=200'),
+          fetch('/api/rules?limit=200'),
+        ]);
+
+        if (cancelled) return;
+
+        // Parse first, then apply. Everything that touches state goes inside
+        // one startTransition below.
+        const autoData = autoRes.ok
+          ? ((await autoRes.json()) as { items?: StoredAutomation[]; total?: number })
+          : null;
+
+        const rulePayload = ruleRes.ok
+          ? ((await ruleRes.json()) as
+              | RuleRow[]
+              | { rules?: RuleRow[]; items?: RuleRow[]; total?: number })
+          : null;
+
+        if (cancelled) return;
+
+        const parsed = (autoData?.items ?? []).map((row) => ({
+          stored: row.id,
+          automation: {
+            ...parseAutomation(row.mermaid_code ?? '', row.entity_name || ENTITIES[0] || 'Record'),
+            name: row.name,
+          },
+        }));
+
+        const ruleRows: RuleRow[] = rulePayload
+          ? Array.isArray(rulePayload)
+            ? rulePayload
+            : (rulePayload.rules ?? rulePayload.items ?? [])
+          : [];
+
+        // The page streams from the server showing "Loading automations…", so
+        // this is the first update while hydration is still in flight. React
+        // treats an urgent update inside a hydrating Suspense boundary as a
+        // reason to discard the server HTML and re-render on the client — the
+        // "received an update before it finished hydrating" warning. Marking it
+        // non-urgent lets hydration finish first.
+        startTransition(() => {
+          if (autoData) {
+            setAutoTotal(autoData.total ?? (autoData.items ?? []).length);
+            setAutomations(parsed.map((p) => p.automation));
+            setStoredIds(Object.fromEntries(parsed.map((p) => [p.automation.id, p.stored])));
+            const first = parsed[0];
+            if (first) setView({ kind: 'automation', id: first.automation.id });
+          }
+
+          if (rulePayload) {
+            setTableTotal(
+              (Array.isArray(rulePayload) ? undefined : rulePayload.total) ?? ruleRows.length
+            );
+            setTables(
+              ruleRows.map((r) => ({
+                id: r.id,
+                name: r.ruleName ?? r.rule_name ?? 'Untitled rule',
+                entity: r.entityName ?? r.entity_name ?? '',
+                table: asDecisionTable(r.jdmContent ?? r.jdm_content),
+              }))
+            );
+          }
+        });
+      } catch (error) {
+        console.error('Failed to load automations:', error);
+      } finally {
+        // This is the update that actually swaps the "Loading automations…"
+        // placeholder for the builder, so it has to be non-urgent too — a
+        // transition around the data alone still leaves this one able to
+        // interrupt hydration.
+        if (!cancelled) startTransition(() => setLoading(false));
+      }
+    };
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const current = useMemo(
+    () => (view.kind === 'automation' ? automations.find((a) => a.id === view.id) : undefined),
+    [view, automations]
+  );
+
+  const currentTable = useMemo(
+    () => (view.kind === 'table' ? tables.find((t) => t.id === view.id) : undefined),
+    [view, tables]
+  );
+
+  const ruleTableSummaries: RuleTableSummary[] = useMemo(
+    () =>
+      tables.map((t) => ({
+        id: t.id,
+        name: t.name,
+        rowCount: t.table.rules.length,
+        outputs: t.table.outputs.map((o) => o.field || o.name),
+      })),
+    [tables]
+  );
+
+  const usersOf = useCallback(
+    (tableName: string) =>
+      automations.flatMap((a) =>
+        a.steps
+          .map((s, i) => ({ s, i }))
+          .filter(({ s }) => s.type === 'Decision' && s.props.ruleTable === tableName)
+          .map(({ i }) => ({ name: a.name, where: `step ${i + 1}` }))
+      ),
+    [automations]
+  );
+
+  const helpExample = useMemo(() => {
+    const entity = ENTITIES[0] ?? 'Record';
+    const fields = ENTITY_FIELDS[entity] ?? [];
+    return {
+      entity,
+      numericField: fields.find((f) => /total|amount|price|qty|count/i.test(f)) ?? fields[0] ?? 'id',
+      relatedEntity: ENTITIES[1] ?? entity,
+    };
+  }, []);
+
+  const updateAutomation = (next: Automation) =>
+    setAutomations((list) => list.map((a) => (a.id === next.id ? next : a)));
+
+  const createAutomation = async () => {
+    const fresh = emptyAutomation(ENTITIES[0] ?? 'Record');
+    setAutomations((list) => [...list, fresh]);
+    setView({ kind: 'automation', id: fresh.id });
+
+    try {
+      const res = await fetch('/api/workflow-definitions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kind: 'automation',
+          name: fresh.name,
+          entityName: fresh.trigger.entity,
+          operation: 'ALL',
+          mermaid: serializeAutomation(fresh),
+        }),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { id?: string; item?: { id: string } };
+        const id = data.id ?? data.item?.id;
+        if (id) setStoredIds((m) => ({ ...m, [fresh.id]: id }));
+      }
+    } catch (error) {
+      console.error('Failed to create automation:', error);
+    }
+  };
+
+  const publish = async (automation: Automation) => {
+    const storedId = storedIds[automation.id];
+    if (!storedId) return;
+
+    setSaveState('saving');
+    try {
+      const res = await fetch(`/api/workflow-definitions/${storedId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: automation.name,
+          entityName: automation.trigger.entity,
+          mermaid: serializeAutomation(automation),
+          isActive: true,
+        }),
+      });
+      setSaveState(res.ok ? 'saved' : 'error');
+      if (res.ok) updateAutomation({ ...automation, status: 'live' });
+    } catch (error) {
+      console.error('Failed to publish automation:', error);
+      setSaveState('error');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-background text-muted-foreground">
+        Loading automations…
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen flex-col bg-background text-foreground">
+      <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-card px-5">
+        <span className="text-[15px] font-bold">crm</span>
+        <span className="text-[13px] text-muted-foreground">
+          Automations ›{' '}
+          <b className="font-semibold text-foreground">
+            {view.kind === 'help'
+              ? 'Help'
+              : view.kind === 'table'
+                ? currentTable?.name ?? 'Rule table'
+                : current?.name ?? 'Automation'}
+          </b>
+        </span>
+        <div className="flex-1" />
+        {saveState === 'saving' ? <span className="text-xs text-muted-foreground">Saving…</span> : null}
+        {saveState === 'saved' ? <span className="text-xs text-emerald-600">Published</span> : null}
+        {saveState === 'error' ? (
+          <span className="text-xs text-red-600">Could not save. Try again.</span>
+        ) : null}
+        <button
+          type="button"
+          onClick={() => setView({ kind: 'help' })}
+          className="rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          ? Help
+        </button>
+      </header>
+
+      <div className="flex min-h-0 flex-1">
+        <nav
+          aria-label="Automations and rule tables"
+          // Scrolls on its own: with a few hundred automations an unscrolled rail
+          // grows the document instead, and selecting one further down takes the
+          // work area off screen with it.
+          className="flex w-[248px] shrink-0 flex-col overflow-y-auto border-r border-border bg-card"
+        >
+          <RailSection
+            heading="Automations"
+            total={autoTotal}
+            items={automations.map((a) => ({
+              id: a.id,
+              title: a.name,
+              subtitle: `${a.trigger.entity || 'no record type'} · ${a.steps.length} step${
+                a.steps.length === 1 ? '' : 's'
+              }`,
+              state:
+                a.status === 'live'
+                  ? ('live' as const)
+                  : validateAutomation(a).length > 0
+                    ? ('draft' as const)
+                    : ('paused' as const),
+            }))}
+            selectedId={view.kind === 'automation' ? view.id : undefined}
+            onSelect={(id) => setView({ kind: 'automation', id })}
+          />
+
+          <RailSection
+            heading="Rule tables"
+            total={tableTotal}
+            items={tables.map((t) => ({
+              id: t.id,
+              title: t.name,
+              subtitle: `${t.table.inputs.length} inputs · ${t.table.rules.length} rows`,
+              state: 'live' as const,
+            }))}
+            selectedId={view.kind === 'table' ? view.id : undefined}
+            onSelect={(id) => setView({ kind: 'table', id })}
+          />
+
+          <div className="mt-auto border-t border-border p-3">
+            <button
+              type="button"
+              onClick={createAutomation}
+              className="w-full rounded-lg border border-border bg-card py-2 text-[13px] font-semibold hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              + New automation
+            </button>
+          </div>
+        </nav>
+
+        {view.kind === 'help' ? (
+          <AutomationHelp
+            example={helpExample}
+            onClose={
+              automations[0]
+                ? () => setView({ kind: 'automation', id: automations[0]!.id })
+                : undefined
+            }
+          />
+        ) : null}
+
+        {/* No onOpenHelp is passed: the header above already offers Help, and
+            two identical controls on one screen is one more decision than needed. */}
+        {view.kind === 'automation' && current ? (
+          <AutomationBuilder
+            automation={current}
+            onChange={updateAutomation}
+            entities={ENTITIES}
+            entityFields={ENTITY_FIELDS}
+            ruleTables={ruleTableSummaries}
+            onOpenRuleTable={(name) => {
+              const table = tables.find((t) => t.name === name);
+              if (table) setView({ kind: 'table', id: table.id });
+            }}
+            onPublish={() => void publish(current)}
+          />
+        ) : null}
+
+        {view.kind === 'table' && currentTable ? (
+          <RuleTableEditor
+            name={currentTable.name}
+            table={currentTable.table}
+            usedBy={usersOf(currentTable.name)}
+            onChange={(table) =>
+              setTables((list) => list.map((t) => (t.id === currentTable.id ? { ...t, table } : t)))
+            }
+          />
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Accept whatever the rules endpoint stored.
+ *
+ * A rule saved as a JDM graph rather than a table opens as an empty table
+ * instead of a guessed conversion — visibly empty beats silently wrong.
+ */
+function asDecisionTable(content: unknown): DecisionTable {
+  if (content && typeof content === 'object') {
+    const c = content as Partial<DecisionTable>;
+    if (Array.isArray(c.inputs) && Array.isArray(c.outputs) && Array.isArray(c.rules)) {
+      return {
+        hitPolicy: c.hitPolicy === 'collect' ? 'collect' : 'first',
+        inputs: c.inputs,
+        outputs: c.outputs,
+        rules: c.rules,
+      };
+    }
+  }
+  return emptyDecisionTable();
+}

@@ -1,0 +1,197 @@
+{
+  "nodes": [
+    {
+      "id": "input",
+      "type": "inputNode",
+      "name": "Input",
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": "bus_territory-validation",
+      "type": "decisionTableNode",
+      "name": "Territory Validation",
+      "position": {
+        "x": 300,
+        "y": 0
+      },
+      "content": {
+        "hitPolicy": "collect",
+        "inputs": [
+          {
+            "id": "iop",
+            "name": "Operation",
+            "field": "_operation"
+          },
+          {
+            "id": "i1",
+            "name": "Name",
+            "field": "name"
+          },
+          {
+            "id": "i2",
+            "name": "Region",
+            "field": "region"
+          },
+          {
+            "id": "i3",
+            "name": "Country Code",
+            "field": "country_code"
+          },
+          {
+            "id": "i4",
+            "name": "Manager Id",
+            "field": "manager_id"
+          },
+          {
+            "id": "i5",
+            "name": "Employee Count Floor",
+            "field": "employee_count_floor"
+          },
+          {
+            "id": "i6",
+            "name": "Employee Count Ceiling",
+            "field": "employee_count_ceiling"
+          },
+          {
+            "id": "i7",
+            "name": "Is Active",
+            "field": "is_active"
+          }
+        ],
+        "outputs": [
+          {
+            "id": "o1",
+            "name": "Action",
+            "field": "action"
+          },
+          {
+            "id": "o2",
+            "name": "Message",
+            "field": "message"
+          },
+          {
+            "id": "o3",
+            "name": "Rule ID",
+            "field": "ruleId"
+          },
+          {
+            "id": "o4",
+            "name": "Workflow Name",
+            "field": "workflowName"
+          },
+          {
+            "id": "o5",
+            "name": "Target Entity",
+            "field": "targetEntity"
+          },
+          {
+            "id": "o6",
+            "name": "Link Field",
+            "field": "linkField"
+          },
+          {
+            "id": "o7",
+            "name": "Update Data",
+            "field": "updateData"
+          },
+          {
+            "id": "o8",
+            "name": "Create Data",
+            "field": "createData"
+          },
+          {
+            "id": "o9",
+            "name": "Transform Data",
+            "field": "transformData"
+          }
+        ],
+        "rules": [
+          {
+            "_id": "bus_territory-name-required",
+            "i1": "name == null",
+            "o1": "'prevent'",
+            "o2": "'Name is required'",
+            "o3": "'bus_territory-name-required'",
+            "o4": "''",
+            "o5": "''",
+            "o6": "''",
+            "o7": "''",
+            "o8": "''",
+            "o9": "''",
+            "iop": "",
+            "i2": "",
+            "i3": "",
+            "i4": "",
+            "i5": "",
+            "i6": "",
+            "i7": ""
+          },
+          {
+            "_id": "bus_territory-region-required",
+            "i2": "region == null",
+            "o1": "'prevent'",
+            "o2": "'Region is required'",
+            "o3": "'bus_territory-region-required'",
+            "o4": "''",
+            "o5": "''",
+            "o6": "''",
+            "o7": "''",
+            "o8": "''",
+            "o9": "''",
+            "iop": "",
+            "i1": "",
+            "i3": "",
+            "i4": "",
+            "i5": "",
+            "i6": "",
+            "i7": ""
+          },
+          {
+            "_id": "bus_territory-is_active-required",
+            "i7": "is_active == null",
+            "o1": "'prevent'",
+            "o2": "'Is Active is required'",
+            "o3": "'bus_territory-is_active-required'",
+            "o4": "''",
+            "o5": "''",
+            "o6": "''",
+            "o7": "''",
+            "o8": "''",
+            "o9": "''",
+            "iop": "",
+            "i1": "",
+            "i2": "",
+            "i3": "",
+            "i4": "",
+            "i5": "",
+            "i6": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "output",
+      "type": "outputNode",
+      "name": "Output",
+      "position": {
+        "x": 600,
+        "y": 0
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "sourceId": "input",
+      "targetId": "bus_territory-validation"
+    },
+    {
+      "id": "e2",
+      "sourceId": "bus_territory-validation",
+      "targetId": "output"
+    }
+  ]
+}

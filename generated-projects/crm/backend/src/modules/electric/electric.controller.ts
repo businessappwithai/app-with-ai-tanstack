@@ -1,0 +1,108 @@
+/**
+ * Electric Shape Proxy Controller
+ *
+ * Proxies ElectricSQL shape requests to the upstream Electric server.
+ * Only sys_ tables are permitted. The `role` query param (forwarded by
+ * the client) is used to inject a per-role WHERE clause so each client
+ * only receives the sys_ rows its role is allowed to see.
+ *
+ * Clients: GET /v1/shape?table=sys_table&role=admin&...
+ * Upstream: GET ELECTRIC_URL/v1/shape?table=sys_table&where=<role-clause>&...
+ *
+ * Generated: 2026-08-17T16:41:43.480Z
+ * Project: crm
+ */
+
+import {
+  Controller,
+  Get,
+  Query,
+  Req,
+  Res,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import type { FastifyRequest, FastifyReply } from 'fastify';
+
+const ALLOWED_SYS_TABLES = new Set([
+  'sys_table',
+  'sys_column',
+  'sys_field',
+  'sys_reference',
+  'sys_window',
+]);
+
+const ELECTRIC_UPSTREAM = process.env.ELECTRIC_URL ?? null;
+
+/** Map a role string to a Postgres WHERE clause applied to every sys_ shape. */
+function roleWhereClause(role: string): string {
+  // Admins see everything; all other roles only see active, non-admin rows.
+  if (role === 'admin' || role === 'superuser') {
+    return `is_active = true`;
+  }
+  return `is_active = true AND (allowed_roles IS NULL OR allowed_roles @> ARRAY['${role}']::text[])`;
+}
+
+@ApiTags('electric')
+@Controller('v1/shape')
+export class ElectricController {
+  private readonly logger = new Logger(ElectricController.name);
+
+  @Get()
+  @ApiOperation({ summary: 'Role-scoped Electric shape proxy for sys_ tables' })
+  async proxyShape(
+    @Query() query: Record<string, string>,
+    @Req() req: FastifyRequest,
+    @Res() res: FastifyReply,
+  ) {
+    const table = query['table'];
+    const role  = query['role'] ?? 'user';
+
+    if (!ELECTRIC_UPSTREAM) {
+      throw new HttpException(
+        'Electric upstream not configured (set ELECTRIC_URL env var); client should use HTTP API fallback',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+
+    if (!table || !ALLOWED_SYS_TABLES.has(table)) {
+      throw new HttpException(
+        `Table '${table}' is not accessible via the Electric proxy`,
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    // Strip the `role` param before forwarding; replace with server-generated WHERE
+    const upstreamParams = new URLSearchParams(query);
+    upstreamParams.delete('role');
+    upstreamParams.set('where', roleWhereClause(role));
+
+    const upstreamUrl = `${ELECTRIC_UPSTREAM}/v1/shape?${upstreamParams.toString()}`;
+    this.logger.debug(`Electric proxy [role=${role}]: ${upstreamUrl}`);
+
+    try {
+      const upstream = await fetch(upstreamUrl, {
+        headers: {
+          Accept: req.headers['accept'] ?? 'application/json',
+          'Cache-Control': 'no-cache',
+          // Forward auth token to upstream Electric if present
+          ...(req.headers['authorization']
+            ? { Authorization: req.headers['authorization'] as string }
+            : {}),
+        },
+      });
+
+      const headers: Record<string, string> = {};
+      upstream.headers.forEach((value, key) => { headers[key] = value; });
+      headers['Access-Control-Allow-Origin'] = '*';
+
+      const body = await upstream.arrayBuffer();
+      res.status(upstream.status).headers(headers).send(Buffer.from(body));
+    } catch (err) {
+      this.logger.error('Electric proxy error', err);
+      throw new HttpException('Electric upstream unavailable', HttpStatus.BAD_GATEWAY);
+    }
+  }
+}

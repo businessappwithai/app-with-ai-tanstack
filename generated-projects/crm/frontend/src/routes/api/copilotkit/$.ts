@@ -1,0 +1,25 @@
+/**
+ * The assistant's sub-paths.
+ *
+ * The runtime itself lives in src/lib/copilot-runtime.ts, and the address the
+ * client actually posts to — /api/copilotkit, with nothing after it — is served
+ * by ../$.ts, because a splat route cannot match an empty tail. This file
+ * exists for the sub-paths, which the router matches here first by virtue of
+ * having more segments; it hands them to the same runtime.
+ *
+ * Generated: 2026-08-17T16:41:43.709Z
+ * Project: crm
+ */
+
+import { createAPIFileRoute } from '@tanstack/start/api'
+// Relative rather than the `@/` alias — see the note in ../$.ts.
+import { handleCopilotRequest } from '../../../lib/copilot-runtime'
+
+const route = createAPIFileRoute('/api/copilotkit/$')({
+  GET: async ({ request }: { request: Request }) => handleCopilotRequest(request),
+  POST: async ({ request }: { request: Request }) => handleCopilotRequest(request),
+})
+
+// Both names, on purpose — see the note in ../$.ts.
+export const APIRoute = route
+export const Route = route

@@ -1,0 +1,2 @@
+Certificates placed here are trusted while the image builds.
+Needed only behind a TLS-intercepting proxy. See the Dockerfile.
