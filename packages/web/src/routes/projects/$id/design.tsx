@@ -87,7 +87,8 @@ function DesignPage() {
   }, [projectId, loadProject]);
 
   const [erdCode, setErdCode] = useState("");
-  const [_validationErrors, setValidationErrors] = useState<string[]>([]);
+  // null = never validated in this session; [] = last run was clean.
+  const [validationErrors, setValidationErrors] = useState<string[] | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [aiInput, setAiInput] = useState("");
@@ -680,9 +681,9 @@ function DesignPage() {
       await mermaid.render(id, toRenderableMermaid(erdCode));
       setValidationErrors([]);
     } catch (error) {
-      if (error instanceof Error) {
-        setValidationErrors([error.message]);
-      }
+      setValidationErrors([
+        error instanceof Error ? error.message : "The diagram could not be parsed.",
+      ]);
     } finally {
       setIsValidating(false);
     }
@@ -1627,6 +1628,35 @@ function DesignPage() {
                     <span>{entities.length} entities</span>
                   </div>
                 </div>
+                {validationErrors !== null && (
+                  <div
+                    className={`mb-4 rounded-xl border px-4 py-3 text-sm ${
+                      validationErrors.length === 0
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200"
+                        : "border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200"
+                    }`}
+                    role="status"
+                  >
+                    {validationErrors.length === 0 ? (
+                      <span className="flex items-center gap-2 font-medium">
+                        <CheckCircle2 className="w-4 h-4" />
+                        Diagram is valid — {entities.length} entities parsed.
+                      </span>
+                    ) : (
+                      <>
+                        <span className="flex items-center gap-2 font-medium">
+                          <AlertCircle className="w-4 h-4" />
+                          The diagram could not be parsed.
+                        </span>
+                        <ul className="mt-2 space-y-1 font-mono text-xs whitespace-pre-wrap">
+                          {validationErrors.map((message) => (
+                            <li key={message}>{message}</li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  </div>
+                )}
                 <div className="relative">
                   <div className="flex h-[calc(100vh-320px)] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
                     <div
