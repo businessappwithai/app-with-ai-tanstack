@@ -12,9 +12,9 @@
 | | Count |
 |---|---|
 | Issues found | 7 |
-| Fixed and verified | 4 |
+| Fixed and verified | 7 |
 | Feature added | 1 |
-| Deferred / documented | 3 |
+| Deferred | 0 |
 
 Health: the generated application starts, migrates, seeds and serves all 17
 entities. The model's rules, state machines and sagas all reach the running
@@ -105,30 +105,38 @@ an administrator's edit survives re-seeding); `getWindowHelp` falls back from
 `sys_table` to `sys_window.name`; the dialog takes a `windowName`. Also drops a
 hardcoded `clinic-app` from the Business Rules footer.
 
+## Fixed in the second round
+
+### ISSUE-005 — `%%field … enum:` now reaches the generated forms (medium) — `7ad3f0b`
+
+The frontend half already existed: `dynamic-form` renders any
+`sys_reference_id` at or above 1000 as a dropdown fed by `/sys/ref-list`, and
+`field-schema` labels it "Dropdown". Nothing ever created those references, so
+the branch was dead code waiting for a producer. The parser now reads `%%enum`
+and the `%%field … enum:` bindings, allocates a reference id per enum from 1000
+up, and the references seed writes one `sys_reference` (validation type L) plus
+its `sys_ref_list` values. 26 references, 143 values; Status, Rating and Lead
+Source render as selects carrying exactly the modelled values.
+
+### ISSUE-006 — View on a model workflow opens that workflow (medium) — `e350ff4`
+
+It sent every row to the builder's rail at `/admin/automations`, which lists
+nothing a model declared, so View landed on "None yet" while the screen showing
+the trigger, rule gates and steps was reachable only by typing its URL.
+
+### ISSUE-007 — dictionary grids resolve their references (low) — `e350ff4`
+
+A grid resolved a reference only when the field named the table behind it. The
+dictionary's own fields name the endpoint instead, so they were filtered out of
+the lookup pass and printed raw UUIDs — on screens telling the user to "choose
+the linked record from the lookup". Window → Opportunity → Tab now shows
+`Opportunity`.
+
 ## Deferred
 
-### ISSUE-005 — `%%field … enum:` does not reach the generated UI (medium)
+Nothing outstanding from the seven findings — all are fixed.
 
-The model declares 26 enums and binds 28 fields to them. Generated forms render
-those fields as free-text boxes, so `status` accepts any string the state
-machine cannot act on. This matches the language's own conformance table
-(`%%field` is listed as extended, not shipped), so it is a feature gap rather
-than a regression — but it is the largest gap between what the model says and
-what the application enforces.
-
-### ISSUE-006 — "View" on a model workflow lands on an empty page (medium)
-
-From Workflow Designer, View navigates to `/admin/automations`, which reports
-"None yet" because model-declared workflows are not automations. The spec says
-model workflows open read-only in the builder; today they do not.
-
-### ISSUE-007 — reference columns render as raw UUIDs in dictionary grids (low)
-
-Window → Tab shows `Table` as `c3bb17e9-a4dd-43c0-…` instead of the table's
-name. Business entity grids resolve their lookups correctly, so this is scoped
-to the dictionary's own screens.
-
-Also noted, not filed: `GET /api/me/permissions` 401s once on load and succeeds
+Noted, not filed: `GET /api/me/permissions` 401s once on load and succeeds
 on retry, logging "Session expired. Please sign in again." to the console
 before recovering.
 
