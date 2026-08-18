@@ -297,6 +297,7 @@ src/
 ├── rules/                     # flowchart-parser + jdm-converter → CompiledRule
 ├── workflows/                 # state machines (index.ts) + sagas (steps.ts)
 ├── hooks/                     # %%hook → CompiledHook
+├── rbac/                      # %%rbac → CRUD + transition access rules
 ├── parsers/                   # mermaid.parser, category.parser, language-maps
 ├── generators/
 │   ├── base.generator.ts, full-stack.generator.ts (StackOption), orchestrator.ts
@@ -618,15 +619,48 @@ directives; otherwise it is a **workflow**.
 **Directives** declared in `erdwithai-language.json`: `%%meta %%entity %%field
 %%enum %%index %%category %%rbac %%hook %%rule %%guard %%trigger %%workflow
 %%step %%action %%loop`. The generator pipeline compiles
-`%%rule` (→ JDM), `%%hook` (→ lifecycle handlers), `%%workflow kind: state`
-(→ status machines), `%%workflow kind: saga` (→ multi-step processes),
-`%%category` (→ entity grouping) and `%%enum`/`%%field` (→ bound enums).
-See `spec/05-directives.md`.
+`%%rule` (→ JDM), `%%action` (→ JDM decision table), `%%hook` (→ lifecycle
+handlers), `%%workflow kind: state` (→ status machines), `%%workflow kind: saga`
+(→ multi-step processes), `%%category` (→ entity grouping), `%%enum`/`%%field`
+(→ bound enums) and `%%rbac` (→ access rules). Each directive carries a
+machine-readable `status` — `compiled`, `validated` or `reserved` — in the JSON;
+**check it before promising a directive does anything.** See
+`spec/05-directives.md`.
+
+### `%%rbac` — access control
+
+`%%rbac <roleExpr> on <Entity>.<op>` **restricts**; it does not grant. A target
+no directive names is open to any authenticated caller, so a model declaring
+none generates exactly what it did before. `<op>` is a CRUD operation
+(`create`/`read`/`update`/`delete`/`*`) **or** a transition event in the
+entity's state machine.
+
+```
+%%rbac role:admin on Order.delete            # CRUD
+%%rbac role:sales_manager on Quote.approve   # a transition of Quote's machine
+```
+
+Compiled by `packages/generator/src/rbac/index.ts` into `sys_operation_access`
+and `sys_transition_access`, enforced by the generated `EntityAccessGuard` on
+the `/bus` routes. Role names match case-insensitively; a master role bypasses.
+
+Two things to know before touching it:
+
+- **It deliberately does not write `sys_access`.** That is a grant table feeding
+  `sys_refresh_dictionary_scope()`, where the first row added narrows a window
+  to one role — a restriction on *deleting* would become a restriction on
+  *looking*.
+- **Transitions have no endpoint of their own.** Moving a record along an edge
+  is an ordinary status update, so a rule stores the `(from_state, to_state)`
+  pair and the guard matches on the states the write crosses. Both ends are kept
+  because one event can sit on several edges.
 
 **Validation loop** (checker → fixer → recheck):
 ```bash
 bun language/checker.ts examples/crm.eml.mmd          # writes crm.eml.mmd.error
 bun language/fixer.ts   examples/crm.eml.mmd.error    # auto-fixes EML001/114/117/421/422
+# %%rbac problems are errors, not warnings: EML210 syntax, EML211 no role,
+# EML213 unknown entity, EML214 target is neither an operation nor a transition.
 ```
 
 When changing language semantics, update `erdwithai-language.json` **first**, then
@@ -1042,6 +1076,7 @@ Secrets: `NEON_DATABASE_URL`, `EML_PUBLISH_TOKEN` (needs `repo` **and**
 | `packages/core/src/hooks/hook-executor.ts` | `globalHookExecutor` |
 | `packages/core/src/rules/rules-engine.service.ts` | GoRules evaluation |
 | `packages/generator/src/pipeline/generate-application.ts` | ⭐ The one generation path |
+| `packages/generator/src/rbac/index.ts` | `%%rbac` → operation + transition access rules |
 | `packages/generator/src/cli/generate.ts` | Generator CLI |
 | `packages/generator/src/generators/ports.ts` | Generated-app default ports |
 | `packages/generator/templates/tanstack-start-nestjs/` | Stack templates |
@@ -1104,6 +1139,15 @@ Secrets: `NEON_DATABASE_URL`, `EML_PUBLISH_TOKEN` (needs `repo` **and**
 Add it once in `packages/generator/src/pipeline/generate-application.ts`
 (`GenerationSettings`). Do **not** assemble options separately in the CLI or in
 `/api/generate` — that drift is what lost `%%category` on the web path.
+
+### Change what `%%rbac` enforces
+
+1. `packages/generator/src/rbac/index.ts` — the compiler and its tests
+2. `templates/tanstack-start-nestjs/backend/src/migrations/011_add_operation_access.ts.hbs` — the two tables
+3. `templates/common/seeds/operation-access.ts.hbs` — the seed
+4. `templates/.../auth/guards/entity-access.guard.ts.hbs` — enforcement
+5. Generate an app, migrate, and exercise the routes — a guard that compiles
+   proves nothing about whether it refuses the right callers
 
 ### Extend the EML language
 

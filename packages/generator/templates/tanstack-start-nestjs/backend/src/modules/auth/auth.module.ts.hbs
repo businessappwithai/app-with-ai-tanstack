@@ -7,6 +7,7 @@
  * This module provides guards for protecting other routes:
  * - SessionAuthGuard: validates session cookies against better-auth
  * - RolesGuard: checks user roles for authorization
+ * - EntityAccessGuard: enforces the model's %%rbac directives on /bus CRUD
  *
  * Generated: {{now}}
  */
@@ -15,6 +16,7 @@ import { Module } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { SessionAuthGuard } from './guards/session-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
+import { EntityAccessGuard } from './guards/entity-access.guard';
 import { AuthController } from './auth.controller';
 import { DatabaseModule } from '../../database/database.module';
 
@@ -25,7 +27,8 @@ import { DatabaseModule } from '../../database/database.module';
     Reflector,
     SessionAuthGuard,
     RolesGuard,
+    EntityAccessGuard,
   ],
-  exports: [SessionAuthGuard, RolesGuard, DatabaseModule],
+  exports: [SessionAuthGuard, RolesGuard, EntityAccessGuard, DatabaseModule],
 })
 export class AuthModule {}

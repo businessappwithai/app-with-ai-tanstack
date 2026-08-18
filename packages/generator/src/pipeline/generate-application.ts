@@ -24,6 +24,7 @@ import {
 import { type CompiledHook, compileHooks } from "../hooks";
 import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
 import { MermaidParser } from "../parsers/mermaid.parser";
+import { type CompiledRbac, compileRbac } from "../rbac";
 import { type CompiledRule, compileRules } from "../rules";
 import {
   type CompiledSaga,
@@ -47,6 +48,8 @@ export interface ParsedModel {
   workflows: CompiledWorkflow[];
   /** Multi-step processes declared by the model's `%%workflow ... kind: saga` sections. */
   sagas: CompiledSaga[];
+  /** Role restrictions declared by `%%rbac`: CRUD operations and state transitions. */
+  rbac: CompiledRbac;
 }
 
 export interface GenerationSettings {
@@ -167,7 +170,19 @@ export function parseModel(sources: string | string[]): ParsedModel {
     warn
   );
 
-  return { entities, relationships, categories, enums, rules, hooks, workflows, sagas };
+  // `%%rbac` directives restrict CRUD operations and state transitions to named
+  // roles. A target with no directive stays open, so a model that says nothing
+  // about permissions generates exactly what it did before. The state machines
+  // are passed in because a directive may name a transition rather than an
+  // operation, and only they can resolve it.
+  const rbac = compileRbac(
+    joined,
+    entities.map((entity) => entity.name),
+    workflows,
+    warn
+  );
+
+  return { entities, relationships, categories, enums, rules, hooks, workflows, sagas, rbac };
 }
 
 /** Read model sources from disk, skipping any that are absent. */
@@ -232,6 +247,7 @@ export function buildGeneratorOptions(
     compiledHooks: model.hooks,
     compiledWorkflows: model.workflows,
     compiledSagas: model.sagas,
+    compiledRbac: model.rbac,
   };
 }
 
@@ -276,6 +292,14 @@ export async function writeManifest(
           sagas: model.sagas.map(
             (s) => `${s.name} on ${s.entity} (${s.steps.length} steps, ${s.trigger})`
           ),
+          rbac: [
+            ...model.rbac.operations.map(
+              (r) => `${r.entity}.${r.operation} -> ${r.roles.join("|")}`
+            ),
+            ...model.rbac.transitions.map(
+              (r) => `${r.entity}.${r.transition} (transition) -> ${r.roles.join("|")}`
+            ),
+          ],
           packageManager: extras.packageManager,
           generatedAt: new Date().toISOString(),
         },

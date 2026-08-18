@@ -13,6 +13,7 @@ import * as path from "node:path";
 import type { Entity, EntityEnum, Relationship } from "@erdwithai/core/types";
 import type { CompiledHook } from "../hooks";
 import type { EntityCategory } from "../parsers/category.parser";
+import type { CompiledRbac } from "../rbac";
 import type { CompiledRule } from "../rules";
 import type { CompiledSaga, CompiledWorkflow } from "../workflows";
 import { DEFAULT_FRONTEND_PORT } from "./ports";
@@ -79,6 +80,11 @@ export interface FullStackGeneratorOptions {
   compiledWorkflows?: CompiledWorkflow[];
   /** Multi-step processes compiled from the model's `kind: saga` workflows. */
   compiledSagas?: CompiledSaga[];
+  /**
+   * Role restrictions from the model's `%%rbac` directives — CRUD operations
+   * and state transitions. Seeded and enforced by the generated guard.
+   */
+  compiledRbac?: CompiledRbac;
   /** Records the bulk-seed suite creates per entity (default 1000). */
   recordsPerEntity?: number;
 }
@@ -155,6 +161,7 @@ export class FullStackGenerator {
       compiledHooks: this.options.compiledHooks,
       compiledWorkflows: this.options.compiledWorkflows,
       compiledSagas: this.options.compiledSagas,
+      compiledRbac: this.options.compiledRbac,
       ...aiConfig,
       ...this.options.tanstackStartNestjs?.backend,
     };

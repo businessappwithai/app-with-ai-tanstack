@@ -1,6 +1,6 @@
 # EML Overview
 
-**ERDwithAI Modeling Language (EML)**, version 1.1.0 — a Mermaid-based language
+**ERDwithAI Modeling Language (EML)**, version 1.2.0 — a Mermaid-based language
 for describing an application's data model, business rules, and business
 workflows as one artifact.
 
@@ -46,8 +46,7 @@ A single file may hold several sections separated by blank lines.
   generated application changes as a result. Three (`%%entity`, `%%rule`,
   `%%trigger`) are **validated**: nothing compiles them yet, but `checker.ts`
   enforces their syntax so a malformed one fails validation rather than being
-  silently dropped. One (`%%rbac`) is **reserved**: legal, renderer-safe, and
-  inert.
+  silently dropped.
 
   Each directive carries its own `status` in `erdwithai-language.json`, which is
   authoritative. See [`05-directives.md`](05-directives.md) for the reference.
@@ -79,6 +78,7 @@ Rules section        → flowchart-parser    → jdm-converter              → 
 Workflow, hook form  → compileHooks        → handler modules + registry → service lifecycle wiring
 Workflow, state form → compileWorkflows    → BPMN                       → sys_workflow_definitions, status machine
 Workflow, saga form  → compileSagaWorkflows→ one serviceTask per %%step → sys_workflow_definitions (source: model)
+%%rbac               → compileRbac         → operation + transition rules → sys_operation_access / sys_transition_access
 Whole document       → rag.ts              → retrieval chunks           → pgvector model_context index
 ```
 
@@ -91,6 +91,7 @@ what a generated application contains:
 - `packages/generator/src/rules/` — `flowchart-parser.ts`, `jdm-converter.ts`, `index.ts` (`%%action`)
 - `packages/generator/src/hooks/index.ts` — `%%hook`, handler form
 - `packages/generator/src/workflows/` — `index.ts` (state, saga), `steps.ts` (`%%step`, `%%loop`)
+- `packages/generator/src/rbac/index.ts` — `%%rbac`, both the CRUD and transition forms
 
 The web app keeps its own parsers for the editors — they run in the browser and
 cannot import the generator. They read the same syntax but do not decide what is

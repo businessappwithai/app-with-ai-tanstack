@@ -27,6 +27,7 @@ import {
 } from "@erdwithai/core/types";
 import { type CompiledHook, HOOK_CONTRACTS, hooksByEntity } from "../../hooks";
 import type { EntityCategory } from "../../parsers/category.parser";
+import { type CompiledRbac, hasRbacRules, rbacRoleNames } from "../../rbac";
 import type { CompiledRule } from "../../rules";
 import { CliExecutor } from "../../utils/cli-executor";
 import {
@@ -151,6 +152,8 @@ export interface NestJsBackendOptions {
   compiledWorkflows?: CompiledWorkflow[];
   /** Multi-step processes compiled from the model's `kind: saga` workflows. */
   compiledSagas?: CompiledSaga[];
+  /** Role restrictions from `%%rbac` — operations and transitions. */
+  compiledRbac?: CompiledRbac;
 }
 
 export class NestJsBackendGenerator extends BaseGenerator {
@@ -346,6 +349,10 @@ export class NestJsBackendGenerator extends BaseGenerator {
       }));
     });
 
+    // `%%rbac` restrictions. Resolved here rather than in the template so the
+    // transition rules can be paired with the status column each machine drives.
+    const rbac = this.options.compiledRbac ?? { operations: [], transitions: [] };
+
     // Detect current database user (for PostgreSQL)
     const dbUser =
       this.options.databaseType === "postgresql"
@@ -386,8 +393,38 @@ export class NestJsBackendGenerator extends BaseGenerator {
         // rather than trusting a template helper to do it.
         jdmContentEscaped: jsQuote(rule.jdmContent),
       })),
+      // `%%rbac` restrictions. `rbacRoles` is the distinct set the seed creates
+      // in sys_role first, so a rule naming a role the model never listed under
+      // a user still resolves instead of pointing at nothing.
+      compiledRbac: rbac.operations,
+      compiledRbacTransitions: rbac.transitions.map((rule) => ({
+        ...rule,
+        // The status column the machine drives. Mirrors the resolution in the
+        // workflow-definitions seed, which is what puts a record into a state
+        // in the first place.
+        statusField: this.statusFieldFor(rule.tableName, busEntities),
+      })),
+      rbacRoles: rbacRoleNames(rbac),
+      hasRbac: hasRbacRules(rbac),
       now: new Date().toISOString(),
     };
+  }
+
+  /**
+   * The column a state machine drives for a table.
+   *
+   * Repeats the rule used when seeding the workflow definitions — `status` when
+   * the model gave the entity one, `workflow_status` otherwise — because a
+   * transition rule has to name the same column the transition writes. Reading
+   * a different one would make every transition restriction inert.
+   */
+  private statusFieldFor(
+    tableName: string,
+    busEntities: Array<{ tableName: string; attributes?: Array<{ columnName?: string; name?: string }> }>
+  ): string {
+    const entity = busEntities.find((candidate) => candidate.tableName === tableName);
+    const columns = (entity?.attributes ?? []).map((a) => a.columnName ?? a.name);
+    return columns.includes("status") ? "status" : "workflow_status";
   }
 
   /**
@@ -550,6 +587,23 @@ export class NestJsBackendGenerator extends BaseGenerator {
       );
     } catch (e) {
       console.warn("Roles guard template not found");
+    }
+
+    // Entity access guard — enforces the model's %%rbac rules on /bus CRUD.
+    // Always emitted, not gated on the model declaring any: BusController
+    // references it unconditionally, so a model with no %%rbac would otherwise
+    // generate a backend that does not compile.
+    try {
+      const entityAccessGuardContent = await this.renderTemplate(
+        "src/modules/auth/guards/entity-access.guard.ts.hbs",
+        context
+      );
+      await fs.writeFile(
+        path.join(outputDir, "src/modules/auth/guards/entity-access.guard.ts"),
+        entityAccessGuardContent
+      );
+    } catch (e) {
+      console.warn("Entity access guard template not found");
     }
 
     // Auth controller and module
@@ -1282,6 +1336,14 @@ export async function executeCustomValidateHooks(
         slug: "add_dictionary_role_scope",
         template: "src/migrations/009_add_dictionary_role_scope.ts.hbs",
       },
+      // sys_operation_access — what `%%rbac` compiles to. Deliberately separate
+      // from sys_access, which is a grant table feeding the dictionary scope:
+      // a row there narrows which roles may see a window, which is not what a
+      // restriction on deleting means.
+      {
+        slug: "add_operation_access",
+        template: "src/migrations/011_add_operation_access.ts.hbs",
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This
@@ -1365,6 +1427,22 @@ export async function executeCustomValidateHooks(
       await fs.writeFile(path.join(outputDir, "seeds/04_business_rules.ts"), businessRulesContent);
     } catch (e) {
       console.warn("Business rules seed template failed, skipping:", (e as Error).message);
+    }
+
+    // Seed the model's %%rbac rules into sys_operation_access. Numbered 04b so
+    // it runs with the other model-declared policy; it creates any role the
+    // directives name that the users seed did not.
+    try {
+      const operationAccessContent = await this.renderTemplate(
+        "../../common/seeds/operation-access.ts.hbs",
+        context
+      );
+      await fs.writeFile(
+        path.join(outputDir, "seeds/04b_operation_access.ts"),
+        operationAccessContent
+      );
+    } catch (e) {
+      console.warn("Operation access seed template failed, skipping:", (e as Error).message);
     }
 
     // Seed workflow definitions. Runs after 04 because the trigger rules seeded

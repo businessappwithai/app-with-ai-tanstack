@@ -21,6 +21,7 @@ import { compileHooks } from "../hooks";
 import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
 import { MermaidParser } from "../parsers/mermaid.parser";
 import { generateApplication, readModelSources } from "../pipeline";
+import { compileRbac } from "../rbac";
 import { compileRules } from "../rules";
 import { compileSagaWorkflows, compileWorkflows } from "../workflows";
 
@@ -503,6 +504,15 @@ program
         allEntities.map((entity) => entity.name),
         warn
       );
+      // `%%rbac` directives close CRUD operations and state transitions to named
+      // roles. A target no directive mentions stays open. The state machines go
+      // in because a directive may name a transition rather than an operation.
+      const compiledRbac = compileRbac(
+        ruleSources.join("\n"),
+        allEntities.map((entity) => entity.name),
+        compiledWorkflows,
+        warn
+      );
 
       // ── Entity summary ──────────────────────────────────────────────────
       if (!quiet) {
@@ -621,6 +631,7 @@ program
           hooks: compiledHooks,
           workflows: compiledWorkflows,
           sagas: compiledSagas,
+          rbac: compiledRbac,
         },
         stackOption,
         projectName: options.name,

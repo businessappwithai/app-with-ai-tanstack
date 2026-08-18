@@ -8,7 +8,7 @@
 > (nine chapters, every screenshot from the CRM described in §9. The material
 > is inlined here in §9 so you do not need to fetch it.)
 
-- **Spec version**: 1.1.0 · **Project version**: 5.1.x · **Updated**: 2026-08-18
+- **Spec version**: 1.2.0 · **Project version**: 5.1.x · **Updated**: 2026-08-18
 - **Authority**: `language/erdwithai-language.json`. When this file and that
   file disagree, that file wins. When that file and a shipped compiler
   disagree, the compiler wins and the definition is the bug.
@@ -190,14 +190,64 @@ it. **reserved** = documented, renderer-safe, inert.
 | `%%guard` | `%%guard <field> <operator> <jsonValue>` | compiled | `web/src/lib/automation/model.ts` |
 | `%%loop` | `%%loop <id> while: <f> <op> <v> max: <n>` | compiled | `workflows/steps.ts` |
 | `%%workflow` | `%%workflow <Name> entity: <E> kind: <hook\|state\|saga>` | compiled | `generator/src/workflows/index.ts` |
+| `%%rbac` | `%%rbac <roleExpr> on <E>.<op>` | compiled | `generator/src/rbac/index.ts` |
 | `%%entity` | `%%entity <E> <k>: <v>` | validated | `language/checker.ts` |
 | `%%rule` | `%%rule <name> on <E> event: <hook> priority: <n>` | validated | `language/checker.ts` |
 | `%%trigger` | `%%trigger <source> -> <handler> on <E>` | validated | `language/checker.ts` |
-| `%%rbac` | `%%rbac <roleExpr> on <E>.<op>` | reserved | — |
 
 **Do not tell a user a directive "will do X" without checking its status.** A
 `%%entity Order audited: true` is validated but not compiled: it will not make
 the table audited today.
+
+### 3.2.1 `%%rbac` — access control
+
+```
+%%rbac role:admin on Order.delete            # a CRUD operation
+%%rbac role:sales|manager on Deal.update     # `|` is OR
+%%rbac role:admin on Customer.*              # all four operations
+%%rbac role:sales_manager on Quote.approve   # a transition of Quote's machine
+```
+
+**It restricts; it does not grant.** A target no directive names is open to any
+authenticated caller — so a model declaring no `%%rbac` generates exactly the
+application it did before. One or more directives close the target to the union
+of the roles they name. A master role bypasses. Role names match
+**case-insensitively**, because seeded roles are title-cased (`Manager`) and
+directives are written lower-case (`role:manager`); an exact match would make
+such a rule unsatisfiable, locking out the people it was written to admit.
+
+`<op>` is a CRUD operation (`create` `read` `update` `delete` `*`, plus aliases)
+**or** a transition event from the entity's `stateDiagram-v2`.
+
+| | |
+|---|---|
+| CRUD rules → | `sys_operation_access` (table, operation, role) |
+| Transition rules → | `sys_transition_access` (table, transition, status field, from, to, role) |
+| Enforced by | `EntityAccessGuard` on the generated `/bus` routes |
+
+Two design facts that answer most questions about it:
+
+1. **It does not write `sys_access`.** That is a *grant* table feeding
+   `sys_refresh_dictionary_scope()`, where a table with no rows is visible to
+   all roles and the first row added narrows it to that role alone. Seeding one
+   from `%%rbac role:admin on Order.delete` would hide the Order *window* from
+   everyone but admin — a restriction on deleting quietly becoming a restriction
+   on looking.
+2. **A transition has no endpoint of its own.** Moving a record along an edge is
+   an ordinary status update, so a rule stores the `(from_state, to_state)` pair
+   and the guard matches on the states the write crosses. Both ends are kept:
+   one event can sit on several edges, and two events can reach the same state,
+   so matching the destination alone would restrict writes the model never
+   mentioned.
+
+Rules carry `entity_type = 'D'` and are replaced on regeneration; rules an
+administrator adds in the running app are `'U'` and survive.
+
+Validation is strict here — `EML210` syntax, `EML211` no role, `EML213`
+undeclared entity, `EML214` target is neither an operation nor a transition —
+and all but one are **errors**, because a `%%rbac` rule that does not compile is
+not a rule that does nothing: it is an access restriction its author believes is
+in place and is not.
 
 ### 3.3 ERD section
 
@@ -394,6 +444,7 @@ for client components with a unit test asserting they stay equal.
 | `%%hook` | `hooks/index.ts` | handler modules + registry around every CRUD op |
 | `stateDiagram-v2` | `workflows/index.ts` | BPMN → `sys_workflow_definitions` |
 | `kind: saga` + `%%step` | `workflows/steps.ts` | one `bpmn:serviceTask` per step |
+| `%%rbac` | `rbac/index.ts` | `sys_operation_access` + `sys_transition_access`, enforced by `EntityAccessGuard` |
 | whole document | `language/rag.ts` | retrieval chunks → pgvector `model_context` |
 
 ### 4.3 Templates — 270 Handlebars files
@@ -401,11 +452,15 @@ for client components with a unit test asserting they stay equal.
 ```
 packages/generator/templates/
 ├── common/                        27 .hbs — stack-independent
-│   ├── migrations/                bus-tables, sys-tables, rbac-tables, field-groups
+│   ├── migrations/                bus-tables, sys-tables, field-groups
 │   ├── seeds/                     sys-dictionary, sys-references, business-rules,
 │   │                              business-data, entity-categories, users-and-roles
 │   ├── hooks/                     hook-executor, hook-registry, hook.types
-│   ├── services/                  rbac.service, field-cache.service
+│   ├── services/                  field-cache.service
+│   │                              (rbac-tables.ts.hbs and rbac.service.ts.hbs sit
+│   │                               in this folder but are dead: not registered in
+│   │                               the loader, never emitted, and written for Knex
+│   │                               while the generated app uses Kysely)
 │   └── ai/                        data-query-agent, insights-agent, sql-validator
 └── tanstack-start-nestjs/
     ├── backend/    148 .hbs — modules: ai, audit, auth, bus, electric, hooks,
@@ -459,7 +514,8 @@ data.
 | `sys_table`, `sys_column` | every table and column: type, length, mandatory, unique, FK target |
 | `sys_window`, `sys_tab`, `sys_field`, `sys_field_group` | how each entity is presented |
 | `sys_element`, `sys_reference`, `sys_ref_list`, `sys_ref_table` | shared labels and lookups |
-| `sys_role`, `sys_user`, `sys_user_role(s)`, `sys_access`, `sys_role_table_access`, `sys_role_field_access` | RBAC |
+| `sys_role`, `sys_user`, `sys_user_roles`, `sys_access` | roles, users, and which windows a role may open |
+| `sys_operation_access`, `sys_transition_access` | what `%%rbac` compiles to: per-operation and per-transition role restrictions |
 | `sys_rule_definitions` | seeded JDM rules |
 | `sys_workflow_definitions` | seeded BPMN; automations live here too, not in a table of their own |
 | `sys_workflow_runs` | one row per workflow execution |
@@ -833,8 +889,9 @@ select * from sys_workflow_runs order by created_at desc limit 1;
 
 1. **Resolve which application** — the modelling tool (:3000) or the generated
    app (:4000/4001)? Most ambiguity in questions about "the app" is this.
-2. **Check a directive's `status` before promising behaviour.** `%%rbac` is
-   inert; `%%entity` and `%%trigger` are validated but not compiled.
+2. **Check a directive's `status` before promising behaviour.** `%%entity`,
+   `%%rule` and `%%trigger` are validated but not compiled — they will not
+   change a generated application.
 3. **A rule that must act needs `%%action`** — the node-graph form cannot.
 4. **Never hard-code a model string or base URL.** Import from
    `packages/ai/src/config.ts`.
@@ -844,6 +901,11 @@ select * from sys_workflow_runs order by created_at desc limit 1;
    build it.
 7. **Do not look for per-entity UI components.** Screens come from the
    dictionary; change the model or the dictionary row.
+8. **`%%rbac` restricts, never grants.** A target no directive names is open. If
+   asked why a rule "isn't working", check in order: is the role name reaching
+   the request (`sysRoles` vs Better Auth's `role`), is the caller a master
+   role, and for a transition — is the record actually in the `from` state the
+   rule covers?
 8. **Use `bun`/`bunx`, never `npm`/`pnpm`/`npx`**, including in generated
    projects.
 9. **Update `language/erdwithai-language.json` first** when changing language
