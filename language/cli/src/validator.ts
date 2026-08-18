@@ -89,6 +89,7 @@ export function validateModel(model: EmlModel, opts: ValidateOptions = {}): Vali
     const seenAttrs = new Set<string>();
     for (let i = entity.attributes.length - 1; i >= 0; i--) {
       const a = entity.attributes[i];
+      if (!a) continue;
       if (seenAttrs.has(a.name)) {
         if (fix) {
           entity.attributes.splice(i, 1);

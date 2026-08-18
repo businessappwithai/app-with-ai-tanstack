@@ -19,6 +19,7 @@
     "lint": "biome lint .",
     "lint:fix": "biome check --write .",
     "type-check": "tsc --noEmit",
+    "type-check:language": "tsc -p tsconfig.language.json",
     "clean": "rm -rf node_modules packages/*/node_modules packages/*/dist",
     "convert": "bun --filter @erdwithai/ai convert",
     "migrate": "bun run packages/generator/migrations/migrate.ts",

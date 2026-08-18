@@ -46,6 +46,13 @@ jobs:
       - name: Type-check
         run: bun run type-check
 
+      # language/ is not in the root tsconfig's include - it uses Bun-style
+      # `.ts` import specifiers the root config rejects - so it needs its own
+      # invocation. Without one it is simply never type-checked, which is how
+      # it accumulated seventy-six strict-null errors unnoticed.
+      - name: Type-check the language folder
+        run: bun run type-check:language
+
       # Error-level only. The tree carries several hundred style warnings that
       # predate this workflow; failing on those would mean the first red build
       # is noise nobody reads. Errors — formatting and unorganised imports — are

@@ -20,9 +20,9 @@ blank           = { WS } ;
    Comments and directives
    -------------------------------------------------------------------------- *)
 comment         = "%%" , { CHAR - reservedStart } , { CHAR } ;
-directive       = metaDir | hookDir | stepDir | loopDir | entityDir | fieldDir
-                | enumDir | indexDir | ruleDir | guardDir | rbacDir | triggerDir
-                | workflowDir ;
+directive       = metaDir | hookDir | stepDir | loopDir | actionDir
+                | entityDir | fieldDir | enumDir | categoryDir | indexDir
+                | ruleDir | guardDir | rbacDir | triggerDir | workflowDir ;
 
 metaDir         = "%%meta" , WS , key , ":" , WS , value ;
 (* Two forms. With a handler name it binds a named handler to a lifecycle
@@ -39,10 +39,29 @@ fieldDir        = "%%field" , WS , ident , "." , ident , WS , key , ":" ,
                   WS , value ;
 enumDir         = "%%enum" , WS , ident , ":" , WS , value ,
                   { "," , WS , value } ;
+(* Keys are ";"-separated and order-free; only `name` is required. `entities`
+   takes a comma-separated list, so the separators differ by level and a
+   category holding several entities stays one line. A trailing "\\" continues
+   the directive on the next line, which is how a long category stays readable
+   in a rendered diagram. *)
+categoryDir     = "%%category" , WS , categoryKey , ":" , WS , categoryValue ,
+                  { ";" , WS , categoryKey , ":" , WS , categoryValue } ;
+categoryKey     = "name" | "description" | "icon" | "color" | "seq"
+                | "default" | "entities" ;
+categoryValue   = { CHAR - ( ";" | NEWLINE ) } ;
 indexDir        = "%%index" , WS , ident , "(" , ident , { "," , WS , ident } ,
                   ")" , [ WS , "unique" ] ;
 ruleDir         = "%%rule" , WS , ident , WS , "on" , WS , ident , WS ,
                   "event:" , WS , hookType , [ WS , "priority:" , WS , NUMBER ] ;
+(* A rules section carrying %%action directives compiles to a GoRules decision
+   table - one row per directive - rather than to a node graph. The `when:`
+   expression is the row's condition and the remaining keys are its outputs, so
+   the drawn nodes of such a section are documentation. *)
+actionDir       = "%%action" , WS , ident , WS , actionType , WS ,
+                  "when:" , WS , expr , { WS , key , ":" , WS , value } ;
+actionType      = "trigger-workflow" | "validation-error" | "set-field"
+                | "notify" | ident ;
+expr            = { CHAR - NEWLINE } ;   (* GoRules/ZEN expression *)
 (* %%guard is an automation condition, and nothing else. It once also spelled
    an RBAC restriction; that sense is %%rbac now. A reader meeting the old
    shape under %%guard skips it rather than reading "role:admin" as a field. *)

@@ -1,12 +1,20 @@
 {
-  "file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai-tanstack/language/examples/minimal.eml.mmd",
-  "checkedAt": "2026-07-29T09:18:54.697Z",
-  "languageVersion": "1.0.0",
+  "file": "/home/user/app-with-ai-tanstack/language/examples/minimal.eml.mmd",
+  "checkedAt": "2026-08-18T06:27:24.747Z",
+  "languageVersion": "1.1.0",
   "summary": {
     "errors": 0,
     "warnings": 0,
-    "infos": 0,
+    "infos": 1,
     "ok": true
   },
-  "issues": []
+  "issues": [
+    {
+      "severity": "info",
+      "code": "EML502",
+      "message": "FK attribute \"Post.author_id\" has no relationship to \"User\".",
+      "hint": "Add:  User ||--o{ Post : \"...\"  (or reverse for manyToOne).",
+      "autoFixable": false
+    }
+  ]
 }

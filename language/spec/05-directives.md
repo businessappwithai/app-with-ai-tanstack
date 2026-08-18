@@ -1,17 +1,29 @@
 # EML — Directive Reference
 
 Directives are `%%`-prefixed comment lines that carry generator meaning while
-staying invisible to Mermaid renderers. `%%hook` and `%%step` are parsed by the
-shipped compilers; the rest are the documented, reserved extension surface — they
-are renderer-safe today and adopted by the generator incrementally.
+staying invisible to Mermaid renderers.
 
-All directive keywords are reserved: `%%meta`, `%%hook`, `%%step`, `%%entity`,
-`%%field`, `%%enum`, `%%category`, `%%index`, `%%rule`, `%%guard`, `%%rbac`, `%%loop`, `%%trigger`,
-`%%workflow`.
+Each directive has a **status**, declared canonically in its own entry in
+`erdwithai-language.json` and repeated in the heading below:
+
+| Status | Meaning |
+|--------|---------|
+| **compiled** | A shipped reader consumes it and the generated application changes as a result. The `consumedBy` field in the JSON names the file. |
+| **validated** | Nothing compiles it yet, but `language/checker.ts` enforces its syntax and cross-references, so a malformed one fails validation instead of being silently dropped. |
+| **reserved** | Documented and renderer-safe, with no reader. Writing one is legal and inert; the keyword is held so a later meaning cannot collide with a plain comment. |
+
+All fifteen keywords are reserved words in the language regardless of status —
+a `%%` line beginning with one of them is a directive, never a plain comment:
+
+| | | | | |
+|---|---|---|---|---|
+| `%%meta` *(compiled)* | `%%hook` *(compiled)* | `%%step` *(compiled)* | `%%action` *(compiled)* | `%%entity` *(validated)* |
+| `%%field` *(compiled)* | `%%enum` *(compiled)* | `%%category` *(compiled)* | `%%index` *(compiled)* | `%%rule` *(validated)* |
+| `%%guard` *(compiled)* | `%%loop` *(compiled)* | `%%rbac` *(reserved)* | `%%trigger` *(validated)* | `%%workflow` *(compiled)* |
 
 ---
 
-## `%%meta` — document / section metadata
+## `%%meta` — document / section metadata *(compiled)*
 
 ```
 %%meta <key>: <value>
@@ -31,7 +43,7 @@ All directive keywords are reserved: `%%meta`, `%%hook`, `%%step`, `%%entity`,
 %%meta version: 1.0.0
 ```
 
-## `%%hook` — lifecycle handler binding *(shipped)*
+## `%%hook` — lifecycle handler binding *(compiled)*
 
 ```
 %%hook <type> <handlerName> on <Entity>[<params>]
@@ -51,7 +63,7 @@ Regex (from `hook-parser.ts`):
 %%hook beforeCreate generateSlug on Post[field: slug]
 ```
 
-## `%%step` — bind a flowchart node to an executable step *(shipped)*
+## `%%step` — bind a flowchart node to an executable step *(compiled)*
 
 ```
 %%step <nodeId> <stepType> <key>: <value> ...
@@ -86,7 +98,55 @@ Per-type required properties and the row-targeting rules are in
 declared canonically under `workflowConstructs.stepNodes` in
 `erdwithai-language.json`.
 
-## `%%entity` — entity-level metadata
+## `%%action` — declare a rule's side effect *(compiled)*
+
+```
+%%action <name> <actionType> when: <expr> <key>: <value> ...
+```
+
+Only meaningful inside a business-rules section. A section that carries
+`%%action` directives compiles to a GoRules **decision table** — one row per
+directive — instead of a node graph.
+
+That difference is the whole point. The node-graph form a rules flowchart
+normally compiles to carries no outputs, so the rules engine finds no actions in
+it: a model-declared rule could decide, but never act. A decision table is the
+shape the engine reads `action`, `message`, `ruleId` and `workflowName` from, so
+a section declaring actions is compiled as one.
+
+- `name` — identifies the row; also the fallback message text.
+- `actionType` — lands in the `action` output. `trigger-workflow` and
+  `validation-error` are the two the generated runtime acts on.
+- `when:` — a Zen expression over the triggering record. Omitted means `true`,
+  which fires on every write.
+- remaining keys — space-separated `key: value`, each value running to the next
+  `<key>:` token, so a value may contain spaces.
+
+The recognised property keys map to decision-table output columns:
+
+| Key | Output field | Used by |
+|-----|--------------|---------|
+| `message` | `message` | `validation-error` — the text the write fails with |
+| `workflow` | `workflowName` | `trigger-workflow` — names the workflow to start |
+| `field` / `value` | `field` / `value` | stamping a column |
+| `targetEntity` / `linkField` | `targetEntity` / `linkField` | acting on a related row |
+
+The table uses `hitPolicy: collect`, because several rows may match one write —
+a rule that escalates *and* stamps a field is ordinary. Every declared output
+column is written in every row, blank where unused: zen-engine yields *no result
+at all* for a row with a missing cell, so an omitted column would make the whole
+rule evaluate to nothing.
+
+```
+%%action escalate trigger-workflow when: severity == "critical" workflow: CriticalDeviationEscalation
+%%action requireCause validation-error when: root_cause == null message: A root cause is required
+```
+
+**This is how a model-declared rule reaches a model-declared saga**: the rule's
+`when` decides, and its `trigger-workflow` action names the workflow by the name
+its `%%workflow` directive gave it.
+
+## `%%entity` — entity-level metadata *(validated)*
 
 ```
 %%entity <Name> <key>: <value>
@@ -105,7 +165,7 @@ declared canonically under `workflowConstructs.stepNodes` in
 %%entity Account prefix: bus
 ```
 
-## `%%field` — extended field metadata
+## `%%field` — extended field metadata *(compiled: the `enum:` key only)*
 
 ```
 %%field <Entity>.<attr> <key>: <value>
@@ -126,7 +186,7 @@ declared canonically under `workflowConstructs.stepNodes` in
 %%field User.bio ui: textarea
 ```
 
-## `%%enum` — named enumeration
+## `%%enum` — named enumeration *(compiled)*
 
 ```
 %%enum <Name>: <value1>, <value2>, ...
@@ -139,7 +199,7 @@ Reusable by `%%field enum:` and by state-workflow states.
 %%enum Priority: low, medium, high, urgent
 ```
 
-## `%%category` — group entities for the dashboard
+## `%%category` — group entities for the dashboard *(compiled)*
 
 ```
 %%category name: <Name>; description: <text>; icon: <LucideIcon>; color: <#hex>; seq: <n>; default: true; entities: <A>, <B>
@@ -162,7 +222,7 @@ every entity, so the directive is optional.
 %%category name: People and Teams; default: true; entities: User, Team
 ```
 
-## `%%index` — database index
+## `%%index` — database index *(compiled)*
 
 ```
 %%index <Entity>(<attr>[, <attr>...]) [unique]
@@ -173,7 +233,7 @@ every entity, so the directive is optional.
 %%index Order(company_id, status)
 ```
 
-## `%%rule` — bind a decision flow
+## `%%rule` — bind a decision flow *(validated)*
 
 ```
 %%rule <name> on <Entity> event: <lifecycle> priority: <n>
@@ -186,7 +246,7 @@ multiple rules.
 %%rule pricing on Order event: beforeCreate priority: 10
 ```
 
-## `%%loop` — repeat while a rule holds *(shipped)*
+## `%%loop` — repeat while a rule holds *(compiled)*
 
 ```
 %%loop <loopId> while: <field> <operator> <value> max: <n>
@@ -213,7 +273,7 @@ Members are drawn as a Mermaid `subgraph L1[Repeat while …]`, and a step insid
 can read `{{L1.iteration}}` — the 1-based pass number. Full semantics in
 [`03-workflows.md`](03-workflows.md#loops--repeating-steps-while-a-rule-holds).
 
-## `%%guard` — automation condition
+## `%%guard` — automation condition *(compiled)*
 
 ```
 %%guard <field> <operator> <jsonValue>
@@ -228,7 +288,7 @@ guards must pass; there is no OR. See
 %%guard order.total gt 1000
 ```
 
-## `%%rbac` — RBAC guard
+## `%%rbac` — RBAC guard *(reserved)*
 
 ```
 %%rbac <roleExpr> on <Entity>.<op>
@@ -250,7 +310,7 @@ guards must pass; there is no OR. See
 > called `role:admin`, which could never pass and would silently disable the
 > automation.
 
-## `%%trigger` — event / schedule source
+## `%%trigger` — event / schedule source *(validated)*
 
 ```
 %%trigger <source> -> <handler> on <Entity>
@@ -263,7 +323,7 @@ guards must pass; there is no OR. See
 %%trigger webhook:payment -> markPaid on Order
 ```
 
-## `%%workflow` — name & classify a workflow
+## `%%workflow` — name & classify a workflow *(compiled)*
 
 ```
 %%workflow <name> entity: <Entity> kind: <hook|state|saga> [trigger: automatic|rule]

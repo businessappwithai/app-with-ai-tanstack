@@ -135,7 +135,7 @@ function applyFix(lines: string[], issue: Issue): FixResult {
 // Fix: EML001 — Missing %%meta name
 // ---------------------------------------------------------------------------
 
-function fixMissingMetaName(lines: string[], issue: Issue, base: FixResult): FixResult {
+function fixMissingMetaName(lines: string[], _issue: Issue, base: FixResult): FixResult {
   // Derive a name from the first entity or from the file name encoded in the message
   let name = "EML Model";
   // Look for first entity declaration in the ERD

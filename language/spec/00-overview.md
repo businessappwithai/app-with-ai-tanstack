@@ -1,6 +1,6 @@
 # EML Overview
 
-**ERDwithAI Modeling Language (EML)**, version 1.0.0 — a Mermaid-based language
+**ERDwithAI Modeling Language (EML)**, version 1.1.0 — a Mermaid-based language
 for describing an application's data model, business rules, and business
 workflows as one artifact.
 
@@ -37,12 +37,20 @@ A single file may hold several sections separated by blank lines.
   the generator while staying invisible to renderers:
 
   ```
-  %%meta     %%hook     %%entity    %%field    %%enum
-  %%index    %%rule     %%guard     %%rbac     %%loop     %%trigger  %%workflow
+  %%meta     %%hook     %%step      %%action   %%entity   %%field
+  %%enum     %%category %%index     %%rule     %%guard    %%loop
+  %%rbac     %%trigger  %%workflow
   ```
 
-  Only `%%hook` is parsed by the currently shipped parser; the rest form the
-  documented EML extension surface (see `05-directives.md`).
+  Most of these are **compiled** — a shipped reader consumes them and the
+  generated application changes as a result. Three (`%%entity`, `%%rule`,
+  `%%trigger`) are **validated**: nothing compiles them yet, but `checker.ts`
+  enforces their syntax so a malformed one fails validation rather than being
+  silently dropped. One (`%%rbac`) is **reserved**: legal, renderer-safe, and
+  inert.
+
+  Each directive carries its own `status` in `erdwithai-language.json`, which is
+  authoritative. See [`05-directives.md`](05-directives.md) for the reference.
 
 ### Disambiguating flowchart vs. rules vs. workflow
 
@@ -57,18 +65,67 @@ a workflow (its states map to a status enum for the bound entity).
 
 ## The pipeline
 
+Every entry point — the `erdwithai` CLI and the web app's `/api/generate` —
+runs the same pipeline, so a model produces the same application however it was
+submitted.
+
 ```
-ERD section        → MermaidParser        → Entity[] + Relationship[] → migrations, DTOs, services, controllers, UI
-Rules section      → flowchart parser      → convertToJdm            → GoRules JDM decision graph
-Workflow section   → hook parser / states  → HookDefinition[] / enum  → service lifecycle wiring, status transitions
+ERD section          → mermaid.parser      → Entity[] + Relationship[]  → migrations, DTOs, services, controllers, UI
+  %%index            → ┘                     entity.indexes             → real DDL indexes
+  %%enum / %%field   → ┘                     bound enums                → typed columns + UI selects
+%%category           → category.parser     → dictionary groups          → dashboard grouping
+Rules section        → flowchart-parser    → jdm-converter              → GoRules JDM graph → sys_rule_definitions
+  %%action           → compileRules        → JDM decision table         → rule actions (incl. trigger-workflow)
+Workflow, hook form  → compileHooks        → handler modules + registry → service lifecycle wiring
+Workflow, state form → compileWorkflows    → BPMN                       → sys_workflow_definitions, status machine
+Workflow, saga form  → compileSagaWorkflows→ one serviceTask per %%step → sys_workflow_definitions (source: model)
+Whole document       → rag.ts              → retrieval chunks           → pgvector model_context index
 ```
 
-Reference implementations:
+Reference implementations — the generator's own readers, which are what decide
+what a generated application contains:
 
-- `packages/generator/src/parsers/mermaid.parser.ts`
-- `packages/web/src/lib/mermaid-flowchart-parser.ts`
-- `packages/web/src/lib/jdm-converter.ts`
-- `packages/web/src/lib/workflow/hook-parser.ts`
+- `packages/generator/src/pipeline/generate-application.ts` — the one path
+- `packages/generator/src/parsers/mermaid.parser.ts` — ERD, `%%index`, `%%enum`
+- `packages/generator/src/parsers/category.parser.ts` — `%%category`
+- `packages/generator/src/rules/` — `flowchart-parser.ts`, `jdm-converter.ts`, `index.ts` (`%%action`)
+- `packages/generator/src/hooks/index.ts` — `%%hook`, handler form
+- `packages/generator/src/workflows/` — `index.ts` (state, saga), `steps.ts` (`%%step`, `%%loop`)
+
+The web app keeps its own parsers for the editors — they run in the browser and
+cannot import the generator. They read the same syntax but do not decide what is
+generated; when the two disagree, the generator's copy is the language and the
+web copy is the bug.
+
+## Validation
+
+Two commands, and the second reads what the first wrote.
+
+```bash
+bun language/checker.ts model.mmd          # writes model.mmd.error beside it
+bun language/fixer.ts   model.mmd.error    # applies the auto-fixable codes, re-checks
+```
+
+The checker validates a document against `erdwithai-language.json` and emits
+diagnostics at three severities:
+
+| Severity | Meaning | Fails the run |
+|----------|---------|---------------|
+| **error** | The document is wrong; the generator would produce something incorrect or nothing at all. | yes |
+| **warning** | Legal, but almost certainly not what the author meant — a dropped modifier, a state with no enum behind it. | only with `--strict` |
+| **info** | Worth reading once. | no |
+
+Codes are grouped by what they are about: `EML0xx` document, `EML1xx` entities
+and their directives, `EML2xx` directive-declared hooks/rules/workflows,
+`EML3xx` rule flowcharts, `EML4xx` workflow sections, `EML5xx` cross-section
+consistency. The full list, the auto-fixable set, and what each fix does are in
+the `diagnostics` block of `erdwithai-language.json`.
+
+Warnings are worth reading rather than clearing: most of them describe something
+the generator will silently accept and quietly get wrong. `EML118` is the
+clearest case — an unrecognised modifier is dropped, so `string email UNQIUE`
+generates a column that is simply not unique, and the rendered diagram looks
+exactly the same either way.
 
 ## Naming conventions
 

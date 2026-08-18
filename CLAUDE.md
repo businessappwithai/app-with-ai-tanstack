@@ -83,9 +83,9 @@ Key routing rules:
 
 # ERDwithAI - AI Coding Assistant Guide
 
-**Project**: ERDwithAI - AI-Powered Entity Relationship Design & Code Generation Platform
-**Version**: 5.1.0 (`@erdwithai/web` is 5.1.1)
-**Runtime**: Bun.js >= 1.3.14 (`bun.lock` is authoritative; `pnpm-workspace.yaml` / `pnpm-lock.yaml` are vestigial — ignore them)
+**Project**: ERDwithAI — AI-powered entity-relationship design and full-stack code generation
+**Version**: 5.1.0 (`@erdwithai/web` is 5.1.1; `VERSION` says 5.1.1)
+**Runtime**: Bun.js >= 1.3.14 (`bun.lock` is authoritative; `pnpm-workspace.yaml` / `pnpm-lock.yaml` / `.eslintrc.cjs` are vestigial — ignore them)
 
 ---
 
@@ -96,6 +96,7 @@ Key routing rules:
 | `bun install` | Install dependencies |
 | `bun run dev` | Start web app (http://localhost:3000) |
 | `bun run dev:mastra` | Start Mastra AI service (http://localhost:4111) |
+| `./scripts/start-llm.sh` | Start the local OpenAI-compatible model server (:8000) |
 | `bun run build` | Build all packages (lint → core → generator → ai → web) |
 | `bun run type-check` | TypeScript validation (root tsconfig, `--noEmit`) |
 | `bun run lint` | Biome lint |
@@ -107,6 +108,7 @@ Key routing rules:
 | `bun run test:playwright` | Playwright E2E tests |
 | `bun run test:e2e:server` | E2E with automatic server startup |
 | `bun run seed:admin -- --email you@example.com` | Run migrations + promote a user to admin |
+| `bun scripts/seed-model.ts --file examples/drug-discovery.eml.mmd` | Seed a project so a fresh container has something to design |
 | `bun run clean` | Remove all `node_modules` and `dist` directories |
 
 **Run a single Vitest test file:**
@@ -119,11 +121,20 @@ bun --filter @erdwithai/web test -- path/to/file.spec.ts
 bunx playwright test tests/e2e/specific.e2e.spec.ts
 ```
 
-### Known-broken scripts
+**Generate an application directly from the CLI** (what CI does):
+```bash
+bun packages/generator/src/cli/generate.ts generate \
+  --input examples/drug-discovery.eml.mmd \
+  --output ./generated-app --name my-app \
+  --port 4001 --frontend-port 4000 --force --no-setup
+```
+
+### Known-broken / misleading scripts
 
 - `bun run migrate` points at `packages/generator/migrations/migrate.ts`, which **does not exist**. Real migrations live in `database/migrations/` and are applied via `runMigrations()` from `@erdwithai/core/services` (see `bun run seed:admin`, which calls it).
 - Root `vitest.config.ts` references `./test/setup.ts`, which does not exist. The config that actually runs is `packages/web/vitest.config.ts`. Prefer `bun run test`.
 - `packages/web` still declares a `lint` script using `eslint`, but ESLint is not a dependency. Lint from the root with Biome.
+- Root `test:*` scripts pointing at `test/…` (`test:app`, `test:e2e`, `test:generator`, `test:complete`) reference files that no longer exist.
 
 ---
 
@@ -133,11 +144,11 @@ ERDwithAI turns natural-language descriptions into production-ready full-stack a
 
 - AI-powered entity extraction via Mastra.ai agents against a **local OpenAI-compatible model**
 - Human-in-the-loop (HITL) approval workflow for ERD design
-- Visual ERD designer (Mermaid + React Flow)
-- Full-stack code generation: TanStack Start frontend + NestJS backend
+- Visual ERD designer (Mermaid + React Flow) and visual rule/workflow/automation builders
+- Full-stack code generation: TanStack Start frontend + NestJS backend + a generated `bun:test` E2E suite
 - Dictionary-driven architecture inspired by Compiere ERP (`sys_*` tables)
 - Business rules via GoRules JDM / zen-engine
-- CopilotKit integration for AI-assisted UI
+- CopilotKit assistant grounded in the project's own model via pgvector retrieval
 - E2B sandbox for code execution in generated projects
 - **EML** — a Mermaid-based modeling language for ERD + rules + workflows (see `language/`)
 
@@ -146,16 +157,17 @@ ERDwithAI turns natural-language descriptions into production-ready full-stack a
 | Layer | Technology |
 |-------|------------|
 | Runtime | Bun.js >= 1.3.14 |
-| AI Orchestration | Mastra.ai v1.54+, CopilotKit v1.64+ |
-| AI Model | **Local OpenAI-compatible endpoint** (default `qwen3.6:27b-mlx`) — see AI Model Configuration |
+| AI Orchestration | Mastra.ai v1.59+, CopilotKit v1.68+ |
+| AI Model | **Local OpenAI-compatible endpoint** (default `mlx-community/Qwen3.8-27B-4bit` on :8000) |
+| Retrieval | `@mastra/pg` PgVector (HNSW) + `/v1/embeddings` from the same endpoint |
 | Frontend | TanStack Start v1.168, TanStack Router v1.170, Vite 8, React 19, Tailwind CSS v4, Zustand 5, Radix UI |
-| Diagrams | Mermaid 11, `@xyflow/react` (React Flow), `elkjs` (layout) |
+| Diagrams | Mermaid 11, `@xyflow/react` (React Flow), `elkjs` (layout), `bpmn-js` |
 | Rules | `@gorules/zen-engine` (core), `@gorules/jdm-editor` (web UI) |
 | Auth | Better Auth (core config) + custom session routes (web) |
 | Backend (generated) | NestJS 10+, Fastify, Kysely |
-| Database | PostgreSQL via Kysely + `pg`; LibSQL/SQLite for Mastra state |
+| Database | PostgreSQL via Kysely + `pg` (pgvector for retrieval); LibSQL/SQLite for Mastra state |
 | Templates | Handlebars 4.7+ |
-| Testing | Vitest 4, Playwright 1.62, Testing Library |
+| Testing | Vitest 4, Playwright 1.62, Testing Library, `bun:test` (generated apps) |
 | Code Sandbox | E2B Code Interpreter |
 | Linter/Formatter | **Biome** (replaces ESLint + Prettier) |
 
@@ -170,8 +182,8 @@ ERDwithAI turns natural-language descriptions into production-ready full-stack a
 All model configuration lives in exactly one file — `packages/ai/src/config.ts`:
 
 ```ts
-export const AI_BASE_URL = process.env.LOCAL_AI_BASE_URL ?? "http://localhost:8000/v1";
-export const AI_MODEL    = process.env.LOCAL_AI_MODEL    ?? "qwen3.6:27b-mlx";
+export const AI_BASE_URL = process.env.LOCAL_AI_BASE_URL ?? "http://127.0.0.1:8000/v1";
+export const AI_MODEL    = process.env.LOCAL_AI_MODEL    ?? "mlx-community/Qwen3.8-27B-4bit";
 export const AI_API_KEY  = process.env.LOCAL_AI_API_KEY  ?? "local";
 
 /** Pass directly as the `model` field of any Mastra Agent. */
@@ -180,13 +192,22 @@ export const mastraModelConfig = {
   url: AI_BASE_URL,
   apiKey: AI_API_KEY,
 } as const;
+
+/** Embeddings come from the same endpoint — one URL to point elsewhere, one key to rotate. */
+export const AI_EMBEDDING_MODEL      = process.env.LOCAL_AI_EMBEDDING_MODEL ?? "bge-small-en-v1.5";
+export const AI_EMBEDDING_DIMENSIONS = Number(process.env.LOCAL_AI_EMBEDDING_DIMENSIONS ?? 384);
 ```
 
 **Never hard-code model strings or base URLs in agents or API routes.** Import
 `mastraModelConfig` (or `AI_MODEL` / `AI_BASE_URL`) from `../config` instead.
 
-A local `llama.cpp` server is optionally supported via `LLAMA_CPP_BASE_URL` /
-`LLAMA_CPP_MODEL` (`packages/ai/src/providers/llama.ts`).
+`AI_EMBEDDING_DIMENSIONS` is the pgvector column width, fixed when the index is
+created. Changing the embedding model means changing this **and** re-ingesting;
+a mismatch is rejected at insert time.
+
+Start the model server with `./scripts/start-llm.sh` (`--foreground`, `--stop`,
+`--status`). A local `llama.cpp` server is optionally supported via
+`LLAMA_CPP_BASE_URL` / `LLAMA_CPP_MODEL` (`packages/ai/src/providers/llama.ts`).
 
 ---
 
@@ -197,19 +218,24 @@ app-with-ai-tanstack/
 ├── packages/
 │   ├── core/          # Types, hooks, services, auth, rules, workflow, config
 │   ├── generator/     # Code generation engine, CLI, Handlebars templates
-│   ├── ai/            # Mastra.ai agents, workflows, converter, CLI
+│   ├── ai/            # Mastra.ai agents, workflows, converter, RAG, CLI
 │   └── web/           # TanStack Start app (Vite 8 + React 19)
 ├── language/          # EML: the Mermaid-based modeling language + `eml` CLI
 ├── database/          # Migrations (001–010), knexfile.ts, generator.sql
-├── docs/              # Architecture, development, testing, roadmap
+├── docs/              # Architecture, development, testing, roadmap, QA reports
+├── html/              # Static nine-page guide: "Build a CRM with ERDwithAI"
 ├── generated-projects/# Output directory for generated applications
 ├── tests/             # Playwright E2E suites
-├── scripts/           # Setup, seeding, and test automation
-├── examples/          # Sample ERD files (.mmd)
+├── scripts/           # Setup, seeding, LLM startup, CI helpers, test automation
+├── examples/          # Sample ERD / EML files (.mmd)
+├── pics/              # QA screenshots referenced by docs/qa reports
 └── .claude/           # Project rules, plans, and local skills
 ```
 
-Root docs: `DESIGN.md`, `HOOKS_GUIDE.md`, `READEME.md` (sic — feature overview), `TODOS.md`, `CHANGELOG.md`.
+Root docs: `DESIGN.md`, `HOOKS_GUIDE.md`, `READEME.md` (sic — feature overview),
+`TODOS.md`, `CHANGELOG.md`, plus QA write-ups (`GENERATOR_QA_SUMMARY.md`,
+`QA_AND_IMPROVEMENT_COMPLETE.md`, `REGENERATION_TEST_RESULTS.md`,
+`TEMPLATE_IMPROVEMENTS.md`).
 
 ### Package Aliases
 
@@ -237,13 +263,13 @@ Path aliases are defined in root `tsconfig.json` and mirrored in each Vite/Vites
 
 ```
 src/
-├── auth/              # Better Auth config, guards, decorators, session helpers
+├── auth/              # Better Auth config + adapter, guards, decorators, session helpers
 ├── config/            # db.config.ts (the ONLY DB connection site), db.types.ts, workflow.config.ts
 ├── generators/
 │   └── hook-translator/   # Parses hook source into generated code
 ├── hooks/             # hook-builder, hook-executor (globalHookExecutor), hook-registry
 ├── rules/             # zen-engine singleton, rules-engine.service, rule-cache, jdm.schema
-├── services/          # base.service, database.service, entity.service, process-manager
+├── services/          # base, database, db-introspect, entity, process-manager
 ├── types/             # api, bus-entity, dictionary, entity, hook, rbac, rule, sys-dictionary
 ├── utils/             # formatting, naming, table-naming
 ├── validation/        # entity.validation, Zod schemas
@@ -251,31 +277,52 @@ src/
 └── workflows/         # workflow-polling.helper
 ```
 
+`db-introspect.service.ts` reads an existing Postgres schema — it backs
+reverse-engineering (`/api/db/reverse-engineer`) and `seed-model.ts --from-database`.
+
 ### @erdwithai/generator (`packages/generator/`)
 
 Code generation engine. **One stack is supported: `tanstackjs-nestjs`.**
 
 **CLI binaries**: `erdwithai`, `erdwithai-generate` (Commander.js, `src/cli/generate.ts`)
+Subcommands: `generate`, `generate:backend`, `generate:frontend`, `generate:entity`,
+`inspect`, `validate`, `diff`, `info`, `wizard`, `list`, `deploy <project-dir>`.
 
 ```
 src/
-├── cli/generate.ts            # generate | list | backend | frontend subcommands
+├── cli/generate.ts            # the CLI above
+├── pipeline/generate-application.ts  # ⭐ the ONE path both entry points take
+├── eml/index.ts               # re-export of language/composer.ts
+├── rag/index.ts               # re-export of language/rag.ts
+├── rules/                     # flowchart-parser + jdm-converter → CompiledRule
+├── workflows/                 # state machines (index.ts) + sagas (steps.ts)
+├── hooks/                     # %%hook → CompiledHook
+├── parsers/                   # mermaid.parser, category.parser, language-maps
 ├── generators/
-│   ├── base.generator.ts
-│   ├── full-stack.generator.ts    # StackOption type
-│   ├── orchestrator.ts
-│   ├── dictionary.generator.ts
+│   ├── base.generator.ts, full-stack.generator.ts (StackOption), orchestrator.ts
+│   ├── dictionary.generator.ts, ports.ts
 │   ├── tanstack-start-nestjs/     # nestjs-backend + tanstack-start-frontend generators
-│   └── tests/                     # E2E test generators
-├── parsers/mermaid.parser.ts
+│   └── tests/                     # bun:test E2E suite generator
 ├── templates/loader.ts
-└── utils/
+└── utils/cli-executor.ts
 templates/
 ├── common/                 # migrations, seeds, hooks, services, AI agents/workflows
 └── tanstack-start-nestjs/
-    ├── backend/            # NestJS: modules (bus, sys, auth, rules, workflow, jobs, ai, audit, electric)
-    └── frontend/           # TanStack Start: routes, components, hooks, i18n
+    ├── backend/            # NestJS modules: ai, audit, auth, bus, electric, hooks,
+    │                       #   jobs, model-context, rules, sys, workflow, workflow-definitions
+    ├── frontend/           # TanStack Start: routes, components, automation UI, i18n
+    └── tests/              # generated bun:test harness/ + suites/
 ```
+
+**`src/pipeline/generate-application.ts` is the single generation path.** Both
+the `erdwithai` CLI and the web app's `/api/generate` route go through it, so a
+model produces the same application however it was submitted. Adding a generator
+input means adding it here once — do not rebuild options at a call site.
+
+Generated apps listen on `DEFAULT_FRONTEND_PORT = 4000` and
+`DEFAULT_BACKEND_PORT = 4001` (`src/generators/ports.ts`) — deliberately off
+3000, where the modelling tool runs. `packages/web/src/lib/generated-ports.ts`
+mirrors these for client components, with a unit test asserting they stay equal.
 
 Also see `packages/generator/TWO_PHASE_GENERATION.md` and `MIGRATION_GUIDE.md`.
 
@@ -285,12 +332,13 @@ Also see `packages/generator/TWO_PHASE_GENERATION.md` and `MIGRATION_GUIDE.md`.
 
 ```
 src/
-├── config.ts          # ⭐ Central model config — import from here, never hard-code
+├── config.ts          # ⭐ Central model + embedding config — import from here, never hard-code
 ├── agents/            # domain, entity, relationship, mermaid (standalone Mastra Agents)
 ├── mastra/
 │   ├── index.ts       # Mastra instance — registers ONLY codeAgent
 │   ├── agents/code-agent.ts
 │   └── tools/e2b.ts
+├── rag/               # ⭐ model-context retrieval: store (PgVector), embedder, ingest, context
 ├── providers/         # llama.cpp provider
 ├── workflows/erd-design-workflow.ts   # HITL workflow (createWorkflow/createStep)
 ├── converter/         # AI converter + openai-fallback
@@ -299,15 +347,23 @@ src/
 ```
 
 **Mastra instance** (`src/mastra/index.ts`): registers `codeAgent` only, LibSQL
-storage at `file:../../../../mastra.db`, Pino logger (`debug` in dev, `info` in
-production). The four `src/agents/*` agents are used directly by the converter
-and the ERD workflow — they are not registered on the Mastra instance.
+storage, Pino logger. The four `src/agents/*` agents are used directly by the
+converter and the ERD workflow — they are not registered on the Mastra instance.
+
+**RAG** (`src/rag/`): one pgvector HNSW index (`model_context`) holds every
+project's chunks plus the EML specification, separated by `projectId` metadata
+rather than an index each. Spec chunks live under the reserved project id
+`SPEC_PROJECT_ID = "__eml_spec__"` so one query can fetch "this project's model
+and the language spec". `@mastra/pg` is imported lazily — it pulls in `pg`,
+which is Node-only.
 
 ### @erdwithai/web (`packages/web/`)
 
 TanStack Start app on Vite 8 + React 19. **No Vinxi** — `vite.config.ts` shims
 `@tanstack/start-api-routes` (which still imports `vinxi/routes`) with
-`src/lib/start-api-routes-compat.js`.
+`src/lib/start-api-routes-compat.js`. It also loads the **root** `.env` into
+`process.env` via `loadEnv`, because `bun run dev` runs Vite with cwd
+`packages/web` and Bun's per-process `.env` loading would otherwise miss it.
 
 ```
 src/
@@ -315,28 +371,68 @@ src/
 │   ├── __root.tsx, index.tsx, login.tsx, dashboard.tsx, designer.tsx, settings.tsx
 │   ├── projects/
 │   │   ├── index.tsx
-│   │   └── $id/{init,design,generate,rules-design,deploy}.tsx
+│   │   └── $id/{init,design,logic,automations,generate,deploy}.tsx
 │   │       └── enhance/{index,$serviceName}.tsx
 │   ├── admin/
 │   │   ├── users.tsx, mermaid/index.tsx
 │   │   ├── rules/{index,new,$entity/$ruleId}.tsx
 │   │   └── workflows/{index,$workflowId}.tsx
-│   └── api/            # ~50 server routes — see API Route Pattern below
+│   └── api/            # ~52 server routes — see API Route Pattern below
 ├── components/
-│   ├── ProgressStepper, WizardStepHeader, JourneyArc, ErdFlowViewer, DbOperationsModal
+│   ├── ProgressStepper, WizardStepHeader, JourneyArc, ErdFlowViewer,
+│   │   DbOperationsModal, CopilotProvider
+│   ├── eml/            # RuleEditor, RuleFlowCanvas, StateFlowCanvas,
+│   │                   #   WorkflowEditor, SagaLadder, SagaStepEditor
+│   ├── automation/     # AutomationBuilder, LadderCard, RailList,
+│   │                   #   RuleTableEditor, StepInspector, AutomationHelp
 │   ├── approval/, code-agent/, error-boundary/, project/, providers/
-│   ├── rules/          # DecisionTableEditor, JDMEditor
-│   ├── workflow/       # WorkflowEditor, GoRulesEditor, FlowchartPreview
 │   └── ui/             # Shadcn-style primitives
 ├── lib/
+│   ├── automation/{model,rule-content}.ts     # the automation model + serializer
+│   ├── eml/{rule-flow,workflow-flow}.ts       # canvas ⇄ EML round-trip
+│   ├── workflow/{bpmn-model,hook-parser}.ts
 │   ├── mermaid.ts, mermaid-erd-parser.ts, mermaid-flowchart-parser.ts, mermaid-render.ts
-│   ├── auth-server.ts, encrypt.ts, errors.ts, api-client.ts, jdm-converter.ts
-│   ├── api/{projects,deployment}.ts, workflow/hook-parser.ts
+│   ├── project-access.ts  # ⭐ one implementation of "who may read/edit a project"
+│   ├── rate-limit.ts, auth-server.ts, password.ts, encrypt.ts, request-context.ts
+│   ├── generated-ports.ts, action-log.ts, errors.ts, api-client.ts, jdm-converter.ts
+│   ├── api/{projects,deployment}.ts, copilot-runtime.ts, mastra-adapter.ts, code-agent.ts
 │   └── start-api-routes-compat.js, vinxi-routes-stub.js   # Vite shims
 ├── middleware/auth.ts
 ├── store/{projectStore,authStore}.ts   # Zustand
-├── hooks/useHumanInTheLoop.ts
+├── hooks/{useHumanInTheLoop,useModelAssistant}.ts
+├── test/setup.ts       # Vitest setup (moved here from components/workflow/__tests__/)
 └── types/{project,workflow}.ts
+```
+
+---
+
+## The Project Wizard
+
+`packages/web/src/types/project.ts` owns the step vocabulary —
+`ProjectStep`, `STEP_ORDER`, `STEP_LABELS`, `STEP_ROUTES`. `ProgressStepper`
+derives itself from those, so **a new step is added in one place**.
+
+```
+init → design → logic → generate → enhance → deploy
+```
+
+`logic` replaced the former separate `rules-design` step: a rule decides and a
+process acts on what it decided, often about the same entity, so they share one
+screen. `/projects/$id/automations` is the trigger→conditions→steps builder,
+reachable alongside the wizard rather than being a numbered step of it.
+
+### User-facing AI flow
+
+```
+/projects → New Project → /projects/$id/init
+  → natural-language description
+  → agents: domain → entity → relationship → mermaid
+  → /projects/$id/design      (HITL ERD approval, ErdFlowViewer)
+  → /projects/$id/logic       (rules + workflows, one screen)
+  → /projects/$id/automations (trigger / conditions / steps builder, rule tables)
+  → /projects/$id/generate    (code generation, SSE progress)
+  → /projects/$id/enhance/$serviceName
+  → /projects/$id/deploy
 ```
 
 ---
@@ -347,14 +443,15 @@ src/
 
 - Dynamic segments use `$`: `$id`, `$serviceName` (not Next.js `[id]`)
 - Splat routes use `$.ts` (e.g. `api/copilotkit/$.ts`)
+- Flat-file segments use `.`: `api/projects/$id/eml.download.ts` → `/api/projects/$id/eml/download`
 - Every route file exports `export const Route = createFileRoute('/path')({ ... })`
 - `routeTree.gen.ts` is generated by the TanStack Router plugin — never edit it by hand
 
 ### API Route Pattern — use `createFileRoute` + `server.handlers`
 
-This is the current pattern (~43 route files). **Do not use `createAPIFileRoute`
-for new routes** — only two legacy files still do, and `@tanstack/start/api` is
-deprecated and emits a `console.warn` on every load.
+This is the current pattern. **Do not use `createAPIFileRoute` for new routes** —
+one legacy file still does (`api/db/generate-schema.ts`), and
+`@tanstack/start/api` is deprecated and emits a `console.warn` on every load.
 
 ```typescript
 // routes/api/projects/$id/index.ts
@@ -379,13 +476,6 @@ export const Route = createFileRoute("/api/projects/$id")({
           headers: { "Content-Type": "application/json" },
         });
       },
-
-      PUT: async ({ request, params }) => {
-        const data = await request.json();
-        return new Response(JSON.stringify({ success: true }), {
-          headers: { "Content-Type": "application/json" },
-        });
-      },
     },
   },
 });
@@ -394,7 +484,8 @@ export const Route = createFileRoute("/api/projects/$id")({
 **Conventions in these handlers:**
 - Dynamic-`import()` server-only modules (`@erdwithai/core/services`, `pg`, generator code) inside the handler body.
 - Always return a real `Response` with an explicit `Content-Type`.
-- API routes are excluded from the client router tree via the `tsr` option in `vite.config.ts`.
+- API routes are excluded from the client router tree via the `tsr.routeFileIgnorePattern` option in `vite.config.ts`.
+- **Any route touching a project must call `requireProjectAccess`** (see Project Access below).
 
 ### Streaming (SSE) route
 
@@ -436,11 +527,11 @@ export const Route = createFileRoute("/api/generate")({
 ```typescript
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/projects/$id/design")({
-  component: DesignPage,
+export const Route = createFileRoute("/projects/$id/logic")({
+  component: LogicPage,
 });
 
-function DesignPage() {
+function LogicPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
   return <button onClick={() => navigate({ to: "/projects" })}>Back</button>;
@@ -456,6 +547,15 @@ function DesignPage() {
 | URL params | `Route.useParams()` |
 | Search params | `Route.useSearch()` |
 | Link | `<Link to="/path">` |
+
+### Isomorphic code (`beforeLoad`, shared helpers)
+
+A route's `beforeLoad` runs on the server for the first paint and in the browser
+for every navigation after. Never import `@tanstack/react-start/server` from a
+file in the client graph — the bundler's import protection fails the production
+build even behind a `typeof window` check. Use `createIsomorphicFn`; see
+`src/lib/request-context.ts`, which returns the base URL and cookie-carrying
+fetch options for whichever side is running.
 
 ### Environment variables
 
@@ -487,13 +587,27 @@ isHookType("beforeCreate"); // true
 language/
 ├── erdwithai-language.json   # ⭐ Canonical definition
 ├── index.ts                  # Typed loader/accessor
-├── checker.ts
+├── composer.ts               # ⭐ Writes a complete EML document (composeEml, mergeSections)
+├── rag.ts                    # ⭐ EML → retrieval chunks (one per entity/rule/workflow/spec section)
+├── checker.ts                # `bun language/checker.ts <file.mmd>` — full validator
+├── fixer.ts                  # `bun language/fixer.ts <file.mmd.error>` — applies auto-fixes
 ├── grammar/erdwithai.ebnf    # Formal EBNF grammar
 ├── spec/                     # 00-overview, 01-erd, 02-business-rules,
 │                             # 03-workflows, 04-types-and-modifiers, 05-directives
 ├── cli/                      # Zero-dependency `eml` CLI (Bun) + runtime for generated apps
-└── examples/                 # crm, ecommerce, helpdesk, minimal (.eml.mmd)
+└── examples/                 # crm, ecommerce, helpdesk, minimal (.eml.mmd, with .error reports)
 ```
+
+`language/` is **the source of truth for both the generator and the applications
+it generates**. `composer.ts` and `rag.ts` are deliberately dependency-free and
+structurally typed: the generator re-exports them (`packages/generator/src/eml`,
+`packages/generator/src/rag`), and `rag.ts` is copied into generated apps
+verbatim — an `@erdwithai/*` import there would not survive the trip.
+
+`composer.ts` is the **only** place that decides what a complete EML document
+looks like. `mergeSections(source, { rules, workflows })` replaces the rules and
+workflow sections while leaving the ERD byte-for-byte intact, which is what the
+logic editor needs for a safe round trip.
 
 **Sections** are opened by a Mermaid keyword: `erDiagram` (ERD),
 `flowchart`/`graph` (rules **or** workflow), `stateDiagram-v2` (workflow).
@@ -501,9 +615,19 @@ A `flowchart` is read as **rules** when preceded by `%%meta kind: rules`, or whe
 it contains only decision/expression/function/io shapes and no `%%hook`
 directives; otherwise it is a **workflow**.
 
-**Reserved directives**: `%%meta %%hook %%entity %%field %%enum %%index %%rule
-%%guard %%trigger %%workflow`. Only `%%hook` is parsed by the currently shipped
-parser — the rest are the documented extension surface (`spec/05-directives.md`).
+**Directives** declared in `erdwithai-language.json`: `%%meta %%entity %%field
+%%enum %%index %%category %%rbac %%hook %%rule %%guard %%trigger %%workflow
+%%step %%action %%loop`. The generator pipeline compiles
+`%%rule` (→ JDM), `%%hook` (→ lifecycle handlers), `%%workflow kind: state`
+(→ status machines), `%%workflow kind: saga` (→ multi-step processes),
+`%%category` (→ entity grouping) and `%%enum`/`%%field` (→ bound enums).
+See `spec/05-directives.md`.
+
+**Validation loop** (checker → fixer → recheck):
+```bash
+bun language/checker.ts examples/crm.eml.mmd          # writes crm.eml.mmd.error
+bun language/fixer.ts   examples/crm.eml.mmd.error    # auto-fixes EML001/114/117/421/422
+```
 
 When changing language semantics, update `erdwithai-language.json` **first**, then
 the spec docs and grammar.
@@ -538,9 +662,65 @@ await db.updateTable('projects').set({ name: 'updated' }).where('id', '=', id).e
 await db.deleteFrom('projects').where('id', '=', id).execute();
 ```
 
+**pgvector** is required for the model-context assistant — CI runs
+`pgvector/pgvector:pg18` because `CREATE EXTENSION vector` fails on stock Postgres.
+
 Target-database connection strings for generated projects are encrypted at rest
 with AES-256-GCM using `DB_ENCRYPTION_KEY` (`packages/web/src/lib/encrypt.ts`).
 Rotating that key invalidates all stored project connections.
+
+---
+
+## Security Patterns
+
+### Project access
+
+A project is owned by its creator and shared with rows in `project_members`.
+**Every route that touches a project must enforce that** — reading someone
+else's model by guessing an id is the same disclosure whether it arrives as
+JSON, as an `.mmd` download, or as parsed sections. Use the shared helper:
+
+```typescript
+import { requireProjectAccess } from "@/lib/project-access";
+
+const access = await requireProjectAccess(request, params.id, "read_write");
+if ("response" in access) return access.response;   // 401 / 403 / 404
+```
+
+Permissions are `"read"` and `"read_write"`. Do not reimplement the check
+inline — a copy in one file and not another is exactly how the EML routes ended
+up open while `/api/projects/$id` was closed. `api/projects/$id/index.ts` still
+carries a local `checkProjectAccess`; new routes should use the shared helper,
+and that copy is worth folding in when you touch the file.
+
+### Rate limiting
+
+`packages/web/src/lib/rate-limit.ts` is a dependency-free, in-memory fixed-window
+limiter for TanStack Start server handlers (`express-rate-limit` does not apply —
+these are Web `Request`/`Response` handlers, not Express middleware). Guard a route
+by returning early:
+
+```typescript
+const { AUTH_LOGIN_LIMIT, enforceRateLimit } = await import("@/lib/rate-limit");
+const limited = enforceRateLimit(request, "auth:login", AUTH_LOGIN_LIMIT);
+if (limited) return limited;   // 429 with Retry-After + RateLimit-* headers
+```
+
+Counters are keyed by `scope:clientIp`, so each endpoint has its own budget.
+Currently applied to `api/auth/login` (10/min per IP) and `api/auth/register`
+(3/min per IP).
+
+**Limitation:** counters live in module state — single-process only, and they
+reset on restart. Move `buckets` to Redis before running more than one instance.
+
+### Password hashing
+
+`packages/web/src/lib/password.ts` is a **fixed-salt SHA-256** — fast to
+brute-force, and identical passwords hash identically. It is kept as-is because
+stored hashes are already in this format; changing it silently locks out every
+existing user. Replacing it means a migration that rehashes on next successful
+login, not an edit to that file. Login, registration and container bootstrap all
+import from here so they cannot drift.
 
 ---
 
@@ -572,7 +752,13 @@ Root `tsconfig.json` is strict, with several checks beyond `strict`:
 
 `biome.json`: 2-space indent, LF, **line width 100**, double quotes (JS + JSX),
 always semicolons, ES5 trailing commas, no trailing commas in JSON.
+Excluded from Biome entirely: `packages/generator/templates`,
+`language/cli/runtime`, `generated-projects`, `**/routeTree.gen.ts`, `**/*.css`.
 Run `bun run lint:fix` before committing.
+
+CI lints with `--diagnostic-level=error` only: the tree carries several hundred
+style warnings that predate the workflow. Errors (formatting, unorganised
+imports) are auto-fixable and stay enforced.
 
 ### Naming Conventions
 
@@ -584,7 +770,7 @@ Run `bun run lint:fix` before committing.
 | Constants (primitives) | UPPER_SNAKE_CASE | `AI_BASE_URL` |
 | Constants (instances) | camelCase | `globalHookExecutor`, `domainAgent` |
 | Files (logic) | kebab-case | `domain-agent.ts` |
-| Files (React components) | PascalCase | `ProgressStepper.tsx` |
+| Files (React components) | PascalCase | `AutomationBuilder.tsx` |
 
 ### Import order
 
@@ -592,6 +778,13 @@ Run `bun run lint:fix` before committing.
 2. Internal packages (`@erdwithai/*`)
 3. Relative imports
 4. Type-only imports (`import type`)
+
+### Comments
+
+Files in this codebase open with a block explaining **why the file exists and
+what it decided** — the failure it prevents, the alternative rejected — not what
+the code does line by line. Match that when adding a module; see
+`packages/web/src/lib/automation/model.ts` or `language/rag.ts` for the register.
 
 ### Error handling
 
@@ -637,6 +830,23 @@ export abstract class BaseService<T> {
 
 See `HOOKS_GUIDE.md` and `packages/core/src/generators/hook-translator/`.
 
+### The automation model
+
+`packages/web/src/lib/automation/model.ts` — one sentence, three parts:
+a **trigger**, a flat list of **conditions** that must all pass, and an ordered
+list of **steps**. Deliberately not a graph: the executor runs steps in order and
+stops at the first failure, so a list is the honest representation and the
+builder can draw it as a ladder.
+
+Triggers are the entity lifecycle hooks the generated services already fire —
+`created`/`beforeCreated`/`updated`/`beforeUpdated`/`deleted`/`beforeDeleted`,
+mapped to `afterCreate`/`beforeCreate`/… by `TRIGGER_HOOKS`.
+
+Storage is unchanged: `serializeAutomation` writes the same Mermaid flowchart
+with `%%` directives the existing parser reads, so automations saved before the
+builder existed still open, and anything saved in it still runs through the
+existing executor.
+
 ### AI agent pattern (Mastra.ai)
 
 ```typescript
@@ -658,54 +868,39 @@ export async function analyzeDomain(description: string) {
 }
 ```
 
+### Model-context assistant (CopilotKit + RAG)
+
+`packages/web/src/hooks/useModelAssistant.ts` wires two channels:
+
+- `useCopilotReadable` publishes a **small always-present summary** (app name,
+  entity names, rule/workflow names). Cheap enough for every message, and it
+  stops the assistant proposing an entity that already exists.
+- `useCopilotAction` gives it **retrieval** against `POST /api/model-context`.
+  Detail — a rule's decision table, a process's steps, directive syntax — is too
+  large to send every time and only needed sometimes. Making it a search the
+  model chooses to run also shows the user what was consulted.
+
+Retrieval is scoped by `projectId` and a `surface` (`entities` | `logic` |
+`general`), and the endpoint enforces project access before searching.
+
 ### Business rules (GoRules)
 
 Rules are JDM decision graphs evaluated by `@gorules/zen-engine`
 (`packages/core/src/rules/`, with a singleton engine and an LRU rule cache).
-The web app edits them through `@gorules/jdm-editor` — bundled from npm, **not** a
-CDN — in `components/workflow/GoRulesEditor.tsx` and `components/rules/`.
-
-### Rate limiting
-
-`packages/web/src/lib/rate-limit.ts` is a dependency-free, in-memory fixed-window
-limiter for TanStack Start server handlers (`express-rate-limit` does not apply —
-these are Web `Request`/`Response` handlers, not Express middleware). Guard a route
-by returning early:
-
-```typescript
-const { AUTH_LOGIN_LIMIT, enforceRateLimit } = await import("@/lib/rate-limit");
-const limited = enforceRateLimit(request, "auth:login", AUTH_LOGIN_LIMIT);
-if (limited) return limited;   // 429 with Retry-After + RateLimit-* headers
-```
-
-Counters are keyed by `scope:clientIp`, so each endpoint has its own budget.
-Currently applied to `api/auth/login` (10/min per IP) and `api/auth/register`
-(3/min per IP).
-
-**Limitation:** counters live in module state — single-process only, and they
-reset on restart. Move `buckets` to Redis before running more than one instance.
-
-### User-facing AI flow
-
-```
-/projects → New Project → /projects/$id/init
-  → natural-language description
-  → agents: domain → entity → relationship → mermaid
-  → /projects/$id/design         (HITL ERD approval)
-  → /projects/$id/rules-design   (business rules from %%rule flowcharts)
-  → /projects/$id/generate       (stack selection + code generation)
-  → /projects/$id/enhance/$serviceName
-  → /projects/$id/deploy
-```
+`%%rule` flowcharts compile to JDM in `packages/generator/src/rules/` — the same
+representation the generated app's engine evaluates and its admin editor edits,
+so a rule drawn at design time is the rule that runs. The web app edits them
+through `@gorules/jdm-editor` — bundled from npm, **not** a CDN.
 
 ---
 
 ## Environment Variables
 
 **AI (local model — required for AI features):**
-- `LOCAL_AI_BASE_URL` (default `http://localhost:8000/v1`)
-- `LOCAL_AI_MODEL` (default `qwen3.6:27b-mlx`)
+- `LOCAL_AI_BASE_URL` (default `http://127.0.0.1:8000/v1`)
+- `LOCAL_AI_MODEL` (default `mlx-community/Qwen3.8-27B-4bit`)
 - `LOCAL_AI_API_KEY` (default `local`)
+- `LOCAL_AI_EMBEDDING_MODEL` (default `bge-small-en-v1.5`), `LOCAL_AI_EMBEDDING_DIMENSIONS` (384)
 - `LLAMA_CPP_BASE_URL` / `LLAMA_CPP_MODEL` — optional llama.cpp server
 
 **Database:** `DATABASE_URL`, or `PGHOST` / `PGPORT` / `PGUSER` / `PGPASSWORD` / `PGDATABASE`
@@ -728,7 +923,11 @@ reset on restart. Move `buckets` to Redis before running more than one instance.
 
 **ERD design:** `ERD_DESIGN_AUTO_RETRY_COUNT` (3), `ERD_DESIGN_RETRY_DELAY_MS` (2000)
 
+**Seeding (containers/CI):** `SEED_MODEL` (path to an `.mmd`), `SEED_DATABASE_URL` (schema to reverse-engineer)
+
 `ANTHROPIC_API_KEY` is **no longer used**. See `.env.example` for the full list.
+The root `.env` is the only one — `packages/web/vite.config.ts` loads it into
+`process.env` for the dev server.
 
 ---
 
@@ -744,8 +943,14 @@ bun --filter @erdwithai/web test -- path/to/file.spec.ts
 
 The effective config is `packages/web/vitest.config.ts` — jsdom, `pool: "forks"`,
 10s timeouts. It deliberately includes tests from sibling packages:
-`src/**`, `../core/src/**`, `../generator/src/**`. Setup file:
-`packages/web/src/components/workflow/__tests__/setup.ts`.
+`src/**`, `../core/src/**`, `../generator/src/**`, `../ai/src/**`.
+Setup file: `packages/web/src/test/setup.ts`.
+
+Notable suites: `lib/automation/__tests__/` (model, loops, rule content,
+language parity, generated-app parity, a drug-discovery stress test),
+`lib/eml/__tests__/rule-flow-roundtrip.test.ts`, `lib/__tests__/rate-limit.test.ts`,
+`lib/__tests__/generated-ports.test.ts` (asserts the port constants match the
+generator's).
 
 ### E2E tests (Playwright)
 
@@ -766,6 +971,44 @@ Note the port mismatch: `bun run dev` serves on **3000**, Playwright targets
 Some suites under `tests/e2e/complete-tests/` target an OData/UI5 stack the
 generator no longer emits — treat those as historical.
 
+### Testing what the generator produces
+
+**Type-checking this repo says nothing about whether a generated app compiles** —
+templates are `.hbs` text until rendered. `.github/workflows/ci.yml` therefore
+has a second job that generates an application from
+`examples/drug-discovery.eml.mmd`, builds its backend, frontend and test suite,
+migrates a pgvector Postgres, starts the backend, and runs the generated
+`bun:test` E2E suite against it. **Changing a template means running that path**,
+not just `bun run type-check`.
+
+The generated suite lives in `packages/generator/templates/tanstack-start-nestjs/tests/`
+— a `harness/` (auth, http, factory, entities, rules, workflows, metrics, report)
+and `suites/` (health, auth, dictionary, bulk-seed, rules-workflow, workflow
+random/multistep, users-roles, benchmark, plus per-entity CRUD and rules suites).
+`--records-per-entity` controls the bulk-seed volume (default 1000; CI uses 25).
+
+### QA reports
+
+`docs/qa/qa-report-*.md` are dated walkthroughs of a generated application, with
+screenshots in `pics/`. `html/` is a nine-page static guide ("Build a CRM with
+ERDwithAI") built from those runs.
+
+---
+
+## CI/CD (`.github/workflows/`)
+
+| Workflow | What it does |
+|----------|--------------|
+| `ci.yml` | **checks**: type-check, Biome (errors only), unit tests. **generated-app**: generate → build backend/frontend/tests → migrate+seed pgvector Postgres → start backend → run the generated E2E suite |
+| `github-neon.yml` | `workflow_dispatch`: generate from an online `.mmd`, point the app at a Neon database, migrate/seed/verify, run both halves on the runner, exercise it, optionally publish the app to a repo |
+| `eml-generate-and-publish.yml` | `workflow_dispatch`: run the `eml` CLI over an online model and publish the generated application to a target repo |
+
+`scripts/ci/neon-db.ts` holds everything that touches the Neon connection string
+(`check`, `reset`, `report [--assert]`, `write-env`) so the URL is never
+interpolated into a command line where it could reach a log or process listing.
+Secrets: `NEON_DATABASE_URL`, `EML_PUBLISH_TOKEN` (needs `repo` **and**
+`workflow` scopes — generated apps carry their own `.github/workflows/`).
+
 ---
 
 ## Git Workflow
@@ -773,7 +1016,8 @@ generator no longer emits — treat those as historical.
 1. Create a feature branch from `main`
 2. Make changes with descriptive commits
 3. Run `bun run type-check` and `bun run lint` before pushing
-4. Target `main` for pull requests
+4. If you touched `packages/generator/templates/`, generate an app and build it
+5. Target `main` for pull requests
 
 ---
 
@@ -786,23 +1030,28 @@ generator no longer emits — treat those as historical.
 | `biome.json` | Lint + format rules |
 | `playwright.config.ts` / `packages/web/vitest.config.ts` | Test configuration |
 | `.env.example` | All environment variable templates |
+| `.github/workflows/ci.yml` | Checks + generate-and-build-the-generated-app |
 | `.claude/custom-rules.md` | Bun-only policy |
 | `.claude/tanstack-start-reference.md` | TanStack Start notes |
-| `packages/ai/src/config.ts` | ⭐ Central AI model config |
+| `packages/ai/src/config.ts` | ⭐ Central AI model + embedding config |
+| `packages/ai/src/rag/store.ts` | pgvector model-context index |
 | `packages/ai/src/mastra/index.ts` | Mastra instance |
 | `packages/ai/src/workflows/erd-design-workflow.ts` | HITL ERD workflow |
-| `packages/ai/src/agents/domain-agent.ts` | NL → domain analysis |
 | `packages/core/src/config/db.config.ts` | ⭐ Sole DB connection site |
 | `packages/core/src/services/database.service.ts` | Kysely domain helpers |
 | `packages/core/src/hooks/hook-executor.ts` | `globalHookExecutor` |
 | `packages/core/src/rules/rules-engine.service.ts` | GoRules evaluation |
+| `packages/generator/src/pipeline/generate-application.ts` | ⭐ The one generation path |
 | `packages/generator/src/cli/generate.ts` | Generator CLI |
-| `packages/generator/src/parsers/mermaid.parser.ts` | Mermaid ERD parser |
+| `packages/generator/src/generators/ports.ts` | Generated-app default ports |
 | `packages/generator/templates/tanstack-start-nestjs/` | Stack templates |
-| `packages/web/vite.config.ts` | Vite 8 config + `start-api-routes` shim |
-| `packages/web/src/routes/__root.tsx` | Root layout |
-| `packages/web/src/lib/mermaid-flowchart-parser.ts` | Rules/workflow flowchart parser |
+| `packages/web/vite.config.ts` | Vite 8 config, root-`.env` loading, `start-api-routes` shim |
+| `packages/web/src/types/project.ts` | ⭐ Wizard step vocabulary |
+| `packages/web/src/lib/project-access.ts` | ⭐ Project authorization |
+| `packages/web/src/lib/automation/model.ts` | Automation model + serializer |
 | `language/erdwithai-language.json` | ⭐ EML canonical definition |
+| `language/composer.ts` | ⭐ The only writer of complete EML documents |
+| `language/rag.ts` | EML → retrieval chunks (copied into generated apps) |
 
 ---
 
@@ -817,6 +1066,7 @@ generator no longer emits — treat those as historical.
 | [docs/ARCHITECTURAL-DESIGN-AUTH-WORKFLOW-RULES.md](docs/ARCHITECTURAL-DESIGN-AUTH-WORKFLOW-RULES.md) | Auth + workflow + rules design |
 | [docs/AUDIT_GUIDE.md](docs/AUDIT_GUIDE.md) | Audit trail |
 | [docs/NESTJS-INTEGRATION-GUIDE.md](docs/NESTJS-INTEGRATION-GUIDE.md) | Generated-backend integration |
+| [docs/qa/](docs/qa/) | Dated QA walkthroughs of generated apps |
 | [language/README.md](language/README.md) | EML entry point |
 
 ---
@@ -833,20 +1083,35 @@ generator no longer emits — treat those as historical.
 
 1. Create the file under `packages/web/src/routes/api/…` (`$param` for dynamic segments)
 2. Use `createFileRoute("/api/…")({ server: { handlers: { GET, POST, … } } })`
-3. Dynamic-`import()` server-only deps inside the handler; return an explicit `Response`
+3. Call `requireProjectAccess` if the route touches a project
+4. Dynamic-`import()` server-only deps inside the handler; return an explicit `Response`
+
+### Add a wizard step
+
+1. Add the key to `ProjectStep`, `STEP_ORDER`, `STEP_LABELS`, `STEP_ROUTES` in `packages/web/src/types/project.ts`
+2. Create `packages/web/src/routes/projects/$id/<step>.tsx`
+3. `ProgressStepper` picks it up automatically — do not hard-code steps anywhere else
 
 ### Add a new generation template
 
 1. Add the `.hbs` file under `packages/generator/templates/tanstack-start-nestjs/`
 2. Register it in `packages/generator/src/templates/loader.ts`
 3. Supply context data in the matching generator class
+4. Generate an app and build it — `tsc` here will not catch a broken template
+
+### Add a generator input
+
+Add it once in `packages/generator/src/pipeline/generate-application.ts`
+(`GenerationSettings`). Do **not** assemble options separately in the CLI or in
+`/api/generate` — that drift is what lost `%%category` on the web path.
 
 ### Extend the EML language
 
 1. Edit `language/erdwithai-language.json` (source of truth)
 2. Update `language/grammar/erdwithai.ebnf` and the relevant `language/spec/*.md`
-3. Update the parser (`packages/web/src/lib/mermaid-flowchart-parser.ts` and/or `language/cli/src/`)
-4. Add an example to `language/examples/`
+3. Update the parser (`language/cli/src/parser.ts`, `packages/web/src/lib/mermaid-flowchart-parser.ts`, `packages/generator/src/rules/flowchart-parser.ts`)
+4. Update `language/composer.ts` if the document shape changes, and `language/rag.ts` if the chunking does
+5. Add an example to `language/examples/` and run `bun language/checker.ts` over it
 
 ### Add a core subpath export
 
@@ -857,7 +1122,7 @@ generator no longer emits — treat those as historical.
 ### Run the full stack locally
 
 ```bash
-bun run dev          # Terminal 1 — web app on :3000
-bun run dev:mastra   # Terminal 2 — Mastra on :4111
-# plus a local OpenAI-compatible model server on :8000 (LOCAL_AI_BASE_URL)
+./scripts/start-llm.sh   # local OpenAI-compatible model on :8000
+bun run dev              # Terminal 1 — web app on :3000
+bun run dev:mastra       # Terminal 2 — Mastra on :4111
 ```
