@@ -464,15 +464,9 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("field-schema template not found, skipping:", (e as Error).message);
     }
 
-    // ElectricSQL + PGlite setup (local-first sys_ entity sync)
-    try {
-      const electricContent = await this.renderTemplate("src/lib/electric.ts.hbs", context);
-      await fs.writeFile(path.join(outputDir, "src/lib/electric.ts"), electricContent);
-    } catch (e) {
-      console.warn("Electric template not found, skipping:", (e as Error).message);
-    }
-
-    // TanStack DB collections backed by PGlite
+    // TanStack DB collections, synced by ElectricSQL through the role-scoped
+    // shape proxy. The dictionary lives in these collections; nothing else on
+    // the client holds it.
     try {
       const collectionsContent = await this.renderTemplate(
         "src/lib/sys-collections.ts.hbs",
