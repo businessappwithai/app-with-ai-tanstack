@@ -1,0 +1,852 @@
+# ERDwithAI — Application Context Specification
+
+> Machine-readable spec of the ERDwithAI application generator: the modelling
+> language it reads, the pipeline that compiles it, the templates it renders,
+> and the shape of the application that comes out. Written for language models.
+>
+> Companion human guide: https://appwithai.org/guide/index.html
+> (nine chapters, every screenshot from the CRM described in §9. The material
+> is inlined here in §9 so you do not need to fetch it.)
+
+- **Spec version**: 1.1.0 · **Project version**: 5.1.x · **Updated**: 2026-08-18
+- **Authority**: `language/erdwithai-language.json`. When this file and that
+  file disagree, that file wins. When that file and a shipped compiler
+  disagree, the compiler wins and the definition is the bug.
+- **Repository**: `businessappwithai/app-with-ai-tanstack`
+
+---
+
+## 0. The one idea
+
+Most generators stop at the schema: you describe tables, you get CRUD screens,
+and every rule the business actually runs on is left to hand-write.
+
+ERDwithAI takes **one Mermaid document** that describes three things — the data,
+the decisions, and the processes — and compiles all three. The rules and
+workflows drawn in the document are running in the generated application, not
+scaffolded as TODOs.
+
+```
+one .eml.mmd file  →  generate  →  Postgres schema + NestJS API + TanStack Start UI
+                                   + Application Dictionary + audit trail
+                                   + rules engine + workflow engine, all wired
+```
+
+Two properties follow, and most confusion about this system comes from missing
+one of them:
+
+1. **Every EML document is valid, renderable Mermaid.** Generator semantics ride
+   on `%%` comment directives, which renderers ignore. A stakeholder opening the
+   file in any Mermaid viewer sees the diagram; nothing is hidden in a sidecar.
+2. **The screens are derived from database rows, not from generated page code.**
+   The Application Dictionary (§5) holds windows, tabs and fields as data. An
+   administrator changes the UI without a deploy; a developer changes it by
+   changing the model and regenerating.
+
+---
+
+## 1. Repository topology
+
+```
+app-with-ai-tanstack/
+├── language/          # EML: the language. Definition, spec, grammar, checker, CLI
+├── packages/
+│   ├── core/          # Shared types, hooks, services, auth, rules, DB config
+│   ├── generator/     # ⭐ The generator: pipeline, compilers, Handlebars templates
+│   ├── ai/            # Mastra agents, HITL ERD workflow, pgvector retrieval
+│   └── web/           # The modelling tool itself (TanStack Start, :3000)
+├── database/          # Migrations for the modelling tool's own database
+├── llmtext/           # This file
+├── html/              # The human guide published at appwithai.org/guide
+├── generated-projects/# Output of the generator
+└── examples/          # Sample models (.mmd / .eml.mmd)
+```
+
+Two applications live here and must not be confused:
+
+| | The **modelling tool** | The **generated application** |
+|---|---|---|
+| Where | `packages/web`, port 3000 | `generated-projects/<name>`, ports 4000/4001 |
+| What | Where you author and generate a model | What the generator produced |
+| Stack | TanStack Start + Vite 8 | TanStack Start (4000) + NestJS (4001) |
+| Database | `database/migrations/` | its own, per generated app |
+
+When a request says "the app", resolve which one from context. "Generate",
+"designer", "wizard", "project" → the modelling tool. "bus_ table",
+"dictionary", "seeded rule" → the generated application.
+
+---
+
+## 2. System architecture
+
+```mermaid
+graph TD
+    subgraph Authoring ["Authoring — modelling tool :3000"]
+        NL[Natural language description] -->|Mastra agents| MODEL
+        DESIGNER[ERD designer / logic editor / automation builder] --> MODEL
+        MODEL[["EML document (.eml.mmd)<br/>ERD + rules + workflows"]]
+        MODEL --> CHECK[checker.ts → .mmd.error]
+        CHECK --> FIX[fixer.ts auto-fixes]
+        FIX --> MODEL
+    end
+
+    MODEL ==>|the single artifact| PIPE
+
+    subgraph Generation ["Generation — packages/generator"]
+        PIPE[["pipeline/generate-application.ts<br/>THE one path"]]
+        PIPE --> P1[mermaid.parser<br/>ERD, %%index, %%enum]
+        PIPE --> P2[category.parser<br/>%%category]
+        PIPE --> P3[rules/<br/>flowchart→JDM, %%action]
+        PIPE --> P4[hooks/<br/>%%hook]
+        PIPE --> P5[workflows/<br/>state, saga, %%step, %%loop]
+        P1 & P2 & P3 & P4 & P5 --> HBS[Handlebars templates<br/>270 .hbs files]
+    end
+
+    HBS ==> OUT
+
+    subgraph Generated ["Generated application"]
+        OUT[["~400 files"]]
+        OUT --> BE[NestJS + Fastify + Kysely :4001]
+        OUT --> FE[TanStack Start + React 19 :4000]
+        OUT --> TESTS[bun:test E2E suite]
+        BE --> DB[(PostgreSQL<br/>bus_* + sys_*)]
+        FE -->|REST /api| BE
+    end
+```
+
+### Data flow at runtime, in the generated app
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant FE as TanStack Start (4000)
+    participant API as NestJS BusController (4001)
+    participant HOOK as Hook registry
+    participant RULE as zen-engine (JDM)
+    participant WF as Workflow engine
+    participant DB as PostgreSQL
+
+    User->>FE: Edits a record, saves
+    FE->>API: PUT /api/bus/:entity/:id
+    API->>HOOK: beforeUpdate handlers
+    HOOK->>RULE: evaluate rules bound to (entity, beforeUpdate)
+    alt a validation-error action matches
+        RULE-->>API: action=validation-error + message
+        API-->>FE: 400, the write never happens
+    end
+    RULE-->>API: action=trigger-workflow + workflowName
+    API->>DB: UPDATE bus_<entity>
+    API->>WF: start workflow by name
+    WF->>DB: run each %%step in edge order
+    API->>DB: INSERT sys_audit_log
+    API-->>FE: 200 + updated record
+    FE->>FE: refresh from the dictionary-driven view
+```
+
+The chain in words: **a value change fires a rule, the rule's action names a
+workflow, the workflow's steps write rows.** Everything in it was declared in
+the model. §9.7 walks a concrete instance of this chain.
+
+---
+
+## 3. EML — the input language
+
+Full reference: `language/spec/` (6 documents), grammar in
+`language/grammar/erdwithai.ebnf`, canonical definition in
+`language/erdwithai-language.json`.
+
+### 3.1 Document structure
+
+A document is UTF-8 text holding one or more **sections**. A section opens at a
+Mermaid keyword and runs to the next one.
+
+| Opening keyword | Section |
+|---|---|
+| `erDiagram` | ERD |
+| `flowchart` / `graph` | business rules **or** workflow |
+| `stateDiagram-v2` | workflow (state-machine form) |
+
+A `flowchart` is read as **rules** when preceded by `%%meta kind: rules`, or
+when it contains only decision/expression/function/io shapes and no `%%hook`
+directives. Otherwise it is a **workflow**.
+
+### 3.2 The fifteen directives, with status
+
+`status` is the field that matters. **compiled** = a shipped reader consumes it
+and the generated application changes. **validated** = only `checker.ts` reads
+it. **reserved** = documented, renderer-safe, inert.
+
+| Directive | Form | Status | Compiled by |
+|---|---|---|---|
+| `%%meta` | `%%meta <key>: <value>` | compiled | `language/composer.ts` |
+| `%%hook` | `%%hook <type> <handler> on <E>` · `%%hook <type> on <E>` | compiled | `generator/src/hooks/index.ts` |
+| `%%step` | `%%step <nodeId> <stepType> <k>: <v> …` | compiled | `generator/src/workflows/steps.ts` |
+| `%%action` | `%%action <name> <type> when: <expr> …` | compiled | `generator/src/rules/index.ts` |
+| `%%field` | `%%field <E>.<attr> <k>: <v>` | compiled *(`enum:` key only)* | `generator/src/parsers/mermaid.parser.ts` |
+| `%%enum` | `%%enum <Name>: a, b, c` | compiled | `mermaid.parser.ts` |
+| `%%category` | `%%category name: X; icon: Y; entities: A, B` | compiled | `generator/src/parsers/category.parser.ts` |
+| `%%index` | `%%index <E>(<a>[, <b>]) [unique]` | compiled | `mermaid.parser.ts` → real DDL |
+| `%%guard` | `%%guard <field> <operator> <jsonValue>` | compiled | `web/src/lib/automation/model.ts` |
+| `%%loop` | `%%loop <id> while: <f> <op> <v> max: <n>` | compiled | `workflows/steps.ts` |
+| `%%workflow` | `%%workflow <Name> entity: <E> kind: <hook\|state\|saga>` | compiled | `generator/src/workflows/index.ts` |
+| `%%entity` | `%%entity <E> <k>: <v>` | validated | `language/checker.ts` |
+| `%%rule` | `%%rule <name> on <E> event: <hook> priority: <n>` | validated | `language/checker.ts` |
+| `%%trigger` | `%%trigger <source> -> <handler> on <E>` | validated | `language/checker.ts` |
+| `%%rbac` | `%%rbac <roleExpr> on <E>.<op>` | reserved | — |
+
+**Do not tell a user a directive "will do X" without checking its status.** A
+`%%entity Order audited: true` is validated but not compiled: it will not make
+the table audited today.
+
+### 3.3 ERD section
+
+```mermaid
+%%enum LeadStatus: new, working, qualified, converted
+erDiagram
+    Campaign {
+        string id PK
+        string name
+    }
+    Lead {
+        string id PK
+        string email UK
+        string status
+        string campaign_id FK
+        decimal score
+        date    created_at
+    }
+    Campaign ||--o{ Lead : "generates"
+%%field Lead.status enum: LeadStatus
+%%index Lead(campaign_id, status)
+```
+
+- **Modifiers**: `PK` `FK` `UK` `UNIQUE` `OPTIONAL` `NULL`. Anything else is
+  **dropped silently** by the parser — `EML118` now warns, because
+  `string email UNQIUE` otherwise yields a column that is simply not unique and
+  renders identically in the diagram.
+- **Types** normalise through `types.map` in the definition JSON; unknown types
+  fall back to `string` with `EML115`.
+- **Foreign keys** resolve by name: a column ending `_id` points at the entity
+  whose snake_case name it carries. `_by` columns resolve to the user entity.
+- **Cardinalities**: all 8 Mermaid ER operators are compiled.
+- `id PK` is auto-added when an entity declares none.
+
+### 3.4 Rules section
+
+Two forms, and the difference is the single most common source of "my rule
+decides but nothing happens":
+
+**Node-graph form** — shape carries the decision role, compiles to a JDM graph.
+Good for pricing/scoring. Carries **no outputs**, so the engine finds no actions.
+
+```mermaid
+%%meta kind: rules
+%%rule leadScoring on Lead event: beforeCreate priority: 10
+flowchart TD
+    A([Start]) --> B{score > 80?}
+    B -->|Yes| C[hot]
+    B -->|No| D[warm]
+    C --> E([End])
+    D --> E
+```
+
+**Decision-table form** — a section carrying `%%action` directives compiles to a
+JDM decision table, one row per directive. This is the shape the rules engine
+reads `action`, `message`, `ruleId` and `workflowName` from, and therefore
+**the only form whose rules can act**.
+
+```
+%%action escalate trigger-workflow when: severity == "critical" workflow: CriticalEscalation
+%%action requireCause validation-error when: root_cause == null message: A root cause is required
+```
+
+| Action key | Output column | Effect |
+|---|---|---|
+| `workflow` | `workflowName` | `trigger-workflow` starts that workflow |
+| `message` | `message` | `validation-error` fails the write with this text |
+| `field` / `value` | `field` / `value` | stamps a column |
+| `targetEntity` / `linkField` | same | acts on a related row |
+
+`hitPolicy: collect` — several rows may match one write. Every output column is
+written in every row, blank where unused: zen-engine yields **no result at all**
+for a row with a missing cell, so an omitted column silently voids the rule.
+
+### 3.5 Workflow sections — three kinds
+
+**`kind: hook`** — binds named handlers to lifecycle events. Compiles to
+per-entity handler modules plus a registry the bus service calls around every
+CRUD operation. 13 hook types (`beforeCreate`, `afterCreate`, `beforeUpdate`, …).
+
+**`kind: state`** — a `stateDiagram-v2`. States become the values a status column
+may hold; compiles to BPMN seeded into `sys_workflow_definitions`. States should
+be backed by a declared `%%enum` (`EML426`/`EML428` check this).
+
+```mermaid
+stateDiagram-v2
+    [*] --> draft
+    draft --> submitted : submit
+    submitted --> approved : approve
+    approved --> [*]
+```
+
+**`kind: saga`** — a multi-step process. Each `%%step` binds a flowchart node to
+an executable step; the flowchart's **edges give the running order**.
+
+```
+%%workflow LeadConversion entity: Lead kind: saga trigger: rule
+flowchart TD
+    A([Lead qualified]) --> B{Size the account}
+    B --> C[Open the account] --> D[Create the primary contact]
+    D --> F[Mark the lead converted] --> G[Stamp the account tier] --> H([Converted])
+
+    %%step B Decision decisionTable: {"hitPolicy":"first","inputs":[{"id":"i1","name":"Score","field":"score"}],"outputs":[{"id":"o1","name":"Tier","field":"accountTier"}],"rules":[{"_id":"strategic","i1":">= 85","o1":"'strategic'"},{"_id":"rest","i1":"","o1":"'smb'"}]}
+    %%step C CreateEntity entity: Account as: newAccountId fields: {"name":"company_name","tier":"accountTier","owner_id":"owner_id"}
+    %%step D CreateEntity entity: Contact as: newContactId fields: {"account_id":"newAccountId","email":"email"}
+    %%step F UpdateEntity field: status value: converted
+    %%step G UpdateEntity entity: Account targetSource: newAccountId field: tier source: accountTier
+```
+
+(Abridged from `language/examples/crm.eml.mmd`. `Decision` carries its decision
+table inline as `decisionTable:` JSON; `trigger: rule` means the saga starts
+only when a rule's `trigger-workflow` action names it.)
+
+Step types: `UpdateEntity` `CreateEntity` `DeleteEntity` `Formula` `Decision`
+`REST` `Agent`. Steps share a context — the triggering record's columns plus
+every variable an earlier step published (`as` on `CreateEntity`, `target` on
+`Formula`). `source`/`targetSource` is how a later step reaches an earlier
+step's row.
+
+**`fields` carries JSON and must be the last key on a `%%step` line.**
+
+A workflow declared in the model has `source: 'model'`: the generated Workflow
+Designer shows it read-only and regeneration rewrites it. Workflows authored in
+the running app carry `source: 'designer'` and regeneration never touches them.
+
+### 3.6 Validation
+
+```bash
+bun language/checker.ts model.mmd        # writes model.mmd.error beside it
+bun language/fixer.ts   model.mmd.error  # applies auto-fixes, re-checks
+```
+
+Severities: **error** (generator would produce something wrong — exit 1);
+**warning** (legal but almost certainly unintended — exit 1 only under
+`--strict`); **info**.
+
+Code ranges: `EML0xx` document · `EML1xx` entities and their directives ·
+`EML2xx` directive-declared hooks/rules/workflows · `EML3xx` rule flowcharts ·
+`EML4xx` workflow sections · `EML5xx` cross-section consistency.
+
+Auto-fixable: `EML001` (missing `%%meta name`), `EML114` (FK missing `_id`),
+`EML117` (no primary key), `EML421` (no initial transition), `EML422` (no
+terminal state).
+
+**Warnings here are not noise.** Most describe something the generator accepts
+and quietly gets wrong — a dropped modifier, a state no enum backs, a rule that
+can decide but cannot act.
+
+---
+
+## 4. The generator
+
+### 4.1 One pipeline, two entry points
+
+`packages/generator/src/pipeline/generate-application.ts` is **the** generation
+path. Both the CLI and the modelling tool's `/api/generate` go through it, so a
+model produces the same application however it was submitted.
+
+> Adding a generator input means adding it **here, once**. The two call sites
+> used to assemble options separately and drifted: the web path never parsed
+> `%%category`, so an app generated through the UI lost every category the model
+> declared and fell back to a single "General" group.
+
+```bash
+bun packages/generator/src/cli/generate.ts generate \
+  --input language/examples/crm.eml.mmd \
+  --output generated-projects/crm --name crm \
+  --port 4001 --frontend-port 4000 \
+  --records-per-entity 25 --force --no-setup
+```
+
+Subcommands: `generate` `generate:backend` `generate:frontend` `generate:entity`
+`inspect` `validate` `diff` `info` `wizard` `list` `deploy`.
+
+Key flags: `--force` overwrite · `--dry-run` preview · `--no-setup` skip
+install/migrate/seed · `--no-tests` skip the E2E suite · `--records-per-entity`
+(default 1000) · `--db postgresql|sqlite` · `--run-tests`.
+
+**Ports**: generated apps use 4000 (app) and 4001 (API), deliberately off 3000
+where the modelling tool runs. Source of truth
+`generator/src/generators/ports.ts`; `web/src/lib/generated-ports.ts` mirrors it
+for client components with a unit test asserting they stay equal.
+
+### 4.2 Compilation map
+
+| Model input | Compiler | Output in the generated app |
+|---|---|---|
+| `erDiagram` | `parsers/mermaid.parser.ts` | migrations, DTOs, services, controllers, forms, grids |
+| `%%index` | same pass | real DDL indexes via `bus-tables.migration.ts.hbs` |
+| `%%enum`, `%%field enum:` | same pass | bound enums → typed columns + UI selects |
+| `%%category` | `parsers/category.parser.ts` | dashboard groups (`sys_category`) |
+| rules flowchart | `rules/flowchart-parser.ts` → `rules/jdm-converter.ts` | JDM graph → `sys_rule_definitions` |
+| `%%action` | `rules/index.ts` | JDM decision table → rule actions |
+| `%%hook` | `hooks/index.ts` | handler modules + registry around every CRUD op |
+| `stateDiagram-v2` | `workflows/index.ts` | BPMN → `sys_workflow_definitions` |
+| `kind: saga` + `%%step` | `workflows/steps.ts` | one `bpmn:serviceTask` per step |
+| whole document | `language/rag.ts` | retrieval chunks → pgvector `model_context` |
+
+### 4.3 Templates — 270 Handlebars files
+
+```
+packages/generator/templates/
+├── common/                        27 .hbs — stack-independent
+│   ├── migrations/                bus-tables, sys-tables, rbac-tables, field-groups
+│   ├── seeds/                     sys-dictionary, sys-references, business-rules,
+│   │                              business-data, entity-categories, users-and-roles
+│   ├── hooks/                     hook-executor, hook-registry, hook.types
+│   ├── services/                  rbac.service, field-cache.service
+│   └── ai/                        data-query-agent, insights-agent, sql-validator
+└── tanstack-start-nestjs/
+    ├── backend/    148 .hbs — modules: ai, audit, auth, bus, electric, hooks,
+    │                          jobs, model-context, rules, sys, workflow,
+    │                          workflow-definitions
+    ├── frontend/    63 .hbs — routes, components, automation UI, i18n, fonts
+    └── tests/       29 .hbs — harness/ + suites/
+```
+
+Adding a template: create the `.hbs`, register it in
+`generator/src/templates/loader.ts`, supply context in the matching generator
+class — **then generate an app and build it.** Templates are `.hbs` text until
+rendered, so `bun run type-check` in this repo proves nothing about them. Two
+bugs reached main that way. CI's `generated-app` job exists for exactly this.
+
+### 4.4 The generated test suite
+
+`templates/tanstack-start-nestjs/tests/` renders a runnable `bun:test` suite
+into every generated app:
+
+- `harness/` — auth, http, factory, entities, rules, workflows, metrics, report
+- `suites/` — health, auth, dictionary, bulk-seed, rules-workflow, workflow
+  random/multistep, users-roles, benchmark, plus per-entity CRUD and rules
+
+---
+
+## 5. The generated application
+
+### 5.1 Layout
+
+```
+generated-projects/<name>/
+├── backend/    NestJS + Fastify + Kysely, :4001
+│   └── src/{modules,migrations,database,common,lib,trigger}, main.ts, seed.ts
+├── frontend/   TanStack Start + React 19, :4000
+│   └── src/{routes,components,hooks,contexts,providers,i18n,lib}
+├── tests/      bun:test E2E suite
+├── model/      the .eml.mmd it was generated from
+└── Dockerfile, docker-compose.yml, README.md
+```
+
+### 5.2 Database — three families
+
+**`bus_*`** — one table per model entity (`bus_lead`, `bus_account`, …). Your
+data.
+
+**`sys_*`** — the Application Dictionary and platform tables:
+
+| Table | Holds |
+|---|---|
+| `sys_table`, `sys_column` | every table and column: type, length, mandatory, unique, FK target |
+| `sys_window`, `sys_tab`, `sys_field`, `sys_field_group` | how each entity is presented |
+| `sys_element`, `sys_reference`, `sys_ref_list`, `sys_ref_table` | shared labels and lookups |
+| `sys_role`, `sys_user`, `sys_user_role(s)`, `sys_access`, `sys_role_table_access`, `sys_role_field_access` | RBAC |
+| `sys_rule_definitions` | seeded JDM rules |
+| `sys_workflow_definitions` | seeded BPMN; automations live here too, not in a table of their own |
+| `sys_workflow_runs` | one row per workflow execution |
+| `sys_audit_log`, `sys_change_log` | audit trail |
+| `sys_category` | dashboard grouping from `%%category` |
+| `sys_session`, `sys_val_rule` | sessions, validation rules |
+
+**auth tables** — Better Auth.
+
+### 5.3 The Application Dictionary — why screens are data
+
+Borrowed from Compiere ERP. Three layers:
+
+| Layer | Holds | Comes from |
+|---|---|---|
+| Table & Column | every table and its columns | your `erDiagram` |
+| Window / Tab / Field | one window per entity, a tab per record view, a field per displayed column, with order and grouping | derived from the columns |
+| Role | which windows a role may reach, and whether read-only | seeded, then yours |
+
+**Consequence for any UI question**: there is no per-entity page component to
+edit. A column marked mandatory in `sys_column` is required in every form; a
+column with a reference renders as a lookup rather than a free-text box. To
+change a screen, change the model and regenerate, or change the dictionary row
+in `/admin`. Do not go looking for `LeadForm.tsx` — it does not exist.
+
+### 5.4 Backend API
+
+Global prefix `/api`. Controllers:
+
+| Route | Purpose |
+|---|---|
+| `GET/POST/PUT/DELETE /api/bus/:entity[/:id]` | generic CRUD for every entity |
+| `GET /api/bus/:entity/meta` | dictionary metadata for the entity |
+| `GET /api/bus/:entity/fields/{form,grid}` | field definitions driving the UI |
+| `POST /api/bus/:entity/:id/promote` | entity promotion |
+| `/api/sys/{tables,columns,windows,tabs,fields,elements,references,field-groups}` | dictionary CRUD |
+| `/api/rules`, `/api/rules/:id/history`, `/api/rules/validate`, `/dry-run` | rules admin |
+| `/api/workflows/runs[/:runId]`, `/runs/:runId/retry`, `/entity/:name/:id` | workflow runs |
+| `/api/audit/:id/verify`, `/api/audit/:id/history` | audit trail |
+| `/api/auth/{health,permissions}` | auth |
+| `/api/model-context` | retrieval over the model |
+| `/api/v1/shape` | Electric sync (excluded from the prefix) |
+
+Accounts are **administrator-created by design** — a generated back-office app
+has no self-service signup.
+
+### 5.5 Frontend
+
+TanStack Start, file-based routing, dynamic segments use `$`:
+
+```
+routes/
+├── $entity.$id.tsx            generic record view — the dictionary-driven one
+├── <entity>.tsx, <entity>.$id.tsx   per-entity list and record
+└── admin/
+    ├── window/$windowId/tab/$tabId/field/$fieldId.tsx   dictionary editors
+    ├── elements.tsx, references.tsx, categories.tsx, roles.tsx
+    ├── rules/{index,new,$id.edit}.tsx
+    └── workflow-definitions/{index,$id/edit}.tsx
+```
+
+The dashboard is your `%%category` directives: one block per category, heading
+and description taken from the model. An eighth block, Application Dictionary,
+is the generator's own admin surface.
+
+---
+
+## 6. The modelling tool (`packages/web`)
+
+Port 3000. TanStack Start on Vite 8, React 19, Tailwind v4, Zustand.
+
+Wizard steps are declared **once** in `packages/web/src/types/project.ts`
+(`ProjectStep`, `STEP_ORDER`, `STEP_LABELS`, `STEP_ROUTES`); `ProgressStepper`
+derives itself from them.
+
+```
+init → design → logic → generate → enhance → deploy
+```
+
+- **init** — natural language in; agents domain → entity → relationship → mermaid
+- **design** — HITL ERD approval, `ErdFlowViewer`
+- **logic** — rules *and* workflows on one screen (a rule decides, a process
+  acts on what it decided; they were two steps and that ordering does not exist)
+- **automations** (`/projects/$id/automations`, alongside the wizard) —
+  trigger → conditions → steps builder, plus rule tables
+- **generate** — SSE progress
+- **enhance**, **deploy**
+
+### API route pattern
+
+```typescript
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/api/projects/$id")({
+  server: {
+    handlers: {
+      GET: async ({ request, params }) => {
+        const access = await requireProjectAccess(request, params.id, "read");
+        if ("response" in access) return access.response;
+        const { getDatabase } = await import("@erdwithai/core/services");  // lazy: Node-only
+        const db = getDatabase();
+        const project = await db.selectFrom("projects").selectAll()
+          .where("id", "=", params.id).executeTakeFirst();
+        return new Response(JSON.stringify(project), {
+          headers: { "Content-Type": "application/json" },
+        });
+      },
+    },
+  },
+});
+```
+
+Rules: dynamic-`import()` server-only deps inside the handler; always return a
+real `Response` with an explicit `Content-Type`; call `requireProjectAccess` on
+anything touching a project; do **not** use the deprecated `createAPIFileRoute`.
+
+### The automation model
+
+`packages/web/src/lib/automation/model.ts` — one sentence, three parts: a
+**trigger**, a flat list of **conditions** that must all pass, and an ordered
+list of **steps**. Deliberately not a graph: the executor runs steps in order
+and stops at the first failure.
+
+Triggers are the lifecycle hooks the generated services already fire —
+`created`/`beforeCreated`/`updated`/`beforeUpdated`/`deleted`/`beforeDeleted`,
+mapped to `afterCreate`/`beforeCreate`/… `serializeAutomation` writes the same
+Mermaid + directives the existing parser reads, so automations saved before the
+builder existed still open.
+
+### Two copies of the parsers
+
+The web app keeps its own flowchart parser, JDM converter and hook parser for
+the editors — they run in the browser and cannot import the generator. They read
+the same syntax but **do not decide what is generated**. When the two disagree,
+the generator's copy is the language and the web copy is the bug.
+
+---
+
+## 7. Shared types
+
+```typescript
+// packages/core/src/types/entity.types.ts
+interface Entity {
+  name: string;
+  tableName: string;
+  attributes: EntityAttribute[];
+  indexes?: EntityIndex[];      // from %%index
+  audited?: boolean;
+  softDelete?: boolean;
+}
+
+// packages/generator/src/pipeline/generate-application.ts
+interface ParsedModel {
+  entities: Entity[];
+  relationships: Relationship[];
+  categories: EntityCategory[];   // %%category
+  enums: EntityEnum[];            // %%enum + %%field enum:
+  rules: CompiledRule[];          // %%rule flowcharts
+  hooks: CompiledHook[];          // %%hook
+  workflows: CompiledWorkflow[];  // kind: state
+  sagas: CompiledSaga[];          // kind: saga
+}
+
+// packages/generator/src/rules/index.ts
+interface CompiledRuleAction {
+  name: string;
+  type: string;                   // trigger-workflow | validation-error | …
+  when: string;                   // Zen expression; "true" fires on every write
+  props: Record<string, string>;
+}
+```
+
+Load the language definition through the typed accessor, never by re-parsing:
+
+```typescript
+import { loadLanguageDefinition, normalizeType, cardinalityKind, isHookType }
+  from "../language";
+
+normalizeType("varchar");    // "string"
+cardinalityKind("||--o{");   // "oneToMany"
+isHookType("beforeCreate");  // true
+```
+
+---
+
+## 8. Environment and operations
+
+### Commands
+
+| Command | Purpose |
+|---|---|
+| `bun install` | dependencies (**never npm/pnpm/npx — use bun/bunx**) |
+| `bun run dev` | modelling tool, :3000 |
+| `bun run dev:mastra` | Mastra AI service, :4111 |
+| `./scripts/start-llm.sh` | local OpenAI-compatible model, :8000 |
+| `bun run type-check` | repo TypeScript |
+| `bun run type-check:language` | `language/` (own config: Bun-style `.ts` imports) |
+| `bun run lint:fix` | Biome check + autofix |
+| `bun run test` | Vitest (370 tests) |
+| `bun language/checker.ts <f.mmd>` | validate a model |
+
+**Known-broken**, do not recommend: `bun run migrate` (points at a missing
+file); root `vitest.config.ts` (missing setup file — `packages/web`'s config is
+the one that runs); `packages/web`'s `lint` script (declares eslint, not a
+dependency); root `test:app`/`test:e2e`/`test:generator`/`test:complete`.
+
+### Environment variables
+
+**AI** (`packages/ai/src/config.ts` is the only place model config lives — never
+hard-code a model string or base URL): `LOCAL_AI_BASE_URL`
+(`http://127.0.0.1:8000/v1`), `LOCAL_AI_MODEL`
+(`mlx-community/Qwen3.8-27B-4bit`), `LOCAL_AI_API_KEY`,
+`LOCAL_AI_EMBEDDING_MODEL` (`bge-small-en-v1.5`),
+`LOCAL_AI_EMBEDDING_DIMENSIONS` (384 — the pgvector column width; changing the
+model means changing this **and** re-ingesting).
+
+`ANTHROPIC_API_KEY` is **dead config**; `@anthropic-ai/sdk` is vestigial.
+
+**Database**: `DATABASE_URL`, or `PGHOST`/`PGPORT`/`PGUSER`/`PGPASSWORD`/
+`PGDATABASE`. Connection config lives only in
+`packages/core/src/config/db.config.ts`. **pgvector is required** — retrieval
+does `CREATE EXTENSION vector`; CI uses `pgvector/pgvector:pg18`.
+
+**Web**: client vars must be `VITE_`-prefixed. Server handlers use
+`process.env`.
+
+**Security**: `SESSION_SECRET`, `JWT_SECRET`, `DB_ENCRYPTION_KEY` (base64, 32
+bytes — rotating it invalidates every stored project connection).
+
+### CI
+
+| Workflow | Does |
+|---|---|
+| `ci.yml` | **checks**: type-check, `type-check:language`, Biome (errors only), unit tests. **generated-app**: generate → build backend/frontend/tests → migrate+seed pgvector Postgres → start backend → run the generated E2E suite |
+| `github-neon.yml` | generate from an online `.mmd`, run against Neon, verify, optionally publish |
+| `eml-generate-and-publish.yml` | run the `eml` CLI over a model, publish the app to a repo |
+
+### Known security limits — state these plainly if asked
+
+- `packages/web/src/lib/password.ts` is a **fixed-salt SHA-256**: fast to
+  brute-force, identical passwords hash identically. Kept because stored hashes
+  are already in this format; replacing it needs a rehash-on-login migration.
+- The rate limiter is **in-memory, single-process**; counters reset on restart.
+  Redis before running more than one instance.
+- `requireProjectAccess` is the shared authorization helper, but
+  `api/projects/$id/index.ts` still carries a local copy.
+
+---
+
+## 9. Worked example — building a CRM
+
+Mirrors the human guide at https://appwithai.org/guide/index.html. Model:
+`language/examples/crm.eml.mmd`.
+
+**Scale**: 1 model file · 17 entities · 7 categories · 26 enums · 20 indexes ·
+8 rules · 5 actions · 7 hook workflows (38 `%%hook`) · 5 state machines ·
+5 sagas (29 `%%step`) → **~400 generated files**.
+
+### 9.1 The skeleton
+
+```
+%% ---- Section 1: ERD ----
+%%meta name: Enterprise CRM
+%%meta kind: erd
+%%meta version: 1.0.0
+%%category name: Sales Pipeline; icon: TrendingUp; entities: Opportunity, Product
+%%enum LeadStatus: new, working, nurturing, qualified, converted, disqualified
+erDiagram
+    Lead { string id PK ... }
+    Campaign ||--o{ Lead : "generates"
+%%field Lead.status enum: LeadStatus
+%%index Lead(owner_id, status)
+%%entity Lead audited: true
+
+%% ---- Section 2: rules ----
+%%meta kind: rules
+%%rule leadScoring on Lead event: beforeCreate priority: 10
+flowchart TD
+    ...
+
+%% ---- Section 3: workflows ----
+%%workflow LeadConversion entity: Lead kind: saga trigger: rule
+flowchart TD
+    ...
+```
+
+One file, several diagrams, read top to bottom. A section starts at a Mermaid
+keyword and runs to the next. **Directives above a section configure it;
+directives inside it annotate what it declares.**
+
+### 9.2–9.3 Rules and workflows
+
+Covered in §3.4–3.5. The binding line is what turns a flowchart into a rule:
+`%%rule leadScoring on Lead event: beforeCreate priority: 10` — name (appears in
+the Business Rules screen and is how a saga step can reference the rule instead
+of copying its table), entity (must be declared in the ERD), event (any of the
+13 hooks; `before*` can still block the write), priority (order among rules on
+the same entity and event; lower runs first).
+
+### 9.4 Generate
+
+```bash
+bun language/checker.ts language/examples/crm.eml.mmd
+#   crm.eml.mmd  0 errors · 0 warnings
+
+bun packages/generator/src/cli/generate.ts generate \
+  --input language/examples/crm.eml.mmd --output generated-projects/crm \
+  --name crm --port 4001 --frontend-port 4000 \
+  --records-per-entity 25 --force --no-setup
+```
+
+The generator runs the checker itself; running it first is instant and tells you
+the truth before anything is written. It prints entities and attribute counts,
+then the rules, hooks, sagas, state machines and categories it compiled.
+
+The browser designer is the better first path — it renders the ERD, validates as
+you type, and keeps versions. Both call the same pipeline, so both produce the
+same application.
+
+### 9.5–9.6 The application, and the dictionary
+
+Nothing on the screens was designed for the CRM specifically. The dashboard is
+seven blocks for seven `%%category` directives; every entity gets the same list
+(search, sortable columns, pagination, New, a Help chip) drawn from the
+dictionary's field definitions.
+
+**The fastest feedback loop in the system**: rename a category or move an entity
+between groups in the model, regenerate, re-seed, reload — the dashboard
+reorganises. If users cannot find things, that is a modelling fix, not a
+front-end one.
+
+### 9.7 Watch it run — the chain end to end
+
+One user action, eight links, every one of them declared in the model:
+
+| # | What runs | Declared as |
+|---|---|---|
+| 1 | a user sets `status = qualified` | a value of `%%enum LeadStatus` |
+| 2 | `leadQualification` evaluates | `%%rule … on Lead event: beforeUpdate` |
+| 3 | its action fires | `%%action … trigger-workflow when: status == "qualified"` |
+| 4 | `LeadConversion` starts | `%%workflow … kind: saga trigger: rule` |
+| 5 | a decision table sizes the account | `%%step B Decision` |
+| 6 | Account, Contact, Opportunity created | three `%%step … CreateEntity` |
+| 7 | the lead is marked converted | `%%step F UpdateEntity` |
+| 8 | the account's tier is stamped | `%%step G UpdateEntity … targetSource` |
+
+```sql
+-- before
+select count(*) from bus_account;      -- 4
+-- after setting one lead to qualified
+select count(*) from bus_account;      -- 5
+select * from sys_workflow_runs order by created_at desc limit 1;
+```
+
+**When the chain does not fire, check in this order:**
+
+1. Is the rule a **decision table**? A node-graph rules section carries no
+   outputs, so the engine finds no action. This is the most common cause.
+2. Does the `%%action`'s `workflow:` name **exactly** match the `%%workflow`
+   name?
+3. Is the rule bound to the event that actually happened (`beforeUpdate` vs
+   `afterUpdate`)?
+4. Is the workflow definition seeded — `select * from sys_workflow_definitions`?
+5. Did an earlier step fail? The executor stops at the first failure.
+6. Is the value a member of the declared enum? A typo'd state is a state no rule
+   matches (`EML426`/`EML428`).
+
+---
+
+## 10. Rules for answering questions about this system
+
+1. **Resolve which application** — the modelling tool (:3000) or the generated
+   app (:4000/4001)? Most ambiguity in questions about "the app" is this.
+2. **Check a directive's `status` before promising behaviour.** `%%rbac` is
+   inert; `%%entity` and `%%trigger` are validated but not compiled.
+3. **A rule that must act needs `%%action`** — the node-graph form cannot.
+4. **Never hard-code a model string or base URL.** Import from
+   `packages/ai/src/config.ts`.
+5. **Never add a generator input at a call site.** It goes in
+   `pipeline/generate-application.ts`, once.
+6. **`bun run type-check` proves nothing about templates.** Generate an app and
+   build it.
+7. **Do not look for per-entity UI components.** Screens come from the
+   dictionary; change the model or the dictionary row.
+8. **Use `bun`/`bunx`, never `npm`/`pnpm`/`npx`**, including in generated
+   projects.
+9. **Update `language/erdwithai-language.json` first** when changing language
+   semantics, then the spec docs and grammar, then the parsers.
+10. **When the definition and a compiler disagree, the compiler wins** — and the
+    definition is the bug to fix.
