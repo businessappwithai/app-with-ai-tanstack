@@ -1,7 +1,7 @@
 {
-  "file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai-tanstack/language/examples/ecommerce.eml.mmd",
-  "checkedAt": "2026-07-29T08:59:37.084Z",
-  "languageVersion": "1.0.0",
+  "file": "/home/user/app-with-ai-tanstack/language/examples/ecommerce.eml.mmd",
+  "checkedAt": "2026-08-18T06:27:24.627Z",
+  "languageVersion": "1.1.0",
   "summary": {
     "errors": 0,
     "warnings": 0,

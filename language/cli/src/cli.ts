@@ -136,6 +136,7 @@ function parseArgs(argv: string[]): Flags {
         f.version = true;
         break;
       default:
+        if (!a) break;
         if (a.startsWith("-")) throw new CliError(`Unknown option: ${a}`);
         f._.push(a);
     }

@@ -108,7 +108,11 @@ export async function publishToGithub(opts: GithubOptions): Promise<GithubResult
 
 function splitTarget(target: string): { owner?: string; repo: string } {
   const parts = target.split("/");
-  return parts.length === 2 ? { owner: parts[0], repo: parts[1] } : { repo: parts[0] };
+  // Only "owner/repo" carries an owner; anything else is treated as a bare
+  // repo name, which is what the original two-part test did.
+  return parts.length === 2
+    ? { owner: parts[0] ?? "", repo: parts[1] ?? "" }
+    : { repo: parts[0] ?? "" };
 }
 
 async function ghApi(

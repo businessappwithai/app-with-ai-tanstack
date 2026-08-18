@@ -25,7 +25,7 @@ import type {
   RuleNodeShape,
 } from "./model.ts";
 import { emptyModel } from "./model.ts";
-import { foreignKeyName, stripQuotes, toSnakeCase } from "./util.ts";
+import { caps, foreignKeyName, splitHead, stripQuotes, toSnakeCase } from "./util.ts";
 
 interface Section {
   type: "erd" | "flow" | "state";
@@ -75,7 +75,7 @@ export function parseEml(source: string): EmlModel {
 
     const opener = line.match(SECTION_OPENERS);
     if (opener) {
-      const kw = opener[1];
+      const [kw] = caps(opener, 1);
       const type: Section["type"] =
         kw === "erDiagram" ? "erd" : kw.startsWith("stateDiagram") ? "state" : "flow";
       current = {
@@ -128,15 +128,14 @@ const fieldEnumRefs: FieldEnumRef[] = [];
 
 function parseDirective(line: string, n: number, model: EmlModel): DirectiveResult | undefined {
   const body = line.replace(/^%%/, "").trim();
-  const [keyword] = body.split(/\s+/);
-  const rest = body.slice(keyword.length).trim();
+  const { head: keyword, rest } = splitHead(body);
 
   switch (keyword) {
     case "meta": {
       const m = rest.match(/^([A-Za-z_][\w]*)\s*:\s*(.+)$/);
       if (!m) return;
-      const key = m[1];
-      const value = m[2].trim();
+      const [key, rawValue] = caps(m, 2);
+      const value = rawValue.trim();
       if (key === "kind") return { metaKind: value };
       if (key === "name") {
         if (!model.meta.name) model.meta.name = value;
@@ -156,7 +155,7 @@ function parseDirective(line: string, n: number, model: EmlModel): DirectiveResu
         });
         return;
       }
-      const [, type, handler, entity, paramsRaw] = m;
+      const [type, handler, entity, paramsRaw] = caps(m, 4);
       const fields = paramsRaw ? parseHookFields(paramsRaw) : [];
       if (!isHookType(type)) {
         model.diagnostics.push({
@@ -172,13 +171,16 @@ function parseDirective(line: string, n: number, model: EmlModel): DirectiveResu
     }
     case "entity": {
       const m = rest.match(/^(\w+)\s+([A-Za-z_]\w*)\s*:\s*(.+)$/);
-      if (m) applyEntityMeta(model, m[1], m[2], m[3].trim());
+      if (m) {
+        const [entity, key, value] = caps(m, 3);
+        applyEntityMeta(model, entity, key, value.trim());
+      }
       return;
     }
     case "field": {
       const m = rest.match(/^(\w+)\.(\w+)\s+([A-Za-z_]\w*)\s*:\s*(.+)$/);
       if (m) {
-        const [, entity, attr, key, value] = m;
+        const [entity, attr, key, value] = caps(m, 4);
         if (key === "enum") fieldEnumRefs.push({ entity, attr, enumName: value.trim() });
       }
       return;
@@ -186,22 +188,24 @@ function parseDirective(line: string, n: number, model: EmlModel): DirectiveResu
     case "enum": {
       const m = rest.match(/^(\w+)\s*:\s*(.+)$/);
       if (m) {
-        const values = m[2]
+        const [name, rawValues] = caps(m, 2);
+        const values = rawValues
           .split(",")
           .map((v) => v.trim())
           .filter(Boolean);
-        if (!model.enums.some((e) => e.name === m[1])) model.enums.push({ name: m[1], values });
+        if (!model.enums.some((e) => e.name === name)) model.enums.push({ name, values });
       }
       return;
     }
     case "index": {
       const m = rest.match(/^(\w+)\s*\(([^)]*)\)\s*(unique)?/i);
       if (m) {
-        const columns = m[2]
+        const [entity, rawColumns, uniqueFlag] = caps(m, 3);
+        const columns = rawColumns
           .split(",")
           .map((c) => c.trim())
           .filter(Boolean);
-        model.indexes.push({ entity: m[1], columns, unique: !!m[3] });
+        model.indexes.push({ entity, columns, unique: !!uniqueFlag });
       }
       return;
     }
@@ -209,12 +213,13 @@ function parseDirective(line: string, n: number, model: EmlModel): DirectiveResu
       // Attach to the *next* flow section.
       const m = rest.match(/^(\w+)\s+on\s+(\w+)(?:\s+event:\s*(\w+))?(?:\s+priority:\s*(\d+))?/);
       if (m) {
+        const [name, entity, event, priority] = caps(m, 4);
         return {
           rule: {
-            name: m[1],
-            entity: m[2],
-            event: m[3],
-            priority: m[4] ? Number(m[4]) : undefined,
+            name,
+            entity,
+            event: event || undefined,
+            priority: priority ? Number(priority) : undefined,
           },
         };
       }
@@ -223,11 +228,12 @@ function parseDirective(line: string, n: number, model: EmlModel): DirectiveResu
     case "workflow": {
       const m = rest.match(/^(\w+)\s+entity:\s*(\w+)\s+kind:\s*(\w+)/);
       if (m) {
+        const [name, entity, kind] = caps(m, 3);
         return {
           workflow: {
-            name: m[1],
-            entity: m[2],
-            kind: (m[3] as EmlWorkflow["kind"]) || "hook",
+            name,
+            entity,
+            kind: (kind as EmlWorkflow["kind"]) || "hook",
           },
         };
       }
@@ -236,18 +242,22 @@ function parseDirective(line: string, n: number, model: EmlModel): DirectiveResu
     case "guard": {
       const m = rest.match(/^(\S+)\s+on\s+(\w+)\.(\w+)/);
       if (m) {
-        const roles = m[1]
+        const [roleExpr, entity, op] = caps(m, 3);
+        const roles = roleExpr
           .split("|")
           .map((r) => r.replace(/^role:/, "").trim())
           .filter(Boolean);
-        model.guards.push({ roles, entity: m[2], op: m[3] });
+        model.guards.push({ roles, entity, op });
       }
       return;
     }
     case "trigger": {
       // Source may contain spaces (e.g. a cron expression), so match up to "->".
       const m = rest.match(/^(.+?)\s*->\s*(\w+)\s+on\s+(\w+)/);
-      if (m) model.triggers.push({ source: m[1].trim(), handler: m[2], entity: m[3] });
+      if (m) {
+        const [source, handler, entity] = caps(m, 3);
+        model.triggers.push({ source: source.trim(), handler, entity });
+      }
       return;
     }
     default:
@@ -313,9 +323,10 @@ function parseErdSection(section: Section, model: EmlModel, diags: Diagnostic[])
     const start = text.match(/^([A-Za-z][\w]*)\s*\{$/);
     if (start) {
       flush();
+      const [entityName] = caps(start, 1);
       currentEntity = {
-        name: start[1],
-        tableName: toSnakeCase(start[1]),
+        name: entityName,
+        tableName: toSnakeCase(entityName),
         attributes: [],
         primaryKey: "id",
         timestamps: true,
@@ -375,18 +386,18 @@ function mergeEntity(model: EmlModel, entity: EmlEntity, attrs: EmlAttribute[]):
 function parseAttribute(line: string): EmlAttribute | null {
   // <type>[(len)] <name> [modifiers...] ["description"]
   const descMatch = line.match(/"([^"]*)"\s*$/);
-  const description = descMatch ? descMatch[1] : undefined;
+  const description = descMatch ? caps(descMatch, 1)[0] : undefined;
   const withoutDesc = descMatch ? line.slice(0, descMatch.index).trim() : line;
 
   const parts = withoutDesc.split(/\s+/);
   if (parts.length < 2) return null;
 
-  const rawTypeToken = parts[0];
-  const name = parts[1];
+  const rawTypeToken = parts[0] ?? "";
+  const name = parts[1] ?? "";
   if (!/^[A-Za-z][\w]*$/.test(name)) return null;
 
   const lengthMatch = rawTypeToken.match(/\((\d+)\)/);
-  const maxLength = lengthMatch ? Number(lengthMatch[1]) : undefined;
+  const maxLength = lengthMatch ? Number(caps(lengthMatch, 1)[0]) : undefined;
   const rawType = rawTypeToken.replace(/\(\d+\)/, "");
   const type = normalizeType(rawType) as CanonicalType;
 
@@ -416,7 +427,7 @@ function parseRelationship(line: string): EmlModel["relationships"][number] | nu
     /^([A-Za-z_]\w*)\s+([|}][|o](?:--|\.\.)[|o][|{])\s+([A-Za-z_]\w*)\s*(?::\s*(.+))?$/
   );
   if (!m) return null;
-  const [, source, opRaw, target, labelRaw] = m;
+  const [source, opRaw, target, labelRaw] = caps(m, 4);
   const op = opRaw.replace("..", "--"); // normalize non-identifying link for lookup
   const kind = cardinalityKind(op);
   if (!kind) return null;
@@ -497,7 +508,7 @@ function parseFlowGraph(lines: string[]): { nodes: RuleNode[]; edges: RuleEdge[]
   for (const line of lines) {
     const em = line.match(edgeRe);
     if (em) {
-      const [, srcId, srcSuffix, edgeLabel, tgtId, tgtSuffix] = em;
+      const [srcId, srcSuffix, edgeLabel, tgtId, tgtSuffix] = caps(em, 5);
       ensureNode(srcId, srcSuffix);
       ensureNode(tgtId, tgtSuffix);
       edges.push({ source: srcId, target: tgtId, label: edgeLabel?.trim() || undefined });
@@ -532,7 +543,7 @@ function parseNode(id: string, suffix: string): RuleNode | null {
   ];
   for (const { re, shape, jdmType } of shapes) {
     const m = suffix.match(re);
-    if (m) return { id, label: m[1].trim(), shape, jdmType };
+    if (m) return { id, label: caps(m, 1)[0].trim(), shape, jdmType };
   }
   return null;
 }
@@ -553,7 +564,8 @@ function parseCondition(label: string): ParsedCondition | undefined {
   const cleaned = label.replace(/\?$/, "").trim();
   const cmp = cleaned.match(/^(.+?)\s*(>=|<=|==|!=|>|<)\s*(.+)$/);
   if (cmp) {
-    const rawVal = stripQuotes(cmp[3]).replace(/[$,]/g, "");
+    const [cmpField, cmpOp, cmpValue] = caps(cmp, 3);
+    const rawVal = stripQuotes(cmpValue).replace(/[$,]/g, "");
     const num = Number(rawVal);
     const value: string | number | boolean = Number.isNaN(num)
       ? rawVal === "true"
@@ -563,18 +575,19 @@ function parseCondition(label: string): ParsedCondition | undefined {
           : rawVal
       : num;
     return {
-      field: fieldSlug(cmp[1]),
-      op: cmp[2] as ParsedCondition["op"],
+      field: fieldSlug(cmpField),
+      op: cmpOp as ParsedCondition["op"],
       value,
       raw: cleaned,
     };
   }
   const contains = cleaned.match(/^(.+?)\s+contains\s+(.+)$/i);
   if (contains) {
+    const [containsField, containsValue] = caps(contains, 2);
     return {
-      field: fieldSlug(contains[1]),
+      field: fieldSlug(containsField),
       op: "contains",
-      value: stripQuotes(contains[2]),
+      value: stripQuotes(containsValue),
       raw: cleaned,
     };
   }
@@ -601,9 +614,8 @@ function parseStateSection(section: Section, model: EmlModel): void {
   for (const { text } of section.lines) {
     const m = text.match(/^(\[\*\]|\w+)\s*-->\s*(\[\*\]|\w+)\s*(?::\s*(.+))?$/);
     if (!m) continue;
-    const from = m[1];
-    const to = m[2];
-    const event = m[3]?.trim();
+    const [from, to, rawEvent] = caps(m, 3);
+    const event = rawEvent.trim() || undefined;
     if (from !== "[*]") states.add(from);
     if (to !== "[*]") states.add(to);
     transitions.push({ from, to, event });

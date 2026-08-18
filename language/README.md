@@ -54,6 +54,10 @@ language/
 ├── README.md                     # This entry point
 ├── erdwithai-language.json       # ⭐ Canonical, machine-readable definition (the language)
 ├── index.ts                      # Typed loader/accessor for the generator app
+├── composer.ts                   # Writes a complete EML document (composeEml, mergeSections)
+├── rag.ts                        # EML → retrieval chunks; copied into generated apps verbatim
+├── checker.ts                    # Validator — `bun language/checker.ts <file.mmd>`
+├── fixer.ts                      # Applies the checker's auto-fixable codes
 ├── grammar/
 │   └── erdwithai.ebnf            # Formal EBNF grammar
 ├── spec/
@@ -133,7 +137,9 @@ flowchart TD
 ```
 
 Node **shape** = decision role → compiled to a GoRules **JDM** graph by
-`packages/web/src/lib/jdm-converter.ts`.
+`packages/generator/src/rules/jdm-converter.ts`. A section carrying `%%action`
+directives compiles to a JDM *decision table* instead — that is the shape the
+rules engine reads actions from.
 
 ### 3. Workflows — lifecycle hooks & process orchestration
 
@@ -151,9 +157,13 @@ flowchart TD
     %%hook afterCreate sendWelcomeEmail on User
 ```
 
-`%%hook` directives are parsed by
-`packages/web/src/lib/workflow/hook-parser.ts` and wired into the generated
-service lifecycle.
+`%%hook` directives are compiled by `packages/generator/src/hooks/index.ts`
+into per-entity handler modules plus a registry the generated bus service calls
+around every CRUD operation.
+
+The web app keeps its own parsers for the editors — they run in the browser and
+cannot import the generator. They read the same syntax but do not decide what is
+generated; when the two disagree, the generator's copy is the language.
 
 ---
 
@@ -161,10 +171,19 @@ service lifecycle.
 
 | Level | Covers | Status |
 |-------|--------|--------|
-| **core** | `erDiagram` entities, attributes, `PK/FK/UK/OPTIONAL`, cardinalities | Shipped parser |
-| **rules** | `flowchart` decision flows → JDM via shape semantics | Shipped parser |
-| **workflow-hooks** | `%%hook` directives | Shipped parser |
-| **extended** | `%%meta/%%entity/%%field/%%enum/%%index/%%rule/%%guard/%%trigger/%%workflow`, `stateDiagram-v2` | Reserved, renderer-safe, adopted incrementally |
+| **core** | `erDiagram` entities, attributes, `PK/FK/UK/OPTIONAL/NULL/UNIQUE`, all 8 cardinalities, plus `%%index`, `%%enum`, `%%field enum:` and `%%category` | Compiled |
+| **rules** | `flowchart` decision flows → JDM via shape semantics; `%%action` → JDM decision table | Compiled |
+| **workflows** | `%%hook` (both forms, all 13 types), `stateDiagram-v2` state machines, `%%workflow kind: saga` with `%%step` and `%%loop` | Compiled |
+| **validated** | `%%entity`, `%%rule`, `%%trigger` | No compiler yet; `checker.ts` enforces syntax so a malformed one fails rather than being dropped |
+| **reserved** | `%%rbac`, and `%%field` keys other than `enum:` | Renderer-safe, documented, inert |
+
+Each directive also carries its own `status` and `consumedBy` in
+`erdwithai-language.json`, which is authoritative for that directive; the levels
+above just group them.
 
 See `spec/` for the full reference and `erdwithai-language.json` for the
-authoritative, machine-readable contract.
+machine-readable contract.
+
+For the whole system — the generator, its templates, and what a generated
+application contains — see [`../llmtext/llms-full.txt`](../llmtext/llms-full.txt),
+which is the same material written as one context file for language models.

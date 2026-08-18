@@ -26,6 +26,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { EmlAttribute, EmlEntity, EmlModel, EmlRule, EmlWorkflow } from "./cli/src/model.ts";
 import { parseEml } from "./cli/src/parser.ts";
+import { caps } from "./cli/src/util.ts";
 import { loadLanguageDefinition, stepNodeTypes } from "./index.ts";
 
 // ---------------------------------------------------------------------------
@@ -86,11 +87,6 @@ function sevLabel(s: Severity): string {
 
 function hasFlag(name: string): boolean {
   return process.argv.includes(name);
-}
-
-function flagValue(name: string): string | undefined {
-  const i = process.argv.indexOf(name);
-  return i >= 0 ? process.argv[i + 1] : undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -316,6 +312,31 @@ class CheckEngine {
       });
     }
 
+    // EML005: Unknown or malformed %%meta key.
+    //
+    // Nothing validated these, so a misspelt key was accepted in silence — and
+    // because the value then never reached the model, the failure surfaced
+    // later as a missing name or kind, with nothing pointing at the typo that
+    // caused it.
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%meta\b/)) {
+      const m = text.trim().match(/^%%meta\s+([A-Za-z_]\w*)\s*:\s*(.*)$/);
+      if (!m) {
+        this.error("EML005", `Invalid %%meta syntax: "${text.trim()}"`, {
+          line: lineNo,
+          hint: "Syntax: %%meta <key>: <value>",
+          context: text.trim(),
+        });
+        continue;
+      }
+      const [key] = caps(m, 2);
+      if (!this.validMetaKeys.has(key)) {
+        this.warn("EML005", `Unknown %%meta key "${key}".`, {
+          line: lineNo,
+          hint: `Known keys: ${[...this.validMetaKeys].join(", ")}.`,
+        });
+      }
+    }
+
     if (
       this.model.entities.length === 0 &&
       this.model.rules.length === 0 &&
@@ -468,6 +489,37 @@ class CheckEngine {
             line: attrLine,
             hint: "Remove OPTIONAL from the PK attribute — primary keys are always required.",
           });
+        }
+      }
+
+      // EML118: Unknown attribute modifier.
+      //
+      // Nothing checked these, and a dropped modifier is silent by
+      // construction: the parser reads the tokens it knows and ignores the
+      // rest, so `string email UNQIUE` yields a column that is simply not
+      // unique. The typo is invisible in the rendered diagram too, because
+      // Mermaid draws the token either way.
+      //
+      // A quoted trailing string is legal Mermaid and is read as the
+      // attribute's description, so it is stripped before the tokens are
+      // judged.
+      if (attrLine !== undefined) {
+        const raw = this.src
+          .getLine(attrLine)
+          .trim()
+          .replace(/"[^"]*"\s*$/, "");
+        for (const token of raw.split(/\s+/).slice(2)) {
+          const upper = token.toUpperCase();
+          if (!upper || this.validModifiers.has(upper)) continue;
+          this.warn(
+            "EML118",
+            `Unknown modifier "${token}" on "${entity.name}.${attr.name}" — it will be ignored.`,
+            {
+              line: attrLine,
+              hint: `Known modifiers: ${[...this.validModifiers].join(", ")}. Use a quoted string for a description.`,
+              context: raw,
+            }
+          );
         }
       }
     }
@@ -658,7 +710,7 @@ class CheckEngine {
         });
         continue;
       }
-      const [, entityName, attrName, key, value] = m;
+      const [entityName, attrName, key, value] = caps(m, 4);
 
       // EML141: Entity must be declared
       if (!entityNames.has(entityName)) {
@@ -781,7 +833,7 @@ class CheckEngine {
         });
         continue;
       }
-      const [, entityName, key] = m;
+      const [entityName, key] = caps(m, 2);
 
       // EML161: Entity must be declared
       if (!entityNames.has(entityName)) {
@@ -891,8 +943,9 @@ class CheckEngine {
       // EML220: Role expression syntax
       const guardText = guardLine ? this.src.getLine(guardLine).trim() : "";
       const roleExprMatch = guardText.match(/^%%guard\s+(\S+)\s+on/);
-      if (roleExprMatch && !this.validRoleExpr.test(roleExprMatch[1])) {
-        this.warn("EML220", `%%guard role expression "${roleExprMatch[1]}" may be malformed.`, {
+      const roleExpr = roleExprMatch ? caps(roleExprMatch, 2)[0] : "";
+      if (roleExpr && !this.validRoleExpr.test(roleExpr)) {
+        this.warn("EML220", `%%guard role expression "${roleExpr}" may be malformed.`, {
           line: guardLine,
           hint: "Format: role:<name> or role:<name>|role:<name>  (e.g. role:admin|role:manager)",
         });
@@ -985,7 +1038,7 @@ class CheckEngine {
         });
         continue;
       }
-      const [, name, entityName, kind] = m;
+      const [name, entityName, kind] = caps(m, 3);
 
       // EML241: Kind must be valid
       if (!this.validWorkflowKinds.has(kind)) {
@@ -1547,7 +1600,7 @@ class CheckEngine {
         });
         continue;
       }
-      const [, name, entityName, event] = m;
+      const [name, entityName, event] = caps(m, 3);
 
       // EML251: Entity must be declared
       if (!entityNames.has(entityName)) {
@@ -1683,7 +1736,6 @@ class CheckEngine {
 
   private checkWorkflows(): void {
     const entityNames = new Set(this.model.entities.map((e) => e.name));
-    const enumNames = new Set(this.model.enums.map((e) => e.name));
 
     for (const wf of this.model.workflows) {
       // EML400: Entity must be declared
@@ -1696,7 +1748,7 @@ class CheckEngine {
       if (wf.kind === "hook") {
         this.checkHookWorkflow(wf);
       } else if (wf.kind === "state") {
-        this.checkStateWorkflow(wf, enumNames);
+        this.checkStateWorkflow(wf);
       } else if (wf.kind === "saga") {
         this.checkSagaWorkflow(wf);
       }
@@ -1716,7 +1768,7 @@ class CheckEngine {
     }
   }
 
-  private checkStateWorkflow(wf: EmlWorkflow, enumNames: Set<string>): void {
+  private checkStateWorkflow(wf: EmlWorkflow): void {
     // EML420: Must have transitions
     if (wf.transitions.length === 0) {
       this.warn("EML420", `State workflow "${wf.name}" has no transitions.`, {
@@ -1790,35 +1842,64 @@ class CheckEngine {
       }
     }
 
-    // EML426: If a %%enum matches this workflow's states, check alignment
-    if (wf.entity) {
+    // EML426/427/428: the states of a state machine are the values a status
+    // column may hold, so they should line up with a declared %%enum.
+    //
+    // The candidate enum is found by *partial* overlap and not by an exact
+    // match. Requiring every state to already appear in the enum was the
+    // original test, and it made EML426 unreachable: the branch could only be
+    // entered when nothing was missing, so the "states missing from the enum"
+    // it then looked for was always empty. The whole point is to catch the
+    // model that added a state and forgot the enum value, which is exactly the
+    // case an exact match excludes.
+    const namedStates = wf.states.filter((state) => state !== "[*]");
+    if (wf.entity && namedStates.length > 0) {
+      const stateSet = new Set(namedStates);
+
+      // Best overlap wins. A model may declare several enums, and the status
+      // enum is the one sharing the most values with this machine's states.
+      let candidate: { name: string; values: string[]; overlap: number } | undefined;
       for (const em of this.model.enums) {
-        const stateSet = new Set(wf.states);
         const enumSet = new Set(em.values);
-        const overlap = [...stateSet].filter((s) => enumSet.has(s));
-        if (overlap.length === wf.states.length && wf.states.length > 0) {
-          // This enum looks like the status enum for this workflow
-          const missingInEnum = [...stateSet].filter((s) => !enumSet.has(s));
-          const extraInEnum = [...enumSet].filter((v) => !stateSet.has(v));
-          if (missingInEnum.length > 0) {
-            this.warn(
-              "EML426",
-              `State workflow "${wf.name}": states [${missingInEnum.join(", ")}] are not in enum "${em.name}".`,
-              {
-                hint: `Add these values to  %%enum ${em.name}: ...`,
-              }
-            );
+        const overlap = namedStates.filter((state) => enumSet.has(state)).length;
+        if (overlap > 0 && (!candidate || overlap > candidate.overlap)) {
+          candidate = { name: em.name, values: em.values, overlap };
+        }
+      }
+
+      if (!candidate) {
+        // No enum shares a single value with these states. Nothing declares
+        // what the status column may hold, so the generated column is a free
+        // string and a typo in a transition becomes a state no rule can match.
+        this.warn(
+          "EML428",
+          `State workflow "${wf.name}" has no matching %%enum; its states are not a declared vocabulary.`,
+          {
+            hint: `Add  %%enum ${wf.entity}Status: ${namedStates.join(", ")}  and bind it with  %%field ${wf.entity}.status enum: ${wf.entity}Status`,
           }
-          if (extraInEnum.length > 0) {
-            this.info(
-              "EML427",
-              `Enum "${em.name}" has values [${extraInEnum.join(", ")}] not present as states in workflow "${wf.name}".`,
-              {
-                hint: "These may be future states or unreachable values — remove if not needed.",
-              }
-            );
-          }
-          break;
+        );
+      } else {
+        const enumSet = new Set(candidate.values);
+        const missingInEnum = namedStates.filter((state) => !enumSet.has(state));
+        const extraInEnum = candidate.values.filter((value) => !stateSet.has(value));
+
+        if (missingInEnum.length > 0) {
+          this.warn(
+            "EML426",
+            `State workflow "${wf.name}": states [${missingInEnum.join(", ")}] are not in enum "${candidate.name}".`,
+            {
+              hint: `Add these values to  %%enum ${candidate.name}: ...`,
+            }
+          );
+        }
+        if (extraInEnum.length > 0) {
+          this.info(
+            "EML427",
+            `Enum "${candidate.name}" has values [${extraInEnum.join(", ")}] not present as states in workflow "${wf.name}".`,
+            {
+              hint: "These may be future states or unreachable values — remove if not needed.",
+            }
+          );
         }
       }
     }
@@ -2117,7 +2198,6 @@ ${c.bold("EXIT CODES")}
 
 async function checkFile(
   filePath: string,
-  opts: { strict: boolean; showHints: boolean; quiet: boolean },
   languageVersion: string
 ): Promise<{ result: CheckResult; file: string; errorFilePath: string }> {
   const source = readFileSync(filePath, "utf8");
@@ -2190,11 +2270,7 @@ async function main(): Promise<void> {
   const allResults: Array<{ result: CheckResult; file: string; errorFilePath: string }> = [];
   for (const file of files) {
     try {
-      const r = await checkFile(
-        file,
-        { strict: flags.strict, showHints: flags.showHints, quiet: flags.summary },
-        languageVersion
-      );
+      const r = await checkFile(file, languageVersion);
       allResults.push(r);
     } catch (err) {
       console.error(
