@@ -19,7 +19,7 @@ a `%%` line beginning with one of them is a directive, never a plain comment:
 |---|---|---|---|---|
 | `%%meta` *(compiled)* | `%%hook` *(compiled)* | `%%step` *(compiled)* | `%%action` *(compiled)* | `%%entity` *(validated)* |
 | `%%field` *(compiled)* | `%%enum` *(compiled)* | `%%category` *(compiled)* | `%%index` *(compiled)* | `%%rule` *(validated)* |
-| `%%guard` *(compiled)* | `%%loop` *(compiled)* | `%%rbac` *(reserved)* | `%%trigger` *(validated)* | `%%workflow` *(compiled)* |
+| `%%guard` *(compiled)* | `%%loop` *(compiled)* | `%%rbac` *(compiled)* | `%%trigger` *(validated)* | `%%workflow` *(compiled)* |
 
 ---
 
@@ -288,27 +288,103 @@ guards must pass; there is no OR. See
 %%guard order.total gt 1000
 ```
 
-## `%%rbac` — RBAC guard *(reserved)*
+## `%%rbac` — restrict an operation or a transition *(compiled)*
 
 ```
 %%rbac <roleExpr> on <Entity>.<op>
 ```
 
-`roleExpr` uses `role:<name>` with `|` for OR. Integrates with core
-`rbac.types`.
+`roleExpr` uses `role:<name>` with `|` for OR — `role:sales|manager` and
+`role:sales|role:manager` both work, as does a bare `admin`.
+
+### It restricts; it does not grant
+
+A target no directive mentions is **open** to any authenticated caller. One or
+more directives close it to the union of the roles they name.
+
+That direction matters. The opposite reading — everything denied until granted —
+would lock every user out of every existing model on the next regeneration, and
+a model that says nothing about permissions belongs to an author who has not got
+to them yet, not one who wants everything forbidden.
+
+A **master role** (`sys_role.is_master_role`) bypasses every rule. Role names are
+matched **case-insensitively**: seeded roles are title-cased (`Manager`) and
+directives are written lower-case (`role:manager`), and an exact match would
+make such a rule unsatisfiable — locking out precisely the people it was written
+to admit, invisibly, until someone is refused.
+
+### `<op>` is a CRUD operation or a transition
+
+**CRUD**: `create` `read` `update` `delete`, or `*` for all four. Aliases are
+accepted (`insert`/`add`, `view`/`select`/`list`, `edit`/`write`/`modify`,
+`remove`/`destroy`).
 
 ```
 %%rbac role:admin on Order.delete
 %%rbac role:sales|manager on Deal.update
+%%rbac role:admin on Customer.*
 ```
 
+**Transition**: any other name is resolved against the entity's
+`stateDiagram-v2` transition events.
+
+```
+%%workflow QuoteLifecycle entity: Quote kind: state
+stateDiagram-v2
+    draft --> pending : submit
+    pending --> approved : approve
+
+%%rbac role:sales_manager on Quote.approve
+```
+
+A generated application has **no named-transition endpoint** — moving a record
+along an edge is an ordinary status update — so the rule is stored as the
+`(from_state, to_state)` pair it covers, and the guard recognises the move by the
+states the write crosses. Both ends are kept because one event can sit on several
+edges and two events can reach the same state: restricting `approve` must not
+incidentally restrict a different event that happens to land on `approved`.
+
+An event written with spaces or dashes in the diagram (`close won`) is named in
+one token in the directive (`close_won`).
+
+### What it compiles to
+
+| | |
+|---|---|
+| CRUD rules | `sys_operation_access` (table, operation, role) |
+| Transition rules | `sys_transition_access` (table, transition, status field, from, to, role) |
+| Enforcement | `EntityAccessGuard`, applied to the generated `/bus` CRUD routes |
+| Roles | any role a directive names is created in `sys_role` if absent |
+
+Rules carry `entity_type = 'D'` (declared by the model) and are replaced on every
+regeneration. Rules an administrator adds in the running application are marked
+`'U'` and survive — the same ownership split the workflow definitions use.
+
+> **These rules deliberately do not write `sys_access`.** That is a *grant* table
+> feeding `sys_refresh_dictionary_scope()`, which recomputes `allowed_roles` on
+> every dictionary table: a table with no rows there is visible to all roles, and
+> the first row added narrows it to that role alone. Seeding one from
+> `%%rbac role:admin on Order.delete` would hide the Order window from everyone
+> but admin — a restriction on deleting quietly becoming a restriction on
+> looking. The two concerns keep two tables.
+
 > Spelled `%%guard` before that keyword was needed unambiguously for automation
-> conditions. This sense had no shipped parser and no stored data, so it is the
+> conditions. That sense had no shipped parser and no stored data, so it is the
 > side that moved — renaming the condition form would have meant rewriting every
 > stored automation. A model still carrying `%%guard role:… on <Entity>.<op>` is
 > skipped by the automation reader rather than parsed as a check on a field
 > called `role:admin`, which could never pass and would silently disable the
 > automation.
+
+### Validation
+
+`EML210` malformed syntax · `EML211` names no role · `EML212` suspicious role
+expression · `EML213` undeclared entity · `EML214` the target is neither a CRUD
+operation nor a transition of that entity.
+
+All but `EML212` are **errors**, not warnings: a `%%rbac` rule that does not
+compile is not a rule that does nothing — it is an access restriction its author
+believes is in place and is not.
 
 ## `%%trigger` — event / schedule source *(validated)*
 

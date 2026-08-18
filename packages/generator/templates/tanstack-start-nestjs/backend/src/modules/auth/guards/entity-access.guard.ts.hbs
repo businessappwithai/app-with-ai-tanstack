@@ -1,0 +1,275 @@
+/**
+ * Entity Access Guard — enforces the model's `%%rbac` directives.
+ *
+ * Runs after SessionAuthGuard, which is what puts the caller's roles on the
+ * request. For each call naming an entity it asks one question: does
+ * `sys_operation_access` close this (table, operation) pair to a set of roles,
+ * and if so does the caller hold one of them?
+ *
+ * ## It is not only /bus
+ *
+ * Any route carrying the entity in its path is covered, because a read
+ * restriction that a sibling route ignores is not a restriction. Denying
+ * `Customer.read` on /bus while /workflows/entity/Customer/:id still returns
+ * that customer's history — old and new values of every field it touched — is
+ * the restriction being bypassed by changing the URL. The parameter is spelled
+ * `entity` on the bus routes and `entityName` on the workflow routes, so both
+ * are read.
+ *
+ * ## Open unless closed
+ *
+ * A pair with no rows is unrestricted. This is what makes `%%rbac` additive:
+ * an application generated from a model that declares none behaves exactly as
+ * it did before this guard existed. Denying by default would lock every user
+ * out of every existing model on the next regeneration.
+ *
+ * ## Role names are matched case-insensitively
+ *
+ * The seeded roles are title-cased (`Manager`, `Administrator`) and a model
+ * author writes `%%rbac role:manager`. Matching exactly would make that
+ * directive unsatisfiable — a restriction that locks out precisely the people
+ * it was written to admit, which is worse than no restriction at all, and
+ * invisible until someone is refused. Role names are names, not identifiers;
+ * nothing distinguishes `manager` from `Manager`. The rules keep the author's
+ * spelling so the admin UI shows what was written; only the comparison folds
+ * case.
+ *
+ * ## The table name must match the service's
+ *
+ * The rules are stored against physical table names (`bus_order`), and the URL
+ * carries whatever the client wrote — `order`, `orders`, `bus_order`. If this
+ * guard normalised differently from `BusService.getTableName`, a request for
+ * the plural would resolve to a table with no rules here and to the real table
+ * there, and the restriction would be bypassed by pluralising a URL. The
+ * normalisation below is therefore a deliberate copy of that method, and the
+ * two must be changed together.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  Logger,
+  Optional,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { DatabaseService } from '../../../database/database.service';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+
+type Operation = 'create' | 'read' | 'update' | 'delete';
+
+/** HTTP verb → the operation a `%%rbac` directive names. */
+const METHOD_OPERATION: Record<string, Operation> = {
+  GET: 'read',
+  HEAD: 'read',
+  POST: 'create',
+  PUT: 'update',
+  PATCH: 'update',
+  DELETE: 'delete',
+};
+
+@Injectable()
+export class EntityAccessGuard implements CanActivate {
+  private readonly logger = new Logger(EntityAccessGuard.name);
+
+  constructor(
+    @Inject(Reflector) private readonly reflector: Reflector,
+    @Optional() private readonly db?: DatabaseService,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
+
+    // No database wired means no rules to read. Failing closed here would take
+    // the whole API down over a missing optional dependency.
+    if (!this.db) return true;
+
+    const request = context.switchToHttp().getRequest();
+    const entity: string | undefined = request.params?.entity ?? request.params?.entityName;
+    if (!entity) return true;
+
+    const operation = METHOD_OPERATION[String(request.method).toUpperCase()];
+    if (!operation) return true;
+
+    const tableName = this.getTableName(entity);
+
+    let allowedRoles: string[];
+    try {
+      const rows = await this.db.kysely
+        .selectFrom('sys_operation_access')
+        .select('role_name')
+        .where('table_name', '=', tableName)
+        .where('operation', '=', operation)
+        .where('is_active', '=', true)
+        .execute();
+      allowedRoles = rows.map((row: any) => row.role_name);
+    } catch (error: any) {
+      // The table is created by a migration. An application whose database
+      // predates it must keep serving rather than refusing every request, so a
+      // failed lookup means "no rules", which is the unrestricted case.
+      this.logger.warn(
+        `Operation access lookup failed for ${tableName}.${operation}: ${error?.message ?? error}`,
+      );
+      return true;
+    }
+
+    const user = request.user ?? {};
+
+    // A master role is the administrator escape hatch the dictionary already
+    // recognises; it would be surprising for it to hold everywhere except here.
+    if (user.isMaster === true) return true;
+
+    const held = this.rolesOf(user);
+    const heldFolded = new Set(held.map((role) => role.toLowerCase()));
+    const holdsOne = (roles: string[]) =>
+      roles.some((role) => heldFolded.has(role.toLowerCase()));
+
+    if (allowedRoles.length > 0 && !holdsOne(allowedRoles)) {
+      throw new ForbiddenException(
+        `Access denied. "${operation}" on "${tableName}" requires one of: ` +
+          `${allowedRoles.join(', ')}. Your roles: ${held.join(', ') || 'none'}.`,
+      );
+    }
+
+    // An update may also be a state transition. Checked after the operation
+    // rule, because a caller refused the update outright never gets this far.
+    if (operation === 'update') {
+      await this.checkTransition(request, tableName, held, holdsOne);
+    }
+
+    return true;
+  }
+
+  /**
+   * Refuse an update that moves a record along a restricted transition.
+   *
+   * There is no named-transition endpoint in a generated application — moving a
+   * Lead along `convert` is a write to its status column — so the transition is
+   * identified by the pair of states the write crosses. Both ends matter: an
+   * event name can sit on several edges, and two events can land on the same
+   * state, so matching on the destination alone would restrict writes the model
+   * never mentioned.
+   */
+  private async checkTransition(
+    request: any,
+    tableName: string,
+    held: string[],
+    holdsOne: (roles: string[]) => boolean,
+  ): Promise<void> {
+    const body = request.body;
+    if (!body || typeof body !== 'object') return;
+
+    let rules: Array<Record<string, any>>;
+    try {
+      rules = await this.db!.kysely
+        .selectFrom('sys_transition_access')
+        .select(['transition', 'status_field', 'from_state', 'to_state', 'role_name'])
+        .where('table_name', '=', tableName)
+        .where('is_active', '=', true)
+        .execute();
+    } catch (error: any) {
+      this.logger.warn(
+        `Transition access lookup failed for ${tableName}: ${error?.message ?? error}`,
+      );
+      return;
+    }
+    if (rules.length === 0) return;
+
+    // Only the columns this write actually sets can move a record.
+    const targeted = rules.filter(
+      (rule) => String(body[rule.status_field] ?? '') === String(rule.to_state),
+    );
+    if (targeted.length === 0) return;
+
+    // The record's current state decides which edge is being crossed. Without
+    // an id there is no record to read — a create cannot be a transition — so
+    // there is nothing to enforce.
+    const id = request.params?.id;
+    if (!id) return;
+
+    const statusFields = [...new Set(targeted.map((rule) => String(rule.status_field)))];
+    let current: Record<string, any> | undefined;
+    try {
+      current = await this.db!.kysely
+        .selectFrom(tableName as any)
+        .select(statusFields as any)
+        .where('id' as any, '=', id)
+        .executeTakeFirst();
+    } catch (error: any) {
+      this.logger.warn(
+        `Could not read current state of ${tableName}/${id}: ${error?.message ?? error}`,
+      );
+      return;
+    }
+    if (!current) return;
+
+    for (const rule of targeted) {
+      if (String(current[rule.status_field] ?? '') !== String(rule.from_state)) continue;
+
+      const allowed = targeted
+        .filter(
+          (candidate) =>
+            candidate.transition === rule.transition &&
+            candidate.from_state === rule.from_state &&
+            candidate.to_state === rule.to_state,
+        )
+        .map((candidate) => String(candidate.role_name));
+
+      if (holdsOne(allowed)) return;
+
+      throw new ForbiddenException(
+        `Access denied. Moving "${tableName}" from "${rule.from_state}" to ` +
+          `"${rule.to_state}" ("${rule.transition}") requires one of: ` +
+          `${allowed.join(', ')}. Your roles: ${held.join(', ') || 'none'}.`,
+      );
+    }
+  }
+
+  /**
+   * Every role name the caller holds, from all three places one can arrive.
+   *
+   * `sysRoles` is what SessionAuthGuard reads out of sys_user_roles; `roles`
+   * and `role` are Better Auth's. A rule may name a role from either system, so
+   * checking one source would make the directive work for some deployments and
+   * silently not others.
+   */
+  private rolesOf(user: Record<string, any>): string[] {
+    const names = new Set<string>();
+    for (const value of [...(user.sysRoles ?? []), ...(user.roles ?? [])]) {
+      if (typeof value === 'string' && value) names.add(value);
+    }
+    if (typeof user.role === 'string' && user.role) names.add(user.role);
+    return [...names];
+  }
+
+  /** Deliberate copy of BusService.getTableName — see the note at the top. */
+  private getTableName(entity: string): string {
+    const normalized = entity.toLowerCase().replace(/-/g, '_');
+    if (normalized.startsWith('bus_')) return normalized;
+    return `bus_${this.singularize(normalized)}`;
+  }
+
+  private singularize(word: string): string {
+    if (word.endsWith('ies')) return word.slice(0, -3) + 'y';
+    if (
+      word.endsWith('ses') ||
+      word.endsWith('xes') ||
+      word.endsWith('zes') ||
+      word.endsWith('ches') ||
+      word.endsWith('shes')
+    ) {
+      return word.slice(0, -2);
+    }
+    if (word.endsWith('s') && !word.endsWith('ss')) return word.slice(0, -1);
+    return word;
+  }
+}

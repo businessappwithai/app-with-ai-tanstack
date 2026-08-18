@@ -24,6 +24,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { DictionaryWriteGuard } from '../auth/guards/dictionary-write.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { SysService } from './sys.service';
 
@@ -60,7 +61,13 @@ function parseFilters(rawFilters: Record<string, any>): Record<string, any> {
  */
 @ApiTags('sys')
 @ApiBearerAuth()
-@UseGuards(SessionAuthGuard, RolesGuard)
+// DictionaryWriteGuard, not more @Roles decorators: RolesGuard permits any
+// route that declares none, and this controller declared one on a single
+// endpoint out of fifty-two. A signed-in user with no privileges could PATCH a
+// field or DELETE a table — and since every screen is drawn from these rows,
+// that changes what everybody else sees. Reads stay open because the ordinary
+// hooks need them to render a form at all.
+@UseGuards(SessionAuthGuard, RolesGuard, DictionaryWriteGuard)
 @Controller('sys')
 export class SysController {
   constructor(private readonly sysService: SysService) {}

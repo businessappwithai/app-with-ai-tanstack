@@ -174,8 +174,9 @@ generated; when the two disagree, the generator's copy is the language.
 | **core** | `erDiagram` entities, attributes, `PK/FK/UK/OPTIONAL/NULL/UNIQUE`, all 8 cardinalities, plus `%%index`, `%%enum`, `%%field enum:` and `%%category` | Compiled |
 | **rules** | `flowchart` decision flows → JDM via shape semantics; `%%action` → JDM decision table | Compiled |
 | **workflows** | `%%hook` (both forms, all 13 types), `stateDiagram-v2` state machines, `%%workflow kind: saga` with `%%step` and `%%loop` | Compiled |
+| **access** | `%%rbac`, in both its CRUD and state-transition forms | Compiled to `sys_operation_access` / `sys_transition_access`, enforced by the generated guard |
 | **validated** | `%%entity`, `%%rule`, `%%trigger` | No compiler yet; `checker.ts` enforces syntax so a malformed one fails rather than being dropped |
-| **reserved** | `%%rbac`, and `%%field` keys other than `enum:` | Renderer-safe, documented, inert |
+| **reserved** | `%%field` keys other than `enum:` | Renderer-safe, documented, inert |
 
 Each directive also carries its own `status` and `consumedBy` in
 `erdwithai-language.json`, which is authoritative for that directive; the levels

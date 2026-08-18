@@ -245,6 +245,7 @@ class CheckEngine {
     this.checkEntityDirectives();
     this.checkHooks();
     this.checkGuards();
+    this.checkRbac();
     this.checkTriggers();
     this.checkWorkflowDirectives();
     this.checkStepDirectives();
@@ -929,6 +930,121 @@ class CheckEngine {
   }
 
   // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // EML210-EML219: %%rbac directive checks
+  //
+  // These matter more than most: a %%rbac rule that does not compile is not a
+  // rule that does nothing, it is an access restriction the author believes is
+  // in place and is not. Every one of these is an error rather than a warning
+  // for that reason.
+  // -------------------------------------------------------------------------
+
+  private checkRbac(): void {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    const crudOps = new Set([
+      "create",
+      "insert",
+      "add",
+      "read",
+      "view",
+      "select",
+      "list",
+      "update",
+      "edit",
+      "write",
+      "modify",
+      "delete",
+      "remove",
+      "destroy",
+      "*",
+      "all",
+      "any",
+    ]);
+
+    /** Transition events declared by an entity's state machines, normalised. */
+    const eventsFor = (entity: string): Set<string> => {
+      const events = new Set<string>();
+      for (const wf of this.model.workflows) {
+        if (wf.entity !== entity || wf.kind !== "state") continue;
+        for (const t of wf.transitions) {
+          if (t.event)
+            events.add(
+              t.event
+                .trim()
+                .toLowerCase()
+                .replace(/[\s-]+/g, "_")
+            );
+        }
+      }
+      return events;
+    };
+
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%rbac\b/)) {
+      const m = text.trim().match(/^%%rbac\s+(\S+)\s+on\s+([A-Za-z_]\w*)\.([A-Za-z_*]\w*)\s*$/);
+      if (!m) {
+        this.error("EML210", `Invalid %%rbac syntax: "${text.trim()}"`, {
+          line: lineNo,
+          hint: "Syntax: %%rbac <roleExpr> on <Entity>.<op>   e.g.  %%rbac role:admin on Order.delete",
+          context: text.trim(),
+        });
+        continue;
+      }
+
+      const [roleExpr, entity, target] = caps(m, 3);
+
+      // EML211: the role expression must name at least one role.
+      const roles = roleExpr
+        .split("|")
+        .map((part) =>
+          part
+            .trim()
+            .replace(/^role:/i, "")
+            .trim()
+        )
+        .filter(Boolean);
+      if (roles.length === 0) {
+        this.error("EML211", `%%rbac on ${entity}.${target} names no role.`, {
+          line: lineNo,
+          hint: "A rule with no roles can never be satisfied, so it locks the operation for everyone.",
+        });
+        continue;
+      }
+      if (!this.validRoleExpr.test(roleExpr) && !/^[A-Za-z][\w|:]*$/.test(roleExpr)) {
+        this.warn("EML212", `%%rbac role expression "${roleExpr}" may be malformed.`, {
+          line: lineNo,
+          hint: "Format: role:<name> or role:<a>|<b> or role:<a>|role:<b>",
+        });
+      }
+
+      // EML213: the entity must exist.
+      if (!entityNames.has(entity)) {
+        this.error("EML213", `%%rbac references undeclared entity "${entity}".`, {
+          line: lineNo,
+          hint: `Declare "${entity}" in the erDiagram section, or check the spelling.`,
+        });
+        continue;
+      }
+
+      // EML214: the target must be a CRUD operation or a declared transition.
+      const lower = target.toLowerCase();
+      if (crudOps.has(lower)) continue;
+
+      const events = eventsFor(entity);
+      if (events.has(lower)) continue;
+
+      this.error(
+        "EML214",
+        `%%rbac on ${entity}.${target} names neither a CRUD operation nor a transition of ${entity}.`,
+        {
+          line: lineNo,
+          hint: events.size
+            ? `Use one of create, read, update, delete, * — or a transition of ${entity}: ${[...events].join(", ")}.`
+            : `Use one of create, read, update, delete, * — ${entity} declares no state machine to take a transition from.`,
+        }
+      );
+    }
+  }
+
   // EML220-EML229: %%guard directive checks
   // -------------------------------------------------------------------------
 
