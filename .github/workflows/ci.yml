@@ -98,28 +98,66 @@ jobs:
       - name: Install
         run: bun install --frozen-lockfile
 
-      - name: Generate a browser application
+      # The overlay's whole claim is that it is not a second stack. Generating
+      # both ways and diffing is what keeps that true: if the difference grows
+      # past the driver, the scripts and the audit ledger, this fails.
+      - name: Generate the stack twice — with and without the overlay
         run: |
+          bun packages/generator/src/cli/generate.ts generate \
+            -i language/examples/crm.eml.mmd -o plain-app --name "CI CRM" --force --no-setup
           bun run wasm generate \
-            -i language/examples/crm.eml.mmd \
-            -o wasm-app --name "CI CRM" --force --vendor-pglite
+            -i language/examples/crm.eml.mmd -o wasm-app --name "CI CRM" --force
 
-      - name: Start it under the Node host
+      - name: The overlay changed only what it is allowed to change
         run: |
-          cd wasm-app
-          node host/node-host.mjs --port 4700 > host.log 2>&1 &
-          for i in $(seq 1 60); do
-            curl -sf http://localhost:4700/api/health > /dev/null && break
+          # Every generated file carries its generation timestamp, so that line
+          # is stripped before comparing; anything else that differs is the
+          # overlay's doing and has to be on the list.
+          changed=$(cd plain-app && find . -type f -not -path "./pgdata/*" | while read -r f; do
+            if [ -f "../wasm-app/$f" ] && ! diff -q \
+              <(grep -v "^ \* Generated:" "$f") \
+              <(grep -v "^ \* Generated:" "../wasm-app/$f") > /dev/null 2>&1; then
+              echo "$f"
+            fi
+          done | sort)
+          echo "Changed by the overlay:"; echo "$changed"
+          expected=$(printf '%s\n' ./.erdwithai.json ./backend/.env ./backend/.env.example \
+            ./backend/package.json ./backend/run-app.sh \
+            ./backend/src/modules/audit/immudb.service.ts ./docker-start.sh \
+            ./frontend/package.json ./package.json | sort)
+          if [ "$changed" != "$expected" ]; then
+            echo "::error::The overlay's footprint changed. Expected:"; echo "$expected"
+            exit 1
+          fi
+
+      - name: No Bun left in the generated application
+        run: |
+          if grep -rn '\bbun\b' wasm-app/package.json wasm-app/backend/package.json \
+               wasm-app/frontend/package.json; then
+            echo "::error::A generated script still calls bun"; exit 1
+          fi
+
+      - name: Install, migrate and seed on WebAssembly Postgres
+        working-directory: wasm-app
+        run: |
+          npm install
+          npm run --prefix backend db:setup
+
+      - name: Start the NestJS backend and exercise it
+        working-directory: wasm-app/backend
+        run: |
+          npm run start > backend.log 2>&1 &
+          for i in $(seq 1 90); do
+            curl -sf -o /dev/null http://localhost:4001/api/bus/account && break || true
+            grep -q "Application running on" backend.log && break
             sleep 2
           done
-          cat host.log
+          cat backend.log | tail -20
+          bun "$GITHUB_WORKSPACE/scripts/ci/wasm-smoke.ts" --base http://localhost:4001/api --stack nestjs
 
-      - name: Exercise the API
-        run: bun scripts/ci/wasm-smoke.ts --base http://localhost:4700/api
-
-      - name: Show the host log on failure
+      - name: Show the backend log on failure
         if: failure()
-        run: cat wasm-app/host.log || true
+        run: cat wasm-app/backend/backend.log || true
 
   generated-app:
     name: Generate an application and build it

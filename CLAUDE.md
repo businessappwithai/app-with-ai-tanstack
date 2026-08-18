@@ -341,14 +341,71 @@ mirrors these for client components, with a unit test asserting they stay equal.
 
 Also see `packages/generator/TWO_PHASE_GENERATION.md` and `MIGRATION_GUIDE.md`.
 
-### The browser stack (`cli-wasm`)
+### The WASM stack (`cli-wasm`)
 
-A second target for the same models. `erdwithai` compiles a model into a NestJS
-backend and a TanStack Start frontend; **`erdwithai-wasm` compiles it into an
-application that runs entirely in a browser tab** — PostgreSQL 18 compiled to
-WebAssembly (PGlite), the application server on a Worker under a Node-API
-runtime, and a Service Worker answering the page's own `/api` requests. No Bun,
-no Node, no build step and no server at run time.
+**`erdwithai-wasm` is not a second stack.** It runs the same pipeline
+`erdwithai` runs — the same NestJS backend, the same TanStack Start front end,
+the same migrations, guards, rules engine and dictionary — and then applies an
+overlay that changes the two things stopping that application run without a
+server:
+
+| | |
+|---|---|
+| the database | `pg` is replaced by a package **of the same name** backed by PostgreSQL compiled to WebAssembly. Not one line of the backend's own source changes, because none of it ever knew what was on the far side of a `Pool`. |
+| the runtime | every script that said `bun` says `node`, and scripts that ran TypeScript directly build first. |
+
+Generating the CRM model produces **407 files, of which the overlay adds 3 and
+changes 9** — and only one of the nine is application source. Verified: 13
+migrations and 8 seeds run, the backend starts, better-auth signs in, `/bus`
+CRUD works and the audit trail records it, all with no database server anywhere.
+
+```
+packages/generator/
+├── src/cli-wasm/generate.ts              # the `erdwithai-wasm` CLI
+└── src/generators/wasm/overlay.ts        # ⭐ what the overlay is allowed to change
+templates/wasm-overlay/                   # ⭐ what it ships
+├── backend/pg-wasm/                      # PostgreSQL (wasm) as the `pg` package
+├── backend/src/modules/audit/immudb.service.ts   # the one replaced source file
+└── .npmrc, backend/.npmrc, frontend/.npmrc
+```
+
+**The one replaced file is the audit ledger.** immudb cannot be substituted the
+way `pg` was — it is not a driver behind an interface, it is a second server —
+so the overlay reimplements `ImmudbService` as a hash chain in the application's
+own database, keeping the class, its methods and its signatures so that
+`audit.service.ts` and `audit.controller.ts` are untouched. Each entry stores
+the hash of the one before it; editing or deleting an entry makes
+`/audit/:id/verify` report `verified: false`. It detects accidental and casual
+tampering and **not** a deliberate rewrite by someone who owns the database —
+the file says so, and a test asserts that it keeps saying so.
+
+Four things the overlay had to learn, all of them from failures worth keeping:
+
+- **The shim's version must be a plain one.** `8.99.0-wasm` reads better and
+  npm excludes prereleases from `^8.0.0`, so better-auth's optional peer on `pg`
+  refused the whole install.
+- **`node -r dotenv/config`.** The backend finds `.env` by walking up from
+  `__dirname`, which is `src/` under Bun and `dist/src/` once built, so `../.env`
+  lands on a file that does not exist — and the first thing needing a secret
+  fails as though the file were missing.
+- **`dist/src/…`, not `dist/…`.** The backend compiles `seeds/` alongside
+  `src/`, so the build mirrors the package root.
+- **Pools are reference-counted.** PGlite is one embedded server shared by every
+  `Pool`; `end()` closing it breaks `main.ts` seeding the administrator beside
+  the live Nest module, and `end()` doing nothing leaves `db:setup` hanging
+  forever after it finishes.
+
+`ENABLE_MODEL_CONTEXT=false` in the generated `.env`: retrieval needs pgvector,
+which PGlite 0.5 does not carry. The backend logs one warning and runs without
+it.
+
+### The self-contained browser runtime (`--standalone`)
+
+The other half of `cli-wasm`, and a different trade. **`erdwithai-wasm generate
+--standalone`** emits an application that runs in a browser tab with no install
+and no build step at all — PGlite, an application server on a Worker under a
+Node-API runtime, and a Service Worker answering the page's own `/api`
+requests.
 
 ```
 packages/generator/

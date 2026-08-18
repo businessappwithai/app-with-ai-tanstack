@@ -122,12 +122,15 @@ await step("groups the entities by the categories the model declared", async () 
   const headings = await frame.$$eval(".category__name", (n) => n.map((x) => x.textContent));
   console.log("\n     groups: " + headings.join(" | "));
   if (!headings.includes("Sales Pipeline")) throw new Error("missing Sales Pipeline group");
-  if (!headings.includes("Application Dictionary")) throw new Error("no Application Dictionary group");
+  if (!headings.includes("Application Dictionary"))
+    throw new Error("no Application Dictionary group");
   process.stdout.write("   ");
 });
 
 await step("opens an entity grid", async () => {
-  await frame.evaluate(() => { window.location.hash = "/entity/account"; });
+  await frame.evaluate(() => {
+    window.location.hash = "/entity/account";
+  });
   await frame.waitForSelector(".listbar", { timeout: 30000 });
   await frame.waitForSelector(".empty, .table", { timeout: 30000 });
 });
@@ -135,7 +138,7 @@ await page.screenshot({ path: `${OUT}/05-entity-list.png`, fullPage: false });
 
 await step("opens the new-record form built from the dictionary", async () => {
   // The action bar's New button, the way a person opens a record.
-  await frame.click('.actionbar button:nth-of-type(2)');
+  await frame.click(".actionbar button:nth-of-type(2)");
   await frame.waitForSelector(".group__fields", { timeout: 30000 });
   const fields = await frame.$$eval(".field__label", (n) => n.map((x) => x.textContent.trim()));
   console.log("\n     fields: " + fields.slice(0, 8).join(", "));
@@ -166,14 +169,18 @@ await step("creates a record", async () => {
 await page.screenshot({ path: `${OUT}/07-created.png`, fullPage: false });
 
 await step("the record appears in the grid", async () => {
-  await frame.evaluate(() => { window.location.hash = "/entity/account"; });
+  await frame.evaluate(() => {
+    window.location.hash = "/entity/account";
+  });
   await frame.waitForSelector(".table__row", { timeout: 30000 });
   const body = await frame.textContent(".table");
   if (!body.includes("Globex")) throw new Error("record not in grid");
 });
 
 await step("the rules screen shows how each decision was read", async () => {
-  await frame.evaluate(() => { window.location.hash = "/rules"; });
+  await frame.evaluate(() => {
+    window.location.hash = "/rules";
+  });
   await frame.waitForSelector(".cards .rule", { timeout: 30000 });
   const cards = await frame.$$eval(".rule__name", (n) => n.map((x) => x.textContent));
   console.log("\n     rules: " + cards.join(", "));
@@ -186,7 +193,9 @@ await step("the rules screen shows how each decision was read", async () => {
 await page.screenshot({ path: `${OUT}/08-rules.png`, fullPage: false });
 
 await step("the dictionary screen lists the seeded tables", async () => {
-  await frame.evaluate(() => { window.location.hash = "/dictionary"; });
+  await frame.evaluate(() => {
+    window.location.hash = "/dictionary";
+  });
   await frame.waitForSelector(".table", { timeout: 30000 });
   const rows = await frame.$$eval(".table tbody tr", (r) => r.length);
   if (rows < 17) throw new Error(`expected >= 17 dictionary rows, got ${rows}`);
@@ -194,7 +203,9 @@ await step("the dictionary screen lists the seeded tables", async () => {
 await page.screenshot({ path: `${OUT}/09-dictionary.png`, fullPage: false });
 
 await step("the processes screen shows the model's state machines", async () => {
-  await frame.evaluate(() => { window.location.hash = "/processes"; });
+  await frame.evaluate(() => {
+    window.location.hash = "/processes";
+  });
   await frame.waitForSelector(".cards .rule", { timeout: 30000 });
   const names = await frame.$$eval(".rule__name", (n) => n.map((x) => x.textContent));
   console.log("\n     processes: " + names.join(", "));
@@ -203,7 +214,9 @@ await step("the processes screen shows the model's state machines", async () => 
 await page.screenshot({ path: `${OUT}/10-processes.png`, fullPage: false });
 
 await step("the audit trail recorded the sign-in and the write", async () => {
-  await frame.evaluate(() => { window.location.hash = "/audit"; });
+  await frame.evaluate(() => {
+    window.location.hash = "/audit";
+  });
   await frame.waitForSelector(".table", { timeout: 30000 });
   const body = await frame.textContent(".table");
   if (!body.includes("AUTH_LOGIN")) throw new Error("no AUTH_LOGIN in the trail");
@@ -212,7 +225,9 @@ await step("the audit trail recorded the sign-in and the write", async () => {
 await page.screenshot({ path: `${OUT}/11-audit.png`, fullPage: false });
 
 await step("the model screen serves the EML back", async () => {
-  await frame.evaluate(() => { window.location.hash = "/model"; });
+  await frame.evaluate(() => {
+    window.location.hash = "/model";
+  });
   await frame.waitForSelector(".source", { timeout: 30000 });
   const source = await frame.textContent(".source");
   if (!source.includes("erDiagram")) throw new Error("model source not served");
@@ -312,7 +327,8 @@ await step2("shows the uploaded model's own entities, not the CRM's", async () =
   await frame2.waitForSelector(".card__name", { timeout: 30000 });
   const links = await frame2.$$eval(".card__name", (n) => n.map((x) => x.textContent));
   console.log("\n     entities: " + links.slice(0, 10).join(", "));
-  if (!links.some((l) => /Compound/i.test(l))) throw new Error("no Compound entity on the dashboard");
+  if (!links.some((l) => /Compound/i.test(l)))
+    throw new Error("no Compound entity on the dashboard");
   if (links.some((l) => /Opportunity/i.test(l)))
     throw new Error("CRM entities leaked into the uploaded app");
   process.stdout.write("   ");

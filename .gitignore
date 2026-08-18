@@ -117,3 +117,8 @@ html/assets/vendor/
 # a checkout without it produces applications with no runtime in them. CI keeps
 # it honest by regenerating and diffing (`bun run build:wasm-runtime --check`).
 !packages/generator/src/generators/wasm/runtime-assets.generated.ts
+
+# Written by the audit-ledger test when it stubs the Nest decorators.
+packages/generator/templates/wasm-overlay/backend/src/modules/audit/__stub.ts
+packages/generator/templates/wasm-overlay/backend/src/modules/audit/__under-test.ts
+packages/generator/src/generators/wasm/__tests__/.tmp/

@@ -22,8 +22,13 @@ page.on("pageerror", (e) => problems.push("pageerror: " + e.message.slice(0, 200
 
 const step = async (name, fn) => {
   process.stdout.write(`  ${name} ... `);
-  try { await fn(); console.log("ok"); }
-  catch (e) { console.log("FAIL\n     " + e.message.split("\n")[0]); problems.push(name); }
+  try {
+    await fn();
+    console.log("ok");
+  } catch (e) {
+    console.log("FAIL\n     " + e.message.split("\n")[0]);
+    problems.push(name);
+  }
 };
 
 console.log("\n== a CLI-generated application, served statically ==");
@@ -52,13 +57,16 @@ await page.screenshot({ path: `${process.env.QA_OUT || "/tmp/qa"}/21-standalone-
 await step("the data survives a reload (IndexedDB, not memory)", async () => {
   const before = await page.evaluate(async () => {
     const token = sessionStorage.getItem("erdwithai.session");
-    const response = await fetch("api/sys/model-summary", { headers: { Authorization: `Bearer ${token}` } });
+    const response = await fetch("api/sys/model-summary", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     return (await response.json()).counts.entities;
   });
   await page.reload();
   await page.waitForSelector(".masthead, .login__form", { timeout: 180000 });
   const seeded = await page.evaluate(() => document.getElementById("boot-log")?.textContent ?? "");
-  if (seeded.includes("Seeding the dictionary")) throw new Error("it re-seeded instead of reattaching");
+  if (seeded.includes("Seeding the dictionary"))
+    throw new Error("it re-seeded instead of reattaching");
   console.log(`\n     reattached to the existing database (${before} entities)`);
   process.stdout.write("   ");
 });

@@ -26,15 +26,20 @@ import { createServer } from "node:http";
 import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { Command } from "commander";
+import { DEFAULT_BACKEND_PORT, DEFAULT_FRONTEND_PORT } from "../generators/ports";
 import { DEFAULT_PGLITE_URL, generateWasmApp, type WasmGeneratedApp } from "../generators/wasm";
-import { readModelSources } from "../pipeline/generate-application";
+import { applyWasmOverlay } from "../generators/wasm/overlay";
+import { generateApplication, readModelSources } from "../pipeline/generate-application";
 import { parseModel } from "../pipeline/parse-model";
 
 const program = new Command();
 
 program
   .name("erdwithai-wasm")
-  .description("Generate a full-stack application that runs entirely in the browser")
+  .description(
+    "Generate the same stack `erdwithai` generates, running on WebAssembly Postgres " +
+      "and Node instead of a database server and Bun"
+  )
   .version("5.1.0");
 
 /** Files PGlite needs at runtime. The `.map` and `contrib` halves are not among them. */
@@ -63,7 +68,7 @@ const PGLITE_FILES = [
 
 program
   .command("generate")
-  .description("Generate a browser-native application from a model")
+  .description("Generate the full stack, running on WebAssembly Postgres with no server")
   .option("-i, --input <file>", "Input Mermaid ERD / EML file")
   .option("--sys-file <file>", "System entities file (multi-file mode)")
   .option("--bus-file <file>", "Business entities file (multi-file mode)")
@@ -76,6 +81,12 @@ program
   .option("--admin-password <password>", "Seeded administrator's password", "admin")
   .option("--admin-name <name>", "Seeded administrator's display name", "admin")
   .option("--vendor-pglite", "Copy PGlite into the output so the app needs no network")
+  .option(
+    "--standalone",
+    "Emit the self-contained browser runtime instead of the full stack: no npm install, " +
+      "no build step, boots in seconds — at the cost of not being the NestJS/TanStack source"
+  )
+  .option("--data-dir <dir>", "Where PostgreSQL (wasm) keeps its files", "./pgdata")
   .option(
     "--pglite-url <url>",
     "Where the app loads PGlite from when not vendored",
@@ -115,6 +126,65 @@ program
     if (!parsed.entities.length) {
       console.error("✖ The model declares no entities — is the erDiagram section present?");
       process.exit(1);
+    }
+
+    const outputDirEarly = path.resolve(options.output);
+    if (!options.standalone && !options.dryRun) {
+      if (existsSync(outputDirEarly) && !options.force) {
+        const entries = await fs.readdir(outputDirEarly);
+        if (entries.length) {
+          console.error(`✖ ${outputDirEarly} is not empty. Pass --force to overwrite.`);
+          process.exit(1);
+        }
+      }
+
+      // The same pipeline the `erdwithai` CLI runs. Nothing about the stack is
+      // re-implemented here — the overlay that follows changes the driver and
+      // the scripts, and leaves every generated source file alone.
+      say("  Generating the NestJS backend and TanStack Start front end");
+      await generateApplication({
+        sources,
+        model: parsed,
+        projectName: options.name,
+        projectVersion: options.version,
+        projectDescription: options.description,
+        outputDir: outputDirEarly,
+        stackOption: "tanstackjs-nestjs",
+        databaseType: "postgresql",
+        port: DEFAULT_BACKEND_PORT,
+        frontendPort: DEFAULT_FRONTEND_PORT,
+        manifest: { input: inputs, packageManager: "npm" },
+      });
+
+      say("  Applying the WebAssembly overlay");
+      const overlay = await applyWasmOverlay({
+        outputDir: outputDirEarly,
+        dataDir: options.dataDir,
+        log: (message) => say(`    ${message}`),
+      });
+
+      describeStack(say, parsed, overlay);
+
+      if (options.vendorPglite) {
+        const copied = await vendorPglite(path.join(outputDirEarly, "backend"));
+        say(
+          copied
+            ? `  Vendored PGlite (${copied} files) into backend/vendor/pglite`
+            : "  ⚠ Could not find @electric-sql/pglite to vendor"
+        );
+      }
+
+      say(`
+  Run it:
+
+    cd ${path.relative(process.cwd(), outputDirEarly) || "."}
+    npm install --prefix backend && npm run --prefix backend db:setup
+    npm run --prefix backend start          # NestJS on WebAssembly Postgres
+    npm install --prefix frontend && npm run --prefix frontend dev
+
+  There is no database to start. Sign in as ${options.adminEmail} / ${options.adminPassword}
+`);
+      return;
     }
 
     const generated = generateWasmApp(parsed, {
@@ -221,6 +291,26 @@ program
     describe((line = "") => console.log(line), parsed, generated);
     console.log("");
   });
+
+/** What the overlay changed, so the reader can see the whole difference. */
+function describeStack(
+  say: (line?: string) => void,
+  parsed: ReturnType<typeof parseModel>,
+  overlay: { added: string[]; rewritten: string[]; debunned: string[] }
+): void {
+  say("");
+  say(`  Entities       ${parsed.entities.length}`);
+  say(`  Rules          ${parsed.rules.length}`);
+  say(`  Processes      ${parsed.workflows.length + parsed.sagas.length}`);
+  say(`  Access rules   ${parsed.rbac.operations.length + parsed.rbac.transitions.length}`);
+  say("");
+  say("  The overlay changed only this:");
+  for (const file of overlay.added) say(`    + ${file}`);
+  for (const file of overlay.rewritten) say(`    ~ ${file}`);
+  say(`    ~ ${overlay.debunned.length} scripts moved from bun to node`);
+  say("");
+  say("  Every other file is what `erdwithai` generates, unchanged.");
+}
 
 function describe(
   say: (line?: string) => void,
