@@ -1,0 +1,242 @@
+/**
+ * The Service Worker — this application's HTTP layer.
+ *
+ * Two jobs, and the second is the one that makes the first worth doing.
+ *
+ * It serves the application's own files. When the app was written to disk by
+ * the CLI they are already on a static server and this passes straight through;
+ * when it was generated inside the browser there is no server, and the files
+ * arrive here as a message and are served out of Cache Storage. Same app, same
+ * URLs, whichever way it was built.
+ *
+ * And it forwards `/api/…` to the backend Worker. That is what makes the
+ * backend a server rather than a library the UI happens to call: the frontend
+ * issues ordinary `fetch("/api/bus/order")` requests to its own origin, and
+ * something else entirely answers them. Nothing in the UI knows the difference,
+ * which is the property that would let this application be pointed at a real
+ * server by deleting this file.
+ *
+ * One worker can host several applications at once, keyed by base path — which
+ * is what the hosted generator needs, and costs nothing here.
+ */
+
+const CACHE = "erdwithai-wasm-vfs-v1";
+const MOUNTS_KEY = "/__erdwithai_mounts__";
+
+/** MessagePorts to backend workers, keyed by the base path each serves. */
+const backends = new Map();
+/** Resolvers waiting for a backend that has not attached yet. */
+const waiting = new Map();
+/** Base paths this worker has files cached for. */
+let mounted = [];
+/** In-flight forwarded requests, by id. A port per request would cost a clone. */
+const inFlight = new Map();
+
+let sequence = 0;
+
+self.addEventListener("install", () => self.skipWaiting());
+self.addEventListener("activate", (event) => event.waitUntil(Promise.all([self.clients.claim(), loadMounts()])));
+
+const normalizeBase = (base) => {
+  const value = base || "/";
+  return value.endsWith("/") ? value : `${value}/`;
+};
+
+self.addEventListener("message", (event) => {
+  const message = event.data || {};
+
+  if (message.type === "mount") {
+    event.waitUntil(
+      mount(message.basePath, message.files).then(
+        () => reply(event, { ok: true, files: Object.keys(message.files).length }),
+        (error) => reply(event, { ok: false, error: String(error && error.message) })
+      )
+    );
+    return;
+  }
+
+  if (message.type === "attach") {
+    const base = normalizeBase(message.basePath);
+    const port = message.port;
+    port.onmessage = (portEvent) => {
+      const pending = inFlight.get(portEvent.data.id);
+      if (!pending) return;
+      inFlight.delete(portEvent.data.id);
+      pending(portEvent.data);
+    };
+    port.start();
+    backends.set(base, port);
+    for (const resume of waiting.get(base) || []) resume(port);
+    waiting.delete(base);
+    reply(event, { ok: true });
+    return;
+  }
+
+  if (message.type === "unmount") {
+    const base = normalizeBase(message.basePath);
+    backends.delete(base);
+    event.waitUntil(unmount(base).then(() => reply(event, { ok: true })));
+  }
+});
+
+function reply(event, payload) {
+  if (event.ports && event.ports[0]) event.ports[0].postMessage(payload);
+}
+
+/**
+ * Write a generated application into Cache Storage.
+ *
+ * Cache Storage rather than a Map in memory: a Service Worker is stopped and
+ * restarted whenever the browser feels like it, and an application that
+ * vanished because the worker idled for thirty seconds would be
+ * indistinguishable from one that crashed.
+ */
+async function mount(basePath, files) {
+  const base = normalizeBase(basePath);
+  const cache = await caches.open(CACHE);
+
+  await unmount(base, cache);
+
+  await Promise.all(
+    Object.entries(files).map(([name, content]) => {
+      const url = new URL(base + String(name).replace(/^\/+/, ""), self.location.origin).href;
+      return cache.put(
+        new Request(url),
+        new Response(content, {
+          headers: {
+            "Content-Type": contentType(name),
+            "Cache-Control": "no-cache",
+            // Says these are same-origin resources. Without it, a host page
+            // that sets COEP refuses to embed the application at all — which is
+            // how the generator page's iframe first came up blank.
+            "Cross-Origin-Resource-Policy": "same-origin",
+          },
+        })
+      );
+    })
+  );
+
+  if (!mounted.includes(base)) mounted = [...mounted, base];
+  await saveMounts(cache);
+}
+
+async function unmount(base, existingCache) {
+  const cache = existingCache || (await caches.open(CACHE));
+  const keys = await cache.keys();
+  await Promise.all(
+    keys
+      .filter((request) => new URL(request.url).pathname.startsWith(base))
+      .map((request) => cache.delete(request))
+  );
+  mounted = mounted.filter((candidate) => candidate !== base);
+  await saveMounts(cache);
+}
+
+/**
+ * The mount list is stored, not derived.
+ *
+ * Deriving it from the cached file paths looked simpler and was wrong: every
+ * directory of every file reads as a base, so `…/run/server/lib/` shadowed
+ * `…/run/` and the longest-prefix match picked the wrong application.
+ */
+async function saveMounts(cache) {
+  await cache.put(
+    new Request(new URL(MOUNTS_KEY, self.location.origin).href),
+    new Response(JSON.stringify(mounted), { headers: { "Content-Type": "application/json" } })
+  );
+}
+
+async function loadMounts() {
+  try {
+    const cache = await caches.open(CACHE);
+    const response = await cache.match(new URL(MOUNTS_KEY, self.location.origin).href);
+    mounted = response ? await response.json() : [];
+  } catch {
+    mounted = [];
+  }
+}
+loadMounts();
+
+self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname === MOUNTS_KEY) return;
+
+  const scope = normalizeBase(new URL(self.registration.scope).pathname);
+  const base = [...new Set([...backends.keys(), ...mounted, scope])]
+    .filter((candidate) => url.pathname.startsWith(candidate))
+    .sort((a, b) => b.length - a.length)[0];
+
+  if (!base) return;
+
+  const rest = url.pathname.slice(base.length);
+  if (rest.startsWith("api/")) {
+    event.respondWith(forward(base, event.request));
+    return;
+  }
+  event.respondWith(serve(event.request));
+});
+
+async function serve(request) {
+  const cached = await caches.match(request, { cacheName: CACHE, ignoreSearch: true });
+  if (cached) return cached;
+  try {
+    return await fetch(request);
+  } catch {
+    return new Response(`Offline, and not part of the application bundle: ${request.url}`, {
+      status: 504,
+    });
+  }
+}
+
+async function forward(base, request) {
+  const port = backends.get(base) || (await waitForBackend(base));
+  if (!port) {
+    return new Response(
+      JSON.stringify({ message: "The application server has not started yet. Reload the page." }),
+      { status: 503, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  const body = ["GET", "HEAD"].includes(request.method) ? null : await request.arrayBuffer();
+  const headers = [];
+  for (const [key, value] of request.headers.entries()) headers.push([key, value]);
+
+  const id = ++sequence;
+  const answer = new Promise((resolve) => inFlight.set(id, resolve));
+
+  port.postMessage(
+    { id, request: { method: request.method, url: request.url, headers, body } },
+    body ? [body] : []
+  );
+
+  const result = await answer;
+  return new Response(result.body, { status: result.status, headers: result.headers });
+}
+
+/** A reload races the worker's boot; wait rather than 503 on the first paint. */
+function waitForBackend(base, timeoutMs = 60000) {
+  return new Promise((resolve) => {
+    const queue = waiting.get(base) || [];
+    queue.push(resolve);
+    waiting.set(base, queue);
+    setTimeout(() => resolve(backends.get(base) || null), timeoutMs);
+  });
+}
+
+function contentType(name) {
+  const extension = String(name).split(".").pop().toLowerCase();
+  return (
+    {
+      html: "text/html; charset=utf-8",
+      js: "text/javascript; charset=utf-8",
+      mjs: "text/javascript; charset=utf-8",
+      css: "text/css; charset=utf-8",
+      json: "application/json; charset=utf-8",
+      sql: "text/plain; charset=utf-8",
+      mmd: "text/plain; charset=utf-8",
+      md: "text/markdown; charset=utf-8",
+      svg: "image/svg+xml",
+    }[extension] || "application/octet-stream"
+  );
+}

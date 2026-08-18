@@ -63,6 +63,64 @@ jobs:
       - name: Unit tests
         run: bun run test
 
+      # The browser stack ships its runtime twice: as editable files under
+      # templates/wasm, and as the inlined module the generator (and the hosted
+      # page) actually reads. A stale copy generates applications from
+      # yesterday's runtime while the diff shows today's, which is exactly the
+      # kind of drift nobody notices until an app misbehaves in a way the source
+      # cannot explain.
+      - name: The inlined wasm runtime is current
+        run: bun run build:wasm-runtime -- --check
+
+      - name: The browser bundle of the generator is current
+        run: bun run build:wasm-browser -- --check
+
+  generated-wasm-app:
+    name: Generate a browser application and run its backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # No database service. That is the point of this job: the application it
+    # generates carries its own Postgres, compiled to WebAssembly, and the
+    # backend it starts is the same code a browser tab runs. If this passes on a
+    # runner with no Postgres installed, the claim holds.
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Generate a browser application
+        run: |
+          bun run wasm generate \
+            -i language/examples/crm.eml.mmd \
+            -o wasm-app --name "CI CRM" --force --vendor-pglite
+
+      - name: Start it under the Node host
+        run: |
+          cd wasm-app
+          node host/node-host.mjs --port 4700 > host.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:4700/api/health > /dev/null && break
+            sleep 2
+          done
+          cat host.log
+
+      - name: Exercise the API
+        run: bun scripts/ci/wasm-smoke.ts --base http://localhost:4700/api
+
+      - name: Show the host log on failure
+        if: failure()
+        run: cat wasm-app/host.log || true
+
   generated-app:
     name: Generate an application and build it
     runs-on: ubuntu-latest

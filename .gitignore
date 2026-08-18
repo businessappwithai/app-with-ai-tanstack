@@ -107,3 +107,13 @@ generated-projects/crm/**/*.log
 generated-projects/crm/**/.env
 generated-projects/crm/bun.lock
 generated-projects/crm/**/app.config.timestamp_*.js
+
+# PGlite vendored beside the guide by `bun run vendor:pglite` — 17MB of
+# WebAssembly, fetched on demand rather than committed.
+html/assets/vendor/
+
+# The browser stack's inlined runtime is generated, and is committed anyway.
+# It is what the generator actually reads — a browser has no `fs.readFile` — so
+# a checkout without it produces applications with no runtime in them. CI keeps
+# it honest by regenerating and diffing (`bun run build:wasm-runtime --check`).
+!packages/generator/src/generators/wasm/runtime-assets.generated.ts

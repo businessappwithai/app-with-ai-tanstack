@@ -13,7 +13,11 @@
       "!language/cli/runtime",
       "!generated-projects",
       "!**/routeTree.gen.ts",
-      "!**/*.css"
+      "!**/*.css",
+      "!**/*.generated.ts",
+      "!html/assets/erdwithai-wasm.js",
+      "!html/wasm-app",
+      "!html/assets/vendor"
     ]
   },
   "formatter": {
