@@ -76,7 +76,11 @@ program
   .option("-o, --output <dir>", "Output directory", "./generated-wasm-app")
   .option("-n, --name <name>", "Project name", "my-app")
   .option("-v, --version <version>", "Project version", "1.0.0")
-  .option("-d, --description <desc>", "Project description", "Generated browser application")
+  // The same default as `erdwithai`, because it is the same application. A
+  // different one showed up as three files differing between the two CLIs —
+  // README, the front end's meta description, the test package — which read
+  // like the overlay touching things it does not touch.
+  .option("-d, --description <desc>", "Project description", "Generated application")
   .option("--admin-email <email>", "Seeded administrator's email", "admin@admin.com")
   .option("--admin-password <password>", "Seeded administrator's password", "admin")
   .option("--admin-name <name>", "Seeded administrator's display name", "admin")

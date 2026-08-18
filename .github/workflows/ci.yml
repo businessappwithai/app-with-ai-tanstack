@@ -103,20 +103,27 @@ jobs:
       # past the driver, the scripts and the audit ledger, this fails.
       - name: Generate the stack twice — with and without the overlay
         run: |
+          # Same name and description to both, so the comparison below is about
+          # the overlay rather than about two CLIs' defaults.
           bun packages/generator/src/cli/generate.ts generate \
-            -i language/examples/crm.eml.mmd -o plain-app --name "CI CRM" --force --no-setup
+            -i language/examples/crm.eml.mmd -o plain-app \
+            --name "CI CRM" -d "CI CRM" --force --no-setup
           bun run wasm generate \
-            -i language/examples/crm.eml.mmd -o wasm-app --name "CI CRM" --force
+            -i language/examples/crm.eml.mmd -o wasm-app \
+            --name "CI CRM" -d "CI CRM" --force
 
       - name: The overlay changed only what it is allowed to change
         run: |
-          # Every generated file carries its generation timestamp, so that line
-          # is stripped before comparing; anything else that differs is the
-          # overlay's doing and has to be on the list.
+          # Generated files carry the moment they were generated, in several
+          # comment styles, so every ISO timestamp is blanked before comparing
+          # rather than one comment prefix being stripped. Anything still
+          # differing is the overlay's doing and has to be on the list.
+          strip() { sed -E 's/[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z//g' "$1"; }
           changed=$(cd plain-app && find . -type f -not -path "./pgdata/*" | while read -r f; do
             if [ -f "../wasm-app/$f" ] && ! diff -q \
-              <(grep -v "^ \* Generated:" "$f") \
-              <(grep -v "^ \* Generated:" "../wasm-app/$f") > /dev/null 2>&1; then
+              <(sed -E 's/[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z//g' "$f") \
+              <(sed -E 's/[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z//g' "../wasm-app/$f") \
+              > /dev/null 2>&1; then
               echo "$f"
             fi
           done | sort)
@@ -130,6 +137,10 @@ jobs:
             exit 1
           fi
 
+      # The application — backend and front end. `tests/` is deliberately not in
+      # this list: the generated E2E suite is written against `bun:test`, and
+      # porting it would mean rewriting the suite rather than overlaying the
+      # application.
       - name: No Bun left in the generated application
         run: |
           if grep -rn '\bbun\b' wasm-app/package.json wasm-app/backend/package.json \
