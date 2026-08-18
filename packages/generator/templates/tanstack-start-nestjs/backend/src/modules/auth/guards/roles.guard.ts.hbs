@@ -63,7 +63,12 @@ export class RolesGuard implements CanActivate {
     }
 
     // Check if user has any of the required roles
-    const hasRole = requiredRoles.some((role) => userRoles.includes(role));
+    // Case-insensitive: the seeded role is `Administrator` and a decorator
+    // writes `admin`/`administrator`. Matching exactly refuses a user who holds
+    // precisely the role the endpoint asks for, which is the failure this guard
+    // exists to prevent.
+    const held = new Set(userRoles.map((role) => role.toLowerCase()));
+    const hasRole = requiredRoles.some((role) => held.has(role.toLowerCase()));
 
     if (!hasRole) {
       throw new ForbiddenException(

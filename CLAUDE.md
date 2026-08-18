@@ -642,7 +642,9 @@ entity's state machine.
 
 Compiled by `packages/generator/src/rbac/index.ts` into `sys_operation_access`
 and `sys_transition_access`, enforced by the generated `EntityAccessGuard` on
-the `/bus` routes. Role names match case-insensitively; a master role bypasses.
+**every route carrying an entity in its path** — `/bus/:entity` and
+`/workflows/entity/:entityName`. A read restriction a sibling route ignores is
+not a restriction. Role names match case-insensitively; a master role bypasses.
 
 Two things to know before touching it:
 
@@ -654,6 +656,26 @@ Two things to know before touching it:
   is an ordinary status update, so a rule stores the `(from_state, to_state)`
   pair and the guard matches on the states the write crosses. Both ends are kept
   because one event can sit on several edges.
+
+### The other two access surfaces
+
+`%%rbac` governs entity data. Two administrative surfaces are gated separately,
+because a model has no way to name them:
+
+| Surface | Rule | Guard |
+|---|---|---|
+| `/sys` — the Application Dictionary | reads open to any signed-in user, **writes admin-only** | `DictionaryWriteGuard` |
+| `/audit` — the audit trail | admin-only | `RolesGuard` + `@Roles` |
+
+Dictionary reads must stay open: `use-entities.ts` calls `/sys/tables`,
+`/sys/fields/form` and `/sys/fields/grid` to render any list or form, so gating
+them leaves a non-admin looking at empty pages. Writes are administrative —
+every screen is drawn from those rows, so editing one changes what everyone
+else sees.
+
+`DictionaryWriteGuard` keys on the HTTP method rather than per-route decorators
+on purpose: there are 28 write routes, and a new one added later would
+otherwise default to open.
 
 **Validation loop** (checker → fixer → recheck):
 ```bash

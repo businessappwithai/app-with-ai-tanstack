@@ -609,6 +609,20 @@ export class NestJsBackendGenerator extends BaseGenerator {
       console.warn("Entity access guard template not found");
     }
 
+    // Dictionary write guard — SysController references it unconditionally.
+    try {
+      const dictionaryWriteGuardContent = await this.renderTemplate(
+        "src/modules/auth/guards/dictionary-write.guard.ts.hbs",
+        context
+      );
+      await fs.writeFile(
+        path.join(outputDir, "src/modules/auth/guards/dictionary-write.guard.ts"),
+        dictionaryWriteGuardContent
+      );
+    } catch (e) {
+      console.warn("Dictionary write guard template not found");
+    }
+
     // Auth controller and module
     try {
       const authControllerContent = await this.renderTemplate(

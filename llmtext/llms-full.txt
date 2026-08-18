@@ -223,7 +223,7 @@ such a rule unsatisfiable, locking out the people it was written to admit.
 |---|---|
 | CRUD rules → | `sys_operation_access` (table, operation, role) |
 | Transition rules → | `sys_transition_access` (table, transition, status field, from, to, role) |
-| Enforced by | `EntityAccessGuard` on the generated `/bus` routes |
+| Enforced by | `EntityAccessGuard` on every route carrying an entity in its path — `/bus/:entity` and `/workflows/entity/:entityName` |
 
 Two design facts that answer most questions about it:
 
@@ -242,6 +242,20 @@ Two design facts that answer most questions about it:
 
 Rules carry `entity_type = 'D'` and are replaced on regeneration; rules an
 administrator adds in the running app are `'U'` and survive.
+
+**`%%rbac` governs entity data only.** Two administrative surfaces are gated
+separately, because a model has no way to name them:
+
+| Surface | Rule | Guard |
+|---|---|---|
+| `/sys` — the Application Dictionary | reads open to any signed-in user, writes admin-only | `DictionaryWriteGuard` |
+| `/audit` — the audit trail | admin-only | `RolesGuard` + `@Roles` |
+
+Dictionary **reads stay open** because `use-entities.ts` needs them to render
+any list or form; gating them leaves a non-admin looking at empty pages. Writes
+are administrative — every screen is drawn from those rows, so one edit changes
+what everyone sees. The guard keys on HTTP method rather than per-route
+decorators, so a route added later defaults to closed.
 
 Validation is strict here — `EML210` syntax, `EML211` no role, `EML213`
 undeclared entity, `EML214` target is neither an operation nor a transition —

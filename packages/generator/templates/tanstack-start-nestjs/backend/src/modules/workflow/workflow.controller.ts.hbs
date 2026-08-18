@@ -15,12 +15,18 @@ import { Controller, Get, Post, Param, Query, UseGuards, Logger } from '@nestjs/
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { EntityAccessGuard } from '../auth/guards/entity-access.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { WorkflowService } from './workflow.service';
 
 @ApiTags('workflows')
 @ApiBearerAuth()
-@UseGuards(SessionAuthGuard, RolesGuard)
+// EntityAccessGuard covers `entity/:entityName/:entityId`, which returns a
+// record's workflow history — the old and new values of every field a run
+// touched. Without it a caller denied `%%rbac ... on <E>.read` on /bus reads the
+// same data here by changing the URL, which is the restriction not holding.
+// Routes with no entity in the path fall straight through it.
+@UseGuards(SessionAuthGuard, RolesGuard, EntityAccessGuard)
 @Controller('workflows')
 export class WorkflowController {
   private readonly logger = new Logger(WorkflowController.name);

@@ -2,9 +2,19 @@
  * Entity Access Guard — enforces the model's `%%rbac` directives.
  *
  * Runs after SessionAuthGuard, which is what puts the caller's roles on the
- * request. For each CRUD call on /bus/:entity it asks one question: does
+ * request. For each call naming an entity it asks one question: does
  * `sys_operation_access` close this (table, operation) pair to a set of roles,
  * and if so does the caller hold one of them?
+ *
+ * ## It is not only /bus
+ *
+ * Any route carrying the entity in its path is covered, because a read
+ * restriction that a sibling route ignores is not a restriction. Denying
+ * `Customer.read` on /bus while /workflows/entity/Customer/:id still returns
+ * that customer's history — old and new values of every field it touched — is
+ * the restriction being bypassed by changing the URL. The parameter is spelled
+ * `entity` on the bus routes and `entityName` on the workflow routes, so both
+ * are read.
  *
  * ## Open unless closed
  *
@@ -84,7 +94,7 @@ export class EntityAccessGuard implements CanActivate {
     if (!this.db) return true;
 
     const request = context.switchToHttp().getRequest();
-    const entity: string | undefined = request.params?.entity;
+    const entity: string | undefined = request.params?.entity ?? request.params?.entityName;
     if (!entity) return true;
 
     const operation = METHOD_OPERATION[String(request.method).toUpperCase()];
