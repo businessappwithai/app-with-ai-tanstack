@@ -1268,6 +1268,20 @@ export async function executeCustomValidateHooks(
         slug: "add_workflow_ownership",
         template: "src/migrations/007_add_workflow_ownership.ts.hbs",
       },
+      // Reconcile the auth tables with the installed Better Auth version. Runs
+      // before the seed, which creates the demo accounts those tables hold.
+      {
+        slug: "sync_better_auth_schema",
+        template: "src/migrations/010_sync_better_auth_schema.ts.hbs",
+      },
+      // allowed_roles on the dictionary tables — what an Electric shape filters
+      // on so a client syncs only the part of the Application Dictionary its
+      // role may see. Must run after sys_access and every dictionary table
+      // exists, since it derives the column from them.
+      {
+        slug: "add_dictionary_role_scope",
+        template: "src/migrations/009_add_dictionary_role_scope.ts.hbs",
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This

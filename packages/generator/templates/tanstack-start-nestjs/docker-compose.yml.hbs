@@ -45,11 +45,37 @@ services:
       # to start.
 
       - postgres_data:/var/lib/postgresql
+    # Electric follows the write-ahead log, which it can only do when the log
+    # carries row data. Without this the electric service starts and then fails
+    # on its first shape request.
+    command:
+      - postgres
+      - -c
+      - wal_level=logical
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-app}"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # Streams the Application Dictionary to browsers so each client reads it
+  # locally instead of fetching it per screen.
+  #
+  # Deliberately not published to the host: Electric applies no authorization of
+  # its own, so anything that can reach it can read any table it is pointed at.
+  # The only way in is the backend's /v1/shape proxy, which requires a session
+  # and narrows every shape to that session's roles.
+  electric:
+    image: electricsql/electric:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://${DB_USER:-app}:${DB_PASSWORD:-app}@postgres:5432/{{project.name | replace '-' '_'}}
+      ELECTRIC_INSECURE: "true"
+    expose:
+      - "3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   # The single-image build. Not started by default — name it, or use the profile.
   app:
@@ -74,9 +100,12 @@ services:
       SESSION_SECRET: ${SESSION_SECRET:-change-me-in-production}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-change-me-in-production}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:{{project.frontendPort}}}
+      ELECTRIC_URL: http://electric:3000
     depends_on:
       postgres:
         condition: service_healthy
+      electric:
+        condition: service_started
 
   backend:
     image: {{project.name}}-backend:${IMAGE_TAG:-latest}
@@ -94,9 +123,12 @@ services:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-change-me-in-production}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:{{project.frontendPort}}}
       PORT: {{project.backendPort}}
+      ELECTRIC_URL: http://electric:3000
     depends_on:
       postgres:
         condition: service_healthy
+      electric:
+        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:{{project.backendPort}}/api/me/health || exit 1"]
       interval: 30s

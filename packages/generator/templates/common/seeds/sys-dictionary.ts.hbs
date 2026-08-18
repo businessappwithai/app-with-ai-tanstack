@@ -343,6 +343,23 @@ export async function seed(db: Kysely<any>): Promise<void> {
     }).execute();
   }
 
+  // Every role that is not the Administrator gets the business windows.
+  //
+  // Granting only 'User' was invisible while the dictionary was served
+  // unfiltered over HTTP — every role saw every window regardless. Now that a
+  // shape is scoped by role, a role with no grant syncs no dictionary at all,
+  // and 00_users_and_roles seeds Manager and Analyst accounts that would open
+  // to an empty application.
+  const businessRoles = await db
+    .selectFrom('sys_role')
+    .select('sys_role_id')
+    .where('sys_role_id', '!=', adminRoleId)
+    .where('is_active', '=', true)
+    .execute();
+  const businessRoleIds: string[] = businessRoles.length > 0
+    ? businessRoles.map((r: { sys_role_id: string }) => r.sys_role_id)
+    : [userRoleId];
+
   // ============================================================================
   // Create Default Admin User (lookup-or-create so re-runs are safe)
   // ============================================================================
@@ -597,22 +614,24 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: {{camelCase name}}TableId,
-    sys_window_id: {{camelCase name}}WindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access to every non-admin role
+  for (const roleId of businessRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: {{camelCase name}}TableId,
+      sys_window_id: {{camelCase name}}WindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for {{displayName}}');
 
@@ -765,7 +784,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   console.log('');
   console.log('Dictionary seed complete:');
   console.log('  - {{entities.length}} business entities');
-  console.log('  - 2 default roles (Administrator, User)');
+  console.log(`  - ${businessRoleIds.length + 1} roles granted window access`);
   console.log('  - 1 admin user (admin@localhost)');
   console.log('  - 3 field groups');
   console.log('  - 7 admin windows (Application Dictionary)');

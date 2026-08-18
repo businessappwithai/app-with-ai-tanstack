@@ -57,7 +57,7 @@ import { WorkflowDefinitionsModule } from "./modules/workflow-definitions/workfl
     // Background job processing (Trigger.dev v3)
     JobQueueModule,
 
-    // Electric shape proxy (serves sys_ tables to PGlite clients)
+    // Electric shape proxy — streams the role-scoped Application Dictionary
     ElectricModule,
 
     // System/Dictionary module (sys_ tables)

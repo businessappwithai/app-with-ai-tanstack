@@ -1,7 +1,10 @@
 /**
  * Users and Roles Seed
  * Creates system roles and initial users with Better-Auth integration
- * Default password for all users: "admin"
+ * Sign-in credentials are created through Better Auth's own API, so the rows
+ * always match the installed version's schema and hasher.
+ * Default password for all users: "admin123" — long enough for the configured
+ * minPasswordLength; change it before this runs anywhere real.
  *
  * Generated: {{now}}
  */
@@ -9,11 +12,6 @@
 import { Kysely } from 'kysely';
 import { v4 as uuidv4 } from 'uuid';
 
-// Better-Auth credential hash for password "admin" (generated via better-auth internal hasher)
-function createBetterAuthPassword(_password: string): string {
-  // Known hash for "admin" password compatible with better-auth credential provider
-  return 'e5e1ee3b93fa0dd2a2eb900e7d8a9da4:fe3dfa2b6d9e05c570a9518d19dccf7f795dda25362d4aa93314dd89291b3004e7773c39138849c71223aebc81d77023bed93d6a295614303b9d93865b21deb7';
-}
 
 interface RoleDefinition {
   name: string;
@@ -61,6 +59,9 @@ const ROLES: RoleDefinition[] = [
   },
 ];
 
+/** Seeded for every demo account; change it before anything real runs here. */
+const DEFAULT_PASSWORD = 'admin123';
+
 const USERS: UserDefinition[] = [
   {
     email: 'admin@admin.com',
@@ -91,6 +92,9 @@ const USERS: UserDefinition[] = [
 export async function seed(db: Kysely<any>): Promise<void> {
   const now = new Date();
   const createdBy = 'system';
+
+  const { initAuth } = await import('../src/lib/better-auth');
+  const auth = await initAuth();
 
   console.log('🔐 Creating users and roles...');
 
@@ -204,7 +208,15 @@ export async function seed(db: Kysely<any>): Promise<void> {
       .onConflict((oc) => oc.doNothing())
       .execute();
 
-    // Create better-auth user and account
+    // Create the sign-in credentials through Better Auth itself.
+    //
+    // These rows used to be written here by hand — a `user` row, an `account`
+    // row, and a password hash copied from some earlier release. Every one of
+    // those is the library's private business, and each drifted: the hash no
+    // longer matched the verifier, and `account` grew a NOT NULL column the
+    // insert knew nothing about. Asking Better Auth to create the account means
+    // the rows are whatever the installed version says they should be, and this
+    // seed cannot fall out of step with it again.
     const existingBaUser = await db
       .selectFrom('user')
       .select('id')
@@ -212,44 +224,28 @@ export async function seed(db: Kysely<any>): Promise<void> {
       .executeTakeFirst();
 
     if (!existingBaUser) {
-      const userId = uuidv4();
-      const role = userDef.roleName === 'Administrator' ? 'admin' : 'user';
+      await auth.api.signUpEmail({
+        body: { email: userDef.email, password: DEFAULT_PASSWORD, name: userDef.name },
+      });
 
+      // Better Auth owns the identity; the application's own columns — which
+      // role this user holds, and which sys_user they map to — are ours to set.
       await db
-        .insertInto('user')
-        .values({
-          id: userId,
-          name: userDef.name,
-          email: userDef.email,
-          emailVerified: 1,
-          image: null,
-          createdAt: now.toISOString(),
-          updatedAt: now.toISOString(),
-          role: role,
+        .updateTable('user')
+        .set({
+          role: userDef.roleName === 'Administrator' ? 'admin' : 'user',
           sysUserId: sysUserId,
         })
+        .where('email', '=', userDef.email)
         .execute();
 
-      await db
-        .insertInto('account')
-        .values({
-          id: uuidv4(),
-          accountId: `credential-${userId}`,
-          providerId: 'credential',
-          userId: userId,
-          password: createBetterAuthPassword('admin'),
-          createdAt: now.toISOString(),
-          updatedAt: now.toISOString(),
-        })
-        .execute();
-
-      console.log(`  ✓ Created better-auth user: ${userDef.email} (password: "admin")`);
+      console.log(`  ✓ Created better-auth user: ${userDef.email} (password: "${DEFAULT_PASSWORD}")`);
     }
   }
 
   console.log('✓ Users and roles seeded successfully');
   console.log('\n📋 Default Credentials:');
-  console.log('   All users can log in with password: "admin"');
+  console.log(`   All users can log in with password: "${DEFAULT_PASSWORD}"`);
   console.log('\n👥 Users Created:');
   for (const user of USERS) {
     console.log(`   - ${user.email} (${user.roleName})`);

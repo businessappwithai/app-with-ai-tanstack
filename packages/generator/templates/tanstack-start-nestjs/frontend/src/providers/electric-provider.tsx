@@ -1,51 +1,51 @@
-
 /**
- * ElectricSQL Provider
+ * Dictionary sync provider.
  *
- * Initialises PGlite + ElectricSQL sync for sys_ (Application Dictionary) tables.
- * Only rows visible to the authenticated user's role are synced to the local
- * PGlite database and loaded into TanStack DB Collections — nothing else is
- * pulled client-side.
+ * Starts the Application Dictionary syncing once a session exists, and reports
+ * when it has landed. Screens do not read this directly — the `use-sys-electric`
+ * hooks do, to decide whether to answer from the local collections or fall back
+ * to HTTP.
  *
- * The `role` prop must match a role string known to the backend Electric proxy
- * so the server-side WHERE clause is applied before rows leave the server.
+ * Scoping happens on the server: the shape proxy reads the caller's roles from
+ * the session and filters before streaming, so this component passes no role of
+ * its own. It does watch the role for *changes*: a different role means a
+ * different slice of the dictionary, so the collections are torn down and rebuilt
+ * rather than left holding rows from the previous session.
+ *
+ * A failed sync is not a failed app. The dictionary stays reachable over HTTP,
+ * so a sync error is recorded and warned about, never thrown.
  */
 
-import type { PGlite } from "@electric-sql/pglite";
 import React, {
   createContext,
   type ReactNode,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import {
-  ELECTRIC_ENABLED,
-  getDb,
-  type SyncConfig,
-  syncSysTablesForRole,
-  type UnsubscribeFn,
-} from "@/lib/electric";
-import { reloadSysCollections } from "@/lib/sys-collections";
+  getSysCollections,
+  resetSysCollections,
+  SYNC_ENABLED,
+  whenSysCollectionsReady,
+} from "@/lib/sys-collections";
 
 /* -------------------------------------------------------------------------- */
 /*  Context                                                                    */
 /* -------------------------------------------------------------------------- */
 
 interface ElectricContextValue {
-  db: PGlite | null;
-  isSyncing: boolean;
+  /** True once every dictionary collection has completed its first sync. */
   isSynced: boolean;
+  isSyncing: boolean;
   error: Error | null;
-  /** False when VITE_ELECTRIC_URL is unset — hooks read over HTTP instead. */
+  /** False when VITE_ELECTRIC_SYNC is off — hooks read over HTTP instead. */
   isEnabled: boolean;
 }
 
 const ElectricContext = createContext<ElectricContextValue>({
-  db: null,
-  isSyncing: false,
   isSynced: false,
+  isSyncing: false,
   error: null,
   isEnabled: false,
 });
@@ -60,82 +60,64 @@ export function useElectric(): ElectricContextValue {
 
 export interface ElectricProviderProps {
   children: ReactNode;
-  /** Role of the authenticated user — scopes the Electric shape subscription. */
+  /**
+   * The signed-in user's role. Used only to detect a change of identity — the
+   * value is never sent to the server, which derives the role from the session.
+   */
   role: string;
-  /** Session token forwarded to the Electric proxy for auth. */
-  token?: string;
 }
 
-export function ElectricProvider({ children, role, token }: ElectricProviderProps) {
-  const [db, setDb] = useState<PGlite | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
+export function ElectricProvider({ children, role }: ElectricProviderProps) {
   const [isSynced, setIsSynced] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const unsubRef = useRef<UnsubscribeFn | null>(null);
 
   useEffect(() => {
-    // Without an Electric endpoint there is nothing to sync, and booting PGlite
-    // would download a WASM runtime only to leave it empty. Staying idle here is
-    // the supported configuration, not a failure: the sys_ hooks fall back to
-    // fetching the Application Dictionary over HTTP.
-    if (!ELECTRIC_ENABLED || !role) return;
+    // No session yet: a shape request now would be unauthenticated and rejected.
+    if (!SYNC_ENABLED || !role) {
+      setIsSynced(false);
+      return;
+    }
 
     let cancelled = false;
 
-    async function init() {
+    async function sync() {
       try {
         setIsSyncing(true);
-        setIsSynced(false);
         setError(null);
 
-        const database = await getDb();
-        if (cancelled) return;
-        setDb(database);
-
-        const config: SyncConfig = { role, token };
-        const unsub = await syncSysTablesForRole(config);
-        if (cancelled) {
-          unsub();
-          return;
-        }
-        unsubRef.current = unsub;
-
-        await reloadSysCollections();
+        getSysCollections();
+        const ready = await whenSysCollectionsReady();
         if (cancelled) return;
 
-        setIsSynced(true);
+        setIsSynced(ready);
       } catch (err) {
-        if (!cancelled) {
-          // Sync is an optimisation. Record the failure for anything that wants
-          // to surface it, warn rather than error, and let the HTTP fallback
-          // carry the app — a broken sync must not break the UI.
-          const failure = err instanceof Error ? err : new Error(String(err));
-          console.warn(
-            "[ElectricProvider] sync unavailable, falling back to HTTP:",
-            failure.message
-          );
-          setError(failure);
-          setDb(null);
-        }
+        if (cancelled) return;
+        const failure = err instanceof Error ? err : new Error(String(err));
+        console.warn(
+          "[ElectricProvider] dictionary sync unavailable, falling back to HTTP:",
+          failure.message
+        );
+        setError(failure);
+        setIsSynced(false);
       } finally {
         if (!cancelled) setIsSyncing(false);
       }
     }
 
-    void init();
+    void sync();
 
     return () => {
       cancelled = true;
-      unsubRef.current?.();
-      unsubRef.current = null;
+      // The rows in these collections were filtered for the role that just went
+      // away. Dropping them is what keeps the next session from reading them.
+      resetSysCollections();
       setIsSynced(false);
     };
-  }, [role, token]);
+  }, [role]);
 
   return (
-    <ElectricContext.Provider
-      value={{ db, isSyncing, isSynced, error, isEnabled: ELECTRIC_ENABLED }}
-    >
+    <ElectricContext.Provider value={{ isSynced, isSyncing, error, isEnabled: SYNC_ENABLED }}>
       {children}
     </ElectricContext.Provider>
   );
