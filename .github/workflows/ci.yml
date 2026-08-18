@@ -138,21 +138,26 @@ jobs:
           fi
 
       - name: Install, migrate and seed on WebAssembly Postgres
-        working-directory: wasm-app
         run: |
-          npm install
-          npm run --prefix backend db:setup
+          # From the workspace root, then from the backend — the same two
+          # commands the README tells a reader to run, rather than a `--prefix`
+          # spelling of them that resolves workspaces differently.
+          cd wasm-app && npm install
+          cd backend && npm run db:setup
 
       - name: Start the NestJS backend and exercise it
         working-directory: wasm-app/backend
         run: |
           npm run start > backend.log 2>&1 &
-          for i in $(seq 1 90); do
-            curl -sf -o /dev/null http://localhost:4001/api/bus/account && break || true
-            grep -q "Application running on" backend.log && break
+          # An unauthenticated /bus answers 401 once the server is up, which is
+          # a better readiness signal than a log line: it proves the routes are
+          # mapped, not just that a process printed something.
+          for i in $(seq 1 120); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4001/api/bus/account || true)
+            [ "$code" = "401" ] && break
             sleep 2
           done
-          cat backend.log | tail -20
+          tail -30 backend.log
           bun "$GITHUB_WORKSPACE/scripts/ci/wasm-smoke.ts" --base http://localhost:4001/api --stack nestjs
 
       - name: Show the backend log on failure
