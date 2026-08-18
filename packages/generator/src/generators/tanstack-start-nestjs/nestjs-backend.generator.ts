@@ -420,7 +420,10 @@ export class NestJsBackendGenerator extends BaseGenerator {
    */
   private statusFieldFor(
     tableName: string,
-    busEntities: Array<{ tableName: string; attributes?: Array<{ columnName?: string; name?: string }> }>
+    busEntities: Array<{
+      tableName: string;
+      attributes?: Array<{ columnName?: string; name?: string }>;
+    }>
   ): string {
     const entity = busEntities.find((candidate) => candidate.tableName === tableName);
     const columns = (entity?.attributes ?? []).map((a) => a.columnName ?? a.name);
