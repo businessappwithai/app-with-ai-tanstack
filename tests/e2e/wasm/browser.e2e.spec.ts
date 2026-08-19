@@ -420,3 +420,69 @@ test.describe("@browser the checker refuses a broken model", () => {
     await expect(page.locator("#build")).not.toHaveAttribute("data-state", "failed");
   });
 });
+
+test.describe("@browser assembling the real stack in a tab", () => {
+  // The generation half of run-real-stack.html, which is the half that can be
+  // checked: the same pipeline the CLI runs, over a filesystem that is a Map.
+  // Booting the WebContainer needs StackBlitz's hosts and cross-origin
+  // isolation, and is not exercised anywhere — the page says so too.
+  test("produces the real application, four hundred files of it", async ({ page }) => {
+    const problems = watchConsole(page);
+    await page.goto("/run-real-stack.html");
+
+    await expect(page.locator("#model-summary")).toContainText("crm.eml.mmd");
+    await page.locator("#generate").click();
+
+    // Fetching 1.8MB of templates and running the whole NestJS + TanStack
+    // pipeline, in the tab.
+    await expect(page.locator("#result.is-shown .tally")).toBeVisible({ timeout: 180_000 });
+
+    const tally: Record<string, string> = {};
+    for (const cell of await page.locator(".tally__cell").all()) {
+      tally[(await cell.locator(".tally__label").innerText()).trim()] = (
+        await cell.locator(".tally__value").innerText()
+      ).trim();
+    }
+    expect(tally.Entities).toBe("17");
+    expect(tally.Rules).toBe("8");
+    // The CLI writes 416 files for this model; the browser writes the same but
+    // for the nine binary fonts, which do not survive a JSON transport.
+    expect(Number(tally.Files)).toBeGreaterThan(400);
+
+    // And the overlay stayed the size it is on disk.
+    await expect(page.locator(".result__note")).toContainText("added");
+    await expect(page.locator("#build-phases .build__phase").nth(2)).toHaveAttribute(
+      "data-state",
+      "done"
+    );
+    await shoot(page, "real-stack-assembled");
+    expect(problems).toEqual([]);
+  });
+
+  test("refuses a model the checker refuses, before assembling anything", async ({ page }) => {
+    await page.goto("/run-real-stack.html");
+    await page.locator("#choice-upload").click();
+    await page.locator("#file").setInputFiles({
+      name: "bad-rbac.eml.mmd",
+      mimeType: "text/plain",
+      buffer: Buffer.from(
+        [
+          "%%meta name: Bad RBAC",
+          "%%rbac role:admin on Ghost.delete",
+          "erDiagram",
+          "    Customer {",
+          "        string id PK",
+          "        string name",
+          "    }",
+          "",
+        ].join("\n")
+      ),
+    });
+
+    await page.locator("#generate").click();
+    const diagnostics = page.locator("#diagnostics");
+    await expect(diagnostics).toBeVisible({ timeout: 180_000 });
+    await expect(diagnostics).toContainText("EML213");
+    await expect(page.locator("#build")).toHaveAttribute("data-state", "failed");
+  });
+});

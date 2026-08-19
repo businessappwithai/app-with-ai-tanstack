@@ -113,6 +113,8 @@ Key routing rules:
 | `bun run test` | Unit tests (Vitest, via `@erdwithai/web`) |
 | `bun run test:playwright` | Playwright E2E tests |
 | `bun run test:wasm` | The wasm stack end to end — CLI, page, and the app in Chromium |
+| `bun run build:stack-templates` | Put the NestJS templates beside `html/` (for the real-stack page) |
+| `bun run build:fullstack-browser` | Rebuild `html/assets/erdwithai-fullstack.js` |
 | `bun run test:e2e:server` | E2E with automatic server startup |
 | `bun run seed:admin -- --email you@example.com` | Run migrations + promote a user to admin |
 | `bun scripts/seed-model.ts --file examples/drug-discovery.eml.mmd` | Seed a project so a fresh container has something to design |
@@ -400,6 +402,20 @@ Four things the overlay had to learn, all of them from failures worth keeping:
 which PGlite 0.5 does not carry. The backend logs one warning and runs without
 it.
 
+**The generated `tests/` workspace runs on `node:test`.** It used to be a
+`bun:test` suite, which meant a wasm application — whose whole point is running
+under Node — could not be tested without Bun. `tests/harness/testing.ts` supplies
+`describe`/`it`/`expect` over `node:test`: the runner comes from Node, and
+`expect` is twenty lines with exactly the matchers the suites use, because
+rewriting four hundred assertions into `assert.strictEqual` would have made every
+one of them worse. Both runners understand `node:test`, so `bun test` still works
+for the ordinary stack.
+
+Three things Node needs that Bun did not: every relative import carries its `.ts`
+extension (Node's ESM resolver requires one), no parameter properties (its
+type-stripping can only *remove* syntax), and `import.meta.url` rather than
+Bun's `import.meta.dir`.
+
 ### The self-contained browser runtime (`--standalone`)
 
 The other half of `cli-wasm`, and a different trade. **`erdwithai-wasm generate
@@ -498,6 +514,45 @@ the bundled generator, hands the files to a Service Worker and boots the result
 in an iframe. `bun run vendor:pglite` puts a local PGlite beside it so the whole
 demonstration works with the network off; without it the page uses a CDN and
 says so.
+
+### The real stack, in a browser tab (`--standalone`'s opposite)
+
+`html/run-real-stack.html` assembles the **actual** generated application — four
+hundred files of NestJS and TanStack Start — in the browser, and hands them to a
+WebContainer to install and run.
+
+Nothing about the generator is reimplemented for it. `generateApplication` and
+`applyWasmOverlay` run unmodified; what changes is the filesystem beneath them,
+which `scripts/build-fullstack-browser.ts` binds to
+`packages/generator/src/browser/memory-fs.ts` — a `Map`. Rewriting the pipeline
+to emit a file map instead would have meant two ways to produce an application,
+and the second one drifting.
+
+```
+packages/generator/src/browser/
+├── memory-fs.ts     ⭐ fs over a Map; templates resolve by suffix (see below)
+└── full-stack.ts    ⭐ the real pipeline + overlay, returning a file map
+scripts/
+├── build-fullstack-browser.ts   bundles it, binding node:fs to memory-fs
+└── build-stack-templates.ts     copies templates/** beside the page as JSON
+```
+
+Two things worth knowing:
+
+- **Templates resolve by suffix, deliberately.** `resolveTemplateDir` tries six
+  candidate locations and picks the first that exists; all six ask "where is this
+  repository", which has no answer in a tab. A miss falls back to matching on
+  everything after `templates/`, so a seventh spelling still works.
+- **The page is cross-origin isolated and nothing else is.** WebContainers
+  require COOP/COEP; the standalone application requires their *absence*, since a
+  COEP document cannot embed a Service-Worker-synthesised response. `serve` sets
+  the headers per path.
+
+**The boot half is unverified.** StackBlitz's hosts are unreachable from the
+environment this was written in, so the install-and-start path has never been
+watched working; the generation half is compared against the CLI's own output on
+every commit and matches it but for nine binary fonts, which do not survive the
+JSON transport. The page says both of these to the reader.
 
 ### @erdwithai/ai (`packages/ai/`)
 

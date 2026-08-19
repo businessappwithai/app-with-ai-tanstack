@@ -117,7 +117,7 @@ export class BunE2ETestGenerator extends BaseGenerator {
     const perEntity = busEntities.length * 2;
     console.log(
       `   ✓ tests/ — ${SHARED_SUITES.length + perEntity} suites, ` +
-        `${HARNESS_FILES.length} harness modules`
+        `${HARNESS_FILES.length + 1} harness modules`
     );
   }
 
@@ -164,6 +164,13 @@ export class BunE2ETestGenerator extends BaseGenerator {
       const content = await this.renderTemplate(`harness/${file}.hbs`, context);
       await fs.writeFile(path.join(testsDir, "harness", file), content);
     }
+
+    // The test vocabulary — `describe`, `it`, `expect` — over `node:test`. No
+    // model reaches it, so it is the same file in every generated application.
+    await fs.writeFile(
+      path.join(testsDir, "harness", "testing.ts"),
+      await this.component("harness/testing.ts")
+    );
   }
 
   private async writeSharedSuites(

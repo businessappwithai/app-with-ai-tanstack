@@ -16,6 +16,8 @@
       "!**/*.css",
       "!**/*.generated.ts",
       "!html/assets/erdwithai-wasm.js",
+      "!html/assets/erdwithai-fullstack.js",
+      "!html/assets/stack-templates.json",
       "!html/wasm-app",
       "!html/assets/vendor"
     ]

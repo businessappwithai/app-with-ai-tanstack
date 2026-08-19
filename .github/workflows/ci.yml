@@ -72,6 +72,9 @@ jobs:
       - name: The inlined wasm runtime is current
         run: bun run build:wasm-runtime -- --check
 
+      - name: The full-stack browser bundle is current
+        run: bun run build:fullstack-browser --check
+
       - name: The browser bundle of the generator is current
         run: bun run build:wasm-browser -- --check
 
@@ -141,12 +144,31 @@ jobs:
       # this list: the generated E2E suite is written against `bun:test`, and
       # porting it would mean rewriting the suite rather than overlaying the
       # application.
+      # `tests/` is in this list now. It used to be excluded because the
+      # generated E2E suite was written against `bun:test`; it is `node:test`
+      # now, so a wasm application has no Bun in it anywhere.
       - name: No Bun left in the generated application
         run: |
-          if grep -rn '\bbun\b' wasm-app/package.json wasm-app/backend/package.json \
-               wasm-app/frontend/package.json; then
+          if grep -rn '"[^"]*\bbunx\?\b[^"]*"' wasm-app/package.json \
+               wasm-app/backend/package.json wasm-app/frontend/package.json \
+               wasm-app/tests/package.json; then
             echo "::error::A generated script still calls bun"; exit 1
           fi
+
+      # Type-checked as well as loaded: the `bun:test` port's failures were all
+      # type errors that Node happily ran anyway — a timeout silently dropped,
+      # an `it.skipIf` that is not there until it is called.
+      - name: The generated test suite type-checks and runs on Node
+        run: |
+          cd wasm-app/tests
+          npm install --no-audit --no-fund
+          npx tsc --noEmit
+          node --input-type=module -e '
+            await import("./harness/testing.ts");
+            await import("./harness/index.ts");
+            console.log("the generated suite loads under Node");
+          '
+
 
       - name: Install, migrate and seed on WebAssembly Postgres
         run: |
@@ -200,6 +222,12 @@ jobs:
       # does not depend on a CDN being up.
       - name: Vendor PGlite
         run: bun run vendor:pglite
+
+      # run-real-stack.html assembles the NestJS stack in the tab, which needs
+      # the templates beside the page. They are a copy of files already in this
+      # repository, so they are generated rather than committed.
+      - name: Put the stack templates beside the page
+        run: bun run build:stack-templates
 
       - name: Generate, boot and use an application in a browser
         run: bun run test:wasm

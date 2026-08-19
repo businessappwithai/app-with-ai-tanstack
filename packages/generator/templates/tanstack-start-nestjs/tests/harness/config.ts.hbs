@@ -72,8 +72,8 @@ export const config = {
   requestTimeoutMs: int("E2E_REQUEST_TIMEOUT_MS", 30_000),
 
   /**
-   * Default per-test timeout handed to `bun test --timeout`. bun:test's own
-   * default is 5s, which is too tight once the database holds real volume.
+   * Default per-test timeout, handed to whichever runner the suite runs under.
+   * Both default to 5s, which is too tight once the database holds real volume.
    */
   suiteTimeoutMs: int("E2E_SUITE_TIMEOUT_MS", 60_000),
 
@@ -92,6 +92,20 @@ export const config = {
 
   /** Set E2E_VERBOSE=1 to log every request. */
   verbose: process.env.E2E_VERBOSE === "1",
+
+  /**
+   * How the runner starts the backend, when it starts one.
+   *
+   * Asked of the runtime rather than written down, because this suite now runs
+   * under both: the ordinary stack is installed with Bun and the wasm stack with
+   * npm, and naming either here would break the other. What is invoked is the
+   * backend's own `start` script, which the wasm overlay has already rewritten
+   * to node — so this decides who reads package.json, not what starting means.
+   */
+  startCommand: (process.env.E2E_START_COMMAND?.split(" ") ??
+    (typeof process.versions.bun === "string"
+      ? ["bun", "run", "start"]
+      : ["npm", "run", "start"])) as string[],
 } as const;
 
 export type TestConfig = typeof config;

@@ -12,17 +12,17 @@
  * Project: {{project.name}}
  */
 
-import { login, type SessionUser } from "./auth";
+import { login, type SessionUser } from "./auth.ts";
 import {
   type EntityMeta,
   foreignKeyFields,
   parentEntityForColumn,
   topologicalEntities,
-} from "./entities";
-import { buildRecord } from "./factory";
-import { HttpClient } from "./http";
-import { deleteRule } from "./rules";
-import { waitForServer } from "./server";
+} from "./entities.ts";
+import { buildRecord } from "./factory.ts";
+import { HttpClient } from "./http.ts";
+import { deleteRule } from "./rules.ts";
+import { waitForServer } from "./server.ts";
 
 export interface TrackedRecord {
   entity: string;

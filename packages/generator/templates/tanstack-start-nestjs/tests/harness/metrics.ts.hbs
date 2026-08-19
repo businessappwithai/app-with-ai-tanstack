@@ -1,7 +1,7 @@
 /**
  * What the end-to-end run actually did, and how long it took.
  *
- * Every suite runs in its own `bun test` process, so there is no shared memory
+ * Every suite runs in its own test-runner process, so there is no shared memory
  * to accumulate into. Each process appends NDJSON to its own shard under the
  * run directory and the runner merges the shards once every suite has
  * finished — append-only, one file per process, so two suites writing at the

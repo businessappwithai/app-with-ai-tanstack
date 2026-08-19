@@ -5,7 +5,7 @@
  * Project: {{project.name}}
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
 import {
   config,
   currentUser,
@@ -17,7 +17,7 @@ import {
   permissions,
   register,
   buildUser,
-} from "../harness";
+} from "../harness/index.ts";
 
 describe("authentication", () => {
   beforeAll(async () => {

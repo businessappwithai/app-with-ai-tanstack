@@ -8,7 +8,7 @@
  * Project: {{project.name}}
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
 import {
   buildRecord,
   buildStaticValidationJdm,
@@ -25,7 +25,7 @@ import {
   validateJdm,
   writableFields,
   type RuleRecord,
-} from "../harness";
+} from "../harness/index.ts";
 
 const entity = getEntity("{{entity.name}}");
 const suiteId = `e2e-{{entity.tableName}}-${Date.now().toString(36)}`;

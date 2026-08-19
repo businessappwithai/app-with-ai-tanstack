@@ -8,8 +8,8 @@
  * Project: {{project.name}}
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
-import { entities, harness, writableFields } from "../harness";
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
+import { entities, harness, writableFields } from "../harness/index.ts";
 
 describe("application dictionary", () => {
   beforeAll(async () => {

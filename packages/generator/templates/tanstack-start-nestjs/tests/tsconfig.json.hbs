@@ -4,7 +4,10 @@
     "lib": ["ES2022"],
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "types": ["bun"],
+    "types": ["node"],
+    // Imports carry `.ts` because Node's ESM resolver requires an explicit
+    // extension and strips the types itself; Bun accepts the same spelling.
+    "allowImportingTsExtensions": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
