@@ -499,9 +499,21 @@ async function serveStatic(root: string, port: number): Promise<void> {
         return;
       }
 
+      // WebContainers need cross-origin isolation; the standalone application
+      // needs the absence of it. Both are served from here, so the headers are
+      // per-path rather than per-server: only the page that boots a
+      // WebContainer is isolated, and everything else keeps working as it did.
+      const isolated = /run-real-stack/.test(target);
+
       response.writeHead(200, {
         "Content-Type": MIME[path.extname(target)] ?? "application/octet-stream",
         "Cache-Control": "no-cache",
+        ...(isolated
+          ? {
+              "Cross-Origin-Opener-Policy": "same-origin",
+              "Cross-Origin-Embedder-Policy": "require-corp",
+            }
+          : {}),
         // Deliberately no COEP. Cross-origin isolation would buy a faster
         // Postgres where SharedArrayBuffer is available, and it costs the
         // ability to embed the application in an iframe — which is exactly what

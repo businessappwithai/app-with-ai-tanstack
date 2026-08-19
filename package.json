@@ -48,7 +48,9 @@
     "vendor:pglite": "bun scripts/vendor-pglite.ts",
     "test:wasm": "playwright test --config tests/e2e/wasm/playwright.config.ts",
     "test:wasm:cli": "playwright test --config tests/e2e/wasm/playwright.config.ts --grep @cli",
-    "test:wasm:browser": "playwright test --config tests/e2e/wasm/playwright.config.ts --grep @browser"
+    "test:wasm:browser": "playwright test --config tests/e2e/wasm/playwright.config.ts --grep @browser",
+    "build:stack-templates": "bun scripts/build-stack-templates.ts",
+    "build:fullstack-browser": "bun scripts/build-fullstack-browser.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.6",
