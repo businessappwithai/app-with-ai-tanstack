@@ -78,6 +78,19 @@ jobs:
       - name: The browser bundle of the generator is current
         run: bun run build:wasm-browser -- --check
 
+      # checker.js and fixer.js are the published validation surface: llms-full.txt
+      # tells a model to run its output past them before handing it to anyone. A
+      # stale or broken copy passes a document the CLI would refuse, which is the
+      # one failure that discredits the whole loop.
+      - name: The published checker and fixer are current
+        run: bun run build:language-tools --check
+
+      # --check proves they are not stale, not that they run. They are bundled
+      # against Node stubs, and a stub that throws turns every check into an
+      # exception the page reports as an invalid model.
+      - name: The published checker and fixer agree with the CLI
+        run: bun run test:language-tools
+
   generated-wasm-app:
     name: Generate a browser application and run its backend
     runs-on: ubuntu-latest

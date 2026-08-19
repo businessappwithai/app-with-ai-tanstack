@@ -15,6 +15,8 @@
       "!**/routeTree.gen.ts",
       "!**/*.css",
       "!**/*.generated.ts",
+      "!html/checker.js",
+      "!html/fixer.js",
       "!html/assets/erdwithai-wasm.js",
       "!html/assets/erdwithai-fullstack.js",
       "!html/assets/stack-templates.json",
