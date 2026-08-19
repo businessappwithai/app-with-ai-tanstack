@@ -46,8 +46,9 @@
     "build:wasm-runtime": "bun scripts/build-wasm-runtime.ts",
     "build:wasm-browser": "bun scripts/build-wasm-browser.ts",
     "vendor:pglite": "bun scripts/vendor-pglite.ts",
-    "qa:wasm": "node scripts/ci/wasm-browser-qa.mjs",
-    "qa:wasm:standalone": "node scripts/ci/wasm-standalone-qa.mjs"
+    "test:wasm": "playwright test --config tests/e2e/wasm/playwright.config.ts",
+    "test:wasm:cli": "playwright test --config tests/e2e/wasm/playwright.config.ts --grep @cli",
+    "test:wasm:browser": "playwright test --config tests/e2e/wasm/playwright.config.ts --grep @browser"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.6",

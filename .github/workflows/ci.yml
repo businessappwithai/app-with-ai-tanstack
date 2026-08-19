@@ -175,6 +175,47 @@ jobs:
         if: failure()
         run: cat wasm-app/backend/backend.log || true
 
+  wasm-e2e:
+    name: Drive the browser stack in Chromium
+    runs-on: ubuntu-latest
+    # Everything else about this stack is checked by generating it and reading
+    # what came out. This is the only job that opens the result: the Service
+    # Worker, the Node-API shim, the worker host and the interface are browser
+    # behaviours, and every bug in them was found by looking rather than by
+    # diffing.
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Install Chromium
+        run: bunx playwright install --with-deps chromium
+
+      # Seventeen megabytes of PostgreSQL, placed beside the page so the run
+      # does not depend on a CDN being up.
+      - name: Vendor PGlite
+        run: bun run vendor:pglite
+
+      - name: Generate, boot and use an application in a browser
+        run: bun run test:wasm
+
+      - name: Keep what the run saw
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-e2e
+          path: |
+            pics/wasm-e2e/
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
   generated-app:
     name: Generate an application and build it
     runs-on: ubuntu-latest
