@@ -1,0 +1,125 @@
+/**
+ * The generator, as it runs in a browser.
+ *
+ * This is the entry point bundled into `html/assets/erdwithai-wasm.js`, and it
+ * is deliberately thin: the parsing, compiling and assembling it exposes are
+ * the same functions the CLI calls, imported from the same files. There is no
+ * browser edition of the compiler, which is the only way the page can promise
+ * that what it generates is what `erdwithai-wasm generate` would have written.
+ *
+ * What it cannot import is anything reaching `node:fs` — hence `parse-model.ts`
+ * being separate from `generate-application.ts`, and hence the runtime being
+ * inlined by `scripts/build-wasm-runtime.ts` rather than read off disk.
+ */
+
+import languageDefinition from "../../../../language/erdwithai-language.json";
+import { setLanguageDefinition } from "../parsers/language-maps";
+import { type ParsedModel, parseModel } from "../pipeline/parse-model";
+
+// The parser resolves the language definition off disk, which a browser has
+// none of. Injecting the real JSON here — bundled, not re-typed — is what makes
+// a model read the same way in a tab as it does in a terminal.
+setLanguageDefinition(languageDefinition);
+
+import { RUNTIME_BYTES } from "../generators/wasm/runtime-assets.generated";
+import {
+  DEFAULT_PGLITE_URL,
+  generateWasmApp,
+  type WasmGeneratorOptions,
+} from "../generators/wasm/wasm-app.generator";
+
+export type { ParsedModel, WasmGeneratorOptions };
+export { DEFAULT_PGLITE_URL, generateWasmApp, parseModel, RUNTIME_BYTES };
+
+export interface BrowserGenerateOptions extends Partial<WasmGeneratorOptions> {
+  /** The EML document. */
+  source: string;
+}
+
+export interface BrowserGenerateResult {
+  /** Every file of the application, path -> contents. */
+  files: Record<string, string>;
+  /** What the model turned out to contain, for the page to show. */
+  summary: {
+    project: string;
+    entities: string[];
+    categories: string[];
+    relationships: number;
+    enums: number;
+    rules: string[];
+    hooks: number;
+    workflows: string[];
+    sagas: string[];
+    accessRules: number;
+    fileCount: number;
+    bytes: number;
+  };
+  warnings: string[];
+}
+
+/**
+ * Parse a model and produce an application, in one call.
+ *
+ * Warnings are collected rather than logged. In a terminal a warning on stderr
+ * is seen; in a tab it goes to a console nobody has open, and "your rule was
+ * skipped because it has no entity" is exactly the thing the person who just
+ * uploaded the model needs to read.
+ */
+export function generateFromSource(options: BrowserGenerateOptions): BrowserGenerateResult {
+  const warnings: string[] = [];
+  const originalWarn = console.warn;
+  console.warn = (...args: unknown[]) => {
+    warnings.push(
+      args
+        .map(String)
+        .join(" ")
+        .replace(/^\s*⚠️?\s*/u, "")
+        .trim()
+    );
+  };
+
+  let parsed: ParsedModel;
+  try {
+    parsed = parseModel(options.source);
+  } finally {
+    console.warn = originalWarn;
+  }
+
+  if (!parsed.entities.length) {
+    throw new Error(
+      "This model declares no entities. An EML document needs an `erDiagram` section — " +
+        "check that the file is a Mermaid ER diagram and not, say, a flowchart on its own."
+    );
+  }
+
+  const name = options.name?.trim() || "Generated App";
+  const generated = generateWasmApp(parsed, {
+    name,
+    version: options.version ?? "1.0.0",
+    description: options.description ?? `Generated from ${parsed.entities.length} entities`,
+    adminEmail: options.adminEmail ?? "admin@admin.com",
+    adminPassword: options.adminPassword ?? "admin",
+    adminName: options.adminName ?? "admin",
+    source: options.source,
+    pgliteUrl: options.pgliteUrl,
+  });
+
+  return {
+    files: Object.fromEntries(generated.files),
+    summary: {
+      project: name,
+      entities: parsed.entities.map((entity) => entity.name),
+      categories: parsed.categories.map((category) => category.name),
+      relationships: parsed.relationships.length,
+      enums: parsed.enums.length,
+      rules: parsed.rules.map((rule) => rule.name),
+      hooks: parsed.hooks.length,
+      workflows: parsed.workflows.map((workflow) => workflow.name),
+      sagas: parsed.sagas.map((saga) => saga.name),
+      accessRules: parsed.rbac.operations.length + parsed.rbac.transitions.length,
+      fileCount: generated.stats.fileCount,
+      bytes: generated.stats.bytes,
+    },
+    warnings,
+  };
+}

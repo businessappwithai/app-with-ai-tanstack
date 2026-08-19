@@ -40,11 +40,21 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "setup:gstack": "git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup",
-    "seed:admin": "bun scripts/seed-admin.ts"
+    "seed:admin": "bun scripts/seed-admin.ts",
+    "generate:wasm": "bun packages/generator/src/cli-wasm/generate.ts generate",
+    "wasm": "bun packages/generator/src/cli-wasm/generate.ts",
+    "build:wasm-runtime": "bun scripts/build-wasm-runtime.ts",
+    "build:wasm-browser": "bun scripts/build-wasm-browser.ts",
+    "vendor:pglite": "bun scripts/vendor-pglite.ts",
+    "qa:wasm": "node scripts/ci/wasm-browser-qa.mjs",
+    "qa:wasm:standalone": "node scripts/ci/wasm-standalone-qa.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.6",
+    "@electric-sql/pglite": "^0.5.5",
     "@gorules/zen-engine-darwin-arm64": "0.54.0",
+    "@nestjs/common": "^10",
+    "@nestjs/config": "^3",
     "@playwright/test": "^1.62.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -53,8 +63,11 @@
     "@types/node": "^22.10.2",
     "@types/pg": "^8.16.0",
     "kysely": "^0.29.4",
+    "kysely-pglite": "^0.6.1",
     "pg": "^8.17.1",
     "playwright": "^1.62.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
     "typescript": "^7.0.2"
   },
   "engines": {

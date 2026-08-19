@@ -1,0 +1,367 @@
+/**
+ * The record panel — fields, controls and validation, all from the dictionary.
+ *
+ * It renders above the grid rather than replacing it, and its header carries
+ * the field count and how many are required, exactly as the React application's
+ * does. Each field wears a chip naming its type. That chip is not decoration:
+ * in a dictionary-driven application the reason a control is a dropdown rather
+ * than a text box lives in a table, and showing the reason next to the control
+ * is what makes the dictionary legible from the screen it produced.
+ *
+ * Three things here are worth knowing.
+ *
+ * A field renders as a dropdown when its column carries a list reference, which
+ * is what `%%enum` compiles to; the values come from `/sys/ref-list` rather than
+ * from anything baked into this file, so adding a value to the model adds it to
+ * the form.
+ *
+ * A rule refusal comes back as a 422 with the rule's own violations, and they
+ * are shown attached to the record rather than as a generic error, because "the
+ * server said no" and "the rule you wrote said no, and here it is" are different
+ * messages to the person who wrote the rule.
+ *
+ * And the transitions panel offers only the moves the record's state machine
+ * allows from where it actually is, marking the ones the caller's roles do not
+ * permit. Offering a button the server will refuse is worse than offering none.
+ */
+
+import { el, mount, spinner, toast, displayValue } from "../dom.js";
+import { api } from "../api.js";
+import { setActions } from "../main.js";
+
+const referenceCache = new Map();
+
+async function refList(referenceId) {
+  if (!referenceCache.has(referenceId)) {
+    referenceCache.set(referenceId, await api.get(`/sys/ref-list?referenceId=${referenceId}`));
+  }
+  return referenceCache.get(referenceId);
+}
+
+/** The label shown on a field's type chip, and the class that colours it. */
+function typeChip(attribute, field) {
+  if (field.sys_reference_id >= 1000 || attribute.enumValues?.length) return ["List", "list"];
+  if (attribute.refTable || /_id$/.test(attribute.columnName)) return ["Direct Lookup", "lookup"];
+  switch (attribute.type) {
+    case "integer": return ["Integer", "number"];
+    case "decimal": return ["Amount", "number"];
+    case "boolean": return ["Yes/No", "bool"];
+    case "date": return ["Date", "date"];
+    case "datetime": return ["Date/Time", "date"];
+    case "json": return ["JSON", "number"];
+    case "text": return ["Long Text", "text"];
+    default: return ["Text", "text"];
+  }
+}
+
+export async function recordPanel(root, { entity, id, onClose, onSaved, navigate }) {
+  const isNew = !id || id === "new";
+  mount(root, el("div.record", el("div.record__body", spinner(isNew ? "Preparing the form" : "Loading the record"))));
+
+  let fields;
+  let record = {};
+  try {
+    fields = await api.get(`/bus/${entity.routeName}/fields/form`);
+    if (!isNew) record = await api.get(`/bus/${entity.routeName}/${id}`);
+  } catch (error) {
+    mount(root, el("div.empty", el("h3", "Could not open this record"), el("p", error.message)));
+    return;
+  }
+
+  const editable = fields.filter((field) => !["id", "version"].includes(field.column_name));
+  const requiredCount = editable.filter((field) => field.is_mandatory).length;
+
+  const inputs = new Map();
+  const violationBox = el("div.violations", { hidden: true });
+
+  const controls = await Promise.all(
+    editable.map((field) => control(field, record, entity, inputs))
+  );
+
+  const grouped = new Map();
+  for (const [field, node] of controls) {
+    const group = field.group_name || "General";
+    if (!grouped.has(group)) grouped.set(group, []);
+    grouped.get(group).push(node);
+  }
+
+  const submit = async () => {
+    violationBox.hidden = true;
+    setActions({ ...currentActions, busy: true });
+
+    const payload = {};
+    for (const [column, input] of inputs) {
+      payload[column] = input.type === "checkbox" ? input.checked : input.value;
+    }
+
+    try {
+      const saved = isNew
+        ? await api.post(`/bus/${entity.routeName}`, payload)
+        : await api.put(`/bus/${entity.routeName}/${id}`, payload);
+      toast(isNew ? `${entity.singularName} created` : "Saved", "success");
+      await onSaved(saved);
+      if (isNew) navigate(`/entity/${entity.routeName}/${saved.id}`, { replace: true });
+    } catch (error) {
+      showProblem(violationBox, error);
+    } finally {
+      setActions({ ...currentActions, busy: false });
+    }
+  };
+
+  const currentActions = {
+    onSave: submit,
+    saveLabel: isNew ? "Create" : "Save",
+    onNew: () => navigate(`/entity/${entity.routeName}/new`),
+    newLabel: entity.singularName,
+  };
+  setActions(currentActions);
+
+  const saveButton = el(
+    "button.btn.btn--primary",
+    { type: "submit" },
+    isNew ? "Create" : "Save changes"
+  );
+
+  const form = el(
+    "form",
+    {
+      onsubmit: (event) => {
+        event.preventDefault();
+        submit();
+      },
+    },
+    el(
+      "div.record__meta",
+      `${editable.length} field${editable.length === 1 ? "" : "s"}`,
+      requiredCount ? el("span.record__required", `${requiredCount} required`) : null,
+      el("button.btn.btn--primary.btn--small", { type: "submit" }, isNew ? "Create" : "Save")
+    ),
+    violationBox,
+    el(
+      "div.record__body",
+      [...grouped.entries()].map(([group, nodes]) =>
+        el(
+          "section",
+          el("h3.group__name", group),
+          el("p.group__desc", `${group} information fields`),
+          el("div.group__fields", nodes)
+        )
+      )
+    ),
+    el(
+      "div.record__actions",
+      isNew
+        ? null
+        : el(
+            "button.btn.btn--danger",
+            {
+              type: "button",
+              onclick: async () => {
+                if (!confirm(`Delete this ${entity.singularName}?`)) return;
+                try {
+                  await api.delete(`/bus/${entity.routeName}/${id}`);
+                  toast("Deleted", "success");
+                  await onSaved(null);
+                  onClose();
+                } catch (error) {
+                  showProblem(violationBox, error);
+                }
+              },
+            },
+            "Delete"
+          ),
+      el("button.btn", { type: "button", onclick: onClose }, "Cancel"),
+      saveButton
+    )
+  );
+
+  mount(
+    root,
+    el(
+      "div.record",
+      el(
+        "header.record__head",
+        el("h2.record__title", isNew ? `New ${entity.singularName}` : recordTitle(record, editable, entity)),
+        el("button.record__close", { title: "Close", "aria-label": "Close", onclick: onClose }, "✕")
+      ),
+      form
+    ),
+    isNew ? null : el("div.split", el("div"), el("aside.side", await sidePanels(entity, id, record, onSaved)))
+  );
+}
+
+async function sidePanels(entity, id, record, onSaved) {
+  const panels = [];
+
+  try {
+    const workflow = await api.get(`/workflows/entity/${entity.routeName}/${id}/transitions`);
+    if (workflow.workflow) {
+      panels.push(
+        el(
+          "div.side__card",
+          el("h3.side__title", "Process"),
+          el("p.side__meta", `${workflow.workflow} — currently ${workflow.current ?? "unset"}`),
+          workflow.transitions.length
+            ? el(
+                "div.side__transitions",
+                workflow.transitions.map((transition) =>
+                  el(
+                    "button.btn",
+                    {
+                      disabled: !transition.permitted,
+                      title: transition.permitted
+                        ? `Move to ${transition.to}`
+                        : `Requires ${transition.requiredRoles.join(" or ")}`,
+                      onclick: async () => {
+                        try {
+                          await api.put(`/bus/${entity.routeName}/${id}`, {
+                            [workflow.column]: transition.to,
+                          });
+                          toast(`Moved to ${transition.to}`, "success");
+                          await onSaved(null);
+                          window.location.reload();
+                        } catch (error) {
+                          toast(error.message, "error");
+                        }
+                      },
+                    },
+                    transition.trigger || `→ ${transition.to}`
+                  )
+                )
+              )
+            : el("p.side__empty", "No transitions available from here.")
+        )
+      );
+    }
+  } catch {
+    // A model with no workflows simply has no panel.
+  }
+
+  panels.push(
+    el(
+      "div.side__card",
+      el("h3.side__title", "Record"),
+      el(
+        "dl.side__list",
+        el("dt", "Created"), el("dd", displayValue(record.created_at)),
+        el("dt", "Updated"), el("dd", displayValue(record.updated_at)),
+        el("dt", "Version"), el("dd", displayValue(record.version)),
+        el("dt", "Id"), el("dd", String(record.id ?? "—").slice(0, 8))
+      )
+    )
+  );
+
+  return panels;
+}
+
+async function control(field, record, entity, inputs) {
+  const attribute = entity.attributes.find((item) => item.columnName === field.column_name) || {};
+  const value = record[field.column_name];
+  const id = `field-${field.column_name}`;
+  const [chipLabel, chipKind] = typeChip(attribute, field);
+  let input;
+
+  const values = attribute.enumValues?.length
+    ? attribute.enumValues.map((item) => ({ value: item, name: title(item) }))
+    : field.sys_reference_id >= 1000
+      ? (await refList(field.sys_reference_id)).map((row) => ({ value: row.value, name: row.name }))
+      : null;
+
+  if (values) {
+    input = el(
+      "select.field__input",
+      { id, name: field.column_name },
+      el("option", { value: "" }, field.is_mandatory ? `Select ${field.name}...` : "—"),
+      values.map((option) =>
+        el("option", { value: option.value, selected: String(value ?? "") === option.value }, option.name)
+      )
+    );
+  } else if (attribute.type === "boolean") {
+    input = el("input.field__checkbox", { id, type: "checkbox", checked: value === true });
+  } else if (attribute.type === "text") {
+    input = el("textarea.field__input.field__input--area", { id, rows: 4 }, value ?? "");
+  } else {
+    input = el("input.field__input", {
+      id,
+      type:
+        attribute.type === "integer" || attribute.type === "decimal"
+          ? "number"
+          : attribute.type === "date"
+            ? "date"
+            : attribute.type === "datetime"
+              ? "datetime-local"
+              : "text",
+      step: attribute.type === "decimal" ? "any" : null,
+      value: normalizeForInput(value, attribute.type),
+      maxlength: attribute.maxLength || null,
+      required: field.is_mandatory || null,
+    });
+  }
+
+  if (field.is_read_only || (record.id && field.is_updateable === false)) input.disabled = true;
+  inputs.set(field.column_name, input);
+
+  return [
+    field,
+    el(
+      `div.field${attribute.type === "text" ? ".field--wide" : ""}`,
+      el(
+        "div.field__head",
+        el("label.field__label", { for: id }, field.name),
+        field.is_mandatory ? el("span.field__required", { title: "Required" }, "*") : null,
+        el(`span.chip.chip--${chipKind}`, chipLabel),
+        el(
+          "button.field__help",
+          {
+            type: "button",
+            title: `${field.column_name} — ${attribute.type ?? "text"}${
+              attribute.maxLength ? `, up to ${attribute.maxLength} characters` : ""
+            }`,
+          },
+          "?"
+        )
+      ),
+      input,
+      field.description ? el("p.field__note", field.description) : null
+    ),
+  ];
+}
+
+function normalizeForInput(value, type) {
+  if (value == null) return "";
+  if (type === "date") return String(value).slice(0, 10);
+  if (type === "datetime") return String(value).slice(0, 16);
+  return String(value);
+}
+
+function showProblem(box, error) {
+  const items = error.violations?.length
+    ? error.violations.map((violation) =>
+        el("li", el("strong", violation.ruleId || "Rule"), ` — ${violation.message}`)
+      )
+    : error.detail?.length
+      ? error.detail.map((line) => el("li", typeof line === "string" ? line : line.message))
+      : [el("li", error.message)];
+
+  mount(
+    box,
+    el("h4.violations__title", error.status === 422 ? "A business rule refused this" : "This could not be saved"),
+    el("ul.violations__list", items)
+  );
+  box.hidden = false;
+  box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function recordTitle(record, fields, entity) {
+  const identifier = fields.find((field) =>
+    ["name", "title", "code", "reference", "first_name"].includes(field.column_name)
+  );
+  return identifier && record[identifier.column_name]
+    ? String(record[identifier.column_name])
+    : entity.singularName;
+}
+
+const title = (value) =>
+  String(value)
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());

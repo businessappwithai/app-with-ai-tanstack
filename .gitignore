@@ -107,3 +107,24 @@ generated-projects/crm/**/*.log
 generated-projects/crm/**/.env
 generated-projects/crm/bun.lock
 generated-projects/crm/**/app.config.timestamp_*.js
+
+# PGlite vendored beside the guide by `bun run vendor:pglite` — 17MB of
+# WebAssembly, fetched on demand rather than committed.
+html/assets/vendor/
+
+# The WASM stack's inlined assets are generated, and are committed anyway.
+# They are what the generator actually reads — a browser has no `fs.readFile` —
+# so a checkout without them produces applications with no runtime and an
+# overlay with nothing to apply. CI keeps them honest by regenerating and
+# diffing (`bun run build:wasm-runtime -- --check`).
+#
+# Named individually rather than as `!**/*.generated.ts`: the blanket form would
+# quietly start committing every generated file anyone adds later, which is the
+# opposite of what the rule above it is for.
+!packages/generator/src/generators/wasm/runtime-assets.generated.ts
+!packages/generator/src/generators/wasm/overlay-assets.generated.ts
+
+# Written by the audit-ledger test when it stubs the Nest decorators.
+packages/generator/templates/wasm-overlay/backend/src/modules/audit/__stub.ts
+packages/generator/templates/wasm-overlay/backend/src/modules/audit/__under-test.ts
+packages/generator/src/generators/wasm/__tests__/.tmp/

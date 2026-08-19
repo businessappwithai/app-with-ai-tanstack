@@ -103,6 +103,12 @@ Key routing rules:
 | `bun run lint:fix` | Biome check + autofix (`biome check --write .`) |
 | `bun run format` | Biome format (`biome format --write .`) |
 | `bun run generate:tanstack` | Generate a TanStack Start + NestJS app |
+| `bun run wasm generate -i <model> -o <dir>` | Generate a browser-only app (WASM Postgres, Node-API worker backend) |
+| `bun run wasm serve <dir>` | Serve a generated browser app over http |
+| `bun run wasm inspect <model>` | Show what the browser stack would generate |
+| `bun run build:wasm-runtime` | Re-inline `templates/wasm/**` after editing it |
+| `bun run build:wasm-browser` | Rebuild `html/assets/erdwithai-wasm.js` and `html/wasm-app/sw.js` |
+| `bun run vendor:pglite` | Put PGlite beside `html/` so the hosted page runs offline |
 | `bun run convert` | Run the AI conversion CLI |
 | `bun run test` | Unit tests (Vitest, via `@erdwithai/web`) |
 | `bun run test:playwright` | Playwright E2E tests |
@@ -119,6 +125,14 @@ bun --filter @erdwithai/web test -- path/to/file.spec.ts
 **Run a single Playwright test file:**
 ```bash
 bunx playwright test tests/e2e/specific.e2e.spec.ts
+```
+
+**Generate a browser-only application** (the `cli-wasm` stack):
+```bash
+bun run wasm generate -i language/examples/crm.eml.mmd \
+  -o ./crm-browser --name "Acme CRM" --force --vendor-pglite
+bun run wasm serve ./crm-browser        # then open http://localhost:4000
+node ./crm-browser/host/node-host.mjs   # the same backend, hosted by Node
 ```
 
 **Generate an application directly from the CLI** (what CI does):
@@ -326,6 +340,158 @@ Generated apps listen on `DEFAULT_FRONTEND_PORT = 4000` and
 mirrors these for client components, with a unit test asserting they stay equal.
 
 Also see `packages/generator/TWO_PHASE_GENERATION.md` and `MIGRATION_GUIDE.md`.
+
+### The WASM stack (`cli-wasm`)
+
+**`erdwithai-wasm` is not a second stack.** It runs the same pipeline
+`erdwithai` runs — the same NestJS backend, the same TanStack Start front end,
+the same migrations, guards, rules engine and dictionary — and then applies an
+overlay that changes the two things stopping that application run without a
+server:
+
+| | |
+|---|---|
+| the database | `pg` is replaced by a package **of the same name** backed by PostgreSQL compiled to WebAssembly. Not one line of the backend's own source changes, because none of it ever knew what was on the far side of a `Pool`. |
+| the runtime | every script that said `bun` says `node`, and scripts that ran TypeScript directly build first. |
+
+Generating the CRM model produces **407 files, of which the overlay adds 3 and
+changes 9** — and only one of the nine is application source. Verified: 13
+migrations and 8 seeds run, the backend starts, better-auth signs in, `/bus`
+CRUD works and the audit trail records it, all with no database server anywhere.
+
+```
+packages/generator/
+├── src/cli-wasm/generate.ts              # the `erdwithai-wasm` CLI
+└── src/generators/wasm/overlay.ts        # ⭐ what the overlay is allowed to change
+templates/wasm-overlay/                   # ⭐ what it ships
+├── backend/pg-wasm/                      # PostgreSQL (wasm) as the `pg` package
+├── backend/src/modules/audit/immudb.service.ts   # the one replaced source file
+└── .npmrc, backend/.npmrc, frontend/.npmrc
+```
+
+**The one replaced file is the audit ledger.** immudb cannot be substituted the
+way `pg` was — it is not a driver behind an interface, it is a second server —
+so the overlay reimplements `ImmudbService` as a hash chain in the application's
+own database, keeping the class, its methods and its signatures so that
+`audit.service.ts` and `audit.controller.ts` are untouched. Each entry stores
+the hash of the one before it; editing or deleting an entry makes
+`/audit/:id/verify` report `verified: false`. It detects accidental and casual
+tampering and **not** a deliberate rewrite by someone who owns the database —
+the file says so, and a test asserts that it keeps saying so.
+
+Four things the overlay had to learn, all of them from failures worth keeping:
+
+- **The shim's version must be a plain one.** `8.99.0-wasm` reads better and
+  npm excludes prereleases from `^8.0.0`, so better-auth's optional peer on `pg`
+  refused the whole install.
+- **`node -r dotenv/config`.** The backend finds `.env` by walking up from
+  `__dirname`, which is `src/` under Bun and `dist/src/` once built, so `../.env`
+  lands on a file that does not exist — and the first thing needing a secret
+  fails as though the file were missing.
+- **`dist/src/…`, not `dist/…`.** The backend compiles `seeds/` alongside
+  `src/`, so the build mirrors the package root.
+- **Pools are reference-counted.** PGlite is one embedded server shared by every
+  `Pool`; `end()` closing it breaks `main.ts` seeding the administrator beside
+  the live Nest module, and `end()` doing nothing leaves `db:setup` hanging
+  forever after it finishes.
+
+`ENABLE_MODEL_CONTEXT=false` in the generated `.env`: retrieval needs pgvector,
+which PGlite 0.5 does not carry. The backend logs one warning and runs without
+it.
+
+### The self-contained browser runtime (`--standalone`)
+
+The other half of `cli-wasm`, and a different trade. **`erdwithai-wasm generate
+--standalone`** emits an application that runs in a browser tab with no install
+and no build step at all — PGlite, an application server on a Worker under a
+Node-API runtime, and a Service Worker answering the page's own `/api`
+requests.
+
+```
+packages/generator/
+├── src/cli-wasm/generate.ts              # the `erdwithai-wasm` CLI
+├── src/browser/index.ts                  # the same generator, bundled for a browser
+└── src/generators/wasm/
+    ├── model-bundle.ts                   # ⭐ model -> model.json + schema.bus.sql
+    ├── wasm-app.generator.ts             # assembles the file map
+    └── runtime-assets.generated.ts       # templates/wasm/**, inlined (do not edit)
+templates/wasm/                           # ⭐ the runtime, as editable files
+├── app/schema.sys.sql                    # the dictionary schema (model-independent)
+├── server/                               # router, CRUD, rules, guards, hooks, migrate
+├── host/node-host.mjs                    # `node:http` host — how CI exercises it
+├── host/browser-node-host.js             # Worker host + the Node-API shim
+├── sw.js, boot.js, serve.mjs             # HTTP layer, startup, static server
+└── ui/                                   # buildless dictionary-driven interface
+```
+
+**The two stacks differ in kind, not degree.** The NestJS stack renders ~150
+source files per model, which works because `tsc` runs afterwards. Nothing runs
+`tsc` in a tab, so the browser stack compiles a model into **data** — one
+`app/model.json` and one `app/schema.bus.sql` — read by a runtime that is the
+same bytes for every model. Generation is milliseconds and needs no install; the
+trade is that there is no per-entity source to open and edit. For that, use the
+NestJS stack.
+
+**The front end is a port, not the same code, and this is the one place the two
+stacks genuinely diverge.** `templates/wasm/ui/` reproduces the React
+application's screens — masthead, Search/New/Save action bar, breadcrumb,
+category cards on the dashboard, the dark-headed grid, the record panel with its
+field-type chips — and `templates/wasm/styles.css` is the Swiss Clean palette
+(teal `#0D6E6E`, `#FAFAFA`/`#FFFFFF`, refined borders, serif headlines) taken
+value for value from `frontend/src/styles/globals.css.hbs`. **When that palette
+or those screens change, this has to change with them.**
+
+Two things stop the React front end being reused directly, and both are
+structural rather than a matter of effort:
+
+- **It needs a build.** React, TanStack Router and Tailwind v4 have to go
+  through Vite, and the hosted generator assembles an application inside a
+  browser tab where no bundler exists. A CLI-only variant could ship a prebuilt
+  client, at the cost of the two entry points no longer producing the same
+  application.
+- **Its session is a cookie.** A Service Worker never sees the `Cookie` header
+  on a request it intercepts, and a `Set-Cookie` on a response it synthesises is
+  not stored. Anything hosted this way has to carry a bearer token, which
+  `ui/api.js` does and better-auth does not.
+
+**The runtime is checked in twice.** `templates/wasm/**` is the source of
+truth — real `.js` files, lintable and `node --check`-able. `bun run
+build:wasm-runtime` inlines them into `runtime-assets.generated.ts`, which is
+what the generator (and the browser bundle) actually reads, because a browser
+has no `fs.readFile`. CI runs both build scripts with `--check` and fails if the
+generated copies are stale. **After editing anything under `templates/wasm/`,
+run `bun run build:wasm-runtime`.**
+
+Things worth knowing before changing it:
+
+- **The Node-API shim must not claim to be Node.** `host/browser-node-host.js`
+  provides `process`, `Buffer` and friends so Node-shaped code runs — but
+  `process.versions` deliberately carries no `node` key. PGlite detects Node by
+  exactly that key, and on finding it reached for `fs/promises`, which a browser
+  cannot resolve.
+- **No COEP.** Cross-origin isolation would buy a faster Postgres where
+  `SharedArrayBuffer` is available, and costs the ability to embed a generated
+  app in an iframe — which is how `html/run-in-browser.html` demonstrates it.
+- **`zen-engine` cannot follow the app into a browser** (it is a Rust binding),
+  so `server/lib/expr.js` parses the expression subset the generator emits and
+  `server/lib/rules.js` walks JDM. A flowchart's prose decisions
+  (`Status == draft?`) are interpreted by pattern; anything unrecognised is
+  reported as `assumed`, never silently passed.
+- **`serve` sends no `Cross-Origin-Embedder-Policy`** and does send
+  `Service-Worker-Allowed: /`. A Service Worker cannot register from `file://`,
+  so a generated app must be reached over http.
+- **Each application gets its own IndexedDB name**, derived in `model-bundle.ts`
+  as `project.dataKey` from the schema and entity names. Two applications
+  generated in one browser share an origin; with a fixed name the second found
+  the first's seed marker, skipped its own seed, and ran the wrong database
+  behind the right model with no error anywhere.
+
+`html/run-in-browser.html` is the hosted end of the same thing: it loads a model
+(the CRM example, the drug-discovery example, or one the reader uploads), runs
+the bundled generator, hands the files to a Service Worker and boots the result
+in an iframe. `bun run vendor:pglite` puts a local PGlite beside it so the whole
+demonstration works with the network off; without it the page uses a CDN and
+says so.
 
 ### @erdwithai/ai (`packages/ai/`)
 
@@ -1055,7 +1221,7 @@ ERDwithAI") built from those runs.
 
 | Workflow | What it does |
 |----------|--------------|
-| `ci.yml` | **checks**: type-check, Biome (errors only), unit tests. **generated-app**: generate → build backend/frontend/tests → migrate+seed pgvector Postgres → start backend → run the generated E2E suite |
+| `ci.yml` | **checks**: type-check, Biome (errors only), unit tests, and that the inlined wasm runtime and browser bundle are current. **generated-wasm-app**: generate a browser app → start its backend under Node → `scripts/ci/wasm-smoke.ts` (no database service: the app carries its own). **generated-app**: generate → build backend/frontend/tests → migrate+seed pgvector Postgres → start backend → run the generated E2E suite |
 | `github-neon.yml` | `workflow_dispatch`: generate from an online `.mmd`, point the app at a Neon database, migrate/seed/verify, run both halves on the runner, exercise it, optionally publish the app to a repo |
 | `eml-generate-and-publish.yml` | `workflow_dispatch`: run the `eml` CLI over an online model and publish the generated application to a target repo |
 
@@ -1102,6 +1268,10 @@ Secrets: `NEON_DATABASE_URL`, `EML_PUBLISH_TOKEN` (needs `repo` **and**
 | `packages/generator/src/cli/generate.ts` | Generator CLI |
 | `packages/generator/src/generators/ports.ts` | Generated-app default ports |
 | `packages/generator/templates/tanstack-start-nestjs/` | Stack templates |
+| `packages/generator/src/cli-wasm/generate.ts` | ⭐ The browser-stack CLI |
+| `packages/generator/src/generators/wasm/model-bundle.ts` | ⭐ Model → `model.json` + schema |
+| `packages/generator/templates/wasm/` | ⭐ The browser runtime (run `build:wasm-runtime` after editing) |
+| `html/run-in-browser.html` | Generate and run an app from a page, no server |
 | `packages/web/vite.config.ts` | Vite 8 config, root-`.env` loading, `start-api-routes` shim |
 | `packages/web/src/types/project.ts` | ⭐ Wizard step vocabulary |
 | `packages/web/src/lib/project-access.ts` | ⭐ Project authorization |
@@ -1148,6 +1318,14 @@ Secrets: `NEON_DATABASE_URL`, `EML_PUBLISH_TOKEN` (needs `repo` **and**
 1. Add the key to `ProjectStep`, `STEP_ORDER`, `STEP_LABELS`, `STEP_ROUTES` in `packages/web/src/types/project.ts`
 2. Create `packages/web/src/routes/projects/$id/<step>.tsx`
 3. `ProgressStepper` picks it up automatically — do not hard-code steps anywhere else
+
+### Change the browser stack's runtime
+
+1. Edit the real files under `packages/generator/templates/wasm/`
+2. `bun run build:wasm-runtime` — otherwise the generator keeps emitting the old bytes
+3. `bun run build:wasm-browser` if the hosted page should pick it up too
+4. Generate an app and start it: `bun run wasm generate -i language/examples/crm.eml.mmd -o /tmp/x --vendor-pglite && node /tmp/x/host/node-host.mjs`
+5. `bun scripts/ci/wasm-smoke.ts --base http://localhost:4000/api`
 
 ### Add a new generation template
 

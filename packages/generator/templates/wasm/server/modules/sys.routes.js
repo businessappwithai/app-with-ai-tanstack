@@ -1,0 +1,169 @@
+/**
+ * `/sys` — the Application Dictionary.
+ *
+ * Reads are open to any signed-in user and writes are administrator-only, which
+ * is not symmetry for its own sake: every list and every form in this
+ * application is drawn from these rows, so gating reads leaves a non-admin
+ * looking at empty pages, while a write changes what everyone else sees.
+ *
+ * The write guard keys on the HTTP method rather than on per-route decoration.
+ * There are more write routes than anyone remembers, and one added later would
+ * otherwise default to open.
+ */
+
+import { Router } from "../lib/router.js";
+import { json, notFound, readJson } from "../lib/http.js";
+import { requireAdmin, requireUser } from "../lib/guards.js";
+
+export function sysRoutes(model) {
+  const router = new Router();
+
+  router.use(async (request, { user }) => {
+    requireUser(user);
+    if (request.method !== "GET") requireAdmin(user);
+  });
+
+  router.get("/tables", async (_request, { db, query }) => {
+    const prefix = query.get("prefix");
+    const rows = await db.query(
+      `SELECT t.*, w.name AS window_name, c.name AS category_name
+         FROM sys_table t
+         LEFT JOIN sys_window w ON w.sys_window_id = t.sys_window_id
+         LEFT JOIN sys_category c ON c.sys_category_id = t.sys_category_id
+        WHERE ($1::text IS NULL OR t.table_name LIKE $1 || '%')
+        ORDER BY t.name`,
+      [prefix ?? null]
+    );
+    return json(rows);
+  });
+
+  router.get("/tables/:id", async (_request, { db, params }) => {
+    const row = await db.one("SELECT * FROM sys_table WHERE sys_table_id = $1", [params.id]);
+    if (!row) throw notFound("No such table");
+    return json(row);
+  });
+
+  router.get("/columns", async (_request, { db, query }) => {
+    const tableId = query.get("tableId");
+    const rows = tableId
+      ? await db.select("sys_column", { where: { sys_table_id: tableId }, orderBy: "seq_no" })
+      : await db.select("sys_column", { orderBy: "seq_no" });
+    return json(rows);
+  });
+
+  router.get("/windows", async (_request, { db }) => json(await db.select("sys_window", { orderBy: "name" })));
+  router.get("/tabs", async (_request, { db }) => json(await db.select("sys_tab", { orderBy: "seq_no" })));
+  router.get("/references", async (_request, { db }) =>
+    json(await db.select("sys_reference", { orderBy: "sys_reference_id" }))
+  );
+  router.get("/roles", async (_request, { db }) => json(await db.select("sys_role", { orderBy: "name" })));
+
+  router.get("/ref-list", async (_request, { db, query }) => {
+    const referenceId = query.get("referenceId") || query.get("sys_reference_id");
+    const rows = referenceId
+      ? await db.select("sys_ref_list", {
+          where: { sys_reference_id: Number(referenceId) },
+          orderBy: "seq_no",
+        })
+      : await db.select("sys_ref_list", { orderBy: "seq_no" });
+    return json(rows);
+  });
+
+  router.get("/users", async (_request, { db }) =>
+    json(
+      await db.query(
+        `SELECT u.sys_user_id, u.name, u.email, u.is_active, u.last_login,
+                COALESCE(json_agg(r.name) FILTER (WHERE r.name IS NOT NULL), '[]') AS roles
+           FROM sys_user u
+           LEFT JOIN sys_user_roles ur ON ur.user_id = u.sys_user_id AND ur.is_active = true
+           LEFT JOIN sys_role r ON r.sys_role_id = ur.role_id
+          GROUP BY u.sys_user_id
+          ORDER BY u.name`
+      )
+    )
+  );
+
+  router.get("/categories", async (_request, { db }) =>
+    json(await db.select("sys_category", { orderBy: "seq_no" }))
+  );
+
+  router.get("/categories/with-entities", async (_request, { db }) => {
+    const categories = await db.select("sys_category", { orderBy: "seq_no" });
+    const tables = await db.query(
+      `SELECT t.table_name, t.name, t.sys_category_id FROM sys_table t
+        WHERE t.entity_type = 'bus' ORDER BY t.name`
+    );
+    return json(
+      categories.map((category) => ({
+        ...category,
+        entities: tables.filter((table) => table.sys_category_id === category.sys_category_id),
+      }))
+    );
+  });
+
+  router.get("/fields", async (_request, { db, query }) => {
+    const tabId = query.get("tabId");
+    const rows = tabId
+      ? await db.select("sys_field", { where: { sys_tab_id: tabId }, orderBy: "seq_no" })
+      : await db.select("sys_field", { orderBy: "seq_no" });
+    return json(rows);
+  });
+
+  router.get("/field-groups", async (_request, { db }) =>
+    json(await db.select("sys_field_group", { orderBy: "seq_no" }))
+  );
+
+  /**
+   * Toggling a field's visibility is the one dictionary write the application
+   * itself offers, because it is the one that pays off immediately: a column
+   * hidden here disappears from every grid and form without regenerating.
+   */
+  router.patch("/fields/:id", async (request, { db, params }) => {
+    const body = await readJson(request);
+    const allowed = {};
+    for (const key of [
+      "name",
+      "is_displayed",
+      "is_displayed_grid",
+      "is_read_only",
+      "is_mandatory",
+      "seq_no",
+      "seq_no_grid",
+    ]) {
+      if (key in body) allowed[key] = body[key];
+    }
+    const updated = await db.update("sys_field", allowed, { sys_field_id: params.id });
+    if (!updated) throw notFound("No such field");
+    return json(updated);
+  });
+
+  /** What the model said, for the screens that show the model rather than the data. */
+  router.get("/model-summary", async (_request, { db }) => {
+    const counts = {
+      entities: model.entities.length,
+      rules: (model.rules || []).length,
+      workflows: (model.workflows || []).length,
+      sagas: (model.sagas || []).length,
+      hooks: (model.hooks || []).length,
+      categories: (model.categories || []).length,
+    };
+    const records = {};
+    for (const entity of model.entities) {
+      records[entity.name] = await db.value(
+        `SELECT COUNT(*)::int FROM ${quoted(entity.tableName)} WHERE deleted_at IS NULL`
+      );
+    }
+    // The seeded password belongs on the sign-in screen (/auth/config), which
+    // says why it is shown there. Repeating it in every summary response is
+    // just a wider blast radius for no gain.
+    const { adminPassword: _password, ...project } = model.project;
+    return json({ project, counts, records });
+  });
+
+  return router;
+}
+
+const quoted = (name) => {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) throw new Error(`Unsafe identifier: ${name}`);
+  return `"${name}"`;
+};

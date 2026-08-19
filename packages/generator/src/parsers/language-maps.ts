@@ -113,6 +113,20 @@ function findDefinitionFile(): string | null {
 
 let cachedDefinition: LanguageDefinitionShape | null | undefined;
 
+/**
+ * Supply the definition directly, for hosts that have no filesystem.
+ *
+ * The browser build of the generator imports `language/erdwithai-language.json`
+ * as a module and calls this before parsing anything. Without it the browser
+ * would silently fall through to FALLBACK_TYPE_MAP — which is kept in sync by
+ * hand, so a model generated in a tab could read a type differently from the
+ * same model generated in a terminal. The fallback is a safety net for a
+ * missing file, not a second source of truth.
+ */
+export function setLanguageDefinition(definition: unknown): void {
+  cachedDefinition = (definition ?? null) as LanguageDefinitionShape | null;
+}
+
 function loadDefinition(): LanguageDefinitionShape | null {
   if (cachedDefinition !== undefined) return cachedDefinition;
   try {

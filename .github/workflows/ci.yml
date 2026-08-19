@@ -63,6 +63,118 @@ jobs:
       - name: Unit tests
         run: bun run test
 
+      # The browser stack ships its runtime twice: as editable files under
+      # templates/wasm, and as the inlined module the generator (and the hosted
+      # page) actually reads. A stale copy generates applications from
+      # yesterday's runtime while the diff shows today's, which is exactly the
+      # kind of drift nobody notices until an app misbehaves in a way the source
+      # cannot explain.
+      - name: The inlined wasm runtime is current
+        run: bun run build:wasm-runtime -- --check
+
+      - name: The browser bundle of the generator is current
+        run: bun run build:wasm-browser -- --check
+
+  generated-wasm-app:
+    name: Generate a browser application and run its backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # No database service. That is the point of this job: the application it
+    # generates carries its own Postgres, compiled to WebAssembly, and the
+    # backend it starts is the same code a browser tab runs. If this passes on a
+    # runner with no Postgres installed, the claim holds.
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      # The overlay's whole claim is that it is not a second stack. Generating
+      # both ways and diffing is what keeps that true: if the difference grows
+      # past the driver, the scripts and the audit ledger, this fails.
+      - name: Generate the stack twice — with and without the overlay
+        run: |
+          # Same name and description to both, so the comparison below is about
+          # the overlay rather than about two CLIs' defaults.
+          bun packages/generator/src/cli/generate.ts generate \
+            -i language/examples/crm.eml.mmd -o plain-app \
+            --name "CI CRM" -d "CI CRM" --force --no-setup
+          bun run wasm generate \
+            -i language/examples/crm.eml.mmd -o wasm-app \
+            --name "CI CRM" -d "CI CRM" --force
+
+      - name: The overlay changed only what it is allowed to change
+        run: |
+          # Generated files carry the moment they were generated, in several
+          # comment styles, so every ISO timestamp is blanked before comparing
+          # rather than one comment prefix being stripped. Anything still
+          # differing is the overlay's doing and has to be on the list.
+          strip() { sed -E 's/[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z//g' "$1"; }
+          changed=$(cd plain-app && find . -type f -not -path "./pgdata/*" | while read -r f; do
+            if [ -f "../wasm-app/$f" ] && ! diff -q \
+              <(sed -E 's/[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z//g' "$f") \
+              <(sed -E 's/[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z//g' "../wasm-app/$f") \
+              > /dev/null 2>&1; then
+              echo "$f"
+            fi
+          done | sort)
+          echo "Changed by the overlay:"; echo "$changed"
+          expected=$(printf '%s\n' ./.erdwithai.json ./backend/.env ./backend/.env.example \
+            ./backend/package.json ./backend/run-app.sh \
+            ./backend/src/modules/audit/immudb.service.ts ./docker-start.sh \
+            ./frontend/package.json ./package.json | sort)
+          if [ "$changed" != "$expected" ]; then
+            echo "::error::The overlay's footprint changed. Expected:"; echo "$expected"
+            exit 1
+          fi
+
+      # The application — backend and front end. `tests/` is deliberately not in
+      # this list: the generated E2E suite is written against `bun:test`, and
+      # porting it would mean rewriting the suite rather than overlaying the
+      # application.
+      - name: No Bun left in the generated application
+        run: |
+          if grep -rn '\bbun\b' wasm-app/package.json wasm-app/backend/package.json \
+               wasm-app/frontend/package.json; then
+            echo "::error::A generated script still calls bun"; exit 1
+          fi
+
+      - name: Install, migrate and seed on WebAssembly Postgres
+        run: |
+          # From the workspace root, then from the backend — the same two
+          # commands the README tells a reader to run, rather than a `--prefix`
+          # spelling of them that resolves workspaces differently.
+          cd wasm-app && npm install
+          cd backend && npm run db:setup
+
+      - name: Start the NestJS backend and exercise it
+        working-directory: wasm-app/backend
+        run: |
+          npm run start > backend.log 2>&1 &
+          # An unauthenticated /bus answers 401 once the server is up, which is
+          # a better readiness signal than a log line: it proves the routes are
+          # mapped, not just that a process printed something.
+          for i in $(seq 1 120); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4001/api/bus/account || true)
+            [ "$code" = "401" ] && break
+            sleep 2
+          done
+          tail -30 backend.log
+          bun "$GITHUB_WORKSPACE/scripts/ci/wasm-smoke.ts" --base http://localhost:4001/api --stack nestjs
+
+      - name: Show the backend log on failure
+        if: failure()
+        run: cat wasm-app/backend/backend.log || true
+
   generated-app:
     name: Generate an application and build it
     runs-on: ubuntu-latest
