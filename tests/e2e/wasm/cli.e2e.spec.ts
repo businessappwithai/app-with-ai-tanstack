@@ -55,7 +55,14 @@ async function cli(args: string[]): Promise<{ code: number; out: string }> {
 }
 
 async function listFiles(directory: string): Promise<string[]> {
-  const { stdout } = await run("find", [directory, "-type", "f", "-not", "-path", "*/node_modules/*"]);
+  const { stdout } = await run("find", [
+    directory,
+    "-type",
+    "f",
+    "-not",
+    "-path",
+    "*/node_modules/*",
+  ]);
   return stdout
     .split("\n")
     .filter(Boolean)
@@ -188,9 +195,14 @@ test.describe("@cli the model checker", () => {
     const model = join(workspace, "no-name.eml.mmd");
     await writeFile(
       model,
-      ["erDiagram", "    Customer {", "        string id PK", "        string name", "    }", ""].join(
-        "\n"
-      ),
+      [
+        "erDiagram",
+        "    Customer {",
+        "        string id PK",
+        "        string name",
+        "    }",
+        "",
+      ].join("\n"),
       "utf-8"
     );
 
@@ -321,7 +333,9 @@ test.describe("@cli the WebAssembly overlay", () => {
   });
 
   test("the backend finds its .env once it is compiled", async () => {
-    const scripts = JSON.parse(await readFile(join(wasm(), "backend/package.json"), "utf-8")).scripts;
+    const scripts = JSON.parse(
+      await readFile(join(wasm(), "backend/package.json"), "utf-8")
+    ).scripts;
     // `__dirname` is `src/` under Bun and `dist/src/` once built, so the
     // backend's walk up to `.env` lands on a file that does not exist and the
     // first thing needing a secret fails as though the file were missing.

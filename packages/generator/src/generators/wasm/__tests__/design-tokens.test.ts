@@ -23,9 +23,7 @@ import { describe, expect, it } from "vitest";
 
 const TEMPLATES = join(import.meta.dirname, "../../../../templates");
 
-const tokens = JSON.parse(
-  readFileSync(join(TEMPLATES, "common/design-tokens.json"), "utf-8")
-) as {
+const tokens = JSON.parse(readFileSync(join(TEMPLATES, "common/design-tokens.json"), "utf-8")) as {
   light: Record<string, string>;
   radius: string;
   fonts: Record<string, string>;
