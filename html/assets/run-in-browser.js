@@ -19,7 +19,13 @@
  * keeps the generated application byte-identical to the one you would deploy.
  */
 
-import { generateFromSource, reviewModel } from "./erdwithai-wasm.js";
+// The published validator, not the copy inside the generator bundle. Same engine
+// either way — but this is the file `llms-full.txt` §10 tells a model to validate
+// against, so the page and the protocol cannot drift into disagreeing about
+// whether a document is acceptable. `fixer.js` carries the checker with it,
+// which is what lets it re-check what it repaired.
+import { checkAndFix } from "../fixer.js";
+import { generateFromSource } from "./erdwithai-wasm.js";
 
 const BASE = new URL("wasm-app/run/", window.location.href).pathname;
 const SW_URL = new URL("wasm-app/sw.js", window.location.href).pathname;
@@ -143,7 +149,7 @@ const build = {
 
     $("build-phases").innerHTML = PHASES.map(
       (phase) =>
-        `<li class="build__phase" data-state="${this.status[phase.id]}">` +
+        `<li class="build__phase" data-phase="${phase.id}" data-state="${this.status[phase.id]}">` +
         `<span class="build__tick"></span>${escapeHtml(phase.label)}</li>`
     ).join("");
   },
@@ -190,8 +196,14 @@ async function selectChoice(kind) {
 
 const dropzone = $("dropzone");
 $("file").addEventListener("change", (event) => {
-  const file = event.target.files && event.target.files[0];
+  const input = event.target;
+  const file = input.files && input.files[0];
   if (file) readFile(file);
+  // Clearing the value is what makes "fix it and choose it again" work. A file
+  // input fires no `change` when the same filename is picked twice, so a reader
+  // who edited the file the checker just refused and re-selected it would sit
+  // looking at the stale findings with nothing having happened.
+  input.value = "";
 });
 for (const type of ["dragenter", "dragover"]) {
   dropzone.addEventListener(type, (event) => {
@@ -287,7 +299,11 @@ function setModel(source, label) {
 function checkModel(source) {
   let review;
   try {
-    review = reviewModel(source);
+    // `checkAndFix` repairs the five auto-fixable codes and then re-checks, so
+    // what is reported describes the document that will actually be compiled
+    // rather than the one that arrived. `remaining` is that second reading.
+    const result = checkAndFix(source);
+    review = { ...result, issues: result.remaining };
   } catch (error) {
     // A document the parser cannot read at all — not a finding, a refusal.
     review = {
@@ -317,14 +333,25 @@ function checkModel(source) {
 }
 
 function describeReview(review) {
-  const { errors, warnings, infos } = review.counts;
+  const { errors } = review.counts;
+  return [`${errors} error${errors === 1 ? "" : "s"}`, ...describeRest(review)].join(" · ");
+}
+
+/**
+ * The counts other than errors.
+ *
+ * Split out because the diagnostics header already states the error count in its
+ * own sentence, and repeating it in the sub-line read as "refused this model —
+ * 1 error · 1 error".
+ */
+function describeRest(review) {
+  const { warnings, infos } = review.counts;
   const applied = review.fixes.filter((fix) => fix.applied).length;
   const parts = [];
   if (applied) parts.push(`${applied} auto-fix${applied === 1 ? "" : "es"} applied`);
-  parts.push(`${errors} error${errors === 1 ? "" : "s"}`);
   if (warnings) parts.push(`${warnings} warning${warnings === 1 ? "" : "s"}`);
   if (infos) parts.push(`${infos} info`);
-  return parts.join(" · ");
+  return parts;
 }
 
 const SEVERITY_LABEL = { error: "error", warning: "warning", info: "info" };
@@ -361,7 +388,7 @@ function renderDiagnostics(review) {
           ? "The checker accepted this model"
           : `The checker refused this model — ${review.counts.errors} error${review.counts.errors === 1 ? "" : "s"}`
       }</b>
-      <span>${escapeHtml(describeReview(review))}</span>
+      <span>${escapeHtml(describeRest(review).join(" · "))}</span>
     </div>
     ${
       applied.length
@@ -386,9 +413,13 @@ function renderDiagnostics(review) {
     ${
       review.ok
         ? ""
-        : `<p class="diag__foot">Nothing was generated. The command-line tool stops here too —
-             <code>erdwithai-wasm generate</code> refuses a model with errors unless you pass
-             <code>--skip-check</code>.</p>`
+        : `<p class="diag__foot"><b>Nothing was generated.</b> Fix the ${
+            review.counts.errors === 1 ? "line above" : "lines above"
+          } in your
+             <code>.mmd</code> file, save it, and choose it again — this page re-checks every
+             time a model is loaded, so you can correct and re-submit until it passes. The
+             command-line tool stops here too: <code>erdwithai-wasm generate</code> refuses a
+             model with errors unless you pass <code>--skip-check</code>.</p>`
     }`;
 }
 
