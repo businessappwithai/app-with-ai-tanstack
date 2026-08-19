@@ -24,18 +24,18 @@
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import type { EmlAttribute, EmlEntity, EmlModel, EmlRule, EmlWorkflow } from "./cli/src/model.ts";
-import { parseEml } from "./cli/src/parser.ts";
-import { caps } from "./cli/src/util.ts";
-import { loadLanguageDefinition, stepNodeTypes } from "./index.ts";
+import type { EmlAttribute, EmlEntity, EmlModel, EmlRule, EmlWorkflow } from "./cli/src/model";
+import { parseEml } from "./cli/src/parser";
+import { caps } from "./cli/src/util";
+import { loadLanguageDefinition, stepNodeTypes } from "./index";
 
 // ---------------------------------------------------------------------------
 // Diagnostic types
 // ---------------------------------------------------------------------------
 
-type Severity = "error" | "warning" | "info";
+export type Severity = "error" | "warning" | "info";
 
-interface Issue {
+export interface Issue {
   severity: Severity;
   code: string;
   message: string;
@@ -47,7 +47,7 @@ interface Issue {
   context?: string;
 }
 
-interface CheckResult {
+export interface CheckResult {
   issues: Issue[];
   errors: number;
   warnings: number;
@@ -59,7 +59,18 @@ interface CheckResult {
 // ANSI colour helpers
 // ---------------------------------------------------------------------------
 
-const useColor = !process.env.NO_COLOR && process.stdout.isTTY && !hasFlag("--no-color");
+/**
+ * Colour only when a terminal is on the other end.
+ *
+ * Guarded rather than assumed because this module is imported by the browser
+ * bundle, where `process` does not exist and reading `process.stdout` at module
+ * scope would throw before a single check could run.
+ */
+const useColor =
+  typeof process !== "undefined" &&
+  !process.env?.NO_COLOR &&
+  Boolean(process.stdout?.isTTY) &&
+  !hasFlag("--no-color");
 
 const c = {
   reset: (s: string) => (useColor ? `\x1b[0m${s}\x1b[0m` : s),
@@ -86,7 +97,7 @@ function sevLabel(s: Severity): string {
 // ---------------------------------------------------------------------------
 
 function hasFlag(name: string): boolean {
-  return process.argv.includes(name);
+  return typeof process !== "undefined" && (process.argv?.includes(name) ?? false);
 }
 
 // ---------------------------------------------------------------------------
@@ -2190,6 +2201,23 @@ class CheckEngine {
 }
 
 // ---------------------------------------------------------------------------
+// The checker, as a function
+// ---------------------------------------------------------------------------
+
+/**
+ * Check an EML document held in memory.
+ *
+ * Everything below this line reads a file, writes an `.error` file beside it and
+ * prints in colour, none of which a browser tab can do — but the checking itself
+ * only ever needed the text. Exposing it is what lets `erdwithai-wasm` and the
+ * upload page refuse a broken model with the same diagnostics the CLI prints,
+ * rather than each growing a weaker check of its own.
+ */
+export function checkSource(source: string): CheckResult {
+  return new CheckEngine(parseEml(source), source).run();
+}
+
+// ---------------------------------------------------------------------------
 // Auto-fixable error codes — the fixer knows how to repair these
 // ---------------------------------------------------------------------------
 
@@ -2316,10 +2344,7 @@ async function checkFile(
   filePath: string,
   languageVersion: string
 ): Promise<{ result: CheckResult; file: string; errorFilePath: string }> {
-  const source = readFileSync(filePath, "utf8");
-  const model = parseEml(source);
-  const engine = new CheckEngine(model, source);
-  const result = engine.run();
+  const result = checkSource(readFileSync(filePath, "utf8"));
 
   // Always write the .error file (overwrites previous run)
   const errorContent = buildErrorFile(result, filePath, languageVersion);
@@ -2376,7 +2401,7 @@ async function main(): Promise<void> {
   // Language version (for .error file metadata)
   let languageVersion = "1.0.0";
   try {
-    const { loadLanguageDefinition } = await import("./index.ts");
+    const { loadLanguageDefinition } = await import("./index");
     languageVersion = loadLanguageDefinition().language.version;
   } catch {
     /* ignore */
@@ -2461,8 +2486,13 @@ async function main(): Promise<void> {
   process.exit(anyErrors ? 1 : 0);
 }
 
-main().catch((err) => {
-  console.error(c.red(`Fatal: ${err instanceof Error ? err.message : String(err)}`));
-  if (process.env.EML_DEBUG) console.error(err);
-  process.exit(2);
-});
+// Run only when this file *is* the command. Importing it — which the WASM
+// generator now does, to check a model before compiling it — must not start a
+// CLI, parse argv, or exit the process.
+if (import.meta.main) {
+  main().catch((err) => {
+    console.error(c.red(`Fatal: ${err instanceof Error ? err.message : String(err)}`));
+    if (process.env.EML_DEBUG) console.error(err);
+    process.exit(2);
+  });
+}

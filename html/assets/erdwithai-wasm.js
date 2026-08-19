@@ -17,6 +17,66 @@ var __export = (target, all) => {
       set: __exportSetter.bind(all, name)
     });
 };
+var __esm = (fn, res) => () => (fn && (res = fn(fn = 0)), res);
+
+// node-stub:node:fs
+var missing = () => {
+  throw new Error("no filesystem in the browser");
+}, existsSync = () => false, readFileSync;
+var init_node_fs = __esm(() => {
+  readFileSync = missing;
+});
+
+// node-stub:node:path
+var dirname = (p) => String(p).replace(/\/[^/]*$/, "") || "/", basename = (p) => String(p).split("/").pop() || "", join = (...parts) => parts.filter(Boolean).join("/").replace(/\/+/g, "/"), resolve = (...parts) => join(...parts), relative = (_from, to) => String(to), node_path_default;
+var init_node_path = __esm(() => {
+  node_path_default = { dirname, basename, join, resolve, relative };
+});
+
+// node-stub:node:url
+var fileURLToPath = (url) => String(url).replace(/^file:\/\//, "");
+var init_node_url = () => {};
+
+// language/index.ts
+function setLanguageDefinition(definition) {
+  cached = definition;
+}
+function loadLanguageDefinition(force = false) {
+  if (cached && !force)
+    return cached;
+  const raw = readFileSync(LANGUAGE_DEFINITION_PATH, "utf-8");
+  cached = JSON.parse(raw);
+  return cached;
+}
+function normalizeType(rawType) {
+  const def = loadLanguageDefinition();
+  const key = (rawType || "").toLowerCase().replace(/\(\d+\)/, "").trim();
+  return def.types.map[key] ?? def.types.default;
+}
+function cardinalityKind(operator) {
+  const def = loadLanguageDefinition();
+  const found = def.cardinalities.map.find((c) => c.operator === operator);
+  return found ? found.kind : null;
+}
+function hookTypes() {
+  return loadLanguageDefinition().hooks.types.map((h) => h.type);
+}
+function isHookType(value) {
+  return hookTypes().includes(value);
+}
+function stepNodeTypes() {
+  return loadLanguageDefinition().workflowConstructs.stepNodes.types;
+}
+var LANGUAGE_DEFINITION_PATH, cached = null;
+var init_language = __esm(() => {
+  init_node_fs();
+  init_node_path();
+  init_node_url();
+  LANGUAGE_DEFINITION_PATH = (() => {
+    const here = node_path_default.dirname(fileURLToPath(import.meta.url));
+    return node_path_default.join(here, "erdwithai-language.json");
+  })();
+});
 // language/erdwithai-language.json
 var erdwithai_language_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
@@ -1207,21 +1267,13 @@ var erdwithai_language_default = {
   }
 };
 
-// node-stub:node:fs
-var existsSync = () => false;
-var readFileSync = () => {
-  throw new Error("no filesystem in the browser");
-};
-
-// node-stub:node:path
-var dirname = (p) => String(p).replace(/\/[^/]*$/, "") || "/";
-var join = (...parts) => parts.filter(Boolean).join("/").replace(/\/+/g, "/");
-var node_path_default = { dirname, join };
-
-// node-stub:node:url
-var fileURLToPath = (url) => String(url).replace(/^file:\/\//, "");
+// packages/generator/src/browser/index.ts
+init_language();
 
 // packages/generator/src/parsers/language-maps.ts
+init_node_fs();
+init_node_path();
+init_node_url();
 var FALLBACK_TYPE_MAP = {
   string: "string",
   varchar: "string",
@@ -1291,7 +1343,7 @@ function findDefinitionFile() {
   return null;
 }
 var cachedDefinition;
-function setLanguageDefinition(definition) {
+function setLanguageDefinition2(definition) {
   cachedDefinition = definition ?? null;
 }
 function loadDefinition() {
@@ -2586,6 +2638,2254 @@ function parseModel(sources) {
   return { entities, relationships, categories, enums, rules, hooks, workflows, sagas, rbac };
 }
 
+// language/checker.ts
+init_node_fs();
+init_node_path();
+
+// language/cli/src/parser.ts
+init_language();
+
+// language/cli/src/model.ts
+function emptyModel() {
+  return {
+    meta: {},
+    entities: [],
+    relationships: [],
+    enums: [],
+    indexes: [],
+    rules: [],
+    workflows: [],
+    hooks: [],
+    guards: [],
+    triggers: [],
+    diagnostics: []
+  };
+}
+
+// language/cli/src/util.ts
+function toSnakeCase(str) {
+  if (/^[A-Z0-9_]+$/.test(str))
+    return str.toLowerCase();
+  return str.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z])/g, (m, _c, offset) => offset === 0 ? m : m).replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase().replace(/^_/, "");
+}
+function foreignKeyName(targetEntity) {
+  const snake = toSnakeCase(targetEntity).replace(/^bus_/, "");
+  return `${snake}_id`;
+}
+function stripQuotes(str) {
+  return str.replace(/^["']|["']$/g, "").trim();
+}
+function caps(match, count) {
+  const out = [];
+  for (let i = 1;i <= count; i += 1)
+    out.push(match[i] ?? "");
+  return out;
+}
+function splitHead(text) {
+  const trimmed = text.trim();
+  const at = trimmed.search(/\s/);
+  if (at < 0)
+    return { head: trimmed, rest: "" };
+  return { head: trimmed.slice(0, at), rest: trimmed.slice(at).trim() };
+}
+
+// language/cli/src/parser.ts
+var SECTION_OPENERS = /^(erDiagram|flowchart|graph|stateDiagram-v2|stateDiagram)\b/;
+function parseEml(source) {
+  const model = emptyModel();
+  fieldEnumRefs.length = 0;
+  const diags = model.diagnostics;
+  const normalized = source.replace(/\r\n/g, `
+`);
+  const rawLines = normalized.split(`
+`);
+  const sections = [];
+  let current = null;
+  const pending = {};
+  rawLines.forEach((raw, idx) => {
+    const line = raw.trim();
+    const n = idx + 1;
+    if (!line)
+      return;
+    if (line.startsWith("%%")) {
+      const dir = parseDirective(line, n, model);
+      if (dir?.metaKind)
+        pending.metaKind = dir.metaKind;
+      if (dir?.metaName)
+        pending.metaName = dir.metaName;
+      if (dir?.rule)
+        pending.rule = dir.rule;
+      if (dir?.workflow)
+        pending.workflow = dir.workflow;
+      return;
+    }
+    const opener = line.match(SECTION_OPENERS);
+    if (opener) {
+      const [kw] = caps(opener, 1);
+      const type = kw === "erDiagram" ? "erd" : kw.startsWith("stateDiagram") ? "state" : "flow";
+      current = {
+        type,
+        metaKind: pending.metaKind,
+        metaName: pending.metaName,
+        rule: pending.rule,
+        workflow: pending.workflow,
+        startLine: n,
+        lines: []
+      };
+      sections.push(current);
+      pending.metaKind = undefined;
+      pending.metaName = undefined;
+      pending.rule = undefined;
+      pending.workflow = undefined;
+      return;
+    }
+    if (current)
+      current.lines.push({ text: line, n });
+  });
+  for (const section of sections) {
+    if (section.type === "erd") {
+      parseErdSection(section, model, diags);
+    } else if (section.type === "state") {
+      parseStateSection(section, model);
+    } else {
+      parseFlowSection(section, model);
+    }
+  }
+  applyFieldEnumRefs(model);
+  return model;
+}
+var fieldEnumRefs = [];
+function parseDirective(line, n, model) {
+  const body = line.replace(/^%%/, "").trim();
+  const { head: keyword, rest } = splitHead(body);
+  switch (keyword) {
+    case "meta": {
+      const m = rest.match(/^([A-Za-z_][\w]*)\s*:\s*(.+)$/);
+      if (!m)
+        return;
+      const [key, rawValue] = caps(m, 2);
+      const value = rawValue.trim();
+      if (key === "kind")
+        return { metaKind: value };
+      if (key === "name") {
+        if (!model.meta.name)
+          model.meta.name = value;
+        return { metaName: value };
+      }
+      model.meta[key] = value;
+      return;
+    }
+    case "hook": {
+      const m = rest.match(/^(\w+)\s+(\w+)\s+on\s+(\w+)\s*(\[[^\]]*\])?/);
+      if (!m) {
+        model.diagnostics.push({
+          severity: "error",
+          code: "EML201",
+          message: `Invalid %%hook syntax: "${line}"`,
+          line: n
+        });
+        return;
+      }
+      const [type, handler, entity, paramsRaw] = caps(m, 4);
+      const fields = paramsRaw ? parseHookFields(paramsRaw) : [];
+      if (!isHookType(type)) {
+        model.diagnostics.push({
+          severity: "error",
+          code: "EML202",
+          message: `Unknown hook type "${type}" in "${line}"`,
+          line: n
+        });
+        return;
+      }
+      model.hooks.push({ type, handler, entity, fields });
+      return;
+    }
+    case "entity": {
+      const m = rest.match(/^(\w+)\s+([A-Za-z_]\w*)\s*:\s*(.+)$/);
+      if (m) {
+        const [entity, key, value] = caps(m, 3);
+        applyEntityMeta(model, entity, key, value.trim());
+      }
+      return;
+    }
+    case "field": {
+      const m = rest.match(/^(\w+)\.(\w+)\s+([A-Za-z_]\w*)\s*:\s*(.+)$/);
+      if (m) {
+        const [entity, attr, key, value] = caps(m, 4);
+        if (key === "enum")
+          fieldEnumRefs.push({ entity, attr, enumName: value.trim() });
+      }
+      return;
+    }
+    case "enum": {
+      const m = rest.match(/^(\w+)\s*:\s*(.+)$/);
+      if (m) {
+        const [name, rawValues] = caps(m, 2);
+        const values = rawValues.split(",").map((v) => v.trim()).filter(Boolean);
+        if (!model.enums.some((e) => e.name === name))
+          model.enums.push({ name, values });
+      }
+      return;
+    }
+    case "index": {
+      const m = rest.match(/^(\w+)\s*\(([^)]*)\)\s*(unique)?/i);
+      if (m) {
+        const [entity, rawColumns, uniqueFlag] = caps(m, 3);
+        const columns = rawColumns.split(",").map((c) => c.trim()).filter(Boolean);
+        model.indexes.push({ entity, columns, unique: !!uniqueFlag });
+      }
+      return;
+    }
+    case "rule": {
+      const m = rest.match(/^(\w+)\s+on\s+(\w+)(?:\s+event:\s*(\w+))?(?:\s+priority:\s*(\d+))?/);
+      if (m) {
+        const [name, entity, event, priority] = caps(m, 4);
+        return {
+          rule: {
+            name,
+            entity,
+            event: event || undefined,
+            priority: priority ? Number(priority) : undefined
+          }
+        };
+      }
+      return;
+    }
+    case "workflow": {
+      const m = rest.match(/^(\w+)\s+entity:\s*(\w+)\s+kind:\s*(\w+)/);
+      if (m) {
+        const [name, entity, kind] = caps(m, 3);
+        return {
+          workflow: {
+            name,
+            entity,
+            kind: kind || "hook"
+          }
+        };
+      }
+      return;
+    }
+    case "guard": {
+      const m = rest.match(/^(\S+)\s+on\s+(\w+)\.(\w+)/);
+      if (m) {
+        const [roleExpr, entity, op] = caps(m, 3);
+        const roles = roleExpr.split("|").map((r) => r.replace(/^role:/, "").trim()).filter(Boolean);
+        model.guards.push({ roles, entity, op });
+      }
+      return;
+    }
+    case "trigger": {
+      const m = rest.match(/^(.+?)\s*->\s*(\w+)\s+on\s+(\w+)/);
+      if (m) {
+        const [source, handler, entity] = caps(m, 3);
+        model.triggers.push({ source: source.trim(), handler, entity });
+      }
+      return;
+    }
+    default:
+      return;
+  }
+}
+function parseHookFields(paramsRaw) {
+  const inner = paramsRaw.slice(1, -1);
+  return inner.split(",").map((p) => p.trim().replace(/^field:\s*/, "")).filter(Boolean);
+}
+function applyEntityMeta(model, name, key, value) {
+  const ensure = () => {
+    let e2 = model.entities.find((x) => x.name === name);
+    if (!e2) {
+      e2 = {
+        name,
+        tableName: toSnakeCase(name),
+        attributes: [],
+        primaryKey: "id",
+        timestamps: true
+      };
+      model.entities.push(e2);
+    }
+    return e2;
+  };
+  const e = ensure();
+  if (key === "audited")
+    e.audited = value === "true";
+  else if (key === "softDelete")
+    e.softDelete = value === "true";
+  else if (key === "prefix")
+    e.prefix = value;
+  else if (key === "label")
+    e.label = value;
+}
+function parseErdSection(section, model, diags) {
+  let currentEntity = null;
+  let attrs = [];
+  const flush = () => {
+    if (currentEntity) {
+      mergeEntity(model, currentEntity, attrs);
+      currentEntity = null;
+      attrs = [];
+    }
+  };
+  for (const { text, n } of section.lines) {
+    const rel = parseRelationship(text);
+    if (rel) {
+      model.relationships.push(rel);
+      continue;
+    }
+    const start = text.match(/^([A-Za-z][\w]*)\s*\{$/);
+    if (start) {
+      flush();
+      const [entityName] = caps(start, 1);
+      currentEntity = {
+        name: entityName,
+        tableName: toSnakeCase(entityName),
+        attributes: [],
+        primaryKey: "id",
+        timestamps: true
+      };
+      continue;
+    }
+    if (text === "}") {
+      flush();
+      continue;
+    }
+    if (currentEntity) {
+      const attr = parseAttribute(text);
+      if (attr)
+        attrs.push(attr);
+      else
+        diags.push({
+          severity: "warning",
+          code: "EML110",
+          message: `Could not parse attribute: "${text}"`,
+          line: n
+        });
+    }
+  }
+  flush();
+}
+function mergeEntity(model, entity, attrs) {
+  const existing = model.entities.find((e) => e.name === entity.name);
+  const target = existing ?? entity;
+  if (existing) {
+    existing.tableName = toSnakeCase(entity.name);
+    existing.timestamps = entity.timestamps;
+  } else {
+    model.entities.push(entity);
+  }
+  target.attributes = attrs;
+  const hasId = attrs.some((a) => a.name === "id" || a.name.endsWith("_id"));
+  if (!hasId) {
+    attrs.unshift({
+      name: "id",
+      type: "string",
+      rawType: "string",
+      required: true,
+      unique: true,
+      isPrimaryKey: true,
+      isForeignKey: false
+    });
+  }
+  const pk = attrs.find((a) => a.isPrimaryKey) ?? attrs.find((a) => a.name === "id");
+  target.primaryKey = pk?.name ?? "id";
+}
+function parseAttribute(line) {
+  const descMatch = line.match(/"([^"]*)"\s*$/);
+  const description = descMatch ? caps(descMatch, 1)[0] : undefined;
+  const withoutDesc = descMatch ? line.slice(0, descMatch.index).trim() : line;
+  const parts = withoutDesc.split(/\s+/);
+  if (parts.length < 2)
+    return null;
+  const rawTypeToken = parts[0] ?? "";
+  const name = parts[1] ?? "";
+  if (!/^[A-Za-z][\w]*$/.test(name))
+    return null;
+  const lengthMatch = rawTypeToken.match(/\((\d+)\)/);
+  const maxLength = lengthMatch ? Number(caps(lengthMatch, 1)[0]) : undefined;
+  const rawType = rawTypeToken.replace(/\(\d+\)/, "");
+  const type = normalizeType(rawType);
+  const modifiers = parts.slice(2).map((m) => m.toUpperCase());
+  const isPrimaryKey = modifiers.includes("PK");
+  const isForeignKey = modifiers.includes("FK");
+  const isUnique = modifiers.includes("UK") || modifiers.includes("UNIQUE");
+  const isOptional = modifiers.includes("OPTIONAL") || modifiers.includes("NULL");
+  return {
+    name,
+    type,
+    rawType,
+    maxLength,
+    required: !isOptional && !isPrimaryKey,
+    unique: isUnique || isPrimaryKey,
+    isPrimaryKey,
+    isForeignKey,
+    description
+  };
+}
+function parseRelationship(line) {
+  const m = line.match(/^([A-Za-z_]\w*)\s+([|}][|o](?:--|\.\.)[|o][|{])\s+([A-Za-z_]\w*)\s*(?::\s*(.+))?$/);
+  if (!m)
+    return null;
+  const [source, opRaw, target, labelRaw] = caps(m, 4);
+  const op = opRaw.replace("..", "--");
+  const kind = cardinalityKind(op);
+  if (!kind)
+    return null;
+  const label = labelRaw ? stripQuotes(labelRaw) : `${source.toLowerCase()}_${target.toLowerCase()}`;
+  return {
+    name: label.replace(/\s+/g, "_").toLowerCase(),
+    source,
+    target,
+    cardinality: kind,
+    operator: op,
+    foreignKey: foreignKeyName(target)
+  };
+}
+function parseFlowSection(section, model) {
+  const { nodes, edges } = parseFlowGraph(section.lines.map((l) => l.text));
+  const rule = section.rule;
+  const workflow = section.workflow;
+  const isRules = section.metaKind === "rules" || !!rule && section.metaKind !== "workflow" && !workflow;
+  if (isRules) {
+    model.rules.push({
+      name: rule?.name ?? section.metaName ?? `rule_${model.rules.length + 1}`,
+      entity: rule?.entity,
+      event: rule?.event,
+      priority: rule?.priority,
+      nodes,
+      edges,
+      raw: `flowchart TD
+${section.lines.map((l) => `    ${l.text}`).join(`
+`)}
+`
+    });
+    return;
+  }
+  const wf = {
+    name: workflow?.name ?? section.metaName ?? `workflow_${model.workflows.length + 1}`,
+    entity: workflow?.entity,
+    kind: workflow?.kind ?? "hook",
+    hooks: workflow?.entity ? model.hooks.filter((h) => h.entity === workflow.entity) : [],
+    states: [],
+    transitions: [],
+    guards: workflow?.entity ? model.guards.filter((g) => g.entity === workflow.entity) : [],
+    triggers: workflow?.entity ? model.triggers.filter((t) => t.entity === workflow.entity) : []
+  };
+  model.workflows.push(wf);
+}
+function parseFlowGraph(lines) {
+  const nodesById = new Map;
+  const edges = [];
+  const nodeToken = "([A-Za-z_]\\w*)(\\(\\[[^\\]]*\\]\\)|\\(\\([^)]*\\)\\)|\\{[^}]*\\}|\\[[^\\]]*\\]|\\([^)]*\\))?";
+  const edgeRe = new RegExp(`^${nodeToken}\\s*(?:-->|---|-\\.->|==>)\\s*(?:\\|([^|]*)\\|)?\\s*${nodeToken}`);
+  const ensureNode2 = (id, suffix) => {
+    const existing = nodesById.get(id);
+    if (existing) {
+      if (suffix && existing.label === id) {
+        const parsed = parseNode(id, suffix);
+        if (parsed)
+          nodesById.set(id, parsed);
+      }
+      return;
+    }
+    nodesById.set(id, suffix ? parseNode(id, suffix) ?? bareNode(id) : bareNode(id));
+  };
+  for (const line of lines) {
+    const em = line.match(edgeRe);
+    if (em) {
+      const [srcId, srcSuffix, edgeLabel, tgtId, tgtSuffix] = caps(em, 5);
+      ensureNode2(srcId, srcSuffix);
+      ensureNode2(tgtId, tgtSuffix);
+      edges.push({ source: srcId, target: tgtId, label: edgeLabel?.trim() || undefined });
+      continue;
+    }
+    const nm = line.match(new RegExp(`^${nodeToken}\\s*$`));
+    if (nm?.[1] && nm[2])
+      ensureNode2(nm[1], nm[2]);
+  }
+  const sources = new Set(edges.map((e) => e.source));
+  const targets = new Set(edges.map((e) => e.target));
+  for (const node of nodesById.values()) {
+    node.jdmType = resolveJdmType(node.shape, sources.has(node.id), targets.has(node.id));
+    if (node.shape === "diamond")
+      node.condition = parseCondition(node.label);
+  }
+  return { nodes: [...nodesById.values()], edges };
+}
+function bareNode(id) {
+  return { id, label: id, shape: "rect", jdmType: "expressionNode" };
+}
+function parseNode(id, suffix) {
+  const shapes = [
+    { re: /^\(\[(.+?)\]\)$/, shape: "stadium", jdmType: "inputNode" },
+    { re: /^\(\((.+?)\)\)$/, shape: "circle", jdmType: "functionNode" },
+    { re: /^\{(.+?)\}$/, shape: "diamond", jdmType: "switchNode" },
+    { re: /^\[(.+?)\]$/, shape: "rect", jdmType: "expressionNode" },
+    { re: /^\((.+?)\)$/, shape: "rounded", jdmType: "functionNode" }
+  ];
+  for (const { re, shape, jdmType } of shapes) {
+    const m = suffix.match(re);
+    if (m)
+      return { id, label: caps(m, 1)[0].trim(), shape, jdmType };
+  }
+  return null;
+}
+function resolveJdmType(shape, isSource, isTarget) {
+  if (shape === "stadium")
+    return isTarget && !isSource ? "outputNode" : "inputNode";
+  if (shape === "diamond")
+    return "switchNode";
+  if (shape === "circle" || shape === "rounded")
+    return "functionNode";
+  return "expressionNode";
+}
+function parseCondition(label) {
+  const cleaned = label.replace(/\?$/, "").trim();
+  const cmp = cleaned.match(/^(.+?)\s*(>=|<=|==|!=|>|<)\s*(.+)$/);
+  if (cmp) {
+    const [cmpField, cmpOp, cmpValue] = caps(cmp, 3);
+    const rawVal = stripQuotes(cmpValue).replace(/[$,]/g, "");
+    const num = Number(rawVal);
+    const value = Number.isNaN(num) ? rawVal === "true" ? true : rawVal === "false" ? false : rawVal : num;
+    return {
+      field: fieldSlug(cmpField),
+      op: cmpOp,
+      value,
+      raw: cleaned
+    };
+  }
+  const contains = cleaned.match(/^(.+?)\s+contains\s+(.+)$/i);
+  if (contains) {
+    const [containsField, containsValue] = caps(contains, 2);
+    return {
+      field: fieldSlug(containsField),
+      op: "contains",
+      value: stripQuotes(containsValue),
+      raw: cleaned
+    };
+  }
+  return;
+}
+function fieldSlug(text) {
+  return toSnakeCase(text.replace(/[^A-Za-z0-9_ ]/g, "").trim().replace(/\s+/g, "_"));
+}
+function parseStateSection(section, model) {
+  const states = new Set;
+  const transitions = [];
+  for (const { text } of section.lines) {
+    const m = text.match(/^(\[\*\]|\w+)\s*-->\s*(\[\*\]|\w+)\s*(?::\s*(.+))?$/);
+    if (!m)
+      continue;
+    const [from, to, rawEvent] = caps(m, 3);
+    const event = rawEvent.trim() || undefined;
+    if (from !== "[*]")
+      states.add(from);
+    if (to !== "[*]")
+      states.add(to);
+    transitions.push({ from, to, event });
+  }
+  const wf = section.workflow;
+  const entity = wf?.entity;
+  model.workflows.push({
+    name: wf?.name ?? section.metaName ?? `workflow_${model.workflows.length + 1}`,
+    entity,
+    kind: "state",
+    hooks: entity ? model.hooks.filter((h) => h.entity === entity) : [],
+    states: [...states],
+    transitions,
+    guards: entity ? model.guards.filter((g) => g.entity === entity) : [],
+    triggers: entity ? model.triggers.filter((t) => t.entity === entity) : []
+  });
+}
+function applyFieldEnumRefs(model) {
+  for (const ref of fieldEnumRefs) {
+    const entity = model.entities.find((e) => e.name === ref.entity);
+    const attr = entity?.attributes.find((a) => a.name === ref.attr);
+    if (attr)
+      attr.enumRef = ref.enumName;
+  }
+  fieldEnumRefs.length = 0;
+}
+
+// language/checker.ts
+init_language();
+var useColor = typeof process !== "undefined" && !process.env?.NO_COLOR && Boolean(process.stdout?.isTTY) && !hasFlag("--no-color");
+function hasFlag(name) {
+  return typeof process !== "undefined" && (process.argv?.includes(name) ?? false);
+}
+
+class SourceIndex {
+  lines;
+  constructor(source) {
+    this.lines = source.split(`
+`);
+  }
+  findLine(pattern, startLine = 1) {
+    for (let i = startLine - 1;i < this.lines.length; i++) {
+      const line = this.lines[i];
+      if (typeof pattern === "string" ? line.includes(pattern) : pattern.test(line)) {
+        return i + 1;
+      }
+    }
+    return;
+  }
+  getLine(n) {
+    return this.lines[n - 1] ?? "";
+  }
+  findAll(pattern) {
+    const results = [];
+    for (let i = 0;i < this.lines.length; i++) {
+      const text = this.lines[i];
+      if (typeof pattern === "string" ? text.includes(pattern) : pattern.test(text)) {
+        results.push({ lineNo: i + 1, text });
+      }
+    }
+    return results;
+  }
+}
+var PERSON_ROLE_COLUMN_NAMES = new Set([
+  "assigned_to",
+  "author_id",
+  "lab_manager_id",
+  "manager_id",
+  "owner_id",
+  "pi_id",
+  "remediation_owner",
+  "remediation_owner_id",
+  "user_id"
+]);
+function isPersonRoleColumn(columnName) {
+  return columnName.endsWith("_by") || columnName.endsWith("_by_id") || PERSON_ROLE_COLUMN_NAMES.has(columnName);
+}
+
+class CheckEngine {
+  model;
+  issues = [];
+  src;
+  def = loadLanguageDefinition();
+  validHookTypes;
+  validCardinalities;
+  validModifiers = new Set(["PK", "FK", "UK", "UNIQUE", "OPTIONAL", "NULL"]);
+  validEntityKeys = new Set(["audited", "softDelete", "prefix", "label", "icon"]);
+  validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
+  validMetaKeys = new Set(["name", "kind", "version", "entity", "stack"]);
+  validWorkflowKinds = new Set(["hook", "state", "saga"]);
+  validTriggerSources = /^(cron:|webhook:|message:)/;
+  validRoleExpr = /^role:[A-Za-z][A-Za-z0-9_]*(\|(?:role:)?[A-Za-z][A-Za-z0-9_]*)*$/;
+  identRe = /^[A-Za-z][A-Za-z0-9_]*$/;
+  slugRe = /^[a-z][a-z0-9_]*$/;
+  constructor(model, source) {
+    this.model = model;
+    this.src = new SourceIndex(source);
+    this.validHookTypes = new Set(this.def.hooks.types.map((h) => h.type));
+    this.validCardinalities = new Set(this.def.cardinalities.map.map((c) => c.operator));
+  }
+  add(issue) {
+    this.issues.push(issue);
+  }
+  error(code, message, opts = {}) {
+    this.add({ severity: "error", code, message, ...opts });
+  }
+  warn(code, message, opts = {}) {
+    this.add({ severity: "warning", code, message, ...opts });
+  }
+  info(code, message, opts = {}) {
+    this.add({ severity: "info", code, message, ...opts });
+  }
+  run() {
+    for (const d of this.model.diagnostics) {
+      this.add({
+        severity: d.severity === "info" ? "info" : d.severity,
+        code: d.code,
+        message: d.message,
+        line: d.line
+      });
+    }
+    this.checkDocument();
+    this.checkEntities();
+    this.checkRelationships();
+    this.checkEnums();
+    this.checkFieldDirectives();
+    this.checkIndexDirectives();
+    this.checkEntityDirectives();
+    this.checkHooks();
+    this.checkGuards();
+    this.checkRbac();
+    this.checkTriggers();
+    this.checkWorkflowDirectives();
+    this.checkStepDirectives();
+    this.checkActionDirectives();
+    this.checkRuleDirectives();
+    this.checkRules();
+    this.checkWorkflows();
+    this.checkCrossDocument();
+    const errors = this.issues.filter((i) => i.severity === "error").length;
+    const warnings = this.issues.filter((i) => i.severity === "warning").length;
+    const infos = this.issues.filter((i) => i.severity === "info").length;
+    return { issues: this.issues, errors, warnings, infos, ok: errors === 0 };
+  }
+  entityToFkName(entityName) {
+    const snake = entityName.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase().replace(/^bus_/, "");
+    return `${snake}_id`;
+  }
+  fkToEntityName(fkAttr) {
+    if (isPersonRoleColumn(fkAttr))
+      return "User";
+    const base = fkAttr.slice(0, -3);
+    return base.replace(/(^|_)([a-z])/g, (_, _sep, ch) => ch.toUpperCase());
+  }
+  checkDocument() {
+    const { meta } = this.model;
+    if (!meta.name) {
+      this.warn("EML001", "Missing document name.", {
+        hint: "Add  %%meta name: <YourModelName>  before the first section."
+      });
+    }
+    if (meta.kind && !["erd", "rules", "workflow"].includes(meta.kind)) {
+      this.warn("EML002", `Unknown %%meta kind: "${meta.kind}".`, {
+        hint: "Valid values: erd, rules, workflow",
+        line: this.src.findLine(`%%meta kind: ${meta.kind}`)
+      });
+    }
+    if (meta.stack && !["tanstack-start-nestjs", "openui5-odatav4"].includes(meta.stack)) {
+      this.warn("EML003", `Unknown %%meta stack: "${meta.stack}".`, {
+        hint: "Valid values: tanstack-start-nestjs, openui5-odatav4",
+        line: this.src.findLine(`%%meta stack:`)
+      });
+    }
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%meta\b/)) {
+      const m = text.trim().match(/^%%meta\s+([A-Za-z_]\w*)\s*:\s*(.*)$/);
+      if (!m) {
+        this.error("EML005", `Invalid %%meta syntax: "${text.trim()}"`, {
+          line: lineNo,
+          hint: "Syntax: %%meta <key>: <value>",
+          context: text.trim()
+        });
+        continue;
+      }
+      const [key] = caps(m, 2);
+      if (!this.validMetaKeys.has(key)) {
+        this.warn("EML005", `Unknown %%meta key "${key}".`, {
+          line: lineNo,
+          hint: `Known keys: ${[...this.validMetaKeys].join(", ")}.`
+        });
+      }
+    }
+    if (this.model.entities.length === 0 && this.model.rules.length === 0 && this.model.workflows.length === 0) {
+      this.error("EML004", "Empty document: no entities, rules, or workflows found.", {
+        hint: "Add an erDiagram section with at least one entity block."
+      });
+    }
+  }
+  checkEntities() {
+    const seenNames = new Map;
+    for (const entity of this.model.entities) {
+      const entityLine = this.src.findLine(new RegExp(`^\\s*${entity.name}\\s*\\{`));
+      if (!this.identRe.test(entity.name)) {
+        this.error("EML100", `Invalid entity name "${entity.name}": must match ^[A-Za-z][A-Za-z0-9_]*$.`, {
+          line: entityLine,
+          hint: "Use PascalCase for entity names (e.g. CustomerOrder)."
+        });
+      }
+      const prev = seenNames.get(entity.name);
+      if (prev !== undefined) {
+        this.error("EML101", `Duplicate entity declaration "${entity.name}".`, {
+          line: entityLine,
+          hint: `First declared on line ${prev}. Merge both blocks into one.`
+        });
+      } else {
+        seenNames.set(entity.name, entityLine ?? 0);
+      }
+      if (entity.attributes.length === 0) {
+        this.warn("EML102", `Entity "${entity.name}" has no attributes.`, {
+          line: entityLine,
+          hint: "The generator will auto-add  string id PK  if no id is present."
+        });
+      }
+      this.checkAttributes(entity, entityLine);
+    }
+  }
+  checkAttributes(entity, entityLine) {
+    const seenAttrNames = new Map;
+    let pkCount = 0;
+    for (const attr of entity.attributes) {
+      const attrLine = this.src.findLine(new RegExp(`\\b${attr.name}\\b`), entityLine);
+      if (!this.identRe.test(attr.name)) {
+        this.error("EML110", `Invalid attribute name "${entity.name}.${attr.name}": must match ^[A-Za-z][A-Za-z0-9_]*$.`, {
+          line: attrLine,
+          hint: "Use snake_case for attribute names (e.g. first_name, order_id)."
+        });
+      }
+      if (this.identRe.test(attr.name) && !this.slugRe.test(attr.name) && attr.name !== attr.name.toUpperCase()) {
+        this.info("EML111", `Attribute "${entity.name}.${attr.name}" is not snake_case.`, {
+          line: attrLine,
+          hint: "snake_case is recommended for attribute names per the EML spec."
+        });
+      }
+      if (seenAttrNames.has(attr.name)) {
+        this.warn("EML112", `Duplicate attribute "${entity.name}.${attr.name}".`, {
+          line: attrLine,
+          hint: `First occurrence on line ${seenAttrNames.get(attr.name)}. Remove the duplicate.`
+        });
+      } else {
+        seenAttrNames.set(attr.name, attrLine ?? 0);
+      }
+      if (attr.isPrimaryKey) {
+        pkCount++;
+        if (pkCount > 1) {
+          this.error("EML113", `Entity "${entity.name}" declares more than one PK (found "${attr.name}").`, {
+            line: attrLine,
+            hint: "Each entity may have exactly one primary key. Remove the extra PK modifier."
+          });
+        }
+      }
+      if (attr.isForeignKey && !attr.name.endsWith("_id")) {
+        const isPersonRole = attr.name.endsWith("_by");
+        this.warn("EML114", `Foreign key "${entity.name}.${attr.name}" does not end with "_id".`, {
+          line: attrLine,
+          hint: isPersonRole ? `Rename to "${attr.name}_id" — a _by column names a person by role, so it resolves to the user entity. Run  bun language/fixer.ts  to apply this automatically.` : `Convention: rename to "${attr.name}_id" so the generator can derive the referenced table. Run  bun language/fixer.ts  to apply this automatically.`
+        });
+      }
+      const def = this.def;
+      const rawBase = attr.rawType?.replace(/\(\d+\)/, "").toLowerCase();
+      if (rawBase && rawBase !== "string" && !(rawBase in def.types.map)) {
+        this.warn("EML115", `Unknown type "${attr.rawType}" on "${entity.name}.${attr.name}"; mapped to "string".`, {
+          line: attrLine,
+          hint: `Valid types: ${def.types.canonical.join(", ")} (plus aliases listed in erdwithai-language.json).`
+        });
+      }
+      if (attr.isPrimaryKey && attrLine) {
+        const rawLine = this.src.getLine(attrLine).toUpperCase();
+        if (rawLine.includes("OPTIONAL") || rawLine.includes(" NULL ") || rawLine.endsWith(" NULL")) {
+          this.error("EML116", `Primary key "${entity.name}.${attr.name}" is marked OPTIONAL.`, {
+            line: attrLine,
+            hint: "Remove OPTIONAL from the PK attribute — primary keys are always required."
+          });
+        }
+      }
+      if (attrLine !== undefined) {
+        const raw = this.src.getLine(attrLine).trim().replace(/"[^"]*"\s*$/, "");
+        for (const token of raw.split(/\s+/).slice(2)) {
+          const upper = token.toUpperCase();
+          if (!upper || this.validModifiers.has(upper))
+            continue;
+          this.warn("EML118", `Unknown modifier "${token}" on "${entity.name}.${attr.name}" — it will be ignored.`, {
+            line: attrLine,
+            hint: `Known modifiers: ${[...this.validModifiers].join(", ")}. Use a quoted string for a description.`,
+            context: raw
+          });
+        }
+      }
+    }
+    if (pkCount === 0 && entity.attributes.length > 0) {
+      this.warn("EML117", `Entity "${entity.name}" has no primary key (PK modifier).`, {
+        line: entityLine,
+        hint: "Add  string id PK  as the first attribute or mark one existing attribute with PK."
+      });
+    }
+  }
+  checkRelationships() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    const seenRels = new Map;
+    for (const rel of this.model.relationships) {
+      const relLine = this.src.findLine(new RegExp(`\\b${rel.source}\\b.+\\b${rel.target}\\b`));
+      if (!entityNames.has(rel.source)) {
+        this.error("EML120", `Relationship references undeclared entity "${rel.source}".`, {
+          line: relLine,
+          hint: `Add an entity block for "${rel.source}" in the erDiagram section.`
+        });
+      }
+      if (!entityNames.has(rel.target)) {
+        this.error("EML121", `Relationship references undeclared entity "${rel.target}".`, {
+          line: relLine,
+          hint: `Add an entity block for "${rel.target}" in the erDiagram section.`
+        });
+      }
+      if (rel.operator && !this.validCardinalities.has(rel.operator)) {
+        this.error("EML122", `Unknown cardinality operator "${rel.operator}" between "${rel.source}" and "${rel.target}".`, {
+          line: relLine,
+          hint: `Valid operators: ${[...this.validCardinalities].join("  ")}.`
+        });
+      }
+      if (rel.source === rel.target) {
+        this.info("EML123", `Self-referential relationship on "${rel.source}".`, {
+          line: relLine,
+          hint: "Self-references are valid (e.g. Category ||--o{ Category). Ensure parent_id is modelled."
+        });
+      }
+      const key = `${rel.source}|${rel.operator}|${rel.target}`;
+      if (seenRels.has(key)) {
+        this.warn("EML124", `Duplicate relationship: "${rel.source}" ${rel.operator} "${rel.target}".`, {
+          line: relLine,
+          hint: `First declared on line ${seenRels.get(key)}. Remove the duplicate.`
+        });
+      } else {
+        seenRels.set(key, relLine ?? 0);
+      }
+      if ((rel.cardinality === "manyToOne" || rel.cardinality === "oneToMany") && entityNames.has(rel.source) && entityNames.has(rel.target)) {
+        const manySideName = rel.cardinality === "manyToOne" ? rel.source : rel.target;
+        const oneSideName = rel.cardinality === "manyToOne" ? rel.target : rel.source;
+        const manySide = this.model.entities.find((e) => e.name === manySideName);
+        if (manySide && manySide.attributes.length > 0) {
+          const expectedFk = this.entityToFkName(oneSideName);
+          const fkExists = manySide.attributes.some((a) => a.isForeignKey || a.name === expectedFk);
+          if (!fkExists) {
+            this.info("EML125", `No FK attribute found in "${manySideName}" for relationship to "${oneSideName}".`, {
+              line: relLine,
+              hint: `Add  string ${expectedFk} FK  to "${manySideName}".`
+            });
+          }
+        }
+      }
+    }
+  }
+  checkEnums() {
+    const seenEnumNames = new Map;
+    for (const em of this.model.enums) {
+      const enumLine = this.src.findLine(new RegExp(`%%enum\\s+${em.name}\\s*:`));
+      if (!this.identRe.test(em.name)) {
+        this.error("EML130", `Invalid enum name "${em.name}": must match ^[A-Za-z][A-Za-z0-9_]*$.`, {
+          line: enumLine,
+          hint: "Use PascalCase for enum names (e.g. OrderStatus)."
+        });
+      }
+      if (seenEnumNames.has(em.name)) {
+        this.warn("EML131", `Duplicate enum declaration "%%enum ${em.name}".`, {
+          line: enumLine,
+          hint: `First declared on line ${seenEnumNames.get(em.name)}. Merge values into one %%enum directive.`
+        });
+      } else {
+        seenEnumNames.set(em.name, enumLine ?? 0);
+      }
+      if (em.values.length === 0) {
+        this.error("EML132", `Enum "${em.name}" has no values.`, {
+          line: enumLine,
+          hint: `Syntax: %%enum ${em.name}: value1, value2, value3`
+        });
+      }
+      const seenValues = new Set;
+      for (const v of em.values) {
+        if (seenValues.has(v)) {
+          this.warn("EML133", `Duplicate value "${v}" in enum "${em.name}".`, {
+            line: enumLine,
+            hint: "Remove the duplicate value."
+          });
+        }
+        seenValues.add(v);
+      }
+      for (const v of em.values) {
+        if (!/^[A-Za-z0-9_-]+$/.test(v)) {
+          this.warn("EML134", `Enum "${em.name}" value "${v}" contains special characters.`, {
+            line: enumLine,
+            hint: "Use alphanumeric, underscore, or hyphen values for safe serialization."
+          });
+        }
+      }
+    }
+  }
+  checkFieldDirectives() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    const enumNames = new Set(this.model.enums.map((e) => e.name));
+    const entityAttrMap = new Map;
+    for (const e of this.model.entities) {
+      entityAttrMap.set(e.name, new Set(e.attributes.map((a) => a.name)));
+    }
+    const fieldLines = this.src.findAll(/^%%field\b/);
+    for (const { lineNo, text } of fieldLines) {
+      const m = text.trim().match(/^%%field\s+(\w+)\.(\w+)\s+([A-Za-z_]\w*)\s*:\s*(.+)$/);
+      if (!m) {
+        this.error("EML140", `Invalid %%field syntax: "${text.trim()}"`, {
+          line: lineNo,
+          hint: "Syntax: %%field <Entity>.<attr> <key>: <value>",
+          context: text.trim()
+        });
+        continue;
+      }
+      const [entityName, attrName, key, value] = caps(m, 4);
+      if (!entityNames.has(entityName)) {
+        this.error("EML141", `%%field references undeclared entity "${entityName}".`, {
+          line: lineNo,
+          hint: `Declare "${entityName}" in the erDiagram section first.`
+        });
+        continue;
+      }
+      const attrs = entityAttrMap.get(entityName);
+      if (attrs && !attrs.has(attrName)) {
+        this.error("EML142", `%%field references undeclared attribute "${entityName}.${attrName}".`, {
+          line: lineNo,
+          hint: `Add "${attrName}" to the "${entityName}" entity block, or check for a typo.`
+        });
+      }
+      if (!this.validFieldKeys.has(key)) {
+        this.warn("EML143", `Unknown %%field key "${key}" on "${entityName}.${attrName}".`, {
+          line: lineNo,
+          hint: `Known keys: ${[...this.validFieldKeys].join(", ")}.`
+        });
+      }
+      if (key === "enum" && !enumNames.has(value.trim())) {
+        this.error("EML144", `%%field "${entityName}.${attrName}" references undeclared enum "${value.trim()}".`, {
+          line: lineNo,
+          hint: `Add  %%enum ${value.trim()}: value1, value2  before the erDiagram block.`
+        });
+      }
+      if ((key === "min" || key === "max") && Number.isNaN(Number(value.trim()))) {
+        this.warn("EML145", `%%field "${entityName}.${attrName}" has non-numeric ${key}: "${value.trim()}".`, {
+          line: lineNo,
+          hint: `${key}: should be a number, e.g.  ${key}: 0`
+        });
+      }
+    }
+  }
+  checkIndexDirectives() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    const entityAttrMap = new Map;
+    for (const e of this.model.entities) {
+      entityAttrMap.set(e.name, new Set(e.attributes.map((a) => a.name)));
+    }
+    for (const idx of this.model.indexes) {
+      const idxLine = this.src.findLine(new RegExp(`%%index\\s+${idx.entity}\\s*\\(`));
+      if (!entityNames.has(idx.entity)) {
+        this.error("EML150", `%%index references undeclared entity "${idx.entity}".`, {
+          line: idxLine,
+          hint: `Declare "${idx.entity}" in the erDiagram section.`
+        });
+        continue;
+      }
+      const attrs = entityAttrMap.get(idx.entity);
+      for (const col of idx.columns) {
+        if (attrs && !attrs.has(col)) {
+          this.error("EML151", `%%index on "${idx.entity}" references undeclared column "${col}".`, {
+            line: idxLine,
+            hint: `Add "${col}" to the "${idx.entity}" entity, or check for a typo.`
+          });
+        }
+      }
+      if (idx.columns.length === 0) {
+        this.error("EML152", `%%index on "${idx.entity}" has no columns.`, {
+          line: idxLine,
+          hint: "Syntax: %%index Entity(col1, col2) [unique]"
+        });
+      }
+    }
+  }
+  checkEntityDirectives() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    const entityLines = this.src.findAll(/^%%entity\b/);
+    for (const { lineNo, text } of entityLines) {
+      const m = text.trim().match(/^%%entity\s+(\w+)\s+([A-Za-z_]\w*)\s*:\s*(.+)$/);
+      if (!m) {
+        this.error("EML160", `Invalid %%entity syntax: "${text.trim()}"`, {
+          line: lineNo,
+          hint: "Syntax: %%entity <EntityName> <key>: <value>"
+        });
+        continue;
+      }
+      const [entityName, key] = caps(m, 2);
+      if (!entityNames.has(entityName)) {
+        this.warn("EML161", `%%entity references undeclared entity "${entityName}".`, {
+          line: lineNo,
+          hint: `Declare "${entityName}" in the erDiagram section, or check the spelling.`
+        });
+      }
+      if (!this.validEntityKeys.has(key)) {
+        this.warn("EML162", `Unknown %%entity key "${key}" on "${entityName}".`, {
+          line: lineNo,
+          hint: `Known keys: ${[...this.validEntityKeys].join(", ")}.`
+        });
+      }
+    }
+  }
+  checkHooks() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    const entityAttrMap = new Map;
+    for (const e of this.model.entities) {
+      entityAttrMap.set(e.name, new Set(e.attributes.map((a) => a.name)));
+    }
+    const seenHooks = new Map;
+    for (const hook of this.model.hooks) {
+      const hookLine = this.src.findLine(new RegExp(`%%hook\\s+${hook.type}\\s+${hook.handler}\\s+on\\s+${hook.entity}`));
+      if (!this.validHookTypes.has(hook.type)) {
+        this.error("EML200", `Unknown hook type "${hook.type}" in %%hook.`, {
+          line: hookLine,
+          hint: `Valid hook types: ${[...this.validHookTypes].join(", ")}.`
+        });
+      }
+      if (!this.identRe.test(hook.handler)) {
+        this.error("EML201", `Invalid hook handler name "${hook.handler}".`, {
+          line: hookLine,
+          hint: "Handler names must match ^[A-Za-z_][A-Za-z0-9_]*$ (camelCase recommended)."
+        });
+      }
+      if (!entityNames.has(hook.entity)) {
+        this.warn("EML202", `%%hook "${hook.handler}" references undeclared entity "${hook.entity}".`, {
+          line: hookLine,
+          hint: `Declare "${hook.entity}" in the erDiagram section.`
+        });
+      }
+      if (hook.fields.length > 0 && entityNames.has(hook.entity)) {
+        const attrs = entityAttrMap.get(hook.entity);
+        for (const field of hook.fields) {
+          if (attrs && !attrs.has(field)) {
+            this.warn("EML203", `%%hook "${hook.handler}" references undeclared field "${hook.entity}.${field}".`, {
+              line: hookLine,
+              hint: `Add "${field}" to "${hook.entity}", or check for a typo.`
+            });
+          }
+        }
+      }
+      const hookKey = `${hook.entity}|${hook.type}|${hook.handler}`;
+      if (seenHooks.has(hookKey)) {
+        this.warn("EML204", `Duplicate hook: "${hook.type} ${hook.handler} on ${hook.entity}".`, {
+          line: hookLine,
+          hint: `Already declared on line ${seenHooks.get(hookKey)}. Remove the duplicate.`
+        });
+      } else {
+        seenHooks.set(hookKey, hookLine ?? 0);
+      }
+    }
+  }
+  checkRbac() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    const crudOps = new Set([
+      "create",
+      "insert",
+      "add",
+      "read",
+      "view",
+      "select",
+      "list",
+      "update",
+      "edit",
+      "write",
+      "modify",
+      "delete",
+      "remove",
+      "destroy",
+      "*",
+      "all",
+      "any"
+    ]);
+    const eventsFor = (entity) => {
+      const events = new Set;
+      for (const wf of this.model.workflows) {
+        if (wf.entity !== entity || wf.kind !== "state")
+          continue;
+        for (const t of wf.transitions) {
+          if (t.event)
+            events.add(t.event.trim().toLowerCase().replace(/[\s-]+/g, "_"));
+        }
+      }
+      return events;
+    };
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%rbac\b/)) {
+      const m = text.trim().match(/^%%rbac\s+(\S+)\s+on\s+([A-Za-z_]\w*)\.([A-Za-z_*]\w*)\s*$/);
+      if (!m) {
+        this.error("EML210", `Invalid %%rbac syntax: "${text.trim()}"`, {
+          line: lineNo,
+          hint: "Syntax: %%rbac <roleExpr> on <Entity>.<op>   e.g.  %%rbac role:admin on Order.delete",
+          context: text.trim()
+        });
+        continue;
+      }
+      const [roleExpr, entity, target] = caps(m, 3);
+      const roles = roleExpr.split("|").map((part) => part.trim().replace(/^role:/i, "").trim()).filter(Boolean);
+      if (roles.length === 0) {
+        this.error("EML211", `%%rbac on ${entity}.${target} names no role.`, {
+          line: lineNo,
+          hint: "A rule with no roles can never be satisfied, so it locks the operation for everyone."
+        });
+        continue;
+      }
+      if (!this.validRoleExpr.test(roleExpr) && !/^[A-Za-z][\w|:]*$/.test(roleExpr)) {
+        this.warn("EML212", `%%rbac role expression "${roleExpr}" may be malformed.`, {
+          line: lineNo,
+          hint: "Format: role:<name> or role:<a>|<b> or role:<a>|role:<b>"
+        });
+      }
+      if (!entityNames.has(entity)) {
+        this.error("EML213", `%%rbac references undeclared entity "${entity}".`, {
+          line: lineNo,
+          hint: `Declare "${entity}" in the erDiagram section, or check the spelling.`
+        });
+        continue;
+      }
+      const lower = target.toLowerCase();
+      if (crudOps.has(lower))
+        continue;
+      const events = eventsFor(entity);
+      if (events.has(lower))
+        continue;
+      this.error("EML214", `%%rbac on ${entity}.${target} names neither a CRUD operation nor a transition of ${entity}.`, {
+        line: lineNo,
+        hint: events.size ? `Use one of create, read, update, delete, * — or a transition of ${entity}: ${[...events].join(", ")}.` : `Use one of create, read, update, delete, * — ${entity} declares no state machine to take a transition from.`
+      });
+    }
+  }
+  checkGuards() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    for (const guard of this.model.guards) {
+      const guardLine = this.src.findLine(new RegExp(`%%guard.+on\\s+${guard.entity}\\.${guard.op}`));
+      const guardText = guardLine ? this.src.getLine(guardLine).trim() : "";
+      const roleExprMatch = guardText.match(/^%%guard\s+(\S+)\s+on/);
+      const roleExpr = roleExprMatch ? caps(roleExprMatch, 2)[0] : "";
+      if (roleExpr && !this.validRoleExpr.test(roleExpr)) {
+        this.warn("EML220", `%%guard role expression "${roleExpr}" may be malformed.`, {
+          line: guardLine,
+          hint: "Format: role:<name> or role:<name>|role:<name>  (e.g. role:admin|role:manager)"
+        });
+      }
+      if (!entityNames.has(guard.entity)) {
+        this.warn("EML221", `%%guard references undeclared entity "${guard.entity}".`, {
+          line: guardLine,
+          hint: `Declare "${guard.entity}" in the erDiagram section.`
+        });
+      }
+      if (guard.roles.length === 0) {
+        this.warn("EML222", `%%guard on "${guard.entity}.${guard.op}" has no roles.`, {
+          line: guardLine,
+          hint: "Add at least one role, e.g. %%guard role:admin on Entity.op"
+        });
+      }
+    }
+  }
+  checkTriggers() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    for (const trigger of this.model.triggers) {
+      const triggerLine = this.src.findLine(new RegExp(`%%trigger.+on\\s+${trigger.entity}`));
+      if (!this.validTriggerSources.test(trigger.source)) {
+        this.error("EML230", `%%trigger source "${trigger.source}" is not a valid format.`, {
+          line: triggerLine,
+          hint: "Valid formats: cron:<expr>  webhook:<name>  message:<topic>"
+        });
+      }
+      if (trigger.source.startsWith("cron:")) {
+        const expr = trigger.source.slice(5).trim();
+        const parts = expr.split(/\s+/);
+        if (parts.length < 5 || parts.length > 6) {
+          this.warn("EML231", `%%trigger cron expression "${expr}" has ${parts.length} field(s); expected 5 or 6.`, {
+            line: triggerLine,
+            hint: "Standard cron: minute hour day-of-month month day-of-week  (e.g. 0 9 * * *)"
+          });
+        }
+      }
+      if (!entityNames.has(trigger.entity)) {
+        this.warn("EML232", `%%trigger references undeclared entity "${trigger.entity}".`, {
+          line: triggerLine,
+          hint: `Declare "${trigger.entity}" in the erDiagram section.`
+        });
+      }
+      if (!this.identRe.test(trigger.handler)) {
+        this.error("EML233", `%%trigger handler "${trigger.handler}" is not a valid identifier.`, {
+          line: triggerLine,
+          hint: "Handler names must match ^[A-Za-z][A-Za-z0-9_]*$ (camelCase recommended)."
+        });
+      }
+    }
+  }
+  checkWorkflowDirectives() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    const workflowLines = this.src.findAll(/^%%workflow\b/);
+    for (const { lineNo, text } of workflowLines) {
+      const m = text.trim().match(/^%%workflow\s+(\w+)\s+entity:\s*(\w+)\s+kind:\s*(\w+)/);
+      if (!m) {
+        this.error("EML240", `Invalid %%workflow syntax: "${text.trim()}"`, {
+          line: lineNo,
+          hint: "Syntax: %%workflow <name> entity: <Entity> kind: <hook|state|saga>"
+        });
+        continue;
+      }
+      const [name, entityName, kind] = caps(m, 3);
+      if (!this.validWorkflowKinds.has(kind)) {
+        this.error("EML241", `%%workflow "${name}" has unknown kind "${kind}".`, {
+          line: lineNo,
+          hint: "Valid kinds: hook, state, saga"
+        });
+      }
+      if (!entityNames.has(entityName)) {
+        this.warn("EML242", `%%workflow "${name}" references undeclared entity "${entityName}".`, {
+          line: lineNo,
+          hint: `Declare "${entityName}" in the erDiagram section.`
+        });
+      }
+    }
+  }
+  checkActionDirectives() {
+    const actionTypes = new Map((this.def.ruleNodes.actions?.types ?? []).map((action) => [action.name, action]));
+    const workflowNames = new Set(this.model.workflows.map((wf) => wf.name));
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%action\b/)) {
+      const match = text.trim().match(/^%%action\s+([A-Za-z_][\w-]*)\s+([A-Za-z][\w-]*)\s*(.*)$/);
+      if (!match) {
+        this.error("EML280", `Invalid %%action syntax: "${text.trim()}"`, {
+          line: lineNo,
+          hint: "Syntax: %%action <name> <actionType> when: <expr> <key>: <value> ..."
+        });
+        continue;
+      }
+      const [, name, typeName, rest] = match;
+      const contract = actionTypes.get(typeName);
+      if (!contract) {
+        this.error("EML281", `%%action "${name}" has unknown type "${typeName}".`, {
+          line: lineNo,
+          hint: `Valid action types: ${[...actionTypes.keys()].join(", ")}.`
+        });
+        continue;
+      }
+      const props = this.parseStepProps(rest ?? "");
+      const has = (key) => (props[key] ?? "").trim().length > 0;
+      if (!has("when")) {
+        this.warn("EML282", `%%action "${name}" has no "when" — it fires on every write.`, {
+          line: lineNo,
+          hint: 'Add a condition, e.g. when: severity == "critical". Use when: true to say "always" on purpose.'
+        });
+      }
+      const missing2 = contract.required.filter((key) => !has(key));
+      if (missing2.length > 0) {
+        this.error("EML283", `%%action "${name}" (${typeName}) is missing: ${missing2.join(", ")}.`, {
+          line: lineNo,
+          hint: `${typeName} requires ${contract.required.join(", ")}.`
+        });
+      }
+      const workflow = props.workflow?.trim();
+      if (typeName === "trigger-workflow" && workflow && !workflowNames.has(workflow)) {
+        this.warn("EML284", `%%action "${name}" triggers workflow "${workflow}", which this document does not declare.`, {
+          line: lineNo,
+          hint: `Declare it with %%workflow ${workflow} entity: <Entity> kind: saga trigger: rule, or correct the name.`
+        });
+      }
+      const known = new Set(["when", ...contract.required, ...contract.optional ?? []]);
+      for (const key of Object.keys(props)) {
+        if (!known.has(key)) {
+          this.warn("EML285", `%%action "${name}" has unknown property "${key}".`, {
+            line: lineNo,
+            hint: `${typeName} understands: ${[...known].sort().join(", ")}.`
+          });
+        }
+      }
+    }
+    const triggered = new Set(this.src.findAll(/^\s*%%action\b/).map(({ text }) => text.match(/\bworkflow:\s*(\S+)/)?.[1]).filter((name) => !!name));
+    for (const { lineNo, text } of this.src.findAll(/^%%workflow\b/)) {
+      const m = text.match(/^%%workflow\s+(\w+)[^\n]*kind:\s*saga/);
+      if (!m || !/\btrigger:\s*rule\b/.test(text))
+        continue;
+      if (triggered.has(m[1]))
+        continue;
+      this.warn("EML286", `Saga "${m[1]}" is rule-triggered but no %%action names it.`, {
+        line: lineNo,
+        hint: `Add %%action <name> trigger-workflow when: <condition> workflow: ${m[1]} to a %%rule section, or change it to trigger: automatic.`
+      });
+    }
+  }
+  checkStepDirectives() {
+    const stepTypes = new Map(stepNodeTypes().map((step) => [step.name, step]));
+    const entitySpellings = this.entitySpellings();
+    const ruleNames = new Set([
+      ...this.model.rules.map((rule) => rule.name),
+      ...this.src.findAll(/^%%rule\b/).map(({ text }) => text.match(/^%%rule\s+(\w+)/)?.[1]).filter((name) => !!name)
+    ]);
+    for (const section of this.sagaSections()) {
+      const published = new Set;
+      const bound = new Set;
+      for (const { lineNo, text } of section.steps) {
+        const match = text.trim().match(/^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z]\w*)\s*(.*)$/);
+        if (!match) {
+          this.error("EML260", `Invalid %%step syntax: "${text.trim()}"`, {
+            line: lineNo,
+            hint: "Syntax: %%step <nodeId> <StepType> <key>: <value> ..."
+          });
+          continue;
+        }
+        const [, nodeId, typeName, rest] = match;
+        const contract = stepTypes.get(typeName);
+        if (!contract) {
+          this.error("EML261", `%%step on node ${nodeId} has unknown type "${typeName}".`, {
+            line: lineNo,
+            hint: `Valid step types: ${[...stepTypes.keys()].join(", ")}.`
+          });
+          continue;
+        }
+        if (bound.has(nodeId)) {
+          this.error("EML270", `Node "${nodeId}" has more than one %%step.`, {
+            line: lineNo,
+            hint: "Only the first binding runs. Give the second step its own node."
+          });
+          continue;
+        }
+        bound.add(nodeId);
+        if (!section.nodeIds.has(nodeId)) {
+          this.warn("EML263", `%%step binds node "${nodeId}", which is not in the flowchart.`, {
+            line: lineNo,
+            hint: `Add a node "${nodeId}" to the flowchart, or bind the step to an existing one.`
+          });
+        }
+        const props = this.parseStepProps(rest ?? "");
+        const has = (key) => (props[key] ?? "").trim().length > 0;
+        const missing2 = [];
+        for (const key of contract.required ?? []) {
+          if (!has(key))
+            missing2.push(key);
+        }
+        for (const group of contract.oneOf ?? []) {
+          if (!group.some((key) => has(key)))
+            missing2.push(`one of ${group.join(" / ")}`);
+        }
+        if (typeName === "Formula" && has("operation")) {
+          const extra = contract.perOperation?.[props.operation.trim()]?.required ?? [];
+          for (const key of extra) {
+            if (!has(key))
+              missing2.push(key);
+          }
+        }
+        if (missing2.length > 0) {
+          this.error("EML262", `%%step ${nodeId} (${typeName}) is missing: ${missing2.join(", ")}.`, {
+            line: lineNo,
+            hint: `${typeName} requires ${(contract.required ?? []).join(", ") || "no fixed properties"}. See spec/03-workflows.md.`
+          });
+        }
+        const known = new Set([
+          ...contract.required ?? [],
+          ...contract.optional ?? [],
+          ...(contract.oneOf ?? []).flat(),
+          ...typeName === "Formula" ? ["source", "operand", "value"] : []
+        ]);
+        for (const key of Object.keys(props)) {
+          if (!known.has(key)) {
+            this.warn("EML268", `%%step ${nodeId} (${typeName}) has unknown property "${key}".`, {
+              line: lineNo,
+              hint: `${typeName} understands: ${[...known].sort().join(", ")}.`
+            });
+          }
+        }
+        const entityProp = props.entity?.trim();
+        if (entityProp && !entitySpellings.has(entityProp.toLowerCase())) {
+          this.warn("EML266", `%%step ${nodeId} targets entity "${entityProp}", which the model does not declare.`, {
+            line: lineNo,
+            hint: "Use the entity name from the erDiagram, or its bus_ table name."
+          });
+        }
+        if (typeName === "CreateEntity" && has("fields")) {
+          try {
+            const parsed = JSON.parse(props.fields);
+            if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+              throw new Error("not an object");
+            }
+            if (Object.keys(parsed).length === 0) {
+              this.error("EML267", `%%step ${nodeId} (CreateEntity) sets no fields.`, {
+                line: lineNo,
+                hint: 'Give at least one column, e.g. fields: {"status":"open"}.'
+              });
+            }
+          } catch {
+            this.error("EML267", `%%step ${nodeId} (CreateEntity) has an invalid "fields" map.`, {
+              line: lineNo,
+              hint: '`fields` must be a JSON object and the last key on the line, e.g. fields: {"status":"open"}.'
+            });
+          }
+        }
+        if (typeName === "Decision" && has("decisionTable")) {
+          try {
+            const table = JSON.parse(props.decisionTable);
+            if (!table || typeof table !== "object" || Array.isArray(table)) {
+              throw new Error("not an object");
+            }
+            if (!Array.isArray(table.rules) || table.rules.length === 0) {
+              this.error("EML271", `%%step ${nodeId} (Decision) has a table with no rows.`, {
+                line: lineNo,
+                hint: "A table with no rows matches nothing and publishes nothing. Add a row, or drop the step."
+              });
+            } else if (Array.isArray(table.outputs)) {
+              const columns = table.outputs.map((output) => output?.id).filter((id) => Boolean(id));
+              const incomplete = table.rules.filter((row) => columns.some((column) => row?.[column] === undefined));
+              if (incomplete.length > 0) {
+                this.error("EML272", `%%step ${nodeId} (Decision) has ${incomplete.length} row(s) that do not set every output column.`, {
+                  line: lineNo,
+                  hint: `Give every row a value for each of ${columns.join(", ")} — use "''" for the ones it deliberately leaves blank. The engine discards an incomplete row silently.`
+                });
+              }
+            }
+          } catch {
+            this.error("EML271", `%%step ${nodeId} (Decision) has an invalid "decisionTable".`, {
+              line: lineNo,
+              hint: '`decisionTable` must be a JSON object and the last key on the line, e.g. decisionTable: {"hitPolicy":"collect","inputs":[…],"outputs":[…],"rules":[…]}.'
+            });
+          }
+        }
+        if (typeName === "Decision" && has("rule") && !ruleNames.has(props.rule.trim())) {
+          this.warn("EML273", `%%step ${nodeId} (Decision) names rule "${props.rule.trim()}", which the model does not declare.`, {
+            line: lineNo,
+            hint: "Declare it in a `kind: rules` flowchart, or author the table inline with decisionTable. A rule seeded outside the model still resolves at runtime."
+          });
+        }
+        if ((typeName === "UpdateEntity" || typeName === "DeleteEntity") && entityProp && !has("targetSource") && (props.targetField ?? "id").trim() === "id") {
+          this.error("EML265", `%%step ${nodeId} (${typeName}) targets "${entityProp}" without saying which row.`, {
+            line: lineNo,
+            hint: "Set targetSource to a context key holding the row id, or targetField to a foreign key column. The executor refuses this rather than guessing a row."
+          });
+        }
+        const reference = props.targetSource?.trim();
+        if (reference && !published.has(reference)) {
+          this.warn("EML264", `%%step ${nodeId} reads "${reference}", which no earlier step publishes.`, {
+            line: lineNo,
+            hint: `Publish it with \`as: ${reference}\` on a CreateEntity step or \`target: ${reference}\` on a Formula step — unless it is a column of the triggering record.`
+          });
+        }
+        for (const name of this.stepPublishes(typeName, props, entityProp))
+          published.add(name);
+      }
+    }
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%step\b/)) {
+      if (this.sagaStepLines.has(lineNo))
+        continue;
+      this.warn("EML269", `%%step is only read inside a "kind: saga" workflow: "${text.trim()}"`, {
+        line: lineNo,
+        hint: "Move it into a %%workflow ... kind: saga section, or delete it."
+      });
+    }
+  }
+  sagaStepLines = new Set;
+  sagaSections() {
+    const sections = [];
+    let current = null;
+    const nodeRef = /([A-Za-z_]\w*)\s*(?:\(\[[^\]]*\]\)|\(\([^)]*\)\)|\[[^\]]*\]|\{[^}]*\}|\([^)]*\))?/g;
+    const edge = /(?:-->|---|-\.->|==>)/;
+    const all = this.src.findAll(/.*/);
+    for (const { lineNo, text } of all) {
+      const trimmed = text.trim();
+      const workflow = trimmed.match(/^%%workflow\s+(\w+)\s+entity:\s*\w+\s+kind:\s*(\w+)/);
+      if (workflow) {
+        if (current)
+          sections.push(current);
+        current = workflow[2] === "saga" ? { name: workflow[1], nodeIds: new Set, steps: [] } : null;
+        continue;
+      }
+      if (trimmed.startsWith("%%rule ")) {
+        if (current)
+          sections.push(current);
+        current = null;
+        continue;
+      }
+      if (!current)
+        continue;
+      if (trimmed.startsWith("%%step")) {
+        current.steps.push({ lineNo, text });
+        this.sagaStepLines.add(lineNo);
+        continue;
+      }
+      if (!trimmed || trimmed.startsWith("%%"))
+        continue;
+      if (edge.test(trimmed) || /[[({]/.test(trimmed)) {
+        nodeRef.lastIndex = 0;
+        let m;
+        while ((m = nodeRef.exec(trimmed)) !== null) {
+          if (m[0].trim())
+            current.nodeIds.add(m[1]);
+          if (m.index === nodeRef.lastIndex)
+            nodeRef.lastIndex++;
+        }
+      }
+    }
+    if (current)
+      sections.push(current);
+    return sections;
+  }
+  entitySpellings() {
+    const spellings = new Set;
+    for (const entity of this.model.entities) {
+      const snake = entity.name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/-/g, "_").toLowerCase();
+      const bare = snake.replace(/^bus_/, "");
+      spellings.add(entity.name.toLowerCase());
+      spellings.add(snake);
+      spellings.add(bare);
+      spellings.add(`bus_${bare}`);
+    }
+    return spellings;
+  }
+  stepPublishes(typeName, props, entityProp) {
+    if (typeName === "CreateEntity") {
+      const explicit = props.as?.trim();
+      if (explicit)
+        return [explicit];
+      return entityProp ? [`${entityProp.replace(/^bus_/, "")}Id`] : [];
+    }
+    if (typeName === "Formula") {
+      const target = props.target?.trim();
+      return target ? [target] : [];
+    }
+    if (typeName === "Decision") {
+      const allowed = (props.publish ?? "").split(",").map((name) => name.trim()).filter(Boolean);
+      if (allowed.length > 0)
+        return allowed;
+      const inline = props.decisionTable?.trim();
+      if (!inline)
+        return [];
+      try {
+        const table = JSON.parse(inline);
+        return (table.outputs ?? []).map((output) => output?.field?.trim()).filter((field) => Boolean(field));
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }
+  parseStepProps(rest) {
+    const props = {};
+    const trimmed = rest.trim();
+    if (!trimmed)
+      return props;
+    for (const chunk of trimmed.split(/\s+(?=[A-Za-z_]\w*:)/)) {
+      const at = chunk.indexOf(":");
+      if (at <= 0)
+        continue;
+      const key = chunk.slice(0, at).trim();
+      if (key)
+        props[key] = chunk.slice(at + 1).trim();
+    }
+    return props;
+  }
+  checkRuleDirectives() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    const ruleLines = this.src.findAll(/^%%rule\b/);
+    for (const { lineNo, text } of ruleLines) {
+      const m = text.trim().match(/^%%rule\s+(\w+)\s+on\s+(\w+)(?:\s+event:\s*(\w+))?(?:\s+priority:\s*(\d+))?/);
+      if (!m) {
+        this.error("EML250", `Invalid %%rule syntax: "${text.trim()}"`, {
+          line: lineNo,
+          hint: "Syntax: %%rule <name> on <Entity> event: <hookType> priority: <n>"
+        });
+        continue;
+      }
+      const [name, entityName, event] = caps(m, 3);
+      if (!entityNames.has(entityName)) {
+        this.warn("EML251", `%%rule "${name}" references undeclared entity "${entityName}".`, {
+          line: lineNo,
+          hint: `Declare "${entityName}" in the erDiagram section.`
+        });
+      }
+      if (event && !this.validHookTypes.has(event)) {
+        this.error("EML252", `%%rule "${name}" has unknown event "${event}".`, {
+          line: lineNo,
+          hint: `Valid event values: ${[...this.validHookTypes].join(", ")}.`
+        });
+      }
+    }
+  }
+  checkRules() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    for (const rule of this.model.rules) {
+      const inputs = rule.nodes.filter((n) => n.jdmType === "inputNode");
+      if (inputs.length === 0) {
+        this.error("EML300", `Rule "${rule.name}" has no start (input) node.`, {
+          hint: "Add a stadium node as the start:  A([Start: description]) --> ...  as the first step."
+        });
+      } else if (inputs.length > 1) {
+        this.warn("EML301", `Rule "${rule.name}" has ${inputs.length} input nodes; expected 1.`, {
+          hint: "A well-formed rule has exactly one start stadium. Merge extra start nodes."
+        });
+      }
+      const outputs = rule.nodes.filter((n) => n.jdmType === "outputNode");
+      if (outputs.length === 0) {
+        this.error("EML302", `Rule "${rule.name}" has no end (output) node.`, {
+          hint: "Add a terminal stadium node with only incoming edges:  ... --> Z([End: description])"
+        });
+      }
+      const edgeSources = new Map;
+      for (const e of rule.edges) {
+        edgeSources.set(e.source, (edgeSources.get(e.source) ?? 0) + 1);
+      }
+      for (const node of rule.nodes) {
+        if (node.shape === "diamond") {
+          const outCount = edgeSources.get(node.id) ?? 0;
+          if (outCount < 2) {
+            this.warn("EML303", `Rule "${rule.name}": decision node "${node.id}" (${node.label}) has only ${outCount} outgoing edge(s).`, {
+              hint: "Decision (diamond) nodes should branch at least Yes/No — add a second outgoing edge."
+            });
+          }
+        }
+      }
+      for (const edge of rule.edges) {
+        const srcNode = rule.nodes.find((n) => n.id === edge.source);
+        if (srcNode?.shape === "diamond" && !edge.label) {
+          this.warn("EML304", `Rule "${rule.name}": unlabeled edge from decision node "${srcNode.id}".`, {
+            hint: `Add a condition label:  ${edge.source} -->|Yes| ${edge.target}  or  ${edge.source} -->|condition| ${edge.target}`
+          });
+        }
+      }
+      if (rule.nodes.length > 0 && rule.edges.length > 0) {
+        const reachable = this.reachableNodes(rule);
+        for (const node of rule.nodes) {
+          if (!reachable.has(node.id) && node.jdmType !== "inputNode") {
+            this.warn("EML305", `Rule "${rule.name}": node "${node.id}" (${node.label}) is unreachable from the start node.`, {
+              hint: "Add an edge from the start or another reachable node to this node."
+            });
+          }
+        }
+      }
+      if (rule.nodes.length === 0) {
+        this.warn("EML306", `Rule "${rule.name}" has no nodes.`, {
+          hint: "Add flowchart nodes using the shapes documented in spec/02-business-rules.md."
+        });
+      }
+      if (rule.entity && !entityNames.has(rule.entity)) {
+        this.warn("EML307", `Rule "${rule.name}" bound to undeclared entity "${rule.entity}".`, {
+          hint: `Declare "${rule.entity}" in the erDiagram section or check the %%rule directive.`
+        });
+      }
+    }
+  }
+  reachableNodes(rule) {
+    const startNode = rule.nodes.find((n) => n.jdmType === "inputNode");
+    if (!startNode)
+      return new Set;
+    const visited = new Set;
+    const queue = [startNode.id];
+    while (queue.length > 0) {
+      const id = queue.shift();
+      if (visited.has(id))
+        continue;
+      visited.add(id);
+      for (const e of rule.edges) {
+        if (e.source === id && !visited.has(e.target))
+          queue.push(e.target);
+      }
+    }
+    return visited;
+  }
+  checkWorkflows() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    for (const wf of this.model.workflows) {
+      if (wf.entity && !entityNames.has(wf.entity)) {
+        this.warn("EML400", `Workflow "${wf.name}" bound to undeclared entity "${wf.entity}".`, {
+          hint: `Declare "${wf.entity}" in the erDiagram section.`
+        });
+      }
+      if (wf.kind === "hook") {
+        this.checkHookWorkflow(wf);
+      } else if (wf.kind === "state") {
+        this.checkStateWorkflow(wf);
+      } else if (wf.kind === "saga") {
+        this.checkSagaWorkflow(wf);
+      }
+    }
+  }
+  checkHookWorkflow(wf) {
+    if (wf.hooks.length === 0 && wf.entity) {
+      this.warn("EML410", `Hook workflow "${wf.name}" (entity: ${wf.entity}) has no %%hook directives.`, {
+        hint: `Add  %%hook <type> <handler> on ${wf.entity}  inside or before the flowchart section.`
+      });
+    }
+  }
+  checkStateWorkflow(wf) {
+    if (wf.transitions.length === 0) {
+      this.warn("EML420", `State workflow "${wf.name}" has no transitions.`, {
+        hint: "Add state transitions:  StateA --> StateB : eventName"
+      });
+      return;
+    }
+    const hasInitial = wf.transitions.some((t) => t.from === "[*]");
+    if (!hasInitial) {
+      this.error("EML421", `State workflow "${wf.name}" has no initial transition ([*] --> FirstState).`, {
+        hint: "Add  [*] --> <firstStateName>  as the first transition."
+      });
+    }
+    const hasFinal = wf.transitions.some((t) => t.to === "[*]");
+    if (!hasFinal) {
+      this.warn("EML422", `State workflow "${wf.name}" has no final state (no transition to [*]).`, {
+        hint: "Add  <TerminalState> --> [*]  to mark a terminal state."
+      });
+    }
+    const reachableStates = this.reachableStates(wf);
+    for (const state of wf.states) {
+      if (!reachableStates.has(state) && state !== "[*]") {
+        this.warn("EML423", `State workflow "${wf.name}": state "${state}" is not reachable from [*].`, {
+          hint: `Add a transition to "${state}" from a reachable state, or remove it.`
+        });
+      }
+    }
+    const canReachFinal = this.statesReachingFinal(wf);
+    for (const state of wf.states) {
+      if (!canReachFinal.has(state)) {
+        this.warn("EML424", `State workflow "${wf.name}": state "${state}" has no path to a terminal state ([*]).`, {
+          hint: `Add a transition from "${state}" to [*] or to a state that eventually reaches [*].`
+        });
+      }
+    }
+    for (const t of wf.transitions) {
+      if (t.event && !this.identRe.test(t.event.replace(/[- ]/g, "_"))) {
+        this.warn("EML425", `State workflow "${wf.name}": transition event "${t.event}" may not be a valid identifier.`, {
+          hint: "Use snake_case or camelCase event names (e.g. submit, mark_paid, close_won)."
+        });
+      }
+    }
+    const namedStates = wf.states.filter((state) => state !== "[*]");
+    if (wf.entity && namedStates.length > 0) {
+      const stateSet = new Set(namedStates);
+      let candidate;
+      for (const em of this.model.enums) {
+        const enumSet = new Set(em.values);
+        const overlap = namedStates.filter((state) => enumSet.has(state)).length;
+        if (overlap > 0 && (!candidate || overlap > candidate.overlap)) {
+          candidate = { name: em.name, values: em.values, overlap };
+        }
+      }
+      if (!candidate) {
+        this.warn("EML428", `State workflow "${wf.name}" has no matching %%enum; its states are not a declared vocabulary.`, {
+          hint: `Add  %%enum ${wf.entity}Status: ${namedStates.join(", ")}  and bind it with  %%field ${wf.entity}.status enum: ${wf.entity}Status`
+        });
+      } else {
+        const enumSet = new Set(candidate.values);
+        const missingInEnum = namedStates.filter((state) => !enumSet.has(state));
+        const extraInEnum = candidate.values.filter((value) => !stateSet.has(value));
+        if (missingInEnum.length > 0) {
+          this.warn("EML426", `State workflow "${wf.name}": states [${missingInEnum.join(", ")}] are not in enum "${candidate.name}".`, {
+            hint: `Add these values to  %%enum ${candidate.name}: ...`
+          });
+        }
+        if (extraInEnum.length > 0) {
+          this.info("EML427", `Enum "${candidate.name}" has values [${extraInEnum.join(", ")}] not present as states in workflow "${wf.name}".`, {
+            hint: "These may be future states or unreachable values — remove if not needed."
+          });
+        }
+      }
+    }
+  }
+  reachableStates(wf) {
+    const visited = new Set;
+    const queue = wf.transitions.filter((t) => t.from === "[*]").map((t) => t.to);
+    while (queue.length > 0) {
+      const s = queue.shift();
+      if (visited.has(s) || s === "[*]")
+        continue;
+      visited.add(s);
+      for (const t of wf.transitions) {
+        if (t.from === s && !visited.has(t.to))
+          queue.push(t.to);
+      }
+    }
+    return visited;
+  }
+  statesReachingFinal(wf) {
+    const canReach = new Set;
+    for (const t of wf.transitions) {
+      if (t.to === "[*]")
+        canReach.add(t.from);
+    }
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const t of wf.transitions) {
+        if (canReach.has(t.to) && !canReach.has(t.from) && t.from !== "[*]") {
+          canReach.add(t.from);
+          changed = true;
+        }
+      }
+    }
+    return canReach;
+  }
+  checkSagaWorkflow(wf) {
+    const declared = this.sagaSections().find((section) => section.name === wf.name);
+    if (declared && declared.steps.length === 0 && wf.hooks.length === 0) {
+      this.warn("EML430", `Saga workflow "${wf.name}" declares no steps.`, {
+        hint: "Bind its flowchart nodes with %%step directives, e.g. %%step B UpdateEntity field: status value: escalated."
+      });
+    }
+  }
+  checkCrossDocument() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    const enumNames = new Set(this.model.enums.map((e) => e.name));
+    const entityAttrMap = new Map;
+    for (const e of this.model.entities) {
+      const m = new Map;
+      for (const a of e.attributes)
+        m.set(a.name, a);
+      entityAttrMap.set(e.name, m);
+    }
+    for (const wf of this.model.workflows) {
+      if (wf.kind === "state" && wf.entity && entityNames.has(wf.entity)) {
+        const attrs = entityAttrMap.get(wf.entity);
+        const hasStatusField = attrs && (attrs.has("status") || attrs.has("state") || attrs.has("stage"));
+        if (!hasStatusField) {
+          this.warn("EML500", `State workflow "${wf.name}" is bound to "${wf.entity}" which has no "status", "state", or "stage" field.`, {
+            hint: `Add  string status  to "${wf.entity}" — the state machine needs a field to track the current state.`
+          });
+        }
+      }
+    }
+    for (const entity of this.model.entities) {
+      for (const attr of entity.attributes) {
+        if (attr.enumRef && !enumNames.has(attr.enumRef)) {
+          this.warn("EML501", `Attribute "${entity.name}.${attr.name}" has enum reference "${attr.enumRef}" but no matching %%enum is declared.`, {
+            hint: `Add  %%enum ${attr.enumRef}: value1, value2  to the document.`
+          });
+        }
+      }
+    }
+    for (const entity of this.model.entities) {
+      for (const attr of entity.attributes) {
+        if (attr.isForeignKey && attr.name.endsWith("_id")) {
+          const parentEntityName = this.fkToEntityName(attr.name);
+          const hasRelationship = this.model.relationships.some((r) => (r.source === entity.name || r.target === entity.name) && (r.source === parentEntityName || r.target === parentEntityName));
+          if (!hasRelationship) {
+            this.info("EML502", `FK attribute "${entity.name}.${attr.name}" has no relationship to "${parentEntityName}".`, {
+              hint: `Add:  ${parentEntityName} ||--o{ ${entity.name} : "..."  (or reverse for manyToOne).`
+            });
+          }
+        }
+      }
+    }
+    if (this.model.entities.length > 1) {
+      const connectedEntities = new Set;
+      for (const r of this.model.relationships) {
+        connectedEntities.add(r.source);
+        connectedEntities.add(r.target);
+      }
+      for (const e of this.model.entities) {
+        if (!connectedEntities.has(e.name)) {
+          this.info("EML503", `Entity "${e.name}" has no relationships to other entities.`, {
+            hint: "Is this intentional? Isolated entities are valid but may indicate a missing relationship."
+          });
+        }
+      }
+    }
+    const ruleNames = new Set;
+    for (const rule of this.model.rules) {
+      if (ruleNames.has(rule.name)) {
+        this.warn("EML504", `Duplicate rule name "${rule.name}".`, {
+          hint: "Give each business rule a unique name in its %%rule directive."
+        });
+      }
+      ruleNames.add(rule.name);
+    }
+    const workflowNames = new Set;
+    for (const wf of this.model.workflows) {
+      if (workflowNames.has(wf.name)) {
+        this.warn("EML505", `Duplicate workflow name "${wf.name}".`, {
+          hint: "Give each workflow a unique name in its %%workflow directive."
+        });
+      }
+      workflowNames.add(wf.name);
+    }
+    for (const rule of this.model.rules) {
+      if (!rule.entity) {
+        this.info("EML506", `Rule "${rule.name}" has no entity binding.`, {
+          hint: "Add  %%rule ${rule.name} on <Entity> event: <hookType>  to bind this rule to an entity lifecycle."
+        });
+      }
+    }
+  }
+}
+function checkSource(source) {
+  return new CheckEngine(parseEml(source), source).run();
+}
+var AUTO_FIXABLE_CODES = new Set([
+  "EML117",
+  "EML421",
+  "EML422",
+  "EML001",
+  "EML114"
+]);
+if (false) {}
+
+// language/fixer.ts
+init_node_fs();
+init_node_path();
+var useColor2 = typeof process !== "undefined" && !process.env?.NO_COLOR && Boolean(process.stdout?.isTTY) && !hasFlag2("--no-color");
+function hasFlag2(name) {
+  return typeof process !== "undefined" && (process.argv?.includes(name) ?? false);
+}
+function applyFixes(source, issues) {
+  const lines = source.split(`
+`);
+  const results = [];
+  const fixableIssues = issues.filter((i) => i.autoFixable);
+  if (fixableIssues.length === 0) {
+    return { newSource: source, results };
+  }
+  const sorted = [...fixableIssues].sort((a, b) => (b.line ?? 0) - (a.line ?? 0));
+  for (const issue of sorted) {
+    const result = applyFix(lines, issue);
+    results.push(result);
+  }
+  return { newSource: lines.join(`
+`), results };
+}
+function applyFix(lines, issue) {
+  const base = { code: issue.code, applied: false, description: "", changes: [] };
+  switch (issue.code) {
+    case "EML001":
+      return fixMissingMetaName(lines, issue, base);
+    case "EML114":
+      return fixForeignKeyNaming(lines, issue, base);
+    case "EML117":
+      return fixMissingPrimaryKey(lines, issue, base);
+    case "EML421":
+      return fixMissingInitialTransition(lines, issue, base);
+    case "EML422":
+      return fixMissingTerminalTransition(lines, issue, base);
+    default:
+      base.description = `No auto-fix strategy for ${issue.code}.`;
+      return base;
+  }
+}
+function fixMissingMetaName(lines, _issue, base) {
+  let name = "EML Model";
+  for (const line of lines) {
+    const m = line.trim().match(/^([A-Za-z][A-Za-z0-9_]*)\s*\{$/);
+    if (m && m[1] !== "erDiagram") {
+      name = `${m[1]} App`;
+      break;
+    }
+  }
+  let insertAt = 0;
+  for (let i = 0;i < lines.length; i++) {
+    const trimmed = lines[i].trim();
+    if (trimmed && !trimmed.startsWith("%%") && !trimmed.startsWith("%")) {
+      insertAt = i;
+      break;
+    }
+    if (trimmed.startsWith("%%meta name:")) {
+      base.description = "%%meta name already present.";
+      return base;
+    }
+  }
+  const newLine = `%%meta name: ${name}`;
+  lines.splice(insertAt, 0, newLine);
+  base.applied = true;
+  base.description = `Inserted  ${newLine}  at line ${insertAt + 1}.`;
+  base.changes.push({ lineNo: insertAt + 1, before: "", after: newLine, action: "insert" });
+  return base;
+}
+function fixForeignKeyNaming(lines, issue, base) {
+  const match = issue.message.match(/Foreign key "([^".]+)\.([^"]+)"/);
+  if (!match) {
+    base.description = "Could not extract entity and column from issue message.";
+    return base;
+  }
+  const [, entityName, columnName] = match;
+  if (columnName.endsWith("_id")) {
+    base.description = `"${columnName}" already ends with "_id".`;
+    return base;
+  }
+  const lineNo = issue.line ? issue.line - 1 : findAttributeLine(lines, entityName, columnName);
+  if (lineNo < 0 || lineNo >= lines.length) {
+    base.description = `Could not locate "${entityName}.${columnName}" in the source.`;
+    return base;
+  }
+  const before = lines[lineNo];
+  const attrRe = new RegExp(`^(\\s*[A-Za-z][A-Za-z0-9_()]*\\s+)${escapeRe(columnName)}\\b`);
+  if (!attrRe.test(before)) {
+    base.description = `Line ${lineNo + 1} does not look like the "${columnName}" attribute; left alone.`;
+    return base;
+  }
+  const after = before.replace(attrRe, `$1${columnName}_id`);
+  if (after === before) {
+    base.description = `Rewrite of "${columnName}" produced no change.`;
+    return base;
+  }
+  lines[lineNo] = after;
+  base.applied = true;
+  const target = isPersonRoleColumn(columnName) ? "bus_user" : `bus_${columnName}`;
+  base.description = `Renamed "${entityName}.${columnName}" to "${columnName}_id" — now resolves to ${target}.`;
+  base.changes.push({ lineNo: lineNo + 1, before, after, action: "replace" });
+  return base;
+}
+function escapeRe(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function findAttributeLine(lines, entityName, columnName) {
+  const openRe = new RegExp(`^\\s*${escapeRe(entityName)}\\s*\\{`);
+  let inEntity = false;
+  for (let i = 0;i < lines.length; i++) {
+    const line = lines[i];
+    if (!inEntity) {
+      if (openRe.test(line))
+        inEntity = true;
+      continue;
+    }
+    if (/^\s*\}/.test(line))
+      return -1;
+    if (new RegExp(`\\b${escapeRe(columnName)}\\b`).test(line))
+      return i;
+  }
+  return -1;
+}
+function fixMissingPrimaryKey(lines, issue, base) {
+  const entityMatch = issue.message.match(/Entity "([^"]+)"/);
+  if (!entityMatch) {
+    base.description = "Could not extract entity name from issue message.";
+    return base;
+  }
+  const entityName = entityMatch[1];
+  const openBraceRe = new RegExp(`^\\s*${entityName}\\s*\\{`);
+  let openBraceLine = issue.line ? issue.line - 1 : -1;
+  if (openBraceLine < 0) {
+    for (let i = 0;i < lines.length; i++) {
+      if (openBraceRe.test(lines[i])) {
+        openBraceLine = i;
+        break;
+      }
+    }
+  }
+  if (openBraceLine < 0) {
+    base.description = `Could not find entity block for "${entityName}".`;
+    return base;
+  }
+  const insertAt = openBraceLine + 1;
+  const indent = lines[insertAt]?.match(/^(\s*)/)?.[1] ?? "    ";
+  const newLine = `${indent}string id PK`;
+  lines.splice(insertAt, 0, newLine);
+  base.applied = true;
+  base.description = `Prepended  string id PK  to entity "${entityName}" at line ${insertAt + 1}.`;
+  base.changes.push({ lineNo: insertAt + 1, before: "", after: newLine, action: "insert" });
+  return base;
+}
+function fixMissingInitialTransition(lines, issue, base) {
+  const wfMatch = issue.message.match(/workflow "([^"]+)"/);
+  const wfName = wfMatch?.[1];
+  let stateDiagramLine = -1;
+  let searchFrom = 0;
+  if (wfName) {
+    for (let i = 0;i < lines.length; i++) {
+      if (lines[i].includes(`%%workflow ${wfName}`)) {
+        searchFrom = i;
+        break;
+      }
+    }
+  }
+  for (let i = searchFrom;i < lines.length; i++) {
+    if (/^\s*stateDiagram(-v2)?\s*$/.test(lines[i])) {
+      stateDiagramLine = i;
+      break;
+    }
+  }
+  if (stateDiagramLine < 0) {
+    base.description = `Could not find stateDiagram section for workflow "${wfName ?? "unknown"}".`;
+    return base;
+  }
+  let firstState;
+  for (let i = stateDiagramLine + 1;i < lines.length; i++) {
+    const t = lines[i].trim();
+    if (!t || t.startsWith("%%"))
+      continue;
+    if (/^\[\*\]/.test(t)) {
+      base.description = "Initial transition [*] --> already present.";
+      return base;
+    }
+    const m = t.match(/^(\w+)\s*-->/);
+    if (m) {
+      firstState = m[1];
+      break;
+    }
+    const m2 = t.match(/^(\w+)\s*$/);
+    if (m2) {
+      firstState = m2[1];
+      break;
+    }
+  }
+  if (!firstState) {
+    base.description = "Could not determine first state.";
+    return base;
+  }
+  const insertAt = stateDiagramLine + 1;
+  const indent = lines[insertAt]?.match(/^(\s*)/)?.[1] ?? "    ";
+  const newLine = `${indent}[*] --> ${firstState}`;
+  lines.splice(insertAt, 0, newLine);
+  base.applied = true;
+  base.description = `Inserted  [*] --> ${firstState}  at line ${insertAt + 1}.`;
+  base.changes.push({ lineNo: insertAt + 1, before: "", after: newLine, action: "insert" });
+  return base;
+}
+function fixMissingTerminalTransition(lines, issue, base) {
+  const wfMatch = issue.message.match(/workflow "([^"]+)"/);
+  const wfName = wfMatch?.[1];
+  let stateDiagramLine = -1;
+  let searchFrom = 0;
+  if (wfName) {
+    for (let i = 0;i < lines.length; i++) {
+      if (lines[i].includes(`%%workflow ${wfName}`)) {
+        searchFrom = i;
+        break;
+      }
+    }
+  }
+  for (let i = searchFrom;i < lines.length; i++) {
+    if (/^\s*stateDiagram(-v2)?\s*$/.test(lines[i])) {
+      stateDiagramLine = i;
+      break;
+    }
+  }
+  if (stateDiagramLine < 0) {
+    base.description = `Could not find stateDiagram section.`;
+    return base;
+  }
+  let diagramEnd = stateDiagramLine + 1;
+  let lastState;
+  const seenTargets = new Set;
+  const seenSources = new Set;
+  for (let i = stateDiagramLine + 1;i < lines.length; i++) {
+    const t = lines[i].trim();
+    if (!t || t.startsWith("%%")) {
+      if (!t) {
+        diagramEnd = i;
+        break;
+      }
+      continue;
+    }
+    if (/^(erDiagram|flowchart|graph|stateDiagram)/.test(t)) {
+      diagramEnd = i;
+      break;
+    }
+    const m = t.match(/^(\[\*\]|\w+)\s*-->\s*(\[\*\]|\w+)/);
+    if (m) {
+      if (m[1] !== "[*]")
+        seenSources.add(m[1]);
+      if (m[2] !== "[*]")
+        seenTargets.add(m[2]);
+      if (m[2] === "[*]") {
+        base.description = "Terminal transition already present.";
+        return base;
+      }
+      lastState = m[1];
+      diagramEnd = i + 1;
+    }
+  }
+  const candidates = [...seenSources].filter((s) => !seenTargets.has(s));
+  const terminal = candidates[0] ?? lastState;
+  if (!terminal) {
+    base.description = "Could not determine terminal state.";
+    return base;
+  }
+  const indent = lines[stateDiagramLine + 1]?.match(/^(\s*)/)?.[1] ?? "    ";
+  const newLine = `${indent}${terminal} --> [*]`;
+  lines.splice(diagramEnd, 0, newLine);
+  base.applied = true;
+  base.description = `Inserted  ${terminal} --> [*]  at line ${diagramEnd + 1}.`;
+  base.changes.push({ lineNo: diagramEnd + 1, before: "", after: newLine, action: "insert" });
+  return base;
+}
+if (false) {}
+
+// packages/generator/src/pipeline/review-model.ts
+var SEVERITY_ORDER = { error: 0, warning: 1, info: 2 };
+function summarize(source, result, fixes) {
+  return {
+    source,
+    ok: result.errors === 0,
+    repaired: fixes.some((fix) => fix.applied),
+    fixes,
+    issues: [...result.issues].sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity] || (a.line ?? 0) - (b.line ?? 0)),
+    counts: { errors: result.errors, warnings: result.warnings, infos: result.infos }
+  };
+}
+function reviewModel(source, options = {}) {
+  const first = checkSource(source);
+  if (options.autoFix === false)
+    return summarize(source, first, []);
+  const fixable = first.issues.filter((issue) => AUTO_FIXABLE_CODES.has(issue.code)).map((issue) => ({ ...issue, autoFixable: true }));
+  if (fixable.length === 0)
+    return summarize(source, first, []);
+  const { newSource, results } = applyFixes(source, fixable);
+  if (!results.some((result) => result.applied))
+    return summarize(source, first, results);
+  return summarize(newSource, checkSource(newSource), results);
+}
+
 // packages/generator/src/generators/wasm/runtime-assets.generated.ts
 var RUNTIME_ASSETS = Object.freeze({
   "app/schema.sys.sql": `-- ---------------------------------------------------------------------------
@@ -2918,6 +5218,27 @@ const statusElement = document.getElementById("boot-status");
 
 const steps = [];
 
+/**
+ * Say what is happening, to whoever is watching.
+ *
+ * On its own the boot screen is the audience. Embedded — which is how the
+ * hosted generator page runs a freshly compiled application — the page around
+ * this frame is showing a progress bar for the whole build, and the slowest
+ * phases by far are the four in here. Without this it can only report "started
+ * the iframe" and then guess for ten seconds.
+ *
+ * A \`postMessage\` to a parent that may not exist costs nothing and is refused by
+ * nobody, so the report is unconditional rather than a flag someone has to set.
+ */
+function report(payload) {
+  if (window.parent === window) return;
+  try {
+    window.parent.postMessage({ source: "erdwithai-boot", ...payload }, "*");
+  } catch {
+    // A parent on another origin that refuses messages is not a boot failure.
+  }
+}
+
 function log(message, tone = "info") {
   steps.push({ message, tone });
   const line = document.createElement("div");
@@ -2925,10 +5246,12 @@ function log(message, tone = "info") {
   line.textContent = message;
   logElement.appendChild(line);
   logElement.scrollTop = logElement.scrollHeight;
+  report({ type: "log", message, tone });
 }
 
 function status(message) {
   statusElement.textContent = message;
+  report({ type: "status", status: message });
 }
 
 async function main() {
@@ -3024,12 +5347,14 @@ async function main() {
   const { start } = await import(\`\${BASE}ui/main.js\`);
   await start({ basePath: BASE, project });
 
+  report({ type: "running", project: { name: project.name } });
   screen.classList.add("boot--done");
   window.setTimeout(() => screen.remove(), 400);
 }
 
 main().catch((error) => {
   console.error(error);
+  report({ type: "failed", message: String(error.message || error) });
   status("Could not start");
   screen.classList.add("boot--failed");
   log(String(error.message || error), "error");
@@ -9104,7 +11429,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 237038;
+var RUNTIME_BYTES = 238102;
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};
@@ -14301,16 +16626,34 @@ var initials = (value) => value.split(/[\s\-_]+/).filter(Boolean).slice(0, 2).ma
 var escapeHtml = (value) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character);
 
 // packages/generator/src/browser/index.ts
+setLanguageDefinition2(erdwithai_language_default);
 setLanguageDefinition(erdwithai_language_default);
+class ModelCheckError extends Error {
+  issues;
+  review;
+  constructor(review) {
+    const errors2 = review.counts.errors;
+    super(`This model has ${errors2} error${errors2 === 1 ? "" : "s"}.`);
+    this.name = "ModelCheckError";
+    this.issues = review.issues;
+    this.review = review;
+  }
+}
 function generateFromSource(options) {
   const warnings = [];
   const originalWarn = console.warn;
   console.warn = (...args) => {
     warnings.push(args.map(String).join(" ").replace(/^\s*⚠️?\s*/u, "").trim());
   };
+  const review = reviewModel(options.source, { autoFix: options.autoFix !== false });
+  if (!review.ok) {
+    console.warn = originalWarn;
+    throw new ModelCheckError(review);
+  }
+  const source = review.source;
   let parsed;
   try {
-    parsed = parseModel(options.source);
+    parsed = parseModel(source);
   } finally {
     console.warn = originalWarn;
   }
@@ -14325,7 +16668,7 @@ function generateFromSource(options) {
     adminEmail: options.adminEmail ?? "admin@admin.com",
     adminPassword: options.adminPassword ?? "admin",
     adminName: options.adminName ?? "admin",
-    source: options.source,
+    source,
     pgliteUrl: options.pgliteUrl
   });
   return {
@@ -14344,13 +16687,16 @@ function generateFromSource(options) {
       fileCount: generated.stats.fileCount,
       bytes: generated.stats.bytes
     },
-    warnings
+    warnings,
+    review
   };
 }
 export {
+  reviewModel,
   parseModel,
   generateWasmApp,
   generateFromSource,
   RUNTIME_BYTES,
+  ModelCheckError,
   DEFAULT_PGLITE_URL
 };

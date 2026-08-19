@@ -13,13 +13,20 @@
  */
 
 import languageDefinition from "../../../../language/erdwithai-language.json";
+import { setLanguageDefinition as setCheckerDefinition } from "../../../../language";
 import { setLanguageDefinition } from "../parsers/language-maps";
 import { type ParsedModel, parseModel } from "../pipeline/parse-model";
+import { type Issue, type ModelReview, reviewModel } from "../pipeline/review-model";
 
 // The parser resolves the language definition off disk, which a browser has
 // none of. Injecting the real JSON here — bundled, not re-typed — is what makes
 // a model read the same way in a tab as it does in a terminal.
 setLanguageDefinition(languageDefinition);
+// The checker resolves it separately, through `language/index.ts`. Same JSON,
+// same object — a tab has no disk for either of them to read it from.
+setCheckerDefinition(
+  languageDefinition as unknown as Parameters<typeof setCheckerDefinition>[0]
+);
 
 import { RUNTIME_BYTES } from "../generators/wasm/runtime-assets.generated";
 import {
@@ -29,11 +36,16 @@ import {
 } from "../generators/wasm/wasm-app.generator";
 
 export type { ParsedModel, WasmGeneratorOptions };
-export { DEFAULT_PGLITE_URL, generateWasmApp, parseModel, RUNTIME_BYTES };
+export type { ModelReview };
+// Exported on its own so the page can check a model the moment it is chosen,
+// rather than only finding out at the point of generating it.
+export { DEFAULT_PGLITE_URL, generateWasmApp, parseModel, reviewModel, RUNTIME_BYTES };
 
 export interface BrowserGenerateOptions extends Partial<WasmGeneratorOptions> {
   /** The EML document. */
   source: string;
+  /** Repair what the fixer can repair before checking. Default true. */
+  autoFix?: boolean;
 }
 
 export interface BrowserGenerateResult {
@@ -55,6 +67,28 @@ export interface BrowserGenerateResult {
     bytes: number;
   };
   warnings: string[];
+  /** What the checker made of the model, after the fixer had its turn. */
+  review: ModelReview;
+}
+
+/**
+ * A model the checker refused.
+ *
+ * Thrown rather than returned so no caller can generate from it by forgetting to
+ * look, and typed rather than a message string so the page can render each
+ * finding with its line, code and hint instead of printing one flattened line.
+ */
+export class ModelCheckError extends Error {
+  readonly issues: Issue[];
+  readonly review: ModelReview;
+
+  constructor(review: ModelReview) {
+    const errors = review.counts.errors;
+    super(`This model has ${errors} error${errors === 1 ? "" : "s"}.`);
+    this.name = "ModelCheckError";
+    this.issues = review.issues;
+    this.review = review;
+  }
 }
 
 /**
@@ -78,9 +112,19 @@ export function generateFromSource(options: BrowserGenerateOptions): BrowserGene
     );
   };
 
+  // Checked before it is compiled, and with the same engine the CLI uses. A
+  // browser is the one place where nobody sees a build log, so a model that says
+  // something impossible has to say so here or nowhere.
+  const review = reviewModel(options.source, { autoFix: options.autoFix !== false });
+  if (!review.ok) {
+    console.warn = originalWarn;
+    throw new ModelCheckError(review);
+  }
+  const source = review.source;
+
   let parsed: ParsedModel;
   try {
-    parsed = parseModel(options.source);
+    parsed = parseModel(source);
   } finally {
     console.warn = originalWarn;
   }
@@ -100,7 +144,7 @@ export function generateFromSource(options: BrowserGenerateOptions): BrowserGene
     adminEmail: options.adminEmail ?? "admin@admin.com",
     adminPassword: options.adminPassword ?? "admin",
     adminName: options.adminName ?? "admin",
-    source: options.source,
+    source,
     pgliteUrl: options.pgliteUrl,
   });
 
@@ -121,5 +165,6 @@ export function generateFromSource(options: BrowserGenerateOptions): BrowserGene
       bytes: generated.stats.bytes,
     },
     warnings,
+    review,
   };
 }
