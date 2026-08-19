@@ -160,7 +160,7 @@ test.describe
         "done"
       );
 
-      const check = page.locator("#build-phases .build__phase").nth(1);
+      const check = page.locator('#build-phases [data-phase="check"]');
       await expect(check).toHaveAttribute("data-state", "done");
       // A clean model reports nothing louder than a count.
       await expect(page.locator("#diagnostics")).toBeHidden();
@@ -380,7 +380,7 @@ test.describe("@browser the checker refuses a broken model", () => {
     // The bar stops where the failure is, rather than running on to a phase
     // that never happened.
     await expect(page.locator("#build")).toHaveAttribute("data-state", "failed");
-    await expect(page.locator("#build-phases .build__phase").nth(1)).toHaveAttribute(
+    await expect(page.locator('#build-phases [data-phase="check"]')).toHaveAttribute(
       "data-state",
       "failed"
     );
@@ -419,6 +419,45 @@ test.describe("@browser the checker refuses a broken model", () => {
     // Repaired, so the build carries on.
     await expect(page.locator("#build")).not.toHaveAttribute("data-state", "failed");
   });
+
+  test("re-checks a corrected model chosen under the same filename", async ({ page }) => {
+    await page.goto("/run-in-browser.html");
+    await page.locator("#choice-upload").click();
+
+    const model = (entity: string) =>
+      [
+        "%%meta name: Bad RBAC",
+        `%%rbac role:admin on ${entity}.delete`,
+        "erDiagram",
+        "    Customer {",
+        "        string id PK",
+        "        string name",
+        "    }",
+        "",
+      ].join("\n");
+
+    const pick = (source: string) =>
+      page.locator("#file").setInputFiles({
+        name: "bad-rbac.eml.mmd",
+        mimeType: "text/plain",
+        buffer: Buffer.from(source),
+      });
+
+    await pick(model("Ghost"));
+    const diagnostics = page.locator("#diagnostics");
+    await expect(diagnostics).toHaveAttribute("data-state", "failed");
+    // The findings say what to do next, not only what is wrong.
+    await expect(diagnostics).toContainText("choose it again");
+
+    // The same filename, corrected — which is exactly how someone fixes the file
+    // the page just refused. A file input fires no `change` when the same name is
+    // picked twice, so without the page resetting its value this would leave the
+    // reader staring at findings for a document they had already repaired.
+    await pick(model("Customer"));
+    await expect(diagnostics).toBeHidden();
+    await expect(page.locator("#step-generate")).toHaveAttribute("data-state", "active");
+    await expect(page.locator("#generate")).toBeVisible();
+  });
 });
 
 test.describe("@browser assembling the real stack in a tab", () => {
@@ -451,7 +490,7 @@ test.describe("@browser assembling the real stack in a tab", () => {
 
     // And the overlay stayed the size it is on disk.
     await expect(page.locator(".result__note")).toContainText("added");
-    await expect(page.locator("#build-phases .build__phase").nth(2)).toHaveAttribute(
+    await expect(page.locator('#build-phases [data-phase="assemble"]')).toHaveAttribute(
       "data-state",
       "done"
     );
@@ -479,10 +518,52 @@ test.describe("@browser assembling the real stack in a tab", () => {
       ),
     });
 
-    await page.locator("#generate").click();
+    // No Assemble press: this page checks the moment a model is chosen, so the
+    // refusal arrives while the reader is still looking at the model rather than
+    // after they have asked for an application they were never going to get.
     const diagnostics = page.locator("#diagnostics");
     await expect(diagnostics).toBeVisible({ timeout: 180_000 });
+    await expect(diagnostics).toHaveAttribute("data-state", "failed");
     await expect(diagnostics).toContainText("EML213");
+    await expect(diagnostics).toContainText("Ghost");
     await expect(page.locator("#build")).toHaveAttribute("data-state", "failed");
+
+    // And the step stays shut, so the refusal cannot be clicked past.
+    await expect(page.locator("#step-generate")).toHaveAttribute("data-state", "idle");
+    await expect(page.locator("#generate")).toBeHidden();
+  });
+
+  test("re-checks a corrected model chosen under the same filename", async ({ page }) => {
+    await page.goto("/run-real-stack.html");
+    await page.locator("#choice-upload").click();
+
+    const model = (entity: string) =>
+      [
+        "%%meta name: Bad RBAC",
+        `%%rbac role:admin on ${entity}.delete`,
+        "erDiagram",
+        "    Customer {",
+        "        string id PK",
+        "        string name",
+        "    }",
+        "",
+      ].join("\n");
+
+    const pick = (source: string) =>
+      page.locator("#file").setInputFiles({
+        name: "bad-rbac.eml.mmd",
+        mimeType: "text/plain",
+        buffer: Buffer.from(source),
+      });
+
+    await pick(model("Ghost"));
+    await expect(page.locator("#diagnostics")).toHaveAttribute("data-state", "failed");
+
+    // The same filename, corrected. A file input fires no `change` when the same
+    // name is picked twice, so without the reset in the page this would leave the
+    // reader staring at findings for a document they had already fixed.
+    await pick(model("Customer"));
+    await expect(page.locator("#diagnostics")).toBeHidden();
+    await expect(page.locator("#step-generate")).toHaveAttribute("data-state", "active");
   });
 });
