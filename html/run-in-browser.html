@@ -73,6 +73,24 @@
   assembled in this tab, and the database it fills lives in this tab's IndexedDB.
 </p>
 
+<!--
+  The build monitor. Hidden until a model is loaded, because until then there is
+  no build to report on — and a progress bar at 0% with nothing running is the
+  kind of furniture that makes a page look busier than it is.
+-->
+<section class="build" id="build" hidden aria-live="polite">
+  <div class="build__head">
+    <span class="build__label" id="build-label">Model loaded</span>
+    <span class="build__pct" id="build-pct">0%</span>
+  </div>
+  <div class="build__track" role="progressbar" id="build-bar"
+       aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="build-label">
+    <div class="build__fill" id="build-fill"></div>
+  </div>
+  <ol class="build__phases" id="build-phases"></ol>
+  <div class="build__detail" id="build-detail"></div>
+</section>
+
 <div class="flow">
 
   <!-- ---------------------------------------------------------------- 1 -->
@@ -117,6 +135,7 @@
       </label>
 
       <div class="model-summary" id="model-summary" hidden></div>
+      <div class="diagnostics" id="diagnostics" hidden></div>
       <details class="preview" id="preview" hidden>
         <summary>Look at the model</summary>
         <pre><code id="preview-code"></code></pre>
