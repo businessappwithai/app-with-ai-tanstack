@@ -24,6 +24,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { Icon } from '@/components/ui/icon';
+import { APP_NAME } from "@/lib/app-meta";
 
 // Map admin window names from the DB to frontend icon + route
 const ADMIN_WINDOW_META: Record<string, { icon: any; href: string }> = {
@@ -246,7 +247,7 @@ function DashboardPage() {
         <div className="container-swiss">
           <div className="flex h-14 items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-3">
-              <h1 className="font-display truncate text-xl font-semibold text-foreground">{{project.name}}</h1>
+              <h1 className="font-display truncate text-xl font-semibold text-foreground">{APP_NAME}</h1>
             </div>
             <div className="flex min-w-0 items-center gap-3">
               {/* The search box shrinks rather than pushing the account

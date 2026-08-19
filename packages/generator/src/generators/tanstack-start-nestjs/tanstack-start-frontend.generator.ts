@@ -302,19 +302,19 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     await fs.writeFile(path.join(outputDir, "src/routes/index.tsx"), homePageContent);
 
     // Dashboard page (flat route file)
-    const dashboardPageContent = await this.renderTemplate("src/routes/dashboard.tsx.hbs", context);
+    const dashboardPageContent = await this.component("src/routes/dashboard.tsx");
     await fs.writeFile(path.join(outputDir, "src/routes/dashboard.tsx"), dashboardPageContent);
 
     // Admin layout route (guards /admin/* from non-admin users)
     try {
-      const adminLayoutContent = await this.renderTemplate("src/routes/admin.tsx.hbs", context);
+      const adminLayoutContent = await this.component("src/routes/admin.tsx");
       await fs.writeFile(path.join(outputDir, "src/routes/admin.tsx"), adminLayoutContent);
     } catch (e) {
       console.warn("Admin layout route template not found");
     }
 
     // Providers index (rendered template)
-    const providersContent = await this.renderTemplate("src/providers/index.tsx.hbs", context);
+    const providersContent = await this.component("src/providers/index.tsx");
     await fs.writeFile(path.join(outputDir, "src/providers/index.tsx"), providersContent);
 
     // ElectricProvider (static file — JSX double-braces conflict with Handlebars)
@@ -350,12 +350,12 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     }
 
     // Global styles
-    const stylesContent = await this.renderTemplate("src/styles/globals.css.hbs", context);
+    const stylesContent = await this.component("src/styles/globals.css");
     await fs.writeFile(path.join(outputDir, "src/styles/globals.css"), stylesContent);
 
     // Auth pages. Login only — see below.
     try {
-      const loginPageContent = await this.renderTemplate("src/routes/auth/login.tsx.hbs", context);
+      const loginPageContent = await this.component("src/routes/auth/login.tsx");
       await fs.writeFile(path.join(outputDir, "src/routes/auth/login.tsx"), loginPageContent);
     } catch (e) {
       console.warn("Login page template not found");
@@ -387,7 +387,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
 
     // The forwarding both API routes are built on.
     try {
-      const apiProxy = await this.renderTemplate("src/lib/api-proxy.ts.hbs", context);
+      const apiProxy = await this.component("src/lib/api-proxy.ts");
       await fs.writeFile(path.join(outputDir, "src/lib/api-proxy.ts"), apiProxy);
     } catch (e) {
       console.warn("API proxy lib template not found");
@@ -397,7 +397,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     // CopilotKit streams over its own protocol, and routing that through the
     // backend's request pipeline breaks streaming for no gain.
     try {
-      const copilotRuntime = await this.renderTemplate("src/lib/copilot-runtime.ts.hbs", context);
+      const copilotRuntime = await this.component("src/lib/copilot-runtime.ts");
       await fs.writeFile(path.join(outputDir, "src/lib/copilot-runtime.ts"), copilotRuntime);
     } catch (e) {
       console.warn("CopilotKit runtime lib template not found");
@@ -442,8 +442,12 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
   private async generateApiLayer(outputDir: string, context: any): Promise<void> {
     const templateDir = this.resolvedTemplateDir;
 
-    // API client (rendered template)
-    const apiClientContent = await this.renderTemplate("src/lib/api-client.ts.hbs", context);
+    // The one module a model changes. Everything else in this front end is the
+    // same code for every application and imports its identity from here.
+    const appMeta = await this.renderTemplate("src/lib/app-meta.ts.hbs", context);
+    await fs.writeFile(path.join(outputDir, "src/lib/app-meta.ts"), appMeta);
+
+    const apiClientContent = await this.component("src/lib/api-client.ts");
     await fs.writeFile(path.join(outputDir, "src/lib/api-client.ts"), apiClientContent);
 
     // Vite's asset-import suffixes (`?url`, `?raw`), which the compiler cannot
@@ -458,7 +462,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
 
     // Field schema with Zod validation and field type helpers
     try {
-      const fieldSchemaContent = await this.renderTemplate("src/lib/field-schema.ts.hbs", context);
+      const fieldSchemaContent = await this.component("src/lib/field-schema.ts");
       await fs.writeFile(path.join(outputDir, "src/lib/field-schema.ts"), fieldSchemaContent);
     } catch (e) {
       console.warn("field-schema template not found, skipping:", (e as Error).message);
@@ -468,10 +472,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     // shape proxy. The dictionary lives in these collections; nothing else on
     // the client holds it.
     try {
-      const collectionsContent = await this.renderTemplate(
-        "src/lib/sys-collections.ts.hbs",
-        context
-      );
+      const collectionsContent = await this.component("src/lib/sys-collections.ts");
       await fs.writeFile(path.join(outputDir, "src/lib/sys-collections.ts"), collectionsContent);
     } catch (e) {
       console.warn("sys-collections template not found, skipping:", (e as Error).message);
@@ -495,23 +496,17 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     }
 
     // Entity hooks using TanStack Query
-    const hooksContent = await this.renderTemplate("src/hooks/use-entities.ts.hbs", context);
+    const hooksContent = await this.component("src/hooks/use-entities.ts");
     await fs.writeFile(path.join(outputDir, "src/hooks/use-entities.ts"), hooksContent);
 
     // Field metadata hooks (HTTP-based, kept for backwards compat)
-    const fieldHooksContent = await this.renderTemplate(
-      "src/hooks/use-field-metadata.ts.hbs",
-      context
-    );
+    const fieldHooksContent = await this.component("src/hooks/use-field-metadata.ts");
     await fs.writeFile(path.join(outputDir, "src/hooks/use-field-metadata.ts"), fieldHooksContent);
 
     // The admin assistant's link to the model: a CopilotKit action that
     // searches what this application declares.
     try {
-      const modelAssistant = await this.renderTemplate(
-        "src/hooks/useModelAssistant.ts.hbs",
-        context
-      );
+      const modelAssistant = await this.component("src/hooks/useModelAssistant.ts");
       await fs.writeFile(path.join(outputDir, "src/hooks/useModelAssistant.ts"), modelAssistant);
     } catch (e) {
       console.warn("Model assistant hook template not found");
@@ -519,10 +514,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
 
     // Local-first sys_ hooks via TanStack DB + ElectricSQL
     try {
-      const sysElectricContent = await this.renderTemplate(
-        "src/hooks/use-sys-electric.ts.hbs",
-        context
-      );
+      const sysElectricContent = await this.component("src/hooks/use-sys-electric.ts");
       await fs.writeFile(path.join(outputDir, "src/hooks/use-sys-electric.ts"), sysElectricContent);
     } catch (e) {
       console.warn("use-sys-electric template not found, skipping:", (e as Error).message);
@@ -957,7 +949,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     }
 
     // Field layout management - renders as /admin/fields via admin/fields.tsx
-    const fieldsContent = await this.renderTemplate("src/routes/admin/fields.tsx.hbs", context);
+    const fieldsContent = await this.component("src/routes/admin/fields.tsx");
     await fs.writeFile(path.join(adminDir, "fields.tsx"), fieldsContent);
 
     // Business rules management - renders as /admin/rules via admin/rules.tsx
@@ -970,10 +962,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
 
     // Entity categories - the grouping the dashboard renders by
     try {
-      const categoriesContent = await this.renderTemplate(
-        "src/routes/admin/categories.tsx.hbs",
-        context
-      );
+      const categoriesContent = await this.component("src/routes/admin/categories.tsx");
       await fs.writeFile(path.join(adminDir, "categories.tsx"), categoriesContent);
     } catch (e) {
       console.warn("Admin categories page template not found");
@@ -994,10 +983,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
 
     // Workflow monitoring - renders as /admin/workflows via admin/workflows.tsx
     try {
-      const workflowsContent = await this.renderTemplate(
-        "src/routes/admin/workflows.tsx.hbs",
-        context
-      );
+      const workflowsContent = await this.component("src/routes/admin/workflows.tsx");
       await fs.writeFile(path.join(adminDir, "workflows.tsx"), workflowsContent);
     } catch (e) {
       console.warn("Admin workflows page template not found");
@@ -1015,7 +1001,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
 
     // Users page (admin/users.tsx)
     try {
-      const usersContent = await this.renderTemplate("src/routes/admin/users.tsx.hbs", context);
+      const usersContent = await this.component("src/routes/admin/users.tsx");
       await fs.writeFile(path.join(adminDir, "users.tsx"), usersContent);
     } catch (e) {
       console.warn("Admin users page template not found");
@@ -1023,7 +1009,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
 
     // Roles page (admin/roles.tsx)
     try {
-      const rolesContent = await this.renderTemplate("src/routes/admin/roles.tsx.hbs", context);
+      const rolesContent = await this.component("src/routes/admin/roles.tsx");
       await fs.writeFile(path.join(adminDir, "roles.tsx"), rolesContent);
     } catch (e) {
       console.warn("Admin roles page template not found");
@@ -1109,7 +1095,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
 
     // Update tailwind.config.js
     try {
-      const tailwindContent = await this.renderTemplate("tailwind.config.js.hbs", context);
+      const tailwindContent = await this.component("tailwind.config.js");
       await fs.writeFile(path.join(outputDir, "tailwind.config.js"), tailwindContent);
     } catch (e) {
       console.warn("Custom tailwind config template not found, keeping TanStack Start default");

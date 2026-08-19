@@ -3,8 +3,6 @@
  *
  * User authentication with email and password
  *
- * Generated: {{now}}
- * Project: {{project.name}}
  */
 
 import { useState } from 'react';
@@ -17,6 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Loader2, LogIn, AlertCircle, Mail, Lock, Shield } from 'lucide-react';
 import { toast } from 'sonner';
+import { APP_NAME } from "@/lib/app-meta";
 
 export const Route = createFileRoute('/auth/login')({
   component: LoginPage,
@@ -81,7 +80,7 @@ function LoginPage() {
             <Shield className="w-10 h-10" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
-          <p className="text-muted-foreground">Sign in to access {{project.name}}</p>
+          <p className="text-muted-foreground">Sign in to access {APP_NAME}</p>
         </div>
 
         {/* Login Form Card */}

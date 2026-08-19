@@ -7,8 +7,6 @@
  * application's data design, including entities a given user may have no
  * access to.
  *
- * Generated: {{now}}
- * Project: {{project.name}}
  */
 
 import { CopilotKit } from '@copilotkit/react-core';
@@ -16,6 +14,7 @@ import { CopilotSidebar } from '@copilotkit/react-ui';
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import { useModelAssistant } from '../hooks/useModelAssistant';
 import '@copilotkit/react-ui/styles.css';
+import { APP_NAME } from "@/lib/app-meta";
 
 export const Route = createFileRoute('/admin')({
   // Redirect non-admin users before the component tree renders
@@ -47,7 +46,7 @@ function AdminContent() {
  * warning. Naming the object avoids the collision entirely.
  */
 const ASSISTANT_LABELS = {
-  title: '{{project.name}} assistant',
+  title: `${APP_NAME} assistant`,
   initial:
     "I can search this application's model — its entities and fields, the business " +
     'rules that run on them, and the processes that create, update and delete records. ' +

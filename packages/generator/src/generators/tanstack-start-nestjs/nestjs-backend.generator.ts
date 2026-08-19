@@ -482,11 +482,10 @@ export class NestJsBackendGenerator extends BaseGenerator {
     await fs.writeFile(path.join(outputDir, "src/app.module.ts"), appModuleContent);
 
     // Standard NestJS scaffolded files (static, no templating needed)
-    const staticAppFiles = [
-      "src/app.controller.ts",
-      "src/app.controller.spec.ts",
-      "src/app.service.ts",
-    ];
+    // `app.controller.spec.ts` used to be listed here and has never existed in
+    // the templates, so every generation printed a warning about a file nobody
+    // was missing. A warning that is always there is a warning nobody reads.
+    const staticAppFiles = ["src/app.controller.ts", "src/app.service.ts"];
     for (const file of staticAppFiles) {
       try {
         await fs.copyFile(path.join(this.resolvedTemplateDir, file), path.join(outputDir, file));
