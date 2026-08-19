@@ -118,6 +118,8 @@ Key routing rules:
 | `bun run test:wasm` | The wasm stack end to end — CLI, page, and the app in Chromium |
 | `bun run build:stack-templates` | Put the NestJS templates beside `html/` (for the real-stack page) |
 | `bun run build:fullstack-browser` | Rebuild `html/assets/erdwithai-fullstack.js` |
+| `bun run build:language-tools` | Rebuild `html/checker.js` + `html/fixer.js` (the published validators) |
+| `bun run test:language-tools` | Assert those two still agree with `language/checker.ts` |
 | `bun run test:e2e:server` | E2E with automatic server startup |
 | `bun run seed:admin -- --email you@example.com` | Run migrations + promote a user to admin |
 | `bun scripts/seed-model.ts --file examples/drug-discovery.eml.mmd` | Seed a project so a fresh container has something to design |
@@ -558,13 +560,14 @@ One script, **two** inlined bundles, because both have to be readable from a tab
 | `templates/wasm/**` | `src/generators/wasm/runtime-assets.generated.ts` | the standalone generator |
 | `templates/wasm-overlay/**` | `src/generators/wasm/overlay-assets.generated.ts` | `applyWasmOverlay` |
 
-Three generated artifacts are checked in and CI `--check`s all three — stale
+Four generated artifacts are checked in and CI `--check`s all of them — stale
 means a red build:
 
 ```bash
 bun run build:wasm-runtime      # the two asset modules above
 bun run build:wasm-browser      # html/assets/erdwithai-wasm.js + html/wasm-app/sw.js
 bun run build:fullstack-browser # html/assets/erdwithai-fullstack.js
+bun run build:language-tools    # html/checker.js + html/fixer.js
 ```
 
 **Run them from the repository root.** Bun labels each bundled module with its
@@ -654,6 +657,8 @@ html/
 ├── index.html + 01…08-*.html   the guide: "Build a CRM with ERDwithAI"
 ├── run-in-browser.html         ⭐ generate + boot a --standalone app, in the page
 ├── run-real-stack.html         ⭐ generate the real stack, boot it in a WebContainer
+├── checker.js                  generated — bun run build:language-tools
+├── fixer.js                    generated — the published EML validators (see below)
 ├── models/                     crm.eml.mmd, drug-discovery.eml.mmd — what the pages offer
 ├── assets/
 │   ├── erdwithai-wasm.js       generated — bun run build:wasm-browser
@@ -686,6 +691,25 @@ Things to know before touching it:
   COOP/COEP only on `run-real-stack.html` (WebContainers need them; the
   standalone app needs their absence).
 - **`run-real-stack.html`'s boot half is unverified** — see the section above.
+
+**`checker.js` and `fixer.js` are the published validation surface.** They are
+`language/checker.ts` and `language/fixer.ts` bundled for the browser by
+`bun run build:language-tools`, and they sit at the site root rather than under
+`assets/` because their URL is the interface: `llmtext/llms-full.txt` §10 tells a
+language model to run its output past `appwithai.org/guide/checker.js` before
+handing a model to anyone.
+
+They add no rules. Each entry point (`language/browser/*.entry.ts`) injects the
+inlined language definition — a tab has no `erdwithai-language.json` to open —
+and re-exports the pure functions, so a document that passes there is a document
+`erdwithai` accepts. `fixer.js` also carries `checkAndFix`, the repair-then-
+re-check loop, because a fix can uncover a problem the original error was masking.
+
+Two CI steps guard them, and they catch different things: `build:language-tools
+--check` proves the committed copies are not stale, and `test:language-tools`
+proves they still *run* — they are bundled against Node stubs, and a stub that
+throws where the real call returned would turn every check into an exception the
+page reports as an invalid model.
 
 ### @erdwithai/ai (`packages/ai/`)
 
@@ -1554,6 +1578,8 @@ Secrets: `NEON_DATABASE_URL`, `EML_PUBLISH_TOKEN` (needs `repo` **and**
 | `html/run-in-browser.html` | Generate and run a `--standalone` app from a page, no server |
 | `html/run-real-stack.html` | Assemble the real 400-file stack in a tab, boot it in a WebContainer |
 | `language/cli/eml.ts` | The zero-dependency `eml` CLI (`validate`/`info`/`generate`) |
+| `language/browser/*.entry.ts` | ⭐ Entry points for the published `html/checker.js` + `html/fixer.js` |
+| `llmtext/llms-full.txt` | ⭐ The spec written for language models — §10 is the authoring protocol |
 | `packages/web/vite.config.ts` | Vite 8 config, root-`.env` loading, `start-api-routes` shim |
 | `packages/web/src/types/project.ts` | ⭐ Wizard step vocabulary |
 | `packages/web/src/lib/project-access.ts` | ⭐ Project authorization |

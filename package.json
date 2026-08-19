@@ -50,7 +50,9 @@
     "test:wasm:cli": "playwright test --config tests/e2e/wasm/playwright.config.ts --grep @cli",
     "test:wasm:browser": "playwright test --config tests/e2e/wasm/playwright.config.ts --grep @browser",
     "build:stack-templates": "bun scripts/build-stack-templates.ts",
-    "build:fullstack-browser": "bun scripts/build-fullstack-browser.ts"
+    "build:fullstack-browser": "bun scripts/build-fullstack-browser.ts",
+    "build:language-tools": "bun scripts/build-language-tools.ts",
+    "test:language-tools": "bun scripts/ci/language-tools-smoke.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.6",
