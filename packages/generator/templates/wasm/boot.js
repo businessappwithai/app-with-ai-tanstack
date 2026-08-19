@@ -20,6 +20,27 @@ const statusElement = document.getElementById("boot-status");
 
 const steps = [];
 
+/**
+ * Say what is happening, to whoever is watching.
+ *
+ * On its own the boot screen is the audience. Embedded — which is how the
+ * hosted generator page runs a freshly compiled application — the page around
+ * this frame is showing a progress bar for the whole build, and the slowest
+ * phases by far are the four in here. Without this it can only report "started
+ * the iframe" and then guess for ten seconds.
+ *
+ * A `postMessage` to a parent that may not exist costs nothing and is refused by
+ * nobody, so the report is unconditional rather than a flag someone has to set.
+ */
+function report(payload) {
+  if (window.parent === window) return;
+  try {
+    window.parent.postMessage({ source: "erdwithai-boot", ...payload }, "*");
+  } catch {
+    // A parent on another origin that refuses messages is not a boot failure.
+  }
+}
+
 function log(message, tone = "info") {
   steps.push({ message, tone });
   const line = document.createElement("div");
@@ -27,10 +48,12 @@ function log(message, tone = "info") {
   line.textContent = message;
   logElement.appendChild(line);
   logElement.scrollTop = logElement.scrollHeight;
+  report({ type: "log", message, tone });
 }
 
 function status(message) {
   statusElement.textContent = message;
+  report({ type: "status", status: message });
 }
 
 async function main() {
@@ -126,12 +149,14 @@ async function main() {
   const { start } = await import(`${BASE}ui/main.js`);
   await start({ basePath: BASE, project });
 
+  report({ type: "running", project: { name: project.name } });
   screen.classList.add("boot--done");
   window.setTimeout(() => screen.remove(), 400);
 }
 
 main().catch((error) => {
   console.error(error);
+  report({ type: "failed", message: String(error.message || error) });
   status("Could not start");
   screen.classList.add("boot--failed");
   log(String(error.message || error), "error");

@@ -29,7 +29,6 @@
  * All other codes are reported but left for the developer to fix manually.
  */
 
-import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { isPersonRoleColumn } from "./checker";
@@ -38,7 +37,11 @@ import { isPersonRoleColumn } from "./checker";
 // ANSI helpers
 // ---------------------------------------------------------------------------
 
-const useColor = !process.env.NO_COLOR && process.stdout.isTTY && !hasFlag("--no-color");
+const useColor =
+  typeof process !== "undefined" &&
+  !process.env?.NO_COLOR &&
+  Boolean(process.stdout?.isTTY) &&
+  !hasFlag("--no-color");
 const c = {
   dim: (s: string) => (useColor ? `\x1b[2m${s}\x1b[0m` : s),
   bold: (s: string) => (useColor ? `\x1b[1m${s}\x1b[0m` : s),
@@ -49,14 +52,14 @@ const c = {
 };
 
 function hasFlag(name: string): boolean {
-  return process.argv.includes(name);
+  return typeof process !== "undefined" && (process.argv?.includes(name) ?? false);
 }
 
 // ---------------------------------------------------------------------------
 // Error file types (must match checker.ts output shape)
 // ---------------------------------------------------------------------------
 
-interface Issue {
+export interface Issue {
   severity: "error" | "warning" | "info";
   code: string;
   message: string;
@@ -78,7 +81,7 @@ interface ErrorFile {
 // Per-code fix strategies
 // ---------------------------------------------------------------------------
 
-interface FixResult {
+export interface FixResult {
   code: string;
   applied: boolean;
   description: string;
@@ -91,7 +94,19 @@ interface FixResult {
   }>;
 }
 
-function applyFixes(source: string, issues: Issue[]): { newSource: string; results: FixResult[] } {
+/**
+ * Apply every fix the checker marked auto-fixable, to a document in memory.
+ *
+ * The rest of this file is about files: reading an `.error` report, writing the
+ * repaired `.mmd` back, re-running the checker in a subprocess. None of that can
+ * happen in a browser tab, and none of it is the repair — which is a string in
+ * and a string out. Exported so the WASM generator can offer the same fixes
+ * before it refuses a model.
+ */
+export function applyFixes(
+  source: string,
+  issues: Issue[]
+): { newSource: string; results: FixResult[] } {
   const lines = source.split("\n");
   const results: FixResult[] = [];
   const fixableIssues = issues.filter((i) => i.autoFixable);
@@ -507,13 +522,17 @@ function processErrorFile(errorFilePath: string, dryRun: boolean): FixSummary {
 // Re-run checker on a fixed file
 // ---------------------------------------------------------------------------
 
-function recheck(mmdFile: string): { exitCode: number; output: string } {
+async function recheck(mmdFile: string): Promise<{ exitCode: number; output: string }> {
   // Find checker.ts relative to this fixer file
   const checkerPath = path.join(path.dirname(new URL(import.meta.url).pathname), "checker.ts");
   if (!existsSync(checkerPath)) {
     return { exitCode: 1, output: `checker.ts not found at ${checkerPath}` };
   }
 
+  // Imported here rather than at module scope: this is the only line in the file
+  // that needs a subprocess, and the WASM generator imports this module into a
+  // browser bundle where node:child_process cannot resolve.
+  const { spawnSync } = await import("node:child_process");
   const result = spawnSync("bun", [checkerPath, mmdFile], {
     encoding: "utf8",
     timeout: 30_000,
@@ -690,7 +709,7 @@ async function main(): Promise<void> {
     if (!flags.dryRun && !flags.noRecheck && summary.applied > 0) {
       console.log(`\n${c.dim("─".repeat(56))}`);
       console.log(`${c.bold("Re-checking")} ${c.cyan(relMmd)}\n`);
-      const recheck_result = recheck(summary.mmdFile);
+      const recheck_result = await recheck(summary.mmdFile);
       // Print checker output indented
       const lines = recheck_result.output.split("\n");
       for (const line of lines) {
@@ -715,8 +734,11 @@ async function main(): Promise<void> {
   );
 }
 
-main().catch((err) => {
-  console.error(c.red(`Fatal: ${err instanceof Error ? err.message : String(err)}`));
-  if (process.env.EML_DEBUG) console.error(err);
-  process.exit(2);
-});
+// As in checker.ts: importing this file must not start a command.
+if (import.meta.main) {
+  main().catch((err) => {
+    console.error(c.red(`Fatal: ${err instanceof Error ? err.message : String(err)}`));
+    if (process.env.EML_DEBUG) console.error(err);
+    process.exit(2);
+  });
+}

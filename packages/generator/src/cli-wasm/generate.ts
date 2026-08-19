@@ -31,6 +31,7 @@ import { DEFAULT_PGLITE_URL, generateWasmApp, type WasmGeneratedApp } from "../g
 import { applyWasmOverlay } from "../generators/wasm/overlay";
 import { generateApplication, readModelSources } from "../pipeline/generate-application";
 import { parseModel } from "../pipeline/parse-model";
+import { formatIssue, type ModelReview, reviewModel } from "../pipeline/review-model";
 
 const program = new Command();
 
@@ -99,6 +100,8 @@ program
   .option("--force", "Overwrite a non-empty output directory")
   .option("--dry-run", "List what would be written, without writing it")
   .option("--quiet", "Only print errors")
+  .option("--skip-check", "Generate without checking the model first")
+  .option("--no-auto-fix", "Report what the fixer could repair instead of repairing it")
   .action(async (options) => {
     const say = options.quiet ? () => {} : (line = "") => console.log(line);
 
@@ -124,8 +127,16 @@ program
       process.exit(1);
     }
 
+    // Check before compiling. The generator will happily produce an application
+    // from a model with an %%rbac rule naming an entity that does not exist —
+    // the rule simply never matches, and nothing anywhere says so. The checker
+    // knows; it just had to be asked.
+    const checked = options.skipCheck
+      ? sources
+      : reviewSources(sources, inputs, say, options.autoFix !== false);
+
     say(`\n  Parsing ${inputs.join(", ")}`);
-    const parsed = parseModel(sources);
+    const parsed = parseModel(checked);
 
     if (!parsed.entities.length) {
       console.error("✖ The model declares no entities — is the erDiagram section present?");
@@ -295,6 +306,62 @@ program
     describe((line = "") => console.log(line), parsed, generated);
     console.log("");
   });
+
+/**
+ * Check every model file, repair what is repairable, and report the rest.
+ *
+ * Errors stop the run. That is a deliberate change of posture from `erdwithai`,
+ * and it is the right one here: the applications this CLI writes are meant to be
+ * opened and used immediately — in a tab, with no build log to read afterwards —
+ * so a model that says something impossible should be rejected while there is
+ * still someone looking at a terminal. `--skip-check` restores the old
+ * behaviour for anyone who wants the application anyway.
+ *
+ * Returns the sources to compile, which are the repaired ones when the fixer
+ * had anything to apply.
+ */
+function reviewSources(
+  sources: string[],
+  inputs: string[],
+  say: (line?: string) => void,
+  autoFix: boolean
+): string[] {
+  const reviews: Array<{ label: string; review: ModelReview }> = sources.map((source, index) => ({
+    label: inputs[index] ?? `model ${index + 1}`,
+    review: reviewModel(source, { autoFix }),
+  }));
+
+  let errors = 0;
+  for (const { label, review } of reviews) {
+    errors += review.counts.errors;
+    const applied = review.fixes.filter((fix) => fix.applied);
+
+    if (!review.issues.length && !applied.length) continue;
+
+    say(`\n  Checking ${label}`);
+    for (const fix of applied) say(`    fixed  [${fix.code}] ${fix.description}`);
+    for (const issue of review.issues) {
+      // Info-level findings are the generator's own inferences being announced
+      // — a missing FK it will add anyway. Printing them all would bury the two
+      // lines that matter under thirty that do not.
+      if (issue.severity === "info") continue;
+      say(`    ${formatIssue(issue)}`);
+      if (issue.hint) say(`           ${issue.hint}`);
+    }
+    const { errors: e, warnings: w, infos: i } = review.counts;
+    say(`    ${e} error(s) · ${w} warning(s) · ${i} info`);
+  }
+
+  if (errors > 0) {
+    console.error(
+      `\n✖ The model has ${errors} error(s). Nothing was generated.\n` +
+        "  Fix them, or pass --skip-check to generate anyway.\n"
+    );
+    process.exit(1);
+  }
+
+  return reviews.map(({ review }) => review.source);
+}
 
 /** What the overlay changed, so the reader can see the whole difference. */
 function describeStack(

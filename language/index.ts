@@ -243,6 +243,19 @@ export const LANGUAGE_DEFINITION_PATH = (() => {
 let cached: LanguageDefinition | null = null;
 
 /**
+ * Supply the definition instead of reading it from disk.
+ *
+ * The checker runs in a browser tab now — `erdwithai-wasm`'s upload page checks
+ * a model before compiling it — and a tab has no `erdwithai-language.json` to
+ * open. The bundler inlines the same JSON and hands it over here, so the
+ * vocabulary a document is checked against is the file in this folder either
+ * way, rather than a second copy that drifts.
+ */
+export function setLanguageDefinition(definition: LanguageDefinition): void {
+  cached = definition;
+}
+
+/**
  * Load and cache the canonical EML definition from disk.
  * @param force - bypass the in-memory cache and re-read the file.
  */

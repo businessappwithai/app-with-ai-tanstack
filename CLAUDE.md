@@ -112,6 +112,7 @@ Key routing rules:
 | `bun run convert` | Run the AI conversion CLI |
 | `bun run test` | Unit tests (Vitest, via `@erdwithai/web`) |
 | `bun run test:playwright` | Playwright E2E tests |
+| `bun run test:wasm` | The wasm stack end to end — CLI, page, and the app in Chromium |
 | `bun run test:e2e:server` | E2E with automatic server startup |
 | `bun run seed:admin -- --email you@example.com` | Run migrations + promote a user to admin |
 | `bun scripts/seed-model.ts --file examples/drug-discovery.eml.mmd` | Seed a project so a fresh container has something to design |
@@ -436,10 +437,15 @@ NestJS stack.
 stacks genuinely diverge.** `templates/wasm/ui/` reproduces the React
 application's screens — masthead, Search/New/Save action bar, breadcrumb,
 category cards on the dashboard, the dark-headed grid, the record panel with its
-field-type chips — and `templates/wasm/styles.css` is the Swiss Clean palette
-(teal `#0D6E6E`, `#FAFAFA`/`#FFFFFF`, refined borders, serif headlines) taken
-value for value from `frontend/src/styles/globals.css.hbs`. **When that palette
-or those screens change, this has to change with them.**
+field-type chips — and `templates/wasm/styles.css` is the Swiss Clean palette in
+hex, where `frontend/src/styles/globals.css` states it as the HSL triples
+Tailwind composes with.
+
+**`templates/common/design-tokens.json` states that palette once**, and
+`src/generators/wasm/__tests__/design-tokens.test.ts` holds both stylesheets to
+it. Change a colour there first; the test names whichever stylesheet you then
+forget. (It was written because they had already drifted: `--primary: 182 78%
+27%` renders `#0f777b`, not the `#0D6E6E` its own comment claimed.)
 
 Two things stop the React front end being reused directly, and both are
 structural rather than a matter of effort:
@@ -843,6 +849,15 @@ else sees.
 on purpose: there are 28 write routes, and a new one added later would
 otherwise default to open.
 
+**The checker runs on the wasm path automatically.** `erdwithai-wasm generate`
+refuses a model with errors and prints each with its line, code and hint;
+`--skip-check` overrides. The hosted page checks the moment a model is chosen and
+shows the findings under it. Both go through
+`packages/generator/src/pipeline/review-model.ts`, which is the checker and the
+fixer in a loop — repair, then re-check, so what is reported is what survived the
+repair. Neither reimplements a rule: `checkSource` and `applyFixes` are exported
+from `checker.ts` and `fixer.ts` themselves.
+
 **Validation loop** (checker → fixer → recheck):
 ```bash
 bun language/checker.ts examples/crm.eml.mmd          # writes crm.eml.mmd.error
@@ -1209,6 +1224,27 @@ and `suites/` (health, auth, dictionary, bulk-seed, rules-workflow, workflow
 random/multistep, users-roles, benchmark, plus per-entity CRUD and rules suites).
 `--records-per-entity` controls the bulk-seed volume (default 1000; CI uses 25).
 
+### The wasm stack, end to end
+
+```bash
+bun run test:wasm              # both halves
+bun run test:wasm:cli          # the CLI: generation, the checker, the overlay footprint
+bun run test:wasm:browser      # the page and the running application, in Chromium
+```
+
+`tests/e2e/wasm/` has its own Playwright config, because the root suite drives
+the modelling tool on port 5000 and this one serves `html/` with the generator's
+own `serve` command — the server that sets `Service-Worker-Allowed` and
+deliberately omits COEP.
+
+`cli.e2e.spec.ts` generates both ways and asserts the overlay's exact footprint;
+`browser.e2e.spec.ts` drives the hosted page through generation, boot, sign-in,
+dictionary-driven CRUD, a rule refusing a write, the audit trail and the checker
+feedback path, leaving screenshots in `pics/wasm-e2e/`.
+
+In a container whose Chromium Playwright did not download, set
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE` to it rather than running `playwright install`.
+
 ### QA reports
 
 `docs/qa/qa-report-*.md` are dated walkthroughs of a generated application, with
@@ -1221,7 +1257,7 @@ ERDwithAI") built from those runs.
 
 | Workflow | What it does |
 |----------|--------------|
-| `ci.yml` | **checks**: type-check, Biome (errors only), unit tests, and that the inlined wasm runtime and browser bundle are current. **generated-wasm-app**: generate a browser app → start its backend under Node → `scripts/ci/wasm-smoke.ts` (no database service: the app carries its own). **generated-app**: generate → build backend/frontend/tests → migrate+seed pgvector Postgres → start backend → run the generated E2E suite |
+| `ci.yml` | **checks**: type-check, Biome (errors only), unit tests, and that the inlined wasm runtime and browser bundle are current. **generated-wasm-app**: generate a browser app → start its backend under Node → `scripts/ci/wasm-smoke.ts` (no database service: the app carries its own). **wasm-e2e**: run `bun run test:wasm` in Chromium — the only job that opens the result. **generated-app**: generate → build backend/frontend/tests → migrate+seed pgvector Postgres → start backend → run the generated E2E suite |
 | `github-neon.yml` | `workflow_dispatch`: generate from an online `.mmd`, point the app at a Neon database, migrate/seed/verify, run both halves on the runner, exercise it, optionally publish the app to a repo |
 | `eml-generate-and-publish.yml` | `workflow_dispatch`: run the `eml` CLI over an online model and publish the generated application to a target repo |
 
@@ -1264,6 +1300,9 @@ Secrets: `NEON_DATABASE_URL`, `EML_PUBLISH_TOKEN` (needs `repo` **and**
 | `packages/core/src/hooks/hook-executor.ts` | `globalHookExecutor` |
 | `packages/core/src/rules/rules-engine.service.ts` | GoRules evaluation |
 | `packages/generator/src/pipeline/generate-application.ts` | ⭐ The one generation path |
+| `packages/generator/src/pipeline/review-model.ts` | ⭐ Checker + fixer, over a string |
+| `packages/generator/templates/common/design-tokens.json` | ⭐ The palette, stated once |
+| `packages/generator/templates/.../frontend/src/lib/app-meta.ts.hbs` | ⭐ The only generated module in the front end |
 | `packages/generator/src/rbac/index.ts` | `%%rbac` → operation + transition access rules |
 | `packages/generator/src/cli/generate.ts` | Generator CLI |
 | `packages/generator/src/generators/ports.ts` | Generated-app default ports |
@@ -1327,12 +1366,27 @@ Secrets: `NEON_DATABASE_URL`, `EML_PUBLISH_TOKEN` (needs `repo` **and**
 4. Generate an app and start it: `bun run wasm generate -i language/examples/crm.eml.mmd -o /tmp/x --vendor-pglite && node /tmp/x/host/node-host.mjs`
 5. `bun scripts/ci/wasm-smoke.ts --base http://localhost:4000/api`
 
-### Add a new generation template
+### Add a new generation template — or, more often, a component
 
-1. Add the `.hbs` file under `packages/generator/templates/tanstack-start-nestjs/`
-2. Register it in `packages/generator/src/templates/loader.ts`
-3. Supply context data in the matching generator class
-4. Generate an app and build it — `tsc` here will not catch a broken template
+**Ask first whether it needs a model at all.** Most of the generated front end
+does not: it renders whatever the Application Dictionary describes, so it is the
+same code for a CRM and for a drug-discovery lab. Those files are plain `.tsx`
+and `.ts` under `templates/`, read by `BaseGenerator.component()` and copied
+verbatim — an editor, a linter and the generated app's own `tsc` can all read
+them, which none of them can do with a `.hbs`.
+
+The identity a component needs comes from `src/lib/app-meta.ts` (`APP_NAME`,
+`BACKEND_PORT`, …), which is the one generated module in the front end.
+
+- **A component** (no model in it): add the `.tsx`/`.ts` under
+  `templates/tanstack-start-nestjs/frontend/`, then
+  `const x = await this.component("src/…")` in the matching generator.
+- **A real template** (the model shapes its contents): add the `.hbs`, render it
+  with `this.renderTemplate("… .hbs", context)`, and supply the context data.
+
+Either way: generate an app and build it. `bun run type-check` in this repo does
+not check `templates/` — a component there is written against the *generated*
+application's dependencies, not this one's.
 
 ### Add a generator input
 

@@ -1,0 +1,22 @@
+/**
+ * What this application is called, and where its API lives.
+ *
+ * The only file in the front end that a model changes. Everything else — every
+ * screen, hook and provider — is the same code in every generated application
+ * and imports its identity from here.
+ *
+ * That is not a tidiness point. Before this file existed, twenty components were
+ * Handlebars templates because each carried a project name in a heading or a
+ * comment, which meant none of them could be type-checked, linted or opened in
+ * an editor that understood TSX: a broken component was found by a person
+ * running the generated application, not by `tsc`. Substituting one constant
+ * instead of twenty files buys all of that back.
+ */
+
+export const APP_NAME = "{{project.name}}";
+export const APP_VERSION = "{{project.version}}";
+export const APP_DESCRIPTION = "{{project.description}}";
+
+/** The NestJS backend, as reached from the browser. */
+export const BACKEND_PORT = {{config.backendPort}};
+export const BACKEND_URL = "{{config.baseUrl}}";

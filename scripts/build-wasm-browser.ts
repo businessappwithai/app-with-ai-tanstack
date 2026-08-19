@@ -21,21 +21,35 @@ const TARGET = join(ROOT, "html/assets/erdwithai-wasm.js");
 /**
  * Stubs for the Node builtins the parser still names.
  *
- * `language-maps.ts` imports `node:fs` to find the language definition on disk.
- * The browser entry injects that definition directly, so the file lookup never
- * runs — but the import still has to resolve for the bundle to build. These
- * stubs make the lookup fail the way a missing file would, which is the branch
- * the loader already handles.
+ * `language-maps.ts` imports `node:fs` to find the language definition on disk,
+ * and `checker.ts` / `fixer.ts` name the file operations their CLI halves use.
+ * The browser entry injects the definition directly and calls only the pure
+ * functions, so none of these ever run — but the imports still have to resolve
+ * for the bundle to build.
+ *
+ * They are stubs that fail rather than stubs that pretend: a read reports a
+ * missing file, which is the branch the loader already handles, and a write
+ * throws, because a tab silently dropping a write would be far worse than one
+ * that says it cannot. The path helpers are real, since path arithmetic is
+ * string manipulation and there is nothing to fake.
  */
 const nodeStubs: Record<string, string> = {
   "node:fs":
+    "const missing = () => { throw new Error('no filesystem in the browser'); };\n" +
     "export const existsSync = () => false;\n" +
-    "export const readFileSync = () => { throw new Error('no filesystem in the browser'); };\n" +
-    "export default { existsSync, readFileSync };",
+    "export const readFileSync = missing;\n" +
+    "export const writeFileSync = missing;\n" +
+    "export const readdirSync = missing;\n" +
+    "export const statSync = missing;\n" +
+    "export default { existsSync, readFileSync, writeFileSync, readdirSync, statSync };",
   "node:path":
     "const dirname = (p) => String(p).replace(/\\/[^/]*$/, '') || '/';\n" +
+    "const basename = (p) => String(p).split('/').pop() || '';\n" +
     "const join = (...parts) => parts.filter(Boolean).join('/').replace(/\\/+/g, '/');\n" +
-    "export { dirname, join };\nexport default { dirname, join };",
+    "const resolve = (...parts) => join(...parts);\n" +
+    "const relative = (_from, to) => String(to);\n" +
+    "export { dirname, basename, join, resolve, relative };\n" +
+    "export default { dirname, basename, join, resolve, relative };",
   "node:url":
     "export const fileURLToPath = (url) => String(url).replace(/^file:\\/\\//, '');\n" +
     "export default { fileURLToPath };",

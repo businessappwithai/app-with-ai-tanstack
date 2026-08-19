@@ -19,7 +19,7 @@
  * keeps the generated application byte-identical to the one you would deploy.
  */
 
-import { generateFromSource } from "./erdwithai-wasm.js";
+import { generateFromSource, reviewModel } from "./erdwithai-wasm.js";
 
 const BASE = new URL("wasm-app/run/", window.location.href).pathname;
 const SW_URL = new URL("wasm-app/sw.js", window.location.href).pathname;
@@ -42,6 +42,111 @@ const state = {
   files: null,
   summary: null,
   registration: null,
+  review: null,
+};
+
+/* ---------------------------------------------------------------- progress */
+
+/**
+ * The build, as a bar.
+ *
+ * Six phases, weighted by how long they actually take rather than evenly: the
+ * first four together are a fraction of a second on any model this page will be
+ * given, and booting Postgres is ten seconds or more. An evenly divided bar
+ * would sit at 66% for the entire wait, which is worse than no bar — it would be
+ * reporting the number of steps rather than the progress through them.
+ *
+ * The weights come from measuring the CRM model, and they are honest about
+ * being estimates for everything except `boot`, which reports its own sub-steps
+ * from inside the frame and is the only phase long enough for that to matter.
+ */
+const PHASES = [
+  { id: "model", label: "Read the model", weight: 4 },
+  { id: "check", label: "Check it", weight: 8 },
+  { id: "compile", label: "Compile the application", weight: 12 },
+  { id: "mount", label: "Serve the files", weight: 6 },
+  { id: "boot", label: "Start Postgres and the server", weight: 62 },
+  { id: "ready", label: "Application running", weight: 8 },
+];
+
+const TOTAL_WEIGHT = PHASES.reduce((sum, phase) => sum + phase.weight, 0);
+
+const build = {
+  /** phase id -> "pending" | "active" | "done" | "failed" */
+  status: Object.fromEntries(PHASES.map((phase) => [phase.id, "pending"])),
+  /** Fraction 0..1 through the phase currently active. */
+  within: 0,
+
+  reset() {
+    for (const phase of PHASES) this.status[phase.id] = "pending";
+    this.within = 0;
+    $("build").hidden = false;
+    $("build-detail").textContent = "";
+    this.paint();
+  },
+
+  /** Mark a phase started; everything before it is finished by definition. */
+  start(id, detail = "") {
+    const index = PHASES.findIndex((phase) => phase.id === id);
+    PHASES.forEach((phase, position) => {
+      if (position < index && this.status[phase.id] !== "failed") this.status[phase.id] = "done";
+    });
+    this.status[id] = "active";
+    this.within = 0;
+    if (detail) $("build-detail").textContent = detail;
+    this.paint();
+  },
+
+  /** Progress within the active phase, for the one phase long enough to need it. */
+  advance(fraction, detail = "") {
+    this.within = Math.max(0, Math.min(1, fraction));
+    if (detail) $("build-detail").textContent = detail;
+    this.paint();
+  },
+
+  done(id, detail = "") {
+    this.status[id] = "done";
+    this.within = 0;
+    if (detail) $("build-detail").textContent = detail;
+    this.paint();
+  },
+
+  fail(id, detail) {
+    this.status[id] = "failed";
+    if (detail) $("build-detail").textContent = detail;
+    this.paint();
+  },
+
+  paint() {
+    let earned = 0;
+    for (const phase of PHASES) {
+      const status = this.status[phase.id];
+      if (status === "done") earned += phase.weight;
+      else if (status === "active") earned += phase.weight * this.within;
+    }
+    const pct = Math.round((earned / TOTAL_WEIGHT) * 100);
+    const failed = PHASES.some((phase) => this.status[phase.id] === "failed");
+    const active = PHASES.find((phase) => this.status[phase.id] === "active");
+    const complete = PHASES.every((phase) => this.status[phase.id] === "done");
+
+    $("build-fill").style.width = `${pct}%`;
+    $("build").dataset.state = failed ? "failed" : complete ? "done" : "running";
+    $("build-pct").textContent = failed ? "stopped" : `${pct}%`;
+    $("build-label").textContent = failed
+      ? "Build stopped"
+      : complete
+        ? "Application running"
+        : (active?.label ?? "Ready to build");
+
+    const bar = $("build-bar");
+    bar.setAttribute("aria-valuenow", String(pct));
+
+    $("build-phases").innerHTML = PHASES.map(
+      (phase) =>
+        `<li class="build__phase" data-state="${this.status[phase.id]}">` +
+        `<span class="build__tick"></span>${escapeHtml(phase.label)}</li>`
+    ).join("");
+  },
 };
 
 /* ------------------------------------------------------------------ step 1 */
@@ -114,10 +219,12 @@ function setModel(source, label) {
   state.label = label;
   state.files = null;
   state.summary = null;
+  state.review = null;
 
   $("download").disabled = true;
   $("result").className = "result";
   $("result").innerHTML = "";
+  $("diagnostics").hidden = true;
 
   const summary = $("model-summary");
   const preview = $("preview");
@@ -125,10 +232,14 @@ function setModel(source, label) {
   if (!source) {
     summary.hidden = true;
     preview.hidden = true;
+    $("build").hidden = true;
     setStep("step-generate", "idle");
     setStep("step-run", "idle");
     return;
   }
+
+  build.reset();
+  build.start("model", `Reading ${label}`);
 
   summary.hidden = false;
   summary.innerHTML =
@@ -140,8 +251,145 @@ function setModel(source, label) {
   $("preview-code").textContent = source;
 
   setStep("step-model", "done");
+  build.done("model");
+
+  // Checked here rather than at the point of generating, because this is the
+  // moment the reader is looking at the model — and because a model with an
+  // error is not going to become a working application by pressing Generate.
+  build.start("check", "Checking the model against the EML language definition");
+  const review = checkModel(source);
+  if (!review.ok) {
+    build.fail("check", `${review.counts.errors} error(s) — nothing was generated`);
+    setStep("step-generate", "idle");
+    setStep("step-run", "idle");
+    return;
+  }
+  build.done("check", describeReview(review));
+
   setStep("step-generate", "active");
   setStep("step-run", "idle");
+}
+
+/* -------------------------------------------------- checker + fixer feedback */
+
+/**
+ * Run the checker over the model and show what it found.
+ *
+ * This is the same engine as `bun language/checker.ts`, and the same repairs as
+ * `bun language/fixer.ts` — bundled, not reimplemented. A model that passes says
+ * nothing beyond a line in the build detail; a model that does not gets every
+ * finding with its code, line and hint, because "generation failed" on its own
+ * leaves the reader with a file and no idea which line of it is wrong.
+ *
+ * The repaired source replaces the loaded one when the fixer applied anything,
+ * so what gets compiled is what the reader is being shown findings about.
+ */
+function checkModel(source) {
+  let review;
+  try {
+    review = reviewModel(source);
+  } catch (error) {
+    // A document the parser cannot read at all — not a finding, a refusal.
+    review = {
+      ok: false,
+      repaired: false,
+      source,
+      fixes: [],
+      counts: { errors: 1, warnings: 0, infos: 0 },
+      issues: [
+        {
+          severity: "error",
+          code: "EML000",
+          message: `This file could not be read as EML: ${error.message}`,
+          hint: "An EML document is a Mermaid file with an erDiagram section.",
+        },
+      ],
+    };
+  }
+
+  state.review = review;
+  if (review.repaired) {
+    state.source = review.source;
+    $("preview-code").textContent = review.source;
+  }
+  renderDiagnostics(review);
+  return review;
+}
+
+function describeReview(review) {
+  const { errors, warnings, infos } = review.counts;
+  const applied = review.fixes.filter((fix) => fix.applied).length;
+  const parts = [];
+  if (applied) parts.push(`${applied} auto-fix${applied === 1 ? "" : "es"} applied`);
+  parts.push(`${errors} error${errors === 1 ? "" : "s"}`);
+  if (warnings) parts.push(`${warnings} warning${warnings === 1 ? "" : "s"}`);
+  if (infos) parts.push(`${infos} info`);
+  return parts.join(" · ");
+}
+
+const SEVERITY_LABEL = { error: "error", warning: "warning", info: "info" };
+
+function renderDiagnostics(review) {
+  const box = $("diagnostics");
+  const applied = review.fixes.filter((fix) => fix.applied);
+  // Infos are the generator announcing its own inferences — a foreign key it
+  // will add anyway. Shown, but folded away, so the two lines that stop the
+  // build are not buried under thirty that do not.
+  const loud = review.issues.filter((issue) => issue.severity !== "info");
+  const quiet = review.issues.filter((issue) => issue.severity === "info");
+
+  if (!applied.length && !loud.length && !quiet.length) {
+    box.hidden = true;
+    return;
+  }
+
+  const issueRow = (issue) => `
+    <li class="diag diag--${issue.severity}">
+      <span class="diag__sev">${SEVERITY_LABEL[issue.severity]}</span>
+      <span class="diag__code">${escapeHtml(issue.code)}</span>
+      ${issue.line ? `<span class="diag__line">line ${issue.line}</span>` : ""}
+      <span class="diag__msg">${escapeHtml(issue.message)}</span>
+      ${issue.hint ? `<span class="diag__hint">${escapeHtml(issue.hint)}</span>` : ""}
+    </li>`;
+
+  box.hidden = false;
+  box.dataset.state = review.ok ? "ok" : "failed";
+  box.innerHTML = `
+    <div class="diag__head">
+      <b>${
+        review.ok
+          ? "The checker accepted this model"
+          : `The checker refused this model — ${review.counts.errors} error${review.counts.errors === 1 ? "" : "s"}`
+      }</b>
+      <span>${escapeHtml(describeReview(review))}</span>
+    </div>
+    ${
+      applied.length
+        ? `<ul class="diags">${applied
+            .map(
+              (fix) => `<li class="diag diag--fixed">
+                 <span class="diag__sev">fixed</span>
+                 <span class="diag__code">${escapeHtml(fix.code)}</span>
+                 <span class="diag__msg">${escapeHtml(fix.description)}</span>
+               </li>`
+            )
+            .join("")}</ul>`
+        : ""
+    }
+    ${loud.length ? `<ul class="diags">${loud.map(issueRow).join("")}</ul>` : ""}
+    ${
+      quiet.length
+        ? `<details class="diag__more"><summary>${quiet.length} informational finding${quiet.length === 1 ? "" : "s"}</summary>
+             <ul class="diags">${quiet.map(issueRow).join("")}</ul></details>`
+        : ""
+    }
+    ${
+      review.ok
+        ? ""
+        : `<p class="diag__foot">Nothing was generated. The command-line tool stops here too —
+             <code>erdwithai-wasm generate</code> refuses a model with errors unless you pass
+             <code>--skip-check</code>.</p>`
+    }`;
 }
 
 /* ------------------------------------------------------------------ step 2 */
@@ -152,9 +400,15 @@ $("generate").addEventListener("click", () => {
     return;
   }
 
+  if (state.review && !state.review.ok) {
+    fail("This model has errors the checker refused. Fix them and load it again.");
+    return;
+  }
+
   const button = $("generate");
   button.disabled = true;
   button.innerHTML = '<span class="working"></span>Generating';
+  build.start("compile", "Compiling the model into an application");
 
   // A frame so the button's state paints before the compiler blocks the thread.
   // Generation is milliseconds on a small model and long enough to notice on a
@@ -176,8 +430,22 @@ $("generate").addEventListener("click", () => {
       $("download").disabled = false;
       setStep("step-generate", "done");
       setStep("step-run", "active");
+      build.done(
+        "compile",
+        `${result.summary.fileCount} files · ${(result.summary.bytes / 1024).toFixed(0)}KB`
+      );
     } catch (error) {
-      fail(escapeHtml(error.message));
+      // A ModelCheckError carries the findings; anything else is a compiler
+      // failure, which is a different thing and should not be dressed as one.
+      if (error.review) {
+        state.review = error.review;
+        renderDiagnostics(error.review);
+        build.fail("check", `${error.review.counts.errors} error(s) — nothing was generated`);
+        fail("The checker refused this model. The findings are with the model above.");
+      } else {
+        build.fail("compile", error.message);
+        fail(escapeHtml(error.message));
+      }
       setStep("step-run", "idle");
     } finally {
       button.disabled = false;
@@ -310,6 +578,7 @@ async function run(fresh) {
   const log = $("log");
   log.hidden = false;
   log.innerHTML = "";
+  build.start("mount", "Handing the files to the Service Worker");
 
   try {
     say("Registering the HTTP layer");
@@ -324,6 +593,8 @@ async function run(fresh) {
     });
     if (!mounted.ok) throw new Error(mounted.error || "the Service Worker refused the files");
     say(`Mounted ${mounted.files} files`, "ok");
+    build.done("mount", `${mounted.files} files served from ${BASE}`);
+    build.start("boot", "Starting the application");
 
     say(
       "Starting the application — Postgres is about ten megabytes of WebAssembly, so give it a moment"
@@ -352,6 +623,7 @@ async function run(fresh) {
     setStep("step-run", "done");
     $("stage").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
+    build.fail("mount", error.message);
     say(error.message, "bad");
     say(
       "This page needs to be served over http:// or https:// — a Service Worker cannot be registered " +
@@ -363,6 +635,59 @@ async function run(fresh) {
     button.textContent = "Run the application";
   }
 }
+
+/* -------------------------------------------------------------- boot phases */
+
+/**
+ * The sub-steps the application announces while it starts.
+ *
+ * Booting is sixty per cent of the bar and ten seconds of wall clock, almost all
+ * of it Postgres. The application already narrates that on its own boot screen;
+ * `boot.js` now posts the same lines to whoever embedded it, so this bar can
+ * move through the wait instead of sitting still until the frame paints.
+ *
+ * Matching on the status text is a soft coupling, and deliberately so: an
+ * unrecognised status still shows in the detail line and simply does not advance
+ * the bar. The alternative — a numbered protocol between the page and the
+ * runtime — buys nothing that a stalled bar does not already communicate.
+ */
+const BOOT_MARKS = [
+  [/http layer|service worker/i, 0.15],
+  [/backend worker|node-api/i, 0.3],
+  [/request pipe/i, 0.4],
+  [/postgres/i, 0.55],
+  [/migrat|schema/i, 0.7],
+  [/seed/i, 0.85],
+  [/interface/i, 0.95],
+];
+
+window.addEventListener("message", (event) => {
+  const message = event.data;
+  if (!message || message.source !== "erdwithai-boot") return;
+
+  if (message.type === "status" || message.type === "log") {
+    const text = message.status ?? message.message ?? "";
+    if (message.type === "log") say(`  ${text}`);
+    else say(text);
+    for (const [pattern, fraction] of BOOT_MARKS) {
+      if (pattern.test(text)) build.advance(fraction, text);
+    }
+    return;
+  }
+
+  if (message.type === "running") {
+    build.done("boot", "The server is answering requests");
+    build.start("ready");
+    build.done("ready", `${message.project?.name ?? "The application"} is running`);
+    say("The application is running", "ok");
+    return;
+  }
+
+  if (message.type === "failed") {
+    build.fail("boot", message.message);
+    say(message.message, "bad");
+  }
+});
 
 /**
  * Register the worker and wait for it to be genuinely active.

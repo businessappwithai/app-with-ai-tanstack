@@ -9,7 +9,7 @@
  * stays in lockstep with the language.
  */
 
-import { cardinalityKind, isHookType, normalizeType } from "../../index.ts";
+import { cardinalityKind, isHookType, normalizeType } from "../../index";
 import type {
   CanonicalType,
   Diagnostic,
@@ -23,9 +23,9 @@ import type {
   RuleEdge,
   RuleNode,
   RuleNodeShape,
-} from "./model.ts";
-import { emptyModel } from "./model.ts";
-import { caps, foreignKeyName, splitHead, stripQuotes, toSnakeCase } from "./util.ts";
+} from "./model";
+import { emptyModel } from "./model";
+import { caps, foreignKeyName, splitHead, stripQuotes, toSnakeCase } from "./util";
 
 interface Section {
   type: "erd" | "flow" | "state";
