@@ -9,8 +9,8 @@
  * Project: {{project.name}}
  */
 
-import { describe, expect, it } from "bun:test";
-import { config, HttpClient, isServerUp, waitForServer } from "../harness";
+import { describe, expect, it } from "../harness/testing.ts";
+import { config, HttpClient, isServerUp, waitForServer } from "../harness/index.ts";
 
 describe("health", () => {
   it("answers the health endpoint", async () => {

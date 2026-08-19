@@ -7,7 +7,7 @@
  * Project: {{project.name}}
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
 import {
   buildInvalidRecord,
   buildRecord,
@@ -16,7 +16,7 @@ import {
   harness,
   scalarFields,
   writableFields,
-} from "../harness";
+} from "../harness/index.ts";
 
 const entity = getEntity("{{entity.name}}");
 

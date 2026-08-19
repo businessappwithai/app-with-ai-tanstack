@@ -27,7 +27,7 @@
  * Project: {{project.name}}
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { afterAll, beforeAll, describe, expect, it, sleep } from "../harness/testing.ts";
 import {
   buildRecord,
   buildWorkflowBpmn,
@@ -45,7 +45,7 @@ import {
   type FieldMeta,
   type WorkflowRun,
   type WorkflowStep,
-} from "../harness";
+} from "../harness/index.ts";
 
 const suiteId = `ms${Date.now().toString(36).slice(-5)}`;
 
@@ -267,7 +267,7 @@ describe("multi-step workflows triggered by rules", () => {
       });
       const triggerId = created?.id as string;
       expect(triggerId).toBeTruthy();
-      await Bun.sleep(2000);
+      await sleep(2000);
 
       const runs = await ourRuns(triggerId);
       const after = (await listTargetRows()).length;
@@ -329,7 +329,7 @@ describe("multi-step workflows triggered by rules", () => {
         last = run;
         if (isTerminal(run.status)) return run;
       }
-      await Bun.sleep(400);
+      await sleep(400);
     }
     return last;
   }

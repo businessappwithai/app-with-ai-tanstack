@@ -238,6 +238,128 @@ test.describe("@cli the model checker", () => {
   });
 });
 
+test.describe("@cli the generated test suite", () => {
+  // The suite the generator writes used to be a `bun:test` suite, which meant a
+  // wasm application — whose whole point is running under Node — could not be
+  // tested without installing Bun. It is `node:test` now, and this is what stops
+  // it drifting back.
+  const nest = () => join(workspace, "nest-tests");
+
+  // Generated once for the block: all four tests read the same workspace, and
+  // generating it per test would repeat a two-minute step for nothing.
+  test.beforeAll(async () => {
+    const { code, out } = await cli([
+      "generate",
+      "-i",
+      CRM,
+      "-o",
+      nest(),
+      "--name",
+      "Acme CRM",
+      "--force",
+    ]);
+    expect(code, out).toBe(0);
+  });
+
+  test("has no Bun left in it", async () => {
+    const manifest = JSON.parse(await readFile(join(nest(), "tests/package.json"), "utf-8"));
+    for (const [name, script] of Object.entries(manifest.scripts as Record<string, string>)) {
+      expect(script, `tests → ${name}`).not.toMatch(/\bbunx?\b/);
+    }
+    expect(Object.keys(manifest.devDependencies ?? {})).not.toContain("@types/bun");
+    expect(manifest.engines?.node).toBeTruthy();
+    expect(manifest.engines?.bun).toBeUndefined();
+
+    const suite = await readFile(join(nest(), "tests/suites/00-health.test.ts"), "utf-8");
+    expect(suite).not.toContain("bun:test");
+    expect(suite).toContain("../harness/testing.ts");
+  });
+
+  test("its imports carry the extension Node's resolver needs", async () => {
+    const runner = await readFile(join(nest(), "tests/run.ts"), "utf-8");
+    // Bun resolves `./harness/config`; Node does not, and the failure is a
+    // module-not-found at load time rather than anything a test can catch.
+    for (const match of runner.matchAll(/from "(\.[^"]*)"/g)) {
+      expect(match[1], `run.ts imports ${match[1]}`).toMatch(/\.(ts|js|json)$/);
+    }
+    // And nothing Node's type-stripping cannot handle.
+    const http = await readFile(join(nest(), "tests/harness/http.ts"), "utf-8");
+    expect(http).not.toMatch(/constructor\([^)]*\b(private|public|protected|readonly)\s/);
+  });
+
+  test("every harness module loads under Node", async () => {
+    // The suites need a live backend to *pass*, which CI's generated-wasm-app
+    // job provides and this one cannot without an npm install. What is checked
+    // here is that they load — which is where every failure of this port showed
+    // up: a `bun:test` import, an extensionless specifier Node will not resolve,
+    // a parameter property its type-stripping cannot remove, `import.meta.dir`.
+    const tests = join(nest(), "tests");
+    // Only the modules that need nothing installed. `factory.ts` imports
+    // @faker-js/faker, and installing it here would make this a slow test of
+    // the npm registry rather than a fast one of the port.
+    const modules = [
+      "harness/testing.ts",
+      "harness/config.ts",
+      "harness/http.ts",
+      "harness/manifest.ts",
+      "harness/server.ts",
+    ];
+
+    const { stdout, stderr } = await run(
+      "node",
+      [
+        "--input-type=module",
+        "-e",
+        modules.map((module) => `await import("./${module}");`).join("\n") +
+          '\nconsole.log("loaded");',
+      ],
+      { cwd: tests, env: { ...process.env, NO_COLOR: "1" } }
+    ).catch((error) => {
+      const failure = error as { stdout?: string; stderr?: string };
+      return { stdout: failure.stdout ?? "", stderr: failure.stderr ?? "" };
+    });
+
+    expect(`${stdout}${stderr}`).toContain("loaded");
+  });
+
+  test("its expect shim provides every matcher the suites use", async () => {
+    // Written by hand rather than borrowed, so completeness is not automatic:
+    // a matcher the suites use and the shim lacks is a suite that throws
+    // `not a function` instead of failing an assertion.
+    //
+    // The list is spelled out rather than scraped from the suites, because
+    // scraping it means a regex that has to tell `expect(x).toBe(…)` from
+    // `x.toLowerCase()` — and a test whose own regex is the hard part is not
+    // testing the shim.
+    const shim = await readFile(join(nest(), "tests/harness/testing.ts"), "utf-8");
+
+    for (const matcher of [
+      "toBe",
+      "toEqual",
+      "toBeTruthy",
+      "toBeFalsy",
+      "toBeNull",
+      "toBeUndefined",
+      "toBeDefined",
+      "toContain",
+      "toMatch",
+      "toHaveLength",
+      "toBeGreaterThan",
+      "toBeGreaterThanOrEqual",
+      "toBeLessThan",
+      "toBeLessThanOrEqual",
+    ]) {
+      expect(shim, `the shim has no ${matcher}`).toContain(`${matcher}:`);
+    }
+
+    // `.not` inverts all of them, and `sleep` replaces `Bun.sleep`.
+    expect(shim).toContain("not: build(actual, true)");
+    expect(shim).toContain("export const sleep");
+    // The runner itself is Node's, not a reimplementation.
+    expect(shim).toContain('from "node:test"');
+  });
+});
+
 test.describe("@cli the WebAssembly overlay", () => {
   // Generating the full NestJS stack twice takes a couple of minutes.
   test.describe.configure({ timeout: 600_000 });

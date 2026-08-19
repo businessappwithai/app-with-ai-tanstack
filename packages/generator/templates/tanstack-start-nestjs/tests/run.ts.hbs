@@ -1,33 +1,37 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 /**
  * E2E runner.
  *
  * Starts the backend (unless one is already listening), waits for it to become
- * healthy, then runs the suites **in order** — each in its own `bun test`
+ * healthy, then runs the suites **in order** — each in its own test-runner
  * process so a crash in one suite cannot take the rest down, and so the
  * ordering the suites depend on (seed before rules before workflows) holds.
  *
  * Usage:
- *   bun run run.ts                 # everything, in order (1000 records/entity)
- *   bun run run.ts --small         # 10 records per entity — quick smoke run
- *   bun run run.ts --full          # 1000 records per entity (the default)
- *   bun run run.ts --records 250   # an arbitrary volume
- *   bun run run.ts --fast          # skip the bulk-seed suite entirely
- *   bun run run.ts --only crud     # substring filter on suite file names
- *   bun run run.ts --no-server     # attach to an already-running backend
+ *   npm test --                 # everything, in order (1000 records/entity)
+ *   npm test -- --small         # 10 records per entity — quick smoke run
+ *   npm test -- --full          # 1000 records per entity (the default)
+ *   npm test -- --records 250   # an arbitrary volume
+ *   npm test -- --fast          # skip the bulk-seed suite entirely
+ *   npm test -- --only crud     # substring filter on suite file names
+ *   npm test -- --no-server     # attach to an already-running backend
  *
  * Generated: {{now}}
  * Project: {{project.name}}
  */
 
-import { spawn } from "bun";
+// node:child_process, not Bun's spawn: this runner has to work under both
+// runtimes, since the wasm stack has no Bun to run it with.
+import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { readdir, rm } from "node:fs/promises";
-import { join } from "node:path";
-import { config } from "./harness/config";
-import { formatComparison, formatSummary, timestampFor, writeReport } from "./harness/report";
-import { isServerUp, startServer } from "./harness/server";
+import { dirname, join } from "node:path";
+import { config } from "./harness/config.ts";
+import { formatComparison, formatSummary, timestampFor, writeReport } from "./harness/report.ts";
+import { isServerUp, startServer } from "./harness/server.ts";
 
-const here = import.meta.dir;
+// Standard `import.meta.url` rather than Bun's `import.meta.dir`.
+const here = dirname(fileURLToPath(import.meta.url));
 const suitesDir = join(here, "suites");
 
 /**
@@ -97,14 +101,22 @@ async function orderedSuites(): Promise<string[]> {
 async function runSuite(file: string): Promise<SuiteResult> {
   const started = Date.now();
 
-  const child = spawn({
-    // bun:test defaults to a 5s per-test timeout, which is too tight for
-    // suites that make several round trips against a populated database.
-    // Individual heavy tests set their own longer timeouts on top of this.
-    cmd: ["bun", "test", "--timeout", String(config.suiteTimeoutMs), join(suitesDir, file)],
+  // Both runners understand `node:test`, which is what the suites are written
+  // against, so each is invoked with whichever one is running this file. The
+  // default per-test timeout in both is far too tight for suites making several
+  // round trips against a populated database; individual heavy tests set longer
+  // ones on top.
+  const onBun = typeof process.versions.bun === "string";
+  const [command, args] = onBun
+    ? ["bun", ["test", "--timeout", String(config.suiteTimeoutMs), join(suitesDir, file)]]
+    : [
+        process.execPath,
+        ["--test", `--test-timeout=${config.suiteTimeoutMs}`, join(suitesDir, file)],
+      ];
+
+  const child = spawn(command as string, args as string[], {
     cwd: here,
-    stdout: "inherit",
-    stderr: "inherit",
+    stdio: "inherit",
     // Pin the resolved volume so every suite in the run agrees on it,
     // regardless of which flag or env var selected it.
     env: {
@@ -116,7 +128,10 @@ async function runSuite(file: string): Promise<SuiteResult> {
     },
   });
 
-  const exitCode = await child.exited;
+  const exitCode = await new Promise<number>((resolve) => {
+    child.once("exit", (code) => resolve(code ?? 1));
+    child.once("error", () => resolve(1));
+  });
   return {
     file,
     ok: exitCode === 0,

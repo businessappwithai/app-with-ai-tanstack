@@ -1,16 +1,16 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 /**
  * Remove faker-generated test data.
  *
  * Two modes:
  *
- *   bun run cleanup.ts            Delete exactly the rows recorded in
+ *   node cleanup.ts            Delete exactly the rows recorded in
  *                                 .e2e-seed-manifest.json — the records the
  *                                 bulk-seed suite created. The application's own
  *                                 seed data (roles, admin user, dictionary,
  *                                 sample business rows) is left alone.
  *
- *   bun run cleanup.ts --all      Delete every row in every bus_ table,
+ *   node cleanup.ts --all      Delete every row in every bus_ table,
  *                                 manifest or not. Use when a run crashed before
  *                                 writing the manifest, or when you want a truly
  *                                 empty set of business tables.
@@ -24,17 +24,17 @@
  * Project: {{project.name}}
  */
 
-import { login } from "./harness/auth";
-import { config } from "./harness/config";
-import { entities, topologicalEntities } from "./harness/entities";
-import { HttpClient } from "./harness/http";
+import { login } from "./harness/auth.ts";
+import { config } from "./harness/config.ts";
+import { entities, topologicalEntities } from "./harness/entities.ts";
+import { HttpClient } from "./harness/http.ts";
 import {
   clearManifest,
   readManifest,
   type SeedManifest,
   totalRecords,
-} from "./harness/manifest";
-import { isServerUp, waitForServer } from "./harness/server";
+} from "./harness/manifest.ts";
+import { isServerUp, waitForServer } from "./harness/server.ts";
 
 const args = process.argv.slice(2);
 const all = args.includes("--all");
@@ -123,7 +123,7 @@ async function main(): Promise<void> {
   if (!(await isServerUp())) {
     console.error(
       `✗ No backend listening on ${config.baseUrl}.\n` +
-        `  Start it first: cd ../backend && bun run start`
+        `  Start it first: cd ../backend && npm run start`
     );
     process.exit(1);
   }

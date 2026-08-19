@@ -8,8 +8,9 @@
  * Project: {{project.name}}
  */
 
-import { config } from "./config";
-import type { HttpClient } from "./http";
+import { config } from "./config.ts";
+import type { HttpClient } from "./http.ts";
+import { sleep } from "./testing.ts";
 
 export interface WorkflowRun {
   id?: string;
@@ -104,7 +105,7 @@ export async function waitForEntityRuns(
       if (!options.requireTerminal) return runs;
       if (runs.every((run) => isTerminal(run.status))) return runs;
     }
-    await Bun.sleep(400);
+    await sleep(400);
   }
 
   return runs;
@@ -122,7 +123,7 @@ export async function waitForRun(
   while (Date.now() < deadline) {
     run = await getRun(client, runId);
     if (run && isTerminal(run.status)) return run;
-    await Bun.sleep(400);
+    await sleep(400);
   }
   return run;
 }
