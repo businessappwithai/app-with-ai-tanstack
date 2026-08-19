@@ -24512,7 +24512,6 @@ class BaseGenerator {
 }
 
 // packages/generator/src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts
-var __dirname = "/home/user/app-with-ai-tanstack/packages/generator/src/generators/tanstack-start-nestjs";
 function jsQuote(value) {
   return value.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\r?\n/g, " ");
 }
@@ -24522,7 +24521,7 @@ function resolveTemplateDir(subpath) {
     join(cwd, "packages/generator/templates", subpath),
     join(cwd, "../../../packages/generator/templates", subpath),
     join(cwd, "../../packages/generator/templates", subpath),
-    join(__dirname, "../../../templates", subpath)
+    join("/", "../../../templates", subpath)
   ];
   for (const possiblePath of possiblePaths) {
     try {
@@ -24532,7 +24531,7 @@ function resolveTemplateDir(subpath) {
       }
     } catch {}
   }
-  const fallbackPath = join(__dirname, "../../../templates", subpath);
+  const fallbackPath = join("/", "../../../templates", subpath);
   console.error(`Template directory not found. Tried paths:`);
   for (const candidate of possiblePaths)
     console.error(`  - ${candidate}`);
@@ -25825,14 +25824,13 @@ export async function seed(db: Kysely<any>): Promise<void> {
 init_memory_fs();
 init_node_path();
 init_types2();
-var __dirname = "/home/user/app-with-ai-tanstack/packages/generator/src/generators/tanstack-start-nestjs";
 function resolveTemplateDir2(subpath) {
   const cwd = process.cwd();
   const possiblePaths = [
     join(cwd, "packages/generator/templates", subpath),
     join(cwd, "../../../packages/generator/templates", subpath),
     join(cwd, "../../packages/generator/templates", subpath),
-    join(__dirname, "../../../templates", subpath)
+    join("/", "../../../templates", subpath)
   ];
   for (const possiblePath of possiblePaths) {
     try {
@@ -25842,7 +25840,7 @@ function resolveTemplateDir2(subpath) {
       }
     } catch {}
   }
-  const fallbackPath = join(__dirname, "../../../templates", subpath);
+  const fallbackPath = join("/", "../../../templates", subpath);
   console.error(`Template directory not found. Tried paths:`);
   for (const candidate of possiblePaths)
     console.error(`  - ${candidate}`);
@@ -26595,7 +26593,6 @@ PORT=${context.config.frontendPort}
 init_memory_fs();
 init_node_path();
 init_types2();
-var __dirname = "/home/user/app-with-ai-tanstack/packages/generator/src/generators/tests";
 function resolveTemplateDir3(subpath) {
   const cwd = process.cwd();
   const candidates = [
@@ -26603,8 +26600,8 @@ function resolveTemplateDir3(subpath) {
     node_path_default.join(cwd, "templates", subpath),
     node_path_default.join(cwd, "../../../packages/generator/templates", subpath),
     node_path_default.join(cwd, "../../packages/generator/templates", subpath),
-    node_path_default.join(__dirname, "../../../templates", subpath),
-    node_path_default.join(__dirname, "../../templates", subpath)
+    node_path_default.join("/", "../../../templates", subpath),
+    node_path_default.join("/", "../../templates", subpath)
   ];
   for (const candidate of candidates) {
     if (existsSync(candidate))
@@ -26713,8 +26710,6 @@ class BunE2ETestGenerator extends BaseGenerator {
 }
 
 // packages/generator/src/generators/full-stack.generator.ts
-var __dirname = "/home/user/app-with-ai-tanstack/packages/generator/src/generators";
-
 class FullStackGenerator {
   options;
   constructor(options) {
@@ -26916,8 +26911,8 @@ npm-debug.log*
       join(cwd, "packages/generator/templates"),
       join(cwd, "../../../packages/generator/templates"),
       join(cwd, "../../packages/generator/templates"),
-      join(__dirname, "../../templates"),
-      join(__dirname, "../../../templates")
+      join("/", "../../templates"),
+      join("/", "../../../templates")
     ];
     for (const c of candidates) {
       try {
@@ -26933,7 +26928,7 @@ npm-debug.log*
     await mkdir(workflowsDir, { recursive: true });
     if (this.options.stackOption === "tanstackjs-nestjs") {
       console.log("\uD83D\uDCCB Setting up GitHub Actions workflows...");
-      let templatesDir = resolve(__dirname, "../../../templates");
+      let templatesDir = resolve("/", "../../../templates");
       if (!await this.directoryExists(templatesDir)) {
         const currentDir = process.cwd();
         const possiblePaths = [

@@ -107,6 +107,12 @@ globalThis.__dirname ??= "/";
 globalThis.__filename ??= "/index.js";
 `;
 
+// Bun labels each bundled module with its path *relative to the working
+// directory*, so a build from anywhere but the repository root produced a
+// different file and `--check` failed on CI while passing locally. A build
+// artifact that is only reproducible from one directory is not reproducible.
+process.chdir(ROOT);
+
 const result = await Bun.build({
   plugins: [plugin],
   entrypoints: [ENTRY],
@@ -114,6 +120,15 @@ const result = await Bun.build({
   format: "esm",
   minify: false,
   banner: processShim,
+  // Without these the bundler inlines the absolute path this ran from, so the
+  // output differs on every machine and `--check` can never pass anywhere but
+  // the one that produced it. `/` is also the right answer: `resolveTemplateDir`
+  // joins it with a templates path, and memory-fs resolves whatever that makes
+  // back to the seeded templates by suffix.
+  define: {
+    __dirname: '"/"',
+    __filename: '"/index.js"',
+  },
 });
 
 if (!result.success) {

@@ -155,10 +155,14 @@ jobs:
             echo "::error::A generated script still calls bun"; exit 1
           fi
 
-      - name: The generated test suite runs on Node
+      # Type-checked as well as loaded: the `bun:test` port's failures were all
+      # type errors that Node happily ran anyway — a timeout silently dropped,
+      # an `it.skipIf` that is not there until it is called.
+      - name: The generated test suite type-checks and runs on Node
         run: |
           cd wasm-app/tests
           npm install --no-audit --no-fund
+          npx tsc --noEmit
           node --input-type=module -e '
             await import("./harness/testing.ts");
             await import("./harness/index.ts");

@@ -18,12 +18,56 @@
  * Bun stack and `node --test` works for everyone else.
  */
 
-import { after, before, beforeEach, describe, it } from "node:test";
+import { after, before, beforeEach, describe, it as nodeIt } from "node:test";
 
 // `before`/`after` in node:test run once per file, which is what `beforeAll`
 // and `afterAll` meant in bun:test. Re-exported under both names so the suites
 // read the same as they did.
-export { describe, it, beforeEach, before as beforeAll, after as afterAll, before, after };
+export { describe, beforeEach, before as beforeAll, after as afterAll, before, after };
+
+type TestBody = () => void | Promise<void>;
+
+/**
+ * `it`, in the two shapes these suites already use.
+ *
+ * bun:test takes a timeout as a third positional argument and offers
+ * `it.skipIf(condition)`; node:test takes an options object and offers neither.
+ * Translating here rather than rewriting sixty call sites keeps the suites
+ * readable and keeps the difference between the two runners in one place — and
+ * a suite that quietly lost its timeout would not fail, it would flake.
+ */
+interface It {
+  (name: string, body: TestBody, timeoutMs?: number): void;
+  skip: (name: string, body?: TestBody, timeoutMs?: number) => void;
+  only: (name: string, body: TestBody, timeoutMs?: number) => void;
+  todo: (name: string, body?: TestBody) => void;
+  /** `it.skipIf(cond)("…", fn)` — skip when the condition holds. */
+  skipIf: (condition: unknown) => It;
+}
+
+function make(runner: typeof nodeIt, skipAll: boolean): It {
+  const call = ((name: string, body: TestBody, timeoutMs?: number) => {
+    const options = {
+      ...(typeof timeoutMs === "number" ? { timeout: timeoutMs } : {}),
+      ...(skipAll ? { skip: true } : {}),
+    };
+    runner(name, options, body);
+  }) as It;
+
+  call.skip = (name, body, timeoutMs) =>
+    runner(name, { skip: true, ...(typeof timeoutMs === "number" ? { timeout: timeoutMs } : {}) },
+      body ?? (() => {}));
+  call.only = (name, body, timeoutMs) =>
+    runner(name, { only: true, ...(typeof timeoutMs === "number" ? { timeout: timeoutMs } : {}) },
+      body);
+  call.todo = (name, body) => runner(name, { todo: true }, body ?? (() => {}));
+  call.skipIf = (condition) => (condition ? make(runner, true) : call);
+  return call;
+}
+
+export const it: It = make(nodeIt, false);
+/** Some suites spell it `test`; both are the same thing. */
+export const test: It = it;
 
 /** `Bun.sleep`, without Bun. */
 export const sleep = (ms: number): Promise<void> =>
