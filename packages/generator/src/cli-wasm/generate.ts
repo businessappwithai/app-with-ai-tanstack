@@ -30,8 +30,8 @@ import { DEFAULT_BACKEND_PORT, DEFAULT_FRONTEND_PORT } from "../generators/ports
 import { DEFAULT_PGLITE_URL, generateWasmApp, type WasmGeneratedApp } from "../generators/wasm";
 import { applyWasmOverlay } from "../generators/wasm/overlay";
 import { generateApplication, readModelSources } from "../pipeline/generate-application";
-import { formatIssue, type ModelReview, reviewModel } from "../pipeline/review-model";
 import { parseModel } from "../pipeline/parse-model";
+import { formatIssue, type ModelReview, reviewModel } from "../pipeline/review-model";
 
 const program = new Command();
 

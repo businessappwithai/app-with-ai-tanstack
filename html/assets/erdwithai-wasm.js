@@ -77,6 +77,9 @@ var init_language = __esm(() => {
     return node_path_default.join(here, "erdwithai-language.json");
   })();
 });
+
+// packages/generator/src/browser/index.ts
+init_language();
 // language/erdwithai-language.json
 var erdwithai_language_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
@@ -1266,9 +1269,6 @@ var erdwithai_language_default = {
     note: "language/checker.ts AUTO_FIXABLE_CODES and the fixer's dispatch table must list the same codes; a code in one and not the other is either a fix that never runs or a promise the fixer cannot keep."
   }
 };
-
-// packages/generator/src/browser/index.ts
-init_language();
 
 // packages/generator/src/parsers/language-maps.ts
 init_node_fs();

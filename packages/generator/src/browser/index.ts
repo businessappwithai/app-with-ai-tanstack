@@ -12,8 +12,8 @@
  * inlined by `scripts/build-wasm-runtime.ts` rather than read off disk.
  */
 
-import languageDefinition from "../../../../language/erdwithai-language.json";
 import { setLanguageDefinition as setCheckerDefinition } from "../../../../language";
+import languageDefinition from "../../../../language/erdwithai-language.json";
 import { setLanguageDefinition } from "../parsers/language-maps";
 import { type ParsedModel, parseModel } from "../pipeline/parse-model";
 import { type Issue, type ModelReview, reviewModel } from "../pipeline/review-model";
@@ -24,9 +24,7 @@ import { type Issue, type ModelReview, reviewModel } from "../pipeline/review-mo
 setLanguageDefinition(languageDefinition);
 // The checker resolves it separately, through `language/index.ts`. Same JSON,
 // same object — a tab has no disk for either of them to read it from.
-setCheckerDefinition(
-  languageDefinition as unknown as Parameters<typeof setCheckerDefinition>[0]
-);
+setCheckerDefinition(languageDefinition as unknown as Parameters<typeof setCheckerDefinition>[0]);
 
 import { RUNTIME_BYTES } from "../generators/wasm/runtime-assets.generated";
 import {
@@ -35,11 +33,10 @@ import {
   type WasmGeneratorOptions,
 } from "../generators/wasm/wasm-app.generator";
 
-export type { ParsedModel, WasmGeneratorOptions };
-export type { ModelReview };
+export type { ModelReview, ParsedModel, WasmGeneratorOptions };
 // Exported on its own so the page can check a model the moment it is chosen,
 // rather than only finding out at the point of generating it.
-export { DEFAULT_PGLITE_URL, generateWasmApp, parseModel, reviewModel, RUNTIME_BYTES };
+export { DEFAULT_PGLITE_URL, generateWasmApp, parseModel, RUNTIME_BYTES, reviewModel };
 
 export interface BrowserGenerateOptions extends Partial<WasmGeneratorOptions> {
   /** The EML document. */
