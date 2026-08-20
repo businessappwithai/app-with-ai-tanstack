@@ -22755,7 +22755,8 @@ function hashSeed(text) {
     h = Math.imul(h ^ text.charCodeAt(i), 3432918353);
     h = h << 13 | h >>> 19;
   }
-  return (h ^= h >>> 16) >>> 0;
+  h ^= h >>> 16;
+  return h >>> 0;
 }
 function rng(seed2) {
   let a = seed2;
