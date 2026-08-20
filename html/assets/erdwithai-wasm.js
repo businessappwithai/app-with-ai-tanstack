@@ -11234,7 +11234,13 @@ async function lookupOptions(table) {
     );
   }
   const result = await lookupCache.get(table);
-  return result?.options ?? [];
+  const options = result?.options ?? [];
+  /* An empty table is the one answer worth asking again for: it is the state
+     the user is about to change, by going and creating the record the lookup
+     had none of. Caching it means they come back, find the same "No X records
+     yet", and have no way to tell the form otherwise short of reloading. */
+  if (options.length === 0) lookupCache.delete(table);
+  return options;
 }
 
 /** \`bus_purchase_order\` -> \`Purchase Order\`, for a message about an empty table. */
@@ -11324,6 +11330,10 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
         ? await api.post(\`/bus/\${entity.routeName}\`, payload)
         : await api.put(\`/bus/\${entity.routeName}/\${id}\`, payload);
       toast(isNew ? \`\${entity.singularName} created\` : "Saved", "success");
+      /* This row may be what some other entity's lookup is missing, and its
+         label may be what an existing option now reads as. Neither is worth a
+         reload to discover. */
+      lookupCache.clear();
       await onSaved(saved);
       if (isNew) navigate(\`/entity/\${entity.routeName}/\${saved.id}\`, { replace: true });
     } catch (error) {
@@ -11973,7 +11983,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 254151;
+var RUNTIME_BYTES = 254760;
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};
