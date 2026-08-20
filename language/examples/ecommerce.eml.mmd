@@ -130,9 +130,9 @@ stateDiagram-v2
     cancelled --> [*]
     refunded  --> [*]
 
-    %%guard role:customer on Order.place
-    %%guard role:warehouse|admin on Order.pack
-    %%guard role:admin on Order.refund
+    %%rbac role:customer on Order.place
+    %%rbac role:warehouse|admin on Order.pack
+    %%rbac role:admin on Order.refund
     %%trigger webhook:payment -> markPaid on Order
     %%trigger webhook:carrier -> markShipped on Order
 

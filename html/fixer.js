@@ -1084,9 +1084,12 @@ class CheckEngine {
       const m = text.trim().match(/^%%field\s+(\w+)\.(\w+)/);
       return m ? `${m[1]}.${m[2]}` : "";
     }).filter(Boolean));
+    const entitiesWithMachines = new Set(this.model.workflows.filter((w) => w.kind === "state" && w.entity).map((w) => w.entity));
     for (const entity of this.model.entities) {
       for (const attr of entity.attributes) {
         if (!LIFECYCLE_COLUMN_NAMES.has(attr.name))
+          continue;
+        if (attr.name !== "status" && !entitiesWithMachines.has(entity.name))
           continue;
         if (boundFields.has(`${entity.name}.${attr.name}`))
           continue;
@@ -1287,6 +1290,13 @@ class CheckEngine {
     for (const guard of this.model.guards) {
       const guardLine = this.src.findLine(new RegExp(`%%guard.+on\\s+${guard.entity}\\.${guard.op}`));
       const guardText = guardLine ? this.src.getLine(guardLine).trim() : "";
+      if (/^%%guard\s+role\s*:/.test(guardText)) {
+        this.warn("EML223", `%%guard on "${guard.entity}.${guard.op}" is written as an access rule, which %%guard no longer means.`, {
+          line: guardLine,
+          hint: `Rewrite it as  %%rbac ${guardText.replace(/^%%guard\s+/, "")}. As a %%guard it is skipped, so the operation is open to any authenticated caller.`
+        });
+        continue;
+      }
       const roleExprMatch = guardText.match(/^%%guard\s+(\S+)\s+on/);
       const roleExpr = roleExprMatch ? caps(roleExprMatch, 2)[0] : "";
       if (roleExpr && !this.validRoleExpr.test(roleExpr)) {

@@ -409,9 +409,9 @@ stateDiagram-v2
     completed    --> [*]
     cancelled    --> [*]
 
-    %%guard role:researcher|lab_manager on Experiment.submit
-    %%guard role:quality_assurance|compliance_officer on Experiment.approve
-    %%guard role:lab_manager|compliance_officer on Experiment.cancel
+    %%rbac role:researcher|lab_manager on Experiment.submit
+    %%rbac role:quality_assurance|compliance_officer on Experiment.approve
+    %%rbac role:lab_manager|compliance_officer on Experiment.cancel
     %%trigger webhook:lims -> syncExperimentStatus on Experiment
 
 %% ---- Section 6: Workflow — CAPA lifecycle (state machine) ------------------
@@ -428,8 +428,8 @@ stateDiagram-v2
     closed            --> [*]
     cancelled         --> [*]
 
-    %%guard role:quality_assurance|compliance_officer on CAPA.verify_effective
-    %%guard role:compliance_officer on CAPA.cancel
+    %%rbac role:quality_assurance|compliance_officer on CAPA.verify_effective
+    %%rbac role:compliance_officer on CAPA.cancel
     %%trigger cron:0 8 * * * -> escalateOverdueCapa on CAPA
 
 %% ---- Section 7: Workflow — compound registration hooks ---------------------
@@ -569,4 +569,4 @@ flowchart TD
 
     %%step B Decision decisionTable: {"hitPolicy":"first","inputs":[{"id":"i1","name":"Status","field":"status"}],"outputs":[{"id":"o1","name":"Reason","field":"retirementReason"}],"rules":[{"_id":"completed","i1":"\"completed\"","o1":"'retired_after_completion'"},{"_id":"rest","i1":"","o1":"'retired_early'"}]}
     %%step C CreateEntity entity: CompoundAlias as: retirementNoteId fields: {"compound_id":"compound_id","alias_name":"retired stability test","alias_type":"retirementReason"}
-    %%step D DeleteEntity entity: StabilityPull targetField: stability_test_id targetSource: id
+    %%step D DeleteEntity entity: StabilityPull targetField: stability_test_id

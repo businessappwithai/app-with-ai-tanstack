@@ -845,18 +845,21 @@ class CheckEngine {
         })
         .filter(Boolean)
     );
+    // `status` is a lifecycle column wherever it appears. `state` and `stage`
+    // are only lifecycle columns when a machine says so — `Address.state` is a
+    // county, and warning about it would be noise.
+    const entitiesWithMachines = new Set(
+      this.model.workflows.filter((w) => w.kind === "state" && w.entity).map((w) => w.entity)
+    );
     for (const entity of this.model.entities) {
       for (const attr of entity.attributes) {
         if (!LIFECYCLE_COLUMN_NAMES.has(attr.name)) continue;
+        if (attr.name !== "status" && !entitiesWithMachines.has(entity.name)) continue;
         if (boundFields.has(`${entity.name}.${attr.name}`)) continue;
-        this.warn(
-          "EML146",
-          `Column "${entity.name}.${attr.name}" has no %%field enum binding.`,
-          {
-            line: this.src.findLine(new RegExp(`^\\s+\\w+\\s+${attr.name}\\b`)),
-            hint: `Declare  %%enum ${entity.name}Status: ...  and bind it with  %%field ${entity.name}.${attr.name} enum: ${entity.name}Status. Unbound, the Application Dictionary records free text and the form accepts values the state machine cannot act on.`,
-          }
-        );
+        this.warn("EML146", `Column "${entity.name}.${attr.name}" has no %%field enum binding.`, {
+          line: this.src.findLine(new RegExp(`^\\s+\\w+\\s+${attr.name}\\b`)),
+          hint: `Declare  %%enum ${entity.name}Status: ...  and bind it with  %%field ${entity.name}.${attr.name} enum: ${entity.name}Status. Unbound, the Application Dictionary records free text and the form accepts values the state machine cannot act on.`,
+        });
       }
     }
   }
@@ -1148,8 +1151,30 @@ class CheckEngine {
         new RegExp(`%%guard.+on\\s+${guard.entity}\\.${guard.op}`)
       );
 
-      // EML220: Role expression syntax
+      // EML223: %%guard written in the retired RBAC shape.
+      //
+      // %%guard meant "restrict this operation to these roles" until the keyword
+      // was needed for automation conditions; the restriction sense is %%rbac
+      // now, and the automation reader skips a guard shaped like the old one
+      // rather than reading `role:admin` as a field name. So this line is not a
+      // malformed guard — it is an access rule that does nothing, in a document
+      // whose author believes the operation is restricted. Reported instead of
+      // EML220/EML222, which would describe it as a guard with a spelling
+      // problem.
       const guardText = guardLine ? this.src.getLine(guardLine).trim() : "";
+      if (/^%%guard\s+role\s*:/.test(guardText)) {
+        this.warn(
+          "EML223",
+          `%%guard on "${guard.entity}.${guard.op}" is written as an access rule, which %%guard no longer means.`,
+          {
+            line: guardLine,
+            hint: `Rewrite it as  %%rbac ${guardText.replace(/^%%guard\s+/, "")}. As a %%guard it is skipped, so the operation is open to any authenticated caller.`,
+          }
+        );
+        continue;
+      }
+
+      // EML220: Role expression syntax
       const roleExprMatch = guardText.match(/^%%guard\s+(\S+)\s+on/);
       const roleExpr = roleExprMatch ? caps(roleExprMatch, 2)[0] : "";
       if (roleExpr && !this.validRoleExpr.test(roleExpr)) {
