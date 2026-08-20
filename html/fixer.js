@@ -701,7 +701,15 @@ class CheckEngine {
   validHookTypes;
   validCardinalities;
   validModifiers = new Set(["PK", "FK", "UK", "UNIQUE", "OPTIONAL", "NULL"]);
-  validEntityKeys = new Set(["audited", "softDelete", "prefix", "label", "icon"]);
+  validEntityKeys = new Set([
+    "audited",
+    "softDelete",
+    "prefix",
+    "label",
+    "icon",
+    "help",
+    "description"
+  ]);
   validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
   validMetaKeys = new Set(["name", "kind", "version", "entity", "stack"]);
   validWorkflowKinds = new Set(["hook", "state", "saga"]);
@@ -2416,7 +2424,8 @@ var erdwithai_language_default = {
       "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10).",
       "%%index becomes real indexes; a unique attribute or a `name` column is indexed automatically (mergeIndexes).",
       "%%category becomes the dashboard grouping; a model declaring none gets a single General category holding every entity.",
-      "%%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
+      "%%field <Entity>.<column> help: and %%entity <Name> help: become sys_column.description and sys_table.description - the help a reader sees under the field and beside the table. %%entity description: is the same key under its other name.",
+      "The remaining %%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
     ],
     checkerCodes: {
       EML119: "A reference-shaped column with no FK modifier - the lookup is lost.",
@@ -3068,10 +3077,14 @@ var erdwithai_language_default = {
       {
         keyword: "%%entity",
         form: "%%entity <Name> <key>: <value>",
-        status: "validated",
-        consumedBy: ["language/checker.ts (EML160, EML161)"],
-        purpose: "Attach entity-level metadata not expressible in the ERD block: table prefix (bus/sys), soft delete, label, icon, audited.",
+        status: "compiled",
+        consumedBy: [
+          "packages/generator/src/parsers/mermaid.parser.ts (the help: / description: key only; the rest are validated)",
+          "language/checker.ts (EML160, EML161, EML162)"
+        ],
+        purpose: "Attach entity-level metadata not expressible in the ERD block: the sentence that explains the entity to whoever opens its screen, plus table prefix (bus/sys), soft delete, label, icon, audited.",
         examples: [
+          "%%entity Account help: A company you sell to. One account holds many contacts and every deal you run with them.",
           "%%entity Order audited: true",
           "%%entity Account prefix: bus",
           "%%entity Session softDelete: false"
@@ -3082,11 +3095,12 @@ var erdwithai_language_default = {
         form: "%%field <Entity>.<attr> <key>: <value>",
         status: "compiled",
         consumedBy: [
-          "packages/generator/src/parsers/mermaid.parser.ts (the `enum:` key only; other keys are reserved)"
+          "packages/generator/src/parsers/mermaid.parser.ts (the `enum:` and `help:` keys; the other keys are reserved)"
         ],
-        purpose: "Extended field metadata: ui control, default value, enum reference, min/max, help text, format.",
+        purpose: "Extended field metadata: enum reference and help text, both compiled; ui control, default value, min/max and format are reserved.",
         examples: [
           "%%field Order.status enum: OrderStatus",
+          "%%field Contact.account_id help: The company this person works for. Leave empty for a personal contact.",
           "%%field Product.price min: 0",
           "%%field User.email unique: true"
         ]
@@ -3257,8 +3271,9 @@ var erdwithai_language_default = {
       core: "erDiagram entities, attributes with PK/FK/UK/OPTIONAL/NULL/UNIQUE, and all 8 relationship cardinalities. Plus the directives the same parse pass reads: %%index (real DDL indexes), %%enum and %%field enum: (bound enums), and %%category (dashboard grouping). Fully compiled.",
       rules: "flowchart decision flows converted to JDM by shape semantics, and %%action directives compiled to a GoRules decision table. Fully compiled.",
       workflows: "%%hook directives in both forms (all 13 hook types), stateDiagram-v2 state machines, and %%workflow kind: saga with its %%step and %%loop directives. All three forms are compiled and seeded; the automation dialect is the same saga machinery authored through the builder.",
-      validated: "%%entity, %%rule and %%trigger. No compiler reads these yet, but language/checker.ts enforces their syntax and cross-references, so a malformed one fails validation instead of being silently dropped.",
-      reserved: "The %%field keys other than enum:. Renderer-safe and documented, with no reader. Writing one is legal and inert.",
+      help: "%%field <Entity>.<column> help: and %%entity <Name> help: (or description:). Both are compiled: the parser hangs the text on the attribute and the entity, the dictionary generator writes it to sys_column.description and sys_table.description, and the generated application shows it under the field and beside the table. Fully compiled.",
+      validated: "%%rule and %%trigger, and the %%entity keys other than help:/description:. No compiler reads these yet, but language/checker.ts enforces their syntax and cross-references, so a malformed one fails validation instead of being silently dropped.",
+      reserved: "The %%field keys other than enum: and help:. Renderer-safe and documented, with no reader. Writing one is legal and inert.",
       access: "%%rbac, in both its CRUD and state-transition forms. Compiled to sys_operation_access / sys_transition_access and enforced by the generated EntityAccessGuard."
     },
     validationRules: [

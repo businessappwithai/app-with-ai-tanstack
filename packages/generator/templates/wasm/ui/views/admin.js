@@ -17,9 +17,98 @@ import { el, mount, spinner, empty, displayValue, toast } from "../dom.js";
 import { api } from "../api.js";
 import { setHelp } from "../main.js";
 
+/**
+ * The Application Dictionary, as the application actually holds it.
+ *
+ * It used to list the tables and stop there, which showed the smallest part of
+ * the dictionary and none of the part that decides what a screen looks like.
+ * The reference type on a column is why a field is a dropdown rather than a
+ * text box; the reference lists are the dropdown's values; the windows and tabs
+ * are how the screens are grouped. All of it is seeded at first boot and all of
+ * it is readable, so all of it is shown.
+ *
+ * Picking a table opens its columns. That is one request per table rather than
+ * one for every table at load, because a seventeen-entity model has several
+ * hundred columns and nobody reads them all at once.
+ */
 export async function dictionaryView(root) {
   mount(root, spinner("Reading the dictionary"));
-  const [tables, summary] = await Promise.all([api.get("/sys/tables"), api.get("/sys/model-summary")]);
+  const [tables, summary, references, refLists, windows, tabs] = await Promise.all([
+    api.get("/sys/tables"),
+    api.get("/sys/model-summary"),
+    api.get("/sys/references"),
+    api.get("/sys/ref-list"),
+    api.get("/sys/windows"),
+    api.get("/sys/tabs"),
+  ]);
+
+  const columnsByTable = new Map();
+  const listsByReference = new Map();
+  for (const row of refLists) {
+    if (!listsByReference.has(row.sys_reference_id)) listsByReference.set(row.sys_reference_id, []);
+    listsByReference.get(row.sys_reference_id).push(row);
+  }
+  const referenceName = new Map(references.map((row) => [row.sys_reference_id, row.name]));
+
+  /* The lists a model declared, rather than the twenty-two standard types every
+     application has: those are the %%enum vocabularies, and they are the ones
+     worth reading next to the columns that use them. */
+  const modelReferences = references.filter((row) => row.sys_reference_id >= 1000);
+
+  const detail = el("div.dict__detail", el("p.muted", "Select a table to see its columns."));
+
+  async function showColumns(table) {
+    if (!columnsByTable.has(table.sys_table_id)) {
+      columnsByTable.set(
+        table.sys_table_id,
+        await api.get(`/sys/columns?tableId=${table.sys_table_id}`)
+      );
+    }
+    const columns = columnsByTable.get(table.sys_table_id);
+    mount(
+      detail,
+      el(
+        "div",
+        el("h3.section-title", `${table.name} — ${columns.length} columns`),
+        table.description ? el("p.lede", table.description) : null,
+        el(
+          "div.table-wrap",
+          el(
+            "table.table",
+            el(
+              "thead",
+              el(
+                "tr",
+                ["Column", "Name", "Reference", "Lookup", "Required", "Length", "Default", "Help"].map(
+                  (heading) => el("th", heading)
+                )
+              )
+            ),
+            el(
+              "tbody",
+              columns.map((column) =>
+                el(
+                  "tr",
+                  el("td", el("code", column.column_name)),
+                  el("td", column.name || "—"),
+                  el(
+                    "td",
+                    referenceName.get(column.sys_reference_id) ??
+                      (column.sys_reference_id >= 1000 ? "List" : String(column.sys_reference_id ?? "—"))
+                  ),
+                  el("td", column.ref_table_name ? el("code", column.ref_table_name) : "—"),
+                  el("td", column.is_mandatory ? "Yes" : "No"),
+                  el("td", displayValue(column.field_length ?? "—")),
+                  el("td", displayValue(column.default_value ?? "—")),
+                  el("td.dict__help", column.description || "—")
+                )
+              )
+            )
+          )
+        )
+      )
+    );
+  }
 
   mount(
     root,
@@ -29,11 +118,15 @@ export async function dictionaryView(root) {
       el(
         "div",
         statRow([
-          ["Entities", summary.counts.entities],
+          ["Tables", tables.length],
+          ["References", references.length],
+          ["List values", refLists.length],
+          ["Windows", windows.length],
+          ["Tabs", tabs.length],
           ["Rules", summary.counts.rules],
-          ["Processes", summary.counts.workflows + summary.counts.sagas],
-          ["Hooks", summary.counts.hooks],
         ]),
+
+        el("h3.section-title", "Tables"),
         el(
           "div.table-wrap",
           el(
@@ -42,21 +135,89 @@ export async function dictionaryView(root) {
               "thead",
               el(
                 "tr",
-                ["Table", "Name", "Category", "Window", "Records"].map((heading) => el("th", heading))
+                ["Table", "Name", "Category", "Window", "Records", "Help"].map((heading) =>
+                  el("th", heading)
+                )
               )
             ),
             el(
               "tbody",
               tables.map((table) =>
                 el(
-                  "tr",
+                  "tr.dict__row",
+                  {
+                    onclick: () => showColumns(table),
+                    title: `Show the columns of ${table.name}`,
+                  },
                   el("td", el("code", table.table_name)),
                   el("td", table.name),
                   el("td", table.category_name || "—"),
                   el("td", table.window_name || "—"),
-                  el("td", displayValue(summary.records[entityFor(table.name, summary)] ?? "—"))
+                  el("td", displayValue(summary.records[entityFor(table.name, summary)] ?? "—")),
+                  el("td.dict__help", table.description || "—")
                 )
               )
+            )
+          )
+        ),
+
+        el("h3.section-title", "Columns"),
+        detail,
+
+        el("h3.section-title", "Reference lists"),
+        modelReferences.length === 0
+          ? el("p.muted", "This model declares no %%enum vocabularies.")
+          : el(
+              "div.table-wrap",
+              el(
+                "table.table",
+                el(
+                  "thead",
+                  el("tr", ["Reference", "Name", "Values"].map((heading) => el("th", heading)))
+                ),
+                el(
+                  "tbody",
+                  modelReferences.map((reference) =>
+                    el(
+                      "tr",
+                      el("td", el("code", String(reference.sys_reference_id))),
+                      el("td", reference.name),
+                      el(
+                        "td",
+                        (listsByReference.get(reference.sys_reference_id) ?? [])
+                          .map((row) => row.name || row.value)
+                          .join(" · ") || "—"
+                      )
+                    )
+                  )
+                )
+              )
+            ),
+
+        el("h3.section-title", "Windows and tabs"),
+        el(
+          "div.table-wrap",
+          el(
+            "table.table",
+            el(
+              "thead",
+              el("tr", ["Window", "Tab", "Table", "Sequence"].map((heading) => el("th", heading)))
+            ),
+            el(
+              "tbody",
+              tabs.length === 0
+                ? [el("tr", el("td", { colspan: 4 }, "No tabs seeded."))]
+                : tabs.map((tab) => {
+                    const window = windows.find((row) => row.sys_window_id === tab.sys_window_id);
+                    const table = tables.find((row) => row.sys_table_id === tab.sys_table_id);
+                    return el(
+                      "tr",
+                      el("td", window?.name || "—"),
+                      el("td", tab.name),
+                      el("td", table ? el("code", table.table_name) : "—"),
+                      el("td", displayValue(tab.seq_no ?? "—"))
+                    );
+                  })
             )
           )
         )

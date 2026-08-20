@@ -2,6 +2,23 @@ export interface EntityAttribute {
   name: string;
   type: "string" | "integer" | "decimal" | "boolean" | "date" | "datetime" | "text" | "json";
   required: boolean;
+  /**
+   * Help text for the column, written as `%%field <Entity>.<column> help: ...`.
+   *
+   * It becomes `sys_column.description`, which the generated form renders under
+   * the control and the Application Dictionary shows beside the column — the
+   * one place a modeller can explain a field to whoever fills it in.
+   */
+  description?: string;
+  /**
+   * The type the modeller actually wrote, when it was one of the five aliases
+   * that carry a meaning the canonical type cannot: `email`, `url`, `phone`,
+   * `password`, `color`. All five normalise to `string` for SQL and TypeScript,
+   * and the difference between them is the whole of what the Application
+   * Dictionary needs to choose a control — so the word is kept rather than the
+   * column being guessed at by name later on.
+   */
+  semanticType?: "email" | "url" | "phone" | "password" | "color";
   unique?: boolean;
   default?: unknown;
   maxLength?: number;
@@ -74,6 +91,10 @@ export const EntityAttributeSchema = z.object({
   name: z.string(),
   type: z.enum(["string", "integer", "decimal", "boolean", "date", "datetime", "text", "json"]),
   required: z.boolean(),
+  /** Help text for the column, from `%%field <E>.<c> help:`. */
+  description: z.string().optional(),
+  /** The alias the modeller wrote, when it decides the reference type. */
+  semanticType: z.enum(["email", "url", "phone", "password", "color"]).optional(),
   unique: z.boolean().optional(),
   default: z.any().optional(),
   maxLength: z.number().optional(),

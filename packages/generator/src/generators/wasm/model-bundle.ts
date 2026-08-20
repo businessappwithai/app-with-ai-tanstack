@@ -66,13 +66,39 @@ export function sqlType(attribute: EntityAttribute): string {
 }
 
 /** The reference id that decides how a column renders. */
+/** The reference each semantic type alias asks for. */
+const SEMANTIC_REFERENCE = {
+  email: ReferenceType.EMAIL,
+  url: ReferenceType.URL,
+  phone: ReferenceType.PHONE,
+  password: ReferenceType.PASSWORD,
+  color: ReferenceType.COLOR,
+} as const;
+
 export function referenceIdFor(attribute: EntityAttribute, isPrimaryKey: boolean): number {
   if (attribute.enumReferenceId) return attribute.enumReferenceId;
   if (isPrimaryKey) return ReferenceType.ID;
-  if (attribute.isForeignKey) return ReferenceType.TABLE_DIRECT;
-  if (/email/i.test(attribute.name)) return ReferenceType.EMAIL;
-  if (/phone|mobile|tel/i.test(attribute.name)) return ReferenceType.PHONE;
-  if (/url|website|link/i.test(attribute.name)) return ReferenceType.URL;
+  /* Both conditions, as `attributeReferenceId` in @erdwithai/core requires and
+     as the specification states: the modifier says the column is a reference,
+     and the `_id`/`_by` ending is what `refTableFor` resolves the parent table
+     from. A column marked FK that ends in neither would take the lookup
+     control and have no table to look anything up in. */
+  if (attribute.isForeignKey && /(_id|_by)$/.test(attribute.name)) {
+    return ReferenceType.TABLE_DIRECT;
+  }
+  /* The alias the modeller wrote, kept by the parser because `email`, `url`,
+     `phone`, `password` and `color` all normalise to `string`. */
+  if (attribute.semanticType) return SEMANTIC_REFERENCE[attribute.semanticType];
+  /* Failing an alias, the name — for the model that wrote `string email`
+     rather than `email email`. Only for a column that could hold an address, a
+     number or a link: `boolean email_opt_out` is a checkbox that happens to
+     have "email" in its name, and giving it the EMAIL reference put an email
+     input in front of a true/false column. */
+  if (attribute.type === "string" || attribute.type === "text") {
+    if (/email/i.test(attribute.name)) return ReferenceType.EMAIL;
+    if (/phone|mobile|tel/i.test(attribute.name)) return ReferenceType.PHONE;
+    if (/url|website|link/i.test(attribute.name)) return ReferenceType.URL;
+  }
 
   switch (attribute.type) {
     case "integer":
@@ -487,6 +513,27 @@ function entityNameFor(entities: Array<{ name: string; tableName: string }>, tab
   return entities.find((entity) => entity.tableName === tableName)?.name ?? tableName;
 }
 
+const PERSON_ROLE_COLUMNS = new Set([
+  "assigned_to",
+  "author_id",
+  "lab_manager_id",
+  "manager_id",
+  "owner_id",
+  "pi_id",
+  "remediation_owner",
+  "remediation_owner_id",
+  "user_id",
+]);
+
+/** Mirrors isForeignKeyColumnName's person half in @erdwithai/core. */
+function isPersonRoleColumn(columnName: string): boolean {
+  return (
+    columnName.endsWith("_by") ||
+    columnName.endsWith("_by_id") ||
+    PERSON_ROLE_COLUMNS.has(columnName)
+  );
+}
+
 /** The table a foreign-key column points at, for the form's lookup control. */
 function refTableFor(
   entities: Array<{
@@ -500,6 +547,19 @@ function refTableFor(
   const owner = entities.find((entity) => entity.tableName === tableName);
   const attribute = owner?.attributes.find((item) => item.columnName === columnName);
   if (!attribute?.isForeignKey) return undefined;
+
+  /* A person-role column names the role, not a table: `owner_id` and
+     `approved_by_id` point at the user entity, and resolving them by prefix
+     would look for `bus_owner` and find nothing — which is why those columns
+     used to reach the form with no reference table and render as a text box
+     asking for a uuid. */
+  if (isPersonRoleColumn(columnName)) {
+    const user = entities.find(
+      (entity) => entity.tableName === "bus_user" || entity.name === "User"
+    );
+    if (user) return user.tableName;
+  }
+
   const base = columnName.replace(/_id$/, "");
   return entities.find((entity) => entity.tableName === `bus_${base}`)?.tableName;
 }
