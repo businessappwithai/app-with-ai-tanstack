@@ -134,7 +134,10 @@ export class DictionaryGenerator {
           sys_table_id: tableId,
           column_name: attr.columnName,
           name: attr.displayName,
-          description: undefined,
+          /* `%%field <E>.<c> help:` — the modeller's sentence about the
+             column, shown under the control in the generated form and beside
+             the column in the Application Dictionary. */
+          description: attr.description,
           sys_reference_id: attr.referenceId,
           sys_val_rule_id: undefined,
           field_length: attr.maxLength,
@@ -200,6 +203,7 @@ export class DictionaryGenerator {
         sys_column_id: col._tempId,
         column_name: col.column_name,
         name: col.name,
+        description: col.description,
       }));
       const fields = generateSysFields(tabId, columnRefs, this.config);
       const fieldEntries = fields.map((field, idx) => ({

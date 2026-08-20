@@ -345,6 +345,15 @@ a { color: var(--primary); }
 .field__checkbox { width: 17px; height: 17px; accent-color: var(--primary); justify-self: start; }
 .field__note { margin: 0; font-size: 11.5px; color: var(--text-faint); }
 
+/* The dictionary browser: a table list you can pick from, and the help text a
+   model wrote for each column — narrow enough that a sentence does not push
+   the reference type off the screen. */
+.dict__row { cursor: pointer; }
+.dict__row:hover { background: var(--surface-2, rgba(127, 127, 127, 0.08)); }
+.dict__detail { margin-bottom: var(--gap, 16px); }
+.dict__help { max-width: 34ch; color: var(--text-faint); font-size: 12px; }
+.muted { color: var(--text-faint); }
+
 .record__actions { display: flex; gap: 8px; justify-content: flex-end; padding: 16px 20px; border-top: 1px solid var(--border); flex-wrap: wrap; }
 .record__actions .btn--danger { margin-right: auto; }
 

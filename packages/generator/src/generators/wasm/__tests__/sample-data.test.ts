@@ -105,12 +105,10 @@ describe("sample data", () => {
       if (vendor.email !== null) expect(vendor.email).toMatch(/^[^@\s]+@[^@\s]+\.[a-z]+$/);
       if (vendor.phone !== null) expect(vendor.phone).toMatch(/^\+\d/);
       if (vendor.website !== null) expect(vendor.website).toMatch(/^https:\/\//);
-      /* `brand_colour` is a plain string today: the parser maps the `color`
-         alias onto `string` and does not keep the alias, so no reference type
-         records that the column is a colour and nothing downstream can know.
-         The generator here is ready for COLOR when the alias survives; until
-         then the column is text, and this asserts what actually happens. */
-      if (vendor.brand_colour !== null) expect(typeof vendor.brand_colour).toBe("string");
+      /* The `color` alias normalises to `string` for SQL, and the parser keeps
+         the word on the attribute so the dictionary can still record COLOR —
+         which is what makes this a hex rather than a sentence. */
+      if (vendor.brand_colour !== null) expect(vendor.brand_colour).toMatch(/^#[0-9a-f]{6}$/i);
     }
   });
 

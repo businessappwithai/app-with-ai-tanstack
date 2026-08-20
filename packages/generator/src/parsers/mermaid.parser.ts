@@ -35,6 +35,18 @@ import { getCardinalityKind, getDefaultType, getTypeMap } from "./language-maps"
 // fallback) so the parser stays in lockstep with the EML language definition.
 const TYPE_MAP: Record<string, EntityAttribute["type"]> = getTypeMap();
 
+/**
+ * The aliases that mean something the canonical type does not.
+ *
+ * All five normalise to `string`, so by the time an attribute reaches the
+ * dictionary the word the modeller wrote is the only thing that separates an
+ * e-mail address from a password from a colour. Keeping it is what makes
+ * `email contact_email` render as an e-mail control rather than being inferred
+ * from the column's name — an inference that reads `boolean email_opt_out` as
+ * an address.
+ */
+const SEMANTIC_TYPES = new Set(["email", "url", "phone", "password", "color"]);
+
 export class MermaidParser {
   /**
    * Parse Mermaid ERD syntax
@@ -73,6 +85,8 @@ export class MermaidParser {
      */
     const declaredEnums = new Map<string, string[]>();
     const enumBindings: Array<{ entity: string; column: string; enumName: string }> = [];
+    const fieldHelpText: Array<{ entity: string; column: string; help: string }> = [];
+    const entityHelpText = new Map<string, string>();
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i] ?? "";
@@ -93,6 +107,10 @@ export class MermaidParser {
         }
         const binding = this.parseFieldEnumDirective(trimmed);
         if (binding) enumBindings.push(binding);
+        const fieldHelp = this.parseFieldHelpDirective(trimmed);
+        if (fieldHelp) fieldHelpText.push(fieldHelp);
+        const entityHelp = this.parseEntityHelpDirective(trimmed);
+        if (entityHelp) entityHelpText.set(entityHelp.entity, entityHelp.help);
         continue;
       }
 
@@ -145,9 +163,35 @@ export class MermaidParser {
     }
 
     this.attachIndexes(entities, declaredIndexes);
+    this.attachHelp(entities, fieldHelpText, entityHelpText);
     const enums = this.attachEnums(entities, declaredEnums, enumBindings);
 
     return { entities, relationships, enums };
+  }
+
+  /**
+   * Hang the help text on the entities and columns it names.
+   *
+   * A directive naming something the document does not declare is dropped
+   * here rather than invented: the checker reports it as EML141 or EML142, and
+   * a column conjured out of a help line would be a column the schema has no
+   * place for.
+   */
+  private attachHelp(
+    entities: Entity[],
+    fieldHelp: Array<{ entity: string; column: string; help: string }>,
+    entityHelp: Map<string, string>
+  ): void {
+    for (const [name, help] of entityHelp) {
+      const entity = entities.find((candidate) => candidate.name === name);
+      if (entity) entity.description = help;
+    }
+    for (const { entity: name, column, help } of fieldHelp) {
+      const attribute = entities
+        .find((candidate) => candidate.name === name)
+        ?.attributes.find((candidate) => candidate.name === column);
+      if (attribute) attribute.description = help;
+    }
   }
 
   /**
@@ -204,7 +248,7 @@ export class MermaidParser {
     return values.length > 0 ? { name: match[1], values } : null;
   }
 
-  /** `%%field Order.status enum: OrderStatus` — the only %%field key read here. */
+  /** `%%field Order.status enum: OrderStatus` — the binding that makes a list. */
   private parseFieldEnumDirective(
     line: string
   ): { entity: string; column: string; enumName: string } | null {
@@ -213,6 +257,30 @@ export class MermaidParser {
     );
     if (!match?.[1] || !match[2] || !match[3]) return null;
     return { entity: match[1], column: match[2], enumName: match[3] };
+  }
+
+  /**
+   * `%%field Order.total_amount help: What the customer is charged, before tax.`
+   *
+   * The text runs to the end of the line, punctuation and all: it is prose for
+   * a person filling in the form, not an identifier. It becomes
+   * sys_column.description, which the generated form renders under the control.
+   */
+  private parseFieldHelpDirective(
+    line: string
+  ): { entity: string; column: string; help: string } | null {
+    const match = line.match(/^%%field\s+([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s+help\s*:\s*(.+)$/);
+    if (!match?.[1] || !match[2] || !match[3]) return null;
+    const help = match[3].trim();
+    return help ? { entity: match[1], column: match[2], help } : null;
+  }
+
+  /** `%%entity Order help: One purchase, from raising to closing.` */
+  private parseEntityHelpDirective(line: string): { entity: string; help: string } | null {
+    const match = line.match(/^%%entity\s+([A-Za-z_]\w*)\s+(?:help|description)\s*:\s*(.+)$/);
+    if (!match?.[1] || !match[2]) return null;
+    const help = match[2].trim();
+    return help ? { entity: match[1], help } : null;
   }
 
   /**
@@ -322,6 +390,7 @@ export class MermaidParser {
     if (parts.length < 2) return null;
 
     const rawType = (parts[0] ?? "").toLowerCase();
+    const baseType = rawType.replace(/\(\d+\)$/, "");
     const name = parts[1];
     if (!name) return null;
     const modifiers = parts.slice(2).map((m) => m.toUpperCase());
@@ -346,6 +415,9 @@ export class MermaidParser {
       unique: isUnique || isPrimaryKey,
       maxLength,
       ...(isForeignKey && { isForeignKey: true }),
+      ...(SEMANTIC_TYPES.has(baseType) && {
+        semanticType: baseType as NonNullable<EntityAttribute["semanticType"]>,
+      }),
     };
   }
 

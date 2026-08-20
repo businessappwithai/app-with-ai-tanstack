@@ -77,8 +77,10 @@ function watchConsole(page: Page): string[] {
  * than the mechanism, and would break on the next model. Every required control
  * is found by its own marker and given something of the right shape instead.
  */
-async function fillMandatoryFields(frame: FrameLocator, name: string) {
-  await frame.locator("#field-name").fill(name);
+async function fillMandatoryFields(frame: FrameLocator, name?: string) {
+  // Not every entity has a `name`: a person is a first name and a last name,
+  // and the loop below fills those like any other required text column.
+  if (name !== undefined) await frame.locator("#field-name").fill(name);
 
   for (const field of await frame.locator(".field:has(.field__required)").all()) {
     const select = field.locator("select.field__input");
@@ -86,12 +88,23 @@ async function fillMandatoryFields(frame: FrameLocator, name: string) {
       // A mandatory list column needs one of its own values, which makes this a
       // check of the enum seed as well as of the write path.
       const options = await select.locator("option").all();
+      let chosen = false;
       for (const option of options) {
         const value = await option.getAttribute("value");
         if (value) {
           await select.selectOption(value);
+          chosen = true;
           break;
         }
+      }
+      // A mandatory reference whose parent table is empty has nothing to offer,
+      // and the control says so and disables itself rather than inviting someone
+      // to type a uuid. Failing here names the missing record, because the
+      // alternative — a silent skip — reappears as an unexplained 422 on save.
+      if (!chosen) {
+        const label = await field.locator(".field__label").innerText();
+        const note = await select.locator("option").first().innerText();
+        throw new Error(`Required field "${label}" has nothing to select: ${note}`);
       }
       continue;
     }
@@ -240,8 +253,45 @@ test.describe
       await shoot(page, "record-form");
     });
 
+    /**
+     * Account requires an owner, and an owner is a User.
+     *
+     * A generated application starts with every business table empty, so the
+     * first Account cannot be created until a User exists — which is exactly
+     * what the model says, and what the form now enforces: `owner_id` is a
+     * lookup on `bus_user`, and a lookup with nothing to offer is disabled.
+     * Creating the parent first is the user's real path through this, so it is
+     * the test's path too.
+     */
+    test("a user can be created, so an account has an owner to point at", async () => {
+      await app(page).locator(".masthead__name").click();
+      await app(page).locator(".card__name", { hasText: "User" }).first().click();
+      await expect(app(page).locator(".listbar")).toBeVisible();
+
+      await app(page).locator(".actionbar button:nth-of-type(2)").click();
+      await expect(app(page).locator(".field__label").first()).toBeVisible();
+      await fillMandatoryFields(app(page));
+
+      await app(page).locator(".actionbar .btn--primary").first().click();
+      await expect(app(page).locator(".table")).toBeVisible({ timeout: 30_000 });
+    });
+
     test("a record can be created and comes back in the grid", async () => {
+      await app(page).locator(".masthead__name").click();
+      await app(page).locator(".card__name", { hasText: "Account" }).first().click();
+      await expect(app(page).locator(".listbar")).toBeVisible();
+      await app(page).locator(".actionbar button:nth-of-type(2)").click();
+      await expect(app(page).locator("#field-name")).toBeVisible();
+
       await fillMandatoryFields(app(page), "E2E Account");
+
+      // The owner lookup is a real select over `bus_user` now, so this asserts
+      // the row created above is what got chosen — not that a uuid was typed
+      // into a text box, which is what this step used to prove.
+      const owner = app(page).locator('select[name="owner_id"]');
+      await expect(owner).toBeEnabled();
+      expect(await owner.inputValue()).not.toBe("");
+
       await app(page).locator(".actionbar .btn--primary").first().click();
 
       // Landing back on the grid is the success signal: the record panel replaces

@@ -35,11 +35,14 @@ function argument(name, fallback = null) {
  * static requests: a path arriving as `../../etc/passwd` has to be a 404, not a
  * file. The browser host has no filesystem to escape into, so this is the only
  * host where it matters — which is exactly why it is easy to forget.
+ *
+ * `binary` returns the bytes untouched. The static route asks for it on every
+ * file, because reading `vendor/pglite/pglite.data` as UTF-8 corrupts it.
  */
-async function readAsset(name) {
+async function readAsset(name, encoding = "utf-8") {
   const target = normalize(join(ROOT, name));
   if (!target.startsWith(ROOT)) throw new Error(`Refusing to read outside the app: ${name}`);
-  return readFile(target, "utf-8");
+  return encoding === "binary" ? readFile(target) : readFile(target, "utf-8");
 }
 
 /**

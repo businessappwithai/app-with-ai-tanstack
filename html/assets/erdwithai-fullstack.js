@@ -33,12 +33,14 @@ var __toESM = (mod, isNodeMode, target) => {
   }
   target = mod != null ? __create(__getProtoOf(mod)) : {};
   const to = isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target;
-  for (let key of __getOwnPropNames(mod))
-    if (!__hasOwnProp.call(to, key))
-      __defProp(to, key, {
-        get: __accessProp.bind(mod, key),
-        enumerable: true
-      });
+  if (mod && typeof mod === "object" || typeof mod === "function") {
+    for (let key of __getOwnPropNames(mod))
+      if (!__hasOwnProp.call(to, key))
+        __defProp(to, key, {
+          get: __accessProp.bind(mod, key),
+          enumerable: true
+        });
+  }
   if (canCache)
     cache.set(mod, to);
   return to;
@@ -79,29 +81,29 @@ var __esm = (fn, res) => () => (fn && (res = fn(fn = 0)), res);
 // packages/generator/src/browser/memory-fs.ts
 var exports_memory_fs = {};
 __export(exports_memory_fs, {
-  writeFileSync: () => writeFileSync,
-  writeFile: () => writeFile,
-  unlink: () => unlink,
-  statSync: () => statSync,
-  stat: () => stat,
-  snapshot: () => snapshot,
-  seed: () => seed,
-  rm: () => rm,
-  reset: () => reset,
-  readdirSync: () => readdirSync,
-  readdir: () => readdir,
-  readFileSync: () => readFileSync,
-  readFile: () => readFile,
-  promises: () => promises,
-  normalize: () => normalize,
-  mkdirSync: () => mkdirSync,
-  mkdir: () => mkdir,
-  existsSync: () => existsSync,
-  default: () => memory_fs_default,
-  copyFileSync: () => copyFileSync,
-  copyFile: () => copyFile,
+  access: () => access,
   chmod: () => chmod,
-  access: () => access
+  copyFile: () => copyFile,
+  copyFileSync: () => copyFileSync,
+  default: () => memory_fs_default,
+  existsSync: () => existsSync,
+  mkdir: () => mkdir,
+  mkdirSync: () => mkdirSync,
+  normalize: () => normalize,
+  promises: () => promises,
+  readFile: () => readFile,
+  readFileSync: () => readFileSync,
+  readdir: () => readdir,
+  readdirSync: () => readdirSync,
+  reset: () => reset,
+  rm: () => rm,
+  seed: () => seed,
+  snapshot: () => snapshot,
+  stat: () => stat,
+  statSync: () => statSync,
+  unlink: () => unlink,
+  writeFile: () => writeFile,
+  writeFileSync: () => writeFileSync
 });
 function normalize(path) {
   const absolute = path.startsWith("/") ? path : `/${path}`;
@@ -797,7 +799,8 @@ var init_erdwithai_language = __esm(() => {
         "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10).",
         "%%index becomes real indexes; a unique attribute or a `name` column is indexed automatically (mergeIndexes).",
         "%%category becomes the dashboard grouping; a model declaring none gets a single General category holding every entity.",
-        "%%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
+        "%%field <Entity>.<column> help: and %%entity <Name> help: become sys_column.description and sys_table.description - the help a reader sees under the field and beside the table. %%entity description: is the same key under its other name.",
+        "The remaining %%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
       ],
       checkerCodes: {
         EML119: "A reference-shaped column with no FK modifier - the lookup is lost.",
@@ -1449,10 +1452,14 @@ var init_erdwithai_language = __esm(() => {
         {
           keyword: "%%entity",
           form: "%%entity <Name> <key>: <value>",
-          status: "validated",
-          consumedBy: ["language/checker.ts (EML160, EML161)"],
-          purpose: "Attach entity-level metadata not expressible in the ERD block: table prefix (bus/sys), soft delete, label, icon, audited.",
+          status: "compiled",
+          consumedBy: [
+            "packages/generator/src/parsers/mermaid.parser.ts (the help: / description: key only; the rest are validated)",
+            "language/checker.ts (EML160, EML161, EML162)"
+          ],
+          purpose: "Attach entity-level metadata not expressible in the ERD block: the sentence that explains the entity to whoever opens its screen, plus table prefix (bus/sys), soft delete, label, icon, audited.",
           examples: [
+            "%%entity Account help: A company you sell to. One account holds many contacts and every deal you run with them.",
             "%%entity Order audited: true",
             "%%entity Account prefix: bus",
             "%%entity Session softDelete: false"
@@ -1463,11 +1470,12 @@ var init_erdwithai_language = __esm(() => {
           form: "%%field <Entity>.<attr> <key>: <value>",
           status: "compiled",
           consumedBy: [
-            "packages/generator/src/parsers/mermaid.parser.ts (the `enum:` key only; other keys are reserved)"
+            "packages/generator/src/parsers/mermaid.parser.ts (the `enum:` and `help:` keys; the other keys are reserved)"
           ],
-          purpose: "Extended field metadata: ui control, default value, enum reference, min/max, help text, format.",
+          purpose: "Extended field metadata: enum reference and help text, both compiled; ui control, default value, min/max and format are reserved.",
           examples: [
             "%%field Order.status enum: OrderStatus",
+            "%%field Contact.account_id help: The company this person works for. Leave empty for a personal contact.",
             "%%field Product.price min: 0",
             "%%field User.email unique: true"
           ]
@@ -1638,8 +1646,9 @@ var init_erdwithai_language = __esm(() => {
         core: "erDiagram entities, attributes with PK/FK/UK/OPTIONAL/NULL/UNIQUE, and all 8 relationship cardinalities. Plus the directives the same parse pass reads: %%index (real DDL indexes), %%enum and %%field enum: (bound enums), and %%category (dashboard grouping). Fully compiled.",
         rules: "flowchart decision flows converted to JDM by shape semantics, and %%action directives compiled to a GoRules decision table. Fully compiled.",
         workflows: "%%hook directives in both forms (all 13 hook types), stateDiagram-v2 state machines, and %%workflow kind: saga with its %%step and %%loop directives. All three forms are compiled and seeded; the automation dialect is the same saga machinery authored through the builder.",
-        validated: "%%entity, %%rule and %%trigger. No compiler reads these yet, but language/checker.ts enforces their syntax and cross-references, so a malformed one fails validation instead of being silently dropped.",
-        reserved: "The %%field keys other than enum:. Renderer-safe and documented, with no reader. Writing one is legal and inert.",
+        help: "%%field <Entity>.<column> help: and %%entity <Name> help: (or description:). Both are compiled: the parser hangs the text on the attribute and the entity, the dictionary generator writes it to sys_column.description and sys_table.description, and the generated application shows it under the field and beside the table. Fully compiled.",
+        validated: "%%rule and %%trigger, and the %%entity keys other than help:/description:. No compiler reads these yet, but language/checker.ts enforces their syntax and cross-references, so a malformed one fails validation instead of being silently dropped.",
+        reserved: "The %%field keys other than enum: and help:. Renderer-safe and documented, with no reader. Writing one is legal and inert.",
         access: "%%rbac, in both its CRUD and state-transition forms. Compiled to sys_operation_access / sys_transition_access and enforced by the generated EntityAccessGuard."
       },
       validationRules: [
@@ -5639,113 +5648,113 @@ var init_types = __esm(() => {
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};
 __export(exports_external, {
-  void: () => voidType,
-  util: () => util,
-  unknown: () => unknownType,
-  union: () => unionType,
-  undefined: () => undefinedType,
-  tuple: () => tupleType,
-  transformer: () => effectsType,
-  symbol: () => symbolType,
-  string: () => stringType,
-  strictObject: () => strictObjectType,
-  setErrorMap: () => setErrorMap,
-  set: () => setType,
-  record: () => recordType,
-  quotelessJson: () => quotelessJson,
-  promise: () => promiseType,
-  preprocess: () => preprocessType,
-  pipeline: () => pipelineType,
-  ostring: () => ostring,
-  optional: () => optionalType,
-  onumber: () => onumber,
-  oboolean: () => oboolean,
-  objectUtil: () => objectUtil,
-  object: () => objectType,
-  number: () => numberType,
-  nullable: () => nullableType,
-  null: () => nullType,
-  never: () => neverType,
-  nativeEnum: () => nativeEnumType,
-  nan: () => nanType,
-  map: () => mapType,
-  makeIssue: () => makeIssue,
-  literal: () => literalType,
-  lazy: () => lazyType,
-  late: () => late,
-  isValid: () => isValid,
-  isDirty: () => isDirty,
-  isAsync: () => isAsync,
-  isAborted: () => isAborted,
-  intersection: () => intersectionType,
-  instanceof: () => instanceOfType,
-  getParsedType: () => getParsedType,
-  getErrorMap: () => getErrorMap,
-  function: () => functionType,
-  enum: () => enumType,
-  effect: () => effectsType,
-  discriminatedUnion: () => discriminatedUnionType,
-  defaultErrorMap: () => en_default,
-  datetimeRegex: () => datetimeRegex,
-  date: () => dateType,
-  custom: () => custom,
-  coerce: () => coerce,
-  boolean: () => booleanType,
-  bigint: () => bigIntType,
-  array: () => arrayType,
-  any: () => anyType,
-  addIssueToContext: () => addIssueToContext,
-  ZodVoid: () => ZodVoid,
-  ZodUnknown: () => ZodUnknown,
-  ZodUnion: () => ZodUnion,
-  ZodUndefined: () => ZodUndefined,
-  ZodType: () => ZodType,
-  ZodTuple: () => ZodTuple,
-  ZodTransformer: () => ZodEffects,
-  ZodSymbol: () => ZodSymbol,
-  ZodString: () => ZodString,
-  ZodSet: () => ZodSet,
-  ZodSchema: () => ZodType,
-  ZodRecord: () => ZodRecord,
-  ZodReadonly: () => ZodReadonly,
-  ZodPromise: () => ZodPromise,
-  ZodPipeline: () => ZodPipeline,
-  ZodParsedType: () => ZodParsedType,
-  ZodOptional: () => ZodOptional,
-  ZodObject: () => ZodObject,
-  ZodNumber: () => ZodNumber,
-  ZodNullable: () => ZodNullable,
-  ZodNull: () => ZodNull,
-  ZodNever: () => ZodNever,
-  ZodNativeEnum: () => ZodNativeEnum,
-  ZodNaN: () => ZodNaN,
-  ZodMap: () => ZodMap,
-  ZodLiteral: () => ZodLiteral,
-  ZodLazy: () => ZodLazy,
-  ZodIssueCode: () => ZodIssueCode,
-  ZodIntersection: () => ZodIntersection,
-  ZodFunction: () => ZodFunction,
-  ZodFirstPartyTypeKind: () => ZodFirstPartyTypeKind,
-  ZodError: () => ZodError,
-  ZodEnum: () => ZodEnum,
-  ZodEffects: () => ZodEffects,
-  ZodDiscriminatedUnion: () => ZodDiscriminatedUnion,
-  ZodDefault: () => ZodDefault,
-  ZodDate: () => ZodDate,
-  ZodCatch: () => ZodCatch,
-  ZodBranded: () => ZodBranded,
-  ZodBoolean: () => ZodBoolean,
-  ZodBigInt: () => ZodBigInt,
-  ZodArray: () => ZodArray,
-  ZodAny: () => ZodAny,
-  Schema: () => ZodType,
-  ParseStatus: () => ParseStatus,
-  OK: () => OK,
-  NEVER: () => NEVER,
-  INVALID: () => INVALID,
-  EMPTY_PATH: () => EMPTY_PATH,
+  BRAND: () => BRAND,
   DIRTY: () => DIRTY,
-  BRAND: () => BRAND
+  EMPTY_PATH: () => EMPTY_PATH,
+  INVALID: () => INVALID,
+  NEVER: () => NEVER,
+  OK: () => OK,
+  ParseStatus: () => ParseStatus,
+  Schema: () => ZodType,
+  ZodAny: () => ZodAny,
+  ZodArray: () => ZodArray,
+  ZodBigInt: () => ZodBigInt,
+  ZodBoolean: () => ZodBoolean,
+  ZodBranded: () => ZodBranded,
+  ZodCatch: () => ZodCatch,
+  ZodDate: () => ZodDate,
+  ZodDefault: () => ZodDefault,
+  ZodDiscriminatedUnion: () => ZodDiscriminatedUnion,
+  ZodEffects: () => ZodEffects,
+  ZodEnum: () => ZodEnum,
+  ZodError: () => ZodError,
+  ZodFirstPartyTypeKind: () => ZodFirstPartyTypeKind,
+  ZodFunction: () => ZodFunction,
+  ZodIntersection: () => ZodIntersection,
+  ZodIssueCode: () => ZodIssueCode,
+  ZodLazy: () => ZodLazy,
+  ZodLiteral: () => ZodLiteral,
+  ZodMap: () => ZodMap,
+  ZodNaN: () => ZodNaN,
+  ZodNativeEnum: () => ZodNativeEnum,
+  ZodNever: () => ZodNever,
+  ZodNull: () => ZodNull,
+  ZodNullable: () => ZodNullable,
+  ZodNumber: () => ZodNumber,
+  ZodObject: () => ZodObject,
+  ZodOptional: () => ZodOptional,
+  ZodParsedType: () => ZodParsedType,
+  ZodPipeline: () => ZodPipeline,
+  ZodPromise: () => ZodPromise,
+  ZodReadonly: () => ZodReadonly,
+  ZodRecord: () => ZodRecord,
+  ZodSchema: () => ZodType,
+  ZodSet: () => ZodSet,
+  ZodString: () => ZodString,
+  ZodSymbol: () => ZodSymbol,
+  ZodTransformer: () => ZodEffects,
+  ZodTuple: () => ZodTuple,
+  ZodType: () => ZodType,
+  ZodUndefined: () => ZodUndefined,
+  ZodUnion: () => ZodUnion,
+  ZodUnknown: () => ZodUnknown,
+  ZodVoid: () => ZodVoid,
+  addIssueToContext: () => addIssueToContext,
+  any: () => anyType,
+  array: () => arrayType,
+  bigint: () => bigIntType,
+  boolean: () => booleanType,
+  coerce: () => coerce,
+  custom: () => custom,
+  date: () => dateType,
+  datetimeRegex: () => datetimeRegex,
+  defaultErrorMap: () => en_default,
+  discriminatedUnion: () => discriminatedUnionType,
+  effect: () => effectsType,
+  enum: () => enumType,
+  function: () => functionType,
+  getErrorMap: () => getErrorMap,
+  getParsedType: () => getParsedType,
+  instanceof: () => instanceOfType,
+  intersection: () => intersectionType,
+  isAborted: () => isAborted,
+  isAsync: () => isAsync,
+  isDirty: () => isDirty,
+  isValid: () => isValid,
+  late: () => late,
+  lazy: () => lazyType,
+  literal: () => literalType,
+  makeIssue: () => makeIssue,
+  map: () => mapType,
+  nan: () => nanType,
+  nativeEnum: () => nativeEnumType,
+  never: () => neverType,
+  null: () => nullType,
+  nullable: () => nullableType,
+  number: () => numberType,
+  object: () => objectType,
+  objectUtil: () => objectUtil,
+  oboolean: () => oboolean,
+  onumber: () => onumber,
+  optional: () => optionalType,
+  ostring: () => ostring,
+  pipeline: () => pipelineType,
+  preprocess: () => preprocessType,
+  promise: () => promiseType,
+  quotelessJson: () => quotelessJson,
+  record: () => recordType,
+  set: () => setType,
+  setErrorMap: () => setErrorMap,
+  strictObject: () => strictObjectType,
+  string: () => stringType,
+  symbol: () => symbolType,
+  transformer: () => effectsType,
+  tuple: () => tupleType,
+  undefined: () => undefinedType,
+  union: () => unionType,
+  unknown: () => unknownType,
+  util: () => util,
+  void: () => voidType
 });
 var init_external = __esm(() => {
   init_errors();
@@ -6049,6 +6058,8 @@ function attributeReferenceId(attr, entityPrimaryKey) {
     return ReferenceType.TABLE_DIRECT;
   if (attr.enumReferenceId)
     return attr.enumReferenceId;
+  if (attr.semanticType)
+    return SEMANTIC_REFERENCE[attr.semanticType];
   return attributeTypeToReferenceId(attr.type);
 }
 function isForeignKeyColumnName(columnName) {
@@ -6231,7 +6242,7 @@ function generateSysFields(tabId, columns, config = defaultDictionaryConfig) {
     sys_column_id: col.sys_column_id,
     sys_field_group_id: undefined,
     name: col.name,
-    description: undefined,
+    description: col.description,
     help: undefined,
     seq_no: seqNumbers[index] ?? (index + 1) * 10,
     seq_no_grid: (index + 1) * 10,
@@ -6314,10 +6325,17 @@ function generateEntityDictionary(entity, config = defaultDictionaryConfig) {
     }
   };
 }
-var defaultDictionaryConfig, BusEntitySchema, DictionaryGenerationConfigSchema;
+var SEMANTIC_REFERENCE, defaultDictionaryConfig, BusEntitySchema, DictionaryGenerationConfigSchema;
 var init_bus_entity_types = __esm(() => {
   init_zod();
   init_sys_dictionary_types();
+  SEMANTIC_REFERENCE = {
+    email: ReferenceType.EMAIL,
+    url: ReferenceType.URL,
+    phone: ReferenceType.PHONE,
+    password: ReferenceType.PASSWORD,
+    color: ReferenceType.COLOR
+  };
   defaultDictionaryConfig = {
     defaultEntityType: "U",
     createdBy: "System",
@@ -6351,6 +6369,8 @@ var init_entity_types = __esm(() => {
     name: exports_external.string(),
     type: exports_external.enum(["string", "integer", "decimal", "boolean", "date", "datetime", "text", "json"]),
     required: exports_external.boolean(),
+    description: exports_external.string().optional(),
+    semanticType: exports_external.enum(["email", "url", "phone", "password", "color"]).optional(),
     unique: exports_external.boolean().optional(),
     default: exports_external.any().optional(),
     maxLength: exports_external.number().optional(),
@@ -6692,11 +6712,11 @@ var init_rbac = __esm(() => {
 // builtin-stub:node:child_process
 var exports_node_child_process = {};
 __export(exports_node_child_process, {
-  spawnSync: () => spawnSync,
-  spawn: () => spawn,
-  execSync: () => execSync,
+  default: () => node_child_process_default,
   exec: () => exec,
-  default: () => node_child_process_default
+  execSync: () => execSync,
+  spawn: () => spawn,
+  spawnSync: () => spawnSync
 });
 var refuse = () => {
   throw new Error("no subprocesses in the browser");
@@ -7309,7 +7329,7 @@ var init_workflows = __esm(() => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/utils.js
-var require_utils = __commonJS((exports) => {
+var require_utils = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.extend = extend;
   exports.indexOf = indexOf;
@@ -7405,7 +7425,7 @@ var require_utils = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/exception.js
-var require_exception = __commonJS((exports, module) => {
+var require_exception = __commonJS(function(exports, module) {
   exports.__esModule = true;
   var errorProps = ["description", "fileName", "lineNumber", "endLineNumber", "message", "name", "number", "stack"];
   function Exception(message, node) {
@@ -7450,7 +7470,7 @@ var require_exception = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers/block-helper-missing.js
-var require_block_helper_missing = __commonJS((exports, module) => {
+var require_block_helper_missing = __commonJS(function(exports, module) {
   exports.__esModule = true;
   var _utils = require_utils();
   exports.default = function(instance) {
@@ -7483,7 +7503,7 @@ var require_block_helper_missing = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers/each.js
-var require_each = __commonJS((exports, module) => {
+var require_each = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -7564,7 +7584,7 @@ var require_each = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers/helper-missing.js
-var require_helper_missing = __commonJS((exports, module) => {
+var require_helper_missing = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -7584,7 +7604,7 @@ var require_helper_missing = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers/if.js
-var require_if = __commonJS((exports, module) => {
+var require_if = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -7621,7 +7641,7 @@ var require_if = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers/log.js
-var require_log = __commonJS((exports, module) => {
+var require_log = __commonJS(function(exports, module) {
   exports.__esModule = true;
   exports.default = function(instance) {
     instance.registerHelper("log", function() {
@@ -7643,7 +7663,7 @@ var require_log = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers/lookup.js
-var require_lookup = __commonJS((exports, module) => {
+var require_lookup = __commonJS(function(exports, module) {
   exports.__esModule = true;
   exports.default = function(instance) {
     instance.registerHelper("lookup", function(obj, field, options) {
@@ -7657,7 +7677,7 @@ var require_lookup = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers/with.js
-var require_with = __commonJS((exports, module) => {
+var require_with = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -7693,7 +7713,7 @@ var require_with = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/helpers.js
-var require_helpers = __commonJS((exports) => {
+var require_helpers = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.registerDefaultHelpers = registerDefaultHelpers;
   exports.moveHelperToHooks = moveHelperToHooks;
@@ -7734,7 +7754,7 @@ var require_helpers = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/decorators/inline.js
-var require_inline = __commonJS((exports, module) => {
+var require_inline = __commonJS(function(exports, module) {
   exports.__esModule = true;
   var _utils = require_utils();
   exports.default = function(instance) {
@@ -7758,7 +7778,7 @@ var require_inline = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/decorators.js
-var require_decorators = __commonJS((exports) => {
+var require_decorators = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.registerDefaultDecorators = registerDefaultDecorators;
   function _interopRequireDefault(obj) {
@@ -7772,7 +7792,7 @@ var require_decorators = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/logger.js
-var require_logger = __commonJS((exports, module) => {
+var require_logger = __commonJS(function(exports, module) {
   exports.__esModule = true;
   var _utils = require_utils();
   var logger = {
@@ -7808,7 +7828,7 @@ var require_logger = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/internal/proto-access.js
-var require_proto_access = __commonJS((exports) => {
+var require_proto_access = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.createProtoAccessControl = createProtoAccessControl;
   exports.resultIsAllowed = resultIsAllowed;
@@ -7875,7 +7895,7 @@ var require_proto_access = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/base.js
-var require_base = __commonJS((exports) => {
+var require_base = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.HandlebarsEnvironment = HandlebarsEnvironment;
   function _interopRequireDefault(obj) {
@@ -7968,7 +7988,7 @@ var require_base = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/safe-string.js
-var require_safe_string = __commonJS((exports, module) => {
+var require_safe_string = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function SafeString(string) {
     this.string = string;
@@ -7981,7 +8001,7 @@ var require_safe_string = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/internal/wrapHelper.js
-var require_wrapHelper = __commonJS((exports) => {
+var require_wrapHelper = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.wrapHelper = wrapHelper;
   function wrapHelper(helper, transformOptionsFn) {
@@ -7998,7 +8018,7 @@ var require_wrapHelper = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/runtime.js
-var require_runtime = __commonJS((exports) => {
+var require_runtime = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.checkRevision = checkRevision;
   exports.template = template;
@@ -8313,7 +8333,7 @@ var require_runtime = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/no-conflict.js
-var require_no_conflict = __commonJS((exports, module) => {
+var require_no_conflict = __commonJS(function(exports, module) {
   exports.__esModule = true;
   exports.default = function(Handlebars) {
     (function() {
@@ -8337,7 +8357,7 @@ var require_no_conflict = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars.runtime.js
-var require_handlebars_runtime = __commonJS((exports, module) => {
+var require_handlebars_runtime = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -8391,7 +8411,7 @@ var require_handlebars_runtime = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/ast.js
-var require_ast = __commonJS((exports, module) => {
+var require_ast = __commonJS(function(exports, module) {
   exports.__esModule = true;
   var AST = {
     helpers: {
@@ -8411,7 +8431,7 @@ var require_ast = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/parser.js
-var require_parser = __commonJS((exports, module) => {
+var require_parser = __commonJS(function(exports, module) {
   exports.__esModule = true;
   var handlebars = function() {
     var parser = {
@@ -9135,7 +9155,7 @@ Expecting ` + expected.join(", ") + ", got '" + (this.terminals_[symbol] || symb
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/visitor.js
-var require_visitor = __commonJS((exports, module) => {
+var require_visitor = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -9240,7 +9260,7 @@ var require_visitor = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/whitespace-control.js
-var require_whitespace_control = __commonJS((exports, module) => {
+var require_whitespace_control = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -9386,7 +9406,7 @@ var require_whitespace_control = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/helpers.js
-var require_helpers2 = __commonJS((exports) => {
+var require_helpers2 = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.SourceLocation = SourceLocation;
   exports.id = id;
@@ -9571,7 +9591,7 @@ var require_helpers2 = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/base.js
-var require_base2 = __commonJS((exports) => {
+var require_base2 = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.parseWithoutProcessing = parseWithoutProcessing;
   exports.parse = parse;
@@ -9670,7 +9690,7 @@ var require_base2 = __commonJS((exports) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/compiler.js
-var require_compiler = __commonJS((exports) => {
+var require_compiler = __commonJS(function(exports) {
   exports.__esModule = true;
   exports.Compiler = Compiler;
   exports.precompile = precompile;
@@ -10087,7 +10107,7 @@ var require_compiler = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/base64.js
-var require_base64 = __commonJS((exports) => {
+var require_base64 = __commonJS(function(exports) {
   var intToCharMap = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split("");
   exports.encode = function(number) {
     if (0 <= number && number < intToCharMap.length) {
@@ -10126,7 +10146,7 @@ var require_base64 = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/base64-vlq.js
-var require_base64_vlq = __commonJS((exports) => {
+var require_base64_vlq = __commonJS(function(exports) {
   var base64 = require_base64();
   var VLQ_BASE_SHIFT = 5;
   var VLQ_BASE = 1 << VLQ_BASE_SHIFT;
@@ -10178,7 +10198,7 @@ var require_base64_vlq = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/util.js
-var require_util = __commonJS((exports) => {
+var require_util = __commonJS(function(exports) {
   function getArg(aArgs, aName, aDefaultValue) {
     if (aName in aArgs) {
       return aArgs[aName];
@@ -10477,7 +10497,7 @@ var require_util = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/array-set.js
-var require_array_set = __commonJS((exports) => {
+var require_array_set = __commonJS(function(exports) {
   var util3 = require_util();
   var has = Object.prototype.hasOwnProperty;
   var hasNativeMap = typeof Map !== "undefined";
@@ -10545,7 +10565,7 @@ var require_array_set = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/mapping-list.js
-var require_mapping_list = __commonJS((exports) => {
+var require_mapping_list = __commonJS(function(exports) {
   var util3 = require_util();
   function generatedPositionAfter(mappingA, mappingB) {
     var lineA = mappingA.generatedLine;
@@ -10582,7 +10602,7 @@ var require_mapping_list = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/source-map-generator.js
-var require_source_map_generator = __commonJS((exports) => {
+var require_source_map_generator = __commonJS(function(exports) {
   var base64VLQ = require_base64_vlq();
   var util3 = require_util();
   var ArraySet = require_array_set().ArraySet;
@@ -10852,7 +10872,7 @@ var require_source_map_generator = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/binary-search.js
-var require_binary_search = __commonJS((exports) => {
+var require_binary_search = __commonJS(function(exports) {
   exports.GREATEST_LOWER_BOUND = 1;
   exports.LEAST_UPPER_BOUND = 2;
   function recursiveSearch(aLow, aHigh, aNeedle, aHaystack, aCompare, aBias) {
@@ -10899,7 +10919,7 @@ var require_binary_search = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/quick-sort.js
-var require_quick_sort = __commonJS((exports) => {
+var require_quick_sort = __commonJS(function(exports) {
   function swap(ary, x, y) {
     var temp = ary[x];
     ary[x] = ary[y];
@@ -10932,7 +10952,7 @@ var require_quick_sort = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/source-map-consumer.js
-var require_source_map_consumer = __commonJS((exports) => {
+var require_source_map_consumer = __commonJS(function(exports) {
   var util3 = require_util();
   var binarySearch = require_binary_search();
   var ArraySet = require_array_set().ArraySet;
@@ -11501,7 +11521,7 @@ var require_source_map_consumer = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/lib/source-node.js
-var require_source_node = __commonJS((exports) => {
+var require_source_node = __commonJS(function(exports) {
   var SourceMapGenerator = require_source_map_generator().SourceMapGenerator;
   var util3 = require_util();
   var REGEX_NEWLINE = /(\r?\n)/;
@@ -11755,14 +11775,14 @@ var require_source_node = __commonJS((exports) => {
 });
 
 // node_modules/.bun/source-map@0.6.1/node_modules/source-map/source-map.js
-var require_source_map = __commonJS((exports) => {
+var require_source_map = __commonJS(function(exports) {
   exports.SourceMapGenerator = require_source_map_generator().SourceMapGenerator;
   exports.SourceMapConsumer = require_source_map_consumer().SourceMapConsumer;
   exports.SourceNode = require_source_node().SourceNode;
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/code-gen.js
-var require_code_gen = __commonJS((exports, module) => {
+var require_code_gen = __commonJS(function(exports, module) {
   exports.__esModule = true;
   var _utils = require_utils();
   var SourceNode = undefined;
@@ -11895,7 +11915,7 @@ var require_code_gen = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/compiler/javascript-compiler.js
-var require_javascript_compiler = __commonJS((exports, module) => {
+var require_javascript_compiler = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -12663,7 +12683,7 @@ var require_javascript_compiler = __commonJS((exports, module) => {
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars.js
-var require_handlebars = __commonJS((exports, module) => {
+var require_handlebars = __commonJS(function(exports, module) {
   exports.__esModule = true;
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
@@ -12837,6 +12857,8 @@ class MermaidParser {
     const declaredIndexes = [];
     const declaredEnums = new Map;
     const enumBindings = [];
+    const fieldHelpText = [];
+    const entityHelpText = new Map;
     for (let i = 0;i < lines.length; i++) {
       const line = lines[i] ?? "";
       const trimmed = line.trim();
@@ -12854,6 +12876,12 @@ class MermaidParser {
         const binding = this.parseFieldEnumDirective(trimmed);
         if (binding)
           enumBindings.push(binding);
+        const fieldHelp = this.parseFieldHelpDirective(trimmed);
+        if (fieldHelp)
+          fieldHelpText.push(fieldHelp);
+        const entityHelp = this.parseEntityHelpDirective(trimmed);
+        if (entityHelp)
+          entityHelpText.set(entityHelp.entity, entityHelp.help);
         continue;
       }
       const relationship = this.parseRelationship(trimmed);
@@ -12893,8 +12921,21 @@ class MermaidParser {
       entities.push(this.completeEntity(currentEntity, currentAttributes));
     }
     this.attachIndexes(entities, declaredIndexes);
+    this.attachHelp(entities, fieldHelpText, entityHelpText);
     const enums = this.attachEnums(entities, declaredEnums, enumBindings);
     return { entities, relationships, enums };
+  }
+  attachHelp(entities, fieldHelp, entityHelp) {
+    for (const [name, help] of entityHelp) {
+      const entity2 = entities.find((candidate) => candidate.name === name);
+      if (entity2)
+        entity2.description = help;
+    }
+    for (const { entity: name, column, help } of fieldHelp) {
+      const attribute = entities.find((candidate) => candidate.name === name)?.attributes.find((candidate) => candidate.name === column);
+      if (attribute)
+        attribute.description = help;
+    }
   }
   parseIndexDirective(line) {
     const match = line.match(/^%%index\s+([A-Za-z_]\w*)\s*\(([^)]*)\)\s*(unique)?\s*$/i);
@@ -12929,6 +12970,20 @@ class MermaidParser {
     if (!match?.[1] || !match[2] || !match[3])
       return null;
     return { entity: match[1], column: match[2], enumName: match[3] };
+  }
+  parseFieldHelpDirective(line) {
+    const match = line.match(/^%%field\s+([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s+help\s*:\s*(.+)$/);
+    if (!match?.[1] || !match[2] || !match[3])
+      return null;
+    const help = match[3].trim();
+    return help ? { entity: match[1], column: match[2], help } : null;
+  }
+  parseEntityHelpDirective(line) {
+    const match = line.match(/^%%entity\s+([A-Za-z_]\w*)\s+(?:help|description)\s*:\s*(.+)$/);
+    if (!match?.[1] || !match[2])
+      return null;
+    const help = match[2].trim();
+    return help ? { entity: match[1], help } : null;
   }
   attachEnums(entities, declared, bindings) {
     const used = new Set;
@@ -12991,6 +13046,7 @@ class MermaidParser {
     if (parts.length < 2)
       return null;
     const rawType = (parts[0] ?? "").toLowerCase();
+    const baseType = rawType.replace(/\(\d+\)$/, "");
     const name = parts[1];
     if (!name)
       return null;
@@ -13008,7 +13064,10 @@ class MermaidParser {
       required: !isOptional && !isPrimaryKey,
       unique: isUnique || isPrimaryKey,
       maxLength,
-      ...isForeignKey && { isForeignKey: true }
+      ...isForeignKey && { isForeignKey: true },
+      ...SEMANTIC_TYPES.has(baseType) && {
+        semanticType: baseType
+      }
     };
   }
   completeEntity(partial, attributes) {
@@ -13052,10 +13111,11 @@ class MermaidParser {
     return `${cleanName}_id`;
   }
 }
-var TYPE_MAP;
+var TYPE_MAP, SEMANTIC_TYPES;
 var init_mermaid_parser = __esm(() => {
   init_language_maps();
   TYPE_MAP = getTypeMap();
+  SEMANTIC_TYPES = new Set(["email", "url", "phone", "password", "color"]);
 });
 
 // packages/generator/src/rules/flowchart-parser.ts
@@ -13960,7 +14020,15 @@ class CheckEngine {
   validHookTypes;
   validCardinalities;
   validModifiers = new Set(["PK", "FK", "UK", "UNIQUE", "OPTIONAL", "NULL"]);
-  validEntityKeys = new Set(["audited", "softDelete", "prefix", "label", "icon"]);
+  validEntityKeys = new Set([
+    "audited",
+    "softDelete",
+    "prefix",
+    "label",
+    "icon",
+    "help",
+    "description"
+  ]);
   validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
   validMetaKeys = new Set(["name", "kind", "version", "entity", "stack"]);
   validWorkflowKinds = new Set(["hook", "state", "saga"]);
@@ -15648,7 +15716,7 @@ var init_review_model = __esm(() => {
 });
 
 // packages/generator/src/generators/wasm/runtime-assets.generated.ts
-var RUNTIME_ASSETS, RUNTIME_BYTES = 239501;
+var RUNTIME_ASSETS, RUNTIME_BYTES = 254760;
 var init_runtime_assets_generated = __esm(() => {
   RUNTIME_ASSETS = Object.freeze({
     "app/schema.sys.sql": `-- ---------------------------------------------------------------------------
@@ -16189,10 +16257,12 @@ async function boot(message) {
   const { PGlite } = await loadPGlite(base, message.pgliteUrl);
   const { createServer } = await import(new URL("server/index.js", base).href);
 
-  const readAsset = async (name) => {
+  /* \`binary\` keeps the bytes as bytes; see the note on the static route in
+     \`server/index.js\`. */
+  const readAsset = async (name, encoding = "utf-8") => {
     const response = await fetch(new URL(name, base).href, { cache: "no-store" });
     if (!response.ok) throw new Error(\`Asset not found: \${name} (\${response.status})\`);
-    return response.text();
+    return encoding === "binary" ? new Uint8Array(await response.arrayBuffer()) : response.text();
   };
 
   state.app = await createServer({
@@ -16391,11 +16461,14 @@ function argument(name, fallback = null) {
  * static requests: a path arriving as \`../../etc/passwd\` has to be a 404, not a
  * file. The browser host has no filesystem to escape into, so this is the only
  * host where it matters — which is exactly why it is easy to forget.
+ *
+ * \`binary\` returns the bytes untouched. The static route asks for it on every
+ * file, because reading \`vendor/pglite/pglite.data\` as UTF-8 corrupts it.
  */
-async function readAsset(name) {
+async function readAsset(name, encoding = "utf-8") {
   const target = normalize(join(ROOT, name));
   if (!target.startsWith(ROOT)) throw new Error(\`Refusing to read outside the app: \${name}\`);
-  return readFile(target, "utf-8");
+  return encoding === "binary" ? readFile(target) : readFile(target, "utf-8");
 }
 
 /**
@@ -16632,6 +16705,9 @@ const MIME = {
   ico: "image/x-icon",
   png: "image/png",
   woff2: "font/woff2",
+  wasm: "application/wasm",
+  data: "application/octet-stream",
+  gz: "application/gzip",
 };
 
 export async function createServer(options) {
@@ -16704,12 +16780,21 @@ export async function createServer(options) {
     return api.handle(rewritten, await context(request));
   }
 
+  /**
+   * Serve a file from the application directory.
+   *
+   * The bytes are read as bytes, never as text: \`vendor/pglite/pglite.data\` is
+   * a 6MB filesystem image, and decoding it as UTF-8 turns every invalid
+   * sequence into U+FFFD — the file arrives half again as large and PGlite
+   * refuses to boot with \`Invalid FS bundle size\`. Text files are unharmed by
+   * the same treatment, so there is no extension list to keep in step.
+   */
   async function handleStatic(pathname) {
     const relative = pathname.replace(/^\\/+/, "") || "index.html";
     const candidates = [relative, \`\${relative}/index.html\`, "index.html"];
     for (const candidate of candidates) {
       try {
-        const body = await readAsset(candidate);
+        const body = await readAsset(candidate, "binary");
         if (body == null) continue;
         const extension = candidate.split(".").pop().toLowerCase();
         return new Response(body, {
@@ -18995,7 +19080,8 @@ async function entityMetadata(db, entity) {
   const columns = await db.query(
     \`SELECT c.sys_column_id, c.column_name, c.sys_reference_id, c.field_length, c.default_value,
             c.ref_table_name, c.is_key, c.is_identifier, c.is_selection_column,
-            f.sys_field_id, f.name, f.description, f.is_displayed, f.is_displayed_grid,
+            f.sys_field_id, f.name, COALESCE(f.description, c.description) AS description,
+            f.is_displayed, f.is_displayed_grid,
             f.is_read_only, f.is_mandatory, f.is_updateable, f.is_insertable,
             f.seq_no, f.seq_no_grid, f.field_type, f.sys_field_group_id,
             g.name AS group_name
@@ -19027,6 +19113,10 @@ async function entityMetadata(db, entity) {
       sys_field_id: column.sys_field_id,
       name: column.name || column.column_name,
       column_name: column.column_name,
+      /* \`%%field <E>.<c> help:\` — sys_field carries it per screen and
+         sys_column per model, so the field's own text wins and the column's is
+         the fallback. The form renders it under the control. */
+      description: column.description ?? null,
       sys_reference_id: column.sys_reference_id,
       is_mandatory: column.is_mandatory ?? false,
       is_updateable: column.is_updateable !== false,
@@ -19639,6 +19729,72 @@ export function sysRoutes(model) {
     return json(rows);
   });
 
+  /**
+   * Options for a Table Direct lookup.
+   *
+   * The dictionary already knows which table a reference column points at
+   * (\`sys_column.ref_table_name\`); this turns that into something a select can
+   * render — an id and the label a person recognises. The label column is the
+   * one the dictionary marks \`is_identifier\` and is not the key, which is
+   * \`name\` for most entities; failing that, the first text column; failing
+   * that, the id itself, because a lookup that lists ids is still better than
+   * a text box asking for one.
+   */
+  router.get("/lookup", async (_request, { db, query }) => {
+    const table = query.get("table");
+    if (!table) return json({ options: [], label: null });
+
+    /* sys_column keys its table by id, so the dictionary is asked for the
+       table first — which also means a table nobody declared cannot be read
+       through this route. */
+    const owner = await db.one("SELECT sys_table_id FROM sys_table WHERE table_name = $1", [table]);
+    if (!owner) return json({ options: [], label: null });
+
+    const columns = await db.select("sys_column", {
+      where: { sys_table_id: owner.sys_table_id },
+      orderBy: "seq_no",
+    });
+    if (columns.length === 0) return json({ options: [], label: null });
+
+    const key = columns.find((column) => column.is_key)?.column_name ?? "id";
+    const has = (name) => columns.some((column) => column.column_name === name);
+    const named = ["name", "full_name", "title", "label", "display_name", "subject"];
+    const readable = (column) =>
+      !column.is_key &&
+      !column.column_name.endsWith("_id") &&
+      [10, 14, 30].includes(Number(column.sys_reference_id));
+
+    /* What a person would call the record, in the order they would reach for
+       it: a name-ish column, then a first/last pair — a person table rarely
+       carries either of the names above, and listing staff by e-mail address
+       when their names are right there is the sort of thing that makes a
+       generated screen feel generated — then whatever the dictionary marks as
+       the identifier, then the first readable column, then the key: a lookup
+       listing ids still beats a text box asking for one. */
+    const name = columns.find((column) => named.includes(column.column_name))?.column_name;
+    const person = !name && has("first_name") && has("last_name");
+    const label = name
+      ? name
+      : person
+        ? "first_name last_name"
+        : (columns.find((column) => column.is_identifier && !column.is_key)?.column_name ??
+          columns.find(readable)?.column_name ??
+          key);
+
+    const expression = person
+      ? \`TRIM(CONCAT_WS(' ', \${quoted("first_name")}, \${quoted("last_name")}))\`
+      : quoted(label);
+
+    const limit = Math.min(Number(query.get("limit") ?? 500) || 500, 1000);
+    const rows = await db.query(
+      \`SELECT \${quoted(key)} AS id, \${expression} AS label
+         FROM \${quoted(table)}
+        ORDER BY 2
+        LIMIT \${limit}\`
+    );
+    return json({ options: rows, label });
+  });
+
   router.get("/users", async (_request, { db }) =>
     json(
       await db.query(
@@ -20194,6 +20350,15 @@ a { color: var(--primary); }
 .field__input--area { resize: vertical; min-height: 84px; }
 .field__checkbox { width: 17px; height: 17px; accent-color: var(--primary); justify-self: start; }
 .field__note { margin: 0; font-size: 11.5px; color: var(--text-faint); }
+
+/* The dictionary browser: a table list you can pick from, and the help text a
+   model wrote for each column — narrow enough that a sentence does not push
+   the reference type off the screen. */
+.dict__row { cursor: pointer; }
+.dict__row:hover { background: var(--surface-2, rgba(127, 127, 127, 0.08)); }
+.dict__detail { margin-bottom: var(--gap, 16px); }
+.dict__help { max-width: 34ch; color: var(--text-faint); font-size: 12px; }
+.muted { color: var(--text-faint); }
 
 .record__actions { display: flex; gap: 8px; justify-content: flex-end; padding: 16px 20px; border-top: 1px solid var(--border); flex-wrap: wrap; }
 .record__actions .btn--danger { margin-right: auto; }
@@ -21080,9 +21245,98 @@ import { el, mount, spinner, empty, displayValue, toast } from "../dom.js";
 import { api } from "../api.js";
 import { setHelp } from "../main.js";
 
+/**
+ * The Application Dictionary, as the application actually holds it.
+ *
+ * It used to list the tables and stop there, which showed the smallest part of
+ * the dictionary and none of the part that decides what a screen looks like.
+ * The reference type on a column is why a field is a dropdown rather than a
+ * text box; the reference lists are the dropdown's values; the windows and tabs
+ * are how the screens are grouped. All of it is seeded at first boot and all of
+ * it is readable, so all of it is shown.
+ *
+ * Picking a table opens its columns. That is one request per table rather than
+ * one for every table at load, because a seventeen-entity model has several
+ * hundred columns and nobody reads them all at once.
+ */
 export async function dictionaryView(root) {
   mount(root, spinner("Reading the dictionary"));
-  const [tables, summary] = await Promise.all([api.get("/sys/tables"), api.get("/sys/model-summary")]);
+  const [tables, summary, references, refLists, windows, tabs] = await Promise.all([
+    api.get("/sys/tables"),
+    api.get("/sys/model-summary"),
+    api.get("/sys/references"),
+    api.get("/sys/ref-list"),
+    api.get("/sys/windows"),
+    api.get("/sys/tabs"),
+  ]);
+
+  const columnsByTable = new Map();
+  const listsByReference = new Map();
+  for (const row of refLists) {
+    if (!listsByReference.has(row.sys_reference_id)) listsByReference.set(row.sys_reference_id, []);
+    listsByReference.get(row.sys_reference_id).push(row);
+  }
+  const referenceName = new Map(references.map((row) => [row.sys_reference_id, row.name]));
+
+  /* The lists a model declared, rather than the twenty-two standard types every
+     application has: those are the %%enum vocabularies, and they are the ones
+     worth reading next to the columns that use them. */
+  const modelReferences = references.filter((row) => row.sys_reference_id >= 1000);
+
+  const detail = el("div.dict__detail", el("p.muted", "Select a table to see its columns."));
+
+  async function showColumns(table) {
+    if (!columnsByTable.has(table.sys_table_id)) {
+      columnsByTable.set(
+        table.sys_table_id,
+        await api.get(\`/sys/columns?tableId=\${table.sys_table_id}\`)
+      );
+    }
+    const columns = columnsByTable.get(table.sys_table_id);
+    mount(
+      detail,
+      el(
+        "div",
+        el("h3.section-title", \`\${table.name} — \${columns.length} columns\`),
+        table.description ? el("p.lede", table.description) : null,
+        el(
+          "div.table-wrap",
+          el(
+            "table.table",
+            el(
+              "thead",
+              el(
+                "tr",
+                ["Column", "Name", "Reference", "Lookup", "Required", "Length", "Default", "Help"].map(
+                  (heading) => el("th", heading)
+                )
+              )
+            ),
+            el(
+              "tbody",
+              columns.map((column) =>
+                el(
+                  "tr",
+                  el("td", el("code", column.column_name)),
+                  el("td", column.name || "—"),
+                  el(
+                    "td",
+                    referenceName.get(column.sys_reference_id) ??
+                      (column.sys_reference_id >= 1000 ? "List" : String(column.sys_reference_id ?? "—"))
+                  ),
+                  el("td", column.ref_table_name ? el("code", column.ref_table_name) : "—"),
+                  el("td", column.is_mandatory ? "Yes" : "No"),
+                  el("td", displayValue(column.field_length ?? "—")),
+                  el("td", displayValue(column.default_value ?? "—")),
+                  el("td.dict__help", column.description || "—")
+                )
+              )
+            )
+          )
+        )
+      )
+    );
+  }
 
   mount(
     root,
@@ -21092,11 +21346,15 @@ export async function dictionaryView(root) {
       el(
         "div",
         statRow([
-          ["Entities", summary.counts.entities],
+          ["Tables", tables.length],
+          ["References", references.length],
+          ["List values", refLists.length],
+          ["Windows", windows.length],
+          ["Tabs", tabs.length],
           ["Rules", summary.counts.rules],
-          ["Processes", summary.counts.workflows + summary.counts.sagas],
-          ["Hooks", summary.counts.hooks],
         ]),
+
+        el("h3.section-title", "Tables"),
         el(
           "div.table-wrap",
           el(
@@ -21105,21 +21363,89 @@ export async function dictionaryView(root) {
               "thead",
               el(
                 "tr",
-                ["Table", "Name", "Category", "Window", "Records"].map((heading) => el("th", heading))
+                ["Table", "Name", "Category", "Window", "Records", "Help"].map((heading) =>
+                  el("th", heading)
+                )
               )
             ),
             el(
               "tbody",
               tables.map((table) =>
                 el(
-                  "tr",
+                  "tr.dict__row",
+                  {
+                    onclick: () => showColumns(table),
+                    title: \`Show the columns of \${table.name}\`,
+                  },
                   el("td", el("code", table.table_name)),
                   el("td", table.name),
                   el("td", table.category_name || "—"),
                   el("td", table.window_name || "—"),
-                  el("td", displayValue(summary.records[entityFor(table.name, summary)] ?? "—"))
+                  el("td", displayValue(summary.records[entityFor(table.name, summary)] ?? "—")),
+                  el("td.dict__help", table.description || "—")
                 )
               )
+            )
+          )
+        ),
+
+        el("h3.section-title", "Columns"),
+        detail,
+
+        el("h3.section-title", "Reference lists"),
+        modelReferences.length === 0
+          ? el("p.muted", "This model declares no %%enum vocabularies.")
+          : el(
+              "div.table-wrap",
+              el(
+                "table.table",
+                el(
+                  "thead",
+                  el("tr", ["Reference", "Name", "Values"].map((heading) => el("th", heading)))
+                ),
+                el(
+                  "tbody",
+                  modelReferences.map((reference) =>
+                    el(
+                      "tr",
+                      el("td", el("code", String(reference.sys_reference_id))),
+                      el("td", reference.name),
+                      el(
+                        "td",
+                        (listsByReference.get(reference.sys_reference_id) ?? [])
+                          .map((row) => row.name || row.value)
+                          .join(" · ") || "—"
+                      )
+                    )
+                  )
+                )
+              )
+            ),
+
+        el("h3.section-title", "Windows and tabs"),
+        el(
+          "div.table-wrap",
+          el(
+            "table.table",
+            el(
+              "thead",
+              el("tr", ["Window", "Tab", "Table", "Sequence"].map((heading) => el("th", heading)))
+            ),
+            el(
+              "tbody",
+              tabs.length === 0
+                ? [el("tr", el("td", { colspan: 4 }, "No tabs seeded."))]
+                : tabs.map((tab) => {
+                    const window = windows.find((row) => row.sys_window_id === tab.sys_window_id);
+                    const table = tables.find((row) => row.sys_table_id === tab.sys_table_id);
+                    return el(
+                      "tr",
+                      el("td", window?.name || "—"),
+                      el("td", tab.name),
+                      el("td", table ? el("code", table.table_name) : "—"),
+                      el("td", displayValue(tab.seq_no ?? "—"))
+                    );
+                  })
             )
           )
         )
@@ -21559,6 +21885,7 @@ import { api } from "../api.js";
 import { setActions } from "../main.js";
 
 const referenceCache = new Map();
+const lookupCache = new Map();
 
 async function refList(referenceId) {
   if (!referenceCache.has(referenceId)) {
@@ -21567,10 +21894,61 @@ async function refList(referenceId) {
   return referenceCache.get(referenceId);
 }
 
+/**
+ * The rows a Table Direct column can point at.
+ *
+ * \`sys_column.ref_table_name\` says which table; this asks the server for its
+ * ids and labels. An empty table is a real answer, not a failure — the control
+ * says so and disables itself rather than presenting a box for a uuid nobody
+ * can be expected to type.
+ */
+async function lookupOptions(table) {
+  if (!lookupCache.has(table)) {
+    lookupCache.set(
+      table,
+      api.get(\`/sys/lookup?table=\${encodeURIComponent(table)}\`).catch(() => ({ options: [] }))
+    );
+  }
+  const result = await lookupCache.get(table);
+  const options = result?.options ?? [];
+  /* An empty table is the one answer worth asking again for: it is the state
+     the user is about to change, by going and creating the record the lookup
+     had none of. Caching it means they come back, find the same "No X records
+     yet", and have no way to tell the form otherwise short of reloading. */
+  if (options.length === 0) lookupCache.delete(table);
+  return options;
+}
+
+/** \`bus_purchase_order\` -> \`Purchase Order\`, for a message about an empty table. */
+function tableLabel(table) {
+  return String(table)
+    .replace(/^bus_/, "")
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+/**
+ * The controls a reference type asks the browser for.
+ *
+ * \`color\` (27) is deliberately absent: \`<input type="color">\` has no way to say
+ * "no colour", so every optional colour column a user never touched would save
+ * as black. It stays a text box until the form can offer a swatch that clears.
+ */
+const INPUT_BY_REFERENCE = { 24: "url", 29: "password", 30: "email", 31: "tel" };
+
 /** The label shown on a field's type chip, and the class that colours it. */
 function typeChip(attribute, field) {
   if (field.sys_reference_id >= 1000 || attribute.enumValues?.length) return ["List", "list"];
   if (attribute.refTable || /_id$/.test(attribute.columnName)) return ["Direct Lookup", "lookup"];
+  switch (Number(field.sys_reference_id)) {
+    case 24: return ["URL", "text"];
+    case 27: return ["Colour", "text"];
+    case 29: return ["Password", "text"];
+    case 30: return ["Email", "text"];
+    case 31: return ["Phone", "text"];
+    default: break;
+  }
   switch (attribute.type) {
     case "integer": return ["Integer", "number"];
     case "decimal": return ["Amount", "number"];
@@ -21628,6 +22006,10 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
         ? await api.post(\`/bus/\${entity.routeName}\`, payload)
         : await api.put(\`/bus/\${entity.routeName}/\${id}\`, payload);
       toast(isNew ? \`\${entity.singularName} created\` : "Saved", "success");
+      /* This row may be what some other entity's lookup is missing, and its
+         label may be what an existing option now reads as. Neither is worth a
+         reload to discover. */
+      lookupCache.clear();
       await onSaved(saved);
       if (isNew) navigate(\`/entity/\${entity.routeName}/\${saved.id}\`, { replace: true });
     } catch (error) {
@@ -21805,10 +22187,58 @@ async function control(field, record, entity, inputs) {
         el("option", { value: option.value, selected: String(value ?? "") === option.value }, option.name)
       )
     );
+  } else if (field.ref_table_name) {
+    /* A Table Direct column. Until this existed the field fell through to the
+       plain-text branch below, so a reference rendered as an empty box that
+       said "Direct Lookup" on its chip and accepted anything typed into it. */
+    const options = await lookupOptions(field.ref_table_name);
+    const current = value == null ? "" : String(value);
+    const known = options.some((option) => String(option.id) === current);
+
+    if (options.length === 0) {
+      input = el(
+        "select.field__input",
+        { id, name: field.column_name, disabled: true },
+        el("option", { value: "" }, \`No \${tableLabel(field.ref_table_name)} records yet\`)
+      );
+    } else {
+      input = el(
+        "select.field__input",
+        { id, name: field.column_name },
+        el("option", { value: "" }, field.is_mandatory ? \`Select \${field.name}...\` : "—"),
+        /* A value the list does not contain — an older row, or one beyond the
+           page — is kept as its own option, so opening a record and saving it
+           cannot quietly drop the reference. */
+        !known && current
+          ? [el("option", { value: current, selected: true }, \`\${current} (not in the list)\`)]
+          : [],
+        options.map((option) =>
+          el(
+            "option",
+            { value: String(option.id), selected: String(option.id) === current },
+            option.label == null || option.label === "" ? String(option.id) : String(option.label)
+          )
+        )
+      );
+    }
   } else if (attribute.type === "boolean") {
     input = el("input.field__checkbox", { id, type: "checkbox", checked: value === true });
   } else if (attribute.type === "text") {
     input = el("textarea.field__input.field__input--area", { id, rows: 4 }, value ?? "");
+  } else if (INPUT_BY_REFERENCE[Number(field.sys_reference_id)]) {
+    /* The dictionary knows this column is an address, a number to ring, a link
+       or a secret — \`email\`, \`phone\`, \`url\` and \`password\` in the model. Every
+       one of them is a \`string\` by the time it reaches SQL, so the reference is
+       the only thing left that can ask the browser for the right keyboard on a
+       phone and the right masking on a password. */
+    input = el("input.field__input", {
+      id,
+      type: INPUT_BY_REFERENCE[Number(field.sys_reference_id)],
+      value: value == null ? "" : String(value),
+      maxlength: attribute.maxLength || null,
+      required: field.is_mandatory || null,
+      autocomplete: Number(field.sys_reference_id) === 29 ? "new-password" : null,
+    });
   } else {
     input = el("input.field__input", {
       id,
@@ -22272,7 +22702,7 @@ class DictionaryGenerator {
           sys_table_id: tableId,
           column_name: attr.columnName,
           name: attr.displayName,
-          description: undefined,
+          description: attr.description,
           sys_reference_id: attr.referenceId,
           sys_val_rule_id: undefined,
           field_length: attr.maxLength,
@@ -22327,7 +22757,8 @@ class DictionaryGenerator {
       const columnRefs = columnEntries.map((col) => ({
         sys_column_id: col._tempId,
         column_name: col.column_name,
-        name: col.name
+        name: col.name,
+        description: col.description
       }));
       const fields = generateSysFields(tabId, columnRefs, this.config);
       const fieldEntries = fields.map((field, idx) => ({
@@ -22430,14 +22861,19 @@ function referenceIdFor(attribute, isPrimaryKey) {
     return attribute.enumReferenceId;
   if (isPrimaryKey)
     return ReferenceType.ID;
-  if (attribute.isForeignKey)
+  if (attribute.isForeignKey && /(_id|_by)$/.test(attribute.name)) {
     return ReferenceType.TABLE_DIRECT;
-  if (/email/i.test(attribute.name))
-    return ReferenceType.EMAIL;
-  if (/phone|mobile|tel/i.test(attribute.name))
-    return ReferenceType.PHONE;
-  if (/url|website|link/i.test(attribute.name))
-    return ReferenceType.URL;
+  }
+  if (attribute.semanticType)
+    return SEMANTIC_REFERENCE2[attribute.semanticType];
+  if (attribute.type === "string" || attribute.type === "text") {
+    if (/email/i.test(attribute.name))
+      return ReferenceType.EMAIL;
+    if (/phone|mobile|tel/i.test(attribute.name))
+      return ReferenceType.PHONE;
+    if (/url|website|link/i.test(attribute.name))
+      return ReferenceType.URL;
+  }
   switch (attribute.type) {
     case "integer":
       return ReferenceType.INTEGER;
@@ -22727,25 +23163,51 @@ function buildModelBundle(parsed, project) {
 function entityNameFor(entities, tableName) {
   return entities.find((entity2) => entity2.tableName === tableName)?.name ?? tableName;
 }
+function isPersonRoleColumn2(columnName) {
+  return columnName.endsWith("_by") || columnName.endsWith("_by_id") || PERSON_ROLE_COLUMNS.has(columnName);
+}
 function refTableFor(entities, tableName, columnName) {
   const owner = entities.find((entity2) => entity2.tableName === tableName);
   const attribute = owner?.attributes.find((item) => item.columnName === columnName);
   if (!attribute?.isForeignKey)
     return;
+  if (isPersonRoleColumn2(columnName)) {
+    const user = entities.find((entity2) => entity2.tableName === "bus_user" || entity2.name === "User");
+    if (user)
+      return user.tableName;
+  }
   const base = columnName.replace(/_id$/, "");
   return entities.find((entity2) => entity2.tableName === `bus_${base}`)?.tableName;
 }
-var snake = (value) => value.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").replace(/[\s-]+/g, "_").toLowerCase(), kebab = (value) => snake(value).replace(/_/g, "-"), title = (value) => /^[A-Z0-9_]+$/.test(value) ? value.replace(/_/g, " ") : snake(value).split("_").filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" "), MANAGED_COLUMNS = `  version INTEGER NOT NULL DEFAULT 1,
+var SEMANTIC_REFERENCE2, snake = (value) => value.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").replace(/[\s-]+/g, "_").toLowerCase(), kebab = (value) => snake(value).replace(/_/g, "-"), title = (value) => /^[A-Z0-9_]+$/.test(value) ? value.replace(/_/g, " ") : snake(value).split("_").filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" "), MANAGED_COLUMNS = `  version INTEGER NOT NULL DEFAULT 1,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_by UUID,
   updated_by UUID,
   deleted_at TIMESTAMPTZ,
-  deleted_by UUID`, NOISE, isNoise = (column) => NOISE.has(column);
+  deleted_by UUID`, NOISE, isNoise = (column) => NOISE.has(column), PERSON_ROLE_COLUMNS;
 var init_model_bundle = __esm(() => {
   init_types2();
   init_dictionary_generator();
+  SEMANTIC_REFERENCE2 = {
+    email: ReferenceType.EMAIL,
+    url: ReferenceType.URL,
+    phone: ReferenceType.PHONE,
+    password: ReferenceType.PASSWORD,
+    color: ReferenceType.COLOR
+  };
   NOISE = new Set(["id", "created_by", "updated_by", "deleted_by", "deleted_at", "version"]);
+  PERSON_ROLE_COLUMNS = new Set([
+    "assigned_to",
+    "author_id",
+    "lab_manager_id",
+    "manager_id",
+    "owner_id",
+    "pi_id",
+    "remediation_owner",
+    "remediation_owner_id",
+    "user_id"
+  ]);
 });
 
 // packages/generator/src/generators/wasm/sample-data.ts
@@ -23410,13 +23872,13 @@ var init_wasm_app_generator = __esm(() => {
 // packages/generator/src/browser/index.ts
 var exports_browser = {};
 __export(exports_browser, {
-  reviewModel: () => reviewModel,
-  parseModel: () => parseModel,
-  generateWasmApp: () => generateWasmApp,
-  generateFromSource: () => generateFromSource,
-  RUNTIME_BYTES: () => RUNTIME_BYTES,
+  DEFAULT_PGLITE_URL: () => DEFAULT_PGLITE_URL,
   ModelCheckError: () => ModelCheckError,
-  DEFAULT_PGLITE_URL: () => DEFAULT_PGLITE_URL
+  RUNTIME_BYTES: () => RUNTIME_BYTES,
+  generateFromSource: () => generateFromSource,
+  generateWasmApp: () => generateWasmApp,
+  parseModel: () => parseModel,
+  reviewModel: () => reviewModel
 });
 function generateFromSource(options) {
   const warnings = [];
@@ -27956,7 +28418,7 @@ async function loadTemplates(url = "assets/stack-templates.json") {
   return await response.json();
 }
 export {
-  loadTemplates,
+  ModelCheckError,
   generateFullStack,
-  ModelCheckError
+  loadTemplates
 };

@@ -38,6 +38,9 @@ const MIME = {
   ico: "image/x-icon",
   png: "image/png",
   woff2: "font/woff2",
+  wasm: "application/wasm",
+  data: "application/octet-stream",
+  gz: "application/gzip",
 };
 
 export async function createServer(options) {
@@ -110,12 +113,21 @@ export async function createServer(options) {
     return api.handle(rewritten, await context(request));
   }
 
+  /**
+   * Serve a file from the application directory.
+   *
+   * The bytes are read as bytes, never as text: `vendor/pglite/pglite.data` is
+   * a 6MB filesystem image, and decoding it as UTF-8 turns every invalid
+   * sequence into U+FFFD — the file arrives half again as large and PGlite
+   * refuses to boot with `Invalid FS bundle size`. Text files are unharmed by
+   * the same treatment, so there is no extension list to keep in step.
+   */
   async function handleStatic(pathname) {
     const relative = pathname.replace(/^\/+/, "") || "index.html";
     const candidates = [relative, `${relative}/index.html`, "index.html"];
     for (const candidate of candidates) {
       try {
-        const body = await readAsset(candidate);
+        const body = await readAsset(candidate, "binary");
         if (body == null) continue;
         const extension = candidate.split(".").pop().toLowerCase();
         return new Response(body, {

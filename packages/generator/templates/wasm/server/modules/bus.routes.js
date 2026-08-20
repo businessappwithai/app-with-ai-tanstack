@@ -71,7 +71,8 @@ async function entityMetadata(db, entity) {
   const columns = await db.query(
     `SELECT c.sys_column_id, c.column_name, c.sys_reference_id, c.field_length, c.default_value,
             c.ref_table_name, c.is_key, c.is_identifier, c.is_selection_column,
-            f.sys_field_id, f.name, f.description, f.is_displayed, f.is_displayed_grid,
+            f.sys_field_id, f.name, COALESCE(f.description, c.description) AS description,
+            f.is_displayed, f.is_displayed_grid,
             f.is_read_only, f.is_mandatory, f.is_updateable, f.is_insertable,
             f.seq_no, f.seq_no_grid, f.field_type, f.sys_field_group_id,
             g.name AS group_name
@@ -103,6 +104,10 @@ async function entityMetadata(db, entity) {
       sys_field_id: column.sys_field_id,
       name: column.name || column.column_name,
       column_name: column.column_name,
+      /* `%%field <E>.<c> help:` — sys_field carries it per screen and
+         sys_column per model, so the field's own text wins and the column's is
+         the fallback. The form renders it under the control. */
+      description: column.description ?? null,
       sys_reference_id: column.sys_reference_id,
       is_mandatory: column.is_mandatory ?? false,
       is_updateable: column.is_updateable !== false,

@@ -59,10 +59,12 @@ async function boot(message) {
   const { PGlite } = await loadPGlite(base, message.pgliteUrl);
   const { createServer } = await import(new URL("server/index.js", base).href);
 
-  const readAsset = async (name) => {
+  /* `binary` keeps the bytes as bytes; see the note on the static route in
+     `server/index.js`. */
+  const readAsset = async (name, encoding = "utf-8") => {
     const response = await fetch(new URL(name, base).href, { cache: "no-store" });
     if (!response.ok) throw new Error(`Asset not found: ${name} (${response.status})`);
-    return response.text();
+    return encoding === "binary" ? new Uint8Array(await response.arrayBuffer()) : response.text();
   };
 
   state.app = await createServer({

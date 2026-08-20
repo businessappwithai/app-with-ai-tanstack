@@ -30,6 +30,7 @@ import { api } from "../api.js";
 import { setActions } from "../main.js";
 
 const referenceCache = new Map();
+const lookupCache = new Map();
 
 async function refList(referenceId) {
   if (!referenceCache.has(referenceId)) {
@@ -38,10 +39,61 @@ async function refList(referenceId) {
   return referenceCache.get(referenceId);
 }
 
+/**
+ * The rows a Table Direct column can point at.
+ *
+ * `sys_column.ref_table_name` says which table; this asks the server for its
+ * ids and labels. An empty table is a real answer, not a failure — the control
+ * says so and disables itself rather than presenting a box for a uuid nobody
+ * can be expected to type.
+ */
+async function lookupOptions(table) {
+  if (!lookupCache.has(table)) {
+    lookupCache.set(
+      table,
+      api.get(`/sys/lookup?table=${encodeURIComponent(table)}`).catch(() => ({ options: [] }))
+    );
+  }
+  const result = await lookupCache.get(table);
+  const options = result?.options ?? [];
+  /* An empty table is the one answer worth asking again for: it is the state
+     the user is about to change, by going and creating the record the lookup
+     had none of. Caching it means they come back, find the same "No X records
+     yet", and have no way to tell the form otherwise short of reloading. */
+  if (options.length === 0) lookupCache.delete(table);
+  return options;
+}
+
+/** `bus_purchase_order` -> `Purchase Order`, for a message about an empty table. */
+function tableLabel(table) {
+  return String(table)
+    .replace(/^bus_/, "")
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+/**
+ * The controls a reference type asks the browser for.
+ *
+ * `color` (27) is deliberately absent: `<input type="color">` has no way to say
+ * "no colour", so every optional colour column a user never touched would save
+ * as black. It stays a text box until the form can offer a swatch that clears.
+ */
+const INPUT_BY_REFERENCE = { 24: "url", 29: "password", 30: "email", 31: "tel" };
+
 /** The label shown on a field's type chip, and the class that colours it. */
 function typeChip(attribute, field) {
   if (field.sys_reference_id >= 1000 || attribute.enumValues?.length) return ["List", "list"];
   if (attribute.refTable || /_id$/.test(attribute.columnName)) return ["Direct Lookup", "lookup"];
+  switch (Number(field.sys_reference_id)) {
+    case 24: return ["URL", "text"];
+    case 27: return ["Colour", "text"];
+    case 29: return ["Password", "text"];
+    case 30: return ["Email", "text"];
+    case 31: return ["Phone", "text"];
+    default: break;
+  }
   switch (attribute.type) {
     case "integer": return ["Integer", "number"];
     case "decimal": return ["Amount", "number"];
@@ -99,6 +151,10 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
         ? await api.post(`/bus/${entity.routeName}`, payload)
         : await api.put(`/bus/${entity.routeName}/${id}`, payload);
       toast(isNew ? `${entity.singularName} created` : "Saved", "success");
+      /* This row may be what some other entity's lookup is missing, and its
+         label may be what an existing option now reads as. Neither is worth a
+         reload to discover. */
+      lookupCache.clear();
       await onSaved(saved);
       if (isNew) navigate(`/entity/${entity.routeName}/${saved.id}`, { replace: true });
     } catch (error) {
@@ -276,10 +332,58 @@ async function control(field, record, entity, inputs) {
         el("option", { value: option.value, selected: String(value ?? "") === option.value }, option.name)
       )
     );
+  } else if (field.ref_table_name) {
+    /* A Table Direct column. Until this existed the field fell through to the
+       plain-text branch below, so a reference rendered as an empty box that
+       said "Direct Lookup" on its chip and accepted anything typed into it. */
+    const options = await lookupOptions(field.ref_table_name);
+    const current = value == null ? "" : String(value);
+    const known = options.some((option) => String(option.id) === current);
+
+    if (options.length === 0) {
+      input = el(
+        "select.field__input",
+        { id, name: field.column_name, disabled: true },
+        el("option", { value: "" }, `No ${tableLabel(field.ref_table_name)} records yet`)
+      );
+    } else {
+      input = el(
+        "select.field__input",
+        { id, name: field.column_name },
+        el("option", { value: "" }, field.is_mandatory ? `Select ${field.name}...` : "—"),
+        /* A value the list does not contain — an older row, or one beyond the
+           page — is kept as its own option, so opening a record and saving it
+           cannot quietly drop the reference. */
+        !known && current
+          ? [el("option", { value: current, selected: true }, `${current} (not in the list)`)]
+          : [],
+        options.map((option) =>
+          el(
+            "option",
+            { value: String(option.id), selected: String(option.id) === current },
+            option.label == null || option.label === "" ? String(option.id) : String(option.label)
+          )
+        )
+      );
+    }
   } else if (attribute.type === "boolean") {
     input = el("input.field__checkbox", { id, type: "checkbox", checked: value === true });
   } else if (attribute.type === "text") {
     input = el("textarea.field__input.field__input--area", { id, rows: 4 }, value ?? "");
+  } else if (INPUT_BY_REFERENCE[Number(field.sys_reference_id)]) {
+    /* The dictionary knows this column is an address, a number to ring, a link
+       or a secret — `email`, `phone`, `url` and `password` in the model. Every
+       one of them is a `string` by the time it reaches SQL, so the reference is
+       the only thing left that can ask the browser for the right keyboard on a
+       phone and the right masking on a password. */
+    input = el("input.field__input", {
+      id,
+      type: INPUT_BY_REFERENCE[Number(field.sys_reference_id)],
+      value: value == null ? "" : String(value),
+      maxlength: attribute.maxLength || null,
+      required: field.is_mandatory || null,
+      autocomplete: Number(field.sys_reference_id) === 29 ? "new-password" : null,
+    });
   } else {
     input = el("input.field__input", {
       id,

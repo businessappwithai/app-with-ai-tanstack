@@ -207,7 +207,18 @@ class CheckEngine {
   private validHookTypes: Set<string>;
   private validCardinalities: Set<string>;
   private validModifiers = new Set(["PK", "FK", "UK", "UNIQUE", "OPTIONAL", "NULL"]);
-  private validEntityKeys = new Set(["audited", "softDelete", "prefix", "label", "icon"]);
+  private validEntityKeys = new Set([
+    "audited",
+    "softDelete",
+    "prefix",
+    "label",
+    "icon",
+    /* `help` and its synonym `description` are compiled: the parser hangs the
+       text on the entity and it becomes sys_table.description, which the
+       dictionary and the entity's screen both show. */
+    "help",
+    "description",
+  ]);
   private validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
   private validMetaKeys = new Set(["name", "kind", "version", "entity", "stack"]);
   private validWorkflowKinds = new Set(["hook", "state", "saga"]);

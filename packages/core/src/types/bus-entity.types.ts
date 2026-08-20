@@ -168,6 +168,15 @@ function mergeIndexes(entity: Entity): EntityIndex[] {
  * PK fields (matched by entityPrimaryKey) get ReferenceType.ID so they render
  * as read-only UUID displays, not FK dropdowns.
  */
+/** The reference each semantic type alias asks for. */
+const SEMANTIC_REFERENCE = {
+  email: ReferenceType.EMAIL,
+  url: ReferenceType.URL,
+  phone: ReferenceType.PHONE,
+  password: ReferenceType.PASSWORD,
+  color: ReferenceType.COLOR,
+} as const;
+
 export function attributeReferenceId(attr: EntityAttribute, entityPrimaryKey?: string): number {
   if (attr.name === "id") return ReferenceType.ID;
   if (entityPrimaryKey && attr.name === entityPrimaryKey) return ReferenceType.ID;
@@ -178,6 +187,11 @@ export function attributeReferenceId(attr: EntityAttribute, entityPrimaryKey?: s
   // user can type anything into — including values the state machine cannot act
   // on.
   if (attr.enumReferenceId) return attr.enumReferenceId;
+  // `email`, `url`, `phone`, `password` and `color` all normalise to `string`,
+  // so the alias the modeller wrote is the only record that the column is an
+  // address rather than a name. Read before the canonical type, which by this
+  // point cannot tell them apart.
+  if (attr.semanticType) return SEMANTIC_REFERENCE[attr.semanticType];
   return attributeTypeToReferenceId(attr.type);
 }
 
@@ -543,7 +557,13 @@ export function generateSysTab(
  */
 export function generateSysFields(
   tabId: string,
-  columns: Array<{ sys_column_id: string; column_name: string; name: string }>,
+  columns: Array<{
+    sys_column_id: string;
+    column_name: string;
+    name: string;
+    /** `%%field <E>.<c> help:` — carried onto the field so a screen shows it. */
+    description?: string;
+  }>,
   config: DictionaryGenerationConfig = defaultDictionaryConfig
 ): Array<Omit<SysField, "sys_field_id" | "created_at" | "updated_at">> {
   // Create base sequence numbers
@@ -559,7 +579,7 @@ export function generateSysFields(
     sys_column_id: col.sys_column_id,
     sys_field_group_id: undefined,
     name: col.name,
-    description: undefined,
+    description: col.description,
     help: undefined,
     seq_no: seqNumbers[index] ?? (index + 1) * 10,
     seq_no_grid: (index + 1) * 10,
