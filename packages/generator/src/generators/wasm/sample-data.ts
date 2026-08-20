@@ -56,7 +56,8 @@ function hashSeed(text: string): number {
     h = Math.imul(h ^ text.charCodeAt(i), 3432918353);
     h = (h << 13) | (h >>> 19);
   }
-  return (h ^= h >>> 16) >>> 0;
+  h ^= h >>> 16;
+  return h >>> 0;
 }
 
 /** mulberry32 — small, fast, and good enough to look unpatterned. */
