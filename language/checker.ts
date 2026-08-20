@@ -148,6 +148,14 @@ class SourceIndex {
  * FK column names that carry no suffix but still name a person by role.
  * Mirrors `foreignKeys.personRoleColumns.names` in erdwithai-language.json.
  */
+/**
+ * Column names the generator and the state machines both treat as the record's
+ * lifecycle. A `kind: state` workflow tracks one of these (EML500), and the
+ * Application Dictionary gives it a List reference only when a %%field binds it
+ * to an enum (EML146).
+ */
+export const LIFECYCLE_COLUMN_NAMES = new Set(["status", "state", "stage"]);
+
 const PERSON_ROLE_COLUMN_NAMES = new Set([
   "assigned_to",
   "author_id",
@@ -172,6 +180,20 @@ export function isPersonRoleColumn(columnName: string): boolean {
     columnName.endsWith("_by_id") ||
     PERSON_ROLE_COLUMN_NAMES.has(columnName)
   );
+}
+
+/**
+ * Whether a column name is one the generator can resolve to a table at all.
+ *
+ * This mirrors isForeignKeyColumnName() in
+ * packages/core/src/types/bus-entity.types.ts, which decides TABLE_DIRECT. The
+ * language tools build standalone (tsconfig.language.json) and do not import the
+ * workspace packages, so the rule is repeated here rather than imported; if one
+ * changes, the other has to change with it or the checker starts describing a
+ * dictionary the generator does not produce.
+ */
+export function isForeignKeyColumnName(columnName: string): boolean {
+  return columnName.endsWith("_id") || columnName.endsWith("_by");
 }
 
 // ---------------------------------------------------------------------------
@@ -406,6 +428,7 @@ class CheckEngine {
   }
 
   private checkAttributes(entity: EmlEntity, entityLine?: number): void {
+    const declaredEntityNames = new Set(this.model.entities.map((e) => e.name));
     const seenAttrNames = new Map<string, number>();
     let pkCount = 0;
 
@@ -473,6 +496,32 @@ class CheckEngine {
             ? `Rename to "${attr.name}_id" — a _by column names a person by role, so it resolves to the user entity. Run  bun language/fixer.ts  to apply this automatically.`
             : `Convention: rename to "${attr.name}_id" so the generator can derive the referenced table. Run  bun language/fixer.ts  to apply this automatically.`,
         });
+      }
+
+      // EML119: A column shaped like a reference that nobody marked FK.
+      //
+      // attributeReferenceId() (packages/core/src/types/bus-entity.types.ts)
+      // gives TABLE_DIRECT only when the attribute is BOTH isForeignKey and
+      // named _id/_by. Drop the modifier and the Application Dictionary records
+      // the column as a plain String: the generated form renders the raw uuid in
+      // a text box instead of a lookup on the parent table, and nothing else in
+      // the language notices — the column parses, the relationship line can even
+      // be there, and the model checks clean.
+      //
+      // Only fires when the name resolves to an entity this document declares,
+      // so an `external_id` or a `tax_id` that points at nothing stays quiet.
+      if (!attr.isForeignKey && !attr.isPrimaryKey && isForeignKeyColumnName(attr.name)) {
+        const target = this.fkToEntityName(attr.name);
+        if (declaredEntityNames.has(target) && attr.name !== entity.primaryKey) {
+          this.warn(
+            "EML119",
+            `Column "${entity.name}.${attr.name}" looks like a reference to "${target}" but is not marked FK.`,
+            {
+              line: attrLine,
+              hint: `Add FK:  ${attr.rawType ?? "string"} ${attr.name} FK. Without it the Application Dictionary records the column as String and the form shows the raw id instead of a "${target}" lookup.`,
+            }
+          );
+        }
       }
 
       // EML115: Unknown raw type (falls back to string)
@@ -778,6 +827,41 @@ class CheckEngine {
         );
       }
     }
+
+    // EML146: A lifecycle column nobody bound to an enum.
+    //
+    // A %%enum on its own does nothing to a column. attributeReferenceId() reads
+    // attr.enumReferenceId, which the parser sets from the %%field binding —
+    // without it the Application Dictionary records String, and the user gets a
+    // free-text box on the one column a state machine is not allowed to be
+    // surprised by. EML428 covers the machine's side of this; EML146 covers the
+    // column, which is where the dropdown is lost.
+    const boundFields = new Set(
+      this.src
+        .findAll(/^\s*%%field\s+\w+\.\w+\s+enum\s*:/)
+        .map(({ text }) => {
+          const m = text.trim().match(/^%%field\s+(\w+)\.(\w+)/);
+          return m ? `${m[1]}.${m[2]}` : "";
+        })
+        .filter(Boolean)
+    );
+    // `status` is a lifecycle column wherever it appears. `state` and `stage`
+    // are only lifecycle columns when a machine says so — `Address.state` is a
+    // county, and warning about it would be noise.
+    const entitiesWithMachines = new Set(
+      this.model.workflows.filter((w) => w.kind === "state" && w.entity).map((w) => w.entity)
+    );
+    for (const entity of this.model.entities) {
+      for (const attr of entity.attributes) {
+        if (!LIFECYCLE_COLUMN_NAMES.has(attr.name)) continue;
+        if (attr.name !== "status" && !entitiesWithMachines.has(entity.name)) continue;
+        if (boundFields.has(`${entity.name}.${attr.name}`)) continue;
+        this.warn("EML146", `Column "${entity.name}.${attr.name}" has no %%field enum binding.`, {
+          line: this.src.findLine(new RegExp(`^\\s+\\w+\\s+${attr.name}\\b`)),
+          hint: `Declare  %%enum ${entity.name}Status: ...  and bind it with  %%field ${entity.name}.${attr.name} enum: ${entity.name}Status. Unbound, the Application Dictionary records free text and the form accepts values the state machine cannot act on.`,
+        });
+      }
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -1067,8 +1151,30 @@ class CheckEngine {
         new RegExp(`%%guard.+on\\s+${guard.entity}\\.${guard.op}`)
       );
 
-      // EML220: Role expression syntax
+      // EML223: %%guard written in the retired RBAC shape.
+      //
+      // %%guard meant "restrict this operation to these roles" until the keyword
+      // was needed for automation conditions; the restriction sense is %%rbac
+      // now, and the automation reader skips a guard shaped like the old one
+      // rather than reading `role:admin` as a field name. So this line is not a
+      // malformed guard — it is an access rule that does nothing, in a document
+      // whose author believes the operation is restricted. Reported instead of
+      // EML220/EML222, which would describe it as a guard with a spelling
+      // problem.
       const guardText = guardLine ? this.src.getLine(guardLine).trim() : "";
+      if (/^%%guard\s+role\s*:/.test(guardText)) {
+        this.warn(
+          "EML223",
+          `%%guard on "${guard.entity}.${guard.op}" is written as an access rule, which %%guard no longer means.`,
+          {
+            line: guardLine,
+            hint: `Rewrite it as  %%rbac ${guardText.replace(/^%%guard\s+/, "")}. As a %%guard it is skipped, so the operation is open to any authenticated caller.`,
+          }
+        );
+        continue;
+      }
+
+      // EML220: Role expression syntax
       const roleExprMatch = guardText.match(/^%%guard\s+(\S+)\s+on/);
       const roleExpr = roleExprMatch ? caps(roleExprMatch, 2)[0] : "";
       if (roleExpr && !this.validRoleExpr.test(roleExpr)) {

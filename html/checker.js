@@ -673,6 +673,7 @@ class SourceIndex {
     return results;
   }
 }
+var LIFECYCLE_COLUMN_NAMES = new Set(["status", "state", "stage"]);
 var PERSON_ROLE_COLUMN_NAMES = new Set([
   "assigned_to",
   "author_id",
@@ -686,6 +687,9 @@ var PERSON_ROLE_COLUMN_NAMES = new Set([
 ]);
 function isPersonRoleColumn(columnName) {
   return columnName.endsWith("_by") || columnName.endsWith("_by_id") || PERSON_ROLE_COLUMN_NAMES.has(columnName);
+}
+function isForeignKeyColumnName(columnName) {
+  return columnName.endsWith("_id") || columnName.endsWith("_by");
 }
 
 class CheckEngine {
@@ -836,6 +840,7 @@ class CheckEngine {
     }
   }
   checkAttributes(entity, entityLine) {
+    const declaredEntityNames = new Set(this.model.entities.map((e) => e.name));
     const seenAttrNames = new Map;
     let pkCount = 0;
     for (const attr of entity.attributes) {
@@ -875,6 +880,15 @@ class CheckEngine {
           line: attrLine,
           hint: isPersonRole ? `Rename to "${attr.name}_id" — a _by column names a person by role, so it resolves to the user entity. Run  bun language/fixer.ts  to apply this automatically.` : `Convention: rename to "${attr.name}_id" so the generator can derive the referenced table. Run  bun language/fixer.ts  to apply this automatically.`
         });
+      }
+      if (!attr.isForeignKey && !attr.isPrimaryKey && isForeignKeyColumnName(attr.name)) {
+        const target = this.fkToEntityName(attr.name);
+        if (declaredEntityNames.has(target) && attr.name !== entity.primaryKey) {
+          this.warn("EML119", `Column "${entity.name}.${attr.name}" looks like a reference to "${target}" but is not marked FK.`, {
+            line: attrLine,
+            hint: `Add FK:  ${attr.rawType ?? "string"} ${attr.name} FK. Without it the Application Dictionary records the column as String and the form shows the raw id instead of a "${target}" lookup.`
+          });
+        }
       }
       const def = this.def;
       const rawBase = attr.rawType?.replace(/\(\d+\)/, "").toLowerCase();
@@ -1062,6 +1076,25 @@ class CheckEngine {
         this.warn("EML145", `%%field "${entityName}.${attrName}" has non-numeric ${key}: "${value.trim()}".`, {
           line: lineNo,
           hint: `${key}: should be a number, e.g.  ${key}: 0`
+        });
+      }
+    }
+    const boundFields = new Set(this.src.findAll(/^\s*%%field\s+\w+\.\w+\s+enum\s*:/).map(({ text }) => {
+      const m = text.trim().match(/^%%field\s+(\w+)\.(\w+)/);
+      return m ? `${m[1]}.${m[2]}` : "";
+    }).filter(Boolean));
+    const entitiesWithMachines = new Set(this.model.workflows.filter((w) => w.kind === "state" && w.entity).map((w) => w.entity));
+    for (const entity of this.model.entities) {
+      for (const attr of entity.attributes) {
+        if (!LIFECYCLE_COLUMN_NAMES.has(attr.name))
+          continue;
+        if (attr.name !== "status" && !entitiesWithMachines.has(entity.name))
+          continue;
+        if (boundFields.has(`${entity.name}.${attr.name}`))
+          continue;
+        this.warn("EML146", `Column "${entity.name}.${attr.name}" has no %%field enum binding.`, {
+          line: this.src.findLine(new RegExp(`^\\s+\\w+\\s+${attr.name}\\b`)),
+          hint: `Declare  %%enum ${entity.name}Status: ...  and bind it with  %%field ${entity.name}.${attr.name} enum: ${entity.name}Status. Unbound, the Application Dictionary records free text and the form accepts values the state machine cannot act on.`
         });
       }
     }
@@ -1256,6 +1289,13 @@ class CheckEngine {
     for (const guard of this.model.guards) {
       const guardLine = this.src.findLine(new RegExp(`%%guard.+on\\s+${guard.entity}\\.${guard.op}`));
       const guardText = guardLine ? this.src.getLine(guardLine).trim() : "";
+      if (/^%%guard\s+role\s*:/.test(guardText)) {
+        this.warn("EML223", `%%guard on "${guard.entity}.${guard.op}" is written as an access rule, which %%guard no longer means.`, {
+          line: guardLine,
+          hint: `Rewrite it as  %%rbac ${guardText.replace(/^%%guard\s+/, "")}. As a %%guard it is skipped, so the operation is open to any authenticated caller.`
+        });
+        continue;
+      }
       const roleExprMatch = guardText.match(/^%%guard\s+(\S+)\s+on/);
       const roleExpr = roleExprMatch ? caps(roleExprMatch, 2)[0] : "";
       if (roleExpr && !this.validRoleExpr.test(roleExpr)) {
@@ -2320,7 +2360,67 @@ var erdwithai_language_default = {
       ]
     },
     checkerCodes: {
-      EML114: "FK column does not end in _id. Auto-fixable: the fixer appends the suffix, so `reported_by FK` becomes `reported_by_id FK` and starts resolving to bus_user."
+      EML114: "FK column does not end in _id. Auto-fixable: the fixer appends the suffix, so `reported_by FK` becomes `reported_by_id FK` and starts resolving to bus_user.",
+      EML119: "A column named like a reference (_id/_by, resolving to a declared entity) that carries no FK modifier. Both conditions are required for TABLE_DIRECT, and a column that fails either is recorded as a plain String."
+    }
+  },
+  applicationDictionary: {
+    description: "The generated application is metadata-driven: it does not hard-code forms. Every table, column, tab, field and lookup is a row in the Application Dictionary (sys_table, sys_column, sys_field, sys_tab, sys_window, sys_category, sys_reference, sys_ref_list), and the running interface reads those rows, which is why a field can be added to a live application without a deployment. Nothing in EML writes dictionary rows: they are derived, one way, from the ERD. There is no %%dictionary directive, and a model that wants a lookup or a dropdown gets one by declaring the column so that the derivation produces it.",
+    derivedBy: "packages/core/src/types/bus-entity.types.ts (attributeReferenceId, isForeignKeyColumnName, attributeToBusAttribute)",
+    consumedBy: [
+      "packages/generator/src/generators/wasm/model-bundle.ts (referenceIdFor)",
+      "packages/generator/src/generators/dictionary (sys_table, sys_column, sys_field seeds)",
+      "packages/web (the runtime that renders a control per sys_reference_id)"
+    ],
+    referenceTypes: {
+      description: "sys_reference_id decides the control the user gets. Ids below 1000 are the standard references below; a %%enum creates its own List reference at 1000 or above, with one sys_ref_list row per value.",
+      standard: {
+        "10": "String - plain text box",
+        "11": "Integer",
+        "12": "Amount - decimal, right aligned",
+        "13": "ID - the record key, read-only",
+        "14": "Text - memo box",
+        "15": "Date",
+        "16": "DateTime",
+        "17": "List - dropdown fed by sys_ref_list",
+        "18": "Table - lookup with an explicit validation rule",
+        "19": "Table Direct - lookup on the table the column name resolves to",
+        "20": "Yes-No - switch",
+        "21": "Location",
+        "22": "Locator",
+        "23": "Account",
+        "24": "URL",
+        "25": "Image",
+        "26": "File",
+        "27": "Color",
+        "28": "JSON",
+        "29": "Password - masked",
+        "30": "Email",
+        "31": "Phone"
+      }
+    },
+    derivation: [
+      "1. The entity's primary key, or a column named `id`, gets ID (13).",
+      "2. A column that is BOTH marked FK and named _id/_by (see foreignKeys.resolution) gets TABLE_DIRECT (19) - the lookup on the parent table.",
+      "3. A column bound by `%%field <Entity>.<column> enum: <Enum>` gets that enum's List reference (>= 1000).",
+      "4. Otherwise the semantic aliases decide: email/phone/url/password/color map to their own references (30, 31, 24, 29, 27).",
+      "5. Otherwise the canonical type decides: text -> Text, boolean -> Yes-No, decimal/money -> Amount, date -> Date, datetime -> DateTime, json -> JSON, integer -> Integer, everything else -> String."
+    ],
+    silentDowngrades: {
+      description: "Two authoring mistakes leave a column at String (10) with a document that is otherwise correct. Both were invisible before EML119 and EML146: the model parses, the relationship line can be present, and the generated application comes back with raw ids in text boxes.",
+      unmarkedReference: "`string vendor_id` and `string vendor_id FK` parse into the same column, and only the second becomes TABLE_DIRECT. Reported as EML119.",
+      unboundLifecycleColumn: "A %%enum does nothing to a column on its own. Without the %%field binding, a status/state/stage column is free text, and the form accepts values the state machine cannot act on. Reported as EML146."
+    },
+    alsoDerived: [
+      "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10).",
+      "%%index becomes real indexes; a unique attribute or a `name` column is indexed automatically (mergeIndexes).",
+      "%%category becomes the dashboard grouping; a model declaring none gets a single General category holding every entity.",
+      "%%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
+    ],
+    checkerCodes: {
+      EML119: "A reference-shaped column with no FK modifier - the lookup is lost.",
+      EML146: "A status/state/stage column with no %%field enum binding - the dropdown is lost.",
+      EML500: "A `kind: state` workflow bound to an entity with no status/state/stage column at all - the machine has nothing to track."
     }
   },
   cardinalities: {

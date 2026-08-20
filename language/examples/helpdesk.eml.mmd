@@ -86,7 +86,7 @@ stateDiagram-v2
     resolved    --> closed      : close
     closed      --> [*]
 
-    %%guard role:agent|admin on Ticket.update
+    %%rbac role:agent|admin on Ticket.update
     %%trigger cron:0 * * * * -> escalateStale on Ticket
 
 %% ---- Section 4: Workflow — ticket hooks ------------------------------------
