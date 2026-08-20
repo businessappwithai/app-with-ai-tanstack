@@ -15648,7 +15648,7 @@ var init_review_model = __esm(() => {
 });
 
 // packages/generator/src/generators/wasm/runtime-assets.generated.ts
-var RUNTIME_ASSETS, RUNTIME_BYTES = 238102;
+var RUNTIME_ASSETS, RUNTIME_BYTES = 239501;
 var init_runtime_assets_generated = __esm(() => {
   RUNTIME_ASSETS = Object.freeze({
     "app/schema.sys.sql": `-- ---------------------------------------------------------------------------
@@ -18343,6 +18343,7 @@ export async function migrate(db, model, readAsset, log = () => {}) {
   await seedRules(db, model);
   await seedWorkflows(db, model);
   await seedAccess(db, model);
+  await seedSampleData(db, model, log);
 
   await db.query(
     \`INSERT INTO sys_schema_state (key, value) VALUES ('seeded', $1)
@@ -18594,6 +18595,42 @@ async function seedAdmin(db, model, log) {
     );
   }
   log(\`Administrator ready: \${adminEmail} / \${adminPassword}\`);
+}
+
+/**
+ * Sample business rows, when the generator put any in the bundle.
+ *
+ * They arrive already ordered parent-first and with their foreign keys pointing
+ * at ids in the same payload, so a plain insert in key order is enough — no
+ * second resolution pass, and no chance of a lookup that opens on nothing.
+ *
+ * Failure here is reported and swallowed on purpose. Demo data is a
+ * convenience; an application that refuses to boot because a sample row was
+ * rejected would be a worse trade than one that boots with empty tables.
+ */
+async function seedSampleData(db, model, log) {
+  const tables = Object.entries(model.sampleData || {});
+  if (tables.length === 0) return;
+
+  let inserted = 0;
+  for (const [table, rows] of tables) {
+    for (const row of rows) {
+      const columns = Object.keys(row);
+      if (columns.length === 0) continue;
+      const placeholders = columns.map((_, index) => \`$\${index + 1}\`).join(", ");
+      try {
+        await db.query(
+          \`INSERT INTO \${table} (\${columns.join(", ")}) VALUES (\${placeholders})
+             ON CONFLICT DO NOTHING\`,
+          columns.map((column) => row[column])
+        );
+        inserted++;
+      } catch (error) {
+        log(\`Sample data: \${table} row skipped — \${error.message}\`);
+      }
+    }
+  }
+  log(\`Sample data: \${inserted} record(s) across \${tables.length} table(s)\`);
 }
 
 async function seedRules(db, model) {
@@ -22711,18 +22748,539 @@ var init_model_bundle = __esm(() => {
   NOISE = new Set(["id", "created_by", "updated_by", "deleted_by", "deleted_at", "version"]);
 });
 
+// packages/generator/src/generators/wasm/sample-data.ts
+function hashSeed(text) {
+  let h = 1779033703 ^ text.length;
+  for (let i = 0;i < text.length; i++) {
+    h = Math.imul(h ^ text.charCodeAt(i), 3432918353);
+    h = h << 13 | h >>> 19;
+  }
+  return (h ^= h >>> 16) >>> 0;
+}
+function rng(seed2) {
+  let a = seed2;
+  return () => {
+    a = a + 1831565813 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+class Random {
+  next;
+  constructor(seed2) {
+    this.next = rng(hashSeed(seed2));
+  }
+  float() {
+    return this.next();
+  }
+  int(min, max) {
+    return min + Math.floor(this.next() * (max - min + 1));
+  }
+  pick(items) {
+    return items[Math.min(items.length - 1, Math.floor(this.next() * items.length))];
+  }
+  chance(probability) {
+    return this.next() < probability;
+  }
+  uuid() {
+    const hex = "0123456789abcdef";
+    let out = "";
+    for (let i = 0;i < 32; i++) {
+      if (i === 12)
+        out += "4";
+      else if (i === 16)
+        out += hex[8 + Math.floor(this.next() * 4)];
+      else
+        out += hex[Math.floor(this.next() * 16)];
+    }
+    return `${out.slice(0, 8)}-${out.slice(8, 12)}-${out.slice(12, 16)}-${out.slice(16, 20)}-${out.slice(20)}`;
+  }
+}
+function flavourOf(column, entity2) {
+  const n = column.toLowerCase();
+  if (/^first_?name$/.test(n))
+    return "firstName";
+  if (/^(last|sur)_?name$/.test(n))
+    return "lastName";
+  if (/^(full_?name|display_?name)$/.test(n))
+    return "person";
+  if (/^(contact|person|customer|client|employee|user|approver|owner)_name$/.test(n))
+    return "person";
+  if (/^(company|vendor|supplier|organisation|organization|account|insurer)_name$/.test(n))
+    return "company";
+  if (/^(sku|code|.*_code|barcode)$/.test(n))
+    return "code";
+  if (/(number|reference|ref|invoice_no|po_no)$/.test(n))
+    return "reference";
+  if (/(title|subject|summary|label)$/.test(n))
+    return "title";
+  if (/(city|town)$/.test(n))
+    return "city";
+  if (/(country|nation)$/.test(n))
+    return "country";
+  if (/(address|street|line1|line2)$/.test(n))
+    return "address";
+  if (/^(uom|unit|unit_of_measure|measure)$/.test(n))
+    return "uom";
+  if (/(currency|iso_currency)$/.test(n))
+    return "currency";
+  if (n === "name") {
+    const e = entity2.toLowerCase();
+    if (/(vendor|supplier|company|account|customer|client|insurer|organisation)/.test(e))
+      return "company";
+    if (/(product|item|material|medication|part|sku)/.test(e))
+      return "product";
+    if (/(user|person|staff|employee|contact|patient|owner)/.test(e))
+      return "person";
+    return "title";
+  }
+  return "word";
+}
+function integerRange(column) {
+  const n = column.toLowerCase();
+  if (/(quantity|qty|count|units|items|seats|capacity)/.test(n))
+    return [1, 40];
+  if (/(stock|on_hand|inventory|level)/.test(n))
+    return [0, 500];
+  if (/(age|years)/.test(n))
+    return [1, 60];
+  if (/(duration|minutes|days|weeks|months)/.test(n))
+    return [1, 90];
+  if (/(line_?number|seq|sequence|position|order_?no)/.test(n))
+    return [1, 20];
+  if (/(percent|percentage|rate|score)/.test(n))
+    return [0, 100];
+  if (/(attempts|retries|version)/.test(n))
+    return [1, 5];
+  return [1, 100];
+}
+function amountRange(column) {
+  const n = column.toLowerCase();
+  if (/(unit_?price|price|rate|fee|cost_?per)/.test(n))
+    return [4, 480];
+  if (/(variance|discount|adjustment|tax)/.test(n))
+    return [0, 90];
+  if (/(total|amount|balance|value|subtotal|claimed|settled|paid)/.test(n))
+    return [50, 9500];
+  return [5, 1200];
+}
+function dayOffsetRange(column) {
+  const n = column.toLowerCase();
+  if (/(due|expected|next|valid_until|expiry|expires|scheduled)/.test(n))
+    return [1, 45];
+  if (/(created|opened|registered|joined|started|requested|submitted|captured)/.test(n))
+    return [-120, -10];
+  if (/(issued|invoice_date|order_date|ordered|billed|raised)/.test(n))
+    return [-90, -5];
+  if (/(closed|resolved|completed|decided|approved|paid|settled|received|dispatched|sent)/.test(n))
+    return [-30, -1];
+  if (/(birth|dob)/.test(n))
+    return [-16000, -700];
+  return [-60, 20];
+}
+function iso(date, withTime) {
+  return withTime ? date.toISOString() : date.toISOString().split("T")[0];
+}
+function stringValue(random, column, entity2, row) {
+  switch (flavourOf(column, entity2)) {
+    case "firstName":
+      return random.pick(FIRST_NAMES);
+    case "lastName":
+      return random.pick(LAST_NAMES);
+    case "person":
+      return `${random.pick(FIRST_NAMES)} ${random.pick(LAST_NAMES)}`;
+    case "company":
+      return `${random.pick(COMPANY_HEADS)} ${random.pick(COMPANY_TAILS)}`;
+    case "product":
+      return `${random.pick(PRODUCT_HEADS)} ${random.pick(PRODUCT_TAILS)}`;
+    case "city":
+      return random.pick(CITIES);
+    case "country":
+      return random.pick(COUNTRIES);
+    case "address":
+      return `${random.int(1, 180)} ${random.pick(STREETS)}, ${random.pick(CITIES)}`;
+    case "code":
+      return `${initials(entity2)}-${String(1000 + row * 7 + random.int(0, 6)).slice(0, 4)}`;
+    case "reference":
+      return `${initials(entity2)}${new Date().getFullYear()}-${String(row + 1).padStart(4, "0")}`;
+    case "title":
+      return `${capitalise(random.pick(WORDS))} ${random.pick(WORDS)}`;
+    case "uom":
+      return random.pick(["each", "box", "case", "pallet", "kg", "litre"]);
+    case "currency":
+      return random.pick(["EUR", "GBP", "USD", "SEK"]);
+    default:
+      return capitalise(random.pick(WORDS));
+  }
+}
+function initials(entity2) {
+  const letters = entity2.replace(/[^A-Za-z]/g, "");
+  const caps2 = letters.match(/[A-Z]/g);
+  return (caps2 && caps2.length >= 2 ? caps2.join("") : letters.slice(0, 3)).toUpperCase().slice(0, 4);
+}
+function capitalise(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+function fkTarget(column, personEntity) {
+  const n = column.toLowerCase();
+  if (n.endsWith("_by") || n.endsWith("_by_id"))
+    return personEntity;
+  if (PERSON_COLUMNS.has(n))
+    return personEntity;
+  if (!n.endsWith("_id"))
+    return;
+  return n.slice(0, -3).replace(/(^|_)([a-z])/g, (_m, _sep, ch) => ch.toUpperCase());
+}
+function inDependencyOrder(entities, personEntity) {
+  const byName = new Map(entities.map((entity2) => [entity2.name, entity2]));
+  const pending = new Map;
+  for (const entity2 of entities) {
+    const parents = new Set;
+    for (const column of entity2.columns) {
+      if (!column.isForeignKey)
+        continue;
+      const target = fkTarget(column.columnName, personEntity);
+      if (target && target !== entity2.name && byName.has(target))
+        parents.add(target);
+    }
+    pending.set(entity2.name, parents);
+  }
+  const ordered = [];
+  const done = new Set;
+  let progress = true;
+  while (progress && ordered.length < entities.length) {
+    progress = false;
+    for (const entity2 of entities) {
+      if (done.has(entity2.name))
+        continue;
+      const parents = pending.get(entity2.name);
+      if ([...parents].every((parent) => done.has(parent))) {
+        ordered.push(entity2);
+        done.add(entity2.name);
+        progress = true;
+      }
+    }
+  }
+  for (const entity2 of entities)
+    if (!done.has(entity2.name))
+      ordered.push(entity2);
+  return ordered;
+}
+function buildSampleData(parsed, options) {
+  const count = Math.max(0, Math.floor(options.records));
+  if (count === 0 || parsed.entities.length === 0)
+    return {};
+  const nullRate = options.nullRate ?? 0.15;
+  const salt = options.seed ?? "erdwithai";
+  const entities = parsed.entities.map((entity2) => ({
+    name: entity2.name,
+    table: tableNameFor(entity2),
+    primaryKey: entity2.primaryKey || "id",
+    columns: entity2.attributes.map((attribute) => ({
+      name: attribute.name,
+      columnName: attribute.name,
+      type: attribute.type,
+      required: !!attribute.required,
+      unique: !!attribute.unique,
+      maxLength: attribute.maxLength,
+      isForeignKey: !!attribute.isForeignKey,
+      enumValues: attribute.enumValues,
+      referenceId: referenceIdFor(attribute, attribute.name === (entity2.primaryKey || "id"))
+    }))
+  }));
+  const personEntity = entities.find((entity2) => entity2.name === "User")?.name ?? entities.find((entity2) => /^(user|staff|employee|person|account)s?$/i.test(entity2.name))?.name;
+  const ids = new Map;
+  const data = {};
+  for (const entity2 of inDependencyOrder(entities, personEntity)) {
+    const full = entities.find((candidate) => candidate.name === entity2.name);
+    if (!full)
+      continue;
+    const rows = [];
+    const generatedIds = [];
+    for (let row = 0;row < count; row++) {
+      const record = {};
+      for (const column of full.columns) {
+        const random = new Random(`${salt}:${full.name}:${column.columnName}:${row}`);
+        const isPrimary = column.columnName === full.primaryKey || column.columnName === "id";
+        if (isPrimary) {
+          const id = random.uuid();
+          record[column.columnName] = id;
+          generatedIds.push(id);
+          continue;
+        }
+        if (!column.required && !column.isForeignKey && random.chance(nullRate)) {
+          record[column.columnName] = null;
+          continue;
+        }
+        record[column.columnName] = valueFor(column, full.name, row, random, {
+          ids,
+          personEntity,
+          selfIds: generatedIds,
+          entityName: full.name
+        });
+      }
+      rows.push(record);
+    }
+    ids.set(full.name, generatedIds);
+    data[full.table] = rows;
+  }
+  return data;
+}
+function valueFor(column, entity2, row, random, context) {
+  if (column.isForeignKey) {
+    const target = fkTarget(column.columnName, context.personEntity);
+    const pool = target === context.entityName ? context.selfIds.slice(0, row) : context.ids.get(target ?? "");
+    if (!pool || pool.length === 0)
+      return null;
+    return random.pick(pool);
+  }
+  if (column.enumValues?.length)
+    return random.pick(column.enumValues);
+  switch (column.referenceId) {
+    case ReferenceType.EMAIL:
+      return emailFor(random);
+    case ReferenceType.PHONE:
+      return `+${random.int(31, 49)} ${random.int(10, 99)} ${random.int(100, 999)} ${random.int(1000, 9999)}`;
+    case ReferenceType.URL:
+      return `https://www.${random.pick(DOMAINS)}/${random.pick(WORDS)}`;
+    case ReferenceType.COLOR:
+      return random.pick(COLORS);
+    case ReferenceType.PASSWORD:
+      return "not-a-real-password";
+    default:
+      break;
+  }
+  switch (column.type) {
+    case "boolean":
+      return /^(is_|has_|can_)?(active|enabled|available|approved)$/.test(column.columnName) ? random.chance(0.85) : random.chance(0.5);
+    case "integer": {
+      const [min, max] = integerRange(column.columnName);
+      return random.int(min, max);
+    }
+    case "decimal": {
+      const [min, max] = amountRange(column.columnName);
+      return Number((min + random.float() * (max - min)).toFixed(2));
+    }
+    case "date":
+    case "datetime": {
+      const [from, to] = dayOffsetRange(column.columnName);
+      const when = new Date;
+      when.setUTCDate(when.getUTCDate() + random.int(from, to));
+      when.setUTCHours(random.int(7, 18), random.int(0, 59), random.int(0, 59), 0);
+      return iso(when, column.type === "datetime");
+    }
+    case "json":
+      return { source: "sample", note: random.pick(WORDS), index: row + 1 };
+    case "text": {
+      const flavour = flavourOf(column.columnName, entity2);
+      return flavour === "word" || flavour === "title" ? random.pick(SENTENCES) : stringValue(random, column.columnName, entity2, row);
+    }
+    default: {
+      const flavour = flavourOf(column.columnName, entity2);
+      const base = stringValue(random, column.columnName, entity2, row);
+      const selfUnique = flavour === "code" || flavour === "reference";
+      const value = column.unique && !selfUnique ? `${base} ${row + 1}` : base;
+      return column.maxLength && value.length > column.maxLength ? value.slice(0, column.maxLength) : value;
+    }
+  }
+}
+function emailFor(random) {
+  const first = random.pick(FIRST_NAMES).toLowerCase();
+  const last = random.pick(LAST_NAMES).toLowerCase();
+  return `${first}.${last}.${random.int(1, 999)}@${random.pick(DOMAINS)}`;
+}
+var FIRST_NAMES, LAST_NAMES, COMPANY_HEADS, COMPANY_TAILS, PRODUCT_HEADS, PRODUCT_TAILS, CITIES, COUNTRIES, STREETS, WORDS, SENTENCES, DOMAINS, COLORS, PERSON_COLUMNS;
+var init_sample_data = __esm(() => {
+  init_types2();
+  init_model_bundle();
+  FIRST_NAMES = [
+    "Amara",
+    "Priya",
+    "Sofia",
+    "Mei",
+    "Aisha",
+    "Elena",
+    "Nadia",
+    "Yara",
+    "Ines",
+    "Leila",
+    "Tomas",
+    "Rahul",
+    "Kwame",
+    "Diego",
+    "Hiroshi",
+    "Omar",
+    "Lucas",
+    "Mateo",
+    "Noah",
+    "Ivan"
+  ];
+  LAST_NAMES = [
+    "Okafor",
+    "Sharma",
+    "Rossi",
+    "Nakamura",
+    "Haddad",
+    "Novak",
+    "Andersen",
+    "Costa",
+    "Dubois",
+    "Fernandes",
+    "Kowalski",
+    "Mbeki",
+    "Nguyen",
+    "Petrov",
+    "Silva",
+    "Tanaka",
+    "Weber",
+    "Ziegler"
+  ];
+  COMPANY_HEADS = [
+    "Northwind",
+    "Blue Harbour",
+    "Cedar",
+    "Meridian",
+    "Orchard",
+    "Ridgeway",
+    "Solstice",
+    "Trafalgar",
+    "Vanguard",
+    "Whitfield",
+    "Ironbridge",
+    "Larkspur"
+  ];
+  COMPANY_TAILS = [
+    "Trading",
+    "Industries",
+    "Logistics",
+    "Supplies",
+    "Partners",
+    "Group",
+    "Systems",
+    "Works"
+  ];
+  PRODUCT_HEADS = [
+    "Compact",
+    "Industrial",
+    "Precision",
+    "Heavy-duty",
+    "Portable",
+    "Reinforced",
+    "Insulated",
+    "Stainless"
+  ];
+  PRODUCT_TAILS = [
+    "Valve",
+    "Bearing",
+    "Cable",
+    "Pump",
+    "Bracket",
+    "Filter",
+    "Sensor",
+    "Actuator",
+    "Coupling"
+  ];
+  CITIES = [
+    "Rotterdam",
+    "Porto",
+    "Leeds",
+    "Malmo",
+    "Bilbao",
+    "Antwerp",
+    "Cork",
+    "Bergen",
+    "Turin",
+    "Gdansk"
+  ];
+  COUNTRIES = [
+    "Netherlands",
+    "Portugal",
+    "United Kingdom",
+    "Sweden",
+    "Spain",
+    "Belgium",
+    "Ireland",
+    "Norway"
+  ];
+  STREETS = [
+    "Harbour Road",
+    "Mill Lane",
+    "Station Approach",
+    "Foundry Street",
+    "Kiln Way",
+    "Quay Side"
+  ];
+  WORDS = [
+    "delivery",
+    "inspection",
+    "tolerance",
+    "batch",
+    "handover",
+    "schedule",
+    "clearance",
+    "allocation",
+    "shortfall",
+    "revision",
+    "approval",
+    "dispatch",
+    "reconciliation",
+    "provision"
+  ];
+  SENTENCES = [
+    "Checked against the order and cleared without exception.",
+    "Held overnight pending confirmation from the supplier.",
+    "Quantity agreed after a short call; nothing outstanding.",
+    "Raised for review — the price differs from the agreed rate.",
+    "Completed on schedule. No follow-up required.",
+    "Partial receipt; the balance is expected next week.",
+    "Corrected after the first entry recorded the wrong unit."
+  ];
+  DOMAINS = ["example.com", "example.org", "example.net"];
+  COLORS = [
+    "#2563eb",
+    "#0ea5e9",
+    "#16a34a",
+    "#f59e0b",
+    "#dc2626",
+    "#7c3aed",
+    "#0f766e",
+    "#be123c"
+  ];
+  PERSON_COLUMNS = new Set([
+    "assigned_to",
+    "author_id",
+    "lab_manager_id",
+    "manager_id",
+    "owner_id",
+    "pi_id",
+    "remediation_owner",
+    "remediation_owner_id",
+    "user_id"
+  ]);
+});
+
 // packages/generator/src/generators/wasm/wasm-app.generator.ts
 function generateWasmApp(parsed, options) {
   const files2 = new Map;
   for (const [name, contents] of Object.entries(RUNTIME_ASSETS))
     files2.set(name, contents);
   const { model, schema } = buildModelBundle(parsed, options);
+  const sampleData = buildSampleData(parsed, {
+    records: options.sampleRecords ?? 0,
+    seed: options.sampleSeed ?? options.name,
+    nullRate: options.sampleNullRate
+  });
+  const sampleRows = Object.values(sampleData).reduce((total, rows) => total + rows.length, 0);
+  if (sampleRows > 0)
+    model.sampleData = sampleData;
   files2.set("app/model.json", `${JSON.stringify(model, null, 2)}
 `);
   files2.set("app/schema.bus.sql", schema);
   if (options.source?.trim())
     files2.set("model/model.eml.mmd", options.source);
-  files2.set("index.html", (RUNTIME_ASSETS["index.html"] ?? "").replaceAll("__PROJECT_NAME__", escapeHtml(options.name)).replaceAll("__PROJECT_DESCRIPTION__", escapeHtml(options.description)).replaceAll("__PROJECT_INITIALS__", escapeHtml(initials(options.name))));
+  files2.set("index.html", (RUNTIME_ASSETS["index.html"] ?? "").replaceAll("__PROJECT_NAME__", escapeHtml(options.name)).replaceAll("__PROJECT_DESCRIPTION__", escapeHtml(options.description)).replaceAll("__PROJECT_INITIALS__", escapeHtml(initials2(options.name))));
   if (options.pgliteUrl && options.pgliteUrl !== DEFAULT_PGLITE_URL) {
     files2.set("host/browser-node-host.js", (RUNTIME_ASSETS["host/browser-node-host.js"] ?? "").replace(DEFAULT_PGLITE_URL, options.pgliteUrl));
   }
@@ -22753,7 +23311,8 @@ function generateWasmApp(parsed, options) {
       runtimeBytes: RUNTIME_BYTES,
       entities: parsed.entities.length,
       rules: parsed.rules.length,
-      workflows: parsed.workflows.length + parsed.sagas.length
+      workflows: parsed.workflows.length + parsed.sagas.length,
+      sampleRows
     }
   };
 }
@@ -22840,10 +23399,11 @@ not a secret from you. Point this model at the \`tanstackjs-nestjs\` stack when
 the data needs to be somewhere other than the reader's machine.
 `;
 }
-var DEFAULT_PGLITE_URL = "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.5/dist/index.js", slug = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "generated-app", initials = (value) => value.split(/[\s\-_]+/).filter(Boolean).slice(0, 2).map((word) => (word[0] ?? "").toUpperCase()).join("") || "AP", escapeHtml = (value) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character);
+var DEFAULT_PGLITE_URL = "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.5/dist/index.js", slug = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "generated-app", initials2 = (value) => value.split(/[\s\-_]+/).filter(Boolean).slice(0, 2).map((word) => (word[0] ?? "").toUpperCase()).join("") || "AP", escapeHtml = (value) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character);
 var init_wasm_app_generator = __esm(() => {
   init_model_bundle();
   init_runtime_assets_generated();
+  init_sample_data();
 });
 
 // packages/generator/src/browser/index.ts

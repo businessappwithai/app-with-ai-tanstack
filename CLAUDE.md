@@ -391,6 +391,18 @@ mistake to make here:
 This section is the default mode; **The self-contained browser runtime** below is
 `--standalone`.
 
+**Sample data belongs to `--standalone`.** The self-contained runtime seeds
+`model.json`'s `sampleData` on first boot, so `erdwithai-wasm generate
+--standalone` writes 10 rows per entity by default — typed from the Application
+Dictionary, parent-first so every Table Direct lookup opens on a row that
+exists, and deterministic for a given model and seed. `.env.wasm` (see
+`.env.wasm.example`) holds `WASM_SEED_RECORDS`, `WASM_SEED_SEED` and
+`WASM_SEED_NULL_RATE`; `--sample-records N` overrides it and `0` turns it off.
+The default mode refuses the flag rather than ignoring it: that stack seeds
+through its own migrations. The library default is 0, so the hosted browser
+generator is unaffected — a page generating an application for a model someone
+is about to read should not invent records in it.
+
 **`erdwithai-wasm` is not a second stack.** It runs the same pipeline
 `erdwithai` runs — the same NestJS backend, the same TanStack Start front end,
 the same migrations, guards, rules engine and dictionary — and then applies an

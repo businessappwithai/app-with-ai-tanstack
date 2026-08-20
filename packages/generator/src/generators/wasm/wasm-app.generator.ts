@@ -16,6 +16,7 @@
 import type { ParsedModel } from "../../pipeline/generate-application";
 import { buildModelBundle, type WasmProjectSettings } from "./model-bundle";
 import { RUNTIME_ASSETS, RUNTIME_BYTES } from "./runtime-assets.generated";
+import { buildSampleData } from "./sample-data";
 
 export interface WasmGeneratorOptions extends WasmProjectSettings {
   /** The EML the model was parsed from, shipped so the app can describe itself. */
@@ -25,6 +26,20 @@ export interface WasmGeneratorOptions extends WasmProjectSettings {
    * The runtime tries `vendor/pglite/index.js` first regardless.
    */
   pgliteUrl?: string;
+  /**
+   * Rows of sample data to generate per entity, seeded on first boot.
+   *
+   * Zero by default, and left that way for every caller that does not ask:
+   * the hosted browser generator produces an application for a model someone
+   * is about to look at, and inventing records in it is a decision its page
+   * has not made. `erdwithai-wasm` passes 10 unless told otherwise, because a
+   * CLI generates an application to run rather than to inspect.
+   */
+  sampleRecords?: number;
+  /** Seeds the sample-data PRNG. Defaults to the project name, so it is stable. */
+  sampleSeed?: string;
+  /** How often an OPTIONAL column is left empty, 0-1. Defaults to 0.15. */
+  sampleNullRate?: number;
 }
 
 export interface WasmGeneratedApp {
@@ -37,6 +52,8 @@ export interface WasmGeneratedApp {
     entities: number;
     rules: number;
     workflows: number;
+    /** Sample rows generated across every table; 0 when none were asked for. */
+    sampleRows: number;
   };
 }
 
@@ -52,6 +69,18 @@ export function generateWasmApp(
   for (const [name, contents] of Object.entries(RUNTIME_ASSETS)) files.set(name, contents);
 
   const { model, schema } = buildModelBundle(parsed, options);
+
+  /* Sample rows travel inside the bundle rather than as a second file: the
+     seeder already reads model.json at first boot, and a file it had to find
+     could go missing between the generator and the Service Worker. */
+  const sampleData = buildSampleData(parsed, {
+    records: options.sampleRecords ?? 0,
+    seed: options.sampleSeed ?? options.name,
+    nullRate: options.sampleNullRate,
+  });
+  const sampleRows = Object.values(sampleData).reduce((total, rows) => total + rows.length, 0);
+  if (sampleRows > 0) (model as Record<string, unknown>).sampleData = sampleData;
+
   files.set("app/model.json", `${JSON.stringify(model, null, 2)}\n`);
   files.set("app/schema.bus.sql", schema);
 
@@ -113,6 +142,7 @@ export function generateWasmApp(
       entities: parsed.entities.length,
       rules: parsed.rules.length,
       workflows: parsed.workflows.length + parsed.sagas.length,
+      sampleRows,
     },
   };
 }
