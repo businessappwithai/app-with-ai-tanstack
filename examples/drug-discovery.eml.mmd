@@ -292,6 +292,12 @@ erDiagram
     Vendor            ||--o{ VendorRequest      : "fulfills"
     DeviationReport   ||--o{ CAPA               : "triggers"
     StabilityTest     ||--o{ StabilityPull      : "has pulls"
+    User              ||--o{ WorkflowEvent      : "records"
+    User              ||--o{ DeviationReport    : "reports"
+    User              ||--o{ CAPA               : "remediates"
+    User              ||--o{ Compound           : "registers"
+    User              ||--o{ InstrumentBooking  : "books"
+    User              ||--o{ VendorRequest      : "raises"
 
     %%field Compound.registration_status        enum: CompoundRegistrationStatus
     %%field Compound.compound_class             enum: CompoundClass
