@@ -244,6 +244,22 @@ export function identifierColumnNames(
     if (has(candidate)) return [candidate];
   }
 
+  /* A join entity, whose identity is the pair of records it joins.
+     `CampaignMember` is a campaign and a contact; nothing else about it names
+     it, and the first readable column below would offer `member_status` —
+     which says what the record *is doing*, not which record it is. Two or more
+     references and no name of its own is the shape, and the first two are the
+     pair: a label built from more than two parents stops being readable. The
+     columns hold uuids, so whoever renders this resolves each one through the
+     parent's own label — see `labelFor` in the generated server. */
+  const references = attributes.filter(
+    (attribute) =>
+      attribute.name !== primaryKey &&
+      attribute.isForeignKey &&
+      isForeignKeyColumnName(attribute.name)
+  );
+  if (references.length >= 2) return references.slice(0, 2).map((attribute) => attribute.name);
+
   /* Failing all of that, the first plain text column the model declared that is
      neither the key nor a pointer at another record. */
   const readable = attributes.find(

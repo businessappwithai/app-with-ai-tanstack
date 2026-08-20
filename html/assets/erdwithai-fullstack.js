@@ -6099,6 +6099,9 @@ function identifierColumnNames(attributes, primaryKey) {
     if (has(candidate))
       return [candidate];
   }
+  const references = attributes.filter((attribute) => attribute.name !== primaryKey && attribute.isForeignKey && isForeignKeyColumnName(attribute.name));
+  if (references.length >= 2)
+    return references.slice(0, 2).map((attribute) => attribute.name);
   const readable = attributes.find((attribute) => attribute.name !== primaryKey && !attribute.isForeignKey && !attribute.name.endsWith("_id") && (attribute.type === "string" || attribute.type === "text"));
   return readable ? [readable.name] : [];
 }
@@ -15889,7 +15892,7 @@ var init_review_model = __esm(() => {
 });
 
 // packages/generator/src/generators/wasm/runtime-assets.generated.ts
-var RUNTIME_ASSETS, RUNTIME_BYTES = 259253;
+var RUNTIME_ASSETS, RUNTIME_BYTES = 261659;
 var init_runtime_assets_generated = __esm(() => {
   RUNTIME_ASSETS = Object.freeze({
     "app/schema.sys.sql": `-- ---------------------------------------------------------------------------
@@ -18100,27 +18103,71 @@ import { ident } from "./db.js";
  * Returns the key column, a readable name for the label, and the SQL expression
  * that produces it.
  */
-export function labelFor(columns) {
+export function labelFor(columns, options = {}) {
   const key = columns.find((column) => column.is_key)?.column_name ?? "id";
   if (columns.length === 0) return { key, label: key, expression: ident(key) };
 
   const identifiers = columns
     .filter((column) => column.is_identifier && !column.is_key)
-    .sort((a, b) => Number(a.seq_no ?? 0) - Number(b.seq_no ?? 0))
-    .map((column) => column.column_name);
+    .sort((a, b) => Number(a.seq_no ?? 0) - Number(b.seq_no ?? 0));
 
   if (identifiers.length === 0) return { key, label: key, expression: ident(key) };
 
+  /* An identifier that is itself a reference — a join entity, whose identity is
+     the records it joins — holds a uuid, so printing it would defeat the whole
+     point. It resolves through the parent's own label instead, as a correlated
+     subquery: one level only, because a parent that is itself a join would make
+     this recursive, and a label assembled from four grandparents is not a name
+     anybody reads. \`parents\` carries the parent tables' columns; without it
+     (the sync callers) a reference identifier falls back to the key. */
+  const parents = options.parents ?? {};
+  const table = options.table;
+
+  const part = (column) => {
+    const parentColumns = column.ref_table_name ? parents[column.ref_table_name] : null;
+    if (!column.ref_table_name) return ident(column.column_name);
+    if (!parentColumns || !table) return null;
+
+    const parent = labelFor(parentColumns);
+    /* \`labelFor\` on the parent, with no \`parents\` of its own, is what stops the
+       recursion: a parent that is also a join entity labels itself by its key. */
+    return \`(SELECT \${parent.expression} FROM \${ident(column.ref_table_name)}
+              WHERE \${ident(column.ref_table_name)}.\${ident(parent.key)} = \${ident(table)}.\${ident(column.column_name)})\`;
+  };
+
+  const parts = identifiers.map(part).filter(Boolean);
+  if (parts.length === 0) return { key, label: key, expression: ident(key) };
+
   return {
     key,
-    label: identifiers.join(" "),
+    label: identifiers.map((column) => column.column_name).join(" "),
     expression:
-      identifiers.length === 1
-        ? ident(identifiers[0])
+      parts.length === 1
+        ? parts[0]
         : // CONCAT_WS skips nulls, so a person with no surname recorded reads as
-          // their first name rather than as a name with a gap in it.
-          \`TRIM(CONCAT_WS(' ', \${identifiers.map(ident).join(", ")}))\`,
+          // their first name rather than as a name with a gap in it, and a join
+          // whose other side was deleted still names the side that remains.
+          \`TRIM(CONCAT_WS(' — ', \${parts.join(", ")}))\`,
   };
+}
+
+/**
+ * \`labelFor\`, with the parent tables a join entity needs already read.
+ *
+ * The sync form cannot fetch anything, and a join entity's label is built from
+ * its parents' labels, so this is the form every caller that has a database
+ * should use. One extra query per reference identifier, on tables that are
+ * small by construction — a join has two parents, not two hundred.
+ */
+export async function labelForTable(db, table, columns) {
+  const identifiers = columns.filter((column) => column.is_identifier && !column.is_key);
+  const parents = {};
+  for (const column of identifiers) {
+    if (!column.ref_table_name || parents[column.ref_table_name]) continue;
+    const parentColumns = await columnsOf(db, column.ref_table_name);
+    if (parentColumns) parents[column.ref_table_name] = parentColumns;
+  }
+  return labelFor(columns, { table, parents });
 }
 
 /**
@@ -18168,7 +18215,7 @@ export async function labelsForRows(db, entity, rows) {
 
     const parentColumns = await columnsOf(db, column.ref_table_name);
     if (!parentColumns) continue;
-    const { key, expression } = labelFor(parentColumns);
+    const { key, expression } = await labelForTable(db, column.ref_table_name, parentColumns);
 
     const placeholders = ids.map((_, index) => \`$\${index + 1}\`).join(", ");
     const found = await db.query(
@@ -19984,7 +20031,7 @@ function withReading(model) {
 
 import { Router } from "../lib/router.js";
 import { ident } from "../lib/db.js";
-import { columnsOf, labelFor } from "../lib/labels.js";
+import { columnsOf, labelForTable } from "../lib/labels.js";
 import { json, notFound, readJson } from "../lib/http.js";
 import { requireAdmin, requireUser } from "../lib/guards.js";
 
@@ -20059,7 +20106,7 @@ export function sysRoutes(model) {
     const columns = await columnsOf(db, table);
     if (!columns || columns.length === 0) return json({ options: [], label: null });
 
-    const { key, label, expression } = labelFor(columns);
+    const { key, label, expression } = await labelForTable(db, table, columns);
     const limit = Math.min(Number(query.get("limit") ?? 500) || 500, 1000);
     const rows = await db.query(
       \`SELECT \${ident(key)} AS id, \${expression} AS label
