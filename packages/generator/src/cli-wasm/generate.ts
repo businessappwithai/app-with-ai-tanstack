@@ -43,6 +43,75 @@ program
   )
   .version("5.1.0");
 
+/**
+ * Settings that belong to *generating* a browser application, kept in a file of
+ * their own.
+ *
+ * `.env` in a generated project is the application's; this one is the
+ * generator's, and mixing them would mean an application shipping a record
+ * count it has no use for. Only the CLI reads it — the hosted generator has no
+ * filesystem to read it from, and no business inventing records in someone's
+ * model either.
+ *
+ *   WASM_SEED_RECORDS=10     rows per entity on first boot; 0 turns it off
+ *   WASM_SEED_SEED=acme      fixes the PRNG, so the same model gives the same rows
+ *   WASM_SEED_NULL_RATE=0.15 how often an OPTIONAL column is left empty
+ *
+ * Precedence, highest first: the command-line flag, the process environment,
+ * this file, the built-in default.
+ */
+const WASM_ENV_FILE = ".env.wasm";
+
+interface WasmEnv {
+  values: Record<string, string>;
+  from?: string;
+}
+
+async function readWasmEnv(explicit?: string): Promise<WasmEnv> {
+  const candidate = explicit ?? WASM_ENV_FILE;
+  const resolved = path.resolve(candidate);
+  if (!existsSync(resolved)) {
+    /* An explicit --env-file that is not there is a typo worth reporting; the
+       default one missing simply means the defaults apply. */
+    if (explicit) console.error(`✖ ${resolved} does not exist`);
+    if (explicit) process.exit(1);
+    return { values: {} };
+  }
+
+  const values: Record<string, string> = {};
+  for (const line of (await fs.readFile(resolved, "utf8")).split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const at = trimmed.indexOf("=");
+    if (at <= 0) continue;
+    const key = trimmed.slice(0, at).trim();
+    let value = trimmed.slice(at + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    values[key] = value;
+  }
+  return { values, from: path.relative(process.cwd(), resolved) || candidate };
+}
+
+/** The first of flag, environment, file that is set — reported with its origin. */
+function settingFrom(
+  flag: string | undefined,
+  key: string,
+  env: WasmEnv,
+  fallback: string
+): { value: string; origin: string } {
+  if (flag !== undefined) return { value: flag, origin: "--" };
+  if (process.env[key] !== undefined) return { value: process.env[key] as string, origin: key };
+  if (env.values[key] !== undefined) {
+    return { value: env.values[key] as string, origin: env.from ?? WASM_ENV_FILE };
+  }
+  return { value: fallback, origin: "default" };
+}
+
 /** Files PGlite needs at runtime. The `.map` and `contrib` halves are not among them. */
 const PGLITE_FILES = [
   "index.js",
@@ -97,6 +166,16 @@ program
     "Where the app loads PGlite from when not vendored",
     DEFAULT_PGLITE_URL
   )
+  .option(
+    "--sample-records <n>",
+    `Rows of sample data to seed per entity on first boot; 0 for none ` +
+      `(default 10, or WASM_SEED_RECORDS in ${WASM_ENV_FILE})`
+  )
+  .option("--sample-seed <text>", "Fix the sample-data PRNG so the rows are reproducible")
+  .option(
+    "--env-file <file>",
+    `Read generation settings from this file instead of ${WASM_ENV_FILE}`
+  )
   .option("--force", "Overwrite a non-empty output directory")
   .option("--dry-run", "List what would be written, without writing it")
   .option("--quiet", "Only print errors")
@@ -145,6 +224,17 @@ program
 
     const outputDirEarly = path.resolve(options.output);
     if (!options.standalone && !options.dryRun) {
+      /* Sample data is a property of the self-contained runtime's first boot,
+         where migrate.js reads the rows out of model.json. The default mode
+         emits the real NestJS stack, which seeds through its own migrations —
+         so say so rather than accepting a flag that would do nothing. */
+      if (options.sampleRecords !== undefined) {
+        console.error(
+          "✖ --sample-records applies to --standalone. The default mode generates the " +
+            "NestJS stack, which seeds through its own migrations."
+        );
+        process.exit(1);
+      }
       if (existsSync(outputDirEarly) && !options.force) {
         const entries = await fs.readdir(outputDirEarly);
         if (entries.length) {
@@ -202,6 +292,19 @@ program
       return;
     }
 
+    const env = await readWasmEnv(options.envFile);
+    const records = settingFrom(options.sampleRecords, "WASM_SEED_RECORDS", env, "10");
+    const seed = settingFrom(options.sampleSeed, "WASM_SEED_SEED", env, options.name);
+    const nullRate = settingFrom(undefined, "WASM_SEED_NULL_RATE", env, "0.15");
+
+    const sampleRecords = Number.parseInt(records.value, 10);
+    if (Number.isNaN(sampleRecords) || sampleRecords < 0) {
+      console.error(
+        `✖ Sample records must be a whole number, got "${records.value}" (${records.origin})`
+      );
+      process.exit(1);
+    }
+
     const generated = generateWasmApp(parsed, {
       name: options.name,
       version: options.version,
@@ -211,7 +314,16 @@ program
       adminName: options.adminName,
       source: sources.join("\n\n"),
       pgliteUrl: options.pgliteUrl,
+      sampleRecords,
+      sampleSeed: seed.value,
+      sampleNullRate: Number.parseFloat(nullRate.value),
     });
+
+    say(
+      sampleRecords > 0
+        ? `  Sample data      ${generated.stats.sampleRows} rows — ${sampleRecords} per entity (${records.origin})`
+        : `  Sample data      none (${records.origin})`
+    );
 
     describe(say, parsed, generated);
 

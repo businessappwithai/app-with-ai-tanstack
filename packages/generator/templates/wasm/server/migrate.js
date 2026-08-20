@@ -51,6 +51,7 @@ export async function migrate(db, model, readAsset, log = () => {}) {
   await seedRules(db, model);
   await seedWorkflows(db, model);
   await seedAccess(db, model);
+  await seedSampleData(db, model, log);
 
   await db.query(
     `INSERT INTO sys_schema_state (key, value) VALUES ('seeded', $1)
@@ -302,6 +303,42 @@ async function seedAdmin(db, model, log) {
     );
   }
   log(`Administrator ready: ${adminEmail} / ${adminPassword}`);
+}
+
+/**
+ * Sample business rows, when the generator put any in the bundle.
+ *
+ * They arrive already ordered parent-first and with their foreign keys pointing
+ * at ids in the same payload, so a plain insert in key order is enough — no
+ * second resolution pass, and no chance of a lookup that opens on nothing.
+ *
+ * Failure here is reported and swallowed on purpose. Demo data is a
+ * convenience; an application that refuses to boot because a sample row was
+ * rejected would be a worse trade than one that boots with empty tables.
+ */
+async function seedSampleData(db, model, log) {
+  const tables = Object.entries(model.sampleData || {});
+  if (tables.length === 0) return;
+
+  let inserted = 0;
+  for (const [table, rows] of tables) {
+    for (const row of rows) {
+      const columns = Object.keys(row);
+      if (columns.length === 0) continue;
+      const placeholders = columns.map((_, index) => `$${index + 1}`).join(", ");
+      try {
+        await db.query(
+          `INSERT INTO ${table} (${columns.join(", ")}) VALUES (${placeholders})
+             ON CONFLICT DO NOTHING`,
+          columns.map((column) => row[column])
+        );
+        inserted++;
+      } catch (error) {
+        log(`Sample data: ${table} row skipped — ${error.message}`);
+      }
+    }
+  }
+  log(`Sample data: ${inserted} record(s) across ${tables.length} table(s)`);
 }
 
 async function seedRules(db, model) {
