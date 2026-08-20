@@ -94,6 +94,17 @@ export interface BusEntityAttribute extends EntityAttribute {
   displayName: string; // Human-readable name
   referenceId: number; // sys_reference_id
   seqNo: number; // Column sequence
+  /**
+   * Part of the record's display value — `sys_column.is_identifier`.
+   *
+   * Decided across the whole attribute list rather than per attribute (a
+   * surname only identifies a person alongside a forename), so it is set in
+   * `entityToBusEntity` and carried here for every template and generator that
+   * needs it. One answer, in one place: the alternative was each template
+   * deciding in its own way, which is how the stacks came to disagree about
+   * what a record is called.
+   */
+  isIdentifier: boolean;
 }
 
 /**
@@ -122,10 +133,25 @@ export function entityToBusEntity(entity: Entity): BusEntity {
     originalName: entity.name,
     displayName: formatDisplayName(entity.name),
     indexes: mergeIndexes(entity),
-    attributes: entity.attributes.map((attr, index) =>
-      attributeToBusAttribute(attr, index, entity.primaryKey)
+    attributes: withIdentifiers(
+      entity.attributes.map((attr, index) =>
+        attributeToBusAttribute(attr, index, entity.primaryKey)
+      ),
+      entity.primaryKey
     ),
   };
+}
+
+/** Mark the columns that make up the record's display value. */
+function withIdentifiers(
+  attributes: BusEntityAttribute[],
+  primaryKey?: string
+): BusEntityAttribute[] {
+  const identifiers = new Set(identifierColumnNames(attributes, primaryKey));
+  return attributes.map((attribute) => ({
+    ...attribute,
+    isIdentifier: identifiers.has(attribute.name),
+  }));
 }
 
 /**
@@ -177,6 +203,59 @@ const SEMANTIC_REFERENCE = {
   color: ReferenceType.COLOR,
 } as const;
 
+/**
+ * The columns that say what a record *is*, in the Application Dictionary's own
+ * terms.
+ *
+ * `sys_column.is_identifier` is the dictionary's answer to "what is this record
+ * called": the identifier columns, concatenated in `seq_no` order, are a
+ * record's display value — what a lookup lists, and what a grid shows in place
+ * of a foreign key. The rule is the classic one, and the generated NestJS
+ * backend already reads it that way.
+ *
+ * The derivation used to be `name`, plus the primary key. Both halves were
+ * wrong. A table with `first_name` and `last_name` and no `name` column got no
+ * identifier at all, so every screen fell back to printing its uuid — which is
+ * exactly what a person cannot read. And marking the *key* an identifier means
+ * a display value built from identifier columns begins with a uuid, which is
+ * why every consumer had grown its own `!== "id"` filter.
+ *
+ * Returns the names in the order they should be concatenated.
+ */
+export function identifierColumnNames(
+  attributes: Array<{ name: string; type?: string; unique?: boolean; isForeignKey?: boolean }>,
+  primaryKey?: string
+): string[] {
+  const names = new Set(attributes.map((attribute) => attribute.name));
+  const has = (name: string) => names.has(name);
+
+  /* One column that names the record outright. */
+  for (const candidate of ["name", "full_name", "display_name", "title", "label", "subject"]) {
+    if (has(candidate)) return [candidate];
+  }
+
+  /* A person: two columns that only mean anything together. This is the case
+     the concatenation exists for, and the one the old rule could not express. */
+  if (has("first_name") && has("last_name")) return ["first_name", "last_name"];
+
+  /* A code or reference is not a name, but it is what people quote at each
+     other, and it beats a uuid. */
+  for (const candidate of ["code", "reference", "number"]) {
+    if (has(candidate)) return [candidate];
+  }
+
+  /* Failing all of that, the first plain text column the model declared that is
+     neither the key nor a pointer at another record. */
+  const readable = attributes.find(
+    (attribute) =>
+      attribute.name !== primaryKey &&
+      !attribute.isForeignKey &&
+      !attribute.name.endsWith("_id") &&
+      (attribute.type === "string" || attribute.type === "text")
+  );
+  return readable ? [readable.name] : [];
+}
+
 export function attributeReferenceId(attr: EntityAttribute, entityPrimaryKey?: string): number {
   if (attr.name === "id") return ReferenceType.ID;
   if (entityPrimaryKey && attr.name === entityPrimaryKey) return ReferenceType.ID;
@@ -224,6 +303,9 @@ export function attributeToBusAttribute(
     displayName: formatDisplayName(attr.name),
     referenceId: attributeReferenceId(attr, entityPrimaryKey),
     seqNo: (index + 1) * 10,
+    // Set across the whole list by `withIdentifiers`; one attribute on its own
+    // cannot tell whether it identifies the record.
+    isIdentifier: false,
   };
 }
 
@@ -458,6 +540,11 @@ export function generateSysColumns(
   primaryKey: string,
   config: DictionaryGenerationConfig = defaultDictionaryConfig
 ): Array<Omit<SysColumn, "sys_column_id" | "created_at" | "updated_at">> {
+  /* `entityToBusEntity` has already decided this for the whole list; falling
+     back to deriving it again covers a caller that built attributes by hand. */
+  const identifiers = attributes.some((attribute) => attribute.isIdentifier)
+    ? new Set(attributes.filter((a) => a.isIdentifier).map((a) => a.name))
+    : new Set(identifierColumnNames(attributes, primaryKey));
   return attributes.map((attr, _index) => ({
     sys_table_id: tableId,
     column_name: attr.columnName,
@@ -473,7 +560,7 @@ export function generateSysColumns(
     is_parent: false,
     is_mandatory: attr.required,
     is_updateable: attr.name !== primaryKey,
-    is_identifier: attr.name === primaryKey || attr.name === "name",
+    is_identifier: identifiers.has(attr.name),
     is_selection_column: attr.name === "name" || attr.unique === true,
     is_translated: false,
     is_encrypted: false,

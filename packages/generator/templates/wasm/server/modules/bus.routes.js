@@ -21,6 +21,7 @@ import { checkOperationAccess, checkTransitionAccess, requireUser } from "../lib
 import { runHooks } from "../lib/hooks.js";
 import { evaluateRules } from "../lib/rules.js";
 import { recordAudit } from "./audit.routes.js";
+import { labelsForRows } from "../lib/labels.js";
 import { toRouteName } from "../lib/naming.js";
 
 /** Columns every generated table carries; never editable by a client. */
@@ -284,7 +285,20 @@ export function busRoutes(model) {
       parameters
     );
 
-    return json({ data, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) });
+    /* The rows carry foreign keys, which is what editing and filtering need,
+       and a uuid is not what a reader came to see. The names travel alongside
+       rather than replacing the ids, so the grid can show one and act on the
+       other. */
+    const labels = await labelsForRows(db, entity, data);
+
+    return json({
+      data,
+      labels,
+      total,
+      page,
+      limit,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
+    });
   });
 
   router.get("/:entity/:id", async (_request, { db, params, user }) => {

@@ -164,7 +164,19 @@ export async function entityListView(root, { entity, recordId, navigate }) {
                 el(
                   "tr.table__row",
                   { onclick: () => navigate(`/entity/${entity.routeName}/${row.id}`) },
-                  columns.map((column) => el("td", displayValue(row[column.column_name], column)))
+                  columns.map((column) => {
+                    /* A reference cell shows the parent record's name, resolved
+                       by the server for the ids on this page. The uuid stays in
+                       `row` — the click above navigates by it — but nobody has
+                       to read it. */
+                    const label = page.labels?.[column.column_name]?.[row[column.column_name]];
+                    return el(
+                      "td",
+                      label === undefined
+                        ? displayValue(row[column.column_name], column)
+                        : el("span.cell--ref", { title: row[column.column_name] }, label)
+                    );
+                  })
                 )
               )
             )

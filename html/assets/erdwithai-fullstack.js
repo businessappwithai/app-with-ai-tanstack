@@ -795,6 +795,18 @@ var init_erdwithai_language = __esm(() => {
         unmarkedReference: "`string vendor_id` and `string vendor_id FK` parse into the same column, and only the second becomes TABLE_DIRECT. Reported as EML119.",
         unboundLifecycleColumn: "A %%enum does nothing to a column on its own. Without the %%field binding, a status/state/stage column is free text, and the form accepts values the state machine cannot act on. Reported as EML146."
       },
+      displayValue: {
+        description: "What a record is called wherever something other than the record shows it: a Table Direct dropdown, and a grid cell holding a foreign key. Stored as sys_column.is_identifier, and the display value is the identifier columns concatenated in seq_no order - the same rule in both stacks.",
+        derivation: [
+          "1. A column named name, full_name, display_name, title, label or subject - whichever appears first in that order.",
+          "2. Otherwise first_name and last_name together, if the entity declares both. This is why the value is a concatenation and not one column.",
+          "3. Otherwise code, reference or number - not a name, but what people quote at each other, and better than a uuid.",
+          "4. Otherwise the first declared string/text column that is neither the key nor a reference.",
+          "5. Otherwise the key, so a lookup still lists something."
+        ],
+        primaryKeyIsNotAnIdentifier: "The key is deliberately excluded. It used to be marked, which meant a display value built from the identifier columns began with a uuid, and every consumer had grown its own filter to drop it.",
+        modellingAdvice: "Give an entity a name, title or code column if it will be referenced. Without one the fallbacks apply, and a reference to it reads as whatever text column happened to be declared first."
+      },
       managedColumns: {
         description: "Columns every generated table carries in both stacks, whether or not the model mentions them. They are the generator's: the key, the optimistic-lock counter, the audit pair and the soft-delete pair.",
         names: [
@@ -6051,8 +6063,15 @@ function entityToBusEntity(entity) {
     originalName: entity.name,
     displayName: formatDisplayName(entity.name),
     indexes: mergeIndexes(entity),
-    attributes: entity.attributes.map((attr, index) => attributeToBusAttribute(attr, index, entity.primaryKey))
+    attributes: withIdentifiers(entity.attributes.map((attr, index) => attributeToBusAttribute(attr, index, entity.primaryKey)), entity.primaryKey)
   };
+}
+function withIdentifiers(attributes, primaryKey) {
+  const identifiers = new Set(identifierColumnNames(attributes, primaryKey));
+  return attributes.map((attribute) => ({
+    ...attribute,
+    isIdentifier: identifiers.has(attribute.name)
+  }));
 }
 function mergeIndexes(entity) {
   const merged = [...entity.indexes ?? []];
@@ -6066,6 +6085,22 @@ function mergeIndexes(entity) {
     merged.push({ columns: [attribute.name], unique: Boolean(attribute.unique) });
   }
   return merged;
+}
+function identifierColumnNames(attributes, primaryKey) {
+  const names = new Set(attributes.map((attribute) => attribute.name));
+  const has = (name) => names.has(name);
+  for (const candidate of ["name", "full_name", "display_name", "title", "label", "subject"]) {
+    if (has(candidate))
+      return [candidate];
+  }
+  if (has("first_name") && has("last_name"))
+    return ["first_name", "last_name"];
+  for (const candidate of ["code", "reference", "number"]) {
+    if (has(candidate))
+      return [candidate];
+  }
+  const readable = attributes.find((attribute) => attribute.name !== primaryKey && !attribute.isForeignKey && !attribute.name.endsWith("_id") && (attribute.type === "string" || attribute.type === "text"));
+  return readable ? [readable.name] : [];
 }
 function attributeReferenceId(attr, entityPrimaryKey) {
   if (attr.name === "id")
@@ -6089,7 +6124,8 @@ function attributeToBusAttribute(attr, index, entityPrimaryKey) {
     columnName: attr.name,
     displayName: formatDisplayName(attr.name),
     referenceId: attributeReferenceId(attr, entityPrimaryKey),
-    seqNo: (index + 1) * 10
+    seqNo: (index + 1) * 10,
+    isIdentifier: false
   };
 }
 function getEntityIcon(name, tableName) {
@@ -15853,7 +15889,7 @@ var init_review_model = __esm(() => {
 });
 
 // packages/generator/src/generators/wasm/runtime-assets.generated.ts
-var RUNTIME_ASSETS, RUNTIME_BYTES = 254760;
+var RUNTIME_ASSETS, RUNTIME_BYTES = 259253;
 var init_runtime_assets_generated = __esm(() => {
   RUNTIME_ASSETS = Object.freeze({
     "app/schema.sys.sql": `-- ---------------------------------------------------------------------------
@@ -18031,6 +18067,130 @@ export async function readJson(request) {
   }
 }
 `,
+    "server/lib/labels.js": `/**
+ * What a record is called, when something other than the record is showing it.
+ *
+ * A reference column stores a uuid. Every screen that displays one has to turn
+ * it back into something a person recognises — the form's lookup dropdown, and
+ * the grid, which used to print the uuid itself. Both ask this module, so a
+ * record cannot be "Northwind Systems" in the dropdown and
+ * \`39febc1c-8585-…\` in the table it was chosen from.
+ *
+ * The choice is made from the Application Dictionary rather than from a list of
+ * column names the generator hopes exist: the model decides what its tables
+ * look like, so the dictionary is the only thing that knows.
+ */
+
+import { ident } from "./db.js";
+
+/**
+ * Pick the label for a table, from its \`sys_column\` rows.
+ *
+ * The dictionary already answers this: \`is_identifier\` marks the columns that
+ * say what a record *is*, and a record's display value is those columns in
+ * \`seq_no\` order. \`first_name\` and \`last_name\` are both identifiers on a person
+ * table, which is why this concatenates rather than picking one — and it is the
+ * same rule the generated NestJS backend follows, so a record is called the
+ * same thing in both stacks.
+ *
+ * The key is never an identifier (see \`identifierColumnNames\`), so nothing here
+ * has to filter it out. A table with no identifier at all falls back to the key,
+ * because a lookup listing ids still beats a text box asking for one.
+ *
+ * Returns the key column, a readable name for the label, and the SQL expression
+ * that produces it.
+ */
+export function labelFor(columns) {
+  const key = columns.find((column) => column.is_key)?.column_name ?? "id";
+  if (columns.length === 0) return { key, label: key, expression: ident(key) };
+
+  const identifiers = columns
+    .filter((column) => column.is_identifier && !column.is_key)
+    .sort((a, b) => Number(a.seq_no ?? 0) - Number(b.seq_no ?? 0))
+    .map((column) => column.column_name);
+
+  if (identifiers.length === 0) return { key, label: key, expression: ident(key) };
+
+  return {
+    key,
+    label: identifiers.join(" "),
+    expression:
+      identifiers.length === 1
+        ? ident(identifiers[0])
+        : // CONCAT_WS skips nulls, so a person with no surname recorded reads as
+          // their first name rather than as a name with a gap in it.
+          \`TRIM(CONCAT_WS(' ', \${identifiers.map(ident).join(", ")}))\`,
+  };
+}
+
+/**
+ * Read the \`sys_column\` rows for a table, or \`null\` if nothing declared it.
+ *
+ * Going through \`sys_table\` first is what stops a table nobody modelled being
+ * read through a route that takes its name from a query string.
+ */
+export async function columnsOf(db, table) {
+  const owner = await db.one("SELECT sys_table_id FROM sys_table WHERE table_name = $1", [table]);
+  if (!owner) return null;
+  return db.select("sys_column", { where: { sys_table_id: owner.sys_table_id }, orderBy: "seq_no" });
+}
+
+/**
+ * Labels for the referenced records on one page of a grid.
+ *
+ * Only the ids actually on the page are looked up — a page is twenty-five rows,
+ * so this is a handful of small queries rather than a copy of every parent
+ * table. That is the difference between this and the form's dropdown, which
+ * wants the whole list to choose from: the grid only needs the names of what is
+ * already in front of the reader.
+ *
+ * Returns \`{ column_name: { id: label } }\`, left for the client to apply, so
+ * the rows themselves keep the real foreign keys that editing and filtering
+ * depend on.
+ */
+export async function labelsForRows(db, entity, rows) {
+  if (rows.length === 0) return {};
+
+  /* Which columns point at another table is \`sys_column.ref_table_name\` — the
+     same row the form reads to decide it needs a lookup control. The entity's
+     own attributes know a column is a foreign key but not what it resolves to,
+     and guessing the parent from the column name is exactly the guess the
+     dictionary exists to have already made. */
+  const columns = await columnsOf(db, entity.tableName);
+  if (!columns) return {};
+  const references = columns.filter((column) => column.ref_table_name);
+  if (references.length === 0) return {};
+
+  const labels = {};
+  for (const column of references) {
+    const ids = [...new Set(rows.map((row) => row[column.column_name]).filter(Boolean))];
+    if (ids.length === 0) continue;
+
+    const parentColumns = await columnsOf(db, column.ref_table_name);
+    if (!parentColumns) continue;
+    const { key, expression } = labelFor(parentColumns);
+
+    const placeholders = ids.map((_, index) => \`$\${index + 1}\`).join(", ");
+    const found = await db.query(
+      \`SELECT \${ident(key)} AS id, \${expression} AS label
+         FROM \${ident(column.ref_table_name)}
+        WHERE \${ident(key)} IN (\${placeholders})\`,
+      ids
+    );
+
+    const map = {};
+    for (const row of found) {
+      // A parent row whose own label column is empty would otherwise render as
+      // a blank cell, which reads as missing data rather than as a name nobody
+      // filled in.
+      map[row.id] = row.label == null || row.label === "" ? String(row.id) : String(row.label);
+    }
+    labels[column.column_name] = map;
+  }
+
+  return labels;
+}
+`,
     "server/lib/naming.js": `/**
  * Naming, kept identical to @erdwithai/core/utils.
  *
@@ -19167,6 +19327,7 @@ import { checkOperationAccess, checkTransitionAccess, requireUser } from "../lib
 import { runHooks } from "../lib/hooks.js";
 import { evaluateRules } from "../lib/rules.js";
 import { recordAudit } from "./audit.routes.js";
+import { labelsForRows } from "../lib/labels.js";
 import { toRouteName } from "../lib/naming.js";
 
 /** Columns every generated table carries; never editable by a client. */
@@ -19430,7 +19591,20 @@ export function busRoutes(model) {
       parameters
     );
 
-    return json({ data, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) });
+    /* The rows carry foreign keys, which is what editing and filtering need,
+       and a uuid is not what a reader came to see. The names travel alongside
+       rather than replacing the ids, so the grid can show one and act on the
+       other. */
+    const labels = await labelsForRows(db, entity, data);
+
+    return json({
+      data,
+      labels,
+      total,
+      page,
+      limit,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
+    });
   });
 
   router.get("/:entity/:id", async (_request, { db, params, user }) => {
@@ -19809,6 +19983,8 @@ function withReading(model) {
  */
 
 import { Router } from "../lib/router.js";
+import { ident } from "../lib/db.js";
+import { columnsOf, labelFor } from "../lib/labels.js";
 import { json, notFound, readJson } from "../lib/http.js";
 import { requireAdmin, requireUser } from "../lib/guards.js";
 
@@ -19871,61 +20047,23 @@ export function sysRoutes(model) {
    *
    * The dictionary already knows which table a reference column points at
    * (\`sys_column.ref_table_name\`); this turns that into something a select can
-   * render — an id and the label a person recognises. The label column is the
-   * one the dictionary marks \`is_identifier\` and is not the key, which is
-   * \`name\` for most entities; failing that, the first text column; failing
-   * that, the id itself, because a lookup that lists ids is still better than
-   * a text box asking for one.
+   * render — an id and the label a person recognises. What the label *is* comes
+   * from \`labelFor\`, which reads the dictionary's \`is_identifier\` columns, so
+   * the dropdown here and the grid that displays the chosen value cannot end up
+   * calling the same record two different things.
    */
   router.get("/lookup", async (_request, { db, query }) => {
     const table = query.get("table");
     if (!table) return json({ options: [], label: null });
 
-    /* sys_column keys its table by id, so the dictionary is asked for the
-       table first — which also means a table nobody declared cannot be read
-       through this route. */
-    const owner = await db.one("SELECT sys_table_id FROM sys_table WHERE table_name = $1", [table]);
-    if (!owner) return json({ options: [], label: null });
+    const columns = await columnsOf(db, table);
+    if (!columns || columns.length === 0) return json({ options: [], label: null });
 
-    const columns = await db.select("sys_column", {
-      where: { sys_table_id: owner.sys_table_id },
-      orderBy: "seq_no",
-    });
-    if (columns.length === 0) return json({ options: [], label: null });
-
-    const key = columns.find((column) => column.is_key)?.column_name ?? "id";
-    const has = (name) => columns.some((column) => column.column_name === name);
-    const named = ["name", "full_name", "title", "label", "display_name", "subject"];
-    const readable = (column) =>
-      !column.is_key &&
-      !column.column_name.endsWith("_id") &&
-      [10, 14, 30].includes(Number(column.sys_reference_id));
-
-    /* What a person would call the record, in the order they would reach for
-       it: a name-ish column, then a first/last pair — a person table rarely
-       carries either of the names above, and listing staff by e-mail address
-       when their names are right there is the sort of thing that makes a
-       generated screen feel generated — then whatever the dictionary marks as
-       the identifier, then the first readable column, then the key: a lookup
-       listing ids still beats a text box asking for one. */
-    const name = columns.find((column) => named.includes(column.column_name))?.column_name;
-    const person = !name && has("first_name") && has("last_name");
-    const label = name
-      ? name
-      : person
-        ? "first_name last_name"
-        : (columns.find((column) => column.is_identifier && !column.is_key)?.column_name ??
-          columns.find(readable)?.column_name ??
-          key);
-
-    const expression = person
-      ? \`TRIM(CONCAT_WS(' ', \${quoted("first_name")}, \${quoted("last_name")}))\`
-      : quoted(label);
-
+    const { key, label, expression } = labelFor(columns);
     const limit = Math.min(Number(query.get("limit") ?? 500) || 500, 1000);
     const rows = await db.query(
-      \`SELECT \${quoted(key)} AS id, \${expression} AS label
-         FROM \${quoted(table)}
+      \`SELECT \${ident(key)} AS id, \${expression} AS label
+         FROM \${ident(table)}
         ORDER BY 2
         LIMIT \${limit}\`
     );
@@ -20013,7 +20151,7 @@ export function sysRoutes(model) {
     const records = {};
     for (const entity of model.entities) {
       records[entity.name] = await db.value(
-        \`SELECT COUNT(*)::int FROM \${quoted(entity.tableName)} WHERE deleted_at IS NULL\`
+        \`SELECT COUNT(*)::int FROM \${ident(entity.tableName)} WHERE deleted_at IS NULL\`
       );
     }
     // The seeded password belongs on the sign-in screen (/auth/config), which
@@ -20026,10 +20164,6 @@ export function sysRoutes(model) {
   return router;
 }
 
-const quoted = (name) => {
-  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) throw new Error(\`Unsafe identifier: \${name}\`);
-  return \`"\${name}"\`;
-};
 `,
     "server/modules/workflow.routes.js": `/**
  * \`/workflows\` and \`/workflow-definitions\` — the processes the model declared.
@@ -20421,6 +20555,9 @@ a { color: var(--primary); }
 .table__row { cursor: pointer; }
 .table__row:hover { background: var(--primary-soft); }
 .table__row--bad td { color: var(--destructive); }
+/* A resolved reference. Marked so it reads as a pointer at another record
+   rather than as text someone typed into this one; the uuid is on the title. */
+.cell--ref { border-bottom: 1px dotted var(--border-strong); }
 
 .pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
 .pager__page { font-size: 13px; color: var(--text-soft); }
@@ -22628,7 +22765,19 @@ export async function entityListView(root, { entity, recordId, navigate }) {
                 el(
                   "tr.table__row",
                   { onclick: () => navigate(\`/entity/\${entity.routeName}/\${row.id}\`) },
-                  columns.map((column) => el("td", displayValue(row[column.column_name], column)))
+                  columns.map((column) => {
+                    /* A reference cell shows the parent record's name, resolved
+                       by the server for the ids on this page. The uuid stays in
+                       \`row\` — the click above navigates by it — but nobody has
+                       to read it. */
+                    const label = page.labels?.[column.column_name]?.[row[column.column_name]];
+                    return el(
+                      "td",
+                      label === undefined
+                        ? displayValue(row[column.column_name], column)
+                        : el("span.cell--ref", { title: row[column.column_name] }, label)
+                    );
+                  })
                 )
               )
             )
@@ -22833,6 +22982,7 @@ class DictionaryGenerator {
         _tempId: tableId
       };
       sysTables.push(sysTable);
+      const identifiers = new Set(identifierColumnNames(busAttrs, entity2.primaryKey));
       const columnEntries = busAttrs.map((attr, _index) => {
         const colId = `col_${++columnCounter}`;
         return {
@@ -22850,7 +23000,7 @@ class DictionaryGenerator {
           is_parent: false,
           is_mandatory: attr.required,
           is_updateable: attr.name !== entity2.primaryKey,
-          is_identifier: attr.name === entity2.primaryKey || attr.name === "name",
+          is_identifier: identifiers.has(attr.name),
           is_selection_column: ["name", "email", "title", "description", "status"].includes(attr.name) || attr.unique === true,
           is_translated: false,
           is_encrypted: false,
