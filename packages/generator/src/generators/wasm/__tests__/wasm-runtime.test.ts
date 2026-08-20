@@ -261,6 +261,35 @@ describe("the generated application", () => {
     expect(schema).toContain("title ");
   });
 
+  it("collapses a column declared twice, keeping the stronger constraints", () => {
+    /* Two lines for one column reached CREATE TABLE as two columns, which
+       PostgreSQL refuses — the same crash the managed columns caused. The first
+       declaration keeps its place; the constraints merge the other way, so a
+       later OPTIONAL cannot quietly relax a column the model said was
+       required. */
+    const duplicated = `%%meta name: Duplicates\n%%meta kind: erd\nerDiagram\n    Course {\n        string  id PK\n        string  title\n        string  title OPTIONAL\n        string  code OPTIONAL\n        string  code UK\n        integer seats OPTIONAL\n    }\n`;
+    const parsed = parseModel([duplicated]);
+    const course = parsed.entities[0];
+
+    expect(course?.attributes.map((attribute) => attribute.name)).toEqual([
+      "id",
+      "title",
+      "code",
+      "seats",
+    ]);
+    const by = (name: string) => course?.attributes.find((a) => a.name === name);
+    expect(by("title")?.required).toBe(true);
+    expect(by("code")?.required).toBe(true);
+    expect(by("code")?.unique).toBe(true);
+    // A column only ever declared OPTIONAL stays optional.
+    expect(by("seats")?.required).toBe(false);
+
+    const app = generateWasmApp(parsed, { ...settings, source: duplicated });
+    const schema = app.files.get("app/schema.bus.sql") as string;
+    expect(schema.match(/^\s*title\s/gm)).toHaveLength(1);
+    expect(schema).toContain("title VARCHAR(255) NOT NULL");
+  });
+
   it("ships the model source so the application can describe itself", () => {
     expect(generated.files.get("model/model.eml.mmd")).toBe(MODEL);
   });

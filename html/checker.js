@@ -859,9 +859,13 @@ class CheckEngine {
   checkAttributes(entity, entityLine) {
     const declaredEntityNames = new Set(this.model.entities.map((e) => e.name));
     const seenAttrNames = new Map;
+    const lastLineByName = new Map;
     let pkCount = 0;
     for (const attr of entity.attributes) {
-      const attrLine = this.src.findLine(new RegExp(`\\b${attr.name}\\b`), entityLine);
+      const searchFrom = lastLineByName.has(attr.name) ? lastLineByName.get(attr.name) + 1 : entityLine;
+      const attrLine = this.src.findLine(new RegExp(`\\b${attr.name}\\b`), searchFrom) ?? this.src.findLine(new RegExp(`\\b${attr.name}\\b`), entityLine);
+      if (attrLine !== undefined)
+        lastLineByName.set(attr.name, attrLine);
       if (!this.identRe.test(attr.name)) {
         this.error("EML110", `Invalid attribute name "${entity.name}.${attr.name}": must match ^[A-Za-z][A-Za-z0-9_]*$.`, {
           line: attrLine,
@@ -2073,7 +2077,9 @@ var AUTO_FIXABLE_CODES = new Set([
   "EML421",
   "EML422",
   "EML001",
-  "EML114"
+  "EML114",
+  "EML112",
+  "EML103"
 ]);
 if (false) {}
 // language/erdwithai-language.json
@@ -2436,9 +2442,20 @@ var erdwithai_language_default = {
     },
     managedColumns: {
       description: "Columns every generated table carries in both stacks, whether or not the model mentions them. They are the generator's: the key, the optimistic-lock counter, the audit pair and the soft-delete pair.",
-      names: ["id", "version", "created_at", "updated_at", "created_by", "updated_by", "deleted_at", "deleted_by"],
+      names: [
+        "id",
+        "version",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+        "deleted_at",
+        "deleted_by"
+      ],
       declaringOne: 'Redundant, and it used to be fatal: the column reached CREATE TABLE twice and PostgreSQL refused the statement with `column "created_at" specified more than once`, so the generated application could not open its database. The generator now drops the model\'s definition and keeps its own; EML103 reports the line.',
-      checkerCodes: { EML103: "A column the generator manages, declared in the model - the declaration is ignored." }
+      checkerCodes: {
+        EML103: "A column the generator manages, declared in the model - the declaration is ignored."
+      }
     },
     alsoDerived: [
       "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10).",

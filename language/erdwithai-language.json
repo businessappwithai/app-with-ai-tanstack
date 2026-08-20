@@ -333,9 +333,20 @@
     },
     "managedColumns": {
       "description": "Columns every generated table carries in both stacks, whether or not the model mentions them. They are the generator's: the key, the optimistic-lock counter, the audit pair and the soft-delete pair.",
-      "names": ["id", "version", "created_at", "updated_at", "created_by", "updated_by", "deleted_at", "deleted_by"],
+      "names": [
+        "id",
+        "version",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+        "deleted_at",
+        "deleted_by"
+      ],
       "declaringOne": "Redundant, and it used to be fatal: the column reached CREATE TABLE twice and PostgreSQL refused the statement with `column \"created_at\" specified more than once`, so the generated application could not open its database. The generator now drops the model's definition and keeps its own; EML103 reports the line.",
-      "checkerCodes": { "EML103": "A column the generator manages, declared in the model - the declaration is ignored." }
+      "checkerCodes": {
+        "EML103": "A column the generator manages, declared in the model - the declaration is ignored."
+      }
     },
     "alsoDerived": [
       "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10).",
