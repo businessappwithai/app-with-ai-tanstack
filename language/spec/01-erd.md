@@ -99,6 +99,19 @@ bun language/fixer.ts model.mmd       # rewrites it to  string reported_by_id FK
 Write `reported_by_id FK` rather than `reported_by FK` and the column resolves
 to `bus_user` from the start.
 
+**The `FK` modifier is half the rule.** `attributeReferenceId()` gives a column
+`TABLE_DIRECT` only when it is *both* marked `FK` and named `_id`/`_by`, so
+`string vendor_id` and `string vendor_id FK` — identical to the parser and to
+Mermaid — are a text box and a lookup respectively in the generated application.
+A column named like a reference to an entity this document declares, with no
+`FK`, is `EML119`.
+
+The same is true one field over: a `%%enum` does nothing to a column until a
+`%%field` binds it. An unbound `status`, `state` or `stage` column is recorded as
+free text, and the form will accept values the state machine cannot act on —
+`EML146`. See `applicationDictionary` in `erdwithai-language.json` for the whole
+derivation.
+
 ## Relationships
 
 ```

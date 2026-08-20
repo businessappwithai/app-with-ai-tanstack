@@ -10,6 +10,8 @@
 %%meta version: 1.0.0
 %%enum OrderStatus: cart, placed, paid, packed, shipped, delivered, cancelled, refunded
 %%enum FulfilmentEvent: place, pay, pack, ship, deliver, cancel, refund
+%%enum PaymentStatus: pending, authorized, captured, failed, refunded
+%%enum PaymentMethod: card, paypal, bank_transfer, gift_card
 erDiagram
     Customer {
         string  id PK
@@ -75,6 +77,8 @@ erDiagram
     Category ||--o{ Category  : "has_subcategory"
 
     %%field Order.status enum: OrderStatus
+    %%field Payment.status enum: PaymentStatus
+    %%field Payment.method enum: PaymentMethod
     %%index Order(customer_id, status)
     %%index Product(sku) unique
     %%entity Order audited: true
