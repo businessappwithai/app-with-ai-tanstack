@@ -7427,12 +7427,24 @@ export function labelFor(columns, options = {}) {
     const parent = labelFor(parentColumns);
     /* \`labelFor\` on the parent, with no \`parents\` of its own, is what stops the
        recursion: a parent that is also a join entity labels itself by its key. */
+    /* Cast both sides: a generated table's key is \`UUID\` and a reference to it
+       is \`VARCHAR(255)\`, because the model declares \`string campaign_id FK\`.
+       Postgres coerces a text *parameter* to uuid happily, which is why the
+       grid's \`WHERE id IN ($1, …)\` never noticed, but it refuses to compare the
+       two *columns* — \`operator does not exist: uuid = character varying\`. */
     return \`(SELECT \${parent.expression} FROM \${ident(column.ref_table_name)}
-              WHERE \${ident(column.ref_table_name)}.\${ident(parent.key)} = \${ident(table)}.\${ident(column.column_name)})\`;
+              WHERE \${ident(column.ref_table_name)}.\${ident(parent.key)}::text
+                  = \${ident(table)}.\${ident(column.column_name)}::text)\`;
   };
 
   const parts = identifiers.map(part).filter(Boolean);
   if (parts.length === 0) return { key, label: key, expression: ident(key) };
+
+  /* Two names of one record join with a space — \`Hiroshi Kowalski\`. Two
+     *records* join with a dash — \`Spring Promo — Hiroshi Kowalski\` — because
+     they are separate things and running them together reads as one name that
+     belongs to nobody. */
+  const separator = identifiers.some((column) => column.ref_table_name) ? " — " : " ";
 
   return {
     key,
@@ -7443,7 +7455,7 @@ export function labelFor(columns, options = {}) {
         : // CONCAT_WS skips nulls, so a person with no surname recorded reads as
           // their first name rather than as a name with a gap in it, and a join
           // whose other side was deleted still names the side that remains.
-          \`TRIM(CONCAT_WS(' — ', \${parts.join(", ")}))\`,
+          \`TRIM(CONCAT_WS('\${separator}', \${parts.join(", ")}))\`,
   };
 }
 
@@ -12288,7 +12300,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 261659;
+var RUNTIME_BYTES = 262450;
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};
