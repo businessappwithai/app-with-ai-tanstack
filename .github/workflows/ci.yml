@@ -21,6 +21,15 @@ on:
 permissions:
   contents: read
 
+# Pinned, not `latest`. Three of the checks below compare a committed bundle
+# against a fresh build of it, byte for byte, and Bun's bundler is free to
+# change its output between releases — 1.4.0 did, and turned every open pull
+# request red for a reason none of them had anything to do with. Moving this
+# forward is a deliberate step: bump it, run the four build scripts, and commit
+# the bundles they rewrite in the same change.
+env:
+  BUN_VERSION: "1.4.0"
+
 # A newer push makes an in-flight run redundant, except on main, where each
 # commit's result is worth keeping.
 concurrency:
@@ -38,7 +47,7 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
 
       - name: Install
         run: bun install --frozen-lockfile
@@ -105,7 +114,7 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
 
       - uses: actions/setup-node@v4
         with:
@@ -223,7 +232,7 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
 
       - name: Install
         run: bun install --frozen-lockfile
@@ -289,7 +298,7 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
 
       - name: Install
         run: bun install --frozen-lockfile
