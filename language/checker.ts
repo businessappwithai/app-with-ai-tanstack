@@ -156,6 +156,24 @@ class SourceIndex {
  */
 export const LIFECYCLE_COLUMN_NAMES = new Set(["status", "state", "stage"]);
 
+/**
+ * Column names every generated table already carries.
+ *
+ * The key, the optimistic-lock counter, the audit pair and the soft-delete
+ * pair are the generator's, in both stacks, whether or not a model mentions
+ * them. A model that declares one gets EML103 — see the check for what used to
+ * happen when it did.
+ */
+export const MANAGED_COLUMN_NAMES = new Set([
+  "version",
+  "created_at",
+  "updated_at",
+  "created_by",
+  "updated_by",
+  "deleted_at",
+  "deleted_by",
+]);
+
 const PERSON_ROLE_COLUMN_NAMES = new Set([
   "assigned_to",
   "author_id",
@@ -441,10 +459,21 @@ class CheckEngine {
   private checkAttributes(entity: EmlEntity, entityLine?: number): void {
     const declaredEntityNames = new Set(this.model.entities.map((e) => e.name));
     const seenAttrNames = new Map<string, number>();
+    /* Where each name was last found, so a column declared twice reports two
+       different lines. Searching from the entity every time returned the first
+       occurrence for both, which sent the reader — and the fixer — to the line
+       that was fine and left the duplicate in place. */
+    const lastLineByName = new Map<string, number>();
     let pkCount = 0;
 
     for (const attr of entity.attributes) {
-      const attrLine = this.src.findLine(new RegExp(`\\b${attr.name}\\b`), entityLine);
+      const searchFrom = lastLineByName.has(attr.name)
+        ? (lastLineByName.get(attr.name) as number) + 1
+        : entityLine;
+      const attrLine =
+        this.src.findLine(new RegExp(`\\b${attr.name}\\b`), searchFrom) ??
+        this.src.findLine(new RegExp(`\\b${attr.name}\\b`), entityLine);
+      if (attrLine !== undefined) lastLineByName.set(attr.name, attrLine);
 
       // EML110: Attribute name format
       if (!this.identRe.test(attr.name)) {
@@ -533,6 +562,22 @@ class CheckEngine {
             }
           );
         }
+      }
+
+      // EML103: A column the generator manages, declared in the model.
+      //
+      // Every generated table carries `id`, `version`, the audit pair and the
+      // soft-delete pair whether or not the model asks for them. Declaring one
+      // is redundant, and until the generator learned to drop the duplicate it
+      // was fatal: PostgreSQL refuses a CREATE TABLE that names a column twice,
+      // so the application failed to open with `column "created_at" specified
+      // more than once` — a message that says nothing about which model line
+      // caused it.
+      if (MANAGED_COLUMN_NAMES.has(attr.name.toLowerCase()) && !attr.isPrimaryKey) {
+        this.warn("EML103", `Column "${entity.name}.${attr.name}" is added by the generator.`, {
+          line: attrLine,
+          hint: `Every table carries ${[...MANAGED_COLUMN_NAMES].join(", ")} already. Delete the line: the generator's own definition is used, and yours is ignored.`,
+        });
       }
 
       // EML115: Unknown raw type (falls back to string)
@@ -2345,6 +2390,8 @@ export const AUTO_FIXABLE_CODES = new Set([
   "EML422", // no terminal state → add lastState --> [*]
   "EML001", // missing meta name → add %%meta name:
   "EML114", // FK not ending in _id → append the suffix (_by columns then resolve to bus_user)
+  "EML112", // duplicate attribute → delete the later line, keeping the stronger constraints
+  "EML103", // a column the generator adds → delete the line
 ]);
 
 /** Structured output written to <file>.error for the fixer to consume. */

@@ -22,6 +22,9 @@
  *   EML001  Missing %%meta name → insert %%meta name: <derived>
  *   EML114  FK not ending in _id → append the suffix (_by columns then resolve
  *           to the user entity instead of degrading to a plain string)
+ *   EML112  Duplicate attribute → delete the later line, moving any constraint
+ *           it carried onto the line that stays
+ *   EML103  A column the generator adds anyway → delete the line
  *   EML117  No primary key → prepend  string id PK  to entity block
  *   EML421  State workflow: no [*] → FirstState → insert initial transition
  *   EML422  State workflow: no terminal state → append LastState --> [*]
@@ -134,6 +137,10 @@ function applyFix(lines: string[], issue: Issue): FixResult {
       return fixMissingMetaName(lines, issue, base);
     case "EML114":
       return fixForeignKeyNaming(lines, issue, base);
+    case "EML112":
+      return fixDuplicateAttribute(lines, issue, base);
+    case "EML103":
+      return fixManagedColumn(lines, issue, base);
     case "EML117":
       return fixMissingPrimaryKey(lines, issue, base);
     case "EML421":
@@ -265,6 +272,132 @@ function findAttributeLine(lines: string[], entityName: string, columnName: stri
     if (new RegExp(`\\b${escapeRe(columnName)}\\b`).test(line)) return i;
   }
   return -1;
+}
+
+// ---------------------------------------------------------------------------
+// Fix: EML112 — Duplicate attribute
+// ---------------------------------------------------------------------------
+
+/**
+ * Delete a column declared twice, keeping the stronger of the two.
+ *
+ * The duplicate is not merely untidy: both lines reached the generated
+ * `CREATE TABLE`, and PostgreSQL refuses a statement that names a column twice,
+ * so the application did not open. The parser now collapses them; this makes
+ * the same repair to the document, so the file the author keeps says what the
+ * generator will actually build.
+ *
+ * The later line goes and the first one stays — that is where the author was
+ * describing the column. But a constraint only the deleted line carried has to
+ * move onto the survivor first, or the repair would quietly weaken the model:
+ * `string title OPTIONAL` followed by `string title` means the column is
+ * required, and dropping the second line without taking `OPTIONAL` off the
+ * first turns a mandatory column into a nullable one. Losing data integrity is
+ * a worse outcome than the duplicate was.
+ */
+function fixDuplicateAttribute(lines: string[], issue: Issue, base: FixResult): FixResult {
+  const match = issue.message.match(/Duplicate attribute "([^".]+)\.([^"]+)"/);
+  if (!match) {
+    base.description = "Could not extract entity and column from issue message.";
+    return base;
+  }
+  const [, entityName, columnName] = match as unknown as [string, string, string];
+
+  const duplicateNo = issue.line ? issue.line - 1 : -1;
+  const firstMatch = issue.hint?.match(/First occurrence on line (\d+)/);
+  const firstNo = firstMatch?.[1] ? Number(firstMatch[1]) - 1 : -1;
+
+  if (duplicateNo < 0 || duplicateNo >= lines.length || firstNo < 0 || firstNo >= lines.length) {
+    base.description = `Could not locate both declarations of "${entityName}.${columnName}".`;
+    return base;
+  }
+
+  const duplicate = lines[duplicateNo]!;
+  const first = lines[firstNo]!;
+  const nameRe = new RegExp(`^\\s*[A-Za-z][A-Za-z0-9_()]*\\s+${escapeRe(columnName)}\\b`);
+  if (!nameRe.test(duplicate) || !nameRe.test(first)) {
+    base.description = `Lines ${firstNo + 1} and ${duplicateNo + 1} do not both declare "${columnName}"; left alone.`;
+    return base;
+  }
+
+  /* Modifiers are upper-case words after the name. The column is required
+     unless a declaration says otherwise, so it is mandatory when *either* line
+     omits OPTIONAL/NULL — and then the survivor must not carry one. */
+  const modifiersOf = (line: string) =>
+    line
+      .trim()
+      .split(/\s+/)
+      .slice(2)
+      .map((word) => word.toUpperCase());
+  const optional = (line: string) =>
+    modifiersOf(line).some((word) => word === "OPTIONAL" || word === "NULL");
+
+  let kept = first;
+  if (optional(first) && !optional(duplicate)) {
+    kept = kept.replace(/\s+(OPTIONAL|NULL)\b/gi, "");
+  }
+  for (const modifier of ["UK", "UNIQUE", "FK"]) {
+    if (modifiersOf(duplicate).includes(modifier) && !modifiersOf(kept).includes(modifier)) {
+      kept = `${kept.trimEnd()} ${modifier}`;
+    }
+  }
+
+  base.changes = [];
+  if (kept !== first) {
+    lines[firstNo] = kept;
+    base.changes.push({ lineNo: firstNo + 1, before: first, after: kept, action: "replace" });
+  }
+  lines.splice(duplicateNo, 1);
+  base.changes.push({ lineNo: duplicateNo + 1, before: duplicate, after: "", action: "delete" });
+
+  base.applied = true;
+  base.description =
+    kept === first
+      ? `Removed the second declaration of "${entityName}.${columnName}".`
+      : `Removed the second declaration of "${entityName}.${columnName}", keeping its stronger constraints.`;
+  return base;
+}
+
+// ---------------------------------------------------------------------------
+// Fix: EML103 — A column the generator adds anyway
+// ---------------------------------------------------------------------------
+
+/**
+ * Delete a declaration of a column the generator manages.
+ *
+ * `id`, `version`, the audit pair and the soft-delete pair are on every
+ * generated table already. A model that declares one produced a duplicate
+ * column in the `CREATE TABLE` and the application failed to open. The
+ * generator drops it now; removing the line as well means the document and the
+ * built schema agree, and the author is not left wondering why the column they
+ * wrote does not behave the way they wrote it.
+ */
+function fixManagedColumn(lines: string[], issue: Issue, base: FixResult): FixResult {
+  const match = issue.message.match(/Column "([^".]+)\.([^"]+)" is added by the generator/);
+  if (!match) {
+    base.description = "Could not extract entity and column from issue message.";
+    return base;
+  }
+  const [, entityName, columnName] = match as unknown as [string, string, string];
+
+  const lineNo = issue.line ? issue.line - 1 : findAttributeLine(lines, entityName, columnName);
+  if (lineNo < 0 || lineNo >= lines.length) {
+    base.description = `Could not locate "${entityName}.${columnName}" in the source.`;
+    return base;
+  }
+
+  const nameRe = new RegExp(`^\\s*[A-Za-z][A-Za-z0-9_()]*\\s+${escapeRe(columnName)}\\b`);
+  if (!nameRe.test(lines[lineNo]!)) {
+    base.description = `Line ${lineNo + 1} does not declare "${columnName}"; left alone.`;
+    return base;
+  }
+
+  const before = lines[lineNo]!;
+  lines.splice(lineNo, 1);
+  base.applied = true;
+  base.description = `Removed "${entityName}.${columnName}" — the generator adds it.`;
+  base.changes = [{ lineNo: lineNo + 1, before, after: "", action: "delete" }];
+  return base;
 }
 
 // ---------------------------------------------------------------------------
@@ -567,6 +700,8 @@ ${c.bold("AUTO-FIXABLE CODES")}
   EML114   FK not ending in _id → append the suffix, e.g. reported_by → reported_by_id
            (_by columns then resolve to the user entity rather than degrading to
             a plain string that renders as a raw UUID)
+  EML112   Duplicate attribute → delete the later line, keeping the stronger constraints
+  EML103   A column the generator adds anyway → delete the line
   EML117   No primary key → insert  string id PK  as first attribute
   EML421   State workflow: no [*]→First transition → insert it
   EML422   State workflow: no terminal state (→[*]) → insert it

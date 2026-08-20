@@ -164,6 +164,27 @@ const MANAGED_COLUMNS = `  version INTEGER NOT NULL DEFAULT 1,
   deleted_at TIMESTAMPTZ,
   deleted_by UUID`;
 
+/**
+ * The names the block above occupies, and `id`.
+ *
+ * A model that declares `datetime created_at` is saying something the generator
+ * already guarantees, and emitting both definitions puts the column in the
+ * CREATE TABLE twice — which PostgreSQL rejects outright with `column
+ * "created_at" specified more than once`, so the application never opens. The
+ * declaration is redundant rather than wrong, so the managed definition wins
+ * and the model's is dropped; `EML103` tells the author it was.
+ */
+const MANAGED_COLUMN_NAMES = new Set([
+  "id",
+  "version",
+  "created_at",
+  "updated_at",
+  "created_by",
+  "updated_by",
+  "deleted_at",
+  "deleted_by",
+]);
+
 function buildSchema(entities: Entity[], relationships: Relationship[]): string {
   const lines: string[] = [
     "-- Business tables, generated from the model's erDiagram.",
@@ -177,7 +198,7 @@ function buildSchema(entities: Entity[], relationships: Relationship[]): string 
   for (const entity of entities) {
     const table = tableNameFor(entity);
     const columns = entity.attributes
-      .filter((attribute) => attribute.name !== "id")
+      .filter((attribute) => !MANAGED_COLUMN_NAMES.has(snake(attribute.name)))
       .map((attribute) => {
         const nullability = attribute.required ? " NOT NULL" : "";
         const unique = attribute.unique ? " UNIQUE" : "";

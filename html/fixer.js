@@ -675,6 +675,15 @@ class SourceIndex {
   }
 }
 var LIFECYCLE_COLUMN_NAMES = new Set(["status", "state", "stage"]);
+var MANAGED_COLUMN_NAMES = new Set([
+  "version",
+  "created_at",
+  "updated_at",
+  "created_by",
+  "updated_by",
+  "deleted_at",
+  "deleted_by"
+]);
 var PERSON_ROLE_COLUMN_NAMES = new Set([
   "assigned_to",
   "author_id",
@@ -851,9 +860,13 @@ class CheckEngine {
   checkAttributes(entity, entityLine) {
     const declaredEntityNames = new Set(this.model.entities.map((e) => e.name));
     const seenAttrNames = new Map;
+    const lastLineByName = new Map;
     let pkCount = 0;
     for (const attr of entity.attributes) {
-      const attrLine = this.src.findLine(new RegExp(`\\b${attr.name}\\b`), entityLine);
+      const searchFrom = lastLineByName.has(attr.name) ? lastLineByName.get(attr.name) + 1 : entityLine;
+      const attrLine = this.src.findLine(new RegExp(`\\b${attr.name}\\b`), searchFrom) ?? this.src.findLine(new RegExp(`\\b${attr.name}\\b`), entityLine);
+      if (attrLine !== undefined)
+        lastLineByName.set(attr.name, attrLine);
       if (!this.identRe.test(attr.name)) {
         this.error("EML110", `Invalid attribute name "${entity.name}.${attr.name}": must match ^[A-Za-z][A-Za-z0-9_]*$.`, {
           line: attrLine,
@@ -898,6 +911,12 @@ class CheckEngine {
             hint: `Add FK:  ${attr.rawType ?? "string"} ${attr.name} FK. Without it the Application Dictionary records the column as String and the form shows the raw id instead of a "${target}" lookup.`
           });
         }
+      }
+      if (MANAGED_COLUMN_NAMES.has(attr.name.toLowerCase()) && !attr.isPrimaryKey) {
+        this.warn("EML103", `Column "${entity.name}.${attr.name}" is added by the generator.`, {
+          line: attrLine,
+          hint: `Every table carries ${[...MANAGED_COLUMN_NAMES].join(", ")} already. Delete the line: the generator's own definition is used, and yours is ignored.`
+        });
       }
       const def = this.def;
       const rawBase = attr.rawType?.replace(/\(\d+\)/, "").toLowerCase();
@@ -2059,7 +2078,9 @@ var AUTO_FIXABLE_CODES = new Set([
   "EML421",
   "EML422",
   "EML001",
-  "EML114"
+  "EML114",
+  "EML112",
+  "EML103"
 ]);
 if (false) {}
 // language/erdwithai-language.json
@@ -2420,6 +2441,23 @@ var erdwithai_language_default = {
       unmarkedReference: "`string vendor_id` and `string vendor_id FK` parse into the same column, and only the second becomes TABLE_DIRECT. Reported as EML119.",
       unboundLifecycleColumn: "A %%enum does nothing to a column on its own. Without the %%field binding, a status/state/stage column is free text, and the form accepts values the state machine cannot act on. Reported as EML146."
     },
+    managedColumns: {
+      description: "Columns every generated table carries in both stacks, whether or not the model mentions them. They are the generator's: the key, the optimistic-lock counter, the audit pair and the soft-delete pair.",
+      names: [
+        "id",
+        "version",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+        "deleted_at",
+        "deleted_by"
+      ],
+      declaringOne: 'Redundant, and it used to be fatal: the column reached CREATE TABLE twice and PostgreSQL refused the statement with `column "created_at" specified more than once`, so the generated application could not open its database. The generator now drops the model\'s definition and keeps its own; EML103 reports the line.',
+      checkerCodes: {
+        EML103: "A column the generator manages, declared in the model - the declaration is ignored."
+      }
+    },
     alsoDerived: [
       "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10).",
       "%%index becomes real indexes; a unique attribute or a `name` column is indexed automatically (mergeIndexes).",
@@ -2428,6 +2466,7 @@ var erdwithai_language_default = {
       "The remaining %%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
     ],
     checkerCodes: {
+      EML103: "A column the generator already adds (id, version, the audit pair, the soft-delete pair), declared in the model.",
       EML119: "A reference-shaped column with no FK modifier - the lookup is lost.",
       EML146: "A status/state/stage column with no %%field enum binding - the dropdown is lost.",
       EML500: "A `kind: state` workflow bound to an entity with no status/state/stage column at all - the machine has nothing to track."
@@ -3349,6 +3388,10 @@ function applyFix(lines, issue) {
       return fixMissingMetaName(lines, issue, base);
     case "EML114":
       return fixForeignKeyNaming(lines, issue, base);
+    case "EML112":
+      return fixDuplicateAttribute(lines, issue, base);
+    case "EML103":
+      return fixManagedColumn(lines, issue, base);
     case "EML117":
       return fixMissingPrimaryKey(lines, issue, base);
     case "EML421":
@@ -3441,6 +3484,73 @@ function findAttributeLine(lines, entityName, columnName) {
       return i;
   }
   return -1;
+}
+function fixDuplicateAttribute(lines, issue, base) {
+  const match = issue.message.match(/Duplicate attribute "([^".]+)\.([^"]+)"/);
+  if (!match) {
+    base.description = "Could not extract entity and column from issue message.";
+    return base;
+  }
+  const [, entityName, columnName] = match;
+  const duplicateNo = issue.line ? issue.line - 1 : -1;
+  const firstMatch = issue.hint?.match(/First occurrence on line (\d+)/);
+  const firstNo = firstMatch?.[1] ? Number(firstMatch[1]) - 1 : -1;
+  if (duplicateNo < 0 || duplicateNo >= lines.length || firstNo < 0 || firstNo >= lines.length) {
+    base.description = `Could not locate both declarations of "${entityName}.${columnName}".`;
+    return base;
+  }
+  const duplicate = lines[duplicateNo];
+  const first = lines[firstNo];
+  const nameRe = new RegExp(`^\\s*[A-Za-z][A-Za-z0-9_()]*\\s+${escapeRe(columnName)}\\b`);
+  if (!nameRe.test(duplicate) || !nameRe.test(first)) {
+    base.description = `Lines ${firstNo + 1} and ${duplicateNo + 1} do not both declare "${columnName}"; left alone.`;
+    return base;
+  }
+  const modifiersOf = (line) => line.trim().split(/\s+/).slice(2).map((word) => word.toUpperCase());
+  const optional = (line) => modifiersOf(line).some((word) => word === "OPTIONAL" || word === "NULL");
+  let kept = first;
+  if (optional(first) && !optional(duplicate)) {
+    kept = kept.replace(/\s+(OPTIONAL|NULL)\b/gi, "");
+  }
+  for (const modifier of ["UK", "UNIQUE", "FK"]) {
+    if (modifiersOf(duplicate).includes(modifier) && !modifiersOf(kept).includes(modifier)) {
+      kept = `${kept.trimEnd()} ${modifier}`;
+    }
+  }
+  base.changes = [];
+  if (kept !== first) {
+    lines[firstNo] = kept;
+    base.changes.push({ lineNo: firstNo + 1, before: first, after: kept, action: "replace" });
+  }
+  lines.splice(duplicateNo, 1);
+  base.changes.push({ lineNo: duplicateNo + 1, before: duplicate, after: "", action: "delete" });
+  base.applied = true;
+  base.description = kept === first ? `Removed the second declaration of "${entityName}.${columnName}".` : `Removed the second declaration of "${entityName}.${columnName}", keeping its stronger constraints.`;
+  return base;
+}
+function fixManagedColumn(lines, issue, base) {
+  const match = issue.message.match(/Column "([^".]+)\.([^"]+)" is added by the generator/);
+  if (!match) {
+    base.description = "Could not extract entity and column from issue message.";
+    return base;
+  }
+  const [, entityName, columnName] = match;
+  const lineNo = issue.line ? issue.line - 1 : findAttributeLine(lines, entityName, columnName);
+  if (lineNo < 0 || lineNo >= lines.length) {
+    base.description = `Could not locate "${entityName}.${columnName}" in the source.`;
+    return base;
+  }
+  const nameRe = new RegExp(`^\\s*[A-Za-z][A-Za-z0-9_()]*\\s+${escapeRe(columnName)}\\b`);
+  if (!nameRe.test(lines[lineNo])) {
+    base.description = `Line ${lineNo + 1} does not declare "${columnName}"; left alone.`;
+    return base;
+  }
+  const before = lines[lineNo];
+  lines.splice(lineNo, 1);
+  base.applied = true;
+  base.description = `Removed "${entityName}.${columnName}" — the generator adds it.`;
+  base.changes = [{ lineNo: lineNo + 1, before, after: "", action: "delete" }];
+  return base;
 }
 function fixMissingPrimaryKey(lines, issue, base) {
   const entityMatch = issue.message.match(/Entity "([^"]+)"/);

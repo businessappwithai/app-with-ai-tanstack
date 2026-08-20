@@ -238,6 +238,58 @@ describe("the generated application", () => {
     ]);
   });
 
+  it("declares a managed column once, however the model spells it", () => {
+    /* PostgreSQL refuses `CREATE TABLE` when a column is named twice, so a
+       model that declares its own `created_at` used to generate an application
+       that could not open its database — the failure arrived as
+       `column "created_at" specified more than once`, from a browser tab, with
+       nothing pointing back at the model line. The generator's definition wins;
+       EML103 tells the author theirs was dropped. */
+    const withManaged = `%%meta name: Managed Columns\n%%meta kind: erd\nerDiagram\n    Lesson {\n        string   id PK\n        string   title\n        datetime created_at\n        datetime updated_at OPTIONAL\n        integer  version OPTIONAL\n        string   deleted_by OPTIONAL\n    }\n`;
+    const app = generateWasmApp(parseModel([withManaged]), {
+      ...settings,
+      source: withManaged,
+    });
+    const schema = app.files.get("app/schema.bus.sql") as string;
+
+    for (const column of ["created_at", "updated_at", "version", "deleted_by", "id"]) {
+      const declarations = schema.match(new RegExp(`^\\s*${column}\\s`, "gm")) ?? [];
+      expect({ column, times: declarations.length }).toEqual({ column, times: 1 });
+    }
+    // The generator's own definition is the one that survives.
+    expect(schema).toContain("created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()");
+    expect(schema).toContain("title ");
+  });
+
+  it("collapses a column declared twice, keeping the stronger constraints", () => {
+    /* Two lines for one column reached CREATE TABLE as two columns, which
+       PostgreSQL refuses — the same crash the managed columns caused. The first
+       declaration keeps its place; the constraints merge the other way, so a
+       later OPTIONAL cannot quietly relax a column the model said was
+       required. */
+    const duplicated = `%%meta name: Duplicates\n%%meta kind: erd\nerDiagram\n    Course {\n        string  id PK\n        string  title\n        string  title OPTIONAL\n        string  code OPTIONAL\n        string  code UK\n        integer seats OPTIONAL\n    }\n`;
+    const parsed = parseModel([duplicated]);
+    const course = parsed.entities[0];
+
+    expect(course?.attributes.map((attribute) => attribute.name)).toEqual([
+      "id",
+      "title",
+      "code",
+      "seats",
+    ]);
+    const by = (name: string) => course?.attributes.find((a) => a.name === name);
+    expect(by("title")?.required).toBe(true);
+    expect(by("code")?.required).toBe(true);
+    expect(by("code")?.unique).toBe(true);
+    // A column only ever declared OPTIONAL stays optional.
+    expect(by("seats")?.required).toBe(false);
+
+    const app = generateWasmApp(parsed, { ...settings, source: duplicated });
+    const schema = app.files.get("app/schema.bus.sql") as string;
+    expect(schema.match(/^\s*title\s/gm)).toHaveLength(1);
+    expect(schema).toContain("title VARCHAR(255) NOT NULL");
+  });
+
   it("ships the model source so the application can describe itself", () => {
     expect(generated.files.get("model/model.eml.mmd")).toBe(MODEL);
   });
