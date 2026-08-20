@@ -7454,16 +7454,23 @@ export function labelFor(columns, options = {}) {
      belongs to nobody. */
   const separator = identifiers.some((column) => column.ref_table_name) ? " — " : " ";
 
+  const joined =
+    parts.length === 1
+      ? parts[0]
+      : // CONCAT_WS skips nulls, so a person with no surname recorded reads as
+        // their first name rather than as a name with a gap in it, and a join
+        // whose other side was deleted still names the side that remains.
+        \`TRIM(CONCAT_WS('\${separator}', \${parts.join(", ")}))\`;
+
   return {
     key,
     label: identifiers.map((column) => column.column_name).join(" "),
-    expression:
-      parts.length === 1
-        ? parts[0]
-        : // CONCAT_WS skips nulls, so a person with no surname recorded reads as
-          // their first name rather than as a name with a gap in it, and a join
-          // whose other side was deleted still names the side that remains.
-          \`TRIM(CONCAT_WS('\${separator}', \${parts.join(", ")}))\`,
+    /* Never hand back a blank. A join entity whose parents have both gone —
+       deleted, or never seeded — concatenates two nulls into an empty string,
+       and an option with no text is one a reader cannot pick or tell apart.
+       The uuid is the thing this module exists to avoid, which makes it exactly
+       the right last resort: it is unreadable, but it is unambiguous. */
+    expression: \`COALESCE(NULLIF(\${joined}, ''), \${ident(key)}::text)\`,
   };
 }
 
@@ -12308,7 +12315,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 262450;
+var RUNTIME_BYTES = 262904;
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};
@@ -17817,23 +17824,43 @@ function inDependencyOrder(entities, personEntity) {
   }
   const ordered = [];
   const done = new Set;
-  let progress = true;
-  while (progress && ordered.length < entities.length) {
-    progress = false;
+  const emit = (entity2) => {
+    ordered.push(entity2);
+    done.add(entity2.name);
+  };
+  while (ordered.length < entities.length) {
+    let progress = false;
     for (const entity2 of entities) {
       if (done.has(entity2.name))
         continue;
       const parents = pending.get(entity2.name);
       if ([...parents].every((parent) => done.has(parent))) {
-        ordered.push(entity2);
-        done.add(entity2.name);
+        emit(entity2);
         progress = true;
       }
     }
+    if (progress)
+      continue;
+    const remaining = entities.filter((entity2) => !done.has(entity2.name));
+    const outstanding = (name) => [...pending.get(name)].filter((parent) => !done.has(parent));
+    const inCycle = (start) => {
+      const seen = new Set;
+      const stack = [...outstanding(start)];
+      while (stack.length > 0) {
+        const name = stack.pop();
+        if (name === start)
+          return true;
+        if (seen.has(name))
+          continue;
+        seen.add(name);
+        stack.push(...outstanding(name));
+      }
+      return false;
+    };
+    const candidates = remaining.filter((entity2) => inCycle(entity2.name));
+    const pool = candidates.length > 0 ? candidates : remaining;
+    emit(pool[0]);
   }
-  for (const entity2 of entities)
-    if (!done.has(entity2.name))
-      ordered.push(entity2);
   return ordered;
 }
 function buildSampleData(parsed, options) {

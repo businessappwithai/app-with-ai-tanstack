@@ -78,16 +78,23 @@ export function labelFor(columns, options = {}) {
      belongs to nobody. */
   const separator = identifiers.some((column) => column.ref_table_name) ? " — " : " ";
 
+  const joined =
+    parts.length === 1
+      ? parts[0]
+      : // CONCAT_WS skips nulls, so a person with no surname recorded reads as
+        // their first name rather than as a name with a gap in it, and a join
+        // whose other side was deleted still names the side that remains.
+        `TRIM(CONCAT_WS('${separator}', ${parts.join(", ")}))`;
+
   return {
     key,
     label: identifiers.map((column) => column.column_name).join(" "),
-    expression:
-      parts.length === 1
-        ? parts[0]
-        : // CONCAT_WS skips nulls, so a person with no surname recorded reads as
-          // their first name rather than as a name with a gap in it, and a join
-          // whose other side was deleted still names the side that remains.
-          `TRIM(CONCAT_WS('${separator}', ${parts.join(", ")}))`,
+    /* Never hand back a blank. A join entity whose parents have both gone —
+       deleted, or never seeded — concatenates two nulls into an empty string,
+       and an option with no text is one a reader cannot pick or tell apart.
+       The uuid is the thing this module exists to avoid, which makes it exactly
+       the right last resort: it is unreadable, but it is unambiguous. */
+    expression: `COALESCE(NULLIF(${joined}, ''), ${ident(key)}::text)`,
   };
 }
 
