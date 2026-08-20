@@ -444,11 +444,19 @@ var erdwithai_language_default = {
         "1. A column named name, full_name, display_name, title, label or subject - whichever appears first in that order.",
         "2. Otherwise first_name and last_name together, if the entity declares both. This is why the value is a concatenation and not one column.",
         "3. Otherwise code, reference or number - not a name, but what people quote at each other, and better than a uuid.",
-        "4. Otherwise the first declared string/text column that is neither the key nor a reference.",
-        "5. Otherwise the key, so a lookup still lists something."
+        "4. Otherwise, if the entity declares two or more FK columns ending _id/_by, it is a join entity: its first two references are the identifiers, each resolved through the parent's own label. CampaignMember reads as `Spring Promo - Omar Kowalski`.",
+        "5. Otherwise the first declared string/text column that is neither the key nor a reference.",
+        "6. Otherwise the key, so a lookup still lists something."
       ],
+      joinEntities: {
+        description: "An entity whose identity is the pair of records it joins - CampaignMember, OrderLine, QuoteLineItem - has no name to give it, and step 5 would pick whatever text column came first: member_status, so every campaign member read `invited`. Two or more references and no name of its own is the shape.",
+        depth: "One level only. A parent that is itself a join entity labels itself by its key rather than recursing, because a label assembled from four grandparents is not a name anybody reads.",
+        pairOnly: "The first two references in declared order, never more. An entity with three parents labels itself from the first two, which is the only say the modeller has in it - so declare the two that name the record first.",
+        separator: "Two names of one record join with a space (`Omar Kowalski`); two records join with an em dash (`Spring Promo - Omar Kowalski`). Sharing one separator turns a person into `Omar - Kowalski`.",
+        sqlNote: "A generated key is UUID and a reference to it is VARCHAR(255), because the model declares `string campaign_id FK`. Postgres coerces a text parameter to uuid but refuses to compare the two columns, so the resolving subquery casts both sides."
+      },
       primaryKeyIsNotAnIdentifier: "The key is deliberately excluded. It used to be marked, which meant a display value built from the identifier columns began with a uuid, and every consumer had grown its own filter to drop it.",
-      modellingAdvice: "Give an entity a name, title or code column if it will be referenced. Without one the fallbacks apply, and a reference to it reads as whatever text column happened to be declared first."
+      modellingAdvice: "Give an entity a name, title or code column if it will be referenced. Without one the fallbacks apply, and a reference to it reads as whatever text column happened to be declared first. A join entity is the exception and needs nothing: it names itself from its parents."
     },
     managedColumns: {
       description: "Columns every generated table carries in both stacks, whether or not the model mentions them. They are the generator's: the key, the optimistic-lock counter, the audit pair and the soft-delete pair.",

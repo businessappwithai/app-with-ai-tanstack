@@ -620,6 +620,62 @@ in an iframe. `bun run vendor:pglite` puts a local PGlite beside it so the whole
 demonstration works with the network off; without it the page uses a CDN and
 says so.
 
+### What a record is called — the display value
+
+A reference column stores a uuid. Every screen that shows one has to turn it
+back into words: the form's lookup dropdown, and the grid cell. **One rule
+answers this for both stacks** — `identifierColumnNames` in
+`packages/core/src/types/bus-entity.types.ts` — and it fills
+`sys_column.is_identifier`, from which a record's display value is the
+identifier columns concatenated in `seq_no` order.
+
+| The entity declares | Identifiers | Reads as |
+|---|---|---|
+| `name` / `full_name` / `display_name` / `title` / `label` / `subject` | that column | `Northwind Systems` |
+| `first_name` **and** `last_name` | both | `Omar Kowalski` |
+| `code` / `reference` / `number` | that column | `CON2026-0001` |
+| **≥2 `FK` columns and no name of its own** | its first two parents | `Spring Promo — Omar Kowalski` |
+| none of those | first `string`/`text` column | whatever came first |
+| no text column | *(the key)* | a uuid — the outcome to avoid |
+
+**The primary key is never an identifier.** It used to be, which put a uuid at
+the front of every display value and grew a `!== "id"` filter in each consumer.
+
+**A join entity names itself from what it joins.** `CampaignMember` is a
+campaign and a contact; the row above it would have chosen `member_status`, so
+every campaign member read *invited*. Two or more references and no name of its
+own is the shape. Three constraints keep it readable, and each exists because
+the first attempt broke without it:
+
+- **The first two parents only.** A label from four grandparents is not a name.
+  An entity with three references labels itself from the first two *in declared
+  order* — the only say the modeller has in it.
+- **One level deep.** A parent that is itself a join labels itself by its key
+  rather than recursing.
+- **Two separators.** Names of one record join with a space; two records join
+  with an em dash. Sharing one turns a person into `Omar — Kowalski`.
+
+**Resolution lives in `templates/wasm/server/lib/labels.js`**, and both callers
+go through it — `/sys/lookup` (the dropdown) and `labelsForRows` (the grid) — so
+a record cannot be *Northwind Systems* in the dropdown and a uuid in the table
+it was chosen from. `labelFor` is sync and pure; **`labelForTable` is the async
+form that reads the parent columns a join entity needs**, and is what a caller
+with a database should use.
+
+> **A generated key is `UUID`; a reference to it is `VARCHAR(255)`**, because the
+> model declares `string campaign_id FK`. Postgres coerces a text *parameter* to
+> uuid — which is why `WHERE id IN ($1, …)` never noticed — but refuses to
+> compare the two *columns*. The subquery that resolves a join entity's parents
+> casts both sides.
+
+The NestJS side reads the same `is_identifier` flags; its
+`use-bus-entity-level.ts` hook picks a *single* field for display and search, so
+it skips reference identifiers — a join entity falls through to its own fallback
+list rather than printing the uuid the rule put in front of it.
+
+Tests: `packages/core/src/types/__tests__/identifier-columns.test.ts` pins the
+rule, including the shapes that must **not** trip the join branch.
+
 ### The real stack, in a browser tab (`--standalone`'s opposite)
 
 `html/run-real-stack.html` assembles the **actual** generated application — four
