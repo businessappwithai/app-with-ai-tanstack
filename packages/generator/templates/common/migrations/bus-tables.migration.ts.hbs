@@ -16,7 +16,9 @@ export async function up(db: Kysely<any>): Promise<void> {
     CREATE TABLE IF NOT EXISTS {{tableName}} (
       {{primaryKey}} UUID PRIMARY KEY DEFAULT gen_random_uuid()
       {{#each attributes}}
-      {{#unless (or (eq name ../primaryKey) (eq name 'created_at') (eq name 'updated_at') (eq name 'deleted_at'))}}
+      {{!-- The four columns appended below, plus the key: declaring one in the
+            model would emit it twice and PostgreSQL refuses the CREATE TABLE. --}}
+      {{#unless (or (eq name ../primaryKey) (eq name 'created_at') (eq name 'updated_at') (eq name 'deleted_at') (eq name 'version'))}}
       {{#switch (typeToReferenceId type)}}
         {{#case 10}}
       {{#if isForeignKey}}

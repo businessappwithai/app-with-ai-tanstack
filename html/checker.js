@@ -674,6 +674,15 @@ class SourceIndex {
   }
 }
 var LIFECYCLE_COLUMN_NAMES = new Set(["status", "state", "stage"]);
+var MANAGED_COLUMN_NAMES = new Set([
+  "version",
+  "created_at",
+  "updated_at",
+  "created_by",
+  "updated_by",
+  "deleted_at",
+  "deleted_by"
+]);
 var PERSON_ROLE_COLUMN_NAMES = new Set([
   "assigned_to",
   "author_id",
@@ -897,6 +906,12 @@ class CheckEngine {
             hint: `Add FK:  ${attr.rawType ?? "string"} ${attr.name} FK. Without it the Application Dictionary records the column as String and the form shows the raw id instead of a "${target}" lookup.`
           });
         }
+      }
+      if (MANAGED_COLUMN_NAMES.has(attr.name.toLowerCase()) && !attr.isPrimaryKey) {
+        this.warn("EML103", `Column "${entity.name}.${attr.name}" is added by the generator.`, {
+          line: attrLine,
+          hint: `Every table carries ${[...MANAGED_COLUMN_NAMES].join(", ")} already. Delete the line: the generator's own definition is used, and yours is ignored.`
+        });
       }
       const def = this.def;
       const rawBase = attr.rawType?.replace(/\(\d+\)/, "").toLowerCase();
@@ -2419,6 +2434,12 @@ var erdwithai_language_default = {
       unmarkedReference: "`string vendor_id` and `string vendor_id FK` parse into the same column, and only the second becomes TABLE_DIRECT. Reported as EML119.",
       unboundLifecycleColumn: "A %%enum does nothing to a column on its own. Without the %%field binding, a status/state/stage column is free text, and the form accepts values the state machine cannot act on. Reported as EML146."
     },
+    managedColumns: {
+      description: "Columns every generated table carries in both stacks, whether or not the model mentions them. They are the generator's: the key, the optimistic-lock counter, the audit pair and the soft-delete pair.",
+      names: ["id", "version", "created_at", "updated_at", "created_by", "updated_by", "deleted_at", "deleted_by"],
+      declaringOne: 'Redundant, and it used to be fatal: the column reached CREATE TABLE twice and PostgreSQL refused the statement with `column "created_at" specified more than once`, so the generated application could not open its database. The generator now drops the model\'s definition and keeps its own; EML103 reports the line.',
+      checkerCodes: { EML103: "A column the generator manages, declared in the model - the declaration is ignored." }
+    },
     alsoDerived: [
       "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10).",
       "%%index becomes real indexes; a unique attribute or a `name` column is indexed automatically (mergeIndexes).",
@@ -2427,6 +2448,7 @@ var erdwithai_language_default = {
       "The remaining %%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
     ],
     checkerCodes: {
+      EML103: "A column the generator already adds (id, version, the audit pair, the soft-delete pair), declared in the model.",
       EML119: "A reference-shaped column with no FK modifier - the lookup is lost.",
       EML146: "A status/state/stage column with no %%field enum binding - the dropdown is lost.",
       EML500: "A `kind: state` workflow bound to an entity with no status/state/stage column at all - the machine has nothing to track."

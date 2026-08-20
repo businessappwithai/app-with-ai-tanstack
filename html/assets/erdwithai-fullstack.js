@@ -795,6 +795,12 @@ var init_erdwithai_language = __esm(() => {
         unmarkedReference: "`string vendor_id` and `string vendor_id FK` parse into the same column, and only the second becomes TABLE_DIRECT. Reported as EML119.",
         unboundLifecycleColumn: "A %%enum does nothing to a column on its own. Without the %%field binding, a status/state/stage column is free text, and the form accepts values the state machine cannot act on. Reported as EML146."
       },
+      managedColumns: {
+        description: "Columns every generated table carries in both stacks, whether or not the model mentions them. They are the generator's: the key, the optimistic-lock counter, the audit pair and the soft-delete pair.",
+        names: ["id", "version", "created_at", "updated_at", "created_by", "updated_by", "deleted_at", "deleted_by"],
+        declaringOne: 'Redundant, and it used to be fatal: the column reached CREATE TABLE twice and PostgreSQL refused the statement with `column "created_at" specified more than once`, so the generated application could not open its database. The generator now drops the model\'s definition and keeps its own; EML103 reports the line.',
+        checkerCodes: { EML103: "A column the generator manages, declared in the model - the declaration is ignored." }
+      },
       alsoDerived: [
         "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10).",
         "%%index becomes real indexes; a unique attribute or a `name` column is indexed automatically (mergeIndexes).",
@@ -803,6 +809,7 @@ var init_erdwithai_language = __esm(() => {
         "The remaining %%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
       ],
       checkerCodes: {
+        EML103: "A column the generator already adds (id, version, the audit pair, the soft-delete pair), declared in the model.",
         EML119: "A reference-shaped column with no FK modifier - the lookup is lost.",
         EML146: "A status/state/stage column with no %%field enum binding - the dropdown is lost.",
         EML500: "A `kind: state` workflow bound to an entity with no status/state/stage column at all - the machine has nothing to track."
@@ -14218,6 +14225,12 @@ class CheckEngine {
           });
         }
       }
+      if (MANAGED_COLUMN_NAMES.has(attr.name.toLowerCase()) && !attr.isPrimaryKey) {
+        this.warn("EML103", `Column "${entity2.name}.${attr.name}" is added by the generator.`, {
+          line: attrLine,
+          hint: `Every table carries ${[...MANAGED_COLUMN_NAMES].join(", ")} already. Delete the line: the generator's own definition is used, and yours is ignored.`
+        });
+      }
       const def = this.def;
       const rawBase = attr.rawType?.replace(/\(\d+\)/, "").toLowerCase();
       if (rawBase && rawBase !== "string" && !(rawBase in def.types.map)) {
@@ -15373,7 +15386,7 @@ class CheckEngine {
 function checkSource(source) {
   return new CheckEngine(parseEml(source), source).run();
 }
-var useColor, LIFECYCLE_COLUMN_NAMES, PERSON_ROLE_COLUMN_NAMES, AUTO_FIXABLE_CODES;
+var useColor, LIFECYCLE_COLUMN_NAMES, MANAGED_COLUMN_NAMES, PERSON_ROLE_COLUMN_NAMES, AUTO_FIXABLE_CODES;
 var init_checker = __esm(() => {
   init_memory_fs();
   init_node_path();
@@ -15381,6 +15394,15 @@ var init_checker = __esm(() => {
   init_language();
   useColor = typeof process !== "undefined" && !process.env?.NO_COLOR && Boolean(process.stdout?.isTTY) && !hasFlag("--no-color");
   LIFECYCLE_COLUMN_NAMES = new Set(["status", "state", "stage"]);
+  MANAGED_COLUMN_NAMES = new Set([
+    "version",
+    "created_at",
+    "updated_at",
+    "created_by",
+    "updated_by",
+    "deleted_at",
+    "deleted_by"
+  ]);
   PERSON_ROLE_COLUMN_NAMES = new Set([
     "assigned_to",
     "author_id",
@@ -22908,7 +22930,7 @@ function buildSchema(entities, relationships) {
   ];
   for (const entity2 of entities) {
     const table = tableNameFor(entity2);
-    const columns = entity2.attributes.filter((attribute) => attribute.name !== "id").map((attribute) => {
+    const columns = entity2.attributes.filter((attribute) => !MANAGED_COLUMN_NAMES2.has(snake(attribute.name))).map((attribute) => {
       const nullability = attribute.required ? " NOT NULL" : "";
       const unique = attribute.unique ? " UNIQUE" : "";
       return `  ${snake(attribute.name)} ${sqlType(attribute)}${nullability}${unique},`;
@@ -23185,7 +23207,7 @@ var SEMANTIC_REFERENCE2, snake = (value) => value.replace(/([a-z0-9])([A-Z])/g, 
   created_by UUID,
   updated_by UUID,
   deleted_at TIMESTAMPTZ,
-  deleted_by UUID`, NOISE, isNoise = (column) => NOISE.has(column), PERSON_ROLE_COLUMNS;
+  deleted_by UUID`, MANAGED_COLUMN_NAMES2, NOISE, isNoise = (column) => NOISE.has(column), PERSON_ROLE_COLUMNS;
 var init_model_bundle = __esm(() => {
   init_types2();
   init_dictionary_generator();
@@ -23196,6 +23218,16 @@ var init_model_bundle = __esm(() => {
     password: ReferenceType.PASSWORD,
     color: ReferenceType.COLOR
   };
+  MANAGED_COLUMN_NAMES2 = new Set([
+    "id",
+    "version",
+    "created_at",
+    "updated_at",
+    "created_by",
+    "updated_by",
+    "deleted_at",
+    "deleted_by"
+  ]);
   NOISE = new Set(["id", "created_by", "updated_by", "deleted_by", "deleted_at", "version"]);
   PERSON_ROLE_COLUMNS = new Set([
     "assigned_to",
