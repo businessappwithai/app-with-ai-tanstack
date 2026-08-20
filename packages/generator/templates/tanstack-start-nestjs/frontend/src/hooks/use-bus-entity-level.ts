@@ -121,10 +121,16 @@ export function useBusEntityLevel(entityName: string) {
   const label = windowMeta?.label ?? entityName;
   const windowSlug = windowMeta?.windowSlug ?? entityName;
 
-  // Derive the name field — first non-id identifier field, then common name fallbacks
+  // The record's display value is the dictionary's identifier columns in seq_no
+  // order. This picks one column because it is used where a single field is
+  // wanted; the first identifier is the right one (`first_name` before
+  // `last_name`), and the fallbacks cover a table the dictionary marked none on.
   const NAME_FALLBACKS = ["name", "title", "first_name", "description", "type"];
   const nameField =
-    formFields.find((f) => (f as any).is_identifier && f.column_name !== "id")?.column_name ??
+    formFields
+      .filter((f) => (f as any).is_identifier && !(f as any).is_key)
+      .sort((a, b) => Number((a as any).seq_no ?? 0) - Number((b as any).seq_no ?? 0))[0]
+      ?.column_name ??
     NAME_FALLBACKS.find((candidate) => formFields.some((f) => f.column_name === candidate)) ??
     "name";
 

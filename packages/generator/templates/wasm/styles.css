@@ -278,6 +278,9 @@ a { color: var(--primary); }
 .table__row { cursor: pointer; }
 .table__row:hover { background: var(--primary-soft); }
 .table__row--bad td { color: var(--destructive); }
+/* A resolved reference. Marked so it reads as a pointer at another record
+   rather than as text someone typed into this one; the uuid is on the title. */
+.cell--ref { border-bottom: 1px dotted var(--border-strong); }
 
 .pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
 .pager__page { font-size: 13px; color: var(--text-soft); }

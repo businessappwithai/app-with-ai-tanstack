@@ -21,6 +21,7 @@ import {
   generateSysTab,
   generateSysTable,
   generateSysWindow,
+  identifierColumnNames,
   ReferenceType,
   type Relationship,
   type SysColumn,
@@ -127,7 +128,9 @@ export class DictionaryGenerator {
       };
       sysTables.push(sysTable);
 
-      // Generate sys_column entries
+      // Generate sys_column entries. Which columns identify a record is the
+      // dictionary's own question, answered once for the whole table.
+      const identifiers = new Set(identifierColumnNames(busAttrs, entity.primaryKey));
       const columnEntries = busAttrs.map((attr, _index) => {
         const colId = `col_${++columnCounter}`;
         return {
@@ -148,7 +151,7 @@ export class DictionaryGenerator {
           is_parent: false,
           is_mandatory: attr.required,
           is_updateable: attr.name !== entity.primaryKey,
-          is_identifier: attr.name === entity.primaryKey || attr.name === "name",
+          is_identifier: identifiers.has(attr.name),
           is_selection_column:
             ["name", "email", "title", "description", "status"].includes(attr.name) ||
             attr.unique === true,
