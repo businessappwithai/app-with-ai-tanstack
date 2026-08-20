@@ -434,9 +434,18 @@ const PERSON_COLUMNS = new Set([
  *
  * Kahn's algorithm over the FK graph, with one deliberate concession: a cycle
  * (two entities pointing at each other, or a self-reference) does not fail the
- * sort. The remaining entities are emitted in declaration order and their
- * unsatisfiable keys are left null, which is a smaller lie than refusing to
- * generate anything.
+ * sort. A cycle's members are emitted anyway and their unsatisfiable keys are
+ * left null, which is a smaller lie than refusing to generate anything.
+ *
+ * The concession is made one entity at a time. Dumping every remaining entity
+ * in declaration order the moment the sort stalled meant a single cycle poisoned
+ * everything *downstream* of it: `User` and `Team` point at each other, so the
+ * sort stalled with both pending, and `Compound` — which is not in the cycle and
+ * merely wants a `registered_by_id` — was emitted before the users it needed.
+ * Its rows came out with a null in a NOT NULL column and every one was skipped,
+ * leaving two entities with no sample data at all and only a log line to say so.
+ * Breaking the cycle by promoting one member, then resuming the sort, keeps
+ * parents-first for everyone who is not actually in a cycle.
  */
 function inDependencyOrder(
   entities: Array<{ name: string; columns: Column[] }>,
@@ -457,20 +466,58 @@ function inDependencyOrder(
 
   const ordered: Array<{ name: string; columns: Column[] }> = [];
   const done = new Set<string>();
-  let progress = true;
-  while (progress && ordered.length < entities.length) {
-    progress = false;
+
+  const emit = (entity: { name: string; columns: Column[] }) => {
+    ordered.push(entity);
+    done.add(entity.name);
+  };
+
+  while (ordered.length < entities.length) {
+    let progress = false;
     for (const entity of entities) {
       if (done.has(entity.name)) continue;
       const parents = pending.get(entity.name) as Set<string>;
       if ([...parents].every((parent) => done.has(parent))) {
-        ordered.push(entity);
-        done.add(entity.name);
+        emit(entity);
         progress = true;
       }
     }
+    if (progress) continue;
+
+    /* Stalled: what is left is a cycle, plus everything downstream of it. Break
+       it by promoting a member of the cycle *itself* — never something merely
+       waiting on one. `Compound` waits on `User`, and `User` and `Team` wait on
+       each other: promoting `Compound` first (it is declared first, and has as
+       few outstanding parents as anyone) leaves its mandatory
+       `registered_by_id` null, which is the whole failure. Promoting `User`
+       costs only its optional `team_id`, and lets both of the others resolve
+       properly afterwards. */
+    const remaining = entities.filter((entity) => !done.has(entity.name));
+    const outstanding = (name: string) =>
+      [...(pending.get(name) as Set<string>)].filter((parent) => !done.has(parent));
+
+    /* In a cycle iff the entity is reachable from itself along parents that are
+       still outstanding. The graph is one model's entities, so a walk per
+       candidate is cheaper than the machinery to avoid it. */
+    const inCycle = (start: string) => {
+      const seen = new Set<string>();
+      const stack = [...outstanding(start)];
+      while (stack.length > 0) {
+        const name = stack.pop() as string;
+        if (name === start) return true;
+        if (seen.has(name)) continue;
+        seen.add(name);
+        stack.push(...outstanding(name));
+      }
+      return false;
+    };
+
+    const candidates = remaining.filter((entity) => inCycle(entity.name));
+    /* A stalled sort always has a cycle among what is left, but falling back to
+       `remaining` rather than trusting that keeps this a sort, not an assertion. */
+    const pool = candidates.length > 0 ? candidates : remaining;
+    emit(pool[0] as { name: string; columns: Column[] });
   }
-  for (const entity of entities) if (!done.has(entity.name)) ordered.push(entity);
   return ordered;
 }
 

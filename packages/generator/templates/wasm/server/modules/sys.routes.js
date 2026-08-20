@@ -13,7 +13,7 @@
 
 import { Router } from "../lib/router.js";
 import { ident } from "../lib/db.js";
-import { columnsOf, labelFor } from "../lib/labels.js";
+import { columnsOf, labelForTable } from "../lib/labels.js";
 import { json, notFound, readJson } from "../lib/http.js";
 import { requireAdmin, requireUser } from "../lib/guards.js";
 
@@ -88,7 +88,7 @@ export function sysRoutes(model) {
     const columns = await columnsOf(db, table);
     if (!columns || columns.length === 0) return json({ options: [], label: null });
 
-    const { key, label, expression } = labelFor(columns);
+    const { key, label, expression } = await labelForTable(db, table, columns);
     const limit = Math.min(Number(query.get("limit") ?? 500) || 500, 1000);
     const rows = await db.query(
       `SELECT ${ident(key)} AS id, ${expression} AS label
