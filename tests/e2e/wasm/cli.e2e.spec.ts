@@ -92,7 +92,10 @@ test.describe("@cli the standalone browser application", () => {
     // complete-looking application.
     expect(out).toMatch(/Entities\s+17/);
     expect(out).toMatch(/Rules\s+8/);
-    expect(out).toMatch(/Access rules\s+15/);
+    // 32: the eight transition and CRUD restrictions the model always had, plus
+    // one `.read` directive per entity — which is how the CRM says which
+    // functional role each of its seventeen entities belongs to.
+    expect(out).toMatch(/Access rules\s+32/);
     expect(out).toMatch(/State machines\s+5/);
   });
 
