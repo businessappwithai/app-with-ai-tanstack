@@ -3225,6 +3225,7 @@ var erdwithai_language_default = {
         status: "compiled",
         consumedBy: [
           "packages/generator/src/rbac/index.ts (compiles both forms)",
+          "packages/generator/src/rbac/roles.ts (derives the roles, one seeded account each, and per-entity visibility)",
           "seeded into sys_operation_access / sys_transition_access",
           "enforced by the generated EntityAccessGuard on /bus CRUD"
         ],
@@ -3233,12 +3234,15 @@ var erdwithai_language_default = {
           "%%rbac role:admin on Order.delete",
           "%%rbac role:sales|manager on Deal.update",
           "%%rbac role:admin on Customer.*",
-          "%%rbac role:sales_manager on Quote.approve"
+          "%%rbac role:sales_manager on Quote.approve",
+          "%%rbac role:sales_rep|sales_manager|support_agent on Account.read"
         ],
         notes: {
           operations: "create | read | update | delete, plus * for all four. Aliases are accepted (insert/add, view/select/list, edit/write/modify, remove/destroy).",
           transitions: "A name that is not a CRUD operation is resolved against the entity's stateDiagram-v2 transitions. There is no named-transition endpoint in a generated application - moving a record along an edge is a status update - so the rule is stored as the (from_state, to_state) pair it covers and the guard recognises the move by the states the write crosses. Both ends are kept because one event can sit on several edges and two events can reach the same state.",
-          notSysAccess: "These rules deliberately do not write sys_access. That is a grant table feeding sys_refresh_dictionary_scope(), where the first row added narrows a window to one role; a restriction on deleting must not become a restriction on looking."
+          notSysAccess: "A restriction on any operation other than read deliberately does not write sys_access. That is a grant table feeding sys_refresh_dictionary_scope(), where the first row added narrows a window to one role; a restriction on deleting must not become a restriction on looking. read is the one exception, and it is the exception on purpose - see functionalRoles.",
+          functionalRoles: "read is the operation that decides which functional role an entity belongs to, and the only one that changes what a role sees. An entity a role may not read is absent from that role's navigation entirely - no menu entry, no dashboard card, no lookup - because a menu full of entries that answer 403 is a worse application than a shorter one. A model is expected to name every entity on at least one `%%rbac ... .read` directive, so that every entity belongs to somebody. Declaring none leaves every entity visible to every signed-in caller, which is what every model did before this rule existed.",
+          seededAccounts: "Every role a directive names is created, and one account is seeded holding it, beside the administrator who bypasses everything and a role-less User. An application whose only account is the administrator cannot demonstrate its own access control, because the administrator is exempt from all of it. Both stacks derive the same list from rbac/roles.ts, and both sign-in screens print it with the number of entities each role can see."
         }
       },
       {

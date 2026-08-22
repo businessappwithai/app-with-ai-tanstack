@@ -58,6 +58,34 @@
 %%category name: Activities; description: Calls, emails, meetings and tasks logged against any record; icon: CalendarClock; color: #8b5cf6; entities: Activity
 %%category name: People and Teams; description: Users, selling teams and organisational structure; icon: Users; color: #64748b; default: true; entities: User, Team
 
+%% ---- Access by functional role ---------------------------------------------
+%% Every entity belongs to at least one functional role, and `read` is the
+%% operation that decides it: a role that may not read an entity does not see it
+%% in the navigation at all, so signing in as `support.agent@…` gives you the
+%% service desk rather than the whole CRM with most of it refusing to open.
+%% The roles are the ones UserRole already names. Administrator bypasses all of
+%% it, which is what makes it the account to compare the others against.
+%% Restricting `read` is deliberately separate from the update and transition
+%% rules further down: those say who may change a record, this says whose
+%% application it is part of.
+%%rbac role:sales_rep|account_executive|sales_manager|sales_ops|marketing_manager|support_agent|support_manager on Account.read
+%%rbac role:sales_rep|account_executive|sales_manager|sales_ops|marketing_manager|support_agent|support_manager on Contact.read
+%%rbac role:sales_rep|account_executive|sales_manager|sales_ops|marketing_manager|support_agent|support_manager on Activity.read
+%%rbac role:sales_manager|sales_ops on Territory.read
+%%rbac role:marketing_manager|sales_ops on Campaign.read
+%%rbac role:marketing_manager|sales_ops on CampaignMember.read
+%%rbac role:sales_rep|account_executive|sales_manager|sales_ops|marketing_manager on Lead.read
+%%rbac role:sales_rep|account_executive|sales_manager|sales_ops on Opportunity.read
+%%rbac role:sales_rep|account_executive|sales_manager|sales_ops on OpportunityLineItem.read
+%%rbac role:sales_rep|account_executive|sales_manager|sales_ops on Product.read
+%%rbac role:sales_rep|account_executive|sales_manager|sales_ops on Quote.read
+%%rbac role:sales_rep|account_executive|sales_manager|sales_ops on QuoteLineItem.read
+%%rbac role:account_executive|sales_manager|sales_ops on Contract.read
+%%rbac role:support_agent|support_manager on SupportCase.read
+%%rbac role:support_agent|support_manager on SlaPolicy.read
+%%rbac role:sales_manager|sales_ops|support_manager on User.read
+%%rbac role:sales_manager|sales_ops on Team.read
+
 %% ---- Enumerations ----------------------------------------------------------
 %% Lifecycle enums carry exactly the states of the matching state workflow in
 %% Sections 10-14; the rest are closed vocabularies for reporting fields.

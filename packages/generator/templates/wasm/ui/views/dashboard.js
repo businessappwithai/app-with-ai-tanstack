@@ -12,7 +12,7 @@
  * the Service Worker before showing anything.
  */
 
-import { el, mount, spinner } from "../dom.js";
+import { el, mount, spinner, toast } from "../dom.js";
 import { api } from "../api.js";
 import { setHelp } from "../main.js";
 
@@ -25,7 +25,7 @@ const DICTIONARY = [
   ["The Model", "model", "The EML this was built from", "◈"],
 ];
 
-export async function dashboardView(root, { entities, navigate, project }) {
+export async function dashboardView(root, { entities, navigate, project, user }) {
   mount(root, spinner("Loading"));
   setHelp(
     "Each card opens a window onto one entity. What the window shows — which columns, " +
@@ -112,6 +112,22 @@ export async function dashboardView(root, { entities, navigate, project }) {
         )
       ),
 
+      /*
+       * Start over without regenerating.
+       *
+       * A generated application arrives with sample rows so that it can be
+       * looked at, and the reader who has finished looking wants their own data
+       * in it. Without this that meant deleting ten rows per entity by hand,
+       * once per entity, or regenerating and losing everything else they had
+       * done.
+       *
+       * Administrator-only, because it is the one action here that cannot be
+       * undone, and two-step rather than a `confirm()` — this application runs
+       * inside an iframe on the guide, where a modal dialog is not guaranteed
+       * to appear at all.
+       */
+      user?.isAdmin ? purgeSection(project, navigate) : null,
+
       health
         ? el(
             "p.runtime-note",
@@ -123,4 +139,61 @@ export async function dashboardView(root, { entities, navigate, project }) {
         : null
     )
   );
+}
+
+/** The purge control: one button, which becomes two before it does anything. */
+function purgeSection(project, navigate) {
+  const section = el("section.danger");
+
+  const render = (armed) => {
+    section.replaceChildren(
+      el(
+        "div.danger__body",
+        el("h2.danger__title", "Start from an empty database"),
+        el(
+          "p.danger__desc",
+          armed
+            ? "Every business record is deleted — the sample rows and anything you have added. The model, the dictionary, the rules and the accounts are untouched. This cannot be undone."
+            : `Deletes every record in ${project?.name || "this application"} and leaves the application itself in place.`
+        ),
+        armed
+          ? el(
+              "div.danger__actions",
+              el(
+                "button.btn.btn--danger",
+                {
+                  onclick: async (event) => {
+                    const button = event.currentTarget;
+                    button.disabled = true;
+                    button.textContent = "Deleting…";
+                    try {
+                      const result = await api.post("/sys/purge-business-data", {});
+                      toast(
+                        `Deleted ${result.deleted} record(s) across ${result.tables} table(s)`,
+                        "success"
+                      );
+                      // Straight back through the router: every count on this
+                      // screen is now wrong, and a stale dashboard after a purge
+                      // reads as the purge having failed.
+                      navigate("/");
+                    } catch (error) {
+                      toast(error.message, "error");
+                      render(false);
+                    }
+                  },
+                },
+                "Yes, delete every record"
+              ),
+              el("button.btn", { onclick: () => render(false) }, "Cancel")
+            )
+          : el(
+              "div.danger__actions",
+              el("button.btn", { onclick: () => render(true) }, "Delete all records")
+            )
+      )
+    );
+  };
+
+  render(false);
+  return section;
 }

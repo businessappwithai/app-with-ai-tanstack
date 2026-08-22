@@ -182,6 +182,10 @@ export class FullStackGenerator {
         enableDarkMode: false,
         stackOption: this.options.stackOption as "tanstackjs-nestjs" | "tanstack-start-nestjs",
         skipCliScaffold: this.options.skipCliScaffold,
+        // The front end enforces nothing, but its sign-in screen names the
+        // accounts the backend seed created — from the same derivation, so the
+        // two cannot drift into offering an address that does not exist.
+        compiledRbac: this.options.compiledRbac,
         ...aiConfig,
         ...this.options.tanstackStartNestjs?.frontend,
       };

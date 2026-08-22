@@ -189,6 +189,42 @@ erDiagram
     }
   });
 
+  it("fills the columns whose name, not type, decides what they hold", () => {
+    /* Every one of these resolves to a faker generator chosen by the column's
+       name. `country_code` is here because it did not merely read badly when it
+       was wrong — `location.countryCode` lives in faker's `base` locale, and an
+       instance built from `en` alone *threw*, so a model with a column of that
+       name generated no application at all. */
+    const named = parseModel([
+      `%%meta name: Named Columns
+%%meta kind: erd
+erDiagram
+    Office {
+        string id PK
+        string name
+        string region
+        string country_code
+        string currency_code
+        string job_title
+        string city
+    }
+`,
+    ]);
+    const offices = buildSampleData(named, { records: 6, seed: "test" })["bus_office"] as Array<
+      Record<string, unknown>
+    >;
+
+    for (const office of offices) {
+      /* Two letters, not `OFF-1004` — the generic `*_code` rule used to win. */
+      expect(office.country_code).toMatch(/^[A-Z]{2}$/);
+      expect(office.currency_code).toMatch(/^[A-Z]{3}$/);
+      for (const column of ["name", "region", "job_title", "city"]) {
+        expect(typeof office[column]).toBe("string");
+        expect((office[column] as string).length).toBeGreaterThan(0);
+      }
+    }
+  });
+
   it("survives a model whose only reference is to itself", () => {
     const selfReferential = parseModel([
       `%%meta name: Self Reference

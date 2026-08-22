@@ -1,23 +1,33 @@
 /**
  * The sign-in screen.
  *
- * It shows the seeded administrator's credentials. That looks wrong for a
- * second and then does not: the database is a file in the reader's own browser,
- * created by the page they are looking at, so there is no one to keep the
- * password from. Hiding it would only produce an application that cannot be
- * opened by the person it was generated for.
+ * It shows the seeded credentials. That looks wrong for a second and then does
+ * not: the database is a file in the reader's own browser, created by the page
+ * they are looking at, so there is no one to keep the password from. Hiding it
+ * would only produce an application that cannot be opened by the person it was
+ * generated for.
+ *
+ * It lists **every** seeded account rather than only the administrator, and
+ * says how many entities each role can see. The administrator bypasses every
+ * restriction the model wrote, so an application you can only sign into as the
+ * administrator is one whose access control you cannot look at — the row
+ * reading `support.agent@… · 5 of 17` is the invitation to try it. Clicking a
+ * row fills the form, because retyping an address to compare two roles is the
+ * kind of friction that stops people comparing them.
  */
 
 import { el, mount, toast } from "../dom.js";
 import { api, setToken } from "../api.js";
 
 export async function loginView(root, { project, onSignedIn }) {
-  let seeded = null;
+  let config = null;
   try {
-    seeded = (await api.get("/auth/config")).seededAdmin;
+    config = await api.get("/auth/config");
   } catch {
     // The sign-in screen still works without the hint.
   }
+  const seeded = config?.seededAdmin ?? null;
+  const accounts = config?.seededAccounts ?? [];
 
   const email = el("input.field__input", {
     type: "text",
@@ -85,13 +95,52 @@ export async function loginView(root, { project, onSignedIn }) {
         el("h1.login__title", project.name),
         el("p.login__subtitle", project.description || "Generated from an EML model"),
         form,
-        seeded
+        accounts.length > 1
           ? el(
-              "p.login__hint",
-              `Seeded administrator: ${seeded.email} / ${seeded.password}. `,
-              el("span.login__hint-note", "The database lives in this browser only.")
+              "div.accounts",
+              el(
+                "p.accounts__head",
+                `${accounts.length} seeded accounts, password `,
+                el("code", seeded?.password ?? "admin"),
+                config?.scoped
+                  ? ". Each role sees only its own entities — pick one to try it."
+                  : ". Pick one to fill the form."
+              ),
+              el(
+                "ul.accounts__list",
+                ...accounts.map((account) =>
+                  el(
+                    "li",
+                    el(
+                      "button.accounts__row",
+                      {
+                        type: "button",
+                        onclick: () => {
+                          email.value = account.email;
+                          password.value = account.password;
+                          password.focus();
+                        },
+                      },
+                      el("span.accounts__role", account.role),
+                      el("span.accounts__email", account.email),
+                      el(
+                        "span.accounts__scope",
+                        account.isAdmin
+                          ? `all ${config?.totalEntities ?? account.entities} entities`
+                          : `${account.entities} of ${config?.totalEntities ?? account.entities} entities`
+                      )
+                    )
+                  )
+                )
+              )
             )
-          : null
+          : seeded
+            ? el(
+                "p.login__hint",
+                `Seeded administrator: ${seeded.email} / ${seeded.password}. `,
+                el("span.login__hint-note", "The database lives in this browser only.")
+              )
+            : null
       ),
       el(
         "div.login__aside",

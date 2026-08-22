@@ -28,66 +28,67 @@ interface UserDefinition {
   description: string;
 }
 
+/**
+ * The roles this application has, and they come from the model.
+ *
+ * They used to be four fixed placeholders — Administrator, Manager, Analyst,
+ * User — which meant an application generated from a model declaring
+ * `role:support_agent` seeded no account that held it. Every restriction the
+ * model wrote was therefore invisible: the administrator bypasses all of them,
+ * and nobody else held anything.
+ *
+ * Now every role named by a `%%rbac` directive is seeded, one account holds
+ * each, and `Administrator` and `User` remain as the two ends to compare
+ * against — the account that bypasses everything, and the account that holds
+ * nothing.
+ */
 const ROLES: RoleDefinition[] = [
+{{#each access.roles}}
   {
-    name: 'Administrator',
-    description: 'System administrator with full access to all modules',
-    level: 'S',
-    canExport: true,
+    name: '{{this.name}}',
+    description: '{{this.description}}',
+    level: '{{#if this.isAdmin}}S{{else}}C{{/if}}',
+    canExport: {{#if this.isAdmin}}true{{else}}true{{/if}},
     canReport: true,
   },
-  {
-    name: 'Manager',
-    description: 'Manages operations and team assignments',
-    level: 'C',
-    canExport: true,
-    canReport: true,
-  },
-  {
-    name: 'Analyst',
-    description: 'Reviews and analyses application data',
-    level: 'C',
-    canExport: true,
-    canReport: true,
-  },
-  {
-    name: 'User',
-    description: 'Standard user with basic access',
-    level: 'C',
-    canExport: false,
-    canReport: false,
-  },
+{{/each}}
 ];
 
 /** Seeded for every demo account; change it before anything real runs here. */
 const DEFAULT_PASSWORD = 'admin123';
 
+/**
+ * One account per role.
+ *
+ * Signing in as `support.agent@…` is the only way to see what the model's
+ * access rules actually did — the administrator bypasses them, so an
+ * application with a single account cannot demonstrate its own authorization.
+ */
 const USERS: UserDefinition[] = [
+{{#each access.users}}
   {
-    email: 'admin@admin.com',
-    name: 'Admin User',
-    roleName: 'Administrator',
-    description: 'System administrator account',
+    email: '{{this.email}}',
+    name: '{{this.name}}',
+    roleName: '{{this.roleName}}',
+    description: '{{this.description}}',
   },
-  {
-    email: 'manager@{{project.id}}.com',
-    name: 'Manager User',
-    roleName: 'Manager',
-    description: 'Operations manager account',
-  },
-  {
-    email: 'analyst@{{project.id}}.com',
-    name: 'Analyst User',
-    roleName: 'Analyst',
-    description: 'Data analyst account',
-  },
-  {
-    email: 'user@{{project.id}}.com',
-    name: 'Standard User',
-    roleName: 'User',
-    description: 'Standard user account',
-  },
+{{/each}}
 ];
+
+/**
+ * Which entities each role may look at, from the model's `read` restrictions.
+ *
+ * Empty unless the model restricted reading. That is deliberate and is
+ * explained at length in `packages/generator/src/rbac/roles.ts`: a model
+ * protecting *deletion* of an entity is not asking for that entity to disappear
+ * from everyone's navigation, and only a `read` rule says who an entity belongs
+ * to.
+ */
+export const ENTITY_VISIBILITY: Record<string, string[]> = {
+{{#each access.entityVisibility}}
+  '{{@key}}': [{{#each this}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}],
+{{/each}}
+};
 
 export async function seed(db: Kysely<any>): Promise<void> {
   const now = new Date();
@@ -249,5 +250,22 @@ export async function seed(db: Kysely<any>): Promise<void> {
   console.log('\n👥 Users Created:');
   for (const user of USERS) {
     console.log(`   - ${user.email} (${user.roleName})`);
+  }
+
+  // What each role will actually see. Printed because "the roles were seeded"
+  // and "the roles see different applications" are different claims, and this
+  // is the one worth checking after a migration.
+  const owned = new Map<string, string[]>();
+  for (const [entity, roles] of Object.entries(ENTITY_VISIBILITY)) {
+    for (const role of roles) {
+      owned.set(role, [...(owned.get(role) ?? []), entity]);
+    }
+  }
+  if (owned.size > 0) {
+    console.log('\n🔐 Entities per functional role:');
+    for (const [role, entities] of [...owned].sort()) {
+      console.log(`   - ${role}: ${entities.length} (${entities.join(', ')})`);
+    }
+    console.log('   - Administrator: every entity, and bypasses every restriction');
   }
 }

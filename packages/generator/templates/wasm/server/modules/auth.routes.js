@@ -109,17 +109,58 @@ export function authRoutes(model) {
     return json({ success: true });
   });
 
-  router.get("/config", async () =>
-    json({
-      // Shown on the sign-in screen. An application nobody can get into is not a
-      // demonstration of anything, and hiding seeded credentials does not make a
-      // database that lives in the reader's own browser any more private.
+  /**
+   * What the sign-in screen offers.
+   *
+   * An application nobody can get into is not a demonstration of anything, and
+   * hiding seeded credentials does not make a database that lives in the
+   * reader's own browser any more private.
+   *
+   * Every seeded account is listed, not only the administrator, and each says
+   * how many entities its role can see. That count is the whole point of
+   * listing them: the administrator bypasses every restriction the model wrote,
+   * so an application you can only sign into as the administrator is one whose
+   * access control you cannot look at. `support.agent@… — 5 of 17 entities` is
+   * an invitation to check.
+   */
+  router.get("/config", async () => {
+    const visibility = model.entityVisibility || {};
+    const total = (model.entities || []).length;
+    const countFor = (declaredRole) => {
+      if (!declaredRole) return total;
+      const normalize = (value) =>
+        String(value ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+      const wanted = normalize(declaredRole);
+      return (model.entities || []).filter((entity) => {
+        const roles = visibility[entity.name];
+        if (!roles || roles.length === 0) return true;
+        return roles.some((role) => normalize(role) === wanted);
+      }).length;
+    };
+
+    const accounts = (model.users || []).map((user) => {
+      const role = (model.roles || []).find((candidate) => candidate.name === user.roleName);
+      return {
+        email: user.email,
+        password: model.project.adminPassword,
+        role: user.roleName,
+        isAdmin: !!user.isAdmin,
+        entities: user.isAdmin ? total : countFor(role?.declaredAs),
+      };
+    });
+
+    return json({
       seededAdmin: {
         email: model.project.adminEmail,
         password: model.project.adminPassword,
       },
-    })
-  );
+      seededAccounts: accounts,
+      totalEntities: total,
+      /* False when the model declared no `read` restrictions, in which case the
+         counts are all the same and a table of them says nothing. */
+      scoped: Object.keys(visibility).length > 0,
+    });
+  });
 
   return router;
 }

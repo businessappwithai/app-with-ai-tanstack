@@ -15,7 +15,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Loader2, LogIn, AlertCircle, Mail, Lock, Shield } from 'lucide-react';
 import { toast } from 'sonner';
-import { APP_NAME } from "@/lib/app-meta";
+import {
+  ACCESS_IS_SCOPED,
+  APP_NAME,
+  SEEDED_ACCOUNTS,
+  SEEDED_PASSWORD,
+  TOTAL_ENTITIES,
+} from "@/lib/app-meta";
 
 export const Route = createFileRoute('/auth/login')({
   component: LoginPage,
@@ -183,22 +189,66 @@ function LoginPage() {
             </Button>
           </form>
 
-          {/* Accounts are created by an administrator, not here. Saying so is
-              kinder than a sign-up form that the server would refuse. */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border/40"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-card text-muted-foreground bg-gradient-to-r from-card via-card to-card">
-                Need an account?
-              </span>
-            </div>
-          </div>
+          {/* The seeded accounts, one row each.
+              A generated application seeds one account per functional role plus
+              an administrator who bypasses every restriction the model wrote —
+              so an application you can only sign into as the administrator is
+              one whose access control you cannot see. The entity count beside
+              each address is the invitation to compare two roles, and clicking
+              a row fills the form because retyping an address is exactly the
+              friction that stops people comparing them.
 
-          <p className="text-center text-sm text-muted-foreground">
-            Accounts are created by an administrator. Ask yours to add you.
-          </p>
+              This is demonstration data. Change SEEDED_PASSWORD in the seed
+              before this runs anywhere real and the list stops being true; the
+              seed's own header says the same. */}
+          {SEEDED_ACCOUNTS.length > 0 && (
+            <>
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border/40"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-card text-muted-foreground bg-gradient-to-r from-card via-card to-card">
+                    Seeded accounts
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-sm text-muted-foreground mb-3">
+                Password <code className="px-1.5 py-0.5 rounded bg-muted font-mono text-xs">{SEEDED_PASSWORD}</code> for all of them.
+                {ACCESS_IS_SCOPED
+                  ? " Each role sees only its own entities — pick one to try it."
+                  : " Pick one to fill the form."}
+              </p>
+
+              <ul className="space-y-1.5">
+                {SEEDED_ACCOUNTS.map((account) => (
+                  <li key={account.email}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmail(account.email);
+                        setPassword(SEEDED_PASSWORD);
+                      }}
+                      className="w-full text-left rounded-md border border-border/60 bg-muted/40 px-3 py-2 transition-colors hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      <span className="block text-sm font-semibold text-foreground">{account.role}</span>
+                      <span className="block font-mono text-xs text-muted-foreground break-all">{account.email}</span>
+                      <span className="block text-xs text-muted-foreground/80">
+                        {account.isAdmin
+                          ? `all ${TOTAL_ENTITIES} entities`
+                          : `${account.entities} of ${TOTAL_ENTITIES} entities`}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              <p className="text-center text-xs text-muted-foreground mt-4">
+                Any other account is created by an administrator.
+              </p>
+            </>
+          )}
         </div>
 
         {/* Footer */}

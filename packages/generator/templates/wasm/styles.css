@@ -148,6 +148,53 @@ a { color: var(--primary); }
   background: var(--primary-soft); border-radius: var(--radius-sm); padding: 11px 13px;
 }
 .login__hint-note { display: block; margin-top: 3px; opacity: 0.85; }
+
+/* Start-from-empty. Set apart rather than sitting in the card grid: it is the
+   one control on the dashboard that deletes something, and a destructive action
+   that looks like the sixteen navigation cards around it is one somebody
+   presses by accident. */
+.danger {
+  margin-top: 34px; border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--destructive);
+  border-radius: var(--radius-sm); background: var(--surface);
+}
+.danger__body { padding: 15px 18px; }
+.danger__title { margin: 0 0 4px; font-size: 14px; font-weight: 650; }
+.danger__desc { margin: 0 0 12px; font-size: 12.5px; color: var(--text-soft); max-width: 68ch; }
+.danger__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+/* The palette's own destructive colour, from templates/common/design-tokens.json
+   — inventing a red here is how the two stylesheets drifted the last time. */
+.btn.btn--danger {
+  background: var(--destructive); border-color: var(--destructive); color: #fff;
+}
+.btn.btn--danger:hover:not(:disabled) { filter: brightness(0.92); }
+
+/* The seeded accounts, one row each. A table would be tidier and would not be
+   clickable, and the whole reason for listing them is that a reader compares
+   two roles by trying both. */
+.accounts { margin-top: 22px; max-width: 380px; }
+.accounts__head {
+  margin: 0 0 8px; font-size: 12.5px; line-height: 1.55; color: var(--text-soft);
+}
+.accounts__head code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  background: var(--primary-soft); border-radius: 4px; padding: 1px 5px;
+}
+.accounts__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.accounts__row {
+  width: 100%; display: grid; gap: 2px; text-align: left; cursor: pointer;
+  font: inherit; color: inherit;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 11px;
+}
+.accounts__row:hover { background: var(--primary-soft); border-color: var(--primary); }
+.accounts__row:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+.accounts__role { font-size: 12.5px; font-weight: 650; }
+.accounts__email {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11.5px; color: var(--text-soft); overflow-wrap: anywhere;
+}
+.accounts__scope { font-size: 11px; color: var(--text-faint); }
 .login__aside {
   background: var(--surface); border-left: 1px solid var(--border);
   display: grid; align-content: center; padding: 48px clamp(24px, 4vw, 52px);
