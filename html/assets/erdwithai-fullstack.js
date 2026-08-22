@@ -13879,6 +13879,7 @@ class TemplateLoader {
     import_handlebars.default.registerHelper("upperCase", (str) => str?.toUpperCase() || "");
     import_handlebars.default.registerHelper("lowerCase", (str) => str?.toLowerCase() || "");
     import_handlebars.default.registerHelper("capitalize", (str) => str ? str.charAt(0).toUpperCase() + str.slice(1) : "");
+    import_handlebars.default.registerHelper("tsString", (value) => JSON.stringify(value == null ? "" : String(value).replace(/\r?\n/g, " ")));
     import_handlebars.default.registerHelper("eq", (a, b) => a === b);
     import_handlebars.default.registerHelper("ne", (a, b) => a !== b);
     import_handlebars.default.registerHelper("lt", (a, b) => a < b);

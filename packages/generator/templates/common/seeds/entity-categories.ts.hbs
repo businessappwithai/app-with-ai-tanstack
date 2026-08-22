@@ -33,7 +33,7 @@ const CATEGORIES: CategorySeed[] = [
   {
     name: '{{name}}',
     code: '{{code}}',
-    description: {{#if description}}'{{description}}'{{else}}null{{/if}},
+    description: {{#if description}}{{tsString description}}{{else}}null{{/if}},
     icon: {{#if icon}}'{{icon}}'{{else}}null{{/if}},
     color: {{#if color}}'{{color}}'{{else}}null{{/if}},
     seqNo: {{seqNo}},
