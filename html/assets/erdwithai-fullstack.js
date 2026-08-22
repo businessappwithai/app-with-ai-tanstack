@@ -16842,6 +16842,8 @@ npm-debug.log*
     const files2 = [
       { template: "docker-compose.yml.hbs", output: "docker-compose.yml" },
       { template: "Dockerfile.hbs", output: "Dockerfile" },
+      { template: ".dockerignore.hbs", output: ".dockerignore" },
+      { template: ".env.example.root.hbs", output: ".env.example" },
       { template: "docker-start.sh.hbs", output: "docker-start.sh", executable: true }
     ];
     const certsDir = join(outputDir, "docker", "ca-certificates");

@@ -431,6 +431,49 @@ and `docker-compose.yml` named its images `{{project.name}}`, so a project calle
 "Acme CRM" produced `image: Acme CRM:latest`, which compose rejects before
 building anything. Image names use `project.id`.
 
+**`docker compose up --build` on a generated app.** Three defects had to be
+fixed before it worked, and all three had been latent since the templates were
+written:
+
+- **The lockfile that is never written.** The per-service Dockerfiles did
+  `COPY bun.lock package.json ./`, and a COPY of a missing file fails the build.
+  They now use the `bun.loc[k]` glob and the conditional install the root
+  Dockerfile already had.
+- **The image name.** `docker-compose.yml` named its images `{{project.name}}`,
+  so "Acme CRM" produced `image: Acme CRM:latest` — not a valid Docker
+  reference, rejected before anything builds. Image names use `project.id`.
+- **The build context.** Both service Dockerfiles install the *workspace* — they
+  copy `backend/package.json` **and** `frontend/package.json` so resolution
+  matches what the app was generated against — but compose handed them
+  `context: ./backend`, putting those paths out of reach. The build reached
+  `COPY backend/run-app.sh` and failed with "not found", which reads like a
+  missing file rather than the wrong root. Both services now build from
+  `context: .` with `dockerfile: ./backend/Dockerfile`, and a generated
+  `.dockerignore` keeps `node_modules` and `.git` out of the context that
+  change implies.
+
+**Configuration comes from a root `.env`.** The generator writes a
+`.env.example` beside `docker-compose.yml`; compose reads `.env` from there
+automatically, and every value has a working default in the compose file, so an
+absent `.env` still brings the application up. The file exists for the two
+things no default can supply: the real secrets, and where the AI endpoint lives.
+
+**The generated app's AI surface is one endpoint, and it is embeddings.** The
+model-context assistant answers questions about the application's own model by
+embedding it into pgvector, so what it needs is OpenAI-compatible
+`POST /v1/embeddings` — `AI_BASE_URL`, `AI_API_KEY`, `AI_EMBEDDING_MODEL`,
+`AI_EMBEDDING_DIMENSIONS`. A local model (Ollama, LM Studio, llama.cpp, vLLM) or
+OpenAI both speak it. **The Claude API does not**: it has no embeddings
+endpoint, and it is `POST /v1/messages` with `x-api-key` rather than
+`POST /v1/embeddings` with a bearer token, so an Anthropic key cannot serve the
+assistant on its own. `ANTHROPIC_API_KEY` is passed through and not yet read —
+`.env.example` says exactly that rather than implying it works.
+
+> **Mastra is in the modelling tool, not in generated applications.**
+> `packages/ai` registers the Mastra instance and its agents; a generated app
+> has no `mastra` dependency and no agent module. Wiring a chat surface into the
+> generated backend is unbuilt work, not a configuration switch.
+
 **`erdwithai-wasm` is not a second stack.** It runs the same pipeline
 `erdwithai` runs — the same NestJS backend, the same TanStack Start front end,
 the same migrations, guards, rules engine and dictionary — and then applies an

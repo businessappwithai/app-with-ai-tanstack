@@ -20,6 +20,10 @@
 # published as well, but only for curl and health checks; nothing in the browser
 # uses it.
 #
+# Configuration comes from a `.env` beside this file — `cp .env.example .env`.
+# Every value has a working default here, so an absent `.env` still brings the
+# application up; the file is where the AI endpoint and the real secrets go.
+#
 # Reaching the application by any name other than localhost means naming it, so
 # that the sign-in request's Origin is one the API recognises:
 #
@@ -104,6 +108,26 @@ services:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-change-me-in-production}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:{{project.frontendPort}}}
       ELECTRIC_URL: http://electric:3000
+      # The AI assistant — retrieval over this application's own model.
+      #
+      # One endpoint serves it: OpenAI-compatible `POST /v1/embeddings`. Point
+      # AI_BASE_URL at a local model, at OpenAI, or at any gateway that speaks
+      # it; `.env.example` spells out all three. Unset, the defaults below
+      # assume a local server on the host, the assistant fails to reach it, logs
+      # one warning, and every other screen is unaffected.
+      AI_BASE_URL: ${AI_BASE_URL:-http://host.docker.internal:8000/v1}
+      AI_API_KEY: ${AI_API_KEY:-local}
+      AI_EMBEDDING_MODEL: ${AI_EMBEDDING_MODEL:-bge-small-en-v1.5}
+      # The pgvector column width, fixed when the index is created. Changing it
+      # after the first start means re-creating the index and re-ingesting.
+      AI_EMBEDDING_DIMENSIONS: ${AI_EMBEDDING_DIMENSIONS:-384}
+      ENABLE_MODEL_CONTEXT: ${ENABLE_MODEL_CONTEXT:-true}
+      # Read from the environment but not called yet: the Claude API has no
+      # embeddings endpoint, so it cannot serve the assistant on its own. Set
+      # alongside an embeddings provider, it is here for the chat surface.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_healthy
@@ -113,8 +137,14 @@ services:
   backend:
     image: {{project.id}}-backend:${IMAGE_TAG:-latest}
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      # The whole project, not ./backend. Both service Dockerfiles install the
+      # workspace — they COPY `backend/package.json` *and* `frontend/package.json`
+      # so the lockfile resolution matches what the app was generated against —
+      # and a context of ./backend puts those paths out of reach. The build got
+      # as far as `COPY backend/package.json` and failed with "not found",
+      # which reads like a missing file rather than the wrong root.
+      context: .
+      dockerfile: ./backend/Dockerfile
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT:-{{project.backendPort}}}:{{project.backendPort}}"
@@ -127,6 +157,29 @@ services:
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:{{project.frontendPort}}}
       PORT: {{project.backendPort}}
       ELECTRIC_URL: http://electric:3000
+      # The AI assistant — retrieval over this application's own model.
+      #
+      # One endpoint serves it: OpenAI-compatible `POST /v1/embeddings`. Point
+      # AI_BASE_URL at a local model, at OpenAI, or at any gateway that speaks
+      # it; `.env.example` spells out all three. Unset, the defaults below
+      # assume a local server on the host, the assistant fails to reach it, logs
+      # one warning, and every other screen is unaffected.
+      AI_BASE_URL: ${AI_BASE_URL:-http://host.docker.internal:8000/v1}
+      AI_API_KEY: ${AI_API_KEY:-local}
+      AI_EMBEDDING_MODEL: ${AI_EMBEDDING_MODEL:-bge-small-en-v1.5}
+      # The pgvector column width, fixed when the index is created. Changing it
+      # after the first start means re-creating the index and re-ingesting.
+      AI_EMBEDDING_DIMENSIONS: ${AI_EMBEDDING_DIMENSIONS:-384}
+      ENABLE_MODEL_CONTEXT: ${ENABLE_MODEL_CONTEXT:-true}
+      # Read from the environment but not called yet: the Claude API has no
+      # embeddings endpoint, so it cannot serve the assistant on its own. Set
+      # alongside an embeddings provider, it is here for the chat surface.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    extra_hosts:
+      # So `host.docker.internal` resolves on Linux too, where it is not
+      # provided automatically — that is the address a container uses to reach
+      # a model server running on the machine hosting it.
+      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_healthy
@@ -141,8 +194,9 @@ services:
   frontend:
     image: {{project.id}}-frontend:${IMAGE_TAG:-latest}
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      # The whole project — see the note on the backend service.
+      context: .
+      dockerfile: ./frontend/Dockerfile
       args:
         # Empty: the client calls /api on whatever origin it was served from.
         # See the note at the top of this file.
