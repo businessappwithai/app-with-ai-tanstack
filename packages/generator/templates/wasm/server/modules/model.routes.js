@@ -10,7 +10,7 @@
 
 import { Router } from "../lib/router.js";
 import { json, text } from "../lib/http.js";
-import { requireUser } from "../lib/guards.js";
+import { readableTables, requireUser } from "../lib/guards.js";
 
 export function modelRoutes(model, readAsset) {
   const router = new Router();
@@ -22,10 +22,36 @@ export function modelRoutes(model, readAsset) {
     requireUser(user);
   });
 
-  router.get("/", async () =>
-    json({
+  /*
+   * Scoped to the caller, because this is where the navigation comes from.
+   *
+   * The interface builds its entity list from this response rather than from
+   * `/sys/tables` — one round trip instead of one per screen — which means
+   * filtering the dictionary alone left every entity in the menu and only
+   * refused it on opening. A role's application is the set of entities it may
+   * read, and this is the endpoint that has to say so.
+   *
+   * The categories are narrowed with them: a group whose every entity belongs
+   * to another role is not an empty group, it is somebody else's.
+   */
+  router.get("/", async (_request, { user }) => {
+    const visible = readableTables(user, model);
+    const entities = visible
+      ? model.entities.filter((entity) => visible.has(entity.tableName))
+      : model.entities;
+    const names = new Set(entities.map((entity) => entity.name));
+    const categories = visible
+      ? (model.categories || [])
+          .map((category) => ({
+            ...category,
+            entities: (category.entities || []).filter((name) => names.has(name)),
+          }))
+          .filter((category) => category.entities.length > 0)
+      : model.categories;
+
+    return json({
       project: model.project,
-      entities: model.entities.map((entity) => ({
+      entities: entities.map((entity) => ({
         name: entity.name,
         tableName: entity.tableName,
         route: entity.routeName,
@@ -40,7 +66,7 @@ export function modelRoutes(model, readAsset) {
         })),
       })),
       relationships: model.relationships,
-      categories: model.categories,
+      categories,
       rules: (model.rules || []).map((rule) => ({
         name: rule.name,
         entity: rule.entity,
@@ -58,8 +84,8 @@ export function modelRoutes(model, readAsset) {
       sagas: model.sagas,
       hooks: model.hooks,
       rbac: model.rbac,
-    })
-  );
+    });
+  });
 
   router.get("/source", async () => {
     const source = await readAsset("model/model.eml.mmd").catch(() => "");

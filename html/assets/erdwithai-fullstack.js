@@ -7018,6 +7018,7 @@ var erdwithai_language_default = {
         status: "compiled",
         consumedBy: [
           "packages/generator/src/rbac/index.ts (compiles both forms)",
+          "packages/generator/src/rbac/roles.ts (derives the roles, one seeded account each, and per-entity visibility)",
           "seeded into sys_operation_access / sys_transition_access",
           "enforced by the generated EntityAccessGuard on /bus CRUD"
         ],
@@ -7026,12 +7027,15 @@ var erdwithai_language_default = {
           "%%rbac role:admin on Order.delete",
           "%%rbac role:sales|manager on Deal.update",
           "%%rbac role:admin on Customer.*",
-          "%%rbac role:sales_manager on Quote.approve"
+          "%%rbac role:sales_manager on Quote.approve",
+          "%%rbac role:sales_rep|sales_manager|support_agent on Account.read"
         ],
         notes: {
           operations: "create | read | update | delete, plus * for all four. Aliases are accepted (insert/add, view/select/list, edit/write/modify, remove/destroy).",
           transitions: "A name that is not a CRUD operation is resolved against the entity's stateDiagram-v2 transitions. There is no named-transition endpoint in a generated application - moving a record along an edge is a status update - so the rule is stored as the (from_state, to_state) pair it covers and the guard recognises the move by the states the write crosses. Both ends are kept because one event can sit on several edges and two events can reach the same state.",
-          notSysAccess: "These rules deliberately do not write sys_access. That is a grant table feeding sys_refresh_dictionary_scope(), where the first row added narrows a window to one role; a restriction on deleting must not become a restriction on looking."
+          notSysAccess: "A restriction on any operation other than read deliberately does not write sys_access. That is a grant table feeding sys_refresh_dictionary_scope(), where the first row added narrows a window to one role; a restriction on deleting must not become a restriction on looking. read is the one exception, and it is the exception on purpose - see functionalRoles.",
+          functionalRoles: "read is the operation that decides which functional role an entity belongs to, and the only one that changes what a role sees. An entity a role may not read is absent from that role's navigation entirely - no menu entry, no dashboard card, no lookup - because a menu full of entries that answer 403 is a worse application than a shorter one. A model is expected to name every entity on at least one `%%rbac ... .read` directive, so that every entity belongs to somebody. Declaring none leaves every entity visible to every signed-in caller, which is what every model did before this rule existed.",
+          seededAccounts: "Every role a directive names is created, and one account is seeded holding it, beside the administrator who bypasses everything and a role-less User. An application whose only account is the administrator cannot demonstrate its own access control, because the administrator is exempt from all of it. Both stacks derive the same list from rbac/roles.ts, and both sign-in screens print it with the number of entities each role can see."
         }
       },
       {
@@ -12889,6 +12893,101 @@ function hasRbacRules(compiled) {
   return compiled.operations.length > 0 || compiled.transitions.length > 0;
 }
 
+// packages/generator/src/rbac/roles.ts
+function titleCaseRole(name) {
+  return name.split(/[\s_-]+/).filter(Boolean).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+}
+function localPart(name) {
+  return name.toLowerCase().split(/[\s_-]+/).filter(Boolean).join(".");
+}
+var ADMIN_ROLE = "Administrator";
+var BUILT_IN = [
+  {
+    name: ADMIN_ROLE,
+    declaredAs: "administrator",
+    description: "Full access to every entity, and bypasses every restriction",
+    isAdmin: true,
+    userLevel: "S"
+  },
+  {
+    name: "User",
+    declaredAs: "user",
+    description: "Signed in, holding no functional role",
+    isAdmin: false,
+    userLevel: "U"
+  }
+];
+function deriveAccess(compiled, options) {
+  const declared = new Map;
+  const remember = (role) => {
+    const key = role.toLowerCase();
+    if (!declared.has(key))
+      declared.set(key, role);
+  };
+  for (const rule2 of compiled.operations)
+    for (const role of rule2.roles)
+      remember(role);
+  for (const rule2 of compiled.transitions)
+    for (const role of rule2.roles)
+      remember(role);
+  const roles = BUILT_IN.map((role) => ({ ...role }));
+  const taken = new Set(roles.map((role) => role.name.toLowerCase()));
+  for (const key of [...declared.keys()].sort()) {
+    const spelling = declared.get(key);
+    const name = titleCaseRole(spelling);
+    if (taken.has(name.toLowerCase()))
+      continue;
+    taken.add(name.toLowerCase());
+    roles.push({
+      name,
+      declaredAs: spelling,
+      description: `Declared by %%rbac as ${spelling}`,
+      isAdmin: false,
+      userLevel: "U"
+    });
+  }
+  const adminEmail = options.adminEmail?.trim() || "admin@admin.com";
+  const domain = `${options.projectId || "app"}.example.com`;
+  const users = roles.map((role) => role.isAdmin ? {
+    email: adminEmail,
+    name: options.adminName?.trim() || "Administrator",
+    roleName: role.name,
+    description: "Bypasses every restriction — the account to compare the others against",
+    isAdmin: true
+  } : {
+    email: `${localPart(role.declaredAs)}@${domain}`,
+    name: role.name,
+    roleName: role.name,
+    description: `Holds ${role.name} and nothing else`,
+    isAdmin: false
+  });
+  const entityVisibility = {};
+  for (const rule2 of compiled.operations) {
+    if (rule2.operation !== "read")
+      continue;
+    const existing = entityVisibility[rule2.entity] ?? [];
+    entityVisibility[rule2.entity] = [...new Set([...existing, ...rule2.roles])].sort();
+  }
+  const allEntities = options.entities && options.entities.length > 0 ? options.entities : Object.keys(entityVisibility);
+  const normalize2 = (value) => value.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  const entityCounts = {};
+  for (const role of roles) {
+    entityCounts[role.name] = role.isAdmin ? allEntities.length : allEntities.filter((entity2) => {
+      const allowed = entityVisibility[entity2];
+      if (!allowed || allowed.length === 0)
+        return true;
+      return allowed.some((name) => normalize2(name) === normalize2(role.declaredAs));
+    }).length;
+  }
+  return {
+    roles,
+    users,
+    entityVisibility,
+    entityCounts,
+    scoped: Object.keys(entityVisibility).length > 0
+  };
+}
+
 // packages/generator/src/utils/cli-executor.ts
 init_node_child_process();
 init_memory_fs();
@@ -14548,6 +14647,10 @@ class NestJsBackendGenerator extends BaseGenerator {
       }));
     });
     const rbac2 = this.options.compiledRbac ?? { operations: [], transitions: [] };
+    const access2 = deriveAccess(rbac2, {
+      projectId: this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      entities: busEntities.map((entity2) => entity2.name)
+    });
     const dbUser = this.options.databaseType === "postgresql" ? process.env.USER || process.env.USERNAME || "postgres" : "postgres";
     return {
       project: {
@@ -14588,6 +14691,7 @@ class NestJsBackendGenerator extends BaseGenerator {
       })),
       rbacRoles: rbacRoleNames(rbac2),
       hasRbac: hasRbacRules(rbac2),
+      access: access2,
       now: new Date().toISOString()
     };
   }
@@ -15792,7 +15896,12 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
       description: `Manage ${entity2.displayName || entity2.name}`,
       icon: this.getIconForEntity(entity2.tableName)
     }));
+    const access2 = deriveAccess(this.options.compiledRbac ?? { operations: [], transitions: [] }, {
+      projectId: this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      entities: busEntities.map((entity2) => entity2.name)
+    });
     return {
+      access: access2,
       project: {
         name: this.options.projectName,
         version: this.options.projectVersion,
@@ -16629,6 +16738,7 @@ class FullStackGenerator {
         enableDarkMode: false,
         stackOption: this.options.stackOption,
         skipCliScaffold: this.options.skipCliScaffold,
+        compiledRbac: this.options.compiledRbac,
         ...aiConfig,
         ...this.options.tanstackStartNestjs?.frontend
       };

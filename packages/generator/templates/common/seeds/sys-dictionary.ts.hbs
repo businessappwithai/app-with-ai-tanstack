@@ -360,6 +360,28 @@ export async function seed(db: Kysely<any>): Promise<void> {
     ? businessRoles.map((r: { sys_role_id: string }) => r.sys_role_id)
     : [userRoleId];
 
+  /**
+   * Role ids for the names a `%%rbac … .read` directive used.
+   *
+   * The model writes `support_agent` and the dictionary seeds `Support Agent`,
+   * so the match normalises separators and case — the same rule the runtime
+   * guard applies, and for the same reason: a name that resolves in the guard
+   * and not here would hide a window from the very role allowed to read it.
+   */
+  const normalizeRole = (value: string) =>
+    String(value ?? '').trim().toLowerCase().replace(/[\s-]+/g, '_');
+  const allRoles = await db
+    .selectFrom('sys_role')
+    .select(['sys_role_id', 'name'])
+    .where('is_active', '=', true)
+    .execute();
+  const roleIdsNamed = (names: string[]): string[] => {
+    const wanted = new Set(names.map(normalizeRole));
+    return allRoles
+      .filter((r: { name: string }) => wanted.has(normalizeRole(r.name)))
+      .map((r: { sys_role_id: string }) => r.sys_role_id);
+  };
+
   // ============================================================================
   // Create Default Admin User (lookup-or-create so re-runs are safe)
   // ============================================================================
@@ -618,8 +640,19 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to every non-admin role
-  for (const roleId of businessRoleIds) {
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  {{#if (lookup ../access.entityVisibility name)}}
+  const {{camelCase name}}RoleIds = roleIdsNamed([{{#each (lookup ../access.entityVisibility name)}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}]);
+  {{else}}
+  const {{camelCase name}}RoleIds = businessRoleIds;
+  {{/if}}
+  for (const roleId of {{camelCase name}}RoleIds) {
     await db.insertInto('sys_access').values({
       sys_access_id: uuidv4(),
       sys_role_id: roleId,

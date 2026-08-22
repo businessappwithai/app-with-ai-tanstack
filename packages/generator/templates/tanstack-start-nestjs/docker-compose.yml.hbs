@@ -27,6 +27,9 @@
 #
 # Left unset on a non-localhost host, sign-in answers "Invalid origin".
 
+# The image names use `project.id`, not `project.name`. A Docker reference may
+# not contain a space or a capital, and a project called "Acme CRM" produced
+# `image: Acme CRM:latest` — which compose rejects before it builds anything.
 services:
   postgres:
     # pgvector rather than stock Postgres: the model-context assistant stores
@@ -80,7 +83,7 @@ services:
   # The single-image build. Not started by default — name it, or use the profile.
   app:
     profiles: ["single"]
-    image: {{project.name}}:${IMAGE_TAG:-latest}
+    image: {{project.id}}:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: Dockerfile
@@ -108,7 +111,7 @@ services:
         condition: service_started
 
   backend:
-    image: {{project.name}}-backend:${IMAGE_TAG:-latest}
+    image: {{project.id}}-backend:${IMAGE_TAG:-latest}
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -136,7 +139,7 @@ services:
       retries: 3
 
   frontend:
-    image: {{project.name}}-frontend:${IMAGE_TAG:-latest}
+    image: {{project.id}}-frontend:${IMAGE_TAG:-latest}
     build:
       context: ./frontend
       dockerfile: Dockerfile

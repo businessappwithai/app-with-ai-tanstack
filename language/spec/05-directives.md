@@ -347,6 +347,53 @@ incidentally restrict a different event that happens to land on `approved`.
 An event written with spaces or dashes in the diagram (`close won`) is named in
 one token in the directive (`close_won`).
 
+### `read` decides which functional role an entity belongs to
+
+Every other operation only refuses a write. `read` is the one that changes what a
+role *sees*: an entity a role may not read is absent from that role's navigation
+entirely — no menu entry, no dashboard card, no lookup — because a menu full of
+entries that answer `403` is a worse application than a shorter one.
+
+That makes one `read` directive per entity the way a model says who an entity
+belongs to:
+
+```
+%%rbac role:sales_rep|sales_manager|support_agent on Account.read
+%%rbac role:sales_rep|sales_manager on Opportunity.read
+%%rbac role:support_agent|support_manager on SupportCase.read
+%%rbac role:marketing_manager on Campaign.read
+```
+
+A model is expected to name **every** entity on at least one such directive, so
+every entity belongs to somebody. Declaring none leaves every entity visible to
+every signed-in caller, which is what every model did before this rule existed —
+the fallback, not the target.
+
+Three things follow, and each has caught a model out:
+
+- **A role that may act on an entity must also be able to read it.** A rule
+  letting `sales_manager` run `Opportunity.close_won` is useless if the
+  `Opportunity.read` line does not name `sales_manager`.
+- **Overlap is normal and is one line.** `Account` belongs to sales, marketing
+  and support in most businesses; name all three. Two directives on one target
+  merge, so either spelling works.
+- **Do not reach for `.*` to express ownership.** It restricts creating,
+  updating and deleting to the same list, and it *merges with* rather than
+  overrides the narrower `update` rules elsewhere in the document — widening
+  them.
+
+### One account per role, seeded
+
+Every role a directive names is created, and one account is seeded holding it,
+beside the administrator who bypasses everything and a role-less `User`.
+
+This is not a convenience. The administrator is exempt from every rule the model
+wrote, so an application whose only account is the administrator is one whose
+access control cannot be looked at. Both stacks derive the list from
+`packages/generator/src/rbac/roles.ts`, and both sign-in screens print it with
+the number of entities each role can see — `Support Agent · 5 of 17` is the
+invitation to check.
+
 ### What it compiles to
 
 | | |
@@ -354,19 +401,24 @@ one token in the directive (`close_won`).
 | CRUD rules | `sys_operation_access` (table, operation, role) |
 | Transition rules | `sys_transition_access` (table, transition, status field, from, to, role) |
 | Enforcement | `EntityAccessGuard`, applied to the generated `/bus` CRUD routes |
-| Roles | any role a directive names is created in `sys_role` if absent |
+| Roles | every role a directive names is created in `sys_role`, with one account holding it |
+| `read` rules | additionally narrow the dictionary window scope and the entity navigation |
 
 Rules carry `entity_type = 'D'` (declared by the model) and are replaced on every
 regeneration. Rules an administrator adds in the running application are marked
 `'U'` and survive — the same ownership split the workflow definitions use.
 
-> **These rules deliberately do not write `sys_access`.** That is a *grant* table
-> feeding `sys_refresh_dictionary_scope()`, which recomputes `allowed_roles` on
-> every dictionary table: a table with no rows there is visible to all roles, and
-> the first row added narrows it to that role alone. Seeding one from
+> **A rule about anything other than `read` deliberately does not write
+> `sys_access`.** That is a *grant* table feeding
+> `sys_refresh_dictionary_scope()`, which recomputes `allowed_roles` on every
+> dictionary table: a table with no rows there is visible to all roles, and the
+> first row added narrows it to that role alone. Seeding one from
 > `%%rbac role:admin on Order.delete` would hide the Order window from everyone
 > but admin — a restriction on deleting quietly becoming a restriction on
-> looking. The two concerns keep two tables.
+> looking.
+>
+> `read` is the one operation where the two coincide, and it is the exception on
+> purpose: a role that may not read an entity has no use for a window onto it.
 
 > Spelled `%%guard` before that keyword was needed unambiguously for automation
 > conditions. That sense had no shipped parser and no stored data, so it is the

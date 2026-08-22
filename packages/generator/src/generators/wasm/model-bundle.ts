@@ -25,6 +25,7 @@
 import type { Entity, EntityAttribute, Relationship } from "@erdwithai/core/types";
 import { ReferenceType } from "@erdwithai/core/types";
 import type { ParsedModel } from "../../pipeline/generate-application";
+import { deriveAccess } from "../../rbac/roles";
 import { DictionaryGenerator } from "../dictionary.generator";
 
 export interface WasmProjectSettings {
@@ -286,32 +287,6 @@ function buildSchema(entities: Entity[], relationships: Relationship[]): string 
   return `${lines.join("\n")}\n`;
 }
 
-/** The roles an application starts with, plus every role its model names. */
-function rolesFor(parsed: ParsedModel) {
-  const declared = new Set<string>();
-  for (const rule of parsed.rbac.operations) for (const role of rule.roles) declared.add(role);
-  for (const rule of parsed.rbac.transitions) for (const role of rule.roles) declared.add(role);
-
-  const roles = [
-    { name: "Administrator", description: "Full access", isAdmin: true, userLevel: "S" },
-    { name: "User", description: "Standard access", isAdmin: false, userLevel: "U" },
-  ];
-
-  for (const name of [...declared].sort()) {
-    // A model naming `role:qa_manager` has to produce a role someone can be
-    // given, or the restriction it wrote can never be satisfied by anybody.
-    if (roles.some((role) => role.name.toLowerCase() === title(name).toLowerCase())) continue;
-    roles.push({
-      name: title(name),
-      description: `Declared by %%rbac as ${name}`,
-      isAdmin: false,
-      userLevel: "U",
-    });
-  }
-
-  return roles;
-}
-
 /** A short, stable, dependency-free digest. FNV-1a — not a security hash. */
 function fingerprint(value: string): string {
   let hash = 0x811c9dc5;
@@ -333,6 +308,17 @@ export function buildModelBundle(
     includeRbac: true,
     randomizeFieldOrder: false,
   }).generateDictionaryContext(parsed.entities, parsed.relationships);
+
+  /* Roles, the accounts that hold them and what each may look at, derived by
+     the same function the NestJS build renders into its seed. An application
+     whose only account is the administrator cannot show what `%%rbac` did,
+     because the administrator bypasses all of it. */
+  const access = deriveAccess(parsed.rbac, {
+    projectId: kebab(project.name),
+    adminEmail: project.adminEmail,
+    adminName: project.adminName,
+    entities: parsed.entities.map((entity) => entity.name),
+  });
 
   const categoryOf = new Map<string, string>();
   for (const category of parsed.categories) {
@@ -430,7 +416,19 @@ export function buildModelBundle(
     workflows: parsed.workflows,
     sagas: parsed.sagas,
     rbac: parsed.rbac,
-    roles: rolesFor(parsed),
+    roles: access.roles,
+    /* One account per role, seeded with the administrator's password. The
+       whole point is that a reader can sign in as a role and see the
+       application that role has. */
+    users: access.users,
+    /* Entity -> the roles whose `read` rule admits it. Empty unless the model
+       restricted reading, which is the only operation allowed to narrow what
+       the navigation shows. */
+    entityVisibility: access.entityVisibility,
+    /* Role -> how many entities it may read. The sign-in screen prints it
+       beside each account, which is what turns a list of addresses into an
+       invitation to compare two roles. */
+    entityCounts: access.entityCounts,
     dictionary: {
       references: Object.entries(ReferenceType).map(([name, id]) => ({
         id,

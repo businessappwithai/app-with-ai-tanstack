@@ -1223,6 +1223,7 @@ var erdwithai_language_default = {
         status: "compiled",
         consumedBy: [
           "packages/generator/src/rbac/index.ts (compiles both forms)",
+          "packages/generator/src/rbac/roles.ts (derives the roles, one seeded account each, and per-entity visibility)",
           "seeded into sys_operation_access / sys_transition_access",
           "enforced by the generated EntityAccessGuard on /bus CRUD"
         ],
@@ -1231,12 +1232,15 @@ var erdwithai_language_default = {
           "%%rbac role:admin on Order.delete",
           "%%rbac role:sales|manager on Deal.update",
           "%%rbac role:admin on Customer.*",
-          "%%rbac role:sales_manager on Quote.approve"
+          "%%rbac role:sales_manager on Quote.approve",
+          "%%rbac role:sales_rep|sales_manager|support_agent on Account.read"
         ],
         notes: {
           operations: "create | read | update | delete, plus * for all four. Aliases are accepted (insert/add, view/select/list, edit/write/modify, remove/destroy).",
           transitions: "A name that is not a CRUD operation is resolved against the entity's stateDiagram-v2 transitions. There is no named-transition endpoint in a generated application - moving a record along an edge is a status update - so the rule is stored as the (from_state, to_state) pair it covers and the guard recognises the move by the states the write crosses. Both ends are kept because one event can sit on several edges and two events can reach the same state.",
-          notSysAccess: "These rules deliberately do not write sys_access. That is a grant table feeding sys_refresh_dictionary_scope(), where the first row added narrows a window to one role; a restriction on deleting must not become a restriction on looking."
+          notSysAccess: "A restriction on any operation other than read deliberately does not write sys_access. That is a grant table feeding sys_refresh_dictionary_scope(), where the first row added narrows a window to one role; a restriction on deleting must not become a restriction on looking. read is the one exception, and it is the exception on purpose - see functionalRoles.",
+          functionalRoles: "read is the operation that decides which functional role an entity belongs to, and the only one that changes what a role sees. An entity a role may not read is absent from that role's navigation entirely - no menu entry, no dashboard card, no lookup - because a menu full of entries that answer 403 is a worse application than a shorter one. A model is expected to name every entity on at least one `%%rbac ... .read` directive, so that every entity belongs to somebody. Declaring none leaves every entity visible to every signed-in caller, which is what every model did before this rule existed.",
+          seededAccounts: "Every role a directive names is created, and one account is seeded holding it, beside the administrator who bypasses everything and a role-less User. An application whose only account is the administrator cannot demonstrate its own access control, because the administrator is exempt from all of it. Both stacks derive the same list from rbac/roles.ts, and both sign-in screens print it with the number of entities each role can see."
         }
       },
       {
@@ -7121,6 +7125,42 @@ export function holdsRole(user, roleNames) {
   return roleNames.some((role) => held.has(normalize(role)));
 }
 
+/**
+ * The business tables this user may look at, or \`null\` for "all of them".
+ *
+ * \`null\` rather than a set of everything, and the distinction is the whole
+ * point: a model that declares no \`read\` restriction anywhere must behave
+ * exactly as it did before roles existed, and a caller that has to tell "no
+ * restrictions" from "restricted to nothing" cannot do that with a set.
+ *
+ * Only \`read\` narrows this. A model restricting *deletion* of Order to
+ * administrators is saying something about deleting; hiding the Order window
+ * from everyone would be answering a question it did not ask. Reading is the
+ * one operation where the two coincide — a role that may not read an entity has
+ * no use for a menu item that refuses it.
+ */
+export function readableTables(user, model) {
+  const visibility = model?.entityVisibility;
+  if (!visibility || Object.keys(visibility).length === 0) return null;
+  if (user?.isAdmin) return null;
+
+  const tableOf = new Map((model.entities || []).map((entity) => [entity.name, entity.tableName]));
+  const allowed = new Set();
+
+  for (const entity of model.entities || []) {
+    const roles = visibility[entity.name];
+    /* An entity nobody restricted stays open — the same rule one level up. */
+    if (!roles || roles.length === 0) allowed.add(entity.tableName);
+    else if (holdsRole(user, roles)) allowed.add(entity.tableName);
+  }
+
+  /* Dictionary tables are not business entities and are governed by the write
+     guard, not by this. Leaving them out would empty every screen. */
+  for (const [, tableName] of tableOf) if (!String(tableName).startsWith("bus_")) allowed.add(tableName);
+
+  return allowed;
+}
+
 export function requireUser(user) {
   if (!user) throw unauthorized("Sign in to continue");
   return user;
@@ -8105,6 +8145,7 @@ export async function migrate(db, model, readAsset, log = () => {}) {
   await seedDictionary(db, model);
   await seedRoles(db, model);
   await seedAdmin(db, model, log);
+  await seedRoleUsers(db, model, log);
   await seedRules(db, model);
   await seedWorkflows(db, model);
   await seedAccess(db, model);
@@ -8360,6 +8401,62 @@ async function seedAdmin(db, model, log) {
     );
   }
   log(\`Administrator ready: \${adminEmail} / \${adminPassword}\`);
+}
+
+/**
+ * One account per functional role.
+ *
+ * An application seeded with an administrator and nobody else can only be
+ * looked at as an administrator — and the administrator bypasses every rule the
+ * model wrote, so the access control it declared is invisible in the only
+ * account that exists. Signing in as \`sales.rep@…\` is what turns \`%%rbac\` from
+ * a claim in a file into something a reader can see: the navigation is shorter,
+ * and the entities that are missing are the ones that role does not own.
+ *
+ * They share the administrator's password on purpose. This is a demonstration
+ * database in the reader's own browser, and a screen full of accounts each with
+ * a different generated secret is a worse trade than one line of log.
+ */
+async function seedRoleUsers(db, model, log) {
+  const users = (model.users || []).filter((user) => !user.isAdmin);
+  if (users.length === 0) return;
+
+  const { adminPassword } = model.project;
+  const hash = await hashPassword(adminPassword);
+  const seeded = [];
+
+  for (const user of users) {
+    const existing = await db.one("SELECT sys_user_id FROM sys_user WHERE email = $1", [
+      user.email,
+    ]);
+    const userId = existing
+      ? existing.sys_user_id
+      : (
+          await db.insert("sys_user", {
+            name: user.name,
+            email: user.email,
+            password_hash: hash,
+            description: user.description ?? null,
+          })
+        ).sys_user_id;
+
+    const roleId = await db.value("SELECT sys_role_id FROM sys_role WHERE name = $1", [
+      user.roleName,
+    ]);
+    /* A user with no role would sign in and see an application with nothing in
+       it, which reads as a broken build rather than as a missing seed. */
+    if (!roleId) continue;
+    await db.query(
+      \`INSERT INTO sys_user_roles (user_id, role_id) VALUES ($1, $2)
+         ON CONFLICT (user_id, role_id) DO NOTHING\`,
+      [userId, roleId]
+    );
+    seeded.push(user.email);
+  }
+
+  if (seeded.length > 0) {
+    log(\`\${seeded.length} role account(s), password \${adminPassword}: \${seeded.join(", ")}\`);
+  }
 }
 
 /**
@@ -8672,17 +8769,58 @@ export function authRoutes(model) {
     return json({ success: true });
   });
 
-  router.get("/config", async () =>
-    json({
-      // Shown on the sign-in screen. An application nobody can get into is not a
-      // demonstration of anything, and hiding seeded credentials does not make a
-      // database that lives in the reader's own browser any more private.
+  /**
+   * What the sign-in screen offers.
+   *
+   * An application nobody can get into is not a demonstration of anything, and
+   * hiding seeded credentials does not make a database that lives in the
+   * reader's own browser any more private.
+   *
+   * Every seeded account is listed, not only the administrator, and each says
+   * how many entities its role can see. That count is the whole point of
+   * listing them: the administrator bypasses every restriction the model wrote,
+   * so an application you can only sign into as the administrator is one whose
+   * access control you cannot look at. \`support.agent@… — 5 of 17 entities\` is
+   * an invitation to check.
+   */
+  router.get("/config", async () => {
+    const visibility = model.entityVisibility || {};
+    const total = (model.entities || []).length;
+    const countFor = (declaredRole) => {
+      if (!declaredRole) return total;
+      const normalize = (value) =>
+        String(value ?? "").trim().toLowerCase().replace(/[\\s-]+/g, "_");
+      const wanted = normalize(declaredRole);
+      return (model.entities || []).filter((entity) => {
+        const roles = visibility[entity.name];
+        if (!roles || roles.length === 0) return true;
+        return roles.some((role) => normalize(role) === wanted);
+      }).length;
+    };
+
+    const accounts = (model.users || []).map((user) => {
+      const role = (model.roles || []).find((candidate) => candidate.name === user.roleName);
+      return {
+        email: user.email,
+        password: model.project.adminPassword,
+        role: user.roleName,
+        isAdmin: !!user.isAdmin,
+        entities: user.isAdmin ? total : countFor(role?.declaredAs),
+      };
+    });
+
+    return json({
       seededAdmin: {
         email: model.project.adminEmail,
         password: model.project.adminPassword,
       },
-    })
-  );
+      seededAccounts: accounts,
+      totalEntities: total,
+      /* False when the model declared no \`read\` restrictions, in which case the
+         counts are all the same and a table of them says nothing. */
+      scoped: Object.keys(visibility).length > 0,
+    });
+  });
 
   return router;
 }
@@ -9199,7 +9337,7 @@ async function recordWorkflowRun(db, model, entity, before, after, user) {
 
 import { Router } from "../lib/router.js";
 import { json, text } from "../lib/http.js";
-import { requireUser } from "../lib/guards.js";
+import { readableTables, requireUser } from "../lib/guards.js";
 
 export function modelRoutes(model, readAsset) {
   const router = new Router();
@@ -9211,10 +9349,36 @@ export function modelRoutes(model, readAsset) {
     requireUser(user);
   });
 
-  router.get("/", async () =>
-    json({
+  /*
+   * Scoped to the caller, because this is where the navigation comes from.
+   *
+   * The interface builds its entity list from this response rather than from
+   * \`/sys/tables\` — one round trip instead of one per screen — which means
+   * filtering the dictionary alone left every entity in the menu and only
+   * refused it on opening. A role's application is the set of entities it may
+   * read, and this is the endpoint that has to say so.
+   *
+   * The categories are narrowed with them: a group whose every entity belongs
+   * to another role is not an empty group, it is somebody else's.
+   */
+  router.get("/", async (_request, { user }) => {
+    const visible = readableTables(user, model);
+    const entities = visible
+      ? model.entities.filter((entity) => visible.has(entity.tableName))
+      : model.entities;
+    const names = new Set(entities.map((entity) => entity.name));
+    const categories = visible
+      ? (model.categories || [])
+          .map((category) => ({
+            ...category,
+            entities: (category.entities || []).filter((name) => names.has(name)),
+          }))
+          .filter((category) => category.entities.length > 0)
+      : model.categories;
+
+    return json({
       project: model.project,
-      entities: model.entities.map((entity) => ({
+      entities: entities.map((entity) => ({
         name: entity.name,
         tableName: entity.tableName,
         route: entity.routeName,
@@ -9229,7 +9393,7 @@ export function modelRoutes(model, readAsset) {
         })),
       })),
       relationships: model.relationships,
-      categories: model.categories,
+      categories,
       rules: (model.rules || []).map((rule) => ({
         name: rule.name,
         entity: rule.entity,
@@ -9247,8 +9411,8 @@ export function modelRoutes(model, readAsset) {
       sagas: model.sagas,
       hooks: model.hooks,
       rbac: model.rbac,
-    })
-  );
+    });
+  });
 
   router.get("/source", async () => {
     const source = await readAsset("model/model.eml.mmd").catch(() => "");
@@ -9369,7 +9533,7 @@ import { Router } from "../lib/router.js";
 import { ident } from "../lib/db.js";
 import { columnsOf, labelForTable } from "../lib/labels.js";
 import { json, notFound, readJson } from "../lib/http.js";
-import { requireAdmin, requireUser } from "../lib/guards.js";
+import { readableTables, requireAdmin, requireUser } from "../lib/guards.js";
 
 export function sysRoutes(model) {
   const router = new Router();
@@ -9379,7 +9543,12 @@ export function sysRoutes(model) {
     if (request.method !== "GET") requireAdmin(user);
   });
 
-  router.get("/tables", async (_request, { db, query }) => {
+  /* Scoped, not merely guarded. \`EntityAccessGuard\` already refuses a read the
+     caller's roles do not permit, but a navigation full of entries that answer
+     403 is a worse application than a shorter one: the reader cannot tell a
+     permission from a bug. This is the same rule the guard enforces, applied
+     one screen earlier. */
+  router.get("/tables", async (_request, { db, query, user }) => {
     const prefix = query.get("prefix");
     const rows = await db.query(
       \`SELECT t.*, w.name AS window_name, c.name AS category_name
@@ -9390,7 +9559,8 @@ export function sysRoutes(model) {
         ORDER BY t.name\`,
       [prefix ?? null]
     );
-    return json(rows);
+    const visible = readableTables(user, model);
+    return json(visible ? rows.filter((row) => visible.has(row.table_name)) : rows);
   });
 
   router.get("/tables/:id", async (_request, { db, params }) => {
@@ -9471,17 +9641,24 @@ export function sysRoutes(model) {
     json(await db.select("sys_category", { orderBy: "seq_no" }))
   );
 
-  router.get("/categories/with-entities", async (_request, { db }) => {
+  router.get("/categories/with-entities", async (_request, { db, user }) => {
     const categories = await db.select("sys_category", { orderBy: "seq_no" });
-    const tables = await db.query(
+    const all = await db.query(
       \`SELECT t.table_name, t.name, t.sys_category_id FROM sys_table t
         WHERE t.entity_type = 'bus' ORDER BY t.name\`
     );
+    const visible = readableTables(user, model);
+    const tables = visible ? all.filter((table) => visible.has(table.table_name)) : all;
     return json(
-      categories.map((category) => ({
-        ...category,
-        entities: tables.filter((table) => table.sys_category_id === category.sys_category_id),
-      }))
+      categories
+        .map((category) => ({
+          ...category,
+          entities: tables.filter((table) => table.sys_category_id === category.sys_category_id),
+        }))
+        /* A group whose every entity belongs to another role is not an empty
+           group, it is somebody else's. Showing it as a card reading "0
+           entities" tells the reader nothing they can act on. */
+        .filter((category) => !visible || category.entities.length > 0)
     );
   });
 
@@ -9808,6 +9985,33 @@ a { color: var(--primary); }
   background: var(--primary-soft); border-radius: var(--radius-sm); padding: 11px 13px;
 }
 .login__hint-note { display: block; margin-top: 3px; opacity: 0.85; }
+
+/* The seeded accounts, one row each. A table would be tidier and would not be
+   clickable, and the whole reason for listing them is that a reader compares
+   two roles by trying both. */
+.accounts { margin-top: 22px; max-width: 380px; }
+.accounts__head {
+  margin: 0 0 8px; font-size: 12.5px; line-height: 1.55; color: var(--text-soft);
+}
+.accounts__head code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  background: var(--primary-soft); border-radius: 4px; padding: 1px 5px;
+}
+.accounts__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.accounts__row {
+  width: 100%; display: grid; gap: 2px; text-align: left; cursor: pointer;
+  font: inherit; color: inherit;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 11px;
+}
+.accounts__row:hover { background: var(--primary-soft); border-color: var(--primary); }
+.accounts__row:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+.accounts__role { font-size: 12.5px; font-weight: 650; }
+.accounts__email {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11.5px; color: var(--text-soft); overflow-wrap: anywhere;
+}
+.accounts__scope { font-size: 11px; color: var(--text-faint); }
 .login__aside {
   background: var(--surface); border-left: 1px solid var(--border);
   display: grid; align-content: center; padding: 48px clamp(24px, 4vw, 52px);
@@ -12210,23 +12414,33 @@ function debounce(fn, delay) {
   "ui/views/login.js": `/**
  * The sign-in screen.
  *
- * It shows the seeded administrator's credentials. That looks wrong for a
- * second and then does not: the database is a file in the reader's own browser,
- * created by the page they are looking at, so there is no one to keep the
- * password from. Hiding it would only produce an application that cannot be
- * opened by the person it was generated for.
+ * It shows the seeded credentials. That looks wrong for a second and then does
+ * not: the database is a file in the reader's own browser, created by the page
+ * they are looking at, so there is no one to keep the password from. Hiding it
+ * would only produce an application that cannot be opened by the person it was
+ * generated for.
+ *
+ * It lists **every** seeded account rather than only the administrator, and
+ * says how many entities each role can see. The administrator bypasses every
+ * restriction the model wrote, so an application you can only sign into as the
+ * administrator is one whose access control you cannot look at — the row
+ * reading \`support.agent@… · 5 of 17\` is the invitation to try it. Clicking a
+ * row fills the form, because retyping an address to compare two roles is the
+ * kind of friction that stops people comparing them.
  */
 
 import { el, mount, toast } from "../dom.js";
 import { api, setToken } from "../api.js";
 
 export async function loginView(root, { project, onSignedIn }) {
-  let seeded = null;
+  let config = null;
   try {
-    seeded = (await api.get("/auth/config")).seededAdmin;
+    config = await api.get("/auth/config");
   } catch {
     // The sign-in screen still works without the hint.
   }
+  const seeded = config?.seededAdmin ?? null;
+  const accounts = config?.seededAccounts ?? [];
 
   const email = el("input.field__input", {
     type: "text",
@@ -12294,13 +12508,52 @@ export async function loginView(root, { project, onSignedIn }) {
         el("h1.login__title", project.name),
         el("p.login__subtitle", project.description || "Generated from an EML model"),
         form,
-        seeded
+        accounts.length > 1
           ? el(
-              "p.login__hint",
-              \`Seeded administrator: \${seeded.email} / \${seeded.password}. \`,
-              el("span.login__hint-note", "The database lives in this browser only.")
+              "div.accounts",
+              el(
+                "p.accounts__head",
+                \`\${accounts.length} seeded accounts, password \`,
+                el("code", seeded?.password ?? "admin"),
+                config?.scoped
+                  ? ". Each role sees only its own entities — pick one to try it."
+                  : ". Pick one to fill the form."
+              ),
+              el(
+                "ul.accounts__list",
+                ...accounts.map((account) =>
+                  el(
+                    "li",
+                    el(
+                      "button.accounts__row",
+                      {
+                        type: "button",
+                        onclick: () => {
+                          email.value = account.email;
+                          password.value = account.password;
+                          password.focus();
+                        },
+                      },
+                      el("span.accounts__role", account.role),
+                      el("span.accounts__email", account.email),
+                      el(
+                        "span.accounts__scope",
+                        account.isAdmin
+                          ? \`all \${config?.totalEntities ?? account.entities} entities\`
+                          : \`\${account.entities} of \${config?.totalEntities ?? account.entities} entities\`
+                      )
+                    )
+                  )
+                )
+              )
             )
-          : null
+          : seeded
+            ? el(
+                "p.login__hint",
+                \`Seeded administrator: \${seeded.email} / \${seeded.password}. \`,
+                el("span.login__hint-note", "The database lives in this browser only.")
+              )
+            : null
       ),
       el(
         "div.login__aside",
@@ -12328,7 +12581,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 262904;
+var RUNTIME_BYTES = 273891;
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};
@@ -16914,6 +17167,101 @@ var EntitySchema = exports_external.object({
   primaryKey: exports_external.string(),
   timestamps: exports_external.boolean()
 });
+// packages/generator/src/rbac/roles.ts
+function titleCaseRole(name) {
+  return name.split(/[\s_-]+/).filter(Boolean).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+}
+function localPart(name) {
+  return name.toLowerCase().split(/[\s_-]+/).filter(Boolean).join(".");
+}
+var ADMIN_ROLE = "Administrator";
+var BUILT_IN = [
+  {
+    name: ADMIN_ROLE,
+    declaredAs: "administrator",
+    description: "Full access to every entity, and bypasses every restriction",
+    isAdmin: true,
+    userLevel: "S"
+  },
+  {
+    name: "User",
+    declaredAs: "user",
+    description: "Signed in, holding no functional role",
+    isAdmin: false,
+    userLevel: "U"
+  }
+];
+function deriveAccess(compiled, options) {
+  const declared = new Map;
+  const remember = (role) => {
+    const key = role.toLowerCase();
+    if (!declared.has(key))
+      declared.set(key, role);
+  };
+  for (const rule2 of compiled.operations)
+    for (const role of rule2.roles)
+      remember(role);
+  for (const rule2 of compiled.transitions)
+    for (const role of rule2.roles)
+      remember(role);
+  const roles = BUILT_IN.map((role) => ({ ...role }));
+  const taken = new Set(roles.map((role) => role.name.toLowerCase()));
+  for (const key of [...declared.keys()].sort()) {
+    const spelling = declared.get(key);
+    const name = titleCaseRole(spelling);
+    if (taken.has(name.toLowerCase()))
+      continue;
+    taken.add(name.toLowerCase());
+    roles.push({
+      name,
+      declaredAs: spelling,
+      description: `Declared by %%rbac as ${spelling}`,
+      isAdmin: false,
+      userLevel: "U"
+    });
+  }
+  const adminEmail = options.adminEmail?.trim() || "admin@admin.com";
+  const domain = `${options.projectId || "app"}.example.com`;
+  const users = roles.map((role) => role.isAdmin ? {
+    email: adminEmail,
+    name: options.adminName?.trim() || "Administrator",
+    roleName: role.name,
+    description: "Bypasses every restriction — the account to compare the others against",
+    isAdmin: true
+  } : {
+    email: `${localPart(role.declaredAs)}@${domain}`,
+    name: role.name,
+    roleName: role.name,
+    description: `Holds ${role.name} and nothing else`,
+    isAdmin: false
+  });
+  const entityVisibility = {};
+  for (const rule2 of compiled.operations) {
+    if (rule2.operation !== "read")
+      continue;
+    const existing = entityVisibility[rule2.entity] ?? [];
+    entityVisibility[rule2.entity] = [...new Set([...existing, ...rule2.roles])].sort();
+  }
+  const allEntities = options.entities && options.entities.length > 0 ? options.entities : Object.keys(entityVisibility);
+  const normalize = (value) => value.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  const entityCounts = {};
+  for (const role of roles) {
+    entityCounts[role.name] = role.isAdmin ? allEntities.length : allEntities.filter((entity2) => {
+      const allowed = entityVisibility[entity2];
+      if (!allowed || allowed.length === 0)
+        return true;
+      return allowed.some((name) => normalize(name) === normalize(role.declaredAs));
+    }).length;
+  }
+  return {
+    roles,
+    users,
+    entityVisibility,
+    entityCounts,
+    scoped: Object.keys(entityVisibility).length > 0
+  };
+}
+
 // packages/generator/src/generators/dictionary.generator.ts
 class DictionaryGenerator {
   config;
@@ -17254,30 +17602,6 @@ function buildSchema(entities, relationships) {
 `)}
 `;
 }
-function rolesFor(parsed) {
-  const declared = new Set;
-  for (const rule2 of parsed.rbac.operations)
-    for (const role of rule2.roles)
-      declared.add(role);
-  for (const rule2 of parsed.rbac.transitions)
-    for (const role of rule2.roles)
-      declared.add(role);
-  const roles = [
-    { name: "Administrator", description: "Full access", isAdmin: true, userLevel: "S" },
-    { name: "User", description: "Standard access", isAdmin: false, userLevel: "U" }
-  ];
-  for (const name of [...declared].sort()) {
-    if (roles.some((role) => role.name.toLowerCase() === title(name).toLowerCase()))
-      continue;
-    roles.push({
-      name: title(name),
-      description: `Declared by %%rbac as ${name}`,
-      isAdmin: false,
-      userLevel: "U"
-    });
-  }
-  return roles;
-}
 function fingerprint(value) {
   let hash = 2166136261;
   for (let index = 0;index < value.length; index++) {
@@ -17293,6 +17617,12 @@ function buildModelBundle(parsed, project) {
     includeRbac: true,
     randomizeFieldOrder: false
   }).generateDictionaryContext(parsed.entities, parsed.relationships);
+  const access = deriveAccess(parsed.rbac, {
+    projectId: kebab(project.name),
+    adminEmail: project.adminEmail,
+    adminName: project.adminName,
+    entities: parsed.entities.map((entity2) => entity2.name)
+  });
   const categoryOf = new Map;
   for (const category of parsed.categories) {
     for (const entityName of category.entities)
@@ -17363,7 +17693,10 @@ function buildModelBundle(parsed, project) {
     workflows: parsed.workflows,
     sagas: parsed.sagas,
     rbac: parsed.rbac,
-    roles: rolesFor(parsed),
+    roles: access.roles,
+    users: access.users,
+    entityVisibility: access.entityVisibility,
+    entityCounts: access.entityCounts,
     dictionary: {
       references: Object.entries(ReferenceType).map(([name, id]) => ({
         id,

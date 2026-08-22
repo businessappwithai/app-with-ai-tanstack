@@ -21,6 +21,8 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { type Entity, entityToBusEntity, type Relationship } from "@erdwithai/core/types";
 import { kebabCase } from "@erdwithai/core/utils";
+import type { CompiledRbac } from "../../rbac";
+import { deriveAccess } from "../../rbac/roles";
 import { CliExecutor } from "../../utils/cli-executor";
 import { BaseGenerator } from "../base.generator";
 import { DEFAULT_FRONTEND_PORT } from "../ports";
@@ -74,6 +76,13 @@ export interface TanStackStartFrontendOptions {
    * / CI generation where the scaffolding CLI is unavailable.
    */
   skipCliScaffold?: boolean;
+  /**
+   * The model's compiled `%%rbac`, so `app-meta.ts` can list the seeded
+   * accounts and what each role sees. The front end enforces nothing — the
+   * guard does — but a sign-in screen that cannot name the roles leaves the
+   * access control the model declared invisible in the running application.
+   */
+  compiledRbac?: CompiledRbac;
 }
 
 export class TanStackStartFrontendGenerator extends BaseGenerator {
@@ -221,7 +230,15 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         icon: this.getIconForEntity(entity.tableName),
       }));
 
+    /* Same derivation the backend seed uses, so the addresses printed on the
+       sign-in screen are the addresses the seed actually created. */
+    const access = deriveAccess(this.options.compiledRbac ?? { operations: [], transitions: [] }, {
+      projectId: this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      entities: busEntities.map((entity) => entity.name),
+    });
+
     return {
+      access,
       project: {
         name: this.options.projectName,
         version: this.options.projectVersion,

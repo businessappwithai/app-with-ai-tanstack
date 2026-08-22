@@ -28,6 +28,7 @@ import {
 import { type CompiledHook, HOOK_CONTRACTS, hooksByEntity } from "../../hooks";
 import type { EntityCategory } from "../../parsers/category.parser";
 import { type CompiledRbac, hasRbacRules, rbacRoleNames } from "../../rbac";
+import { deriveAccess } from "../../rbac/roles";
 import type { CompiledRule } from "../../rules";
 import { CliExecutor } from "../../utils/cli-executor";
 import {
@@ -353,6 +354,15 @@ export class NestJsBackendGenerator extends BaseGenerator {
     // transition rules can be paired with the status column each machine drives.
     const rbac = this.options.compiledRbac ?? { operations: [], transitions: [] };
 
+    /* Roles, their accounts and per-entity visibility. An application seeded
+       with an administrator and three generic placeholders could not show what
+       the model's `%%rbac` did, because the administrator bypasses all of it and
+       "Manager" holds none of it. */
+    const access = deriveAccess(rbac, {
+      projectId: this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      entities: busEntities.map((entity: { name: string }) => entity.name),
+    });
+
     // Detect current database user (for PostgreSQL)
     const dbUser =
       this.options.databaseType === "postgresql"
@@ -406,6 +416,10 @@ export class NestJsBackendGenerator extends BaseGenerator {
       })),
       rbacRoles: rbacRoleNames(rbac),
       hasRbac: hasRbacRules(rbac),
+      // The functional roles, one account per role, and which entities each may
+      // look at — derived by the same function the browser stack writes into
+      // `model.json`, so the two builds cannot disagree about who sees what.
+      access,
       now: new Date().toISOString(),
     };
   }

@@ -230,15 +230,45 @@ such a rule unsatisfiable, locking out the people it was written to admit.
 | CRUD rules → | `sys_operation_access` (table, operation, role) |
 | Transition rules → | `sys_transition_access` (table, transition, status field, from, to, role) |
 | Enforced by | `EntityAccessGuard` on every route carrying an entity in its path — `/bus/:entity` and `/workflows/entity/:entityName` |
+| Roles → | one `sys_role` per role named, and one seeded account holding each |
+| `read` rules also → | narrow the dictionary window scope and the entity navigation |
+
+**`read` decides which functional role an entity belongs to.** Every other
+operation only refuses a write; `read` is the one that changes what a role
+*sees*. An entity a role may not read is absent from that role's navigation
+entirely — no menu entry, no dashboard card, no lookup — so one `read` directive
+per entity is how a model says whose application that entity is part of:
+
+```
+%%rbac role:sales_rep|sales_manager|support_agent on Account.read
+%%rbac role:support_agent|support_manager on SupportCase.read
+%%rbac role:marketing_manager on Campaign.read
+```
+
+Name every entity on at least one such directive. A model that declares none
+leaves every entity visible to every signed-in caller — the behaviour of every
+model written before this rule, and the fallback rather than the target. A role
+that may *act* on an entity must be named on its `read` line too, or it cannot
+open the record its transition applies to. Do not use `.*` for this: it also
+restricts create/update/delete to the same list, and it merges with rather than
+overrides the narrower rules elsewhere in the document.
+
+**Every role named gets one seeded account.** `packages/generator/src/rbac/roles.ts`
+derives the roles, one account per role, and the per-entity visibility map; both
+stacks read it, so neither can disagree about who sees what. The administrator
+bypasses every rule, which is exactly why an application seeded with only an
+administrator cannot demonstrate its own access control — and why both sign-in
+screens list every account with the number of entities its role can see.
 
 Two design facts that answer most questions about it:
 
-1. **It does not write `sys_access`.** That is a *grant* table feeding
-   `sys_refresh_dictionary_scope()`, where a table with no rows is visible to
-   all roles and the first row added narrows it to that role alone. Seeding one
-   from `%%rbac role:admin on Order.delete` would hide the Order *window* from
-   everyone but admin — a restriction on deleting quietly becoming a restriction
-   on looking.
+1. **A rule about anything but `read` does not write `sys_access`.** That is a
+   *grant* table feeding `sys_refresh_dictionary_scope()`, where a table with no
+   rows is visible to all roles and the first row added narrows it to that role
+   alone. Seeding one from `%%rbac role:admin on Order.delete` would hide the
+   Order *window* from everyone but admin — a restriction on deleting quietly
+   becoming a restriction on looking. `read` is the one operation where hiding
+   the window is the right answer, and it is the only one that does.
 2. **A transition has no endpoint of its own.** Moving a record along an edge is
    an ordinary status update, so a rule stores the `(from_state, to_state)` pair
    and the guard matches on the states the write crosses. Both ends are kept:

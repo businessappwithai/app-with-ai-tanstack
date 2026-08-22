@@ -15,7 +15,7 @@ import { Router } from "../lib/router.js";
 import { ident } from "../lib/db.js";
 import { columnsOf, labelForTable } from "../lib/labels.js";
 import { json, notFound, readJson } from "../lib/http.js";
-import { requireAdmin, requireUser } from "../lib/guards.js";
+import { readableTables, requireAdmin, requireUser } from "../lib/guards.js";
 
 export function sysRoutes(model) {
   const router = new Router();
@@ -25,7 +25,12 @@ export function sysRoutes(model) {
     if (request.method !== "GET") requireAdmin(user);
   });
 
-  router.get("/tables", async (_request, { db, query }) => {
+  /* Scoped, not merely guarded. `EntityAccessGuard` already refuses a read the
+     caller's roles do not permit, but a navigation full of entries that answer
+     403 is a worse application than a shorter one: the reader cannot tell a
+     permission from a bug. This is the same rule the guard enforces, applied
+     one screen earlier. */
+  router.get("/tables", async (_request, { db, query, user }) => {
     const prefix = query.get("prefix");
     const rows = await db.query(
       `SELECT t.*, w.name AS window_name, c.name AS category_name
@@ -36,7 +41,8 @@ export function sysRoutes(model) {
         ORDER BY t.name`,
       [prefix ?? null]
     );
-    return json(rows);
+    const visible = readableTables(user, model);
+    return json(visible ? rows.filter((row) => visible.has(row.table_name)) : rows);
   });
 
   router.get("/tables/:id", async (_request, { db, params }) => {
@@ -117,17 +123,24 @@ export function sysRoutes(model) {
     json(await db.select("sys_category", { orderBy: "seq_no" }))
   );
 
-  router.get("/categories/with-entities", async (_request, { db }) => {
+  router.get("/categories/with-entities", async (_request, { db, user }) => {
     const categories = await db.select("sys_category", { orderBy: "seq_no" });
-    const tables = await db.query(
+    const all = await db.query(
       `SELECT t.table_name, t.name, t.sys_category_id FROM sys_table t
         WHERE t.entity_type = 'bus' ORDER BY t.name`
     );
+    const visible = readableTables(user, model);
+    const tables = visible ? all.filter((table) => visible.has(table.table_name)) : all;
     return json(
-      categories.map((category) => ({
-        ...category,
-        entities: tables.filter((table) => table.sys_category_id === category.sys_category_id),
-      }))
+      categories
+        .map((category) => ({
+          ...category,
+          entities: tables.filter((table) => table.sys_category_id === category.sys_category_id),
+        }))
+        /* A group whose every entity belongs to another role is not an empty
+           group, it is somebody else's. Showing it as a card reading "0
+           entities" tells the reader nothing they can act on. */
+        .filter((category) => !visible || category.entities.length > 0)
     );
   });
 

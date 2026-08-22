@@ -419,6 +419,18 @@ why `ModelCheckError` lives in `browser/model-check-error.ts` rather than in
 `browser/index.ts` — the full-stack bundle imported the class and got the wasm
 generator, its inlined runtime and faker with it.
 
+**The zip the hosted page hands out is this stack.** `guide/run-in-browser.html`
+generates the browser application *and*, on a second button, assembles this one
+and offers it as a `.zip` with its `docker-compose.yml`. Two defects had to be
+fixed for `docker compose up --build` to work on a freshly generated app, and
+both had been latent since the templates were written: the per-service
+Dockerfiles did `COPY bun.lock package.json ./` for a lockfile the generator
+never writes (a COPY of a missing file fails the build — they now use the
+`bun.loc[k]` glob and the conditional install the root Dockerfile already had),
+and `docker-compose.yml` named its images `{{project.name}}`, so a project called
+"Acme CRM" produced `image: Acme CRM:latest`, which compose rejects before
+building anything. Image names use `project.id`.
+
 **`erdwithai-wasm` is not a second stack.** It runs the same pipeline
 `erdwithai` runs — the same NestJS backend, the same TanStack Start front end,
 the same migrations, guards, rules engine and dictionary — and then applies an
@@ -1146,6 +1158,46 @@ Two things to know before touching it:
   pair and the guard matches on the states the write crosses. Both ends are kept
   because one event can sit on several edges.
 
+### Functional roles, their accounts, and what each one sees
+
+`%%rbac` compiles to rules that *refuse* a request. That was never enough to
+build an application around, and three things were missing — all answered in one
+place, `packages/generator/src/rbac/roles.ts`, because both stacks need the same
+answer or the demonstration contradicts itself:
+
+| | |
+|---|---|
+| **Which roles exist** | every role a directive names, plus `Administrator` and a role-less `User` |
+| **Who holds them** | one seeded account each — `sales.rep@<project>.example.com`, on the administrator's password |
+| **What each may look at** | `entityVisibility`: entity → the roles its `read` rule admits |
+
+**Only `read` narrows visibility, and that is the whole design.** A model
+protecting *deletion* of `Order` is not asking for the Order window to vanish
+from everyone's navigation — the note above says so, and it still holds. `read`
+is the one operation where refusing the request and hiding the menu entry are
+the same answer, so `entityVisibility` is derived from `read` rules alone. A
+model declaring no `read` restriction behaves exactly as it did before this
+existed.
+
+Four surfaces consume it, and a fifth would be a bug if it did not:
+
+- **wasm** — `migrate.js` seeds the accounts; `guards.js` `readableTables()`
+  answers "which tables may this caller see", and `/model`, `/sys/tables` and
+  `/sys/categories/with-entities` all filter through it. **`/model` is the one
+  that matters**: the interface builds its navigation from that single response
+  rather than from `/sys/tables`, so filtering the dictionary alone left every
+  entity in the menu and only refused it on opening.
+- **NestJS** — `seeds/00_users_and_roles.ts` renders its roles and users from
+  the model, and `seeds/02_sys_dictionary.ts` grants each entity's window to the
+  roles its `read` rule names rather than to every role.
+- **Both sign-in screens** list every seeded account with the number of entities
+  its role can see. `Support Agent · 5 of 17` is the invitation to compare two
+  roles; an application you can only sign into as the administrator is one whose
+  access control you cannot look at, because the administrator bypasses it all.
+
+`language/examples/crm.eml.mmd` demonstrates it: eight functional roles over
+seventeen entities, and support sees five of them.
+
 ### The other two access surfaces
 
 `%%rbac` governs entity data. Two administrative surfaces are gated separately,
@@ -1650,6 +1702,7 @@ Secrets: `NEON_DATABASE_URL`, `EML_PUBLISH_TOKEN` (needs `repo` **and**
 | `packages/generator/templates/common/design-tokens.json` | ⭐ The palette, stated once |
 | `packages/generator/templates/.../frontend/src/lib/app-meta.ts.hbs` | ⭐ The only generated module in the front end |
 | `packages/generator/src/rbac/index.ts` | `%%rbac` → operation + transition access rules |
+| `packages/generator/src/rbac/roles.ts` | ⭐ `%%rbac` → the roles, one account each, and per-entity visibility — read by both stacks |
 | `packages/generator/src/cli/generate.ts` | Generator CLI |
 | `packages/generator/src/generators/ports.ts` | Generated-app default ports |
 | `packages/generator/templates/tanstack-start-nestjs/` | Stack templates |
@@ -1770,6 +1823,9 @@ Add it once in `packages/generator/src/pipeline/generate-application.ts`
 
 ### Change what `%%rbac` enforces
 
+0. `packages/generator/src/rbac/roles.ts` if it changes the roles, the seeded
+   accounts or which entities a role may see — both stacks read that one file,
+   and its tests are `src/rbac/__tests__/derive-access.test.ts`
 1. `packages/generator/src/rbac/index.ts` — the compiler and its tests
 2. `templates/tanstack-start-nestjs/backend/src/migrations/011_add_operation_access.ts.hbs` — the two tables
 3. `templates/common/seeds/operation-access.ts.hbs` — the seed
