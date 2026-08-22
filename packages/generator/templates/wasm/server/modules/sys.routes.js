@@ -16,6 +16,7 @@ import { ident } from "../lib/db.js";
 import { columnsOf, labelForTable } from "../lib/labels.js";
 import { json, notFound, readJson } from "../lib/http.js";
 import { readableTables, requireAdmin, requireUser } from "../lib/guards.js";
+import { recordAudit } from "./audit.routes.js";
 
 export function sysRoutes(model) {
   const router = new Router();
@@ -181,6 +182,49 @@ export function sysRoutes(model) {
   });
 
   /** What the model said, for the screens that show the model rather than the data. */
+  /**
+   * Empty every business table, and nothing else.
+   *
+   * A generated application arrives with sample rows in it so that it can be
+   * looked at, and the reader who has finished looking wants their own data in
+   * it — which meant deleting ten rows per entity by hand, seventeen times, or
+   * regenerating and losing everything else they had done. One button is the
+   * honest answer to that.
+   *
+   * Administrator-only, and not by a decorator: this router already refuses any
+   * non-GET from a caller who is not one. Destructive enough that the interface
+   * asks twice before calling it.
+   *
+   * **Business tables only.** The dictionary, the roles, the users, the rules
+   * and the workflow definitions are what the application *is*, not what it
+   * holds; emptying those leaves a running application with no screens. One
+   * `TRUNCATE` naming every `bus_` table at once, so the foreign keys between
+   * them need no ordering and no `CASCADE` — a `CASCADE` here would reach the
+   * audit trail, and a purge that erases its own record of having happened is
+   * the wrong shape entirely.
+   */
+  router.post("/purge-business-data", async (_request, { db, user }) => {
+    const tables = model.entities.map((entity) => entity.tableName);
+    if (tables.length === 0) return json({ deleted: 0, tables: 0 });
+
+    let deleted = 0;
+    for (const table of tables) {
+      deleted += (await db.value(`SELECT COUNT(*)::int FROM ${ident(table)}`)) ?? 0;
+    }
+
+    await db.query(`TRUNCATE TABLE ${tables.map((table) => ident(table)).join(", ")}`);
+    /* Recorded after the truncate, so the trail's first entry afterwards says
+       what happened to everything before it. */
+    await recordAudit(db, {
+      action: "DATA_PURGE",
+      entityType: "sys",
+      user,
+      after: { rows: deleted, tables: tables.length },
+    });
+
+    return json({ deleted, tables: tables.length });
+  });
+
   router.get("/model-summary", async (_request, { db }) => {
     const counts = {
       entities: model.entities.length,

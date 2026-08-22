@@ -9534,6 +9534,7 @@ import { ident } from "../lib/db.js";
 import { columnsOf, labelForTable } from "../lib/labels.js";
 import { json, notFound, readJson } from "../lib/http.js";
 import { readableTables, requireAdmin, requireUser } from "../lib/guards.js";
+import { recordAudit } from "./audit.routes.js";
 
 export function sysRoutes(model) {
   const router = new Router();
@@ -9699,6 +9700,49 @@ export function sysRoutes(model) {
   });
 
   /** What the model said, for the screens that show the model rather than the data. */
+  /**
+   * Empty every business table, and nothing else.
+   *
+   * A generated application arrives with sample rows in it so that it can be
+   * looked at, and the reader who has finished looking wants their own data in
+   * it — which meant deleting ten rows per entity by hand, seventeen times, or
+   * regenerating and losing everything else they had done. One button is the
+   * honest answer to that.
+   *
+   * Administrator-only, and not by a decorator: this router already refuses any
+   * non-GET from a caller who is not one. Destructive enough that the interface
+   * asks twice before calling it.
+   *
+   * **Business tables only.** The dictionary, the roles, the users, the rules
+   * and the workflow definitions are what the application *is*, not what it
+   * holds; emptying those leaves a running application with no screens. One
+   * \`TRUNCATE\` naming every \`bus_\` table at once, so the foreign keys between
+   * them need no ordering and no \`CASCADE\` — a \`CASCADE\` here would reach the
+   * audit trail, and a purge that erases its own record of having happened is
+   * the wrong shape entirely.
+   */
+  router.post("/purge-business-data", async (_request, { db, user }) => {
+    const tables = model.entities.map((entity) => entity.tableName);
+    if (tables.length === 0) return json({ deleted: 0, tables: 0 });
+
+    let deleted = 0;
+    for (const table of tables) {
+      deleted += (await db.value(\`SELECT COUNT(*)::int FROM \${ident(table)}\`)) ?? 0;
+    }
+
+    await db.query(\`TRUNCATE TABLE \${tables.map((table) => ident(table)).join(", ")}\`);
+    /* Recorded after the truncate, so the trail's first entry afterwards says
+       what happened to everything before it. */
+    await recordAudit(db, {
+      action: "DATA_PURGE",
+      entityType: "sys",
+      user,
+      after: { rows: deleted, tables: tables.length },
+    });
+
+    return json({ deleted, tables: tables.length });
+  });
+
   router.get("/model-summary", async (_request, { db }) => {
     const counts = {
       entities: model.entities.length,
@@ -9985,6 +10029,26 @@ a { color: var(--primary); }
   background: var(--primary-soft); border-radius: var(--radius-sm); padding: 11px 13px;
 }
 .login__hint-note { display: block; margin-top: 3px; opacity: 0.85; }
+
+/* Start-from-empty. Set apart rather than sitting in the card grid: it is the
+   one control on the dashboard that deletes something, and a destructive action
+   that looks like the sixteen navigation cards around it is one somebody
+   presses by accident. */
+.danger {
+  margin-top: 34px; border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--destructive);
+  border-radius: var(--radius-sm); background: var(--surface);
+}
+.danger__body { padding: 15px 18px; }
+.danger__title { margin: 0 0 4px; font-size: 14px; font-weight: 650; }
+.danger__desc { margin: 0 0 12px; font-size: 12.5px; color: var(--text-soft); max-width: 68ch; }
+.danger__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+/* The palette's own destructive colour, from templates/common/design-tokens.json
+   — inventing a red here is how the two stylesheets drifted the last time. */
+.btn.btn--danger {
+  background: var(--destructive); border-color: var(--destructive); color: #fff;
+}
+.btn.btn--danger:hover:not(:disabled) { filter: brightness(0.92); }
 
 /* The seeded accounts, one row each. A table would be tidier and would not be
    clickable, and the whole reason for listing them is that a reader compares
@@ -10910,7 +10974,7 @@ async function render() {
 
     if (!section) {
       setCrumbs([]);
-      return void (await dashboardView(outlet, { entities: state.entities, navigate, project: state.project }));
+      return void (await dashboardView(outlet, { entities: state.entities, navigate, project: state.project, user: state.user }));
     }
 
     if (section === "entity") {
@@ -11601,7 +11665,7 @@ function statRow(entries) {
  * the Service Worker before showing anything.
  */
 
-import { el, mount, spinner } from "../dom.js";
+import { el, mount, spinner, toast } from "../dom.js";
 import { api } from "../api.js";
 import { setHelp } from "../main.js";
 
@@ -11614,7 +11678,7 @@ const DICTIONARY = [
   ["The Model", "model", "The EML this was built from", "◈"],
 ];
 
-export async function dashboardView(root, { entities, navigate, project }) {
+export async function dashboardView(root, { entities, navigate, project, user }) {
   mount(root, spinner("Loading"));
   setHelp(
     "Each card opens a window onto one entity. What the window shows — which columns, " +
@@ -11701,6 +11765,22 @@ export async function dashboardView(root, { entities, navigate, project }) {
         )
       ),
 
+      /*
+       * Start over without regenerating.
+       *
+       * A generated application arrives with sample rows so that it can be
+       * looked at, and the reader who has finished looking wants their own data
+       * in it. Without this that meant deleting ten rows per entity by hand,
+       * once per entity, or regenerating and losing everything else they had
+       * done.
+       *
+       * Administrator-only, because it is the one action here that cannot be
+       * undone, and two-step rather than a \`confirm()\` — this application runs
+       * inside an iframe on the guide, where a modal dialog is not guaranteed
+       * to appear at all.
+       */
+      user?.isAdmin ? purgeSection(project, navigate) : null,
+
       health
         ? el(
             "p.runtime-note",
@@ -11712,6 +11792,63 @@ export async function dashboardView(root, { entities, navigate, project }) {
         : null
     )
   );
+}
+
+/** The purge control: one button, which becomes two before it does anything. */
+function purgeSection(project, navigate) {
+  const section = el("section.danger");
+
+  const render = (armed) => {
+    section.replaceChildren(
+      el(
+        "div.danger__body",
+        el("h2.danger__title", "Start from an empty database"),
+        el(
+          "p.danger__desc",
+          armed
+            ? "Every business record is deleted — the sample rows and anything you have added. The model, the dictionary, the rules and the accounts are untouched. This cannot be undone."
+            : \`Deletes every record in \${project?.name || "this application"} and leaves the application itself in place.\`
+        ),
+        armed
+          ? el(
+              "div.danger__actions",
+              el(
+                "button.btn.btn--danger",
+                {
+                  onclick: async (event) => {
+                    const button = event.currentTarget;
+                    button.disabled = true;
+                    button.textContent = "Deleting…";
+                    try {
+                      const result = await api.post("/sys/purge-business-data", {});
+                      toast(
+                        \`Deleted \${result.deleted} record(s) across \${result.tables} table(s)\`,
+                        "success"
+                      );
+                      // Straight back through the router: every count on this
+                      // screen is now wrong, and a stale dashboard after a purge
+                      // reads as the purge having failed.
+                      navigate("/");
+                    } catch (error) {
+                      toast(error.message, "error");
+                      render(false);
+                    }
+                  },
+                },
+                "Yes, delete every record"
+              ),
+              el("button.btn", { onclick: () => render(false) }, "Cancel")
+            )
+          : el(
+              "div.danger__actions",
+              el("button.btn", { onclick: () => render(true) }, "Delete all records")
+            )
+      )
+    );
+  };
+
+  render(false);
+  return section;
 }
 `,
   "ui/views/entity-form.js": `/**
@@ -12581,7 +12718,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 273891;
+var RUNTIME_BYTES = 279824;
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};

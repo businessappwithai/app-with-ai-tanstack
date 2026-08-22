@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { useAuth } from '@/contexts/auth-context';
 import {
@@ -24,6 +24,8 @@ import {
   LogOut,
 } from 'lucide-react';
 import { Icon } from '@/components/ui/icon';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 import { APP_NAME } from "@/lib/app-meta";
 
 // Map admin window names from the DB to frontend icon + route
@@ -417,6 +419,21 @@ function DashboardPage() {
           </section>
         )}
 
+        {/* Start over without re-running the setup.
+
+            A generated application arrives with seeded rows so that it can be
+            looked at, and whoever has finished looking wants their own data in
+            it — which otherwise meant deleting every record by hand, entity by
+            entity. Set apart from the dashlet grid rather than sitting in it:
+            it is the one control here that cannot be undone, and a destructive
+            action that looks like the cards around it is one somebody presses
+            by accident.
+
+            Administrator-only, and the server agrees independently —
+            DictionaryWriteGuard refuses every non-GET on /sys from anyone else,
+            so hiding it here is courtesy rather than the enforcement. */}
+        {perms?.isMaster && <PurgeBusinessData />}
+
         {/* Empty search */}
         {!isLoading && !error && groupedEntityCount === 0 && filteredBus.length === 0 && filteredAdmin.length === 0 && (
           <div className="swiss-card p-12 text-center">
@@ -427,5 +444,59 @@ function DashboardPage() {
         )}
       </main>
     </div>
+  );
+}
+
+function PurgeBusinessData() {
+  const queryClient = useQueryClient();
+  const [armed, setArmed] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const run = async () => {
+    setBusy(true);
+    try {
+      const result = await apiClient.post<{ deleted: number; tables: number }>(
+        '/sys/purge-business-data',
+        {},
+      );
+      toast.success(`Deleted ${result.deleted} record(s) across ${result.tables} table(s)`);
+      // Every count on this screen is now wrong, and a stale dashboard after a
+      // purge reads as the purge having failed.
+      await queryClient.invalidateQueries();
+      setArmed(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not delete the records');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="mt-10 rounded-lg border border-border border-l-4 border-l-destructive bg-card">
+      <div className="p-5">
+        <h2 className="text-sm font-semibold mb-1">Start from an empty database</h2>
+        <p className="text-sm text-muted-foreground mb-4 max-w-prose">
+          {armed
+            ? 'Every business record is deleted — the seeded rows and anything you have added. The model, the dictionary, the rules and the accounts are untouched. This cannot be undone.'
+            : 'Deletes every business record and leaves the application itself in place.'}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {armed ? (
+            <>
+              <Button variant="destructive" size="sm" onClick={run} disabled={busy}>
+                {busy ? 'Deleting…' : 'Yes, delete every record'}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setArmed(false)} disabled={busy}>
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <Button variant="outline" size="sm" onClick={() => setArmed(true)}>
+              Delete all records
+            </Button>
+          )}
+        </div>
+      </div>
+    </section>
   );
 }

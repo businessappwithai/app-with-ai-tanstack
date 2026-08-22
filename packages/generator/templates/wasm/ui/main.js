@@ -128,7 +128,7 @@ async function render() {
 
     if (!section) {
       setCrumbs([]);
-      return void (await dashboardView(outlet, { entities: state.entities, navigate, project: state.project }));
+      return void (await dashboardView(outlet, { entities: state.entities, navigate, project: state.project, user: state.user }));
     }
 
     if (section === "entity") {

@@ -149,6 +149,26 @@ a { color: var(--primary); }
 }
 .login__hint-note { display: block; margin-top: 3px; opacity: 0.85; }
 
+/* Start-from-empty. Set apart rather than sitting in the card grid: it is the
+   one control on the dashboard that deletes something, and a destructive action
+   that looks like the sixteen navigation cards around it is one somebody
+   presses by accident. */
+.danger {
+  margin-top: 34px; border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--destructive);
+  border-radius: var(--radius-sm); background: var(--surface);
+}
+.danger__body { padding: 15px 18px; }
+.danger__title { margin: 0 0 4px; font-size: 14px; font-weight: 650; }
+.danger__desc { margin: 0 0 12px; font-size: 12.5px; color: var(--text-soft); max-width: 68ch; }
+.danger__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+/* The palette's own destructive colour, from templates/common/design-tokens.json
+   — inventing a red here is how the two stylesheets drifted the last time. */
+.btn.btn--danger {
+  background: var(--destructive); border-color: var(--destructive); color: #fff;
+}
+.btn.btn--danger:hover:not(:disabled) { filter: brightness(0.92); }
+
 /* The seeded accounts, one row each. A table would be tidier and would not be
    clickable, and the whole reason for listing them is that a reader compares
    two roles by trying both. */

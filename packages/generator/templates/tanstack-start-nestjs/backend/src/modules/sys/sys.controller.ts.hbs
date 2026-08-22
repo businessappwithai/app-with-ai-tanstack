@@ -73,6 +73,23 @@ export class SysController {
   constructor(private readonly sysService: SysService) {}
 
   // ============================================================================
+  // Data lifecycle
+  // ============================================================================
+
+  /**
+   * Empty every business table.
+   *
+   * A POST rather than a DELETE because it names no resource — and on this
+   * controller a non-GET is administrator-only already, enforced by
+   * DictionaryWriteGuard on the method rather than by a decorator here.
+   */
+  @Post('purge-business-data')
+  @ApiOperation({ summary: 'Delete every business record, leaving the application itself intact' })
+  async purgeBusinessData() {
+    return this.sysService.purgeBusinessData();
+  }
+
+  // ============================================================================
   // SYS_TABLE Endpoints
   // ============================================================================
 

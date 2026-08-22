@@ -1198,6 +1198,30 @@ Four surfaces consume it, and a fifth would be a bug if it did not:
 `language/examples/crm.eml.mmd` demonstrates it: eight functional roles over
 seventeen entities, and support sees five of them.
 
+### Emptying the data without emptying the application
+
+Both stacks carry a **Delete all records** control on the dashboard, and both
+put the same rule behind it: `POST /sys/purge-business-data`, one `TRUNCATE`
+naming every `bus_` table at once.
+
+- **Business tables only.** The dictionary, the roles, the users, the rules and
+  the workflow definitions are what the application *is*, not what it holds;
+  emptying those leaves a running application with no screens.
+- **No `CASCADE`.** Naming every `bus_` table in one statement settles the
+  foreign keys between them without it, and `CASCADE` would reach the audit
+  trail — a purge that erases its own record of having happened is the wrong
+  shape entirely.
+- **Administrator-only, and not by a decorator.** `/sys` already refuses every
+  non-GET from anyone else — `DictionaryWriteGuard` in the NestJS stack,
+  `requireAdmin` on the router in the wasm one — so the endpoint inherits it.
+  Hiding the button from a non-admin is courtesy, not the enforcement.
+- **Two-step rather than `confirm()`.** The browser application runs inside an
+  iframe on the guide, where a modal dialog is not guaranteed to appear.
+
+It exists because a generated application arrives with seeded rows so that it
+can be looked at, and whoever has finished looking wants their own data in it —
+which otherwise meant deleting ten rows per entity by hand, seventeen times.
+
 ### The other two access surfaces
 
 `%%rbac` governs entity data. Two administrative surfaces are gated separately,

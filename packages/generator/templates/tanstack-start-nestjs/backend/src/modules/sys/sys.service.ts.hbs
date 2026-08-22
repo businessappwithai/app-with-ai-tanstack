@@ -1277,4 +1277,43 @@ export class SysService {
       .where('sys_element_id', '=', id)
       .execute();
   }
+
+  /**
+   * Empty every business table, and nothing else.
+   *
+   * A generated application arrives with seeded rows so that it can be looked
+   * at, and whoever has finished looking wants their own data in it — which
+   * otherwise meant deleting every record by hand, entity by entity, or
+   * re-running the whole setup and losing everything else they had done.
+   *
+   * **Business tables only.** The dictionary, the roles, the users, the rules
+   * and the workflow definitions are what the application *is*, not what it
+   * holds; emptying those leaves a running application with no screens.
+   *
+   * One `TRUNCATE` naming every `bus_` table at once, so the foreign keys
+   * between them need no ordering — and deliberately no `CASCADE`, which would
+   * reach the audit trail. A purge that erased the record of itself would be
+   * the wrong shape entirely.
+   *
+   * Administrator-only, and not by a decorator: `DictionaryWriteGuard` already
+   * refuses every non-GET on this controller from anyone else.
+   */
+  async purgeBusinessData(): Promise<{ deleted: number; tables: number }> {
+    const tables = [{{#each entities}}'{{tableName}}'{{#unless @last}}, {{/unless}}{{/each}}];
+    if (tables.length === 0) return { deleted: 0, tables: 0 };
+
+    let deleted = 0;
+    for (const table of tables) {
+      const row = await sql<{ count: string }>`
+        SELECT COUNT(*)::int AS count FROM ${sql.id(table)}
+      `.execute(this.db.kysely as any);
+      deleted += Number(row.rows[0]?.count ?? 0);
+    }
+
+    await sql`
+      TRUNCATE TABLE ${sql.join(tables.map((table) => sql.id(table)), sql`, `)}
+    `.execute(this.db.kysely as any);
+
+    return { deleted, tables: tables.length };
+  }
 }
