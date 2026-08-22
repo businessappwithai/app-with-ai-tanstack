@@ -466,6 +466,243 @@ erDiagram
     %%field SupportCase.description           ui: textarea
     %%field Contract.auto_renew               default: false
 
+    %% ---- Help text -----------------------------------------------------------
+    %% What `%%entity … help:` and `%%field … help:` buy: they are compiled into
+    %% sys_table.description and sys_column.description, which are the only help
+    %% the generated application has — the tooltip beside a control, and the lede
+    %% of that entity's section in the generated manual. A model without them
+    %% produces an application whose every field is a label somebody guesses at.
+
+    %%entity User help: Someone who signs in and does the work — a rep, a manager, an agent. Every business record names one as its owner.
+    %%entity Team help: A group of users under one manager, carrying a shared quota. Teams are how sales targets roll up.
+    %%entity Territory help: A slice of the market — a region, a country, a company-size band — that accounts are assigned to.
+    %%entity Account help: A company you sell to or support. Almost everything else in this application hangs off an account.
+    %%entity Contact help: A person at an account. Contacts are who you talk to; accounts are who you invoice.
+    %%entity Lead help: An unqualified enquiry that has not been connected to an account yet. A lead is either converted into an account, a contact and an opportunity, or disqualified.
+    %%entity Campaign help: A marketing programme with a budget and a window, run to generate leads.
+    %%entity CampaignMember help: One person on one campaign's target list, and whether they responded.
+    %%entity Opportunity help: A deal in progress against an account, with an amount, a stage and a close date. The pipeline is the sum of these.
+    %%entity OpportunityLineItem help: One product on one opportunity, priced. The opportunity's amount is what these add up to.
+    %%entity Product help: Something you sell, with a list price. Products are what line items point at.
+    %%entity Quote help: A priced, versioned offer to an account for one opportunity. A quote is what gets approved and sent.
+    %%entity QuoteLineItem help: One product on one quote, priced, in the order it appears on the document.
+    %%entity Contract help: The signed commitment that follows an accepted quote — a term, an annual value and a renewal date.
+    %%entity SupportCase help: A customer problem, from the moment it arrives to the moment it is resolved, measured against an SLA.
+    %%entity SlaPolicy help: How quickly cases must be answered and resolved for a given tier of customer.
+    %%entity Activity help: A call, a meeting, an email or a task, attached to whatever it was about. The history of a relationship is its activities.
+
+    %%field User.email help: The address this user signs in with. It must be unique across the application.
+    %%field User.first_name help: Given name, as it should appear on screen and in email.
+    %%field User.last_name help: Family name, as it should appear on screen and in email.
+    %%field User.role help: What this user is allowed to do. The role decides which records they can see at all.
+    %%field User.job_title help: The title shown on this user's profile. Presentation only — it grants nothing.
+    %%field User.phone help: A direct number for this user, for colleagues rather than customers.
+    %%field User.team_id help: The team this user belongs to, and whose quota their numbers roll up into.
+    %%field User.quota_annual help: This user's own annual target, in the reporting currency.
+    %%field User.is_active help: Clear this instead of deleting a user who has left — their records keep their owner.
+    %%field User.last_login help: When this account last signed in. Set by the application, not by hand.
+
+    %%field Team.name help: What this team is called on reports and in the team picker.
+    %%field Team.manager_id help: The user who runs this team and reviews its pipeline.
+    %%field Team.region help: The part of the world this team sells into.
+    %%field Team.quota_annual help: The team's combined annual target. Its members' quotas should add up to about this.
+    %%field Team.is_active help: Clear this to retire a team without losing the history of who was in it.
+
+    %%field Territory.name help: What this territory is called when an account is assigned to it.
+    %%field Territory.region help: The geography this territory covers.
+    %%field Territory.country_code help: The ISO country code, when the territory is a single country.
+    %%field Territory.manager_id help: The user accountable for everything in this territory.
+    %%field Territory.employee_count_floor help: The smallest company that belongs in this territory, by headcount. Leave empty for no lower bound.
+    %%field Territory.employee_count_ceiling help: The largest company that belongs in this territory, by headcount. Leave empty for no upper bound.
+    %%field Territory.is_active help: Clear this to stop new accounts being assigned here without disturbing the ones already in it.
+
+    %%field Account.name help: The company's name as it should appear on a contract or an invoice.
+    %%field Account.account_number help: Your own reference for this customer. Unique, and usually the key that matches your finance system.
+    %%field Account.account_type help: What this company is to you — a customer, a prospect, a partner.
+    %%field Account.tier help: The service level this account is entitled to. It decides which SLA its cases are measured against.
+    %%field Account.industry help: The sector this company trades in, used for segmentation and reporting.
+    %%field Account.website help: The company's public website.
+    %%field Account.phone help: The main switchboard number.
+    %%field Account.billing_street help: Street address for invoicing.
+    %%field Account.billing_city help: City for invoicing.
+    %%field Account.billing_postal_code help: Postal or ZIP code for invoicing.
+    %%field Account.billing_country help: Country for invoicing, which may decide tax treatment.
+    %%field Account.employee_count help: Roughly how many people work here. Used to size the account and to pick a territory.
+    %%field Account.annual_revenue help: The company's own annual turnover, not what they spend with you.
+    %%field Account.health_score help: A 0-100 read on how well this relationship is going. Maintained by the account team.
+    %%field Account.territory_id help: The territory this account is covered by, and so which team works it.
+    %%field Account.sla_policy_id help: The response and resolution times this account's support cases are held to.
+    %%field Account.status help: Whether this account is live, on hold, or closed.
+    %%field Account.owner_id help: The user accountable for this relationship.
+
+    %%field Contact.account_id help: The company this person works for. Leave empty only for a contact you have not placed yet.
+    %%field Contact.first_name help: Given name, as you would address them.
+    %%field Contact.last_name help: Family name, as it appears on correspondence.
+    %%field Contact.email help: Their work address. It must be unique — two records for one person is how a relationship gets lost.
+    %%field Contact.phone help: Desk or switchboard number.
+    %%field Contact.mobile help: Mobile number, where they have given you one.
+    %%field Contact.job_title help: Their role at the company, which is how you judge whether they can sign.
+    %%field Contact.department help: The part of the business they sit in.
+    %%field Contact.lead_source help: Where this person first came from.
+    %%field Contact.is_primary help: Set on the one contact who is your main relationship at this account.
+    %%field Contact.email_opt_out help: Set when they have asked not to receive marketing email. Campaigns must respect it.
+    %%field Contact.do_not_call help: Set when they have asked not to be telephoned. Respect it the same way.
+    %%field Contact.status help: Whether this is a live contact, or someone who has moved on.
+    %%field Contact.owner_id help: The user who looks after this person.
+
+    %%field Lead.first_name help: Given name, as supplied on the enquiry.
+    %%field Lead.last_name help: Family name, as supplied on the enquiry.
+    %%field Lead.company_name help: The company they said they were from. It becomes the account name on conversion.
+    %%field Lead.email help: The address the enquiry came from, and the one you will reply to.
+    %%field Lead.phone help: A number to call them back on.
+    %%field Lead.job_title help: Their stated role, which is most of what decides whether this lead is worth working.
+    %%field Lead.industry help: The sector their company trades in.
+    %%field Lead.employee_count help: Roughly how big their company is. Feeds the score.
+    %%field Lead.annual_revenue help: Their company's turnover, where you know it. Feeds the score.
+    %%field Lead.lead_source help: How this lead reached you — a campaign, a referral, the website.
+    %%field Lead.rating help: A quick judgement of quality. The scoring rule sets it; you may override it.
+    %%field Lead.score help: A 0-100 fit score the scoring rule calculates from title, size and source. Do not type into it.
+    %%field Lead.campaign_id help: The campaign that produced this lead, so its cost can be measured against what it generated.
+    %%field Lead.status help: Where this lead has got to, from new through to converted or disqualified.
+    %%field Lead.owner_id help: The user working this lead.
+    %%field Lead.converted_at help: When this lead became an account. Set by the conversion process, not by hand.
+    %%field Lead.disqualification_reason help: Why this lead was dropped. Required when you disqualify one, and it is what makes the report worth reading.
+
+    %%field Campaign.name help: What this programme is called in reporting.
+    %%field Campaign.campaign_type help: The kind of programme — an event, a mailing, a webinar.
+    %%field Campaign.status help: Whether this campaign is planned, running, or finished.
+    %%field Campaign.start_date help: The day the campaign goes live.
+    %%field Campaign.end_date help: The day it stops. Leave empty for an open-ended programme.
+    %%field Campaign.budgeted_cost help: What you agreed to spend.
+    %%field Campaign.actual_cost help: What it actually cost, which is the half that decides whether to run it again.
+    %%field Campaign.expected_revenue help: The pipeline this campaign is expected to generate.
+    %%field Campaign.expected_response_count help: How many responses you planned for, to compare against what arrived.
+    %%field Campaign.target_audience help: Who this campaign was aimed at, in a sentence.
+    %%field Campaign.owner_id help: The user accountable for this programme.
+
+    %%field CampaignMember.campaign_id help: The campaign this person was targeted by.
+    %%field CampaignMember.lead_id help: The lead who was targeted, when the target was not yet a known contact.
+    %%field CampaignMember.contact_id help: The contact who was targeted, when they were already known to you.
+    %%field CampaignMember.member_status help: Where this person got to in the campaign — sent, opened, responded.
+    %%field CampaignMember.responded_at help: When they responded. Empty until they do.
+    %%field CampaignMember.has_responded help: Set once any response arrives, so response rates can be counted without reading dates.
+
+    %%field Opportunity.account_id help: The company this deal is with.
+    %%field Opportunity.contact_id help: The person championing this deal inside the account.
+    %%field Opportunity.campaign_id help: The campaign this deal can be attributed to, where there is one.
+    %%field Opportunity.name help: A short description of what is being bought, as it reads in the pipeline list.
+    %%field Opportunity.description help: The detail — what they need, what you proposed, what is still open.
+    %%field Opportunity.amount help: The value of this deal. It should agree with its line items.
+    %%field Opportunity.currency_code help: The currency the amount is in.
+    %%field Opportunity.stage help: How far along this deal is. The stage is what the forecast is built from.
+    %%field Opportunity.probability help: The 0-100 chance of winning. The forecasting rule derives it from the stage.
+    %%field Opportunity.forecast_category help: Which forecast bucket this deal falls in — pipeline, best case, commit.
+    %%field Opportunity.expected_close_date help: When you expect to win it. Moving this date is the single most watched change on a deal.
+    %%field Opportunity.actual_close_date help: When it actually closed, won or lost. Set when the stage becomes final.
+    %%field Opportunity.lead_source help: Where the deal originally came from.
+    %%field Opportunity.next_step help: The one thing that has to happen next, and by when.
+    %%field Opportunity.loss_reason help: Why the deal was lost. Required on a closed-lost deal, and the reason loss reports mean anything.
+    %%field Opportunity.owner_id help: The user selling this deal.
+
+    %%field OpportunityLineItem.opportunity_id help: The deal this line belongs to.
+    %%field OpportunityLineItem.product_id help: What is being sold on this line.
+    %%field OpportunityLineItem.quantity help: How many.
+    %%field OpportunityLineItem.unit_price help: The price for one, before any discount on this line.
+    %%field OpportunityLineItem.discount_percent help: The discount applied to this line, as a percentage.
+    %%field OpportunityLineItem.line_total help: Quantity times unit price, less the discount. Calculated — do not type into it.
+    %%field OpportunityLineItem.line_description help: Anything about this line the product name does not say.
+
+    %%field Product.product_code help: Your own catalogue code for this product. Unique, and what an order refers to.
+    %%field Product.name help: The product's name as it appears on a quote.
+    %%field Product.description help: What it is and what it includes, in the words a customer would read.
+    %%field Product.family help: The group this product belongs to, for reporting and for the product picker.
+    %%field Product.list_price help: The published price before any discount.
+    %%field Product.unit_cost help: What it costs you, which is what makes margin calculable.
+    %%field Product.billing_frequency help: How often this is charged — once, monthly, annually.
+    %%field Product.is_active help: Clear this to stop the product being added to new quotes without disturbing the ones it is already on.
+
+    %%field Quote.quote_number help: The reference the customer will quote back at you. Unique.
+    %%field Quote.opportunity_id help: The deal this quote prices.
+    %%field Quote.account_id help: The company the quote is addressed to.
+    %%field Quote.name help: A short title for this quote, so several versions can be told apart.
+    %%field Quote.status help: Where this quote is — draft, waiting for approval, sent, accepted, rejected.
+    %%field Quote.version_number help: Which revision this is. A new version is raised rather than an old one edited.
+    %%field Quote.valid_until help: The day this offer expires.
+    %%field Quote.subtotal help: The line items added up, before discount and tax.
+    %%field Quote.discount_percent help: A discount across the whole quote. Past the approval threshold it needs a manager.
+    %%field Quote.discount_amount help: The discount in money, where it was agreed as an amount rather than a percentage.
+    %%field Quote.tax_amount help: Tax on the discounted subtotal.
+    %%field Quote.grand_total help: What the customer will actually pay. Calculated — do not type into it.
+    %%field Quote.approved_by_id help: The manager who approved this quote's discount. Empty until one does.
+    %%field Quote.approved_at help: When approval was given.
+    %%field Quote.approval_notes help: What the approver said — the conditions, or why they refused.
+    %%field Quote.owner_id help: The user who raised this quote.
+
+    %%field QuoteLineItem.quote_id help: The quote this line appears on.
+    %%field QuoteLineItem.product_id help: What is being quoted on this line.
+    %%field QuoteLineItem.quantity help: How many.
+    %%field QuoteLineItem.unit_price help: The price for one, before any discount on this line.
+    %%field QuoteLineItem.discount_percent help: The discount applied to this line, as a percentage.
+    %%field QuoteLineItem.line_total help: Quantity times unit price, less the discount. Calculated — do not type into it.
+    %%field QuoteLineItem.sort_order help: Where this line sits on the printed quote.
+
+    %%field Contract.contract_number help: The reference this agreement is known by. Unique.
+    %%field Contract.account_id help: The company that signed.
+    %%field Contract.quote_id help: The accepted quote this contract was written from.
+    %%field Contract.status help: Where the agreement is — drafted, out for signature, active, expired.
+    %%field Contract.start_date help: The day the term begins.
+    %%field Contract.end_date help: The day the term ends, and so the day the renewal conversation is already late.
+    %%field Contract.term_months help: How long the term runs, in months.
+    %%field Contract.annual_value help: What this agreement is worth per year. The renewal book is the sum of these.
+    %%field Contract.auto_renew help: Set when the term rolls over unless someone cancels it.
+    %%field Contract.renewal_notice_days help: How many days' notice either side must give. It decides when the renewal work has to start.
+    %%field Contract.signed_by_id help: The user who countersigned on your side.
+    %%field Contract.signed_at help: When it was signed.
+    %%field Contract.owner_id help: The user accountable for this agreement and its renewal.
+
+    %%field SupportCase.case_number help: The reference the customer quotes when they chase. Unique.
+    %%field SupportCase.account_id help: The company reporting the problem. It decides which SLA applies.
+    %%field SupportCase.contact_id help: The person who reported it, and who you will reply to.
+    %%field SupportCase.sla_policy_id help: The response and resolution times this case is measured against.
+    %%field SupportCase.subject help: The problem in one line, as it reads in the queue.
+    %%field SupportCase.description help: What happened, what they expected, and what they have already tried.
+    %%field SupportCase.case_type help: What kind of case this is — a question, an incident, a defect, a request.
+    %%field SupportCase.priority help: How urgent it is. The triage rule sets it from type and account tier.
+    %%field SupportCase.origin help: How the case reached you — email, phone, the web, the partner portal.
+    %%field SupportCase.status help: Where the case is, from new through to closed.
+    %%field SupportCase.first_response_due_at help: When the customer must have heard from a person. Calculated from the SLA on arrival.
+    %%field SupportCase.first_response_at help: When they actually did. Empty until someone replies.
+    %%field SupportCase.resolution_due_at help: When the case must be resolved by, under the SLA.
+    %%field SupportCase.resolved_at help: When it actually was resolved.
+    %%field SupportCase.is_sla_breached help: Set when a due time passed unmet. It is what breach reporting counts.
+    %%field SupportCase.resolution_notes help: What fixed it, in enough detail that the next person with this problem is helped.
+    %%field SupportCase.satisfaction_score help: What the customer scored the handling, 1 to 5, after it closed.
+    %%field SupportCase.escalated_by_id help: The user who escalated this case, when one did.
+    %%field SupportCase.owner_id help: The agent handling it.
+
+    %%field SlaPolicy.name help: What this policy is called when an account or a case is assigned to it.
+    %%field SlaPolicy.tier help: The customer tier this policy is written for.
+    %%field SlaPolicy.first_response_minutes help: How long a customer may wait to hear from a person, in minutes.
+    %%field SlaPolicy.resolution_hours help: How long they may wait for the problem to be fixed, in hours.
+    %%field SlaPolicy.business_hours_only help: Set when the clock stops overnight and at weekends.
+    %%field SlaPolicy.is_active help: Clear this to retire a policy without disturbing the cases already measured against it.
+
+    %%field Activity.activity_type help: What happened — a call, a meeting, an email, a task.
+    %%field Activity.subject help: The activity in one line, as it reads on a timeline.
+    %%field Activity.description help: What was said, agreed or found out.
+    %%field Activity.status help: Whether this is still to do, in hand, or done.
+    %%field Activity.priority help: How urgent it is, for the person whose list it is on.
+    %%field Activity.due_at help: When it has to happen by.
+    %%field Activity.completed_at help: When it actually did.
+    %%field Activity.duration_minutes help: How long it took, for calls and meetings.
+    %%field Activity.account_id help: The company this activity was about.
+    %%field Activity.contact_id help: The person it involved.
+    %%field Activity.lead_id help: The lead it was about, before there is an account.
+    %%field Activity.opportunity_id help: The deal it moved forward.
+    %%field Activity.support_case_id help: The case it was part of handling.
+    %%field Activity.contract_id help: The agreement it concerned.
+    %%field Activity.owner_id help: The user who did it, or has to.
+
     %%index User(email) unique
     %%index Account(account_number) unique
     %%index Contact(email) unique

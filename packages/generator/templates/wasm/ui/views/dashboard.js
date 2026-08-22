@@ -53,6 +53,19 @@ export async function dashboardView(root, { entities, navigate, project, user })
     root,
     el(
       "div",
+
+      /*
+       * The manual, above everything else on the dashboard.
+       *
+       * Generation writes `manual.html` beside this application — every entity,
+       * every field, the processes and the decisions, out of the same model the
+       * screens below are drawn from. It opens in a new tab rather than as a
+       * screen of its own: the application runs inside an iframe on the guide,
+       * where a full-width document has nowhere to go, and a reader wants the
+       * manual open *beside* the screen it describes rather than instead of it.
+       */
+      manualBanner(project),
+
       [...byCategory.entries()]
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([category, group]) =>
@@ -137,6 +150,35 @@ export async function dashboardView(root, { entities, navigate, project, user })
             el("span.runtime-note__db", `${health.runtime} — ${String(health.database).split(",")[0]}`)
           )
         : null
+    )
+  );
+}
+
+/** The link to the generated manual. */
+function manualBanner(project) {
+  return el(
+    "section.manual",
+    el(
+      "div.manual__body",
+      el("h2.manual__title", "Manual"),
+      el(
+        "p.manual__desc",
+        `Every kind of record ${project?.name || "this application"} keeps, every field on it, ` +
+          "the processes it runs and the decisions it makes \u2014 written from the same model " +
+          "this application was generated from."
+      )
+    ),
+    el(
+      "div.manual__actions",
+      el(
+        "a.btn.btn--primary",
+        {
+          href: new URL("manual.html", location.href).href,
+          target: "_blank",
+          rel: "noopener",
+        },
+        "Open the manual"
+      )
     )
   );
 }

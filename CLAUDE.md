@@ -279,7 +279,7 @@ app-with-ai-tanstack/
 └── .claude/           # Project rules, plans, and local skills
 ```
 
-Root docs: `DESIGN.md`, `HOOKS_GUIDE.md`, `READEME.md` (sic — feature overview),
+Root docs: `README.md` (the repository front page), `DESIGN.md`, `HOOKS_GUIDE.md`,
 `TODOS.md`, `CHANGELOG.md`, plus QA write-ups (`GENERATOR_QA_SUMMARY.md`,
 `QA_AND_IMPROVEMENT_COMPLETE.md`, `REGENERATION_TEST_RESULTS.md`,
 `TEMPLATE_IMPROVEMENTS.md`).
@@ -746,6 +746,52 @@ list rather than printing the uuid the rule put in front of it.
 
 Tests: `packages/core/src/types/__tests__/identifier-columns.test.ts` pins the
 rule, including the shapes that must **not** trip the join branch.
+
+### The generated manual
+
+The last thing generation does is write the application back out as prose.
+`packages/generator/src/manual/index.ts` renders a `ParsedModel` into **one
+self-contained HTML page** — a contents menu, a section per entity giving every
+field with its control type, constraints, enumerated values and help text, then
+that entity's relationships, its state machine, the rules that fire on it and
+the roles that may read it, followed by the rules, the processes, and a note on
+how the application was built.
+
+**One renderer, both stacks, three ways of being served.** The browser stack puts
+`manual.html` in its file map (`wasm-app.generator.ts`); the NestJS stack writes
+`frontend/public/manual.html` from the pipeline (`generate-application.ts`), which
+is what TanStack Start serves at `/manual.html` and what travels in the
+downloadable zip. Both dashboards carry a **Manual** button pointing at it —
+`templates/wasm/ui/views/dashboard.js` and
+`templates/tanstack-start-nestjs/frontend/src/routes/dashboard.tsx`.
+
+Four decisions worth keeping:
+
+- **No stylesheet, no script, no font, no image.** It is served by a Service
+  Worker, by a static directory and by a `file://` double-click out of the zip,
+  and a single file with its CSS inline is the only form that survives all three.
+- **It is written by the shared pipeline, not by a generator.** That is what
+  makes the two stacks' copies identical for a given model — and why CI's
+  overlay-footprint job does not list it: the plain and wasm runs produce the
+  same bytes.
+- **The stamp is a full ISO instant, deliberately.** That footprint job blanks
+  ISO timestamps before diffing; a friendly `2026-08-22` would survive the
+  blanking and make the two trees differ whenever the pair of runs straddles
+  midnight.
+- **Its prose is the model's `%%entity help:` and `%%field help:` and nothing
+  else.** A field with no help gets a dash; an entity with none gets one line
+  saying so, once, rather than the same sentence on every row. That is the only
+  feedback a modeller gets that the help contract was never honoured, and
+  `language/examples/crm.eml.mmd` now honours it on all 17 entities and every
+  column.
+
+**The example models are checked in twice.** `language/examples/*.eml.mmd` (and
+`examples/*.eml.mmd`) is where a model is authored; `html/models/*.eml.mmd` is
+what the two hosted pages serve, so it cannot be a symlink or an import. They
+drifted — the CRM gained a `%%rbac … .read` rule per entity and the `html/` copy
+did not, so the page demonstrated per-role visibility with a model that no longer
+declared it. `packages/generator/src/__tests__/example-models.test.ts` asserts
+they are byte-identical.
 
 ### The real stack, in a browser tab (`--standalone`'s opposite)
 
@@ -1770,6 +1816,7 @@ Secrets: `NEON_DATABASE_URL`, `EML_PUBLISH_TOKEN` (needs `repo` **and**
 | `packages/generator/templates/.../frontend/src/lib/app-meta.ts.hbs` | ⭐ The only generated module in the front end |
 | `packages/generator/src/rbac/index.ts` | `%%rbac` → operation + transition access rules |
 | `packages/generator/src/rbac/roles.ts` | ⭐ `%%rbac` → the roles, one account each, and per-entity visibility — read by both stacks |
+| `packages/generator/src/manual/index.ts` | ⭐ The parsed model → `manual.html`, one self-contained page — written by both stacks |
 | `packages/generator/src/cli/generate.ts` | Generator CLI |
 | `packages/generator/src/generators/ports.ts` | Generated-app default ports |
 | `packages/generator/templates/tanstack-start-nestjs/` | Stack templates |
@@ -1887,6 +1934,24 @@ application's dependencies, not this one's.
 Add it once in `packages/generator/src/pipeline/generate-application.ts`
 (`GenerationSettings`). Do **not** assemble options separately in the CLI or in
 `/api/generate` — that drift is what lost `%%category` on the web path.
+
+### Change the generated manual
+
+1. `packages/generator/src/manual/index.ts` is the whole renderer — there is no
+   template and no second copy
+2. Render it over the CRM model and open the result before believing it:
+   ```bash
+   bun -e 'import{readFileSync,writeFileSync}from"node:fs";\
+   const{parseModel}=await import("./packages/generator/src/pipeline/parse-model");\
+   const{renderManual}=await import("./packages/generator/src/manual/index");\
+   writeFileSync("/tmp/manual.html",renderManual(parseModel(readFileSync("language/examples/crm.eml.mmd","utf-8")),{name:"Acme CRM",version:"1.0.0",description:"CRM"}))'
+   ```
+3. `bun run build:wasm-runtime` is **not** needed — the manual is TypeScript in
+   `src/`, not a template under `templates/wasm/` — but `build:wasm-browser` and
+   `build:fullstack-browser` are, because both bundles carry it
+4. Generate both ways and re-run the footprint diff: the two copies must stay
+   identical, or CI's `generated-wasm-app` job fails on a file the overlay does
+   not own
 
 ### Change what `%%rbac` enforces
 

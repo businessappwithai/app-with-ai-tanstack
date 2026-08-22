@@ -149,6 +149,21 @@ a { color: var(--primary); }
 }
 .login__hint-note { display: block; margin-top: 3px; opacity: 0.85; }
 
+/* The manual, at the top of the dashboard rather than in the card grid: it
+   describes every one of those cards, so it is the thing a reader who has just
+   met this application opens first. */
+.manual {
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  margin: 0 0 26px; padding: 15px 18px;
+  border: 1px solid var(--border-strong); border-left: 3px solid var(--primary);
+  border-radius: var(--radius-sm); background: var(--surface);
+}
+.manual__body { flex: 1 1 320px; }
+.manual__title { margin: 0 0 4px; font-size: 14px; font-weight: 650; }
+.manual__desc { margin: 0; font-size: 12.5px; color: var(--text-soft); max-width: 68ch; }
+.manual__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.manual__actions .btn { text-decoration: none; }
+
 /* Start-from-empty. Set apart rather than sitting in the card grid: it is the
    one control on the dashboard that deletes something, and a destructive action
    that looks like the sixteen navigation cards around it is one somebody
