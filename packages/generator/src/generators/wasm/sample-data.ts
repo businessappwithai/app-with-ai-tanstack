@@ -48,7 +48,7 @@
  */
 
 import { ReferenceType } from "@erdwithai/core/types";
-import { en, Faker } from "@faker-js/faker";
+import { base, en, Faker } from "@faker-js/faker";
 import type { ParsedModel } from "../../pipeline/generate-application";
 import { referenceIdFor, tableNameFor } from "./model-bundle";
 
@@ -158,7 +158,7 @@ function flavourOf(column: string, entity: string): Flavour {
   /* Before the generic `*_code` rule below, which would otherwise turn
      `currency_code` into `OPP-1060` and `country_code` into `TER-1004` — a
      column whose whole point is a standard code, filled with a made-up one. */
-  if (/(currency|iso_currency)$/.test(n)) return "currency";
+  if (/(^|_)currency(_code)?$/.test(n) || /(^|_)iso_currency$/.test(n)) return "currency";
   if (/^(country_code|iso_country|country_iso)$/.test(n)) return "countryCode";
   if (/^(sku|code|.*_code|barcode)$/.test(n)) return "code";
   if (/(number|reference|ref|invoice_no|po_no)$/.test(n)) return "reference";
@@ -430,7 +430,11 @@ export function buildSampleData(parsed: ParsedModel, options: SampleDataOptions)
      it here rather than at module scope keeps two concurrent calls — the CLI
      generating twice, a test table-driving the seed — off each other's
      stream. */
-  const faker = new Faker({ locale: en });
+  /* `[en, base]` rather than `en` alone: the English locale does not carry
+     every corpus, and `location.countryCode` threw outright — a generated
+     application refusing to compile because a column was called
+     `country_code`. `base` is the fallback faker's own preset composes. */
+  const faker = new Faker({ locale: [en, base] });
 
   const entities = parsed.entities.map((entity) => ({
     name: entity.name,

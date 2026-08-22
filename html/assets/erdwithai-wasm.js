@@ -19540,7 +19540,7 @@ function flavourOf(column, entity2) {
     return "person";
   if (/^(company|vendor|supplier|organisation|organization|account|insurer)_name$/.test(n2))
     return "company";
-  if (/(currency|iso_currency)$/.test(n2))
+  if (/(^|_)currency(_code)?$/.test(n2) || /(^|_)iso_currency$/.test(n2))
     return "currency";
   if (/^(country_code|iso_country|country_iso)$/.test(n2))
     return "countryCode";
@@ -19748,7 +19748,7 @@ function buildSampleData(parsed, options) {
     return {};
   const nullRate = options.nullRate ?? 0.15;
   const salt = options.seed ?? "erdwithai";
-  const faker = new Ct({ locale: e2 });
+  const faker = new Ct({ locale: [e2, Dt] });
   const entities = parsed.entities.map((entity2) => ({
     name: entity2.name,
     table: tableNameFor(entity2),
