@@ -399,9 +399,25 @@ exists, and deterministic for a given model and seed. `.env.wasm` (see
 `.env.wasm.example`) holds `WASM_SEED_RECORDS`, `WASM_SEED_SEED` and
 `WASM_SEED_NULL_RATE`; `--sample-records N` overrides it and `0` turns it off.
 The default mode refuses the flag rather than ignoring it: that stack seeds
-through its own migrations. The library default is 0, so the hosted browser
-generator is unaffected — a page generating an application for a model someone
-is about to read should not invent records in it.
+through its own migrations. The library default is still 0 — nothing invents
+records unasked — but `generateFromSource` now **forwards** `sampleRecords`,
+`sampleSeed` and `sampleNullRate`, so the hosted page can ask for them; it does,
+because a page that boots the application it just generated has the opposite
+problem from one that only shows it.
+
+**The vocabulary is `@faker-js/faker`.** `src/generators/wasm/sample-data.ts`
+used to carry nine hand-written arrays, so ten `Customer` rows showed the same
+two companies. faker supplies the corpora; the file keeps the part faker has no
+opinion about — *which* generator a column gets, decided from its reference type
+first and its name second — plus parent-first ordering, FK resolution, enum
+binding, nullability and uniqueness. Determinism is unchanged: faker is
+re-seeded per column and row from the caller's seed, so a column added later
+does not shift the others' streams. It is an ordinary dependency of
+`@erdwithai/generator` and lands in `html/assets/erdwithai-wasm.js` (653KB →
+1119KB); it deliberately does **not** land in `erdwithai-fullstack.js`, which is
+why `ModelCheckError` lives in `browser/model-check-error.ts` rather than in
+`browser/index.ts` — the full-stack bundle imported the class and got the wasm
+generator, its inlined runtime and faker with it.
 
 **`erdwithai-wasm` is not a second stack.** It runs the same pipeline
 `erdwithai` runs — the same NestJS backend, the same TanStack Start front end,

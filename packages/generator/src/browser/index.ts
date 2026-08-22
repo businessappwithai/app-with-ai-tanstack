@@ -16,7 +16,8 @@ import { setLanguageDefinition as setCheckerDefinition } from "../../../../langu
 import languageDefinition from "../../../../language/erdwithai-language.json";
 import { setLanguageDefinition } from "../parsers/language-maps";
 import { type ParsedModel, parseModel } from "../pipeline/parse-model";
-import { type Issue, type ModelReview, reviewModel } from "../pipeline/review-model";
+import { type ModelReview, reviewModel } from "../pipeline/review-model";
+import { ModelCheckError } from "./model-check-error";
 
 // The parser resolves the language definition off disk, which a browser has
 // none of. Injecting the real JSON here — bundled, not re-typed — is what makes
@@ -36,7 +37,16 @@ import {
 export type { ModelReview, ParsedModel, WasmGeneratorOptions };
 // Exported on its own so the page can check a model the moment it is chosen,
 // rather than only finding out at the point of generating it.
-export { DEFAULT_PGLITE_URL, generateWasmApp, parseModel, RUNTIME_BYTES, reviewModel };
+// Re-exported so `import { ModelCheckError } from "./erdwithai-wasm.js"` keeps
+// working; it is defined next door so the full-stack bundle can have it alone.
+export {
+  DEFAULT_PGLITE_URL,
+  generateWasmApp,
+  ModelCheckError,
+  parseModel,
+  RUNTIME_BYTES,
+  reviewModel,
+};
 
 export interface BrowserGenerateOptions extends Partial<WasmGeneratorOptions> {
   /** The EML document. */
@@ -44,6 +54,16 @@ export interface BrowserGenerateOptions extends Partial<WasmGeneratorOptions> {
   /** Repair what the fixer can repair before checking. Default true. */
   autoFix?: boolean;
 }
+
+/**
+ * Rows per entity when a caller asks for sample data but not for an amount.
+ *
+ * Ten is what `erdwithai-wasm generate` uses, and the number matters more than
+ * it looks: three rows is a screenshot rather than a grid, and a hundred puts
+ * the reader in front of a paginator before they have seen a record. Ten fills
+ * every list, every lookup and the dashboard counts on one screen.
+ */
+export const DEFAULT_SAMPLE_RECORDS = 10;
 
 export interface BrowserGenerateResult {
   /** Every file of the application, path -> contents. */
@@ -62,30 +82,12 @@ export interface BrowserGenerateResult {
     accessRules: number;
     fileCount: number;
     bytes: number;
+    /** Sample rows written into the application; 0 when none were asked for. */
+    sampleRows: number;
   };
   warnings: string[];
   /** What the checker made of the model, after the fixer had its turn. */
   review: ModelReview;
-}
-
-/**
- * A model the checker refused.
- *
- * Thrown rather than returned so no caller can generate from it by forgetting to
- * look, and typed rather than a message string so the page can render each
- * finding with its line, code and hint instead of printing one flattened line.
- */
-export class ModelCheckError extends Error {
-  readonly issues: Issue[];
-  readonly review: ModelReview;
-
-  constructor(review: ModelReview) {
-    const errors = review.counts.errors;
-    super(`This model has ${errors} error${errors === 1 ? "" : "s"}.`);
-    this.name = "ModelCheckError";
-    this.issues = review.issues;
-    this.review = review;
-  }
 }
 
 /**
@@ -143,6 +145,14 @@ export function generateFromSource(options: BrowserGenerateOptions): BrowserGene
     adminName: options.adminName ?? "admin",
     source,
     pgliteUrl: options.pgliteUrl,
+    /* Passed through rather than defaulted here. The generator's own default is
+       zero, and a page that generates an application for a model someone is
+       about to read should not invent records in it unasked — but a page that
+       then *boots* that application has the opposite problem, so the choice is
+       the caller's and this only carries it. */
+    sampleRecords: options.sampleRecords,
+    sampleSeed: options.sampleSeed,
+    sampleNullRate: options.sampleNullRate,
   });
 
   return {
@@ -160,6 +170,7 @@ export function generateFromSource(options: BrowserGenerateOptions): BrowserGene
       accessRules: parsed.rbac.operations.length + parsed.rbac.transitions.length,
       fileCount: generated.stats.fileCount,
       bytes: generated.stats.bytes,
+      sampleRows: generated.stats.sampleRows,
     },
     warnings,
     review,

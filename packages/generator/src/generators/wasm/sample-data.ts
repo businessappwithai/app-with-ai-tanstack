@@ -19,19 +19,36 @@
  * | `TEXT` / `STRING` | words chosen from the column's own name |
  * | `YES_NO` / `JSON` / `PASSWORD` | a boolean, a small object, a placeholder |
  *
+ * **The vocabulary is faker.js.** It used to be nine hand-written arrays — a
+ * dozen first names, eight company suffixes, seven sentences — which meant ten
+ * rows of a `Customer` table showed the same two or three companies, and adding
+ * a flavour meant adding a list. `@faker-js/faker` already carries the corpora,
+ * so what stays here is the part faker has no opinion about: *which* generator a
+ * column gets. That decision is the file's actual subject, and it is made from
+ * the column's reference type first and its name second.
+ *
+ * faker's `lorem` is used for exactly one thing — free prose in a `text` column
+ * — because it is the one place where placeholder text reading as placeholder
+ * text is the honest answer. Every other flavour resolves to an English
+ * generator (`person`, `company`, `commerce`, `location`, `word`), so a grid of
+ * sample rows reads as records rather than as filler.
+ *
  * Two properties make the result usable rather than merely present:
  *
  * - **Foreign keys resolve.** Entities are emitted parent-first, and a
  *   `TABLE_DIRECT` column takes an id from the rows already generated for the
  *   table its name resolves to. A lookup that opens on a real record is the
  *   difference between demo data and noise.
- * - **It is deterministic.** The generator is a seeded PRNG, so regenerating
- *   the same model produces the same rows: a screenshot stays valid, and a diff
- *   of two generated applications shows what the model changed rather than what
- *   the random number generator did.
+ * - **It is deterministic.** faker is re-seeded per column and row from the
+ *   caller's seed, so regenerating the same model produces the same rows: a
+ *   screenshot stays valid, and a diff of two generated applications shows what
+ *   the model changed rather than what the random number generator did. Seeding
+ *   *per column* rather than once per run is what keeps that stable when a
+ *   column is added — the other columns' streams do not shift under it.
  */
 
 import { ReferenceType } from "@erdwithai/core/types";
+import { en, Faker } from "@faker-js/faker";
 import type { ParsedModel } from "../../pipeline/generate-application";
 import { referenceIdFor, tableNameFor } from "./model-bundle";
 
@@ -60,202 +77,52 @@ function hashSeed(text: string): number {
   return h >>> 0;
 }
 
-/** mulberry32 — small, fast, and good enough to look unpatterned. */
-function rng(seed: number): () => number {
-  let a = seed;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+/**
+ * One column of one row, drawn from a faker seeded for exactly that cell.
+ *
+ * The instance is shared and re-seeded rather than constructed per cell: faker
+ * carries the whole locale, so building one per value would allocate a few
+ * hundred kilobytes ten times per entity for no gain. Re-seeding resets the
+ * Mersenne Twister, which is the only state a draw depends on.
+ */
+class Draw {
+  readonly faker: Faker;
 
-class Random {
-  private next: () => number;
-  constructor(seed: string) {
-    this.next = rng(hashSeed(seed));
+  constructor(faker: Faker, key: string) {
+    faker.seed(hashSeed(key));
+    this.faker = faker;
   }
+
   float(): number {
-    return this.next();
+    return this.faker.number.float({ min: 0, max: 1 });
   }
   int(min: number, max: number): number {
-    return min + Math.floor(this.next() * (max - min + 1));
+    return this.faker.number.int({ min, max });
   }
   pick<T>(items: readonly T[]): T {
-    return items[Math.min(items.length - 1, Math.floor(this.next() * items.length))] as T;
+    return this.faker.helpers.arrayElement(items as T[]);
   }
   chance(probability: number): boolean {
-    return this.next() < probability;
+    return this.faker.datatype.boolean({ probability });
   }
-  /** A v4-shaped uuid from this stream, so ids are stable across runs too. */
   uuid(): string {
-    const hex = "0123456789abcdef";
-    let out = "";
-    for (let i = 0; i < 32; i++) {
-      if (i === 12) out += "4";
-      else if (i === 16) out += hex[8 + Math.floor(this.next() * 4)];
-      else out += hex[Math.floor(this.next() * 16)];
-    }
-    return `${out.slice(0, 8)}-${out.slice(8, 12)}-${out.slice(12, 16)}-${out.slice(16, 20)}-${out.slice(20)}`;
+    return this.faker.string.uuid();
   }
 }
 
 /* ------------------------------------------------------------- vocabulary */
 
-const FIRST_NAMES = [
-  "Amara",
-  "Priya",
-  "Sofia",
-  "Mei",
-  "Aisha",
-  "Elena",
-  "Nadia",
-  "Yara",
-  "Ines",
-  "Leila",
-  "Tomas",
-  "Rahul",
-  "Kwame",
-  "Diego",
-  "Hiroshi",
-  "Omar",
-  "Lucas",
-  "Mateo",
-  "Noah",
-  "Ivan",
-];
-const LAST_NAMES = [
-  "Okafor",
-  "Sharma",
-  "Rossi",
-  "Nakamura",
-  "Haddad",
-  "Novak",
-  "Andersen",
-  "Costa",
-  "Dubois",
-  "Fernandes",
-  "Kowalski",
-  "Mbeki",
-  "Nguyen",
-  "Petrov",
-  "Silva",
-  "Tanaka",
-  "Weber",
-  "Ziegler",
-];
-const COMPANY_HEADS = [
-  "Northwind",
-  "Blue Harbour",
-  "Cedar",
-  "Meridian",
-  "Orchard",
-  "Ridgeway",
-  "Solstice",
-  "Trafalgar",
-  "Vanguard",
-  "Whitfield",
-  "Ironbridge",
-  "Larkspur",
-];
-const COMPANY_TAILS = [
-  "Trading",
-  "Industries",
-  "Logistics",
-  "Supplies",
-  "Partners",
-  "Group",
-  "Systems",
-  "Works",
-];
-const PRODUCT_HEADS = [
-  "Compact",
-  "Industrial",
-  "Precision",
-  "Heavy-duty",
-  "Portable",
-  "Reinforced",
-  "Insulated",
-  "Stainless",
-];
-const PRODUCT_TAILS = [
-  "Valve",
-  "Bearing",
-  "Cable",
-  "Pump",
-  "Bracket",
-  "Filter",
-  "Sensor",
-  "Actuator",
-  "Coupling",
-];
-const CITIES = [
-  "Rotterdam",
-  "Porto",
-  "Leeds",
-  "Malmo",
-  "Bilbao",
-  "Antwerp",
-  "Cork",
-  "Bergen",
-  "Turin",
-  "Gdansk",
-];
-const COUNTRIES = [
-  "Netherlands",
-  "Portugal",
-  "United Kingdom",
-  "Sweden",
-  "Spain",
-  "Belgium",
-  "Ireland",
-  "Norway",
-];
-const STREETS = [
-  "Harbour Road",
-  "Mill Lane",
-  "Station Approach",
-  "Foundry Street",
-  "Kiln Way",
-  "Quay Side",
-];
-const WORDS = [
-  "delivery",
-  "inspection",
-  "tolerance",
-  "batch",
-  "handover",
-  "schedule",
-  "clearance",
-  "allocation",
-  "shortfall",
-  "revision",
-  "approval",
-  "dispatch",
-  "reconciliation",
-  "provision",
-];
-const SENTENCES = [
-  "Checked against the order and cleared without exception.",
-  "Held overnight pending confirmation from the supplier.",
-  "Quantity agreed after a short call; nothing outstanding.",
-  "Raised for review — the price differs from the agreed rate.",
-  "Completed on schedule. No follow-up required.",
-  "Partial receipt; the balance is expected next week.",
-  "Corrected after the first entry recorded the wrong unit.",
-];
+/**
+ * The two lists faker has no generator for.
+ *
+ * `example.com` and its siblings are reserved by RFC 2606 precisely so that
+ * sample data cannot reach a real inbox or a real site — faker's own domains are
+ * plausible-looking rather than reserved, and an email column full of addresses
+ * that resolve is a hazard rather than a nicety. Units of measure are simply not
+ * a faker module.
+ */
 const DOMAINS = ["example.com", "example.org", "example.net"];
-const COLORS = [
-  "#2563eb",
-  "#0ea5e9",
-  "#16a34a",
-  "#f59e0b",
-  "#dc2626",
-  "#7c3aed",
-  "#0f766e",
-  "#be123c",
-];
+const UNITS = ["each", "box", "case", "pallet", "kg", "litre"];
 
 /* --------------------------------------------------------------- decisions */
 
@@ -268,10 +135,13 @@ type Flavour =
   | "product"
   | "city"
   | "country"
+  | "countryCode"
+  | "region"
   | "address"
   | "code"
   | "reference"
   | "title"
+  | "jobTitle"
   | "uom"
   | "currency"
   | "word";
@@ -285,14 +155,20 @@ function flavourOf(column: string, entity: string): Flavour {
     return "person";
   if (/^(company|vendor|supplier|organisation|organization|account|insurer)_name$/.test(n))
     return "company";
+  /* Before the generic `*_code` rule below, which would otherwise turn
+     `currency_code` into `OPP-1060` and `country_code` into `TER-1004` — a
+     column whose whole point is a standard code, filled with a made-up one. */
+  if (/(currency|iso_currency)$/.test(n)) return "currency";
+  if (/^(country_code|iso_country|country_iso)$/.test(n)) return "countryCode";
   if (/^(sku|code|.*_code|barcode)$/.test(n)) return "code";
   if (/(number|reference|ref|invoice_no|po_no)$/.test(n)) return "reference";
+  if (/^(job_?title|position|designation)$/.test(n)) return "jobTitle";
   if (/(title|subject|summary|label)$/.test(n)) return "title";
   if (/(city|town)$/.test(n)) return "city";
   if (/(country|nation)$/.test(n)) return "country";
+  if (/^(region|state|province|county)$/.test(n)) return "region";
   if (/(address|street|line1|line2)$/.test(n)) return "address";
   if (/^(uom|unit|unit_of_measure|measure)$/.test(n)) return "uom";
-  if (/(currency|iso_currency)$/.test(n)) return "currency";
   if (n === "name") {
     const e = entity.toLowerCase();
     if (/(vendor|supplier|company|account|customer|client|insurer|organisation)/.test(e))
@@ -363,36 +239,53 @@ interface Column {
   referenceId: number;
 }
 
-function stringValue(random: Random, column: string, entity: string, row: number): string {
+/**
+ * A string column, in whatever register its name asks for.
+ *
+ * The flavour decides which faker generator answers; faker decides what it says.
+ * Two flavours stay hand-built because they are not vocabulary at all — a code
+ * and a reference number are derived from the entity and the row index, which is
+ * what makes them unique without a uniqueness check.
+ */
+function stringValue(draw: Draw, column: string, entity: string, row: number): string {
+  const f = draw.faker;
   switch (flavourOf(column, entity)) {
     case "firstName":
-      return random.pick(FIRST_NAMES);
+      return f.person.firstName();
     case "lastName":
-      return random.pick(LAST_NAMES);
+      return f.person.lastName();
     case "person":
-      return `${random.pick(FIRST_NAMES)} ${random.pick(LAST_NAMES)}`;
+      return f.person.fullName();
     case "company":
-      return `${random.pick(COMPANY_HEADS)} ${random.pick(COMPANY_TAILS)}`;
+      return f.company.name();
     case "product":
-      return `${random.pick(PRODUCT_HEADS)} ${random.pick(PRODUCT_TAILS)}`;
+      return f.commerce.productName();
     case "city":
-      return random.pick(CITIES);
+      return f.location.city();
     case "country":
-      return random.pick(COUNTRIES);
+      return f.location.country();
+    case "countryCode":
+      return f.location.countryCode();
+    case "region":
+      return f.location.state();
     case "address":
-      return `${random.int(1, 180)} ${random.pick(STREETS)}, ${random.pick(CITIES)}`;
+      return `${f.location.streetAddress()}, ${f.location.city()}`;
     case "code":
-      return `${initials(entity)}-${String(1000 + row * 7 + random.int(0, 6)).slice(0, 4)}`;
+      return `${initials(entity)}-${String(1000 + row * 7 + draw.int(0, 6)).slice(0, 4)}`;
     case "reference":
       return `${initials(entity)}${new Date().getFullYear()}-${String(row + 1).padStart(4, "0")}`;
     case "title":
-      return `${capitalise(random.pick(WORDS))} ${random.pick(WORDS)}`;
+      /* `commerce.productAdjective` rather than `word.adjective`: the general
+         list carries determiners, and "Which plain" is not a name. */
+      return `${f.commerce.productAdjective()} ${f.word.noun()}`;
+    case "jobTitle":
+      return f.person.jobTitle();
     case "uom":
-      return random.pick(["each", "box", "case", "pallet", "kg", "litre"]);
+      return draw.pick(UNITS);
     case "currency":
-      return random.pick(["EUR", "GBP", "USD", "SEK"]);
+      return f.finance.currencyCode();
     default:
-      return capitalise(random.pick(WORDS));
+      return capitalise(f.word.noun());
   }
 }
 
@@ -533,6 +426,11 @@ export function buildSampleData(parsed: ParsedModel, options: SampleDataOptions)
 
   const nullRate = options.nullRate ?? 0.15;
   const salt = options.seed ?? "erdwithai";
+  /* One faker for the whole run, re-seeded per cell by `Draw`. Constructing
+     it here rather than at module scope keeps two concurrent calls — the CLI
+     generating twice, a test table-driving the seed — off each other's
+     stream. */
+  const faker = new Faker({ locale: en });
 
   const entities = parsed.entities.map((entity) => ({
     name: entity.name,
@@ -572,11 +470,11 @@ export function buildSampleData(parsed: ParsedModel, options: SampleDataOptions)
     for (let row = 0; row < count; row++) {
       const record: Record<string, unknown> = {};
       for (const column of full.columns) {
-        const random = new Random(`${salt}:${full.name}:${column.columnName}:${row}`);
+        const draw = new Draw(faker, `${salt}:${full.name}:${column.columnName}:${row}`);
         const isPrimary = column.columnName === full.primaryKey || column.columnName === "id";
 
         if (isPrimary) {
-          const id = random.uuid();
+          const id = draw.uuid();
           record[column.columnName] = id;
           generatedIds.push(id);
           continue;
@@ -585,12 +483,12 @@ export function buildSampleData(parsed: ParsedModel, options: SampleDataOptions)
         /* An OPTIONAL column that is sometimes empty is what makes a generated
            screen look like a real one — but a foreign key the form needs is
            never dropped for the sake of variety. */
-        if (!column.required && !column.isForeignKey && random.chance(nullRate)) {
+        if (!column.required && !column.isForeignKey && draw.chance(nullRate)) {
           record[column.columnName] = null;
           continue;
         }
 
-        record[column.columnName] = valueFor(column, full.name, row, random, {
+        record[column.columnName] = valueFor(column, full.name, row, draw, {
           ids,
           personEntity,
           selfIds: generatedIds,
@@ -618,7 +516,7 @@ function valueFor(
   column: Column,
   entity: string,
   row: number,
-  random: Random,
+  draw: Draw,
   context: ValueContext
 ): unknown {
   /* A foreign key takes an id that exists, or nothing. Pointing at a uuid no
@@ -629,20 +527,25 @@ function valueFor(
     const pool =
       target === context.entityName ? context.selfIds.slice(0, row) : context.ids.get(target ?? "");
     if (!pool || pool.length === 0) return null;
-    return random.pick(pool);
+    return draw.pick(pool);
   }
 
-  if (column.enumValues?.length) return random.pick(column.enumValues);
+  if (column.enumValues?.length) return draw.pick(column.enumValues);
+
+  const f = draw.faker;
 
   switch (column.referenceId) {
     case ReferenceType.EMAIL:
-      return emailFor(random);
+      return emailFor(draw);
     case ReferenceType.PHONE:
-      return `+${random.int(31, 49)} ${random.int(10, 99)} ${random.int(100, 999)} ${random.int(1000, 9999)}`;
+      /* `international` rather than faker's default: the national format for
+         `en` carries an extension (`(901) 468-8976 x74347`), which reads as a
+         parsing accident in a phone column. */
+      return f.phone.number({ style: "international" });
     case ReferenceType.URL:
-      return `https://www.${random.pick(DOMAINS)}/${random.pick(WORDS)}`;
+      return `https://www.${draw.pick(DOMAINS)}/${f.lorem.slug(1)}`;
     case ReferenceType.COLOR:
-      return random.pick(COLORS);
+      return f.color.rgb({ format: "hex", casing: "lower" });
     case ReferenceType.PASSWORD:
       return "not-a-real-password";
     default:
@@ -653,38 +556,37 @@ function valueFor(
     case "boolean":
       /* `is_active` reads wrong if half the rows are inactive. */
       return /^(is_|has_|can_)?(active|enabled|available|approved)$/.test(column.columnName)
-        ? random.chance(0.85)
-        : random.chance(0.5);
+        ? draw.chance(0.85)
+        : draw.chance(0.5);
     case "integer": {
       const [min, max] = integerRange(column.columnName);
-      return random.int(min, max);
+      return draw.int(min, max);
     }
     case "decimal": {
       const [min, max] = amountRange(column.columnName);
-      return Number((min + random.float() * (max - min)).toFixed(2));
+      return Number((min + draw.float() * (max - min)).toFixed(2));
     }
     case "date":
     case "datetime": {
       const [from, to] = dayOffsetRange(column.columnName);
       const when = new Date();
-      when.setUTCDate(when.getUTCDate() + random.int(from, to));
-      when.setUTCHours(random.int(7, 18), random.int(0, 59), random.int(0, 59), 0);
+      when.setUTCDate(when.getUTCDate() + draw.int(from, to));
+      when.setUTCHours(draw.int(7, 18), draw.int(0, 59), draw.int(0, 59), 0);
       return iso(when, column.type === "datetime");
     }
     case "json":
-      return { source: "sample", note: random.pick(WORDS), index: row + 1 };
+      return { source: "sample", note: f.word.noun(), index: row + 1 };
     case "text": {
       /* A `text` column is prose by default — unless its name says otherwise.
-         "Quantity agreed after a short call" is a fine note and a poor
-         postal address. */
+         A lorem sentence is a fine note and a poor postal address. */
       const flavour = flavourOf(column.columnName, entity);
       return flavour === "word" || flavour === "title"
-        ? random.pick(SENTENCES)
-        : stringValue(random, column.columnName, entity, row);
+        ? f.lorem.sentence()
+        : stringValue(draw, column.columnName, entity, row);
     }
     default: {
       const flavour = flavourOf(column.columnName, entity);
-      const base = stringValue(random, column.columnName, entity, row);
+      const base = stringValue(draw, column.columnName, entity, row);
       /* Codes and references already carry the row number; everything else
          needs one appending when the column is UNIQUE, or ten rows of
          "Northwind Trading" collide on insert. */
@@ -697,8 +599,23 @@ function valueFor(
   }
 }
 
-function emailFor(random: Random): string {
-  const first = random.pick(FIRST_NAMES).toLowerCase();
-  const last = random.pick(LAST_NAMES).toLowerCase();
-  return `${first}.${last}.${random.int(1, 999)}@${random.pick(DOMAINS)}`;
+/**
+ * An address at a reserved domain, built rather than asked for.
+ *
+ * `faker.internet.email` is happy to return `amara_okafor2@example.com`, but it
+ * decides on its own when to append digits — and a UNIQUE email column with ten
+ * rows and two colliding names fails the insert, silently losing the row. The
+ * counter here is part of the address rather than a repair applied afterwards.
+ */
+function emailFor(draw: Draw): string {
+  const f = draw.faker;
+  const first = f.person
+    .firstName()
+    .toLowerCase()
+    .replace(/[^a-z]/g, "");
+  const last = f.person
+    .lastName()
+    .toLowerCase()
+    .replace(/[^a-z]/g, "");
+  return `${first}.${last}.${draw.int(1, 999)}@${draw.pick(DOMAINS)}`;
 }

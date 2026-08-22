@@ -35,7 +35,7 @@ import * as memfs from "./memory-fs";
 setLanguageDefinition(languageDefinition);
 setCheckerDefinition(languageDefinition as unknown as Parameters<typeof setCheckerDefinition>[0]);
 
-export { ModelCheckError } from "./index";
+export { ModelCheckError } from "./model-check-error";
 export type { ModelReview };
 
 /** Where the templates are seeded and the application is written, in the map. */
@@ -91,7 +91,7 @@ export async function generateFullStack(options: FullStackOptions): Promise<Full
 
   const review = reviewModel(options.source);
   if (!review.ok) {
-    const { ModelCheckError } = await import("./index");
+    const { ModelCheckError } = await import("./model-check-error");
     throw new ModelCheckError(review);
   }
 
