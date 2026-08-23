@@ -99,10 +99,14 @@ export function formatIssue(issue: Issue): string {
  */
 export function formatReport(report: CheckReport): string {
   const { errors, warnings, infos } = report.counts;
+  /* Plural properly rather than with "(s)": this line is the one sentence most
+     readers of a report actually read, and `1 error(s)` reads like a machine
+     apologising for not knowing its own arithmetic. */
+  const count = (n: number, noun: string) => `${n} ${noun}${n === 1 ? "" : "s"}`;
   const counted = [
-    `${errors} error(s)`,
-    `${warnings} warning(s)`,
-    ...(infos > 0 ? [`${infos} note(s)`] : []),
+    count(errors, "error"),
+    count(warnings, "warning"),
+    ...(infos > 0 ? [count(infos, "note")] : []),
   ].join(", ");
 
   /* A passing run that still printed something says so on the same line, so the

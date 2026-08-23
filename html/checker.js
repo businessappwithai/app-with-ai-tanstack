@@ -3403,10 +3403,11 @@ function formatIssue(issue) {
 }
 function formatReport(report) {
   const { errors, warnings, infos } = report.counts;
+  const count = (n, noun) => `${n} ${noun}${n === 1 ? "" : "s"}`;
   const counted = [
-    `${errors} error(s)`,
-    `${warnings} warning(s)`,
-    ...infos > 0 ? [`${infos} note(s)`] : []
+    count(errors, "error"),
+    count(warnings, "warning"),
+    ...infos > 0 ? [count(infos, "note")] : []
   ].join(", ");
   const advisory = report.ok && report.issues.length > 0 ? " — notes and warnings are advisory; the generator accepts this model" : "";
   const verdict = report.ok ? `OK — ${counted} (EML ${report.languageVersion})${advisory}` : `FAILED — ${counted} (EML ${report.languageVersion})`;
