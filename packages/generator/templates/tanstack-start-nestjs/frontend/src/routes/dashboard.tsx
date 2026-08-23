@@ -24,7 +24,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { Icon } from '@/components/ui/icon';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { APP_NAME } from "@/lib/app-meta";
 
@@ -296,6 +296,16 @@ function DashboardPage() {
       </header>
 
       <main className="container-swiss py-8 space-y-10">
+        {/* The manual, above everything else.
+
+            Generation writes public/manual.html beside this application: every
+            entity, every field, the processes it runs and the decisions it
+            makes, out of the same model these screens are drawn from. It is a
+            plain anchor rather than a route because it is a static document the
+            router knows nothing about — and it opens in a new tab, since a
+            reader wants it beside the screen it describes. */}
+        <ManualBanner />
+
         {/* Loading */}
         {(isLoading || categoriesLoading) && (
           <div className="swiss-card p-12 text-center">
@@ -444,6 +454,32 @@ function DashboardPage() {
         )}
       </main>
     </div>
+  );
+}
+
+function ManualBanner() {
+  return (
+    <section className="flex flex-wrap items-center gap-5 rounded-lg border border-border border-l-4 border-l-primary bg-card p-5">
+      <div className="flex-1 min-w-[20rem]">
+        <h2 className="text-sm font-semibold mb-1">Manual</h2>
+        <p className="text-sm text-muted-foreground max-w-prose">
+          Every kind of record {APP_NAME} keeps, every field on it, the processes it runs and
+          the decisions it makes &mdash; written from the same model this application was
+          generated from.
+        </p>
+      </div>
+      {/* An anchor wearing the button's classes: this Button renders a
+          <button>, and it has no `asChild`, so a real link is the only way to
+          get a new tab out of it. */}
+      <a
+        href="/manual.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={buttonVariants({ variant: 'outline', size: 'sm' })}
+      >
+        Open the manual
+      </a>
+    </section>
   );
 }
 

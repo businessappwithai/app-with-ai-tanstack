@@ -279,7 +279,7 @@ app-with-ai-tanstack/
 └── .claude/           # Project rules, plans, and local skills
 ```
 
-Root docs: `DESIGN.md`, `HOOKS_GUIDE.md`, `READEME.md` (sic — feature overview),
+Root docs: `README.md` (the repository front page), `DESIGN.md`, `HOOKS_GUIDE.md`,
 `TODOS.md`, `CHANGELOG.md`, plus QA write-ups (`GENERATOR_QA_SUMMARY.md`,
 `QA_AND_IMPROVEMENT_COMPLETE.md`, `REGENERATION_TEST_RESULTS.md`,
 `TEMPLATE_IMPROVEMENTS.md`).
@@ -430,6 +430,49 @@ never writes (a COPY of a missing file fails the build — they now use the
 and `docker-compose.yml` named its images `{{project.name}}`, so a project called
 "Acme CRM" produced `image: Acme CRM:latest`, which compose rejects before
 building anything. Image names use `project.id`.
+
+**`docker compose up --build` on a generated app.** Three defects had to be
+fixed before it worked, and all three had been latent since the templates were
+written:
+
+- **The lockfile that is never written.** The per-service Dockerfiles did
+  `COPY bun.lock package.json ./`, and a COPY of a missing file fails the build.
+  They now use the `bun.loc[k]` glob and the conditional install the root
+  Dockerfile already had.
+- **The image name.** `docker-compose.yml` named its images `{{project.name}}`,
+  so "Acme CRM" produced `image: Acme CRM:latest` — not a valid Docker
+  reference, rejected before anything builds. Image names use `project.id`.
+- **The build context.** Both service Dockerfiles install the *workspace* — they
+  copy `backend/package.json` **and** `frontend/package.json` so resolution
+  matches what the app was generated against — but compose handed them
+  `context: ./backend`, putting those paths out of reach. The build reached
+  `COPY backend/run-app.sh` and failed with "not found", which reads like a
+  missing file rather than the wrong root. Both services now build from
+  `context: .` with `dockerfile: ./backend/Dockerfile`, and a generated
+  `.dockerignore` keeps `node_modules` and `.git` out of the context that
+  change implies.
+
+**Configuration comes from a root `.env`.** The generator writes a
+`.env.example` beside `docker-compose.yml`; compose reads `.env` from there
+automatically, and every value has a working default in the compose file, so an
+absent `.env` still brings the application up. The file exists for the two
+things no default can supply: the real secrets, and where the AI endpoint lives.
+
+**The generated app's AI surface is one endpoint, and it is embeddings.** The
+model-context assistant answers questions about the application's own model by
+embedding it into pgvector, so what it needs is OpenAI-compatible
+`POST /v1/embeddings` — `AI_BASE_URL`, `AI_API_KEY`, `AI_EMBEDDING_MODEL`,
+`AI_EMBEDDING_DIMENSIONS`. A local model (Ollama, LM Studio, llama.cpp, vLLM) or
+OpenAI both speak it. **The Claude API does not**: it has no embeddings
+endpoint, and it is `POST /v1/messages` with `x-api-key` rather than
+`POST /v1/embeddings` with a bearer token, so an Anthropic key cannot serve the
+assistant on its own. `ANTHROPIC_API_KEY` is passed through and not yet read —
+`.env.example` says exactly that rather than implying it works.
+
+> **Mastra is in the modelling tool, not in generated applications.**
+> `packages/ai` registers the Mastra instance and its agents; a generated app
+> has no `mastra` dependency and no agent module. Wiring a chat surface into the
+> generated backend is unbuilt work, not a configuration switch.
 
 **`erdwithai-wasm` is not a second stack.** It runs the same pipeline
 `erdwithai` runs — the same NestJS backend, the same TanStack Start front end,
@@ -703,6 +746,52 @@ list rather than printing the uuid the rule put in front of it.
 
 Tests: `packages/core/src/types/__tests__/identifier-columns.test.ts` pins the
 rule, including the shapes that must **not** trip the join branch.
+
+### The generated manual
+
+The last thing generation does is write the application back out as prose.
+`packages/generator/src/manual/index.ts` renders a `ParsedModel` into **one
+self-contained HTML page** — a contents menu, a section per entity giving every
+field with its control type, constraints, enumerated values and help text, then
+that entity's relationships, its state machine, the rules that fire on it and
+the roles that may read it, followed by the rules, the processes, and a note on
+how the application was built.
+
+**One renderer, both stacks, three ways of being served.** The browser stack puts
+`manual.html` in its file map (`wasm-app.generator.ts`); the NestJS stack writes
+`frontend/public/manual.html` from the pipeline (`generate-application.ts`), which
+is what TanStack Start serves at `/manual.html` and what travels in the
+downloadable zip. Both dashboards carry a **Manual** button pointing at it —
+`templates/wasm/ui/views/dashboard.js` and
+`templates/tanstack-start-nestjs/frontend/src/routes/dashboard.tsx`.
+
+Four decisions worth keeping:
+
+- **No stylesheet, no script, no font, no image.** It is served by a Service
+  Worker, by a static directory and by a `file://` double-click out of the zip,
+  and a single file with its CSS inline is the only form that survives all three.
+- **It is written by the shared pipeline, not by a generator.** That is what
+  makes the two stacks' copies identical for a given model — and why CI's
+  overlay-footprint job does not list it: the plain and wasm runs produce the
+  same bytes.
+- **The stamp is a full ISO instant, deliberately.** That footprint job blanks
+  ISO timestamps before diffing; a friendly `2026-08-22` would survive the
+  blanking and make the two trees differ whenever the pair of runs straddles
+  midnight.
+- **Its prose is the model's `%%entity help:` and `%%field help:` and nothing
+  else.** A field with no help gets a dash; an entity with none gets one line
+  saying so, once, rather than the same sentence on every row. That is the only
+  feedback a modeller gets that the help contract was never honoured, and
+  `language/examples/crm.eml.mmd` now honours it on all 17 entities and every
+  column.
+
+**The example models are checked in twice.** `language/examples/*.eml.mmd` (and
+`examples/*.eml.mmd`) is where a model is authored; `html/models/*.eml.mmd` is
+what the two hosted pages serve, so it cannot be a symlink or an import. They
+drifted — the CRM gained a `%%rbac … .read` rule per entity and the `html/` copy
+did not, so the page demonstrated per-role visibility with a model that no longer
+declared it. `packages/generator/src/__tests__/example-models.test.ts` asserts
+they are byte-identical.
 
 ### The real stack, in a browser tab (`--standalone`'s opposite)
 
@@ -1727,6 +1816,7 @@ Secrets: `NEON_DATABASE_URL`, `EML_PUBLISH_TOKEN` (needs `repo` **and**
 | `packages/generator/templates/.../frontend/src/lib/app-meta.ts.hbs` | ⭐ The only generated module in the front end |
 | `packages/generator/src/rbac/index.ts` | `%%rbac` → operation + transition access rules |
 | `packages/generator/src/rbac/roles.ts` | ⭐ `%%rbac` → the roles, one account each, and per-entity visibility — read by both stacks |
+| `packages/generator/src/manual/index.ts` | ⭐ The parsed model → `manual.html`, one self-contained page — written by both stacks |
 | `packages/generator/src/cli/generate.ts` | Generator CLI |
 | `packages/generator/src/generators/ports.ts` | Generated-app default ports |
 | `packages/generator/templates/tanstack-start-nestjs/` | Stack templates |
@@ -1844,6 +1934,24 @@ application's dependencies, not this one's.
 Add it once in `packages/generator/src/pipeline/generate-application.ts`
 (`GenerationSettings`). Do **not** assemble options separately in the CLI or in
 `/api/generate` — that drift is what lost `%%category` on the web path.
+
+### Change the generated manual
+
+1. `packages/generator/src/manual/index.ts` is the whole renderer — there is no
+   template and no second copy
+2. Render it over the CRM model and open the result before believing it:
+   ```bash
+   bun -e 'import{readFileSync,writeFileSync}from"node:fs";\
+   const{parseModel}=await import("./packages/generator/src/pipeline/parse-model");\
+   const{renderManual}=await import("./packages/generator/src/manual/index");\
+   writeFileSync("/tmp/manual.html",renderManual(parseModel(readFileSync("language/examples/crm.eml.mmd","utf-8")),{name:"Acme CRM",version:"1.0.0",description:"CRM"}))'
+   ```
+3. `bun run build:wasm-runtime` is **not** needed — the manual is TypeScript in
+   `src/`, not a template under `templates/wasm/` — but `build:wasm-browser` and
+   `build:fullstack-browser` are, because both bundles carry it
+4. Generate both ways and re-run the footprint diff: the two copies must stay
+   identical, or CI's `generated-wasm-app` job fails on a file the overlay does
+   not own
 
 ### Change what `%%rbac` enforces
 

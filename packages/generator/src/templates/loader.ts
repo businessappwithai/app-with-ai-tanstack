@@ -98,6 +98,27 @@ export class TemplateLoader {
       str ? str.charAt(0).toUpperCase() + str.slice(1) : ""
     );
 
+    /*
+     * A model's own words, safe to drop into generated TypeScript.
+     *
+     * Templates are compiled with `noEscape: true` — they render code, not
+     * HTML, and Handlebars' HTML escaping would put `&#x27;` in a source file.
+     * The consequence is that every `{{...}}` lands raw, so the moment a
+     * model's `%%entity … help:` text contained an apostrophe the generated
+     * `seeds/02_sys_dictionary.ts` had an unterminated string literal and the
+     * whole application stopped compiling. It went unnoticed because no example
+     * model had ever written the word "opportunity's".
+     *
+     * This emits the **complete** literal, quotes included — `{{tsString x}}`,
+     * never `'{{tsString x}}'` — so there is no way to use it and still own the
+     * quoting. JSON.stringify does the escaping, which also settles backslashes
+     * and control characters; newlines are folded to spaces first because these
+     * are one-line descriptions and a literal newline is a syntax error.
+     */
+    Handlebars.registerHelper("tsString", (value: unknown) =>
+      JSON.stringify(value == null ? "" : String(value).replace(/\r?\n/g, " "))
+    );
+
     // ========================================================================
     // Comparison Helpers
     // ========================================================================

@@ -13,6 +13,7 @@
  * That ratio is the design, not an accident; see model-bundle.ts.
  */
 
+import { renderManual } from "../../manual";
 import type { ParsedModel } from "../../pipeline/generate-application";
 import { buildModelBundle, type WasmProjectSettings } from "./model-bundle";
 import { RUNTIME_ASSETS, RUNTIME_BYTES } from "./runtime-assets.generated";
@@ -106,6 +107,20 @@ export function generateWasmApp(
       )
     );
   }
+
+  /* The manual is a static file rather than a screen the runtime renders,
+     because it has to survive being opened out of the zip, out of the Service
+     Worker and off a static host alike. `manual.html` is the same file in all
+     three. */
+  files.set(
+    "manual.html",
+    renderManual(parsed, {
+      name: options.name,
+      version: options.version,
+      description: options.description,
+      stack: "browser",
+    })
+  );
 
   files.set("package.json", packageJson(options));
   files.set("README.md", readme(options, parsed));

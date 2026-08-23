@@ -193,7 +193,12 @@ test.describe
       expect(tally.Entities).toBe("17");
       expect(tally.Rules).toBe("8");
       expect(tally.Processes).toBe("10");
-      expect(tally["Access rules"]).toBe("15");
+      // 32, not 15: the CRM model declares a `%%rbac … .read` rule per entity on
+      // top of its write restrictions, which is what gives each seeded role its
+      // own set of windows. html/models/crm.eml.mmd is the copy this page loads
+      // and it must stay identical to language/examples/crm.eml.mmd — they had
+      // drifted, and this number is what noticed.
+      expect(tally["Access rules"]).toBe("32");
 
       await expect(page.locator("#build-phases .build__phase").nth(2)).toHaveAttribute(
         "data-state",

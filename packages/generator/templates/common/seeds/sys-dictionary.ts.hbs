@@ -510,7 +510,11 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: {{camelCase name}}TableId,
     table_name: '{{tableName}}',
     name: '{{displayName}}',
-    description: '{{#if description}}{{description}}{{else}}Manage {{displayName}} records{{/if}}',
+    {{!-- tsString emits the whole literal, quotes included. The model's own
+          words land here, and `%%entity Opportunity help: … the opportunity's
+          amount …` used to close the string on its apostrophe and take the
+          generated application's compile with it. --}}
+    description: {{#if description}}{{tsString description}}{{else}}'Manage {{displayName}} records'{{/if}},
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -569,7 +573,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     name: '{{displayName}}',
     sys_reference_id: {{referenceId}}{{#if maxLength}},
     field_length: {{maxLength}}{{/if}}{{#if default}},
-    default_value: '{{default}}'{{/if}},
+    default_value: {{tsString default}}{{/if}},
     is_key: {{#if (eq name ../primaryKey)}}true{{else}}false{{/if}},
     is_parent: false,
     is_mandatory: {{#if (or (eq columnName 'created_at') (eq columnName 'updated_at') (eq columnName 'deleted_at'))}}false{{else}}{{required}}{{/if}},

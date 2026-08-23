@@ -184,7 +184,16 @@ its `%%workflow` directive gave it.
 %%field Order.status enum: OrderStatus
 %%field Product.price min: 0
 %%field User.bio ui: textarea
+%%field Order.placed_at help: When the customer committed, not when we shipped.
 ```
+
+`enum:` and `help:` are the two keys a compiler reads; the rest are validated
+only. `help:` has **two** consumers — `sys_column.description`, which the
+generated form prints under the control, and the generated `manual.html`, where
+it is the entire "what it is for" column. A field with no help prints a dash
+there, so write help on every column rather than only the ambiguous ones.
+`%%entity <Name> help:` does the same for the entity: `sys_table.description`,
+and the lede of that entity's section in the manual.
 
 ## `%%enum` — named enumeration *(compiled)*
 

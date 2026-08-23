@@ -326,6 +326,13 @@ npm-debug.log*
     const files: Array<{ template: string; output: string; executable?: boolean }> = [
       { template: "docker-compose.yml.hbs", output: "docker-compose.yml" },
       { template: "Dockerfile.hbs", output: "Dockerfile" },
+      // Every service builds from the project root, so the context is the whole
+      // tree. Without this the daemon receives node_modules and .git first.
+      { template: ".dockerignore.hbs", output: ".dockerignore" },
+      // Compose reads `.env` from the project root. This is the file the
+      // reader copies to it — the AI endpoint and the secrets, which are the
+      // two things no default can supply.
+      { template: ".env.example.root.hbs", output: ".env.example" },
       { template: "docker-start.sh.hbs", output: "docker-start.sh", executable: true },
     ];
 

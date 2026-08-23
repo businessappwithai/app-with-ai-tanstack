@@ -1331,7 +1331,7 @@ var erdwithai_language_default = {
       core: "erDiagram entities, attributes with PK/FK/UK/OPTIONAL/NULL/UNIQUE, and all 8 relationship cardinalities. Plus the directives the same parse pass reads: %%index (real DDL indexes), %%enum and %%field enum: (bound enums), and %%category (dashboard grouping). Fully compiled.",
       rules: "flowchart decision flows converted to JDM by shape semantics, and %%action directives compiled to a GoRules decision table. Fully compiled.",
       workflows: "%%hook directives in both forms (all 13 hook types), stateDiagram-v2 state machines, and %%workflow kind: saga with its %%step and %%loop directives. All three forms are compiled and seeded; the automation dialect is the same saga machinery authored through the builder.",
-      help: "%%field <Entity>.<column> help: and %%entity <Name> help: (or description:). Both are compiled: the parser hangs the text on the attribute and the entity, the dictionary generator writes it to sys_column.description and sys_table.description, and the generated application shows it under the field and beside the table. Fully compiled.",
+      help: "%%field <Entity>.<column> help: and %%entity <Name> help: (or description:). Both are compiled: the parser hangs the text on the attribute and the entity, the dictionary generator writes it to sys_column.description and sys_table.description, and the generated application shows it under the field and beside the table. It has a second consumer: packages/generator/src/manual/index.ts renders manual.html from the same parsed model, where this text is the entire 'what it is for' column — a field with no help prints a dash there. Write help on every column, not only the ambiguous ones. Fully compiled.",
       validated: "%%rule and %%trigger, and the %%entity keys other than help:/description:. No compiler reads these yet, but language/checker.ts enforces their syntax and cross-references, so a malformed one fails validation instead of being silently dropped.",
       reserved: "The %%field keys other than enum: and help:. Renderer-safe and documented, with no reader. Writing one is legal and inert.",
       access: "%%rbac, in both its CRUD and state-transition forms. Compiled to sys_operation_access / sys_transition_access and enforced by the generated EntityAccessGuard."
@@ -10030,6 +10030,21 @@ a { color: var(--primary); }
 }
 .login__hint-note { display: block; margin-top: 3px; opacity: 0.85; }
 
+/* The manual, at the top of the dashboard rather than in the card grid: it
+   describes every one of those cards, so it is the thing a reader who has just
+   met this application opens first. */
+.manual {
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  margin: 0 0 26px; padding: 15px 18px;
+  border: 1px solid var(--border-strong); border-left: 3px solid var(--primary);
+  border-radius: var(--radius-sm); background: var(--surface);
+}
+.manual__body { flex: 1 1 320px; }
+.manual__title { margin: 0 0 4px; font-size: 14px; font-weight: 650; }
+.manual__desc { margin: 0; font-size: 12.5px; color: var(--text-soft); max-width: 68ch; }
+.manual__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.manual__actions .btn { text-decoration: none; }
+
 /* Start-from-empty. Set apart rather than sitting in the card grid: it is the
    one control on the dashboard that deletes something, and a destructive action
    that looks like the sixteen navigation cards around it is one somebody
@@ -11706,6 +11721,19 @@ export async function dashboardView(root, { entities, navigate, project, user })
     root,
     el(
       "div",
+
+      /*
+       * The manual, above everything else on the dashboard.
+       *
+       * Generation writes \`manual.html\` beside this application — every entity,
+       * every field, the processes and the decisions, out of the same model the
+       * screens below are drawn from. It opens in a new tab rather than as a
+       * screen of its own: the application runs inside an iframe on the guide,
+       * where a full-width document has nowhere to go, and a reader wants the
+       * manual open *beside* the screen it describes rather than instead of it.
+       */
+      manualBanner(project),
+
       [...byCategory.entries()]
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([category, group]) =>
@@ -11790,6 +11818,35 @@ export async function dashboardView(root, { entities, navigate, project, user })
             el("span.runtime-note__db", \`\${health.runtime} — \${String(health.database).split(",")[0]}\`)
           )
         : null
+    )
+  );
+}
+
+/** The link to the generated manual. */
+function manualBanner(project) {
+  return el(
+    "section.manual",
+    el(
+      "div.manual__body",
+      el("h2.manual__title", "Manual"),
+      el(
+        "p.manual__desc",
+        \`Every kind of record \${project?.name || "this application"} keeps, every field on it, \` +
+          "the processes it runs and the decisions it makes \\u2014 written from the same model " +
+          "this application was generated from."
+      )
+    ),
+    el(
+      "div.manual__actions",
+      el(
+        "a.btn.btn--primary",
+        {
+          href: new URL("manual.html", location.href).href,
+          target: "_blank",
+          rel: "noopener",
+        },
+        "Open the manual"
+      )
     )
   );
 }
@@ -12718,7 +12775,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 279824;
+var RUNTIME_BYTES = 281935;
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};
@@ -17941,6 +17998,407 @@ function refTableFor(entities, tableName, columnName) {
   return entities.find((entity2) => entity2.tableName === `bus_${base}`)?.tableName;
 }
 
+// packages/generator/src/manual/index.ts
+function escapeHtml(value) {
+  return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+function slug(value) {
+  return String(value).replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+function title2(value) {
+  return String(value).replace(/([a-z0-9])([A-Z])/g, "$1 $2").split(/[\s_-]+/).filter(Boolean).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+}
+var REFERENCE_NAMES = {
+  [ReferenceType.STRING]: "Text",
+  [ReferenceType.INTEGER]: "Whole number",
+  [ReferenceType.AMOUNT]: "Amount",
+  [ReferenceType.ID]: "Identifier",
+  [ReferenceType.TEXT]: "Long text",
+  [ReferenceType.DATE]: "Date",
+  [ReferenceType.DATETIME]: "Date and time",
+  [ReferenceType.LIST]: "List",
+  [ReferenceType.TABLE]: "Table reference",
+  [ReferenceType.TABLE_DIRECT]: "Lookup",
+  [ReferenceType.YES_NO]: "Yes / No",
+  [ReferenceType.URL]: "Web address",
+  [ReferenceType.COLOR]: "Colour",
+  [ReferenceType.JSON]: "JSON",
+  [ReferenceType.PASSWORD]: "Password",
+  [ReferenceType.EMAIL]: "Email address",
+  [ReferenceType.PHONE]: "Telephone"
+};
+function controlFor(attribute, referenceId) {
+  if (attribute.enumValues?.length)
+    return "Choice";
+  return REFERENCE_NAMES[referenceId] ?? "Text";
+}
+function referenceTarget(column) {
+  const name = column.toLowerCase();
+  if (name.endsWith("_by") || name.endsWith("_by_id"))
+    return "User";
+  if (!name.endsWith("_id"))
+    return null;
+  return title2(name.slice(0, -3)).replace(/\s+/g, "");
+}
+function fieldRows(entity2) {
+  const primaryKey = entity2.primaryKey || "id";
+  return entity2.attributes.map((attribute) => {
+    const isPrimary = attribute.name === primaryKey;
+    const referenceId = referenceIdFor(attribute, isPrimary);
+    const control = controlFor(attribute, referenceId);
+    const constraints = [];
+    if (isPrimary)
+      constraints.push("key");
+    if (attribute.required && !isPrimary)
+      constraints.push("required");
+    if (attribute.unique)
+      constraints.push("unique");
+    if (attribute.maxLength)
+      constraints.push(`max ${attribute.maxLength}`);
+    const help = attribute.description ? escapeHtml(attribute.description) : '<span class="unset">&mdash;</span>';
+    const detail = [];
+    if (attribute.enumValues?.length) {
+      detail.push(`One of: ${attribute.enumValues.map((value) => `<code>${escapeHtml(value)}</code>`).join(", ")}`);
+    }
+    if (attribute.isForeignKey) {
+      const target = referenceTarget(attribute.name);
+      if (target)
+        detail.push(`Points at <b>${escapeHtml(title2(target))}</b>`);
+    }
+    return `        <tr>
+          <td><code>${escapeHtml(attribute.name)}</code></td>
+          <td>${escapeHtml(control)}</td>
+          <td>${constraints.length ? constraints.map((c) => `<span class="tag">${escapeHtml(c)}</span>`).join(" ") : "&mdash;"}</td>
+          <td>${help}${detail.length ? `<div class="detail">${detail.join("<br>")}</div>` : ""}</td>
+        </tr>`;
+  }).join(`
+`);
+}
+function relationshipPhrase(relationship, entityName) {
+  const outgoing = relationship.sourceEntity === entityName;
+  const other = outgoing ? relationship.targetEntity : relationship.sourceEntity;
+  const link = `<a href="#entity-${slug(other)}">${escapeHtml(title2(other))}</a>`;
+  switch (relationship.cardinality) {
+    case "oneToMany":
+      return outgoing ? `has many ${link} records` : `belongs to one ${link}`;
+    case "manyToOne":
+      return outgoing ? `belongs to one ${link}` : `has many ${link} records`;
+    case "manyToMany":
+      return `is linked to many ${link} records`;
+    default:
+      return `has one ${link}`;
+  }
+}
+function relationshipsFor(model, entity2) {
+  const related = model.relationships.filter((relationship) => relationship.sourceEntity === entity2.name || relationship.targetEntity === entity2.name);
+  if (related.length === 0)
+    return "";
+  const items = related.map((relationship) => `<li>Each <b>${escapeHtml(title2(entity2.name))}</b> ${relationshipPhrase(relationship, entity2.name)}.</li>`).join(`
+          `);
+  return `      <h4>Related records</h4>
+      <ul class="plain">
+          ${items}
+      </ul>`;
+}
+function workflowFor(model, entity2) {
+  const workflows = model.workflows.filter((workflow) => workflow.entity === entity2.name);
+  if (workflows.length === 0)
+    return "";
+  return workflows.map((workflow) => {
+    const rows = workflow.transitions.map((transition) => `          <tr><td><code>${escapeHtml(transition.from)}</code></td><td><code>${escapeHtml(transition.to)}</code></td><td>${transition.trigger ? `<code>${escapeHtml(transition.trigger)}</code>` : "&mdash;"}</td></tr>`).join(`
+`);
+    return `      <h4>Lifecycle &mdash; ${escapeHtml(workflow.name)}</h4>
+      <p>A record starts at <code>${escapeHtml(workflow.initial ?? "—")}</code>${workflow.terminal.length ? ` and finishes at ${workflow.terminal.map((state) => `<code>${escapeHtml(state)}</code>`).join(" or ")}` : ""}. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+${rows}
+        </tbody>
+      </table>`;
+  }).join(`
+`);
+}
+function rulesFor(model, entity2) {
+  const rules = model.rules.filter((rule2) => rule2.entity === entity2.name);
+  const hooks = model.hooks.filter((hook2) => hook2.entity === entity2.name);
+  const sagas = model.sagas.filter((saga) => saga.entity === entity2.name);
+  if (rules.length === 0 && hooks.length === 0 && sagas.length === 0)
+    return "";
+  const parts = ["      <h4>What happens when it is written</h4>"];
+  if (rules.length > 0) {
+    parts.push(`      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+${rules.map((rule2) => `          <tr><td><code>${escapeHtml(rule2.name)}</code></td><td>${escapeHtml(rule2.event)} (${escapeHtml(rule2.operation)})</td><td>${rule2.priority}</td></tr>`).join(`
+`)}
+        </tbody>
+      </table>`);
+  }
+  if (hooks.length > 0) {
+    parts.push(`      <p><b>Handlers:</b> ${hooks.map((hook2) => `<code>${escapeHtml(hook2.type)}</code>${hook2.field ? ` on <code>${escapeHtml(hook2.field)}</code>` : ""}`).join(", ")}</p>`);
+  }
+  if (sagas.length > 0) {
+    parts.push(`      <p><b>Processes:</b> ${sagas.map((saga) => `<a href="#process-${slug(saga.name)}">${escapeHtml(saga.name)}</a>`).join(", ")}</p>`);
+  }
+  return parts.join(`
+`);
+}
+function accessFor(model, entity2, visibility) {
+  const readers = visibility[entity2.name];
+  const rules = model.rbac.operations.filter((rule2) => rule2.entity === entity2.name);
+  if (!readers && rules.length === 0)
+    return "";
+  const parts = ["      <h4>Who may use it</h4>"];
+  parts.push(readers && readers.length > 0 ? `      <p>Visible to ${readers.map((role) => `<b>${escapeHtml(title2(role))}</b>`).join(", ")}, and to the Administrator. Nobody else sees it at all &mdash; it is absent from their menu rather than refused when opened.</p>` : "      <p>Visible to every signed-in user; the model places no restriction on reading it.</p>");
+  const writes = rules.filter((rule2) => rule2.operation !== "read");
+  if (writes.length > 0) {
+    parts.push(`      <table>
+        <thead><tr><th>Action</th><th>Permitted to</th></tr></thead>
+        <tbody>
+${writes.map((rule2) => `          <tr><td>${escapeHtml(title2(rule2.operation))}</td><td>${rule2.roles.map((role) => escapeHtml(title2(role))).join(", ")}</td></tr>`).join(`
+`)}
+        </tbody>
+      </table>`);
+  }
+  return parts.join(`
+`);
+}
+function renderManual(model, options) {
+  const generatedAt = options.generatedAt ?? new Date().toISOString();
+  const access = deriveAccess(model.rbac, {
+    projectId: slug(options.name) || "app",
+    adminEmail: options.adminEmail,
+    entities: model.entities.map((entity2) => entity2.name)
+  });
+  const categoryOf = new Map;
+  for (const category of model.categories) {
+    for (const name of category.entities)
+      categoryOf.set(name, category.name);
+  }
+  const entities = [...model.entities].sort((a, b) => a.name.localeCompare(b.name));
+  const contents = `
+      <nav class="toc" aria-label="Contents">
+        <h2>Contents</h2>
+        <ol>
+          <li><a href="#overview">What this application is</a></li>
+          <li><a href="#signing-in">Signing in, and what each role sees</a></li>
+          <li><a href="#entities">The records it keeps</a>
+            <ul>
+${entities.map((entity2) => `              <li><a href="#entity-${slug(entity2.name)}">${escapeHtml(title2(entity2.name))}</a></li>`).join(`
+`)}
+            </ul>
+          </li>
+${model.rules.length ? `          <li><a href="#rules">The decisions it makes</a></li>
+` : ""}${model.sagas.length ? `          <li><a href="#processes">The processes it runs</a></li>
+` : ""}          <li><a href="#how-it-was-built">How this application was built</a></li>
+        </ol>
+      </nav>`;
+  const entitySections = entities.map((entity2) => {
+    const category = categoryOf.get(entity2.name);
+    return `    <section id="entity-${slug(entity2.name)}" class="entity">
+      <h3>${escapeHtml(title2(entity2.name))}${category ? ` <span class="group">${escapeHtml(category)}</span>` : ""}</h3>
+      <p class="lede">${entity2.description ? escapeHtml(entity2.description) : '<span class="missing">The model gives this entity no description. Add one with <code>%%entity ' + escapeHtml(entity2.name) + " help: …</code>.</span>"}</p>
+      <p class="meta">Stored as <code>${escapeHtml(tableNameFor(entity2))}</code>, keyed by <code>${escapeHtml(entity2.primaryKey || "id")}</code>.</p>
+
+      <h4>Its fields</h4>
+${entity2.attributes.some((attribute) => attribute.description) ? "" : `      <p class="missing">No field here carries help text. Add it with <code>%%field ${escapeHtml(entity2.name)}.&lt;field&gt; help: …</code> and it appears in this column and in the application itself.</p>
+`}      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+${fieldRows(entity2)}
+        </tbody>
+      </table>
+${[
+      relationshipsFor(model, entity2),
+      workflowFor(model, entity2),
+      rulesFor(model, entity2),
+      accessFor(model, entity2, access.entityVisibility)
+    ].filter(Boolean).join(`
+`)}
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>`;
+  }).join(`
+
+`);
+  const rulesSection = model.rules.length ? `  <section id="rules">
+    <h2>The decisions it makes</h2>
+    <p>Each of these is a decision table the application evaluates when a record is written. A rule that refuses a write refuses it for everyone, including an administrator &mdash; it is a statement about the business, not about permissions.</p>
+    <table>
+      <thead><tr><th>Rule</th><th>Applies to</th><th>Runs on</th></tr></thead>
+      <tbody>
+${model.rules.map((rule2) => `        <tr><td><code>${escapeHtml(rule2.name)}</code></td><td><a href="#entity-${slug(rule2.entity)}">${escapeHtml(title2(rule2.entity))}</a></td><td>${escapeHtml(rule2.event)}</td></tr>`).join(`
+`)}
+      </tbody>
+    </table>
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>` : "";
+  const processSection = model.sagas.length ? `  <section id="processes">
+    <h2>The processes it runs</h2>
+    <p>A process spans more than one record. Its steps run in order and stop at the first failure.</p>
+${model.sagas.map((saga) => `    <div id="process-${slug(saga.name)}" class="process">
+      <h3>${escapeHtml(saga.name)}</h3>
+      <p class="meta">On <a href="#entity-${slug(saga.entity)}">${escapeHtml(title2(saga.entity))}</a>, ${escapeHtml(saga.trigger)} on ${escapeHtml(saga.operation)}.</p>
+      <ol>
+${saga.steps.map((step) => `        <li>${escapeHtml(step.label)} <span class="tag">${escapeHtml(step.type)}</span></li>`).join(`
+`)}
+      </ol>
+    </div>`).join(`
+`)}
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>` : "";
+  const accountRows = access.users.map((user) => `        <tr><td>${escapeHtml(user.roleName)}</td><td><code>${escapeHtml(user.email)}</code></td><td>${user.isAdmin ? `all ${model.entities.length}` : `${access.entityCounts[user.roleName] ?? 0} of ${model.entities.length}`}</td></tr>`).join(`
+`);
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHtml(options.name)} &mdash; Manual</title>
+<style>
+/* Inline, and deliberately: this file is opened from a Service Worker, from a
+   static directory, and by double-clicking it out of a zip. A stylesheet
+   reference survives only the first two. */
+:root {
+  --bg: #ffffff; --surface: #f7f7f6; --border: #e3e3e0; --text: #17171a;
+  --soft: #5f6066; --faint: #8a8b91; --accent: #0d6e6e; --accent-soft: #e6f2f2;
+  --warn: #b45309;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17171a; --surface: #1f1f23; --border: #33333a; --text: #ececee;
+    --soft: #a9aab0; --faint: #7e7f86; --accent: #4bb3b3; --accent-soft: #14312f;
+    --warn: #e0a355;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.65 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.wrap { max-width: 60rem; margin: 0 auto; padding: 40px 24px 96px; }
+header.title { border-bottom: 2px solid var(--accent); padding-bottom: 18px; margin-bottom: 8px; }
+header.title h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: -0.02em; }
+header.title p { margin: 0; color: var(--soft); }
+header.title .stamp { margin-top: 10px; font-size: 12.5px; color: var(--faint); }
+h2 { font-size: 21px; margin: 44px 0 10px; letter-spacing: -0.01em; }
+h3 { font-size: 18px; margin: 34px 0 6px; }
+h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.07em;
+     color: var(--soft); margin: 24px 0 8px; }
+p { margin: 0 0 12px; }
+a { color: var(--accent); }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.5px 4px;
+}
+.toc { background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+       padding: 18px 22px; margin: 26px 0 8px; }
+.toc h2 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase;
+          letter-spacing: 0.07em; color: var(--soft); }
+.toc ol { margin: 0; padding-left: 20px; }
+.toc ul { margin: 4px 0 8px; padding-left: 18px; list-style: none; }
+.toc ul li { font-size: 14px; }
+.toc li { margin: 3px 0; }
+section { scroll-margin-top: 16px; }
+.entity { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 34px; }
+.entity .lede { color: var(--text); }
+.group { font-size: 12px; font-weight: 500; color: var(--accent);
+         background: var(--accent-soft); border-radius: 999px; padding: 2px 9px;
+         vertical-align: middle; margin-left: 6px; }
+.meta { font-size: 13px; color: var(--faint); }
+table { width: 100%; border-collapse: collapse; margin: 6px 0 4px; font-size: 14.5px; display: block; overflow-x: auto; }
+thead th { text-align: left; background: var(--surface); color: var(--soft);
+           font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;
+           padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+.tag { display: inline-block; font-size: 11.5px; color: var(--soft);
+       background: var(--surface); border: 1px solid var(--border);
+       border-radius: 4px; padding: 1px 6px; margin-right: 3px; }
+.missing { color: var(--muted); font-style: italic; }
+.unset { color: var(--muted); }
+.detail { margin-top: 5px; font-size: 13px; color: var(--soft); }
+ul.plain { margin: 4px 0 12px; padding-left: 20px; }
+.process { border-left: 3px solid var(--border); padding-left: 16px; margin: 18px 0; }
+.back { margin-top: 18px; font-size: 13px; }
+footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border);
+         color: var(--faint); font-size: 13px; }
+@media print {
+  .toc, .back { break-inside: avoid; }
+  a { color: inherit; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="top">
+
+  <header class="title">
+    <h1>${escapeHtml(options.name)}</h1>
+    <p>${escapeHtml(options.description)}</p>
+    <!-- The full ISO instant rather than a friendly date, and deliberately so:
+         CI generates this application twice and diffs the two trees to police
+         the WASM overlay's footprint, blanking ISO timestamps first. A
+         "2026-08-22" would survive that blanking and make the two copies differ
+         whenever the pair of runs straddles midnight. -->
+    <div class="stamp">Manual for version ${escapeHtml(options.version)} &middot; generated <time datetime="${escapeHtml(generatedAt)}">${escapeHtml(generatedAt)}</time></div>
+  </header>
+${contents}
+
+  <section id="overview">
+    <h2>What this application is</h2>
+    <p>${escapeHtml(options.name)} keeps ${model.entities.length} kinds of record${model.entities.length === 1 ? "" : "s"}${model.categories.length ? `, grouped into ${model.categories.length} areas of the business` : ""}. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
+    <p>This manual is generated from the same description. It cannot describe a record type the application does not have, and it cannot miss one it does.</p>
+${model.categories.length ? `    <table>
+      <thead><tr><th>Area</th><th>Records</th></tr></thead>
+      <tbody>
+${model.categories.map((category) => `        <tr><td>${escapeHtml(category.name)}${category.description ? `<div class="detail">${escapeHtml(category.description)}</div>` : ""}</td><td>${category.entities.map((name) => `<a href="#entity-${slug(name)}">${escapeHtml(title2(name))}</a>`).join(", ")}</td></tr>`).join(`
+`)}
+      </tbody>
+    </table>` : ""}
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>
+
+  <section id="signing-in">
+    <h2>Signing in, and what each role sees</h2>
+    <p>The application is seeded with one account per role the model names, so each can be looked at as itself. The Administrator bypasses every restriction, which is what makes it the account to compare the others against.</p>
+    <table>
+      <thead><tr><th>Role</th><th>Account</th><th>Records it can see</th></tr></thead>
+      <tbody>
+${accountRows}
+      </tbody>
+    </table>
+${options.adminPassword ? `    <p>Every seeded account uses the password <code>${escapeHtml(options.adminPassword)}</code>. It is demonstration data &mdash; change it before this application holds anything real.</p>` : ""}
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>
+
+  <section id="entities">
+    <h2>The records it keeps</h2>
+    <p>One section per record type. For each: what it is, every field it has and what that field is for, the records it connects to, the states it moves through, and who may use it.</p>
+
+${entitySections}
+  </section>
+
+${rulesSection}
+
+${processSection}
+
+  <section id="how-it-was-built">
+    <h2>How this application was built</h2>
+    <p>It was generated from a single model file &mdash; a Mermaid document describing the records, the rules and the processes above. The generator read that file and wrote the database schema, the API, the screens and this manual from it.</p>
+    <p>The same model produces two applications, and this is the <b>${options.stack === "browser" ? "browser build</b>: a runtime that boots in a tab with no install and no build step, with PostgreSQL compiled to WebAssembly underneath it" : "deployable build</b>: NestJS and TanStack Start source you can read, edit and deploy, with a <code>docker-compose.yml</code> that brings up PostgreSQL, the API and the web front end together"}.</p>
+    <p>Regenerating from an amended model rewrites all of it, this manual included. Nothing here is maintained by hand, which is why it cannot fall out of step with the application it describes.</p>
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>
+
+  <footer>
+    ${escapeHtml(options.name)} ${escapeHtml(options.version)} &middot; ${model.entities.length} record types &middot; ${model.rules.length} rules &middot; ${model.workflows.length + model.sagas.length} processes
+  </footer>
+</div>
+</body>
+</html>
+`;
+}
+
 // node_modules/.bun/@faker-js+faker@10.6.0/node_modules/@faker-js/faker/dist/base-BpJm8uRb.js
 var e = class extends Error {
 };
@@ -20359,10 +20817,16 @@ function generateWasmApp(parsed, options) {
   files.set("app/schema.bus.sql", schema);
   if (options.source?.trim())
     files.set("model/model.eml.mmd", options.source);
-  files.set("index.html", (RUNTIME_ASSETS["index.html"] ?? "").replaceAll("__PROJECT_NAME__", escapeHtml(options.name)).replaceAll("__PROJECT_DESCRIPTION__", escapeHtml(options.description)).replaceAll("__PROJECT_INITIALS__", escapeHtml(initials2(options.name))));
+  files.set("index.html", (RUNTIME_ASSETS["index.html"] ?? "").replaceAll("__PROJECT_NAME__", escapeHtml2(options.name)).replaceAll("__PROJECT_DESCRIPTION__", escapeHtml2(options.description)).replaceAll("__PROJECT_INITIALS__", escapeHtml2(initials2(options.name))));
   if (options.pgliteUrl && options.pgliteUrl !== DEFAULT_PGLITE_URL) {
     files.set("host/browser-node-host.js", (RUNTIME_ASSETS["host/browser-node-host.js"] ?? "").replace(DEFAULT_PGLITE_URL, options.pgliteUrl));
   }
+  files.set("manual.html", renderManual(parsed, {
+    name: options.name,
+    version: options.version,
+    description: options.description,
+    stack: "browser"
+  }));
   files.set("package.json", packageJson(options));
   files.set("README.md", readme(options, parsed));
   files.set(".erdwithai.json", `${JSON.stringify({
@@ -20397,7 +20861,7 @@ function generateWasmApp(parsed, options) {
 }
 function packageJson(options) {
   return `${JSON.stringify({
-    name: slug(options.name),
+    name: slug2(options.name),
     version: options.version,
     description: options.description,
     private: true,
@@ -20478,9 +20942,9 @@ not a secret from you. Point this model at the \`tanstackjs-nestjs\` stack when
 the data needs to be somewhere other than the reader's machine.
 `;
 }
-var slug = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "generated-app";
+var slug2 = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "generated-app";
 var initials2 = (value) => value.split(/[\s\-_]+/).filter(Boolean).slice(0, 2).map((word) => (word[0] ?? "").toUpperCase()).join("") || "AP";
-var escapeHtml = (value) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character);
+var escapeHtml2 = (value) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character);
 
 // packages/generator/src/browser/index.ts
 setLanguageDefinition2(erdwithai_language_default);

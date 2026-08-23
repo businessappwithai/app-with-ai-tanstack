@@ -8,7 +8,7 @@ import { defineConfig, loadEnv } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// The repo's env lives in one file at the monorepo root — READEME.md says
+// The repo's env lives in one file at the monorepo root — README.md says
 // `cp .env.example .env` there, and .env.example is the only template. But
 // `bun run dev` is `bun --filter @erdwithai/web dev`, which runs `vite dev`
 // with cwd = packages/web, and Bun's automatic .env loading is per-process at

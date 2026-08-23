@@ -18,6 +18,7 @@ import {
   FullStackGenerator,
   type FullStackGeneratorOptions,
 } from "../generators/full-stack.generator";
+import { renderManual } from "../manual";
 import {
   GENERATION_DEFAULTS,
   type GenerationSettings,
@@ -190,12 +191,48 @@ export async function generateApplication(
   await generator.generate(model.entities, model.relationships);
 
   await writeModelSource(options.outputDir, options.sources);
+  await writeManual(options.outputDir, model, options);
 
   if (options.writeManifestFile !== false) {
     await writeManifest(options.outputDir, model, options, options.manifest ?? {});
   }
 
   return model;
+}
+
+/**
+ * Write the manual into the front end's static directory.
+ *
+ * `frontend/public/` is what TanStack Start serves at the site root, so the
+ * dashboard's Manual button can be a plain `/manual.html` anchor — and the file
+ * is equally openable by double-clicking it out of the downloaded zip, which is
+ * the other way readers meet this application. One location, reachable both
+ * ways; a second copy would be the one that goes stale.
+ *
+ * A failure here is not fatal. An application without its manual is a smaller
+ * loss than a generation run that stopped part-way through.
+ */
+async function writeManual(
+  outputDir: string,
+  model: ParsedModel,
+  options: GenerateApplicationOptions
+): Promise<void> {
+  try {
+    const directory = path.join(outputDir, "frontend", "public");
+    await fs.mkdir(directory, { recursive: true });
+    await fs.writeFile(
+      path.join(directory, "manual.html"),
+      renderManual(model, {
+        name: options.projectName,
+        version: options.projectVersion ?? GENERATION_DEFAULTS.projectVersion,
+        description: options.projectDescription ?? GENERATION_DEFAULTS.projectDescription,
+        stack: "nestjs",
+      }),
+      "utf-8"
+    );
+  } catch {
+    // non-fatal — an application without its manual still runs
+  }
 }
 
 /**
