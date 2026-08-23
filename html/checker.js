@@ -3402,8 +3402,18 @@ function formatIssue(issue) {
   return `${issue.severity}${where} [${issue.code}] ${issue.message}${hint}`;
 }
 function formatReport(report) {
-  const head = report.ok ? `OK — 0 errors, ${report.counts.warnings} warning(s) (EML ${report.languageVersion})` : `FAILED — ${report.counts.errors} error(s), ${report.counts.warnings} warning(s) (EML ${report.languageVersion})`;
-  return [head, ...report.issues.map(formatIssue)].join(`
+  const { errors, warnings, infos } = report.counts;
+  const count = (n, noun) => `${n} ${noun}${n === 1 ? "" : "s"}`;
+  const counted = [
+    count(errors, "error"),
+    count(warnings, "warning"),
+    ...infos > 0 ? [count(infos, "note")] : []
+  ].join(", ");
+  const advisory = report.ok && report.issues.length > 0 ? " — notes and warnings are advisory; the generator accepts this model" : "";
+  const verdict = report.ok ? `OK — ${counted} (EML ${report.languageVersion})${advisory}` : `FAILED — ${counted} (EML ${report.languageVersion})`;
+  if (report.issues.length === 0)
+    return verdict;
+  return [...report.issues.map(formatIssue), "", verdict].join(`
 `);
 }
 globalThis.EMLChecker = {

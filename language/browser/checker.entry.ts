@@ -83,12 +83,44 @@ export function formatIssue(issue: Issue): string {
   return `${issue.severity}${where} [${issue.code}] ${issue.message}${hint}`;
 }
 
-/** The whole report as text, for pasting back to whoever wrote the model. */
+/**
+ * The whole report as text, for pasting back to whoever wrote the model.
+ *
+ * The verdict goes **last**, after the diagnostics, the way a compiler or a
+ * test runner reports: whoever reads this in a terminal reads the bottom of it,
+ * and with the verdict on top the final line of a passing run was whichever
+ * diagnostic happened to sort last. An `info` rendered that way — same shape as
+ * an error, no verdict after it — reads as the reason the run failed, which is
+ * the opposite of what it says.
+ *
+ * The counts name infos too. They were omitted, so a report could say
+ * "0 errors, 0 warnings" and then print two notes underneath it, which invited
+ * exactly the same misreading from the other end.
+ */
 export function formatReport(report: CheckReport): string {
-  const head = report.ok
-    ? `OK — 0 errors, ${report.counts.warnings} warning(s) (EML ${report.languageVersion})`
-    : `FAILED — ${report.counts.errors} error(s), ${report.counts.warnings} warning(s) (EML ${report.languageVersion})`;
-  return [head, ...report.issues.map(formatIssue)].join("\n");
+  const { errors, warnings, infos } = report.counts;
+  /* Plural properly rather than with "(s)": this line is the one sentence most
+     readers of a report actually read, and `1 error(s)` reads like a machine
+     apologising for not knowing its own arithmetic. */
+  const count = (n: number, noun: string) => `${n} ${noun}${n === 1 ? "" : "s"}`;
+  const counted = [
+    count(errors, "error"),
+    count(warnings, "warning"),
+    ...(infos > 0 ? [count(infos, "note")] : []),
+  ].join(", ");
+
+  /* A passing run that still printed something says so on the same line, so the
+     notes above it cannot be mistaken for the outcome. */
+  const advisory =
+    report.ok && report.issues.length > 0
+      ? " — notes and warnings are advisory; the generator accepts this model"
+      : "";
+  const verdict = report.ok
+    ? `OK — ${counted} (EML ${report.languageVersion})${advisory}`
+    : `FAILED — ${counted} (EML ${report.languageVersion})`;
+
+  if (report.issues.length === 0) return verdict;
+  return [...report.issues.map(formatIssue), "", verdict].join("\n");
 }
 
 export { checkSource };
