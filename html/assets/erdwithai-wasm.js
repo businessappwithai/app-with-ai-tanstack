@@ -442,7 +442,8 @@ var erdwithai_language_default = {
       "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10).",
       "%%index becomes real indexes; a unique attribute or a `name` column is indexed automatically (mergeIndexes).",
       "%%category becomes the dashboard grouping; a model declaring none gets a single General category holding every entity.",
-      "%%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
+      "%%field <Entity>.<column> help: and %%entity <Name> help: become sys_column.description and sys_table.description - the help a reader sees under the field and beside the table. %%entity description: is the same key under its other name.",
+      "The remaining %%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
     ],
     checkerCodes: {
       EML119: "A reference-shaped column with no FK modifier - the lookup is lost.",
@@ -1292,7 +1293,7 @@ var erdwithai_language_default = {
       core: "erDiagram entities, attributes with PK/FK/UK/OPTIONAL/NULL/UNIQUE, and all 8 relationship cardinalities. Plus the directives the same parse pass reads: %%index (real DDL indexes), %%enum and %%field enum: (bound enums), and %%category (dashboard grouping). Fully compiled.",
       rules: "flowchart decision flows converted to JDM by shape semantics, and %%action directives compiled to a GoRules decision table. Fully compiled.",
       workflows: "%%hook directives in both forms (all 13 hook types), stateDiagram-v2 state machines, and %%workflow kind: saga with its %%step and %%loop directives. All three forms are compiled and seeded; the automation dialect is the same saga machinery authored through the builder.",
-      help: "%%field <Entity>.<column> help: and %%entity <Name> help: (or description:). Both are compiled: the parser hangs the text on the attribute and the entity, the dictionary generator writes it to sys_column.description and sys_table.description, and the generated application shows it under the field and beside the table. It has a second consumer: packages/generator/src/manual/index.ts renders manual.html from the same parsed model, where this text is the entire 'what it is for' column — a field with no help prints a dash there. Write help on every column, not only the ambiguous ones. Fully compiled.",
+      help: "%%field <Entity>.<column> help: and %%entity <Name> help: (or description:). Both are compiled: the parser hangs the text on the attribute and the entity, the dictionary generator writes it to sys_column.description and sys_table.description, and the generated application shows it under the field and beside the table. Fully compiled.",
       validated: "%%rule and %%trigger, and the %%entity keys other than help:/description:. No compiler reads these yet, but language/checker.ts enforces their syntax and cross-references, so a malformed one fails validation instead of being silently dropped.",
       reserved: "The %%field keys other than enum: and help:. Renderer-safe and documented, with no reader. Writing one is legal and inert.",
       access: "%%rbac, in both its CRUD and state-transition forms. Compiled to sys_operation_access / sys_transition_access and enforced by the generated EntityAccessGuard."
@@ -1739,31 +1740,6 @@ function resolveCategories(source, entityNames) {
 // packages/generator/src/parsers/mermaid.parser.ts
 var TYPE_MAP = getTypeMap();
 var SEMANTIC_TYPES = new Set(["email", "url", "phone", "password", "color"]);
-function mergeDuplicateAttributes(attributes) {
-  const byName = new Map;
-  for (const attribute of attributes) {
-    const existing = byName.get(attribute.name);
-    if (!existing) {
-      byName.set(attribute.name, { ...attribute });
-      continue;
-    }
-    existing.required = existing.required || attribute.required;
-    if (attribute.unique)
-      existing.unique = true;
-    if (attribute.isForeignKey)
-      existing.isForeignKey = true;
-    if (existing.maxLength === undefined && attribute.maxLength !== undefined) {
-      existing.maxLength = attribute.maxLength;
-    }
-    if (existing.semanticType === undefined && attribute.semanticType !== undefined) {
-      existing.semanticType = attribute.semanticType;
-    }
-    if (existing.description === undefined && attribute.description !== undefined) {
-      existing.description = attribute.description;
-    }
-  }
-  return [...byName.values()];
-}
 
 class MermaidParser {
   parse(mermaidSyntax) {
@@ -9491,23 +9467,61 @@ export function sysRoutes(model) {
    *
    * The dictionary already knows which table a reference column points at
    * (\`sys_column.ref_table_name\`); this turns that into something a select can
-   * render — an id and the label a person recognises. What the label *is* comes
-   * from \`labelFor\`, which reads the dictionary's \`is_identifier\` columns, so
-   * the dropdown here and the grid that displays the chosen value cannot end up
-   * calling the same record two different things.
+   * render — an id and the label a person recognises. The label column is the
+   * one the dictionary marks \`is_identifier\` and is not the key, which is
+   * \`name\` for most entities; failing that, the first text column; failing
+   * that, the id itself, because a lookup that lists ids is still better than
+   * a text box asking for one.
    */
   router.get("/lookup", async (_request, { db, query }) => {
     const table = query.get("table");
     if (!table) return json({ options: [], label: null });
 
-    const columns = await columnsOf(db, table);
-    if (!columns || columns.length === 0) return json({ options: [], label: null });
+    /* sys_column keys its table by id, so the dictionary is asked for the
+       table first — which also means a table nobody declared cannot be read
+       through this route. */
+    const owner = await db.one("SELECT sys_table_id FROM sys_table WHERE table_name = $1", [table]);
+    if (!owner) return json({ options: [], label: null });
 
-    const { key, label, expression } = await labelForTable(db, table, columns);
+    const columns = await db.select("sys_column", {
+      where: { sys_table_id: owner.sys_table_id },
+      orderBy: "seq_no",
+    });
+    if (columns.length === 0) return json({ options: [], label: null });
+
+    const key = columns.find((column) => column.is_key)?.column_name ?? "id";
+    const has = (name) => columns.some((column) => column.column_name === name);
+    const named = ["name", "full_name", "title", "label", "display_name", "subject"];
+    const readable = (column) =>
+      !column.is_key &&
+      !column.column_name.endsWith("_id") &&
+      [10, 14, 30].includes(Number(column.sys_reference_id));
+
+    /* What a person would call the record, in the order they would reach for
+       it: a name-ish column, then a first/last pair — a person table rarely
+       carries either of the names above, and listing staff by e-mail address
+       when their names are right there is the sort of thing that makes a
+       generated screen feel generated — then whatever the dictionary marks as
+       the identifier, then the first readable column, then the key: a lookup
+       listing ids still beats a text box asking for one. */
+    const name = columns.find((column) => named.includes(column.column_name))?.column_name;
+    const person = !name && has("first_name") && has("last_name");
+    const label = name
+      ? name
+      : person
+        ? "first_name last_name"
+        : (columns.find((column) => column.is_identifier && !column.is_key)?.column_name ??
+          columns.find(readable)?.column_name ??
+          key);
+
+    const expression = person
+      ? \`TRIM(CONCAT_WS(' ', \${quoted("first_name")}, \${quoted("last_name")}))\`
+      : quoted(label);
+
     const limit = Math.min(Number(query.get("limit") ?? 500) || 500, 1000);
     const rows = await db.query(
-      \`SELECT \${ident(key)} AS id, \${expression} AS label
-         FROM \${ident(table)}
+      \`SELECT \${quoted(key)} AS id, \${expression} AS label
+         FROM \${quoted(table)}
         ORDER BY 2
         LIMIT \${limit}\`
     );
@@ -12665,7 +12679,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 239501;
+var RUNTIME_BYTES = 254760;
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};
@@ -16923,25 +16937,6 @@ var SEMANTIC_REFERENCE = {
   password: ReferenceType.PASSWORD,
   color: ReferenceType.COLOR
 };
-function identifierColumnNames(attributes, primaryKey) {
-  const names = new Set(attributes.map((attribute) => attribute.name));
-  const has = (name) => names.has(name);
-  for (const candidate of ["name", "full_name", "display_name", "title", "label", "subject"]) {
-    if (has(candidate))
-      return [candidate];
-  }
-  if (has("first_name") && has("last_name"))
-    return ["first_name", "last_name"];
-  for (const candidate of ["code", "reference", "number"]) {
-    if (has(candidate))
-      return [candidate];
-  }
-  const references = attributes.filter((attribute) => attribute.name !== primaryKey && attribute.isForeignKey && isForeignKeyColumnName2(attribute.name));
-  if (references.length >= 2)
-    return references.slice(0, 2).map((attribute) => attribute.name);
-  const readable = attributes.find((attribute) => attribute.name !== primaryKey && !attribute.isForeignKey && !attribute.name.endsWith("_id") && (attribute.type === "string" || attribute.type === "text"));
-  return readable ? [readable.name] : [];
-}
 function attributeReferenceId(attr, entityPrimaryKey) {
   if (attr.name === "id")
     return ReferenceType.ID;
@@ -18608,7 +18603,6 @@ function generateFromSource(options) {
 }
 export {
   DEFAULT_PGLITE_URL,
-  DEFAULT_SAMPLE_RECORDS,
   ModelCheckError,
   RUNTIME_BYTES,
   generateFromSource,

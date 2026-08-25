@@ -83,23 +83,61 @@ export function sysRoutes(model) {
    *
    * The dictionary already knows which table a reference column points at
    * (`sys_column.ref_table_name`); this turns that into something a select can
-   * render — an id and the label a person recognises. What the label *is* comes
-   * from `labelFor`, which reads the dictionary's `is_identifier` columns, so
-   * the dropdown here and the grid that displays the chosen value cannot end up
-   * calling the same record two different things.
+   * render — an id and the label a person recognises. The label column is the
+   * one the dictionary marks `is_identifier` and is not the key, which is
+   * `name` for most entities; failing that, the first text column; failing
+   * that, the id itself, because a lookup that lists ids is still better than
+   * a text box asking for one.
    */
   router.get("/lookup", async (_request, { db, query }) => {
     const table = query.get("table");
     if (!table) return json({ options: [], label: null });
 
-    const columns = await columnsOf(db, table);
-    if (!columns || columns.length === 0) return json({ options: [], label: null });
+    /* sys_column keys its table by id, so the dictionary is asked for the
+       table first — which also means a table nobody declared cannot be read
+       through this route. */
+    const owner = await db.one("SELECT sys_table_id FROM sys_table WHERE table_name = $1", [table]);
+    if (!owner) return json({ options: [], label: null });
 
-    const { key, label, expression } = await labelForTable(db, table, columns);
+    const columns = await db.select("sys_column", {
+      where: { sys_table_id: owner.sys_table_id },
+      orderBy: "seq_no",
+    });
+    if (columns.length === 0) return json({ options: [], label: null });
+
+    const key = columns.find((column) => column.is_key)?.column_name ?? "id";
+    const has = (name) => columns.some((column) => column.column_name === name);
+    const named = ["name", "full_name", "title", "label", "display_name", "subject"];
+    const readable = (column) =>
+      !column.is_key &&
+      !column.column_name.endsWith("_id") &&
+      [10, 14, 30].includes(Number(column.sys_reference_id));
+
+    /* What a person would call the record, in the order they would reach for
+       it: a name-ish column, then a first/last pair — a person table rarely
+       carries either of the names above, and listing staff by e-mail address
+       when their names are right there is the sort of thing that makes a
+       generated screen feel generated — then whatever the dictionary marks as
+       the identifier, then the first readable column, then the key: a lookup
+       listing ids still beats a text box asking for one. */
+    const name = columns.find((column) => named.includes(column.column_name))?.column_name;
+    const person = !name && has("first_name") && has("last_name");
+    const label = name
+      ? name
+      : person
+        ? "first_name last_name"
+        : (columns.find((column) => column.is_identifier && !column.is_key)?.column_name ??
+          columns.find(readable)?.column_name ??
+          key);
+
+    const expression = person
+      ? `TRIM(CONCAT_WS(' ', ${quoted("first_name")}, ${quoted("last_name")}))`
+      : quoted(label);
+
     const limit = Math.min(Number(query.get("limit") ?? 500) || 500, 1000);
     const rows = await db.query(
-      `SELECT ${ident(key)} AS id, ${expression} AS label
-         FROM ${ident(table)}
+      `SELECT ${quoted(key)} AS id, ${expression} AS label
+         FROM ${quoted(table)}
         ORDER BY 2
         LIMIT ${limit}`
     );
