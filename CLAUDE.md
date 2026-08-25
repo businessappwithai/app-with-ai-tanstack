@@ -129,6 +129,11 @@ app-with-ai-tanstack/
 └── examples/       # Sample .eml.mmd files
 ```
 
+Root docs: `README.md` (the repository front page), `DESIGN.md`, `HOOKS_GUIDE.md`,
+`TODOS.md`, `CHANGELOG.md`, plus QA write-ups (`GENERATOR_QA_SUMMARY.md`,
+`QA_AND_IMPROVEMENT_COMPLETE.md`, `REGENERATION_TEST_RESULTS.md`,
+`TEMPLATE_IMPROVEMENTS.md`).
+
 ### Package Aliases
 
 | Alias | Resolves to |
@@ -240,6 +245,49 @@ The default mode refuses the flag rather than ignoring it: that stack seeds
 through its own migrations. The library default is 0, so the hosted browser
 generator is unaffected — a page generating an application for a model someone
 is about to read should not invent records in it.
+
+**`docker compose up --build` on a generated app.** Three defects had to be
+fixed before it worked, and all three had been latent since the templates were
+written:
+
+- **The lockfile that is never written.** The per-service Dockerfiles did
+  `COPY bun.lock package.json ./`, and a COPY of a missing file fails the build.
+  They now use the `bun.loc[k]` glob and the conditional install the root
+  Dockerfile already had.
+- **The image name.** `docker-compose.yml` named its images `{{project.name}}`,
+  so "Acme CRM" produced `image: Acme CRM:latest` — not a valid Docker
+  reference, rejected before anything builds. Image names use `project.id`.
+- **The build context.** Both service Dockerfiles install the *workspace* — they
+  copy `backend/package.json` **and** `frontend/package.json` so resolution
+  matches what the app was generated against — but compose handed them
+  `context: ./backend`, putting those paths out of reach. The build reached
+  `COPY backend/run-app.sh` and failed with "not found", which reads like a
+  missing file rather than the wrong root. Both services now build from
+  `context: .` with `dockerfile: ./backend/Dockerfile`, and a generated
+  `.dockerignore` keeps `node_modules` and `.git` out of the context that
+  change implies.
+
+**Configuration comes from a root `.env`.** The generator writes a
+`.env.example` beside `docker-compose.yml`; compose reads `.env` from there
+automatically, and every value has a working default in the compose file, so an
+absent `.env` still brings the application up. The file exists for the two
+things no default can supply: the real secrets, and where the AI endpoint lives.
+
+**The generated app's AI surface is one endpoint, and it is embeddings.** The
+model-context assistant answers questions about the application's own model by
+embedding it into pgvector, so what it needs is OpenAI-compatible
+`POST /v1/embeddings` — `AI_BASE_URL`, `AI_API_KEY`, `AI_EMBEDDING_MODEL`,
+`AI_EMBEDDING_DIMENSIONS`. A local model (Ollama, LM Studio, llama.cpp, vLLM) or
+OpenAI both speak it. **The Claude API does not**: it has no embeddings
+endpoint, and it is `POST /v1/messages` with `x-api-key` rather than
+`POST /v1/embeddings` with a bearer token, so an Anthropic key cannot serve the
+assistant on its own. `ANTHROPIC_API_KEY` is passed through and not yet read —
+`.env.example` says exactly that rather than implying it works.
+
+> **Mastra is in the modelling tool, not in generated applications.**
+> `packages/ai` registers the Mastra instance and its agents; a generated app
+> has no `mastra` dependency and no agent module. Wiring a chat surface into the
+> generated backend is unbuilt work, not a configuration switch.
 
 **`erdwithai-wasm` is not a second stack.** It runs the same pipeline
 `erdwithai` runs — the same NestJS backend, the same TanStack Start front end,
@@ -513,6 +561,52 @@ list rather than printing the uuid the rule put in front of it.
 
 Tests: `packages/core/src/types/__tests__/identifier-columns.test.ts` pins the
 rule, including the shapes that must **not** trip the join branch.
+
+### The generated manual
+
+The last thing generation does is write the application back out as prose.
+`packages/generator/src/manual/index.ts` renders a `ParsedModel` into **one
+self-contained HTML page** — a contents menu, a section per entity giving every
+field with its control type, constraints, enumerated values and help text, then
+that entity's relationships, its state machine, the rules that fire on it and
+the roles that may read it, followed by the rules, the processes, and a note on
+how the application was built.
+
+**One renderer, both stacks, three ways of being served.** The browser stack puts
+`manual.html` in its file map (`wasm-app.generator.ts`); the NestJS stack writes
+`frontend/public/manual.html` from the pipeline (`generate-application.ts`), which
+is what TanStack Start serves at `/manual.html` and what travels in the
+downloadable zip. Both dashboards carry a **Manual** button pointing at it —
+`templates/wasm/ui/views/dashboard.js` and
+`templates/tanstack-start-nestjs/frontend/src/routes/dashboard.tsx`.
+
+Four decisions worth keeping:
+
+- **No stylesheet, no script, no font, no image.** It is served by a Service
+  Worker, by a static directory and by a `file://` double-click out of the zip,
+  and a single file with its CSS inline is the only form that survives all three.
+- **It is written by the shared pipeline, not by a generator.** That is what
+  makes the two stacks' copies identical for a given model — and why CI's
+  overlay-footprint job does not list it: the plain and wasm runs produce the
+  same bytes.
+- **The stamp is a full ISO instant, deliberately.** That footprint job blanks
+  ISO timestamps before diffing; a friendly `2026-08-22` would survive the
+  blanking and make the two trees differ whenever the pair of runs straddles
+  midnight.
+- **Its prose is the model's `%%entity help:` and `%%field help:` and nothing
+  else.** A field with no help gets a dash; an entity with none gets one line
+  saying so, once, rather than the same sentence on every row. That is the only
+  feedback a modeller gets that the help contract was never honoured, and
+  `language/examples/crm.eml.mmd` now honours it on all 17 entities and every
+  column.
+
+**The example models are checked in twice.** `language/examples/*.eml.mmd` (and
+`examples/*.eml.mmd`) is where a model is authored; `html/models/*.eml.mmd` is
+what the two hosted pages serve, so it cannot be a symlink or an import. They
+drifted — the CRM gained a `%%rbac … .read` rule per entity and the `html/` copy
+did not, so the page demonstrated per-role visibility with a model that no longer
+declared it. `packages/generator/src/__tests__/example-models.test.ts` asserts
+they are byte-identical.
 
 ### The real stack, in a browser tab (`--standalone`'s opposite)
 
@@ -897,8 +991,161 @@ bun --filter @erdwithai/web test -- path/to/file.spec.ts
 
 Note: `bun run dev` serves on **3000**; Playwright targets **5000**. Use `bun run test:e2e:server`.
 
-### Templates
-`bun run type-check` does NOT check templates. Generate an app and build it to catch template errors.
+### E2E tests (Playwright)
+
+```bash
+bun run test:playwright
+bun run test:playwright:ui
+bun run test:e2e:server        # starts the server first
+bunx playwright test tests/e2e/foo.e2e.spec.ts
+```
+
+`playwright.config.ts`: `testDir: ./tests/e2e`, matches `**/*.e2e.spec.ts` and
+`**/*.e2e-test.ts`, **Chromium only**, base URL `http://localhost:5000`,
+`workers: 1` / `fullyParallel: false` (tests share state), 3-minute timeout.
+
+Note the port mismatch: `bun run dev` serves on **3000**, Playwright targets
+**5000**. Use `bun run test:e2e:server`, which sets this up for you.
+
+Some suites under `tests/e2e/complete-tests/` target an OData/UI5 stack the
+generator no longer emits — treat those as historical.
+
+### Testing what the generator produces
+
+**Type-checking this repo says nothing about whether a generated app compiles** —
+templates are `.hbs` text until rendered. `.github/workflows/ci.yml` therefore
+has a second job that generates an application from
+`examples/drug-discovery.eml.mmd`, builds its backend, frontend and test suite,
+migrates a pgvector Postgres, starts the backend, and runs the generated
+E2E suite against it. **Changing a template means running that path**,
+not just `bun run type-check`.
+
+The generated suite lives in `packages/generator/templates/tanstack-start-nestjs/tests/`
+— a `harness/` (testing, auth, http, factory, entities, rules, workflows, metrics, report)
+and `suites/` (health, auth, dictionary, bulk-seed, rules-workflow, workflow
+random/multistep, users-roles, benchmark, plus per-entity CRUD and rules suites).
+`--records-per-entity` controls the bulk-seed volume (default 1000; CI uses 25).
+
+### The wasm stack, end to end
+
+```bash
+bun run test:wasm              # both halves
+bun run test:wasm:cli          # the CLI: generation, the checker, the overlay footprint
+bun run test:wasm:browser      # the page and the running application, in Chromium
+```
+
+`tests/e2e/wasm/` has its own Playwright config, because the root suite drives
+the modelling tool on port 5000 and this one serves `html/` with the generator's
+own `serve` command — the server that sets `Service-Worker-Allowed` and
+deliberately omits COEP.
+
+`cli.e2e.spec.ts` generates both ways and asserts the overlay's exact footprint;
+`browser.e2e.spec.ts` drives the hosted page through generation, boot, sign-in,
+dictionary-driven CRUD, a rule refusing a write, the audit trail and the checker
+feedback path, leaving screenshots in `pics/wasm-e2e/`.
+
+In a container whose Chromium Playwright did not download, set
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE` to it rather than running `playwright install`.
+
+### QA reports
+
+`docs/qa/qa-report-*.md` are dated walkthroughs of a generated application, with
+screenshots in `pics/`. `html/` is a nine-chapter static guide ("Build a CRM with
+ERDwithAI") built from those runs, plus the two live `run-*.html` pages.
+
+---
+
+## CI/CD (`.github/workflows/`)
+
+| Workflow | What it does |
+|----------|--------------|
+| `ci.yml` | **checks**: type-check, `type-check:language`, Biome (errors only), unit tests, and that all three generated bundles are current (`build:wasm-runtime`, `build:fullstack-browser`, `build:wasm-browser`, each `--check`). **generated-wasm-app**: generate the CRM twice (with and without the overlay) → assert the overlay's exact nine-file footprint → assert no `bun` survives in the generated scripts → `tsc --noEmit` and load the generated `node:test` suite → install/migrate/seed on WASM Postgres → start the backend → `scripts/ci/wasm-smoke.ts` (no database service: the app carries its own). **wasm-e2e**: run `bun run test:wasm` in Chromium — the only job that opens the result. **generated-app**: generate → build backend/frontend → `tsc --noEmit` the generated test suite → migrate+seed pgvector Postgres → start backend → run the generated E2E suite |
+| `github-neon.yml` | `workflow_dispatch`: generate from an online `.mmd`, point the app at a Neon database, migrate/seed/verify, run both halves on the runner, exercise it, optionally publish the app to a repo |
+| `eml-generate-and-publish.yml` | `workflow_dispatch`: run the `eml` CLI over an online model and publish the generated application to a target repo |
+
+`scripts/ci/neon-db.ts` holds everything that touches the Neon connection string
+(`check`, `reset`, `report [--assert]`, `write-env`) so the URL is never
+interpolated into a command line where it could reach a log or process listing.
+Secrets: `NEON_DATABASE_URL`, `EML_PUBLISH_TOKEN` (needs `repo` **and**
+`workflow` scopes — generated apps carry their own `.github/workflows/`).
+
+---
+
+## Git Workflow
+
+1. Create a feature branch from `main`
+2. Make changes with descriptive commits
+3. Run `bun run type-check` and `bun run lint` before pushing
+4. If you touched `packages/generator/templates/`, generate an app and build it
+5. Target `main` for pull requests
+
+---
+
+## Key Files Reference
+
+| File | Purpose |
+|------|---------|
+| `package.json` | Monorepo root, all scripts |
+| `tsconfig.json` | Root TS config + path aliases |
+| `biome.json` | Lint + format rules |
+| `playwright.config.ts` / `packages/web/vitest.config.ts` | Test configuration |
+| `.env.example` | All environment variable templates |
+| `.github/workflows/ci.yml` | Checks + generate-and-build-the-generated-app |
+| `.claude/custom-rules.md` | Bun-only policy |
+| `.claude/tanstack-start-reference.md` | TanStack Start notes |
+| `packages/ai/src/config.ts` | ⭐ Central AI model + embedding config |
+| `packages/ai/src/rag/store.ts` | pgvector model-context index |
+| `packages/ai/src/mastra/index.ts` | Mastra instance |
+| `packages/ai/src/workflows/erd-design-workflow.ts` | HITL ERD workflow |
+| `packages/core/src/config/db.config.ts` | ⭐ Sole DB connection site |
+| `packages/core/src/services/database.service.ts` | Kysely domain helpers |
+| `packages/core/src/hooks/hook-executor.ts` | `globalHookExecutor` |
+| `packages/core/src/rules/rules-engine.service.ts` | GoRules evaluation |
+| `packages/generator/src/pipeline/generate-application.ts` | ⭐ The one generation path |
+| `packages/generator/src/pipeline/parse-model.ts` | ⭐ Model → parsed model; pure, so a browser tab can run it |
+| `packages/generator/src/pipeline/review-model.ts` | ⭐ Checker + fixer, over a string |
+| `packages/generator/templates/common/design-tokens.json` | ⭐ The palette, stated once |
+| `packages/generator/templates/.../frontend/src/lib/app-meta.ts.hbs` | ⭐ The only generated module in the front end |
+| `packages/generator/src/rbac/index.ts` | `%%rbac` → operation + transition access rules |
+| `packages/generator/src/rbac/roles.ts` | ⭐ `%%rbac` → the roles, one account each, and per-entity visibility — read by both stacks |
+| `packages/generator/src/manual/index.ts` | ⭐ The parsed model → `manual.html`, one self-contained page — written by both stacks |
+| `packages/generator/src/cli/generate.ts` | Generator CLI |
+| `packages/generator/src/generators/ports.ts` | Generated-app default ports |
+| `packages/generator/templates/tanstack-start-nestjs/` | Stack templates |
+| `packages/generator/src/cli-wasm/generate.ts` | ⭐ The browser-stack CLI |
+| `packages/generator/src/generators/wasm/model-bundle.ts` | ⭐ Model → `model.json` + schema |
+| `packages/generator/templates/wasm/` | ⭐ The `--standalone` browser runtime (run `build:wasm-runtime` after editing) |
+| `packages/generator/templates/wasm-overlay/` | ⭐ What the WASM overlay ships (same build script) |
+| `packages/generator/src/generators/wasm/overlay.ts` | ⭐ What the overlay is allowed to change — CI asserts its footprint |
+| `packages/generator/src/browser/{memory-fs,full-stack}.ts` | The real pipeline over a `Map`, for `run-real-stack.html` |
+| `html/run-in-browser.html` | Generate and run a `--standalone` app from a page, no server |
+| `html/run-real-stack.html` | Assemble the real 400-file stack in a tab, boot it in a WebContainer |
+| `language/cli/eml.ts` | The zero-dependency `eml` CLI (`validate`/`info`/`generate`) |
+| `language/browser/*.entry.ts` | ⭐ Entry points for the published `html/checker.js` + `html/fixer.js` |
+| `llmtext/llms-full.txt` | ⭐ The spec written for language models — §10 is the authoring protocol |
+| `packages/web/vite.config.ts` | Vite 8 config, root-`.env` loading, `start-api-routes` shim |
+| `packages/web/src/types/project.ts` | ⭐ Wizard step vocabulary |
+| `packages/web/src/lib/project-access.ts` | ⭐ Project authorization |
+| `packages/web/src/lib/automation/model.ts` | Automation model + serializer |
+| `language/erdwithai-language.json` | ⭐ EML canonical definition |
+| `language/composer.ts` | ⭐ The only writer of complete EML documents |
+| `language/rag.ts` | EML → retrieval chunks (copied into generated apps) |
+
+---
+
+## Additional Documentation
+
+| Document | Description |
+|----------|-------------|
+| [docs/architecture.md](docs/architecture.md) | System architecture |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Build system, commands |
+| [docs/TESTING.md](docs/TESTING.md) | E2E test generation |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Version 6.0 plans |
+| [docs/ARCHITECTURAL-DESIGN-AUTH-WORKFLOW-RULES.md](docs/ARCHITECTURAL-DESIGN-AUTH-WORKFLOW-RULES.md) | Auth + workflow + rules design |
+| [docs/AUDIT_GUIDE.md](docs/AUDIT_GUIDE.md) | Audit trail |
+| [docs/NESTJS-INTEGRATION-GUIDE.md](docs/NESTJS-INTEGRATION-GUIDE.md) | Generated-backend integration |
+| [docs/qa/](docs/qa/) | Dated QA walkthroughs of generated apps |
+| [language/README.md](language/README.md) | EML entry point |
 
 ---
 
@@ -923,9 +1170,47 @@ Add once in `packages/generator/src/pipeline/generate-application.ts` (`Generati
 3. Generate and test: `bun run wasm generate -i language/examples/crm.eml.mmd -o /tmp/x --standalone --force`
 4. `bun run test:wasm` before pushing
 
-### Add a new AI agent
-1. Create `packages/ai/src/agents/<name>-agent.ts` importing `mastraModelConfig` from `../config`
-2. Re-export from `packages/ai/src/agents/index.ts`
+### Change the generated manual
+
+1. `packages/generator/src/manual/index.ts` is the whole renderer — there is no
+   template and no second copy
+2. Render it over the CRM model and open the result before believing it:
+   ```bash
+   bun -e 'import{readFileSync,writeFileSync}from"node:fs";\
+   const{parseModel}=await import("./packages/generator/src/pipeline/parse-model");\
+   const{renderManual}=await import("./packages/generator/src/manual/index");\
+   writeFileSync("/tmp/manual.html",renderManual(parseModel(readFileSync("language/examples/crm.eml.mmd","utf-8")),{name:"Acme CRM",version:"1.0.0",description:"CRM"}))'
+   ```
+3. `bun run build:wasm-runtime` is **not** needed — the manual is TypeScript in
+   `src/`, not a template under `templates/wasm/` — but `build:wasm-browser` and
+   `build:fullstack-browser` are, because both bundles carry it
+4. Generate both ways and re-run the footprint diff: the two copies must stay
+   identical, or CI's `generated-wasm-app` job fails on a file the overlay does
+   not own
+
+### Change what `%%rbac` enforces
+
+0. `packages/generator/src/rbac/roles.ts` if it changes the roles, the seeded
+   accounts or which entities a role may see — both stacks read that one file,
+   and its tests are `src/rbac/__tests__/derive-access.test.ts`
+1. `packages/generator/src/rbac/index.ts` — the compiler and its tests
+2. `templates/tanstack-start-nestjs/backend/src/migrations/011_add_operation_access.ts.hbs` — the two tables
+3. `templates/common/seeds/operation-access.ts.hbs` — the seed
+4. `templates/.../auth/guards/entity-access.guard.ts.hbs` — enforcement
+5. Generate an app, migrate, and exercise the routes — a guard that compiles
+   proves nothing about whether it refuses the right callers
+
+### Extend the EML language
+
+1. Edit `language/erdwithai-language.json` (source of truth)
+2. Update `language/grammar/erdwithai.ebnf` and the relevant `language/spec/*.md`
+3. Update the parser (`language/cli/src/parser.ts`, `packages/web/src/lib/mermaid-flowchart-parser.ts`, `packages/generator/src/rules/flowchart-parser.ts`)
+4. Update `language/composer.ts` if the document shape changes, and `language/rag.ts` if the chunking does
+5. If you added a diagnostic, put it in the right code band; if you made it
+   auto-fixable, add it to **all three** of `AUTO_FIXABLE_CODES` in `checker.ts`,
+   the fixer's dispatch table, and `diagnostics.autoFixable` in the JSON
+6. Add an example to `language/examples/` and run `bun language/checker.ts` over it
+7. `bun run type-check:language` — the root `type-check` does not cover `language/`
 
 ### Add a core subpath export
 1. Create `packages/core/src/<dir>/index.ts`
