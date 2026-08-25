@@ -438,6 +438,18 @@ var erdwithai_language_default = {
       unmarkedReference: "`string vendor_id` and `string vendor_id FK` parse into the same column, and only the second becomes TABLE_DIRECT. Reported as EML119.",
       unboundLifecycleColumn: "A %%enum does nothing to a column on its own. Without the %%field binding, a status/state/stage column is free text, and the form accepts values the state machine cannot act on. Reported as EML146."
     },
+    displayValue: {
+      description: "What a record is called wherever something other than the record shows it: a Table Direct dropdown, and a grid cell holding a foreign key. Stored as sys_column.is_identifier, and the display value is the identifier columns concatenated in seq_no order - the same rule in both stacks.",
+      derivation: [
+        "1. A column named name, full_name, display_name, title, label or subject - whichever appears first in that order.",
+        "2. Otherwise first_name and last_name together, if the entity declares both. This is why the value is a concatenation and not one column.",
+        "3. Otherwise code, reference or number - not a name, but what people quote at each other, and better than a uuid.",
+        "4. Otherwise the first declared string/text column that is neither the key nor a reference.",
+        "5. Otherwise the key, so a lookup still lists something."
+      ],
+      primaryKeyIsNotAnIdentifier: "The key is deliberately excluded. It used to be marked, which meant a display value built from the identifier columns began with a uuid, and every consumer had grown its own filter to drop it.",
+      modellingAdvice: "Give an entity a name, title or code column if it will be referenced. Without one the fallbacks apply, and a reference to it reads as whatever text column happened to be declared first."
+    },
     managedColumns: {
       description: "Columns every generated table carries in both stacks, whether or not the model mentions them. They are the generator's: the key, the optimistic-lock counter, the audit pair and the soft-delete pair.",
       names: [
@@ -7440,90 +7452,27 @@ import { ident } from "./db.js";
  * Returns the key column, a readable name for the label, and the SQL expression
  * that produces it.
  */
-export function labelFor(columns, options = {}) {
+export function labelFor(columns) {
   const key = columns.find((column) => column.is_key)?.column_name ?? "id";
   if (columns.length === 0) return { key, label: key, expression: ident(key) };
 
   const identifiers = columns
     .filter((column) => column.is_identifier && !column.is_key)
-    .sort((a, b) => Number(a.seq_no ?? 0) - Number(b.seq_no ?? 0));
+    .sort((a, b) => Number(a.seq_no ?? 0) - Number(b.seq_no ?? 0))
+    .map((column) => column.column_name);
 
   if (identifiers.length === 0) return { key, label: key, expression: ident(key) };
 
-  /* An identifier that is itself a reference — a join entity, whose identity is
-     the records it joins — holds a uuid, so printing it would defeat the whole
-     point. It resolves through the parent's own label instead, as a correlated
-     subquery: one level only, because a parent that is itself a join would make
-     this recursive, and a label assembled from four grandparents is not a name
-     anybody reads. \`parents\` carries the parent tables' columns; without it
-     (the sync callers) a reference identifier falls back to the key. */
-  const parents = options.parents ?? {};
-  const table = options.table;
-
-  const part = (column) => {
-    const parentColumns = column.ref_table_name ? parents[column.ref_table_name] : null;
-    if (!column.ref_table_name) return ident(column.column_name);
-    if (!parentColumns || !table) return null;
-
-    const parent = labelFor(parentColumns);
-    /* \`labelFor\` on the parent, with no \`parents\` of its own, is what stops the
-       recursion: a parent that is also a join entity labels itself by its key. */
-    /* Cast both sides: a generated table's key is \`UUID\` and a reference to it
-       is \`VARCHAR(255)\`, because the model declares \`string campaign_id FK\`.
-       Postgres coerces a text *parameter* to uuid happily, which is why the
-       grid's \`WHERE id IN ($1, …)\` never noticed, but it refuses to compare the
-       two *columns* — \`operator does not exist: uuid = character varying\`. */
-    return \`(SELECT \${parent.expression} FROM \${ident(column.ref_table_name)}
-              WHERE \${ident(column.ref_table_name)}.\${ident(parent.key)}::text
-                  = \${ident(table)}.\${ident(column.column_name)}::text)\`;
-  };
-
-  const parts = identifiers.map(part).filter(Boolean);
-  if (parts.length === 0) return { key, label: key, expression: ident(key) };
-
-  /* Two names of one record join with a space — \`Hiroshi Kowalski\`. Two
-     *records* join with a dash — \`Spring Promo — Hiroshi Kowalski\` — because
-     they are separate things and running them together reads as one name that
-     belongs to nobody. */
-  const separator = identifiers.some((column) => column.ref_table_name) ? " — " : " ";
-
-  const joined =
-    parts.length === 1
-      ? parts[0]
-      : // CONCAT_WS skips nulls, so a person with no surname recorded reads as
-        // their first name rather than as a name with a gap in it, and a join
-        // whose other side was deleted still names the side that remains.
-        \`TRIM(CONCAT_WS('\${separator}', \${parts.join(", ")}))\`;
-
   return {
     key,
-    label: identifiers.map((column) => column.column_name).join(" "),
-    /* Never hand back a blank. A join entity whose parents have both gone —
-       deleted, or never seeded — concatenates two nulls into an empty string,
-       and an option with no text is one a reader cannot pick or tell apart.
-       The uuid is the thing this module exists to avoid, which makes it exactly
-       the right last resort: it is unreadable, but it is unambiguous. */
-    expression: \`COALESCE(NULLIF(\${joined}, ''), \${ident(key)}::text)\`,
+    label: identifiers.join(" "),
+    expression:
+      identifiers.length === 1
+        ? ident(identifiers[0])
+        : // CONCAT_WS skips nulls, so a person with no surname recorded reads as
+          // their first name rather than as a name with a gap in it.
+          \`TRIM(CONCAT_WS(' ', \${identifiers.map(ident).join(", ")}))\`,
   };
-}
-
-/**
- * \`labelFor\`, with the parent tables a join entity needs already read.
- *
- * The sync form cannot fetch anything, and a join entity's label is built from
- * its parents' labels, so this is the form every caller that has a database
- * should use. One extra query per reference identifier, on tables that are
- * small by construction — a join has two parents, not two hundred.
- */
-export async function labelForTable(db, table, columns) {
-  const identifiers = columns.filter((column) => column.is_identifier && !column.is_key);
-  const parents = {};
-  for (const column of identifiers) {
-    if (!column.ref_table_name || parents[column.ref_table_name]) continue;
-    const parentColumns = await columnsOf(db, column.ref_table_name);
-    if (parentColumns) parents[column.ref_table_name] = parentColumns;
-  }
-  return labelFor(columns, { table, parents });
 }
 
 /**
@@ -7571,7 +7520,7 @@ export async function labelsForRows(db, entity, rows) {
 
     const parentColumns = await columnsOf(db, column.ref_table_name);
     if (!parentColumns) continue;
-    const { key, expression } = await labelForTable(db, column.ref_table_name, parentColumns);
+    const { key, expression } = labelFor(parentColumns);
 
     const placeholders = ids.map((_, index) => \`$\${index + 1}\`).join(", ");
     const found = await db.query(
@@ -9455,7 +9404,7 @@ function withReading(model) {
 
 import { Router } from "../lib/router.js";
 import { ident } from "../lib/db.js";
-import { columnsOf, labelForTable } from "../lib/labels.js";
+import { columnsOf, labelFor } from "../lib/labels.js";
 import { json, notFound, readJson } from "../lib/http.js";
 import { readableTables, requireAdmin, requireUser } from "../lib/guards.js";
 import { recordAudit } from "./audit.routes.js";
@@ -9525,61 +9474,23 @@ export function sysRoutes(model) {
    *
    * The dictionary already knows which table a reference column points at
    * (\`sys_column.ref_table_name\`); this turns that into something a select can
-   * render — an id and the label a person recognises. The label column is the
-   * one the dictionary marks \`is_identifier\` and is not the key, which is
-   * \`name\` for most entities; failing that, the first text column; failing
-   * that, the id itself, because a lookup that lists ids is still better than
-   * a text box asking for one.
+   * render — an id and the label a person recognises. What the label *is* comes
+   * from \`labelFor\`, which reads the dictionary's \`is_identifier\` columns, so
+   * the dropdown here and the grid that displays the chosen value cannot end up
+   * calling the same record two different things.
    */
   router.get("/lookup", async (_request, { db, query }) => {
     const table = query.get("table");
     if (!table) return json({ options: [], label: null });
 
-    /* sys_column keys its table by id, so the dictionary is asked for the
-       table first — which also means a table nobody declared cannot be read
-       through this route. */
-    const owner = await db.one("SELECT sys_table_id FROM sys_table WHERE table_name = $1", [table]);
-    if (!owner) return json({ options: [], label: null });
+    const columns = await columnsOf(db, table);
+    if (!columns || columns.length === 0) return json({ options: [], label: null });
 
-    const columns = await db.select("sys_column", {
-      where: { sys_table_id: owner.sys_table_id },
-      orderBy: "seq_no",
-    });
-    if (columns.length === 0) return json({ options: [], label: null });
-
-    const key = columns.find((column) => column.is_key)?.column_name ?? "id";
-    const has = (name) => columns.some((column) => column.column_name === name);
-    const named = ["name", "full_name", "title", "label", "display_name", "subject"];
-    const readable = (column) =>
-      !column.is_key &&
-      !column.column_name.endsWith("_id") &&
-      [10, 14, 30].includes(Number(column.sys_reference_id));
-
-    /* What a person would call the record, in the order they would reach for
-       it: a name-ish column, then a first/last pair — a person table rarely
-       carries either of the names above, and listing staff by e-mail address
-       when their names are right there is the sort of thing that makes a
-       generated screen feel generated — then whatever the dictionary marks as
-       the identifier, then the first readable column, then the key: a lookup
-       listing ids still beats a text box asking for one. */
-    const name = columns.find((column) => named.includes(column.column_name))?.column_name;
-    const person = !name && has("first_name") && has("last_name");
-    const label = name
-      ? name
-      : person
-        ? "first_name last_name"
-        : (columns.find((column) => column.is_identifier && !column.is_key)?.column_name ??
-          columns.find(readable)?.column_name ??
-          key);
-
-    const expression = person
-      ? \`TRIM(CONCAT_WS(' ', \${quoted("first_name")}, \${quoted("last_name")}))\`
-      : quoted(label);
-
+    const { key, label, expression } = labelFor(columns);
     const limit = Math.min(Number(query.get("limit") ?? 500) || 500, 1000);
     const rows = await db.query(
-      \`SELECT \${quoted(key)} AS id, \${expression} AS label
-         FROM \${quoted(table)}
+      \`SELECT \${ident(key)} AS id, \${expression} AS label
+         FROM \${ident(table)}
         ORDER BY 2
         LIMIT \${limit}\`
     );
@@ -12737,7 +12648,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 254760;
+var RUNTIME_BYTES = 259253;
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};
@@ -16995,6 +16906,22 @@ var SEMANTIC_REFERENCE = {
   password: ReferenceType.PASSWORD,
   color: ReferenceType.COLOR
 };
+function identifierColumnNames(attributes, primaryKey) {
+  const names = new Set(attributes.map((attribute) => attribute.name));
+  const has = (name) => names.has(name);
+  for (const candidate of ["name", "full_name", "display_name", "title", "label", "subject"]) {
+    if (has(candidate))
+      return [candidate];
+  }
+  if (has("first_name") && has("last_name"))
+    return ["first_name", "last_name"];
+  for (const candidate of ["code", "reference", "number"]) {
+    if (has(candidate))
+      return [candidate];
+  }
+  const readable = attributes.find((attribute) => attribute.name !== primaryKey && !attribute.isForeignKey && !attribute.name.endsWith("_id") && (attribute.type === "string" || attribute.type === "text"));
+  return readable ? [readable.name] : [];
+}
 function attributeReferenceId(attr, entityPrimaryKey) {
   if (attr.name === "id")
     return ReferenceType.ID;

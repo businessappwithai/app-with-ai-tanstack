@@ -125,17 +125,10 @@ export function useBusEntityLevel(entityName: string) {
   // order. This picks one column because it is used where a single field is
   // wanted; the first identifier is the right one (`first_name` before
   // `last_name`), and the fallbacks cover a table the dictionary marked none on.
-  //
-  // A reference identifier is skipped: on a join entity the identifiers are the
-  // foreign keys to the records it joins, and those hold uuids. Displaying and
-  // searching by one is worse than the fallback, which at least reads as words.
   const NAME_FALLBACKS = ["name", "title", "first_name", "description", "type"];
   const nameField =
     formFields
-      .filter(
-        (f) =>
-          (f as any).is_identifier && !(f as any).is_key && !(f as any).ref_table_name
-      )
+      .filter((f) => (f as any).is_identifier && !(f as any).is_key)
       .sort((a, b) => Number((a as any).seq_no ?? 0) - Number((b as any).seq_no ?? 0))[0]
       ?.column_name ??
     NAME_FALLBACKS.find((candidate) => formFields.some((f) => f.column_name === candidate)) ??

@@ -2441,6 +2441,18 @@ var erdwithai_language_default = {
       unmarkedReference: "`string vendor_id` and `string vendor_id FK` parse into the same column, and only the second becomes TABLE_DIRECT. Reported as EML119.",
       unboundLifecycleColumn: "A %%enum does nothing to a column on its own. Without the %%field binding, a status/state/stage column is free text, and the form accepts values the state machine cannot act on. Reported as EML146."
     },
+    displayValue: {
+      description: "What a record is called wherever something other than the record shows it: a Table Direct dropdown, and a grid cell holding a foreign key. Stored as sys_column.is_identifier, and the display value is the identifier columns concatenated in seq_no order - the same rule in both stacks.",
+      derivation: [
+        "1. A column named name, full_name, display_name, title, label or subject - whichever appears first in that order.",
+        "2. Otherwise first_name and last_name together, if the entity declares both. This is why the value is a concatenation and not one column.",
+        "3. Otherwise code, reference or number - not a name, but what people quote at each other, and better than a uuid.",
+        "4. Otherwise the first declared string/text column that is neither the key nor a reference.",
+        "5. Otherwise the key, so a lookup still lists something."
+      ],
+      primaryKeyIsNotAnIdentifier: "The key is deliberately excluded. It used to be marked, which meant a display value built from the identifier columns began with a uuid, and every consumer had grown its own filter to drop it.",
+      modellingAdvice: "Give an entity a name, title or code column if it will be referenced. Without one the fallbacks apply, and a reference to it reads as whatever text column happened to be declared first."
+    },
     managedColumns: {
       description: "Columns every generated table carries in both stacks, whether or not the model mentions them. They are the generator's: the key, the optimistic-lock counter, the audit pair and the soft-delete pair.",
       names: [
