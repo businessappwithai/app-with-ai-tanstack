@@ -675,15 +675,6 @@ class SourceIndex {
   }
 }
 var LIFECYCLE_COLUMN_NAMES = new Set(["status", "state", "stage"]);
-var MANAGED_COLUMN_NAMES = new Set([
-  "version",
-  "created_at",
-  "updated_at",
-  "created_by",
-  "updated_by",
-  "deleted_at",
-  "deleted_by"
-]);
 var PERSON_ROLE_COLUMN_NAMES = new Set([
   "assigned_to",
   "author_id",
@@ -911,12 +902,6 @@ class CheckEngine {
             hint: `Add FK:  ${attr.rawType ?? "string"} ${attr.name} FK. Without it the Application Dictionary records the column as String and the form shows the raw id instead of a "${target}" lookup.`
           });
         }
-      }
-      if (MANAGED_COLUMN_NAMES.has(attr.name.toLowerCase()) && !attr.isPrimaryKey) {
-        this.warn("EML103", `Column "${entity.name}.${attr.name}" is added by the generator.`, {
-          line: attrLine,
-          hint: `Every table carries ${[...MANAGED_COLUMN_NAMES].join(", ")} already. Delete the line: the generator's own definition is used, and yours is ignored.`
-        });
       }
       const def = this.def;
       const rawBase = attr.rawType?.replace(/\(\d+\)/, "").toLowerCase();
@@ -2441,52 +2426,13 @@ var erdwithai_language_default = {
       unmarkedReference: "`string vendor_id` and `string vendor_id FK` parse into the same column, and only the second becomes TABLE_DIRECT. Reported as EML119.",
       unboundLifecycleColumn: "A %%enum does nothing to a column on its own. Without the %%field binding, a status/state/stage column is free text, and the form accepts values the state machine cannot act on. Reported as EML146."
     },
-    displayValue: {
-      description: "What a record is called wherever something other than the record shows it: a Table Direct dropdown, and a grid cell holding a foreign key. Stored as sys_column.is_identifier, and the display value is the identifier columns concatenated in seq_no order - the same rule in both stacks.",
-      derivation: [
-        "1. A column named name, full_name, display_name, title, label or subject - whichever appears first in that order.",
-        "2. Otherwise first_name and last_name together, if the entity declares both. This is why the value is a concatenation and not one column.",
-        "3. Otherwise code, reference or number - not a name, but what people quote at each other, and better than a uuid.",
-        "4. Otherwise, if the entity declares two or more FK columns ending _id/_by, it is a join entity: its first two references are the identifiers, each resolved through the parent's own label. CampaignMember reads as `Spring Promo - Omar Kowalski`.",
-        "5. Otherwise the first declared string/text column that is neither the key nor a reference.",
-        "6. Otherwise the key, so a lookup still lists something."
-      ],
-      joinEntities: {
-        description: "An entity whose identity is the pair of records it joins - CampaignMember, OrderLine, QuoteLineItem - has no name to give it, and step 5 would pick whatever text column came first: member_status, so every campaign member read `invited`. Two or more references and no name of its own is the shape.",
-        depth: "One level only. A parent that is itself a join entity labels itself by its key rather than recursing, because a label assembled from four grandparents is not a name anybody reads.",
-        pairOnly: "The first two references in declared order, never more. An entity with three parents labels itself from the first two, which is the only say the modeller has in it - so declare the two that name the record first.",
-        separator: "Two names of one record join with a space (`Omar Kowalski`); two records join with an em dash (`Spring Promo - Omar Kowalski`). Sharing one separator turns a person into `Omar - Kowalski`.",
-        sqlNote: "A generated key is UUID and a reference to it is VARCHAR(255), because the model declares `string campaign_id FK`. Postgres coerces a text parameter to uuid but refuses to compare the two columns, so the resolving subquery casts both sides."
-      },
-      primaryKeyIsNotAnIdentifier: "The key is deliberately excluded. It used to be marked, which meant a display value built from the identifier columns began with a uuid, and every consumer had grown its own filter to drop it.",
-      modellingAdvice: "Give an entity a name, title or code column if it will be referenced. Without one the fallbacks apply, and a reference to it reads as whatever text column happened to be declared first. A join entity is the exception and needs nothing: it names itself from its parents."
-    },
-    managedColumns: {
-      description: "Columns every generated table carries in both stacks, whether or not the model mentions them. They are the generator's: the key, the optimistic-lock counter, the audit pair and the soft-delete pair.",
-      names: [
-        "id",
-        "version",
-        "created_at",
-        "updated_at",
-        "created_by",
-        "updated_by",
-        "deleted_at",
-        "deleted_by"
-      ],
-      declaringOne: 'Redundant, and it used to be fatal: the column reached CREATE TABLE twice and PostgreSQL refused the statement with `column "created_at" specified more than once`, so the generated application could not open its database. The generator now drops the model\'s definition and keeps its own; EML103 reports the line.',
-      checkerCodes: {
-        EML103: "A column the generator manages, declared in the model - the declaration is ignored."
-      }
-    },
     alsoDerived: [
       "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10).",
       "%%index becomes real indexes; a unique attribute or a `name` column is indexed automatically (mergeIndexes).",
       "%%category becomes the dashboard grouping; a model declaring none gets a single General category holding every entity.",
-      "%%field <Entity>.<column> help: and %%entity <Name> help: become sys_column.description and sys_table.description - the help a reader sees under the field and beside the table. %%entity description: is the same key under its other name.",
-      "The remaining %%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
+      "%%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
     ],
     checkerCodes: {
-      EML103: "A column the generator already adds (id, version, the audit pair, the soft-delete pair), declared in the model.",
       EML119: "A reference-shaped column with no FK modifier - the lookup is lost.",
       EML146: "A status/state/stage column with no %%field enum binding - the dropdown is lost.",
       EML500: "A `kind: state` workflow bound to an entity with no status/state/stage column at all - the machine has nothing to track."
