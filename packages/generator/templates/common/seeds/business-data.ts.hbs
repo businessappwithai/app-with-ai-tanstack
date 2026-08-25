@@ -86,7 +86,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       {{#unless (eq name 'deleted_at')}}
       {{#unless (eq name 'version')}}
       {{#switch (typeToReferenceId type)}}
-        {{#case 10}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}'{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{seedValue name @../index}}{{/if}}'{{/if}},{{/case}}
+        {{#case 10}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}'{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{seedValue name @../index ../../displayName}}{{/if}}'{{/if}},{{/case}}
         {{#case 30}}{{name}}: 'test{{@../index}}@example.com',{{/case}}
         {{#case 31}}{{name}}: '555-{{@../index}}101',{{/case}}
         {{#case 11}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}{{@../index}}{{/if}},{{/case}}
@@ -97,7 +97,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         {{#case 20}}{{name}}: {{#if (eq @../index 2)}}false{{else}}true{{/if}},{{/case}}
         {{#case 13}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}uuidv4(){{/if}},{{/case}}
         {{#case 14}}{{name}}: 'Sample {{name}} text {{@../index}}',{{/case}}
-        {{#default}}{{name}}: '{{seedValue name @../index}}',{{/default}}
+        {{#default}}{{name}}: '{{seedValue name @../index ../../displayName}}',{{/default}}
       {{/switch}}
       {{/unless}}
       {{/unless}}

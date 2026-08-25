@@ -833,7 +833,7 @@ export class TemplateLoader {
     );
 
     // Realistic seed value helper for business data seeds
-    Handlebars.registerHelper("seedValue", (fieldName: string, index: number) => {
+    Handlebars.registerHelper("seedValue", (fieldName: string, index: number, entityDisplayName?: string | Handlebars.HelperOptions) => {
       const n = (fieldName ?? "").toLowerCase();
       const i = typeof index === "number" ? index : 0;
       const FIRST_NAMES = [
@@ -912,6 +912,9 @@ export class TemplateLoader {
       // model's smiles/inchi_key/formula/compound_class/registration_status
       // all read "Sample 1"). Fold the field name in so columns stay
       // distinguishable for any domain vocabulary doesn't cover.
+      // For a bare "name" field, use the entity display name if provided (e.g. "Grade 1").
+      const entityName = typeof entityDisplayName === "string" ? entityDisplayName.trim() : "";
+      if ((n === "name" || n === "title") && entityName) return `${entityName} ${i + 1}`;
       const humanized = (fieldName ?? "")
         .replace(/_/g, " ")
         .replace(/\b\w/g, (c) => c.toUpperCase())
