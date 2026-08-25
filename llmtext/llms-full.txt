@@ -380,7 +380,10 @@ CRUD operation. 13 hook types (`beforeCreate`, `afterCreate`, `beforeUpdate`, �
 
 **`kind: state`** — a `stateDiagram-v2`. States become the values a status column
 may hold; compiles to BPMN seeded into `sys_workflow_definitions`. States should
-be backed by a declared `%%enum` (`EML426`/`EML428` check this).
+be backed by a declared `%%enum` (`EML426`/`EML428` check this). Each declared
+edge is also seeded into `sys_workflow_transitions`; the entity-access guard
+reads that table on every status-field write and returns **403** for any move
+that has no matching edge — topology is enforced, not just role access.
 
 ```mermaid
 stateDiagram-v2
@@ -576,6 +579,7 @@ data.
 | `sys_element`, `sys_reference`, `sys_ref_list`, `sys_ref_table` | shared labels and lookups |
 | `sys_role`, `sys_user`, `sys_user_roles`, `sys_access` | roles, users, and which windows a role may open |
 | `sys_operation_access`, `sys_transition_access` | what `%%rbac` compiles to: per-operation and per-transition role restrictions |
+| `sys_workflow_transitions` | valid edges from `%%workflow kind:state`; guard returns 403 for any status write that crosses no declared edge |
 | `sys_rule_definitions` | seeded JDM rules |
 | `sys_workflow_definitions` | seeded BPMN; automations live here too, not in a table of their own |
 | `sys_workflow_runs` | one row per workflow execution |

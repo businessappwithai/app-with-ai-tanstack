@@ -145,6 +145,14 @@ in the definition's description, so the Workflow Designer shows what was drawn.
 Without the definitions, every write logged *"No active workflow named … —
 nothing to trigger"* and no run was ever recorded.
 
+**Transition topology enforcement.** Every declared edge is also seeded into
+`sys_workflow_transitions`. The entity-access guard checks this table on every
+status-field write: a move from `StateA` to `StateC` when the diagram declares
+no such edge returns **403 Forbidden** with a message naming the current state
+and the states it may legally reach. A table with no rows in
+`sys_workflow_transitions` is unconstrained — only models that declare a
+`kind: state` workflow have their transitions enforced.
+
 ### Complete state workflow — order fulfilment
 
 ```mermaid
