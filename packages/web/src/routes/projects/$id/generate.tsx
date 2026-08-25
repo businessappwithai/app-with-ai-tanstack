@@ -134,6 +134,7 @@ function GeneratePage() {
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
+      let hadError = false;
 
       if (reader) {
         while (true) {
@@ -162,6 +163,7 @@ function GeneratePage() {
                   });
                 }
                 if (data.error) {
+                  hadError = true;
                   setError(data.error);
                   addLog("error", data.error);
                 }
@@ -173,7 +175,9 @@ function GeneratePage() {
         }
       }
 
-      addLog("success", "Generation completed successfully!");
+      if (!hadError) {
+        addLog("success", "Generation completed successfully!");
+      }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Unknown error occurred";
       setError(errorMsg);
