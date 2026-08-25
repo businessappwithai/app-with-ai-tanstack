@@ -8404,6 +8404,62 @@ async function seedAdmin(db, model, log) {
 }
 
 /**
+ * One account per functional role.
+ *
+ * An application seeded with an administrator and nobody else can only be
+ * looked at as an administrator — and the administrator bypasses every rule the
+ * model wrote, so the access control it declared is invisible in the only
+ * account that exists. Signing in as \`sales.rep@…\` is what turns \`%%rbac\` from
+ * a claim in a file into something a reader can see: the navigation is shorter,
+ * and the entities that are missing are the ones that role does not own.
+ *
+ * They share the administrator's password on purpose. This is a demonstration
+ * database in the reader's own browser, and a screen full of accounts each with
+ * a different generated secret is a worse trade than one line of log.
+ */
+async function seedRoleUsers(db, model, log) {
+  const users = (model.users || []).filter((user) => !user.isAdmin);
+  if (users.length === 0) return;
+
+  const { adminPassword } = model.project;
+  const hash = await hashPassword(adminPassword);
+  const seeded = [];
+
+  for (const user of users) {
+    const existing = await db.one("SELECT sys_user_id FROM sys_user WHERE email = $1", [
+      user.email,
+    ]);
+    const userId = existing
+      ? existing.sys_user_id
+      : (
+          await db.insert("sys_user", {
+            name: user.name,
+            email: user.email,
+            password_hash: hash,
+            description: user.description ?? null,
+          })
+        ).sys_user_id;
+
+    const roleId = await db.value("SELECT sys_role_id FROM sys_role WHERE name = $1", [
+      user.roleName,
+    ]);
+    /* A user with no role would sign in and see an application with nothing in
+       it, which reads as a broken build rather than as a missing seed. */
+    if (!roleId) continue;
+    await db.query(
+      \`INSERT INTO sys_user_roles (user_id, role_id) VALUES ($1, $2)
+         ON CONFLICT (user_id, role_id) DO NOTHING\`,
+      [userId, roleId]
+    );
+    seeded.push(user.email);
+  }
+
+  if (seeded.length > 0) {
+    log(\`\${seeded.length} role account(s), password \${adminPassword}: \${seeded.join(", ")}\`);
+  }
+}
+
+/**
  * Sample business rows, when the generator put any in the bundle.
  *
  * They arrive already ordered parent-first and with their foreign keys pointing
@@ -20367,323 +20423,167 @@ var fn = function(e3) {
 
 // packages/generator/src/generators/wasm/sample-data.ts
 function hashSeed(text) {
-  let h = 1779033703 ^ text.length;
-  for (let i = 0;i < text.length; i++) {
-    h = Math.imul(h ^ text.charCodeAt(i), 3432918353);
-    h = h << 13 | h >>> 19;
+  let h2 = 1779033703 ^ text.length;
+  for (let i2 = 0;i2 < text.length; i2++) {
+    h2 = Math.imul(h2 ^ text.charCodeAt(i2), 3432918353);
+    h2 = h2 << 13 | h2 >>> 19;
   }
-  h ^= h >>> 16;
-  return h >>> 0;
-}
-function rng(seed) {
-  let a = seed;
-  return () => {
-    a = a + 1831565813 | 0;
-    let t = Math.imul(a ^ a >>> 15, 1 | a);
-    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-  };
+  h2 ^= h2 >>> 16;
+  return h2 >>> 0;
 }
 
-class Random {
-  next;
-  constructor(seed) {
-    this.next = rng(hashSeed(seed));
+class Draw {
+  faker;
+  constructor(faker, key) {
+    faker.seed(hashSeed(key));
+    this.faker = faker;
   }
   float() {
-    return this.next();
+    return this.faker.number.float({ min: 0, max: 1 });
   }
   int(min, max) {
-    return min + Math.floor(this.next() * (max - min + 1));
+    return this.faker.number.int({ min, max });
   }
   pick(items) {
-    return items[Math.min(items.length - 1, Math.floor(this.next() * items.length))];
+    return this.faker.helpers.arrayElement(items);
   }
   chance(probability) {
-    return this.next() < probability;
+    return this.faker.datatype.boolean({ probability });
   }
   uuid() {
-    const hex = "0123456789abcdef";
-    let out = "";
-    for (let i = 0;i < 32; i++) {
-      if (i === 12)
-        out += "4";
-      else if (i === 16)
-        out += hex[8 + Math.floor(this.next() * 4)];
-      else
-        out += hex[Math.floor(this.next() * 16)];
-    }
-    return `${out.slice(0, 8)}-${out.slice(8, 12)}-${out.slice(12, 16)}-${out.slice(16, 20)}-${out.slice(20)}`;
+    return this.faker.string.uuid();
   }
 }
-var FIRST_NAMES = [
-  "Amara",
-  "Priya",
-  "Sofia",
-  "Mei",
-  "Aisha",
-  "Elena",
-  "Nadia",
-  "Yara",
-  "Ines",
-  "Leila",
-  "Tomas",
-  "Rahul",
-  "Kwame",
-  "Diego",
-  "Hiroshi",
-  "Omar",
-  "Lucas",
-  "Mateo",
-  "Noah",
-  "Ivan"
-];
-var LAST_NAMES = [
-  "Okafor",
-  "Sharma",
-  "Rossi",
-  "Nakamura",
-  "Haddad",
-  "Novak",
-  "Andersen",
-  "Costa",
-  "Dubois",
-  "Fernandes",
-  "Kowalski",
-  "Mbeki",
-  "Nguyen",
-  "Petrov",
-  "Silva",
-  "Tanaka",
-  "Weber",
-  "Ziegler"
-];
-var COMPANY_HEADS = [
-  "Northwind",
-  "Blue Harbour",
-  "Cedar",
-  "Meridian",
-  "Orchard",
-  "Ridgeway",
-  "Solstice",
-  "Trafalgar",
-  "Vanguard",
-  "Whitfield",
-  "Ironbridge",
-  "Larkspur"
-];
-var COMPANY_TAILS = [
-  "Trading",
-  "Industries",
-  "Logistics",
-  "Supplies",
-  "Partners",
-  "Group",
-  "Systems",
-  "Works"
-];
-var PRODUCT_HEADS = [
-  "Compact",
-  "Industrial",
-  "Precision",
-  "Heavy-duty",
-  "Portable",
-  "Reinforced",
-  "Insulated",
-  "Stainless"
-];
-var PRODUCT_TAILS = [
-  "Valve",
-  "Bearing",
-  "Cable",
-  "Pump",
-  "Bracket",
-  "Filter",
-  "Sensor",
-  "Actuator",
-  "Coupling"
-];
-var CITIES = [
-  "Rotterdam",
-  "Porto",
-  "Leeds",
-  "Malmo",
-  "Bilbao",
-  "Antwerp",
-  "Cork",
-  "Bergen",
-  "Turin",
-  "Gdansk"
-];
-var COUNTRIES = [
-  "Netherlands",
-  "Portugal",
-  "United Kingdom",
-  "Sweden",
-  "Spain",
-  "Belgium",
-  "Ireland",
-  "Norway"
-];
-var STREETS = [
-  "Harbour Road",
-  "Mill Lane",
-  "Station Approach",
-  "Foundry Street",
-  "Kiln Way",
-  "Quay Side"
-];
-var WORDS = [
-  "delivery",
-  "inspection",
-  "tolerance",
-  "batch",
-  "handover",
-  "schedule",
-  "clearance",
-  "allocation",
-  "shortfall",
-  "revision",
-  "approval",
-  "dispatch",
-  "reconciliation",
-  "provision"
-];
-var SENTENCES = [
-  "Checked against the order and cleared without exception.",
-  "Held overnight pending confirmation from the supplier.",
-  "Quantity agreed after a short call; nothing outstanding.",
-  "Raised for review — the price differs from the agreed rate.",
-  "Completed on schedule. No follow-up required.",
-  "Partial receipt; the balance is expected next week.",
-  "Corrected after the first entry recorded the wrong unit."
-];
 var DOMAINS = ["example.com", "example.org", "example.net"];
-var COLORS = [
-  "#2563eb",
-  "#0ea5e9",
-  "#16a34a",
-  "#f59e0b",
-  "#dc2626",
-  "#7c3aed",
-  "#0f766e",
-  "#be123c"
-];
+var UNITS = ["each", "box", "case", "pallet", "kg", "litre"];
 function flavourOf(column, entity2) {
-  const n = column.toLowerCase();
-  if (/^first_?name$/.test(n))
+  const n2 = column.toLowerCase();
+  if (/^first_?name$/.test(n2))
     return "firstName";
-  if (/^(last|sur)_?name$/.test(n))
+  if (/^(last|sur)_?name$/.test(n2))
     return "lastName";
-  if (/^(full_?name|display_?name)$/.test(n))
+  if (/^(full_?name|display_?name)$/.test(n2))
     return "person";
-  if (/^(contact|person|customer|client|employee|user|approver|owner)_name$/.test(n))
+  if (/^(contact|person|customer|client|employee|user|approver|owner)_name$/.test(n2))
     return "person";
-  if (/^(company|vendor|supplier|organisation|organization|account|insurer)_name$/.test(n))
+  if (/^(company|vendor|supplier|organisation|organization|account|insurer)_name$/.test(n2))
     return "company";
-  if (/^(sku|code|.*_code|barcode)$/.test(n))
-    return "code";
-  if (/(number|reference|ref|invoice_no|po_no)$/.test(n))
-    return "reference";
-  if (/(title|subject|summary|label)$/.test(n))
-    return "title";
-  if (/(city|town)$/.test(n))
-    return "city";
-  if (/(country|nation)$/.test(n))
-    return "country";
-  if (/(address|street|line1|line2)$/.test(n))
-    return "address";
-  if (/^(uom|unit|unit_of_measure|measure)$/.test(n))
-    return "uom";
-  if (/(currency|iso_currency)$/.test(n))
+  if (/(^|_)currency(_code)?$/.test(n2) || /(^|_)iso_currency$/.test(n2))
     return "currency";
-  if (n === "name") {
-    const e = entity2.toLowerCase();
-    if (/(vendor|supplier|company|account|customer|client|insurer|organisation)/.test(e))
+  if (/^(country_code|iso_country|country_iso)$/.test(n2))
+    return "countryCode";
+  if (/^(sku|code|.*_code|barcode)$/.test(n2))
+    return "code";
+  if (/(number|reference|ref|invoice_no|po_no)$/.test(n2))
+    return "reference";
+  if (/^(job_?title|position|designation)$/.test(n2))
+    return "jobTitle";
+  if (/(title|subject|summary|label)$/.test(n2))
+    return "title";
+  if (/(city|town)$/.test(n2))
+    return "city";
+  if (/(country|nation)$/.test(n2))
+    return "country";
+  if (/^(region|state|province|county)$/.test(n2))
+    return "region";
+  if (/(address|street|line1|line2)$/.test(n2))
+    return "address";
+  if (/^(uom|unit|unit_of_measure|measure)$/.test(n2))
+    return "uom";
+  if (n2 === "name") {
+    const e3 = entity2.toLowerCase();
+    if (/(vendor|supplier|company|account|customer|client|insurer|organisation)/.test(e3))
       return "company";
-    if (/(product|item|material|medication|part|sku)/.test(e))
+    if (/(product|item|material|medication|part|sku)/.test(e3))
       return "product";
-    if (/(user|person|staff|employee|contact|patient|owner)/.test(e))
+    if (/(user|person|staff|employee|contact|patient|owner)/.test(e3))
       return "person";
     return "title";
   }
   return "word";
 }
 function integerRange(column) {
-  const n = column.toLowerCase();
-  if (/(quantity|qty|count|units|items|seats|capacity)/.test(n))
+  const n2 = column.toLowerCase();
+  if (/(quantity|qty|count|units|items|seats|capacity)/.test(n2))
     return [1, 40];
-  if (/(stock|on_hand|inventory|level)/.test(n))
+  if (/(stock|on_hand|inventory|level)/.test(n2))
     return [0, 500];
-  if (/(age|years)/.test(n))
+  if (/(age|years)/.test(n2))
     return [1, 60];
-  if (/(duration|minutes|days|weeks|months)/.test(n))
+  if (/(duration|minutes|days|weeks|months)/.test(n2))
     return [1, 90];
-  if (/(line_?number|seq|sequence|position|order_?no)/.test(n))
+  if (/(line_?number|seq|sequence|position|order_?no)/.test(n2))
     return [1, 20];
-  if (/(percent|percentage|rate|score)/.test(n))
+  if (/(percent|percentage|rate|score)/.test(n2))
     return [0, 100];
-  if (/(attempts|retries|version)/.test(n))
+  if (/(attempts|retries|version)/.test(n2))
     return [1, 5];
   return [1, 100];
 }
 function amountRange(column) {
-  const n = column.toLowerCase();
-  if (/(unit_?price|price|rate|fee|cost_?per)/.test(n))
+  const n2 = column.toLowerCase();
+  if (/(unit_?price|price|rate|fee|cost_?per)/.test(n2))
     return [4, 480];
-  if (/(variance|discount|adjustment|tax)/.test(n))
+  if (/(variance|discount|adjustment|tax)/.test(n2))
     return [0, 90];
-  if (/(total|amount|balance|value|subtotal|claimed|settled|paid)/.test(n))
+  if (/(total|amount|balance|value|subtotal|claimed|settled|paid)/.test(n2))
     return [50, 9500];
   return [5, 1200];
 }
 function dayOffsetRange(column) {
-  const n = column.toLowerCase();
-  if (/(due|expected|next|valid_until|expiry|expires|scheduled)/.test(n))
+  const n2 = column.toLowerCase();
+  if (/(due|expected|next|valid_until|expiry|expires|scheduled)/.test(n2))
     return [1, 45];
-  if (/(created|opened|registered|joined|started|requested|submitted|captured)/.test(n))
+  if (/(created|opened|registered|joined|started|requested|submitted|captured)/.test(n2))
     return [-120, -10];
-  if (/(issued|invoice_date|order_date|ordered|billed|raised)/.test(n))
+  if (/(issued|invoice_date|order_date|ordered|billed|raised)/.test(n2))
     return [-90, -5];
-  if (/(closed|resolved|completed|decided|approved|paid|settled|received|dispatched|sent)/.test(n))
+  if (/(closed|resolved|completed|decided|approved|paid|settled|received|dispatched|sent)/.test(n2))
     return [-30, -1];
-  if (/(birth|dob)/.test(n))
+  if (/(birth|dob)/.test(n2))
     return [-16000, -700];
   return [-60, 20];
 }
 function iso(date, withTime) {
   return withTime ? date.toISOString() : date.toISOString().split("T")[0];
 }
-function stringValue(random, column, entity2, row) {
+function stringValue(draw, column, entity2, row) {
+  const f2 = draw.faker;
   switch (flavourOf(column, entity2)) {
     case "firstName":
-      return random.pick(FIRST_NAMES);
+      return f2.person.firstName();
     case "lastName":
-      return random.pick(LAST_NAMES);
+      return f2.person.lastName();
     case "person":
-      return `${random.pick(FIRST_NAMES)} ${random.pick(LAST_NAMES)}`;
+      return f2.person.fullName();
     case "company":
-      return `${random.pick(COMPANY_HEADS)} ${random.pick(COMPANY_TAILS)}`;
+      return f2.company.name();
     case "product":
-      return `${random.pick(PRODUCT_HEADS)} ${random.pick(PRODUCT_TAILS)}`;
+      return f2.commerce.productName();
     case "city":
-      return random.pick(CITIES);
+      return f2.location.city();
     case "country":
-      return random.pick(COUNTRIES);
+      return f2.location.country();
+    case "countryCode":
+      return f2.location.countryCode();
+    case "region":
+      return f2.location.state();
     case "address":
-      return `${random.int(1, 180)} ${random.pick(STREETS)}, ${random.pick(CITIES)}`;
+      return `${f2.location.streetAddress()}, ${f2.location.city()}`;
     case "code":
-      return `${initials(entity2)}-${String(1000 + row * 7 + random.int(0, 6)).slice(0, 4)}`;
+      return `${initials(entity2)}-${String(1000 + row * 7 + draw.int(0, 6)).slice(0, 4)}`;
     case "reference":
       return `${initials(entity2)}${new Date().getFullYear()}-${String(row + 1).padStart(4, "0")}`;
     case "title":
-      return `${capitalise(random.pick(WORDS))} ${random.pick(WORDS)}`;
+      return `${f2.commerce.productAdjective()} ${f2.word.noun()}`;
+    case "jobTitle":
+      return f2.person.jobTitle();
     case "uom":
-      return random.pick(["each", "box", "case", "pallet", "kg", "litre"]);
+      return draw.pick(UNITS);
     case "currency":
-      return random.pick(["EUR", "GBP", "USD", "SEK"]);
+      return f2.finance.currencyCode();
     default:
-      return capitalise(random.pick(WORDS));
+      return capitalise(f2.word.noun());
   }
 }
 function initials(entity2) {
@@ -20695,14 +20595,14 @@ function capitalise(word) {
   return word.charAt(0).toUpperCase() + word.slice(1);
 }
 function fkTarget(column, personEntity) {
-  const n = column.toLowerCase();
-  if (n.endsWith("_by") || n.endsWith("_by_id"))
+  const n2 = column.toLowerCase();
+  if (n2.endsWith("_by") || n2.endsWith("_by_id"))
     return personEntity;
-  if (PERSON_COLUMNS.has(n))
+  if (PERSON_COLUMNS.has(n2))
     return personEntity;
-  if (!n.endsWith("_id"))
+  if (!n2.endsWith("_id"))
     return;
-  return n.slice(0, -3).replace(/(^|_)([a-z])/g, (_m, _sep, ch) => ch.toUpperCase());
+  return n2.slice(0, -3).replace(/(^|_)([a-z])/g, (_m, _sep, ch) => ch.toUpperCase());
 }
 var PERSON_COLUMNS = new Set([
   "assigned_to",
@@ -20776,6 +20676,7 @@ function buildSampleData(parsed, options) {
     return {};
   const nullRate = options.nullRate ?? 0.15;
   const salt = options.seed ?? "erdwithai";
+  const faker = new Ct({ locale: [e2, Dt] });
   const entities = parsed.entities.map((entity2) => ({
     name: entity2.name,
     table: tableNameFor(entity2),
@@ -20804,19 +20705,19 @@ function buildSampleData(parsed, options) {
     for (let row = 0;row < count; row++) {
       const record = {};
       for (const column of full.columns) {
-        const random = new Random(`${salt}:${full.name}:${column.columnName}:${row}`);
+        const draw = new Draw(faker, `${salt}:${full.name}:${column.columnName}:${row}`);
         const isPrimary = column.columnName === full.primaryKey || column.columnName === "id";
         if (isPrimary) {
-          const id = random.uuid();
+          const id = draw.uuid();
           record[column.columnName] = id;
           generatedIds.push(id);
           continue;
         }
-        if (!column.required && !column.isForeignKey && random.chance(nullRate)) {
+        if (!column.required && !column.isForeignKey && draw.chance(nullRate)) {
           record[column.columnName] = null;
           continue;
         }
-        record[column.columnName] = valueFor(column, full.name, row, random, {
+        record[column.columnName] = valueFor(column, full.name, row, draw, {
           ids,
           personEntity,
           selfIds: generatedIds,
@@ -20830,25 +20731,26 @@ function buildSampleData(parsed, options) {
   }
   return data;
 }
-function valueFor(column, entity2, row, random, context) {
+function valueFor(column, entity2, row, draw, context) {
   if (column.isForeignKey) {
     const target = fkTarget(column.columnName, context.personEntity);
     const pool = target === context.entityName ? context.selfIds.slice(0, row) : context.ids.get(target ?? "");
     if (!pool || pool.length === 0)
       return null;
-    return random.pick(pool);
+    return draw.pick(pool);
   }
   if (column.enumValues?.length)
-    return random.pick(column.enumValues);
+    return draw.pick(column.enumValues);
+  const f2 = draw.faker;
   switch (column.referenceId) {
     case ReferenceType.EMAIL:
-      return emailFor(random);
+      return emailFor(draw);
     case ReferenceType.PHONE:
-      return `+${random.int(31, 49)} ${random.int(10, 99)} ${random.int(100, 999)} ${random.int(1000, 9999)}`;
+      return f2.phone.number({ style: "international" });
     case ReferenceType.URL:
-      return `https://www.${random.pick(DOMAINS)}/${random.pick(WORDS)}`;
+      return `https://www.${draw.pick(DOMAINS)}/${f2.lorem.slug(1)}`;
     case ReferenceType.COLOR:
-      return random.pick(COLORS);
+      return f2.color.rgb({ format: "hex", casing: "lower" });
     case ReferenceType.PASSWORD:
       return "not-a-real-password";
     default:
@@ -20856,42 +20758,43 @@ function valueFor(column, entity2, row, random, context) {
   }
   switch (column.type) {
     case "boolean":
-      return /^(is_|has_|can_)?(active|enabled|available|approved)$/.test(column.columnName) ? random.chance(0.85) : random.chance(0.5);
+      return /^(is_|has_|can_)?(active|enabled|available|approved)$/.test(column.columnName) ? draw.chance(0.85) : draw.chance(0.5);
     case "integer": {
       const [min, max] = integerRange(column.columnName);
-      return random.int(min, max);
+      return draw.int(min, max);
     }
     case "decimal": {
       const [min, max] = amountRange(column.columnName);
-      return Number((min + random.float() * (max - min)).toFixed(2));
+      return Number((min + draw.float() * (max - min)).toFixed(2));
     }
     case "date":
     case "datetime": {
       const [from, to] = dayOffsetRange(column.columnName);
       const when = new Date;
-      when.setUTCDate(when.getUTCDate() + random.int(from, to));
-      when.setUTCHours(random.int(7, 18), random.int(0, 59), random.int(0, 59), 0);
+      when.setUTCDate(when.getUTCDate() + draw.int(from, to));
+      when.setUTCHours(draw.int(7, 18), draw.int(0, 59), draw.int(0, 59), 0);
       return iso(when, column.type === "datetime");
     }
     case "json":
-      return { source: "sample", note: random.pick(WORDS), index: row + 1 };
+      return { source: "sample", note: f2.word.noun(), index: row + 1 };
     case "text": {
       const flavour = flavourOf(column.columnName, entity2);
-      return flavour === "word" || flavour === "title" ? random.pick(SENTENCES) : stringValue(random, column.columnName, entity2, row);
+      return flavour === "word" || flavour === "title" ? f2.lorem.sentence() : stringValue(draw, column.columnName, entity2, row);
     }
     default: {
       const flavour = flavourOf(column.columnName, entity2);
-      const base = stringValue(random, column.columnName, entity2, row);
+      const base = stringValue(draw, column.columnName, entity2, row);
       const selfUnique = flavour === "code" || flavour === "reference";
       const value = column.unique && !selfUnique ? `${base} ${row + 1}` : base;
       return column.maxLength && value.length > column.maxLength ? value.slice(0, column.maxLength) : value;
     }
   }
 }
-function emailFor(random) {
-  const first = random.pick(FIRST_NAMES).toLowerCase();
-  const last = random.pick(LAST_NAMES).toLowerCase();
-  return `${first}.${last}.${random.int(1, 999)}@${random.pick(DOMAINS)}`;
+function emailFor(draw) {
+  const f2 = draw.faker;
+  const first = f2.person.firstName().toLowerCase().replace(/[^a-z]/g, "");
+  const last = f2.person.lastName().toLowerCase().replace(/[^a-z]/g, "");
+  return `${first}.${last}.${draw.int(1, 999)}@${draw.pick(DOMAINS)}`;
 }
 
 // packages/generator/src/generators/wasm/wasm-app.generator.ts
@@ -21105,6 +21008,7 @@ function generateFromSource(options) {
 }
 export {
   DEFAULT_PGLITE_URL,
+  DEFAULT_SAMPLE_RECORDS,
   ModelCheckError,
   RUNTIME_BYTES,
   generateFromSource,

@@ -1695,7 +1695,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
 ` +
             `    transitionName: '${t.trigger ?? ""}',
 ` +
-          `  },`
+            `  },`
         );
       }
     }
@@ -1748,7 +1748,6 @@ export async function seed(db: Kysely<any>): Promise<void> {
       `}`,
     ].join("\n");
   }
-
 
   private async updateConfigFiles(outputDir: string, context: any): Promise<void> {
     // Update package.json with additional dependencies

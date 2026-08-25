@@ -307,6 +307,62 @@ async function seedAdmin(db, model, log) {
 }
 
 /**
+ * One account per functional role.
+ *
+ * An application seeded with an administrator and nobody else can only be
+ * looked at as an administrator — and the administrator bypasses every rule the
+ * model wrote, so the access control it declared is invisible in the only
+ * account that exists. Signing in as `sales.rep@…` is what turns `%%rbac` from
+ * a claim in a file into something a reader can see: the navigation is shorter,
+ * and the entities that are missing are the ones that role does not own.
+ *
+ * They share the administrator's password on purpose. This is a demonstration
+ * database in the reader's own browser, and a screen full of accounts each with
+ * a different generated secret is a worse trade than one line of log.
+ */
+async function seedRoleUsers(db, model, log) {
+  const users = (model.users || []).filter((user) => !user.isAdmin);
+  if (users.length === 0) return;
+
+  const { adminPassword } = model.project;
+  const hash = await hashPassword(adminPassword);
+  const seeded = [];
+
+  for (const user of users) {
+    const existing = await db.one("SELECT sys_user_id FROM sys_user WHERE email = $1", [
+      user.email,
+    ]);
+    const userId = existing
+      ? existing.sys_user_id
+      : (
+          await db.insert("sys_user", {
+            name: user.name,
+            email: user.email,
+            password_hash: hash,
+            description: user.description ?? null,
+          })
+        ).sys_user_id;
+
+    const roleId = await db.value("SELECT sys_role_id FROM sys_role WHERE name = $1", [
+      user.roleName,
+    ]);
+    /* A user with no role would sign in and see an application with nothing in
+       it, which reads as a broken build rather than as a missing seed. */
+    if (!roleId) continue;
+    await db.query(
+      `INSERT INTO sys_user_roles (user_id, role_id) VALUES ($1, $2)
+         ON CONFLICT (user_id, role_id) DO NOTHING`,
+      [userId, roleId]
+    );
+    seeded.push(user.email);
+  }
+
+  if (seeded.length > 0) {
+    log(`${seeded.length} role account(s), password ${adminPassword}: ${seeded.join(", ")}`);
+  }
+}
+
+/**
  * Sample business rows, when the generator put any in the bundle.
  *
  * They arrive already ordered parent-first and with their foreign keys pointing
