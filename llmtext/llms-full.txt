@@ -657,7 +657,7 @@ the application was built.
 | | |
 |---|---|
 | Rendered by | `packages/generator/src/manual/index.ts`, from the `ParsedModel` |
-| NestJS stack | `frontend/public/manual.html`, served at `/manual.html`, and so also in the downloadable zip |
+| NestJS stack | `frontend/public/manual.html`, served at `/manual.html`, and also in the downloadable zip |
 | Browser stack | `manual.html` in the file map, served by the Service Worker |
 | Linked from | the **Manual** button on both dashboards |
 
@@ -665,10 +665,69 @@ No stylesheet, no script, no font, no image — it is served by a Service Worker
 by a static directory and by a `file://` double-click out of a zip, and one file
 with its CSS inline is the only form that survives all three.
 
-**Its prose is `%%entity … help:` and `%%field … help:` and nothing else.** A
-field with no help prints a dash; an entity with none gets one line saying so.
-The manual cannot describe an entity that does not exist or miss one that does —
-it can only fail to explain them, and that failure is the model's.
+#### What the manual derives automatically
+
+Most of the manual requires no help text at all — it is read directly from the
+model's structure. The table below shows what each subsection of an entity
+section contains and where it comes from:
+
+| Subsection | What it shows | Source |
+|---|---|---|
+| Opening paragraph | Business description of the entity | `%%entity <Name> help:` — blank placeholder if omitted |
+| **Fields** — control type | How the field renders (text input, select, date picker, switch, textarea, lookup, …) | Derived from the attribute's type (referenceId): int → number, bool → switch, FK → lookup, string w/ `enum:` → select, etc. |
+| **Fields** — constraints | Mandatory, unique, max length | Derived from attribute flags and length |
+| **Fields** — enumerated values | List of allowed values with labels | `%%enum` + `%%field … enum:` + `sys_ref_list` |
+| **Fields** — purpose | Why the field exists, what value is expected | `%%field <E>.<f> help:` — dash if omitted |
+| **Relationships** | What entities this one links to and from, with cardinality | `erDiagram` FK declarations |
+| **Lifecycle** | State machine table: From state / To state / Event name | `%%workflow … kind: state` transitions |
+| **Rules and automation** | Decision rules, sagas, hooks that fire on this entity | `%%rule`, `%%workflow kind: saga`, `%%hook` |
+| **Access** | Roles allowed to read, create, update, delete | `%%rbac` directives |
+
+The global sections at the end of the manual (all rules, all processes, how the
+application was built, which tools were used) are also entirely automatic.
+
+**The only text a model author controls is `%%entity <Name> help:` and
+`%%field <Entity>.<field> help:`**. A field with no `help:` prints a dash in the
+Purpose column; an entity with none gets a placeholder sentence as its lede. The
+manual cannot describe an entity that does not exist or miss one that does — it
+can only fail to explain them, and that failure is visible to every reader.
+
+#### Writing `%%entity help:` — guidance for language models
+
+Write one or two sentences that answer: *what business role does this entity
+play, and when does a record of this type come into existence?*
+
+```
+%%entity Lead help: A prospective customer contact captured from marketing, events or direct outreach. A lead becomes an opportunity once a sales representative qualifies it.
+%%entity SupportCase help: A reported problem or request from a customer. Each case tracks the issue from first contact through resolution and any follow-up.
+%%entity Invoice help: A formal payment request issued to a customer account. Created on order dispatch; marked paid when settlement is confirmed.
+```
+
+Every entity should have one. An entity without `help:` signals to a reader that
+the manual was generated from a model that did not invest in documentation — the
+rest of the manual is still correct, but the opening paragraph is absent.
+
+#### Writing `%%field help:` — guidance for language models
+
+Write one or two sentences that answer: *what business purpose does this field
+serve, and what value is expected here?*
+
+Rules of thumb:
+- **Do not restate the field name.** "The customer email address" adds nothing to
+  a field called `email`. Instead, explain what it is used for:
+  `%%field Customer.email help: The primary contact address for invoices and automated status updates. Must be unique per account.`
+- **Name the business event, not the data type.** "A date" is useless. "The date
+  a signed copy was received from the counterparty" tells a user why it matters.
+- **Explain enum values inline when they carry policy.**
+  `%%field Order.status help: draft — editable; confirmed — locked for fulfilment; shipped — triggers customer notification; cancelled — terminates the order.`
+- **Describe FK fields in business terms.**
+  `%%field Invoice.account_id help: The company being billed. Must be an approved account; changing it after dispatch requires manager approval.`
+- **Mention rules attached to the field.** If a workflow fires when a status
+  changes to `approved`, say so: the manual is the only place that connection is
+  explained in plain language outside the rules editor.
+
+`%%field help:` has two consumers: the form (printed as hint text beneath the
+control) and the manual (the Purpose column). Writing it once covers both.
 
 ---
 

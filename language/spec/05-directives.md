@@ -145,11 +145,15 @@ its `%%workflow` directive gave it.
 | `softDelete` | `true` \| `false` — use `deleted_at` |
 | `label` | UI display label |
 | `icon` | UI icon name |
+| `help` | Human-readable description — stored in `sys_table.description` and used as the opening paragraph of that entity's section in `manual.html` |
 
 ```
 %%entity Order audited: true
 %%entity Account prefix: bus
+%%entity Lead help: A prospective customer contact who has shown interest but has not yet been qualified by a sales representative.
 ```
+
+The `help:` value runs to end-of-line. It is the only prose an author controls for an entity; every other part of that section in the manual (fields, relationships, lifecycle, rules, RBAC) is derived automatically from the model structure. An entity with no `help:` gets a placeholder sentence in the manual and nothing in the form — write one for every entity.
 
 ## `%%field` — extended field metadata *(compiled: the `enum:` key only)*
 
@@ -174,12 +178,50 @@ its `%%workflow` directive gave it.
 ```
 
 `enum:` and `help:` are the two keys a compiler reads; the rest are validated
-only. `help:` has **two** consumers — `sys_column.description`, which the
-generated form prints under the control, and the generated `manual.html`, where
-it is the entire "what it is for" column. A field with no help prints a dash
-there, so write help on every column rather than only the ambiguous ones.
-`%%entity <Name> help:` does the same for the entity: `sys_table.description`,
-and the lede of that entity's section in the manual.
+only. `help:` has **two** consumers: `sys_column.description`, which the
+generated form prints as hint text beneath the control, and `manual.html`, where
+it fills the "Purpose" column of the field table. A field with no `help:` shows a
+dash in the manual and no hint in the form. Write help on every field, not only
+the ambiguous ones — the manual has no other way to explain what a field is for.
+
+### The manual and what comes from help text vs. the model
+
+The generated `manual.html` is built entirely from the `ParsedModel` —
+`packages/generator/src/manual/index.ts`, zero runtime dependencies. Each
+entity section has five subsections:
+
+| Subsection | Source | Needs `help:`? |
+|---|---|---|
+| Opening paragraph | `%%entity <Name> help:` | Yes — blank if omitted |
+| **Fields** — name, control type, constraints, enumerated values, purpose | Model attributes; purpose from `%%field <E>.<f> help:` | Yes for "Purpose" column |
+| **Relationships** — what this entity links to and from | `erDiagram` FK declarations | No — auto-derived |
+| **Lifecycle** — state machine table (From / To / Event) | `%%workflow … kind: state` transitions | No — auto-derived |
+| **Rules and automation** — decision rules, sagas, hooks | `%%rule`, `%%workflow kind: saga`, `%%hook` | No — auto-derived |
+| **Access** — which roles may read / create / update / delete | `%%rbac` directives | No — auto-derived |
+
+The global sections (all rules, all processes, how the application was built) are
+also entirely automatic. **The model author's only lever is `%%entity help:` and
+`%%field help:`** — everything else the manual says about the application is
+derived from the model's structure.
+
+### Authoring guidance for `%%field help:`
+
+Good help text answers: *what business purpose does this field serve, and what
+value is expected here?*
+
+- One or two sentences. Avoid restating the field name.
+- Name the business decision or event the field records:
+  `%%field Contract.signed_at help: The date and time the counterparty returned a signed copy. Left blank until signature is confirmed.`
+- Describe the domain constraint, not the database constraint:
+  `%%field Invoice.due_date help: Payment must be received by this date or a late-fee workflow starts automatically.`
+- For enum fields, explain what each value means:
+  `%%field Lead.status help: new — just entered; contacted — first outreach made; qualified — sales accepted; lost — no longer pursuing.`
+- For FK fields, explain the relationship in business terms:
+  `%%field Order.account_id help: The company this order belongs to. Must match an approved account before shipping.`
+
+A field whose purpose is truly self-evident (`%%field User.email`) still benefits
+from a sentence when there are business rules attached to it — the manual is the
+only place those rules are explained in plain language.
 
 ## `%%enum` — named enumeration *(compiled)*
 
